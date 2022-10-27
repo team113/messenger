@@ -75,6 +75,16 @@ class ChatService extends DisposableService {
   /// Returns a [Chat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
 
+  /// Ensures that the [Chat] with the provided [id] is exist.
+  bool ensureExists(ChatId id) {
+    if(chats[id] != null) {
+      return true;
+    }
+
+    _chatRepository.get(id);
+    return false;
+  }
+
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///
   /// Removes the [Chat.name] of the [Chat] if the provided [name] is `null`.

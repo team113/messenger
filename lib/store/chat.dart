@@ -33,7 +33,9 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -57,7 +59,9 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._userRepo, {
+    this._userRepo,
+    this._callsRepo,
+    this._settingsRepo, {
     this.me,
   });
 
@@ -76,6 +80,12 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
+
+  /// Repository of [OngoingCall]s collection.
+  final AbstractCallRepository _callsRepo;
+
+  /// Settings repository.
+  final AbstractSettingsRepository _settingsRepo;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -105,7 +115,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, c);
+        var entry = HiveRxChat(this, _callsRepo, _settingsRepo, _chatLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -881,7 +891,8 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
+          HiveRxChat entry =
+              HiveRxChat(this, _callsRepo, _settingsRepo, _chatLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
@@ -989,7 +1000,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, data.chat);
+      entry = HiveRxChat(this, _callsRepo, _settingsRepo, _chatLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();

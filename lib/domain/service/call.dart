@@ -20,15 +20,16 @@ import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
     show
         ResubscriptionRequiredException,
@@ -42,7 +43,12 @@ import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
 class CallService extends DisposableService {
-  CallService(this._authService, this._settingsRepo, this._callsRepo);
+  CallService(
+    this._authService,
+    this._chatService,
+    this._settingsRepo,
+    this._callsRepo,
+  );
 
   /// Unmodifiable map of the current [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
@@ -52,6 +58,9 @@ class CallService extends DisposableService {
 
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
+
+  /// [ChatService] used to ensure that an [Chat] exist.
+  final ChatService _chatService;
 
   /// Settings repository, used to get the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -332,6 +341,7 @@ class CallService extends DisposableService {
                         c.caller?.id == me &&
                         c.conversationStartedAt == null,
                     withScreen: false,
+                    mediaSettings: media.value,
                     creds: ChatCallCredentials(const Uuid().v4()),
                   ),
                 );
@@ -342,43 +352,50 @@ class CallService extends DisposableService {
 
           case IncomingChatCallsTopEventKind.added:
             e as EventIncomingChatCallsTopChatCallAdded;
+            bool exist = _chatService.ensureExists(e.call.chatId);
 
-            // If we're already in this call, then ignore it.
-            if (e.call.members.any((e) => e.user.id == me)) {
-              return;
-            }
+            if (!exist) {
+              // If we're already in this call, then ignore it.
+              if (e.call.members.any((e) => e.user.id == me)) {
+                return;
+              }
 
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
+              Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
 
-            if (call == null) {
-              Rx<OngoingCall> call = Rx<OngoingCall>(
-                OngoingCall(
-                  e.call.chatId,
-                  me,
-                  call: e.call,
-                  withAudio: false,
-                  withVideo: false,
-                  withScreen: false,
-                  mediaSettings: media.value,
-                  creds: ChatCallCredentials(const Uuid().v4()),
-                ),
-              );
-              _callsRepo.add(call);
-            } else {
-              call.value.call.value = e.call;
+              if (call == null) {
+                Rx<OngoingCall> call = Rx<OngoingCall>(
+                  OngoingCall(
+                    e.call.chatId,
+                    me,
+                    call: e.call,
+                    withAudio: false,
+                    withVideo: false,
+                    withScreen: false,
+                    mediaSettings: media.value,
+                    creds: ChatCallCredentials(const Uuid().v4()),
+                  ),
+                );
+                _callsRepo.add(call);
+              } else {
+                call.value.call.value = e.call;
+              }
             }
             break;
 
           case IncomingChatCallsTopEventKind.removed:
             e as EventIncomingChatCallsTopChatCallRemoved;
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
-            // If call is not yet connected to the remote updates, then it's
-            // still just a notification and it should be removed.
-            if (call?.value.connected == false &&
-                call?.value.isActive == false) {
-              var removed = _callsRepo.remove(e.call.chatId);
-              removed?.value.state.value = OngoingCallState.ended;
-              removed?.value.dispose();
+            bool exist = _chatService.ensureExists(e.call.chatId);
+
+            if (!exist) {
+              Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
+              // If call is not yet connected to the remote updates, then it's
+              // still just a notification and it should be removed.
+              if (call?.value.connected == false &&
+                  call?.value.isActive == false) {
+                var removed = _callsRepo.remove(e.call.chatId);
+                removed?.value.state.value = OngoingCallState.ended;
+                removed?.value.dispose();
+              }
             }
             break;
         }
