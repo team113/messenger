@@ -286,6 +286,12 @@ type Chat {
   """`ChatDirectLink` to this `Chat`."""
   directLink: ChatDirectLink
 
+  """
+  Position of this `Chat` in the favorites list of the authenticated
+  `MyUser`.
+  """
+  favoritePosition: ChatFavoritePosition
+
   """Unique ID of this `Chat`."""
   id: ChatId!
 
@@ -465,22 +471,31 @@ type Chat {
 
 """Avatar of a `Chat`."""
 type ChatAvatar {
-  """`big` `ChatAvatar`'s view image `File` of `70px`x`70px` size."""
+  """
+  `big` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `70px`x`70px`.
+  """
   big: File!
 
   """`CropArea` applied to the original image to create this `ChatAvatar`."""
   crop: CropArea
 
-  """Full-sized `ChatAvatar`'s image `File`, keeping the original sizes."""
+  """Full `ChatAvatar`'s image `File`, keeping the `original` dimensions."""
   full: File!
 
-  """`medium` `ChatAvatar`'s view image `File` of `46px`x`46px` size."""
+  """
+  `medium` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `46px`x`46px`.
+  """
   medium: File!
 
   """Original image `File` representing this `ChatAvatar`."""
   original: File!
 
-  """`small` `ChatAvatar`'s view image `File` of `25px`x`25px` size."""
+  """
+  `small` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `25px`x`25px`.
+  """
   small: File!
 }
 
@@ -678,8 +693,8 @@ type ChatContact {
   emails: [ChatContactEmail!]!
 
   """
-  Position of this `ChatContact` in a favorites list of the authenticated
-  `MyUser`.
+  Position of this `ChatContact` in the favorites list of the
+  authenticated `MyUser`.
   """
   favoritePosition: ChatContactPosition
 
@@ -989,6 +1004,15 @@ type ChatEventsVersioned {
   """
   ver: ChatVersion!
 }
+
+"""
+Position of a `Chat` in `MyUser`'s favorites list.
+
+Its values are always considered to be finite positive [`Float` values][1].
+
+[1]: https://spec.graphql.org/June2018#sec-Float-Value
+"""
+scalar ChatFavoritePosition
 
 """Quote of a `ChatItem` forwarded to some `Chat`."""
 type ChatForward implements ChatItem {
@@ -2481,6 +2505,21 @@ type EventChatDirectLinkUsageCountUpdated implements ChatEvent {
   usageCount: Int!
 }
 
+"""
+Event of a `Chat` being added to the favorites list of the authenticated
+`MyUser`.
+"""
+type EventChatFavorited implements ChatEvent & FavoriteChatsEvent {
+  """`DateTime` when the `Chat` was favorited."""
+  at: DateTime!
+
+  """ID of the favorited `Chat`."""
+  chatId: ChatId!
+
+  """Position of the `Chat` in the favorites list."""
+  position: ChatFavoritePosition!
+}
+
 """Event of a `Chat` being hidden by the authenticated `MyUser`."""
 type EventChatHidden implements ChatEvent {
   """`DateTime` when the `Chat` was hidden."""
@@ -2619,6 +2658,18 @@ type EventChatTypingStopped implements ChatEvent {
 
   """`User` who stopped typing."""
   user: User!
+}
+
+"""
+Event of a `Chat` being removed from the favorites list of the authenticated
+`MyUser`.
+"""
+type EventChatUnfavorited implements ChatEvent & FavoriteChatsEvent {
+  """`DateTime` when the `Chat` was unfavorited."""
+  at: DateTime!
+
+  """ID of the unfavorited `Chat`."""
+  chatId: ChatId!
 }
 
 """
@@ -3061,6 +3112,168 @@ type FavoriteChatContactsEdge {
   node: ChatContact!
 }
 
+"""Error of performing `Mutation.favoriteChat`."""
+type FavoriteChatError {
+  """Code indicating why this error has happened."""
+  code: FavoriteChatErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.favoriteChat`."""
+enum FavoriteChatErrorCode {
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
+"""Result of performing `Mutation.favoriteChat`."""
+union FavoriteChatResult = ChatEventsVersioned | FavoriteChatError
+
+"""
+[Connection] with favorite `Chat`s.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type FavoriteChatsConnection {
+  """
+  List of favorite `Chat` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [FavoriteChatsEdge!]!
+
+  """
+  List of favorite `Chat`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [Chat!]!
+
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+
+  """
+  Version of this favorite `Chat`s list.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking list state's actuality.
+
+  Also, intended to be used in `Subscription.favoriteChatsEvents`.
+  """
+  ver: FavoriteChatsListVersion!
+}
+
+"""Cursor of favorite `Chat`s."""
+scalar FavoriteChatsCursor
+
+"""
+[Edge] with a favorite `Chat`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type FavoriteChatsEdge {
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: FavoriteChatsCursor!
+
+  """
+  `Chat` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: Chat!
+}
+
+"""Events happening in a `FavoriteChatsList`."""
+interface FavoriteChatsEvent {
+  """`DateTime` when this `FavoriteChatsEvent` happened."""
+  at: DateTime!
+
+  """ID of the `Chat` this `FavoriteChatsEvent` is happened in."""
+  chatId: ChatId!
+}
+
+"""Events indicating changes in a `Query.favoriteChats`."""
+union FavoriteChatsEvents = FavoriteChatsEventsVersioned | FavoriteChatsList | SubscriptionInitialized
+
+"""
+`FavoriteChatsEvent`s along with the corresponding
+`FavoriteChatsListVersion`.
+"""
+type FavoriteChatsEventsVersioned {
+  """`FavoriteChatsEvent`s themselves."""
+  events: [FavoriteChatsEvent!]!
+
+  """
+  Version of the `FavoriteChatsList`'s state updated by these
+  `FavoriteChatsEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: FavoriteChatsListVersion!
+}
+
+"""List of favorite `Chat`s."""
+type FavoriteChatsList {
+  """
+  Returns favorite `Chat`s of the authenticated `MyUser` ordered by the
+  custom order of `MyUser`'s favorites list (using `Chat.favoritePosition`
+  field).
+
+  Aliases `Query.favoriteChats`.
+  """
+  chats(
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return next `Chat`s after.
+    """
+    after: FavoriteChatsCursor
+
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return prior `Chat`s before.
+    """
+    before: FavoriteChatsCursor
+
+    """Number of next `Chat`s to return."""
+    first: Int
+
+    """Number of prior `Chat`s to return."""
+    last: Int
+  ): FavoriteChatsConnection!
+}
+
+"""Version of a favorite `Chat`s list."""
+scalar FavoriteChatsListVersion
+
+"""
+[Firebase Cloud Messaging][0] registration token.
+
+Its values are always considered to be non-empty, and meet the following
+requirements:
+- be maximum 512 bytes long.
+
+See [Firebase Cloud Messaging][0] documentation for how to generate
+`FcmRegistrationToken`s [for Flutter][1] and [for JavaScript][2].
+
+[0]: https://firebase.google.com/docs/cloud-messaging
+[1]: https://firebase.google.com/docs/cloud-messaging/flutter/client
+[2]: https://firebase.google.com/docs/cloud-messaging/js/client
+"""
+scalar FcmRegistrationToken
+
 """File on a file storage."""
 type File {
   """
@@ -3246,7 +3459,10 @@ union HideChatResult = ChatEventsVersioned | HideChatError
 
 """Image `Attachment`."""
 type ImageAttachment implements Attachment {
-  """`big` `ImageAttachment`'s view image `File` of `400px`x`400px` size."""
+  """
+  `big` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `400px` of its maximum dimension (either width or height).
+  """
   big: File!
 
   """Uploaded `File`'s name."""
@@ -3256,14 +3472,18 @@ type ImageAttachment implements Attachment {
   id: AttachmentId!
 
   """
-  `medium` `ImageAttachment`'s view image `File` of `200px`x`200px` size.
+  `medium` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `200px` of its maximum dimension (either width or height).
   """
   medium: File!
 
   """Original `File` representing this `ImageAttachment`."""
   original: File!
 
-  """`small` `ImageAttachment`'s view image `File` of `30px`x`30px` size."""
+  """
+  `small` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `30px` of its maximum dimension (either width or height).
+  """
   small: File!
 }
 
@@ -3278,7 +3498,10 @@ type ImageGalleryItem implements GalleryItem {
   """Original `File` representing this `ImageGalleryItem`."""
   original: File!
 
-  """`square` `ImageGalleryItem`'s view `File` of `85px`x`85px` size."""
+  """
+  `square` `ImageGalleryItem`'s view `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `85px`x`85px`.
+  """
   square: File!
 }
 
@@ -4211,6 +4434,35 @@ type Mutation {
   ): EditChatMessageTextResult
 
   """
+  Marks the specified `Chat` as favorited for the authenticated `MyUser`
+  and sets its position in the favorites list.
+
+  To move the `Chat` to a concrete position in a favorites list, provide
+  the average value of two other `Chat`s positions surrounding it.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatFavorited`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
+  is already favorited at the same position.
+  """
+  favoriteChat(
+    """ID of the `Chat` to mark as favorited."""
+    id: ChatId!
+
+    """Position of the `Chat` in a favorites list."""
+    pos: ChatFavoritePosition!
+  ): FavoriteChatResult
+
+  """
   Marks the specified `ChatContact` as favorited for the authenticated
   `MyUser` and sets its position in the favorites list.
 
@@ -4230,7 +4482,7 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `ChatContactEvent`) if the specified
-  `ChatContact` is already favorited.
+  `ChatContact` is already favorited at the same position.
   """
   favoriteChatContact(
     """ID of the `ChatContact` to mark as favorited."""
@@ -4595,6 +4847,34 @@ type Mutation {
     """ID of the `User` (being `ChatMember`) to be redialed."""
     memberId: UserId!
   ): RedialChatCallMemberResult
+
+  """
+  Registers a device (Android, iOS, or Web) for receiving notifications
+  via [Firebase Cloud Messaging][0].
+
+  See [Firebase Cloud Messaging][0] documentation for how to generate
+  `FcmRegistrationToken`s [for Flutter][1] and [for JavaScript][2].
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Always returns `null` on success.
+
+  ## Idempotent
+
+  Succeeds if the specified `token` is registered already.
+
+  [0]: https://firebase.google.com/docs/cloud-messaging
+  [1]: https://firebase.google.com/docs/cloud-messaging/flutter/client
+  [2]: https://firebase.google.com/docs/cloud-messaging/js/client
+  """
+  registerFcmDevice(
+    """Registration token of the device to register."""
+    token: FcmRegistrationToken!
+  ): RegisterFcmDeviceErrorCode
 
   """
   Removes the specified `User` from the specified `Chat`-group by
@@ -5014,6 +5294,29 @@ type Mutation {
   ): UnblacklistUserResult
 
   """
+  Removes the specified `Chat` from the favorites list of the
+  authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatUnfavorited`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
+  is not in the favorites list already.
+  """
+  unfavoriteChat(
+    """ID of the `Chat` to remove from the favorites list."""
+    id: ChatId!
+  ): UnfavoriteChatResult
+
+  """
   Removes the specified `ChatContact` from the favorites list of the
   authenticated `MyUser`.
 
@@ -5029,12 +5332,35 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `ChatContactEvent`) if the specified
-  `ChatContact` is not in a favorites list already.
+  `ChatContact` is not in the favorites list already.
   """
   unfavoriteChatContact(
-    """ID of the `ChatContact` to remove from a favorites list."""
+    """ID of the `ChatContact` to remove from the favorites list."""
     id: ChatContactId!
   ): UnfavoriteChatContactResult
+
+  """
+  Unregisters a device (Android, iOS, or Web) from receiving notifications
+  via [Firebase Cloud Messaging][0].
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Always returns `true` on success.
+
+  ## Idempotent
+
+  Succeeds if the specified `token` is not registered already.
+
+  [0]: https://firebase.google.com/docs/cloud-messaging
+  """
+  unregisterFcmDevice(
+    """Registration token of the device to unregister."""
+    token: FcmRegistrationToken!
+  ): Boolean!
 
   """
   Updates the `Chat.avatar` field with the provided image, or resets it to
@@ -5957,7 +6283,7 @@ type Query {
   ## Sorting
 
   Returned `ChatContact`s are sorted primarily and alphabetically by their
-  `name`, and secondary by their IDs (if the `name` is the same), in
+  `name`s, and secondary by their IDs (if the `name` is the same), in
   ascending order.
 
   ## Pagination
@@ -6117,6 +6443,52 @@ type Query {
   ): FavoriteChatContactsConnection!
 
   """
+  Returns favorite `Chat`s of the authenticated `MyUser` ordered by the
+  custom order of `MyUser`'s favorites list (using `Chat.favoritePosition`
+  field).
+
+  Use `Mutation.favoriteChat` to update the position of a `Chat` in
+  `MyUser`'s favorites list.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `Chat`s are sorted in the order specified by the authenticated
+  `MyUser` in `Mutation.favoriteChat`.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `Chat` pointed by the cursor and the
+  requested count of `Chat`s preceding and following it.
+
+  If it's desired to receive the `Chat`, pointed by the cursor, without
+  querying in both directions, one can specify `first` or `last` count as
+  `0`.
+  """
+  favoriteChats(
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return next `Chat`s after.
+    """
+    after: FavoriteChatsCursor
+
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return prior `Chat`s before.
+    """
+    before: FavoriteChatsCursor
+
+    """Number of next `Chat`s to return."""
+    first: Int
+
+    """Number of prior `Chat`s to return."""
+    last: Int
+  ): FavoriteChatsConnection!
+
+  """
   Returns a list of incoming `ChatCall`s of the authenticated `MyUser`.
 
   A `ChatCall` is considered incoming when:
@@ -6237,6 +6609,9 @@ type Query {
   Returns non-hidden `Chat`s of the authenticated `MyUser` ordered
   descending by their last updating `DateTime`.
 
+  Use the `noFavorite` argument to exclude favorited `Chat`s from the
+  returned result.
+
   ## Authentication
 
   Mandatory.
@@ -6274,7 +6649,75 @@ type Query {
 
     """Number of prior `Chat`s to return."""
     last: Int
+
+    """Indicator whether favorite `Chat`s should be excluded from the result."""
+    noFavorite: Boolean = false
   ): RecentChatsConnection!
+
+  """
+  Searches `ChatContact`s by the given criteria.
+
+  Exactly one of `name`/`email`/`phone` arguments must be specified (be
+  non-`null`).
+
+  Searching by `email`/`phone` is exact.
+
+  Searching by `name` is fuzzy.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `ChatContact`s are sorted depending on the provided arguments:
+  - If one of the `email`/`phone` arguments is specified, then returned
+    `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
+    the same) in ascending order.
+  - If the `name` argument is specified, then returned `ChatContact`s are
+    sorted primarily by the [Levenshtein distance][0] of their `name`s,
+    and secondary by their IDs (if the [Levenshtein distance][0] is the
+    same), in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `ChatContact` pointed by the cursor and
+  the requested count of `ChatContact`s preceding and following it.
+
+  If it's desired to receive the `ChatContact`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  [0]: https://en.wikipedia.org/wiki/Levenshtein_distance
+  """
+  searchChatContacts(
+    """
+    Cursor indicating the `ChatContactsEdge` position to return next `ChatContactsEdge`s after.
+    """
+    after: ChatContactsCursor
+
+    """
+    Cursor indicating the `ChatContactsEdge` position to return prior `ChatContactsEdge`s before.
+    """
+    before: ChatContactsCursor
+
+    """`UserEmail` to search `ChatContact`s with."""
+    email: UserEmail
+
+    """Number of next `ChatContactsEdge`s to return."""
+    first: Int
+
+    """Number of prior `ChatContactsEdge`s to return."""
+    last: Int
+
+    """Part of `UserName` to search `ChatContact`s with."""
+    name: UserName
+
+    """`UserPhone` to search `ChatContact`s with."""
+    phone: UserPhone
+  ): ChatContactsConnection!
 
   """
   Searches `User`s by the given criteria.
@@ -6552,6 +6995,23 @@ enum RedialChatCallMemberErrorCode {
 
 """Result of performing `Mutation.redialChatCallMember`."""
 union RedialChatCallMemberResult = ChatCallEventsVersioned | RedialChatCallMemberError
+
+"""Possible error codes of performing `Mutation.registerFcmDevice`."""
+enum RegisterFcmDeviceErrorCode {
+  """
+  Invalid `FcmRegistrationToken` provided.
+
+  Status code: 400 Bad Request.
+  """
+  INVALID_REGISTRATION_TOKEN
+
+  """
+  Unknown `FcmRegistrationToken` provided.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_REGISTRATION_TOKEN
+}
 
 """
 Remembered session of a `MyUser`, which allows to renew his `Session`s.
@@ -7060,6 +7520,70 @@ type Subscription {
   ): ChatEvents!
 
   """
+  Subscribes to `FavoriteChatsEvent`s of all `Chat`s of the authenticated
+  `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Initialization
+
+  Once this subscription is initialized completely, it immediately emits
+  `SubscriptionInitialized`.
+
+  If nothing has been emitted for a long period of time after establishing
+  this subscription (while not being completed), it should be considered
+  as an unexpected server error. This fact can be used on a client side to
+  decide whether this subscription has been initialized successfully.
+
+  ## Result
+
+  If `ver` argument is not specified (or is `null`) an initial state of
+  the `FavoriteChatsList` will be emitted after `SubscriptionInitialized`
+  and before any other `FavoriteChatsEvent`s (and won't be emitted ever
+  again until this subscription completes). This allows to skip doing
+  `Query.favoriteChats` before establishing this subscription.
+
+  If the specified `ver` is not fresh (was queried quite a time ago), it
+  may become stale, so this subscription will return `STALE_VERSION` error
+  on initialization. In such case:
+  - either a fresh version should be obtained via `Query.favoriteChats`;
+  - or a re-subscription should be done without specifying a `ver`
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `FavoriteChatsList`).
+
+  ## Completion
+
+  Infinite.
+
+  Completes requiring a re-subscription when:
+  - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+  - An error occurs on the server (error is emitted).
+  - The server is shutting down or becoming unreachable (unexpectedly
+    completes after initialization).
+
+  ## Idempotency
+
+  It's possible that in rare scenarios this subscription could emit an
+  event which have already been applied to the state of some `Chat`, so a
+  client side is expected to handle all the events idempotently
+  considering the `Chat.ver`.
+  """
+  favoriteChatsEvents(
+    """
+    Version of a `FavoriteChatsList` to start returning `FavoriteChatsEvent`s from.
+
+    Get it from `Query.favoriteChats.ver`.
+
+    If omitted (or is `null`) then an initial state of the `FavoriteChatsList`
+    will be emitted after `SubscriptionInitialized` and before any other
+    `FavoriteChatsEvent`.
+    """
+    ver: FavoriteChatsListVersion
+  ): FavoriteChatsEvents!
+
+  """
   Subscribes to updates of top `count` items of `Query.incomingChatCalls`
   list.
 
@@ -7293,6 +7817,11 @@ type Subscription {
     Usually, you need just pass the count of `ChatConnection.nodes` returned by `Query.recentChats`.
     """
     count: Int!
+
+    """
+    Indicator whether updates regarding favorite `Chat`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
   ): RecentChatsTopEvents!
 
   """
@@ -7545,6 +8074,25 @@ enum UnfavoriteChatContactErrorCode {
 
 """Result of performing `Mutation.unfavoriteChatContact`."""
 union UnfavoriteChatContactResult = ChatContactEventsVersioned | UnfavoriteChatContactError
+
+"""Error of performing `Mutation.unfavoriteChat`."""
+type UnfavoriteChatError {
+  """Code indicating why this error has happened."""
+  code: UnfavoriteChatErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.unfavoriteChat`."""
+enum UnfavoriteChatErrorCode {
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
+"""Result of performing `Mutation.unfavoriteChat`."""
+union UnfavoriteChatResult = ChatEventsVersioned | UnfavoriteChatError
 
 """Error of performing `Mutation.updateChatAvatar`."""
 type UpdateChatAvatarError {
@@ -8017,25 +8565,41 @@ type User {
 
 """Avatar of a `User`."""
 type UserAvatar {
-  """`big` `UserAvatar`'s view image `File` of `70px`x`70px` size."""
+  """
+  `big` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `70px`x`70px`.
+  """
   big: File!
 
   """`CropArea` applied to the `GalleryItem` to create this `UserAvatar`."""
   crop: CropArea
 
-  """Full-sized `UserAvatar`'s image `File`, keeping the original sizes."""
+  """
+  Full-sized `UserAvatar`'s image `File`, keeping the `original`
+  dimensions.
+  """
   full: File!
 
-  """ID of the `GalleryItem` this `UserAvatar` is created from."""
-  galleryItemId: GalleryItemId!
+  """
+  `GalleryItem` this `UserAvatar` was created from.
 
-  """`medium` `UserAvatar`'s view image `File` of `46px`x`46px` size."""
+  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
+  """
+  galleryItem: GalleryItem
+
+  """
+  `medium` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `46px`x`46px`.
+  """
   medium: File!
 
   """Original image `File` representing this `UserAvatar`."""
   original: File!
 
-  """`small` `UserAvatar`'s view image `File` of `25px`x`25px` size."""
+  """
+  `small` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `25px`x`25px`.
+  """
   small: File!
 }
 
@@ -8055,21 +8619,33 @@ type UserCallCover {
   """
   crop: CropArea
 
-  """Full-sized `UserCallCover`'s image `File`, keeping the original sizes."""
+  """
+  Full-sized `UserCallCover`'s image `File`, keeping the `original`
+  dimensions.
+  """
   full: File!
 
-  """ID of the `GalleryItem` this `UserCallCover` is created from."""
-  galleryItemId: GalleryItemId!
+  """
+  `GalleryItem` this `UserCallCover` was created from.
+
+  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
+  """
+  galleryItem: GalleryItem
 
   """Original image `File` representing this `UserCallCover`."""
   original: File!
 
-  """`square` `UserCallCover`'s view image `File` of `300px`x`300px` size."""
+  """
+  `square` `UserCallCover`'s view image `File`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `300px`x`300px`.
+  """
   square: File!
 
   """
-  `vertical` `UserCallCover`'s view image `File` of `675px`x`900px`
-  size.
+  `vertical` `UserCallCover`'s view image `File`, rectangular-cropped to
+  its minimum dimension (either width or height), and proportionally
+  scaled to `675px`x`900px`.
   """
   vertical: File!
 }
