@@ -25,17 +25,20 @@ import 'package:flutter/material.dart';
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
-    this.error403,
+    Key? key,
     this.fit,
     this.height,
-    Key? key,
+    this.onForbidden,
   }) : super(key: key);
 
   /// URL of the image.
   final String url;
 
-  /// Callback called when image loading from the [url] failed with code 403.
-  final Future<void> Function()? error403;
+  /// Callback, called when loading an image from the provided [url] failed with
+  /// a forbidden network error.
+  ///
+  /// This callback is exposed to  if a [StorageFile.relativeRef] is used as an [url], thus up.
+  final Future<void> Function()? onForbidden;
 
   /// [BoxFit] of the image.
   final BoxFit? fit;
@@ -122,7 +125,7 @@ class _RetryImageState extends State<RetryImage> {
       );
     } on DioError catch (_) {
       if (_.response?.statusCode == 403) {
-        await widget.error403?.call();
+        await widget.onForbidden?.call();
       }
     }
 

@@ -14,6 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:hive/hive.dart';
+
+import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
 /// [DateTime] considering the microseconds on any platform, including Web.
@@ -181,4 +184,20 @@ class PreciseDateTime extends NewType<DateTime>
   /// days of that month plus 11 days into the next month.
   static PreciseDateTime parse(String formattedString) =>
       PreciseDateTime(DateTime.parse(formattedString));
+}
+
+/// [Hive] adapter for a [PreciseDateTime].
+class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
+  @override
+  final typeId = ModelTypeId.preciseDateTime;
+
+  @override
+  PreciseDateTime read(BinaryReader reader) => PreciseDateTime(
+        DateTime.fromMicrosecondsSinceEpoch(reader.readInt()),
+      );
+
+  @override
+  void write(BinaryWriter writer, PreciseDateTime obj) {
+    writer.writeInt(obj.microsecondsSinceEpoch);
+  }
 }

@@ -203,7 +203,7 @@ class ChatItemWidget extends StatefulWidget {
           key: key,
           fit: BoxFit.cover,
           height: 300,
-          error403: onError,
+          onForbidden: onError,
         ),
       );
     }
