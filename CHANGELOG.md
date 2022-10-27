@@ -29,7 +29,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned messages and forwards; ([#162], [#151])
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal. ([#127], [#122])
+        - Redesigned participants modal; ([#127], [#122])
+        - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
@@ -37,7 +38,11 @@ All user visible changes to this project will be documented in this file. This p
     - Escape not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
+    - Media panel:
+        - Inability to disable certain incoming videos. ([#182], [#179])
 
+[#95]: /../../issues/95
+[#96]: /../../pull/96
 [#122]: /../../issues/122
 [#126]: /../../issues/126
 [#127]: /../../pull/127
@@ -56,6 +61,8 @@ All user visible changes to this project will be documented in this file. This p
 [#169]: /../../pull/169
 [#170]: /../../pull/170
 [#171]: /../../pull/171
+[#179]: /../../issues/179
+[#182]: /../../pull/182
 
 
 
