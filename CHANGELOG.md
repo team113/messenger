@@ -23,17 +23,17 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Redesigned system messages; ([#161], [#158])
-        - Redesigned messages and forwards; ([#162], [#151])
+        - Redesigned system messages. ([#161], [#158])
+        - Redesigned messages and forwards. ([#162], [#151])
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal; ([#127], [#122])
+        - Redesigned participants modal. ([#127], [#122])
         - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
 - macOS:
-    - Escape not exiting fullscreen in calls. ([#169], [#166])
+    - Escape key not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
     - Media panel:
