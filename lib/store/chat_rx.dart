@@ -225,14 +225,24 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  Future<void> setDraftMessage(ChatMessage? message) async {
+  void setDraftMessage(ChatMessage? message) {
+    Stopwatch watch = Stopwatch()..start();
+    print(watch.elapsed);
     HiveChat? hiveChat = _chatLocal.get(id);
+    print(watch.elapsed);
     if (hiveChat != null &&
         (message != null || message == null && draft.value != null)) {
+      print(watch.elapsed);
       draft.value = message;
+      print(watch.elapsed);
       hiveChat.draftMessage = message;
-      await _chatLocal.put(hiveChat);
+      print(watch.elapsed);
+      _chatLocal.put(hiveChat);
+      print(watch.elapsed);
     }
+    watch.stop();
+    print(watch.elapsed);
+    print('------------');
   }
 
   @override

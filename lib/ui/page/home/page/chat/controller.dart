@@ -474,11 +474,11 @@ class ChatController extends GetxController {
   }
 
   /// Updates draft message of this [Chat].
-  Future<void> updateDraftMessage() async {
+  void updateDraftMessage() {
     if (send.text.isNotEmpty ||
         attachments.isNotEmpty ||
         repliedMessages.isNotEmpty) {
-      await chat?.setDraftMessage(
+      chat?.setDraftMessage(
         ChatMessage(
           const ChatItemId(''),
           id,
@@ -490,7 +490,7 @@ class ChatController extends GetxController {
         ),
       );
     } else {
-      await chat?.setDraftMessage(null);
+      chat?.setDraftMessage(null);
     }
   }
 
