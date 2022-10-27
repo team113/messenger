@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -397,9 +396,7 @@ class AvatarWidget extends StatelessWidget {
             image: avatar == null
                 ? null
                 : DecorationImage(
-                    image: NetworkImage(
-                      '${Config.files}${avatar?.original.relativeRef}',
-                    ),
+                    image: NetworkImage(avatar!.original.url),
                     fit: BoxFit.cover,
                     isAntiAlias: true,
                   ),
