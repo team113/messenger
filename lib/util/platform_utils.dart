@@ -244,6 +244,7 @@ class PlatformUtilsImpl {
           result = await callback();
           return result;
         } catch (e) {
+          // Rethrow if any other than `404` error is thrown.
           if (e is! DioError || e.response?.statusCode != 404) {
             rethrow;
           }
@@ -303,7 +304,7 @@ class PlatformUtilsImpl {
 
     cancelToken?.whenCancel.whenComplete(operation.cancel);
 
-    return operation.value;
+    return operation.valueOrCancellation();
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.

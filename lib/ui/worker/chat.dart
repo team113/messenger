@@ -86,12 +86,6 @@ class ChatWorker extends DisposableService {
   /// Reacts to the provided [Chat] being added and populates the [Worker] to
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
-    String? avatarUrl;
-    Avatar? avatar = c.avatar.value;
-    if (avatar != null) {
-      avatarUrl = avatar.original.url;
-    }
-
     // Display a new group chat notification.
     if (viaSubscription && c.chat.value.isGroup) {
       bool newChat = false;
@@ -117,7 +111,7 @@ class ChatWorker extends DisposableService {
           c.title.value,
           body: 'label_you_were_added_to_group'.l10n,
           payload: '${Routes.chat}/${c.chat.value.id}',
-          icon: avatarUrl,
+          icon: c.avatar.value?.original.url,
           tag: c.chat.value.id.val,
         );
       }
@@ -129,7 +123,7 @@ class ChatWorker extends DisposableService {
         c.title.value,
         body: body,
         payload: '${Routes.chat}/${c.chat.value.id}',
-        icon: avatarUrl,
+        icon: c.avatar.value?.original.url,
         tag: tag,
       ),
       me: () => _chatService.me,
