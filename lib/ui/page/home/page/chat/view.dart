@@ -849,140 +849,141 @@ class _ChatViewState extends State<ChatView>
                     child: AnimatedSize(
                       duration: 400.milliseconds,
                       curve: Curves.ease,
-                      child: Obx(() {
-                        return Container(
-                          width: double.infinity,
-                          padding: c.repliedMessages.isNotEmpty ||
-                                  c.attachments.isNotEmpty
-                              ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                              : EdgeInsets.zero,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (c.repliedMessages.isNotEmpty)
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height / 3,
-                                  ),
-                                  child: ReorderableListView(
-                                    shrinkWrap: true,
-                                    buildDefaultDragHandles:
-                                        PlatformUtils.isMobile,
-                                    onReorder: (int old, int to) {
-                                      if (old < to) {
-                                        --to;
-                                      }
-
-                                      final ChatItem item =
-                                          c.repliedMessages.removeAt(old);
-                                      c.repliedMessages.insert(to, item);
-
-                                      HapticFeedback.lightImpact();
-                                    },
-                                    proxyDecorator: (child, i, animation) {
-                                      return AnimatedBuilder(
-                                        animation: animation,
-                                        builder: (
-                                          BuildContext context,
-                                          Widget? child,
-                                        ) {
-                                          final double t = Curves.easeInOut
-                                              .transform(animation.value);
-                                          final double elevation =
-                                              lerpDouble(0, 6, t)!;
-                                          final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
-                                            t,
-                                          )!;
-
-                                          return InitCallback(
-                                            callback:
-                                                HapticFeedback.selectionClick,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  CustomBoxShadow(
-                                                    color: color,
-                                                    blurRadius: elevation,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-                                        child: child,
-                                      );
-                                    },
-                                    reverse: true,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      1,
-                                      0,
-                                      1,
-                                      0,
-                                    ),
-                                    children: c.repliedMessages.map((e) {
-                                      return ReorderableDragStartListener(
-                                        key: Key('Handle_${e.id}'),
-                                        enabled: !PlatformUtils.isMobile,
-                                        index: c.repliedMessages.indexOf(e),
-                                        child: Dismissible(
-                                          key: Key('${e.id}'),
-                                          direction:
-                                              DismissDirection.horizontal,
-                                          onDismissed: (_) {
-                                            c.repliedMessages.remove(e);
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2,
-                                            ),
-                                            child: _repliedMessage(c, e),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
+                      child: Container(
+                        width: double.infinity,
+                        padding: c.repliedMessages.isNotEmpty ||
+                                c.attachments.isNotEmpty
+                            ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                            : EdgeInsets.zero,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.repliedMessages.isNotEmpty)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height / 3,
                                 ),
-                              if (c.attachments.isNotEmpty &&
-                                  c.repliedMessages.isNotEmpty)
-                                const SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: grab
-                                      ? SystemMouseCursors.grab
-                                      : MouseCursor.defer,
-                                  opaque: false,
-                                  child: SingleChildScrollView(
-                                    clipBehavior: Clip.none,
-                                    physics: grab
-                                        ? null
-                                        : const NeverScrollableScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: c.attachments
-                                          .map(
-                                            (e) => _buildAttachment(
-                                              c,
-                                              e.value,
-                                              e.key,
+                                child: ReorderableListView(
+                                  shrinkWrap: true,
+                                  buildDefaultDragHandles:
+                                      PlatformUtils.isMobile,
+                                  onReorder: (int old, int to) {
+                                    if (old < to) {
+                                      --to;
+                                    }
+
+                                    final ChatItem item =
+                                        c.repliedMessages.removeAt(old);
+                                    c.repliedMessages.insert(to, item);
+
+                                    HapticFeedback.lightImpact();
+                                  },
+                                  proxyDecorator: (child, i, animation) {
+                                    return AnimatedBuilder(
+                                      animation: animation,
+                                      builder: (
+                                        BuildContext context,
+                                        Widget? child,
+                                      ) {
+                                        final double t = Curves.easeInOut
+                                            .transform(animation.value);
+                                        final double elevation =
+                                            lerpDouble(0, 6, t)!;
+                                        final Color color = Color.lerp(
+                                          const Color(0x00000000),
+                                          const Color(0x33000000),
+                                          t,
+                                        )!;
+
+                                        return InitCallback(
+                                          callback:
+                                              HapticFeedback.selectionClick,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                CustomBoxShadow(
+                                                  color: color,
+                                                  blurRadius: elevation,
+                                                ),
+                                              ],
                                             ),
-                                          )
-                                          .toList(),
-                                    ),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: child,
+                                    );
+                                  },
+                                  reverse: true,
+                                  padding: const EdgeInsets.fromLTRB(
+                                    1,
+                                    0,
+                                    1,
+                                    0,
+                                  ),
+                                  children: c.repliedMessages.map((e) {
+                                    return ReorderableDragStartListener(
+                                      key: Key('Handle_${e.id}'),
+                                      enabled: !PlatformUtils.isMobile,
+                                      index: c.repliedMessages.indexOf(e),
+                                      child: Dismissible(
+                                        key: Key('${e.id}'),
+                                        direction: DismissDirection.horizontal,
+                                        onDismissed: (_) {
+                                          c.repliedMessages.remove(e);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                          ),
+                                          child: _repliedMessage(c, e),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            if (c.attachments.isNotEmpty &&
+                                c.repliedMessages.isNotEmpty)
+                              const SizedBox(height: 4),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: MouseRegion(
+                                cursor: grab
+                                    ? SystemMouseCursors.grab
+                                    : MouseCursor.defer,
+                                opaque: false,
+                                child: SingleChildScrollView(
+                                  clipBehavior: Clip.none,
+                                  physics: grab
+                                      ? null
+                                      : const NeverScrollableScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: c.attachments
+                                        .map((k, v) => _buildAttachment(
+                                              c,
+                                              v,
+                                              k,
+                                            ))
+                                        .toList(),
+
+                                    // .map((k, e) => _buildAttachment(
+                                    //       c,
+                                    //       e,
+                                    //       k,
+                                    //     ))
+                                    // .toList(),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      }),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -1074,9 +1075,8 @@ class _ChatViewState extends State<ChatView>
                                           .map((e) => ChatItemQuote(item: e))
                                           .toList(),
                                       text: c.send.text,
-                                      attachments: c.attachments
-                                          .map((e) => e.value)
-                                          .toList(),
+                                      attachments:
+                                          c.attachments.values.toList(),
                                     );
 
                                     if (result == true) {
@@ -1361,18 +1361,17 @@ class _ChatViewState extends State<ChatView>
           }
         }
 
-        List<Attachment> attachments = c.attachments
+        List<Attachment> attachments = c.attachments.values
             .where((e) {
-              Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+              return e is ImageAttachment ||
+                  (e is FileAttachment && e.isVideo) ||
+                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo));
             })
-            .map((e) => e.value)
+            .map((e) => e)
             .toList();
 
         return WidgetButton(
-          key: key,
+          // key: key,
           onPressed: () {
             int index = attachments.indexOf(e);
             if (index != -1) {
@@ -1380,10 +1379,10 @@ class _ChatViewState extends State<ChatView>
                 context: context,
                 gallery: GalleryPopup(
                   initial: attachments.indexOf(e),
-                  initialKey: key,
+                  // initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o.value == a);
+                    c.attachments.removeWhere((k, v) => v == a);
                   },
                   children: attachments.map((o) {
                     var link = '${Config.files}${o.original.relativeRef}';
@@ -1528,8 +1527,8 @@ class _ChatViewState extends State<ChatView>
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments
-                                    .removeWhere((a) => a.value == e),
+                                onTap: () =>
+                                    c.attachments.removeWhere((k, v) => v == e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -1565,7 +1564,7 @@ class _ChatViewState extends State<ChatView>
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+      onDismissed: (_) => c.attachments.removeWhere((k, v) => v == e),
       child: attachment(),
     );
   }
