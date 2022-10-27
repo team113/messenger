@@ -22,6 +22,7 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
+import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
@@ -30,8 +31,8 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
@@ -511,7 +512,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         UserAvatar(
             full: node.avatar.full.toModel(),
             original: node.avatar.original.toModel(),
-            galleryItemId: node.avatar.galleryItemId,
+            galleryItem: node.avatar.galleryItem?.toModel(),
             big: node.avatar.big.toModel(),
             medium: node.avatar.medium.toModel(),
             small: node.avatar.small.toModel(),
@@ -538,7 +539,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserCallCoverUpdated(
         node.userId,
         UserCallCover(
-            galleryItemId: node.callCover.galleryItemId,
+            galleryItem: node.callCover.galleryItem?.toModel(),
             full: node.callCover.full.toModel(),
             original: node.callCover.original.toModel(),
             vertical: node.callCover.vertical.toModel(),

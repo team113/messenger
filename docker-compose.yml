@@ -25,6 +25,7 @@ services:
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
+      CONF.FCM.API_KEY: ${COMPOSE_FCM_API_KEY}
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
       CONF.STORAGE.FILE.S3.HOST: baza-storage
