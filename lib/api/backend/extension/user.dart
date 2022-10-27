@@ -77,13 +77,28 @@ extension UserMixinGalleryNodesConversion on UserMixin$Gallery$Nodes {
   ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
 }
 
+/// Extension adding models construction from [UserAvatarMixin$GalleryItem].
+extension UserAvatarMixinGalleryConversion on UserAvatarMixin$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserAvatarMixin$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
+/// Extension adding models construction from [UserCallCoverMixin$GalleryItem].
+extension UserCallCoverMixinGalleryConversion
+    on UserCallCoverMixin$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserCallCoverMixin$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
 /// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
   /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
   UserAvatar toModel() => UserAvatar(
         full: full.toModel(),
         original: original.toModel(),
-        galleryItemId: galleryItemId,
+        galleryItem: galleryItem?.toModel(),
         big: big.toModel(),
         medium: medium.toModel(),
         small: small.toModel(),
@@ -107,7 +122,7 @@ extension UserAvatarConversion on UserAvatarMixin {
 extension UserCallCoverConversion on UserCallCoverMixin {
   /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
   UserCallCover toModel() => UserCallCover(
-        galleryItemId: galleryItemId,
+        galleryItem: galleryItem?.toModel(),
         full: full.toModel(),
         original: original.toModel(),
         vertical: vertical.toModel(),

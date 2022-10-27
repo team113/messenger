@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -318,8 +319,13 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+
+    ChatController chatController =
+        Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -328,13 +334,22 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    AttachmentId id1 =
+        Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .attachments
+            .first
+            .value
+            .id;
+
     expect(find.byKey(const Key('Send')), findsOneWidget);
+
+    await gesture.moveTo(tester.getCenter(find.byKey(Key('Attachment_$id1'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -346,7 +361,12 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('test.txt', skipOffstage: false), findsOneWidget);
+    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
+        .attachments
+        .first
+        .id;
+
+    expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });
