@@ -55,18 +55,7 @@ class Themes {
           Style(
             barrierColor: const Color(0xBB000000),
             callDock: const Color(0xFF1E88E5),
-            cardBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
-            ),
-            secondaryBorder: Border.all(
-              color: const Color(0xFFDADADA),
-              width: 0.5,
-            ),
-            primaryBorder: Border.all(
-              color: const Color(0xFFB9D9FA),
-              width: 0.5,
-            ),
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
             cardBlur: 5,
             boldBody: GoogleFonts.roboto(
@@ -78,16 +67,28 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
-            sidebarColor: Colors.white.withOpacity(0.6),
             unreadMessageThickness: 4,
             systemMessageTextStyle: GoogleFonts.roboto(
               color: const Color(0xFF888888),
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
+            messageColor: Colors.white,
+            primaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
+            readMessageColor: const Color(0xFFD2E3F9),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            sidebarColor: Colors.white.withOpacity(0.4),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
+            systemMessageStyle: GoogleFonts.roboto(
+              color: const Color(0xFF888888),
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
+            unreadMessageColor: const Color(0xFFF4F9FF),
             green: const Color(0xFF03a803),
           ),
         ],
@@ -350,38 +351,46 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.barrierColor,
     required this.callDock,
-    required this.cardBorder,
-    required this.primaryBorder,
-    required this.secondaryBorder,
-    required this.cardBlur,
-    required this.cardColor,
     required this.boldBody,
+    required this.cardBlur,
+    required this.cardBorder,
+    required this.cardColor,
     required this.cardRadius,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.messageColor,
+    required this.primaryBorder,
+    required this.readMessageColor,
+    required this.secondaryBorder,
     required this.sidebarColor,
     required this.unreadMessageThickness,
     required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.green,
+    required this.systemMessageStyle,
+    required this.unreadMessageColor,
   });
 
   /// [Color] of the modal background barrier color.
   final Color barrierColor;
 
+  /// [TextStyle] to use in the body to make content readable.
+  final TextStyle boldBody;
+
   final Color callDock;
-  final Border cardBorder;
-  final Border primaryBorder;
-  final Border secondaryBorder;
+
+  /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
-  final Color cardColor;
 
   final Color green;
 
-  /// [TextStyle] to use in the body to make content readable.
-  final TextStyle boldBody;
+  /// [Border] to apply to card-like [Widget]s.
+  final Border cardBorder;
+
+  /// Background [Color] of card-like [Widget]s.
+  final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
@@ -395,50 +404,80 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
+  final Color messageColor;
+
+  /// [Border] to apply to [ColorScheme.primary] color.
+  final Border primaryBorder;
+
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s
+  /// posted by the authenticated [MyUser].
+  final Color readMessageColor;
+
+  /// [Border] to apply to [ColorScheme.secondary] color.
+  final Border secondaryBorder;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
+  /// [Border] to apply to system messages.
   final double unreadMessageThickness;
   final TextStyle systemMessageTextStyle;
+
   final Border systemMessageBorder;
+
+  /// [Color] of system messages.
   final Color systemMessageColor;
+
+  /// [TextStyle] of system messages.
+  final TextStyle systemMessageStyle;
+
+  /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s posted by the authenticated [MyUser].
+  final Color unreadMessageColor;
 
   @override
   ThemeExtension<Style> copyWith({
     Color? barrierColor,
     TextStyle? boldBody,
-    Color? callDock,
+    double? cardBlur,
+    Border? cardBorder,
+    Color? cardColor,
     BorderRadius? cardRadius,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
-    Border? cardBorder,
+    Color? messageColor,
     Border? primaryBorder,
+    Color? readMessageColor,
     Border? secondaryBorder,
-    double? cardBlur,
-    Color? cardColor,
     Color? sidebarColor,
     double? unreadMessageThickness,
     TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
+    Color? callDock,
     Color? green,
+    TextStyle? systemMessageStyle,
+    Color? unreadMessageColor,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       callDock: callDock ?? this.callDock,
+      cardBlur: cardBlur ?? this.cardBlur,
+      cardBorder: cardBorder ?? this.cardBorder,
+      cardColor: cardColor ?? this.cardColor,
       cardRadius: cardRadius ?? this.cardRadius,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
-      cardBorder: cardBorder ?? this.cardBorder,
+      messageColor: messageColor ?? this.messageColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
+      readMessageColor: readMessageColor ?? this.readMessageColor,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
-      cardBlur: cardBlur ?? this.cardBlur,
-      cardColor: cardColor ?? this.cardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       unreadMessageThickness:
           unreadMessageThickness ?? this.unreadMessageThickness,
@@ -447,6 +486,8 @@ class Style extends ThemeExtension<Style> {
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       green: green ?? this.green,
+      systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
 
@@ -474,7 +515,10 @@ class Style extends ThemeExtension<Style> {
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      messageColor: Color.lerp(messageColor, other.messageColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      readMessageColor:
+          Color.lerp(readMessageColor, other.readMessageColor, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
@@ -491,6 +535,13 @@ class Style extends ThemeExtension<Style> {
       systemMessageColor:
           Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
       green: Color.lerp(green, other.green, t)!,
+      systemMessageStyle: TextStyle.lerp(
+        systemMessageStyle,
+        other.systemMessageStyle,
+        t,
+      )!,
+      unreadMessageColor:
+          Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
   }
 }

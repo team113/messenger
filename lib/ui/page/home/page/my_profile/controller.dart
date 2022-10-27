@@ -183,7 +183,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.avatar].
   bool get isAvatar =>
       myUser.value?.gallery?[galleryIndex.value].id ==
-      myUser.value?.avatar?.galleryItemId;
+      myUser.value?.avatar?.galleryItem?.id;
 
   @override
   void onInit() {

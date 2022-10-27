@@ -124,7 +124,7 @@ class AddDialogMemberController extends GetxController {
           ...selectedContacts.map((e) => e.contact.value.users.first.id),
           ...selectedUsers.map((e) => e.id)
         ],
-        groupName,
+        groupName: groupName,
       );
       pop();
     } on TransformDialogCallIntoGroupCallException catch (e) {

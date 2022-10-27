@@ -23,8 +23,6 @@
 /build/
 /doc/
 
-# Web related
-
 # GraphQL generation related
 /lib/**/*.g.dart
 /lib/api/backend/*.dart

@@ -934,7 +934,7 @@ class _PublicViewState extends State<PublicView>
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          textStyle: const TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             color: Colors.black,
           ),

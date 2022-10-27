@@ -181,22 +181,18 @@ class CallService extends DisposableService {
   }
 
   /// Leaves an [OngoingCall] identified by the given [chatId].
-  Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
+  Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
+      deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
-      await _callsRepo.leave(chatId, deviceId);
-    }
-  }
 
-  Future<void> drop(ChatId chatId) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      call.value.state.value = OngoingCallState.ended;
-      call.value.dispose();
-      await _callsRepo.leave(chatId, call.value.deviceId!);
+      if (deviceId != null) {
+        await _callsRepo.leave(chatId, deviceId);
+      }
     }
+
     WebUtils.removeCall(chatId);
   }
 
@@ -276,9 +272,9 @@ class CallService extends DisposableService {
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
-    List<UserId> additionalMemberIds,
+    List<UserId> additionalMemberIds, {
     ChatName? groupName,
-  ) async {
+  }) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(

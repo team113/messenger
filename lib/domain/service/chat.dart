@@ -97,8 +97,6 @@ class ChatService extends DisposableService {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) {
-    // Forward the [repliesTo] message to this [Chat], if [text] and
-    // [attachments] are not provided.
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {

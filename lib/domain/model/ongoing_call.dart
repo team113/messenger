@@ -919,8 +919,8 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
-        member.isConnected.value = true;
         member._connection = conn;
+        member.isConnected.value = true;
       } else {
         members[id] = CallMember(
           id,

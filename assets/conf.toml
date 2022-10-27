@@ -54,6 +54,8 @@
 [downloads]
 # Directory to download files to.
 #
+# Should start with a leading `/`, if any directory is specified.
+#
 # Unused for Web, as browser picks the directory itself.
 #
 # Default:

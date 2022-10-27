@@ -1165,7 +1165,7 @@ class ChatForwardView extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          textStyle: const TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             color: Colors.black,
           ),

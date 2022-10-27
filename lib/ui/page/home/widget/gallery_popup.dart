@@ -48,6 +48,7 @@ class GalleryItem {
   GalleryItem({
     required this.link,
     required this.name,
+    required this.size,
     this.isVideo = false,
     this.onError,
   });
@@ -56,11 +57,13 @@ class GalleryItem {
   factory GalleryItem.image(
     String link,
     String name, {
+    int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
+        size: size,
         isVideo: false,
         onError: onError,
       );
@@ -69,11 +72,13 @@ class GalleryItem {
   factory GalleryItem.video(
     String link,
     String name, {
+    int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
+        size: size,
         isVideo: true,
         onError: onError,
       );
@@ -84,8 +89,11 @@ class GalleryItem {
   /// Original URL to the file this [GalleryItem] represents.
   String link;
 
-  /// File name of this [GalleryItem].
+  /// Name of the file this [GalleryItem] represents.
   final String name;
+
+  /// Size in bytes of the file this [GalleryItem] represents.
+  final int? size;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final Future<void> Function()? onError;
@@ -114,6 +122,8 @@ class GalleryPopup extends StatefulWidget {
   /// Callback, called when the displayed [GalleryItem] is changed.
   final void Function(int)? onPageChanged;
 
+  /// Callback, called when a remove action of a [GalleryItem] at the provided
+  /// index is triggered.
   final void Function(int index)? onTrashPressed;
 
   /// Displays a dialog with the provided [gallery] above the current contents.
@@ -1030,11 +1040,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name);
+        await PlatformUtils.download(item.link, item.name, item.size);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name);
+          await PlatformUtils.download(item.link, item.name, item.size);
         } else {
           rethrow;
         }

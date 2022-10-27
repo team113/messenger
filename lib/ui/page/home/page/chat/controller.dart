@@ -370,7 +370,7 @@ class ChatController extends GetxController {
 
   bool isInCall() =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
-  Future<void> dropCall() => _callService.drop(id);
+  Future<void> dropCall() => _callService.leave(id);
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.

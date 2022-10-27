@@ -226,7 +226,7 @@ class ParticipantController extends GetxController {
         await _callService.transformDialogCallIntoGroupCall(
           chatId.value,
           ids,
-          groupName,
+          groupName: groupName,
         );
       }
 
