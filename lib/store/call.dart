@@ -146,7 +146,7 @@ class CallRepository implements AbstractCallRepository {
       Rx<OngoingCall> call = Rx<OngoingCall>(
         OngoingCall(
           chatCall.chatId,
-          me!,
+          me,
           call: chatCall,
           withAudio: false,
           withVideo: false,
