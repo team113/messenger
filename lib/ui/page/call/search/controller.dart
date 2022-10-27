@@ -43,6 +43,9 @@ enum SearchCategory {
 
   /// Global [User]s.
   users,
+
+  /// Global [User]s.
+  chats,
 }
 
 /// Controller for searching the provided [categories].
@@ -67,6 +70,9 @@ class SearchController extends GetxController {
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
 
+  /// Reactive list of the selected [User]s.
+  final RxList<RxChat> selectedChats = RxList<RxChat>([]);
+
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
@@ -89,6 +95,12 @@ class SearchController extends GetxController {
 
   /// [RxUser]s found under the [SearchCategory.users] category.
   final RxMap<UserId, RxUser> users = RxMap();
+
+  /// [RxUser]s found under the [SearchCategory.users] category.
+  final RxMap<ChatId, RxChat> chats = RxMap();
+
+  /// Reactive list of the sorted [Chat]s.
+  late final RxList<RxChat> sortedChats;
 
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
@@ -131,6 +143,8 @@ class SearchController extends GetxController {
 
   @override
   void onInit() {
+    sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
+    _sortChats();
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String? q) {
@@ -147,12 +161,14 @@ class SearchController extends GetxController {
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
       int? first = list.firstOrNull?.index;
       if (first != null) {
-        if (first >= recent.length + contacts.length) {
+        if (first >= recent.length + contacts.length + chats.length) {
           category.value = SearchCategory.users;
-        } else if (first >= recent.length) {
+        } else if (first >= recent.length + chats.length) {
           category.value = SearchCategory.contacts;
-        } else {
+        } else if (first >= chats.length) {
           category.value = SearchCategory.recent;
+        } else {
+          category.value = SearchCategory.chats;
         }
       }
     };
@@ -194,6 +210,15 @@ class SearchController extends GetxController {
       selectedUsers.remove(user);
     } else {
       selectedUsers.add(user);
+    }
+  }
+
+  /// Selects or unselects the specified [user].
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat)) {
+      selectedChats.remove(chat);
+    } else {
+      selectedChats.add(chat);
     }
   }
 
@@ -260,17 +285,25 @@ class SearchController extends GetxController {
   /// Jumps the [controller] to the provided [category] of the search results.
   void jumpTo(SearchCategory category) {
     if (controller.hasClients) {
-      if (category == SearchCategory.recent && recent.isNotEmpty) {
+      if (category == SearchCategory.chats && chats.isNotEmpty) {
         controller.jumpTo(0);
+      } else if (category == SearchCategory.recent && recent.isNotEmpty) {
+        double to = chats.length * (76 + 10);
+        if (to > controller.position.maxScrollExtent) {
+          controller.jumpTo(controller.position.maxScrollExtent);
+        } else {
+          controller.jumpTo(to);
+        }
       } else if (category == SearchCategory.contacts && contacts.isNotEmpty) {
-        double to = recent.length * (76 + 10);
+        double to = (recent.length + chats.length) * (76 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
         } else {
           controller.jumpTo(to);
         }
       } else if (category == SearchCategory.users && users.isNotEmpty) {
-        double to = (recent.length + contacts.length) * (76 + 10);
+        double to =
+            (recent.length + contacts.length + chats.length) * (76 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
         } else {
@@ -284,11 +317,31 @@ class SearchController extends GetxController {
   ///
   /// Returned item is either a [RxUser] or [RxChatContact].
   dynamic getIndex(int i) {
-    return [...recent.values, ...contacts.values, ...users.values].elementAt(i);
+    return [
+      ...chats.values,
+      ...recent.values,
+      ...contacts.values,
+      ...users.values
+    ].elementAt(i);
   }
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
+    chats.value = {
+      for (var c in sortedChats.where((p) {
+        if (query.value != null) {
+          if (query.value != null &&
+              p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+            return true;
+          }
+          return false;
+        }
+
+        return true;
+      }))
+        c.chat.value.id: c,
+    };
+
     if (categories.contains(SearchCategory.recent)) {
       recent.value = {
         for (var u in _chatService.chats.values
@@ -448,5 +501,22 @@ class SearchController extends GetxController {
         };
       }
     }
+  }
+
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  void _sortChats() {
+    sortedChats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+    });
+
+    populate();
   }
 }
