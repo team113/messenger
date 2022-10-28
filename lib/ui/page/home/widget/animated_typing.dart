@@ -63,7 +63,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
         const double spacing = 1.6;
 
         final Color? color1 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0, 0.3).transform(_controller.value)));
+            sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
         final Color? color2 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
         final Color? color3 = ColorTween(begin: begin, end: end).lerp(

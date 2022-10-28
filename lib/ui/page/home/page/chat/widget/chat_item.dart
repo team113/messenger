@@ -27,7 +27,6 @@ import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart'
     show ChatCallFinishReason, ChatMemberInfoAction;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -168,7 +167,7 @@ class ChatItemWidget extends StatefulWidget {
                       height: 300,
                     )
               : VideoThumbnail.url(
-                  url: '${Config.files}${e.original.relativeRef}',
+                  url: e.original.url,
                   key: key,
                   height: 300,
                   onError: onError,
@@ -199,7 +198,7 @@ class ChatItemWidget extends StatefulWidget {
       attachment = KeyedSubtree(
         key: const Key('SentImage'),
         child: Image.network(
-          '${Config.files}${(e as ImageAttachment).big.relativeRef}',
+          (e as ImageAttachment).big.url,
           key: key,
           fit: BoxFit.cover,
           height: 300,
@@ -232,23 +231,32 @@ class ChatItemWidget extends StatefulWidget {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  String link = '${Config.files}${o.original.relativeRef}';
-                  if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, o.filename));
-                  } else if (o is ImageAttachment) {
-                    GalleryItem? item;
+                  String link = o.original.url;
+                  GalleryItem? item;
 
+                  if (o is FileAttachment) {
+                    item = GalleryItem.video(
+                      link,
+                      o.filename,
+                      size: o.original.size,
+                      onError: () async {
+                        await onError?.call();
+                        item?.link = o.original.url;
+                      },
+                    );
+                  } else if (o is ImageAttachment) {
                     item = GalleryItem.image(
                       link,
                       o.filename,
+                      size: o.original.size,
                       onError: () async {
                         await onError?.call();
-                        item?.link = '${Config.files}${o.original.relativeRef}';
+                        item?.link = o.original.url;
                       },
                     );
-
-                    gallery.add(item);
                   }
+
+                  gallery.add(item!);
                 }
 
                 GalleryPopup.show(
@@ -327,7 +335,7 @@ class ChatItemWidget extends StatefulWidget {
                   child: CircularProgressIndicator(
                     strokeWidth: 2.3,
                     key: const Key('Downloading'),
-                    value: e.progress.value,
+                    value: e.progress.value == 0 ? null : e.progress.value,
                     color: Colors.white.withOpacity(0.7),
                   ),
                 ),
@@ -1014,9 +1022,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   image: image == null
                       ? null
                       : DecorationImage(
-                          image: NetworkImage(
-                            '${Config.files}${image.medium.relativeRef}',
-                          ),
+                          image: NetworkImage(image.medium.url),
                           onError: (_, __) => widget.onAttachmentError?.call(),
                           fit: BoxFit.cover,
                         ),

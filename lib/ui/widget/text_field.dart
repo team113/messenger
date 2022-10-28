@@ -39,6 +39,7 @@ class ReactiveTextField extends StatelessWidget {
     this.prefix,
     this.trailing,
     this.type,
+    this.padding,
     this.minLines,
     this.maxLines = 1,
     this.textInputAction,
@@ -70,6 +71,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional prefix [Widget].
   final Widget? prefix;
+
+  /// Optional content padding.
+  final EdgeInsets? padding;
 
   /// Optional trailing [Widget].
   final Widget? trailing;
@@ -124,9 +128,9 @@ class ReactiveTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets? contentPadding;
+    EdgeInsets? contentPadding = padding;
 
-    if (prefix == null && dense != true) {
+    if (prefix == null && dense != true && contentPadding == null) {
       bool isFilled = filled ?? Theme.of(context).inputDecorationTheme.filled;
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {

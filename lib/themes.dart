@@ -107,9 +107,7 @@ class Themes {
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: ThemeData.light()
-            .primaryTextTheme
-            .copyWith(headline6: TextStyle(color: colors.primary)),
+        primaryTextTheme: GoogleFonts.robotoTextTheme(),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
@@ -133,7 +131,7 @@ class Themes {
           button: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
-            fontSize: 17,
+            fontSize: 13,
           ),
           subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
           subtitle2: TextStyle(
@@ -327,10 +325,10 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// Blur to use in sidebar for chats.
+  /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
 
-  /// [Border] to use in sidebar for chats if chat is not selected.
+  /// [Border] to apply to card-like [Widget]s.
   final Border cardBorder;
 
   /// [Color] to use in sidebar for chats if chat is not selected.
@@ -403,12 +401,14 @@ class Style extends ThemeExtension<Style> {
 
   @override
   ThemeExtension<Style> copyWith({
+    Color? barrierColor,
+    TextStyle? boldBody,
+    double? cardBlur,
     Border? cardBorder,
     Border? hoveredBorderUnselected,
     Border? primaryBorder,
     BorderRadius? cardRadius,
     BorderRadius? contextMenuRadius,
-    Color? barrierColor,
     Color? cardColor,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
@@ -423,8 +423,6 @@ class Style extends ThemeExtension<Style> {
     Color? statusMessageRead,
     Color? subtitleColor,
     Color? unselectedHoverColor,
-    double? cardBlur,
-    TextStyle? boldBody,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
@@ -472,7 +470,7 @@ class Style extends ThemeExtension<Style> {
     return Style(
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
-      cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
+      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,

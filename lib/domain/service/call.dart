@@ -186,6 +186,7 @@ class CallService extends DisposableService {
     deviceId ??= call?.value.deviceId;
 
     if (call != null) {
+      deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
 

@@ -6,7 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.7] · 2022-??-??
+## [0.1.0-alpha.8] · 2022-10-27
+[0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
+
+[Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
+
+### Fixed
+
+- UI:
+    - Home page:
+        - Redesigned side bar. ([#142], [#124])
+
+[#124]: /../../issues/124
+[#142]: /../../pull/142
+
+
+
+
+## [0.1.0-alpha.7] · 2022-10-27
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
 [Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
@@ -25,23 +42,27 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
         - Redesigned messages and forwards. ([#162], [#151])
+        - Redesigned header and send field. ([#170], [#133])
     - Media panel:
         - Redesigned participants modal. ([#127], [#122])
-    - Redesigned side bar ([#142], [#124])
+        - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
 - macOS:
-    - Escape not exiting fullscreen in calls. ([#169], [#166])
+    - Escape key not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
+    - Media panel:
+        - Inability to disable certain incoming videos. ([#182], [#179])
 
+[#95]: /../../issues/95
+[#96]: /../../pull/96
 [#122]: /../../issues/122
-[#124]: /../../issues/124
 [#127]: /../../pull/127
 [#128]: /../../issues/128
+[#133]: /../../issues/133
 [#137]: /../../issues/137
-[#142]: /../../pull/142
 [#146]: /../../issues/146
 [#151]: /../../issues/151
 [#158]: /../../issues/158
@@ -51,7 +72,10 @@ All user visible changes to this project will be documented in this file. This p
 [#163]: /../../pull/163
 [#166]: /../../issues/166
 [#169]: /../../pull/169
+[#170]: /../../pull/170
 [#171]: /../../pull/171
+[#179]: /../../issues/179
+[#182]: /../../pull/182
 
 
 

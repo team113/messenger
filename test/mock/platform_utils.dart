@@ -23,12 +23,18 @@ import 'package:messenger/util/platform_utils.dart';
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
-  FutureOr<File?> download(
+  Future<File?> fileExists(String filename, {int? size, String? url}) async {
+    return null;
+  }
+
+  @override
+  Future<File?> download(
     String url,
-    String filename, {
+    String filename,
+    int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-  }) =>
+  }) async =>
       File('test/path');
 
   @override

@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -50,6 +49,8 @@ class ChatForwardView extends StatelessWidget {
     Key? key,
     required this.from,
     required this.quotes,
+    this.text,
+    this.attachments = const [],
   }) : super(key: key);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -58,17 +59,30 @@ class ChatForwardView extends StatelessWidget {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
+  /// Initial [String] to put in the send field.
+  final String? text;
+
+  /// Initial [Attachment]s to attach to the provided [quotes].
+  final List<Attachment> attachments;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
     ChatId from,
-    List<ChatItemQuote> quotes,
-  ) {
+    List<ChatItemQuote> quotes, {
+    String? text,
+    List<Attachment> attachments = const [],
+  }) {
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
       modalConstraints: const BoxConstraints(maxWidth: 500),
-      child: ChatForwardView(from: from, quotes: quotes),
+      child: ChatForwardView(
+        from: from,
+        quotes: quotes,
+        attachments: attachments,
+        text: text,
+      ),
     );
   }
 
@@ -80,6 +94,8 @@ class ChatForwardView extends StatelessWidget {
         Get.find(),
         from: from,
         quotes: quotes,
+        text: text,
+        attachments: attachments,
       ),
       builder: (ChatForwardController c) {
         return Material(
@@ -211,11 +227,7 @@ class ChatForwardView extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               image: image == null
                   ? null
-                  : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.files}${image.small.relativeRef}',
-                      ),
-                    ),
+                  : DecorationImage(image: NetworkImage(image.original.url)),
             ),
             width: 50,
             height: 50,
@@ -428,7 +440,7 @@ class ChatForwardView extends StatelessWidget {
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.files}${e.original.relativeRef}',
+                      e.original.url,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -595,19 +607,23 @@ class ChatForwardView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _button(
-                key: const Key('SendForward'),
-                icon: const AnimatedSwitcher(
-                  duration: Duration(milliseconds: 150),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 2, top: 1),
-                    child: Icon(Icons.send, size: 24),
+              Obx(
+                () => _button(
+                  key: const Key('SendForward'),
+                  icon: const AnimatedSwitcher(
+                    duration: Duration(milliseconds: 150),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 2, top: 1),
+                      child: Icon(Icons.send, size: 24),
+                    ),
                   ),
+                  onTap: c.selectedChats.isEmpty
+                      ? null
+                      : () {
+                          c.send.submit();
+                          Navigator.of(context).pop(true);
+                        },
                 ),
-                onTap: () {
-                  c.send.submit();
-                  Navigator.of(context).pop();
-                },
               ),
             ],
           ),

@@ -153,7 +153,12 @@ void main() async {
               'userId': 'id',
               'avatar': {
                 '__typename': 'UserAvatar',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
                 'full': {'relativeRef': 'cc.full.jpg'},
@@ -182,7 +187,12 @@ void main() async {
               'userId': 'id',
               'callCover': {
                 '__typename': 'UserCallCover',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
                 'full': {'relativeRef': 'cc.full.jpg'},

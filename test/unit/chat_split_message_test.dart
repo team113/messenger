@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -50,6 +51,7 @@ import 'chat_split_message_test.mocks.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   Hive.init('./test/.temp_hive/chat_split_message_unit');
+  Config.files = 'test';
 
   const int maxText = ChatMessageText.maxLength;
 
