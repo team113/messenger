@@ -207,8 +207,8 @@ class SettingsButton extends CallButton {
 }
 
 /// [CallButton] invoking the [CallController.openAddMember].
-class AddMemberCallButton extends CallButton {
-  const AddMemberCallButton(CallController c) : super(c);
+class ParticipantsButton extends CallButton {
+  const ParticipantsButton(CallController c) : super(c);
 
   @override
   String get hint => 'btn_participants'.l10n;
@@ -219,26 +219,6 @@ class AddMemberCallButton extends CallButton {
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),
-    );
-  }
-}
-
-/// [CallButton] invoking the [CallController.openAddMember].
-class ParticipantsButton extends CallButton {
-  const ParticipantsButton(CallController c) : super(c);
-
-  @override
-  String get hint => 'btn_add_participant'.l10n;
-
-  @override
-  Widget build({bool hinted = true}) {
-    return _common(
-      asset: 'add_user_small',
-      hinted: hinted,
-      onPressed: () => c.openAddMember(
-        router.context!,
-        // stage: ParticipantsFlowStage.adding,
-      ),
     );
   }
 }

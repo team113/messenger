@@ -273,8 +273,8 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] recently
-                                            [1] recently
+                                            [0] just now
+                                            [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
                                         }
                                     [1] an hour ago

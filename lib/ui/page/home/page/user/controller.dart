@@ -236,7 +236,7 @@ extension UserViewExt on User {
 
 /// Extension adding an ability to get text represented indication of how long
 /// ago a [DateTime] happened compared to [DateTime.now].
-extension _DateTimeToAgo on DateTime {
+extension DateTimeToAgo on DateTime {
   /// Returns text representation of a [difference] with [DateTime.now]
   /// indicating how long ago this [DateTime] happened compared to
   /// [DateTime.now].

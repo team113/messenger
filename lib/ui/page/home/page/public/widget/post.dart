@@ -32,10 +32,12 @@ import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/call/widget/fit_wrap.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
+import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/page/home/widget/init_callback.dart';
@@ -170,6 +172,46 @@ class _PostWidgetState extends State<PostWidget> {
       String? icon,
       List<Widget> children = const [],
     }) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: WidgetButton(
+          onPressed: () {},
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(
+              0, // 12 / 1.5,
+              8 / 1.5,
+              0, // 12 / 1.5,
+              8 / 1.5,
+            ),
+            decoration: BoxDecoration(
+                // borderRadius: BorderRadius.circular(15),
+                // border: style.systemMessageBorder,
+                // color: Colors.white.darken(0.05),
+                ),
+            child: DefaultTextStyle.merge(
+              style: style.systemMessageTextStyle.copyWith(
+                fontSize: 17,
+                color: iconColor,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Text(
+                      icon,
+                      style: const TextStyle(fontSize: 25),
+                    ),
+                    const SizedBox(width: 4),
+                    const Text('4'),
+                  ] else
+                    ...children,
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
       return WidgetButton(
         onPressed: () {},
         child: Container(
@@ -219,7 +261,12 @@ class _PostWidgetState extends State<PostWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: const EdgeInsets.fromLTRB(
+          5 + 5,
+          6 + 6,
+          5 + 5,
+          6 + 6,
+        ),
         width: context.isNarrow ? double.infinity : null,
         child: IntrinsicWidth(
           child: AnimatedContainer(
@@ -236,9 +283,9 @@ class _PostWidgetState extends State<PostWidget> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
-                      10,
+                      10 + 10,
                       9,
-                      files.isEmpty ? 10 : 0,
+                      (files.isEmpty ? 10 : 0) + 10,
                     ),
                     child: SelectableText(
                       text,
@@ -248,9 +295,8 @@ class _PostWidgetState extends State<PostWidget> {
                 if (files.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                    child: Column(
-                      children: files.map(_fileAttachment).toList(),
-                    ),
+                    child:
+                        Column(children: files.map(_fileAttachment).toList()),
                   ),
                 if (media.isNotEmpty)
                   ClipRRect(
@@ -265,8 +311,8 @@ class _PostWidgetState extends State<PostWidget> {
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
-                      bottomLeft: const Radius.circular(15),
-                      bottomRight: const Radius.circular(15),
+                      // bottomLeft: const Radius.circular(15),
+                      // bottomRight: const Radius.circular(15),
                     ),
                     child: media.length == 1
                         ? _mediaAttachment(
@@ -287,49 +333,139 @@ class _PostWidgetState extends State<PostWidget> {
                             ),
                           ),
                   ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 0 : 0, 8, 8),
-                  child: DefaultTextStyle.merge(
-                    style:
-                        const TextStyle(fontSize: 15, color: Color(0xFF888888)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // reaction(icon: Icons.comment),
-                        // const SizedBox(width: 12),
-                        // reaction(icon: '👍'),
-                        // const SizedBox(width: 12),
-
-                        const Icon(
-                          Icons.comment,
-                          size: 12,
-                          color: Color(0xFF888888),
-                        ),
-                        const SizedBox(width: 4),
-                        const Text(
-                          '14К',
-                          style: TextStyle(fontSize: 11),
-                        ),
-                        const SizedBox(width: 8),
-                        const Spacer(),
-                        const SizedBox(width: 8),
-                        // SvgLoader.asset(
-                        //   'assets/icons/eye.svg',
-                        //   height: 14.25,
-                        // ),
-                        // const SizedBox(width: 4),
-                        // const Text('1235'),
-                        // const SizedBox(width: 12),
-                        Text(
-                          DateFormat.Hm().format(
-                            widget.item.value.at.val.toLocal(),
-                          ),
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                      ],
+                Container(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    media.isEmpty ? 0 : 0,
+                    16,
+                    8,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEFF8F0),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15),
+                      bottomRight: Radius.circular(15),
                     ),
                   ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 10),
+                      DefaultTextStyle.merge(
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF888888),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('12к просмотров'),
+                            const Spacer(),
+                            Text(msg.at.val.toDifferenceAgo()),
+                            // Text('${msg.at.val.toRelative()}, '),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DefaultTextStyle.merge(
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF888888),
+                        ),
+                        child: Wrap(
+                          // alignment: WrapAlignment.spaceBetween,
+                          // runAlignment: WrapAlignment.spaceBetween,
+                          // crossAxisAlignment: WrapCrossAlignment.start,
+                          runSpacing: 10,
+                          spacing: 10 + 12,
+                          children: [
+                            reaction(icon: '👍'),
+                            reaction(icon: '👎'),
+                            reaction(icon: '😾'),
+                            reaction(icon: '😿'),
+                            reaction(icon: '🙀'),
+                            reaction(icon: '😽'),
+                            reaction(icon: '😼'),
+                            reaction(icon: '🤡'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DefaultTextStyle.merge(
+                        style: const TextStyle(
+                          fontSize: 17,
+                          color: Color(0xFF03A803),
+                        ),
+                        child: Row(
+                          children: [
+                            WidgetButton(
+                              onPressed: () {},
+                              child: const Text('152 комментариев >'),
+                            ),
+                            const Spacer(),
+                            WidgetButton(
+                              onPressed: () {},
+                              child: Transform.scale(
+                                scaleX: -1,
+                                child: const Icon(
+                                  Icons.reply,
+                                  color: Color(0xFF03A803),
+                                  size: 27,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // DefaultTextStyle.merge(
+                      //   style: const TextStyle(
+                      //     fontSize: 15,
+                      //     color: Color(0xFF888888),
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children: [
+                      //       // reaction(icon: Icons.comment),
+                      //       // const SizedBox(width: 12),
+                      //       // reaction(icon: '👍'),
+                      //       // const SizedBox(width: 12),
+
+                      //       const Icon(
+                      //         Icons.comment,
+                      //         size: 12,
+                      //         color: Color(0xFF888888),
+                      //       ),
+                      //       const SizedBox(width: 4),
+                      //       const Text(
+                      //         '14К',
+                      //         style: TextStyle(fontSize: 11),
+                      //       ),
+                      //       const SizedBox(width: 8),
+                      //       const Spacer(),
+                      //       const SizedBox(width: 8),
+                      //       // SvgLoader.asset(
+                      //       //   'assets/icons/eye.svg',
+                      //       //   height: 14.25,
+                      //       // ),
+                      //       // const SizedBox(width: 4),
+                      //       // const Text('1235'),
+                      //       // const SizedBox(width: 12),
+                      //       Text(
+                      //         DateFormat.Hm().format(
+                      //           widget.item.value.at.val.toLocal(),
+                      //         ),
+                      //         style: const TextStyle(fontSize: 11),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                  ),
                 ),
+                // Padding(
+                //   padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 0 : 0, 8, 8),
+                //   child: ,
+                // ),
                 /* Padding(
                   padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 8 : 16, 8, 8),
                   child: DefaultTextStyle.merge(
@@ -1108,7 +1244,13 @@ class _PostWidgetState extends State<PostWidget> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            filled ? Positioned.fill(child: attachment) : attachment,
+            filled
+                ? Positioned.fill(child: attachment)
+                : Container(
+                    constraints: const BoxConstraints(minWidth: 300),
+                    width: double.infinity,
+                    child: attachment,
+                  ),
             if (isLocal)
               ElasticAnimatedSwitcher(
                 child: e.status.value == SendingStatus.sent

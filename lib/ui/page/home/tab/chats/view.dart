@@ -380,8 +380,7 @@ class ChatsTabView extends StatelessWidget {
             Scaffold(
               // extendBodyBehindAppBar: true,
               resizeToAvoidBottomInset: false,
-              appBar: CustomAppBar.from(
-                context: context,
+              appBar: CustomAppBar(
                 title: Obx(() {
                   Widget child;
 
@@ -1361,7 +1360,7 @@ class ChatsTabView extends StatelessWidget {
 
         if (isSent || isDelivered || isRead || isSending || isError) {
           additional.addAll([
-            const SizedBox(width: 10),
+            // const SizedBox(width: 10),
             Icon(
               (isRead || isDelivered)
                   ? Icons.done_all
@@ -1445,19 +1444,18 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              if (chat.ongoingCall == null)
-                                Text(
-                                  chat.ongoingCall == null ? '10:10' : '32:02',
-                                  // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.copyWith(
-                                        color: chat.ongoingCall == null
-                                            ? null
-                                            : const Color(0xFF63B4FF),
-                                      ),
-                                ),
+                              // Text(
+                              //   chat.ongoingCall == null ? '10:10' : '32:02',
+                              //   // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
+                              //   style: Theme.of(context)
+                              //       .textTheme
+                              //       .subtitle2
+                              //       ?.copyWith(
+                              //         color: chat.ongoingCall == null
+                              //             ? null
+                              //             : const Color(0xFF63B4FF),
+                              //       ),
+                              // ),
                             ],
                           ),
                           Row(
@@ -1473,31 +1471,31 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              ...additional,
-                              if (chat.unreadCount != 0) ...[
-                                const SizedBox(width: 10),
-                                Badge(
-                                  toAnimate: false,
-                                  elevation: 0,
-                                  badgeContent: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Text(
-                                      '${chat.unreadCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              // ...additional,
+                              // if (chat.unreadCount != 0) ...[
+                              //   const SizedBox(width: 10),
+                              //   Badge(
+                              //     toAnimate: false,
+                              //     elevation: 0,
+                              //     badgeContent: Padding(
+                              //       padding: const EdgeInsets.all(2.0),
+                              //       child: Text(
+                              //         '${chat.unreadCount}',
+                              //         style: const TextStyle(
+                              //           color: Colors.white,
+                              //           fontSize: 11,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ],
                             ],
                           ),
                         ],
                       ),
                     ),
                     if (chat.ongoingCall != null) ...[
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 5),
                       AnimatedSwitcher(
                         key: const Key('ActiveCallButton'),
                         duration: 300.milliseconds,
@@ -1522,7 +1520,47 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                               ),
                       ),
+                      const SizedBox(width: 10),
                     ],
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          chat.ongoingCall == null ? '10:10' : '32:02',
+                          // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
+                          style:
+                              Theme.of(context).textTheme.subtitle2?.copyWith(
+                                    color: chat.ongoingCall == null
+                                        ? null
+                                        : const Color(0xFF63B4FF),
+                                  ),
+                        ),
+                        if (additional.isNotEmpty || chat.unreadCount != 0)
+                          const SizedBox(height: 6),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...additional,
+                            if (chat.unreadCount != 0) ...[
+                              Badge(
+                                toAnimate: false,
+                                elevation: 0,
+                                badgeContent: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Text(
+                                    '${chat.unreadCount}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

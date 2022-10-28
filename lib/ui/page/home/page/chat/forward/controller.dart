@@ -57,9 +57,9 @@ class ChatForwardController extends GetxController {
     required this.from,
     required List<ChatItemQuote> quotes,
     this.text,
-    RxList<Attachment>? attachments,
+    List<Attachment>? attachments,
   })  : quotes = RxList(quotes),
-        attachments = attachments ?? RxList();
+        attachments = RxList(attachments ?? []);
 
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> sortedChats;

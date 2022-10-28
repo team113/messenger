@@ -109,8 +109,7 @@ class _PublicViewState extends State<PublicView>
           Style style = Theme.of(context).extension<Style>()!;
 
           return Scaffold(
-            appBar: CustomAppBar.from(
-              context: context,
+            appBar: CustomAppBar(
               title: Row(
                 children: [
                   Material(
@@ -267,7 +266,7 @@ class _PublicViewState extends State<PublicView>
                               } else if (element is ChatForwardElement) {
                                 return Container();
                               } else if (element is DateTimeElement) {
-                                return _timeLabel(element.id.at.val);
+                                // return _timeLabel(element.id.at.val);
                               }
 
                               return Container();

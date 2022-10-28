@@ -345,26 +345,29 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 vertical: 13,
                                 horizontal: 5,
                               ),
-                              child: Dock<CallButton>(
-                                items: c.buttons,
-                                itemWidth: CallController.buttonSize,
-                                itemBuilder: (e) => e.build(
-                                  hinted: c.draggedButton.value == null,
-                                ),
-                                onReorder: (buttons) {
-                                  c.buttons.clear();
-                                  c.buttons.addAll(buttons);
-                                  c.relocateSecondary();
-                                },
-                                onDragStarted: (b) {
-                                  c.isMoreHintDismissed.value = true;
-                                  c.draggedButton.value = b;
-                                },
-                                onDragEnded: (_) =>
-                                    c.draggedButton.value = null,
-                                onLeave: (_) => c.displayMore.value = true,
-                                onWillAccept: (d) => d?.c == c,
-                              ),
+                              child: Obx(() {
+                                return Dock<CallButton>(
+                                  // ignore: invalid_use_of_protected_member
+                                  items: c.buttons.value,
+                                  itemWidth: CallController.buttonSize,
+                                  itemBuilder: (e) => e.build(
+                                    hinted: c.draggedButton.value == null,
+                                  ),
+                                  onReorder: (buttons) {
+                                    c.buttons.clear();
+                                    c.buttons.addAll(buttons);
+                                    c.relocateSecondary();
+                                  },
+                                  onDragStarted: (b) {
+                                    c.isMoreHintDismissed.value = true;
+                                    c.draggedButton.value = b;
+                                  },
+                                  onDragEnded: (_) =>
+                                      c.draggedButton.value = null,
+                                  onLeave: (_) => c.displayMore.value = true,
+                                  onWillAccept: (d) => d?.c == c,
+                                );
+                              }),
                             ),
                           ),
                         ),
@@ -467,18 +470,59 @@ Widget desktopCall(CallController c, BuildContext context) {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(height: 35),
-                        Row(
-                          children: c.panel
-                              .getRange(0, c.panel.length ~/ 2)
-                              .map((e) => Expanded(child: button(e)))
-                              .toList(),
-                        ),
-                        const SizedBox(height: 21),
-                        Row(
-                          children: c.panel
-                              .getRange(c.panel.length ~/ 2, c.panel.length)
-                              .map((e) => Expanded(child: button(e)))
-                              .toList(),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 21,
+                          children: c.panel.map((e) {
+                            return SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Column(
+                                children: [
+                                  Draggable(
+                                    feedback: Transform.translate(
+                                      offset: const Offset(
+                                        CallController.buttonSize / 2 * -1,
+                                        CallController.buttonSize / 2 * -1,
+                                      ),
+                                      child: SizedBox(
+                                        height: CallController.buttonSize,
+                                        width: CallController.buttonSize,
+                                        child: e.build(),
+                                      ),
+                                    ),
+                                    data: e,
+                                    onDragStarted: () {
+                                      c.isMoreHintDismissed.value = true;
+                                      c.draggedButton.value = e;
+                                    },
+                                    onDragCompleted: () =>
+                                        c.draggedButton.value = null,
+                                    onDragEnd: (_) =>
+                                        c.draggedButton.value = null,
+                                    onDraggableCanceled: (_, __) =>
+                                        c.draggedButton.value = null,
+                                    maxSimultaneousDrags:
+                                        e.isRemovable ? null : 0,
+                                    dragAnchorStrategy:
+                                        pointerDragAnchorStrategy,
+                                    child: e.build(hinted: false),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    e.hint,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -753,25 +797,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 onHover: enabled ? (d) => c.keepUi(true) : null,
                 onExit:
                     c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
-              ),
-            ),
-          );
-        }),
-
-        // Top [MouseRegion] that toggles UI on hover.
-        Obx(() {
-          bool enabled =
-              c.primaryDrags.value == 0 && c.secondaryDrags.value == 0;
-          return Align(
-            alignment: Alignment.topCenter,
-            child: SizedBox(
-              height: 100,
-              width: double.infinity,
-              child: MouseRegion(
-                opaque: false,
-                onEnter: enabled ? (d) => c.showHeader.value = true : null,
-                onHover: enabled ? (d) => c.showHeader.value = true : null,
-                onExit: enabled ? (d) => c.showHeader.value = false : null,
               ),
             ),
           );

@@ -22,12 +22,9 @@ class FinanceTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar.from(
-        context: context,
-        title: const Text('Finance'),
-      ),
-      body: const Text('Finance'),
+    return const Scaffold(
+      appBar: CustomAppBar(title: Text('Finance')),
+      body: Text('Finance'),
     );
   }
 }

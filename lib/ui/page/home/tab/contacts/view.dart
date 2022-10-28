@@ -96,8 +96,7 @@ class ContactsTabView extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: CustomAppBar.from(
-            context: context,
+          appBar: CustomAppBar(
             title: Obx(() {
               Widget child;
 

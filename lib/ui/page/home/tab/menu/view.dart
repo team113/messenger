@@ -171,138 +171,122 @@ class MenuTabView extends StatelessWidget {
                 : null;
 
         return Scaffold(
-          appBar: true // context.isNarrow
-              ? CustomAppBar.from(
-                  context: context,
-                  title: (true || context.isNarrow)
-                      ? Row(
-                          children: [
-                            Material(
-                              elevation: 6,
-                              type: MaterialType.circle,
-                              shadowColor: const Color(0x55000000),
-                              color: Colors.white,
-                              child: InkWell(
-                                onTap: onBack,
-                                customBorder: const CircleBorder(),
-                                child: Center(
-                                  child: AvatarWidget.fromMyUser(
+          appBar: CustomAppBar(
+            title: (true || context.isNarrow)
+                ? Row(
+                    children: [
+                      Material(
+                        elevation: 6,
+                        type: MaterialType.circle,
+                        shadowColor: const Color(0x55000000),
+                        color: Colors.white,
+                        child: InkWell(
+                          onTap: onBack,
+                          customBorder: const CircleBorder(),
+                          child: Center(
+                            child: Obx(() {
+                              return Stack(
+                                children: [
+                                  AvatarWidget.fromMyUser(
+                                    onAvatarTap: c.uploadAvatar,
                                     c.myUser.value,
                                     radius: 17,
                                     showBadge: false,
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: InkWell(
-                                onTap: onBack,
-                                splashFactory: NoSplash.splashFactory,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                child: DefaultTextStyle.merge(
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        c.myUser.value?.name?.val ??
-                                            c.myUser.value?.num.val ??
-                                            '...',
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      Text(
-                                        'Online',
-                                        style:
-                                            Theme.of(context).textTheme.caption,
-                                      ),
-                                    ],
+                                  Positioned.fill(
+                                    child: Obx(() {
+                                      final Widget child;
+
+                                      if (c.avatarUpload.value.isLoading) {
+                                        child = Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color:
+                                                Colors.black.withOpacity(0.3),
+                                          ),
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      } else {
+                                        child = const SizedBox();
+                                      }
+
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: child,
+                                      );
+                                    }),
                                   ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
-                        )
-                      : const Text('Accounts'),
-                  leading: context.isNarrow
-                      ? const [StyledBackButton()]
-                      : [
-                          const SizedBox(width: 30),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(left: 16),
-                          //   child: WidgetButton(
-                          //     onPressed: () => AccountsView.show(context),
-                          //     child: const Icon(
-                          //       Icons.help,
-                          //       color: Color(0xFF63B4FF),
-                          //     ),
-                          //   ),
-                          // ),
-                        ],
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: WidgetButton(
-                        onPressed: () => AccountsView.show(context),
-                        child: SvgLoader.asset(
-                          'assets/icons/switch_account.svg',
-                          width: 28.81,
-                          height: 25.35,
+                                ],
+                              );
+                            }),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  automaticallyImplyLeading: false,
-                )
-              : PreferredSize(
-                  preferredSize: const Size(double.infinity, 77),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: style.cardRadius,
-                        boxShadow: const [
-                          CustomBoxShadow(
-                            blurRadius: 8,
-                            color: Color(0x22000000),
-                            blurStyle: BlurStyle.outer,
-                          ),
-                        ],
-                      ),
-                      child: ContactTile(
-                        darken: 0,
-                        myUser: c.myUser.value,
-                        onTap: () => router.user(c.me!),
-                        showBadge: false,
-                        onAvatarTap: c.uploadAvatar,
-                        onBadgeTap: () => _displayPresence(context, c),
-                        radius: 26,
-                        subtitle: [
-                          WidgetButton(
-                            onPressed: () => _displayPresence(context, c),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: InkWell(
+                          onTap: onBack,
+                          splashFactory: NoSplash.splashFactory,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: DefaultTextStyle.merge(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                SizedBox(height: 5),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  'Public',
-                                  style: TextStyle(color: Color(0xFF888888)),
+                                  c.myUser.value?.name?.val ??
+                                      c.myUser.value?.num.val ??
+                                      '...',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Online',
+                                  style: Theme.of(context).textTheme.caption,
                                 ),
                               ],
                             ),
-                          )
-                        ],
-                        margin: EdgeInsets.zero,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                    ],
+                  )
+                : const Text('Accounts'),
+            leading: context.isNarrow
+                ? const [StyledBackButton()]
+                : [
+                    const SizedBox(width: 30),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 16),
+                    //   child: WidgetButton(
+                    //     onPressed: () => AccountsView.show(context),
+                    //     child: const Icon(
+                    //       Icons.help,
+                    //       color: Color(0xFF63B4FF),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: WidgetButton(
+                  onPressed: () => AccountsView.show(context),
+                  child: SvgLoader.asset(
+                    'assets/icons/switch_account.svg',
+                    width: 28.81,
+                    height: 25.35,
                   ),
                 ),
+              ),
+            ],
+            automaticallyImplyLeading: false,
+          ),
           body: ListView(
             controller: ScrollController(),
             children: [

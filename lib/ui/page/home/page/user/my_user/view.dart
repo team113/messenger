@@ -60,8 +60,7 @@ class MyUserView extends StatelessWidget {
       builder: (MyUserController c) {
         return Scaffold(
           appBar: context.isNarrow
-              ? CustomAppBar.from(
-                  context: context,
+              ? CustomAppBar(
                   title: Row(
                     children: [
                       Material(

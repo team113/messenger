@@ -78,7 +78,7 @@ class ChatForwardView extends StatelessWidget {
   final bool noEditing;
 
   final String? text;
-  final RxList<Attachment>? attachments;
+  final List<Attachment>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -87,7 +87,7 @@ class ChatForwardView extends StatelessWidget {
     List<ChatItemQuote> quotes, {
     bool noEditing = false,
     String? text,
-    RxList<Attachment>? attachments,
+    List<Attachment>? attachments,
   }) {
     return ModalPopup.show(
       context: context,

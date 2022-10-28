@@ -15,17 +15,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/user/controller.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
+
+/// Person ([ChatContact] or [User]) visual representation.
+///
+/// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
   const ContactTile({
     Key? key,

@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -759,6 +760,17 @@ class MenuTabController extends GetxController {
           _updateAvatar(item.id);
         }
       }
+    } on DioError catch (e) {
+      if (e.response?.data != null) {
+        MessagePopup.error(e.response?.data);
+      } else {
+        MessagePopup.error(e);
+      }
+
+      rethrow;
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     } finally {
       avatarUpload.value = RxStatus.empty();
     }

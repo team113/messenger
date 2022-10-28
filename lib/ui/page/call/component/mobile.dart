@@ -425,7 +425,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(withDescription(
-                  AddMemberCallButton(c).build(),
+                  ParticipantsButton(c).build(),
                   Text('btn_participants_desc'.l10n),
                 )),
                 padding(withDescription(
@@ -674,81 +674,6 @@ Widget _layoutButton({
           ],
         ),
       ),
-    );
-
-/// Call's tile containing information about the call.
-Widget _callTile(BuildContext context, CallController c) => Obx(
-      () {
-        bool isOutgoing =
-            (c.outgoing || c.state.value == OngoingCallState.local) &&
-                !c.started;
-        String state = c.state.value == OngoingCallState.active
-            ? c.duration.value.localizedString()
-            : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.l10n
-                : isOutgoing
-                    ? 'label_call_calling'.l10n
-                    : c.withVideo == true
-                        ? 'label_video_call'.l10n
-                        : 'label_audio_call'.l10n;
-
-        String? subtitle;
-        if (c.isGroup) {
-          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          subtitle = 'label_a_of_b'.l10nfmt({
-            'a': '${actualMembers.length + 1}',
-            'b': '${c.chat.value?.members.length}',
-          });
-        }
-
-        return _layoutButton(
-          icon: Center(
-            child: SizedBox(
-              width: 58,
-              height: 58,
-              child: AvatarWidget.fromRxChat(c.chat.value),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                c.chat.value?.title.value ?? ('dot'.l10n * 3),
-                style: context.textTheme.headline4
-                    ?.copyWith(color: Colors.white, fontSize: 20),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              if (c.isGroup) ...[
-                const SizedBox(height: 5),
-                Text(
-                  '$subtitle',
-                  style: context.textTheme.headline4
-                      ?.copyWith(color: Colors.white, fontSize: 15),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
-            ],
-          ),
-          trailing: Text(
-            state,
-            style: context.textTheme.headline4
-                ?.copyWith(color: Colors.white, fontSize: 15),
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.right,
-            maxLines: 1,
-          ),
-          onTap: () {
-            if (c.chat.value != null) {
-              c.minimize();
-              router.chat(c.chat.value!.chat.value.id);
-            }
-          },
-        );
-      },
     );
 
 /// [FitView] of the [CallController.primary] widgets.

@@ -380,8 +380,7 @@ class PublicsTabView extends StatelessWidget {
           children: [
             Scaffold(
               resizeToAvoidBottomInset: false,
-              appBar: CustomAppBar.from(
-                context: context,
+              appBar: CustomAppBar(
                 title: Obx(() {
                   Widget child;
 
