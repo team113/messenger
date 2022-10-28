@@ -27,8 +27,6 @@ import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '/config.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -176,17 +174,11 @@ class CallWorker extends DisposableService {
                       c.caller?.name?.val ??
                       c.caller?.num.val;
 
-                  String? avatarUrl;
-                  Avatar? avatar = chat?.avatar.value;
-                  if (avatar != null) {
-                    avatarUrl = '${Config.files}${avatar.original.relativeRef}';
-                  }
-
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,
                     body: title == null ? null : 'label_incoming_call'.l10n,
                     payload: '${Routes.chat}/${c.chatId}',
-                    icon: avatarUrl,
+                    icon: chat?.avatar.value?.original.url,
                     playSound: false,
                   );
                 });
