@@ -78,10 +78,6 @@ class ChatController extends GetxController {
     this.itemId,
   });
 
-  final RxBool isItemDragged = RxBool(false);
-
-  final RxBool timelineFeedback = RxBool(false);
-
   /// ID of this [Chat].
   final ChatId id;
 
@@ -143,6 +139,12 @@ class ChatController extends GetxController {
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
+
+  /// Indicator whether there is an [ChatItem] is dragged.
+  final RxBool isItemDragged = RxBool(false);
+
+  /// Indicator whether timeline feedback was called.
+  final RxBool timelineFeedback = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [SingleChildScrollView]
   /// of [ChatItem]s when non-`null`.

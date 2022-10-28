@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+/// Animated transformation translation of the provided [child].
 class AnimatedTransform extends ImplicitlyAnimatedWidget {
   const AnimatedTransform({
     Key? key,
@@ -26,7 +27,10 @@ class AnimatedTransform extends ImplicitlyAnimatedWidget {
     required this.child,
   }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
 
+  /// Initial [Offset] of the [child].
   final Offset offset;
+
+  /// [Widget] to transform around.
   final Widget child;
 
   @override
@@ -34,10 +38,15 @@ class AnimatedTransform extends ImplicitlyAnimatedWidget {
       _AnimatedTransformState();
 }
 
+/// State of an [AnimatedTransform] maintaining its [_animation] and
+/// [_transform].
 class _AnimatedTransformState
     extends ImplicitlyAnimatedWidgetState<AnimatedTransform> {
+
+  /// [Animation] ot this [AnimatedTransform];
   late Animation<Offset> _animation;
 
+  /// [Tween] ot this [_animation];
   Tween<Offset>? _transform;
 
   @override

@@ -43,7 +43,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/animated_transform.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -54,6 +53,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import 'animated_transform.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -129,7 +129,8 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
 
-  /// Callback, called when this [ChatItem] is dragged.
+  /// Callback, called when the dragging state of this [ChatItemWidget] is
+  /// changed.
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
@@ -487,6 +488,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
+
+  /// [Offset] of this [ChatItemWidget];
+  Offset _offset = Offset.zero;
+
+  /// [Duration] of the offset animation.
+  Duration _offsetDuration = Duration.zero;
+
+  /// Indicator whether this [ChatItemWidget] is being dragged.
+  bool _dragging = false;
+
+  /// Indicator whether dragging of this [ChatItemWidget] is started.
+  bool _draggingStarted = false;
 
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
@@ -1203,12 +1216,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  Offset _offset = Offset.zero;
-  Duration _offsetDuration = Duration.zero;
-  bool _dragging = false;
-  bool _draggingStarted = false;
-  bool _draggingFeedback = false;
-
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
@@ -1246,45 +1253,37 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             setState(() => _offsetDuration = Duration.zero);
           },
           onHorizontalDragUpdate: (d) {
-            if (_draggingStarted) {
+            if (_draggingStarted && !_dragging) {
               if (widget.animation?.value == 0 &&
                   _offset.dx == 0 &&
                   d.delta.dx > 0) {
                 _dragging = true;
                 widget.onDrag?.call(_dragging);
+              } else {
+                _draggingStarted = false;
               }
-              _draggingStarted = false;
             }
 
             if (_dragging) {
               _offset += d.delta;
-              if (_offset.dx > 30) {
-                if (!_draggingFeedback) {
-                  _draggingFeedback = true;
-                  HapticFeedback.selectionClick();
-                  widget.onReply?.call();
-                }
-              } else {
-                _draggingFeedback = false;
+              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
+                HapticFeedback.selectionClick();
+                widget.onReply?.call();
               }
 
               setState(() {});
             }
           },
-          onHorizontalDragEnd: _dragging
-              ? (d) {
-            if (_offset.dx > 30) {
-              // widget.onReply?.call();
+          onHorizontalDragEnd: (d) {
+            if (_dragging) {
+              _dragging = false;
+              _draggingStarted = false;
+              _offset = Offset.zero;
+              _offsetDuration = 200.milliseconds;
+              widget.onDrag?.call(_dragging);
+              setState(() {});
             }
-
-            _dragging = false;
-            _draggingFeedback = false;
-            _offset = Offset.zero;
-            _offsetDuration = 200.milliseconds;
-            widget.onDrag?.call(_dragging);
-            setState(() {});
-          }
-              : null,
+          },
           child: Row(
             crossAxisAlignment:
                 _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -1342,8 +1341,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        alignment:
-                            _fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
+                        alignment: _fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
                         actions: [
                           if (copyable != null)
                             ContextMenuButton(
@@ -1419,7 +1419,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   title: 'label_delete_message'.l10n,
                                   description: deletable
                                       ? null
-                                      : 'label_message_will_deleted_for_you'.l10n,
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                                   variants: [
                                     ConfirmDialogVariant(
                                       onProceed: widget.onHide,

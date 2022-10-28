@@ -290,46 +290,46 @@ class _ChatViewState extends State<ChatView>
                         behavior: HitTestBehavior.translucent,
                         gestures: c.horizontalScrollTimer.value == null
                             ? {
-                          AllowMultipleHorizontalDragGestureRecognizer:
-                          GestureRecognizerFactoryWithHandlers<
-                              AllowMultipleHorizontalDragGestureRecognizer>(
-                                () =>
-                                AllowMultipleHorizontalDragGestureRecognizer(),
-                                (AllowMultipleHorizontalDragGestureRecognizer
-                            instance) {
-                              instance.onStart = (d) {};
+                                AllowMultipleHorizontalDragGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                        AllowMultipleHorizontalDragGestureRecognizer>(
+                                  () =>
+                                      AllowMultipleHorizontalDragGestureRecognizer(),
+                                  (AllowMultipleHorizontalDragGestureRecognizer
+                                      instance) {
+                                    instance.onStart = (d) {};
 
-                              instance.onUpdate = (d) {
-                                if (!c.isItemDragged.value) {
-                                  double value =
-                                      _animation.value - d.delta.dx / 100;
-                                  _animation.value = value.clamp(0, 1);
+                                    instance.onUpdate = (d) {
+                                      if (c.isItemDragged.isFalse) {
+                                        double value =
+                                            _animation.value - d.delta.dx / 100;
+                                        _animation.value = value.clamp(0, 1);
 
-                                  if (_animation.value == 1 ||
-                                      _animation.value == 0) {
-                                    if (!c.timelineFeedback.value) {
-                                      HapticFeedback.selectionClick();
-                                    }
-                                    c.timelineFeedback.value = true;
-                                  } else {
-                                    c.timelineFeedback.value = false;
-                                  }
-                                }
-                              };
+                                        if (_animation.value == 1 ||
+                                            _animation.value == 0) {
+                                          if (c.timelineFeedback.isFalse) {
+                                            HapticFeedback.selectionClick();
+                                          }
+                                          c.timelineFeedback.value = true;
+                                        } else {
+                                          c.timelineFeedback.value = false;
+                                        }
+                                      }
+                                    };
 
-                              instance.onEnd = (d) {
-                                c.timelineFeedback.value = false;
-                                if (!c.isItemDragged.value) {
-                                  if (_animation.value >= 0.5) {
-                                    _animation.forward();
-                                  } else {
-                                    _animation.reverse();
-                                  }
-                                }
-                              };
-                            },
-                          )
-                        }
+                                    instance.onEnd = (d) {
+                                      c.timelineFeedback.value = false;
+                                      if (!c.isItemDragged.value) {
+                                        if (_animation.value >= 0.5) {
+                                          _animation.forward();
+                                        } else {
+                                          _animation.reverse();
+                                        }
+                                      }
+                                    };
+                                  },
+                                )
+                              }
                             : {},
                         child: Stack(
                           children: [
@@ -337,24 +337,6 @@ class _ChatViewState extends State<ChatView>
                             // size.
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
-                            ),
-                            GestureDetector(
-                              onHorizontalDragUpdate: PlatformUtils.isDesktop
-                                  ? (d) {
-                                      double value =
-                                          _animation.value - d.delta.dx / 100;
-                                      _animation.value = value.clamp(0, 1);
-                                    }
-                                  : null,
-                              onHorizontalDragEnd: PlatformUtils.isDesktop
-                                  ? (d) {
-                                      if (_animation.value >= 0.5) {
-                                        _animation.forward();
-                                      } else {
-                                        _animation.reverse();
-                                      }
-                                    }
-                                  : null,
                             ),
                             Obx(() {
                               return FlutterListView(
@@ -372,6 +354,8 @@ class _ChatViewState extends State<ChatView>
                                       .elementAt(i)
                                       .id
                                       .toString(),
+                                  onItemSticky: (i) => c.elements.values
+                                      .elementAt(i) is DateTimeElement,
                                   initIndex: c.initIndex,
                                   initOffset: c.initOffset,
                                   initOffsetBasedOnBottom: false,
@@ -619,6 +603,7 @@ class _ChatViewState extends State<ChatView>
             onCopy: c.copyText,
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
+            onDrag: (d) => c.isItemDragged.value = d,
             onForwardedTap: (id, chatId) {
               if (chatId == c.id) {
                 c.animateTo(id);
@@ -866,8 +851,8 @@ class _ChatViewState extends State<ChatView>
             mainAxisSize: MainAxisSize.min,
             children: [
               LayoutBuilder(builder: (context, constraints) {
-                bool grab =
-                    (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
+                bool grab = (125 + 2) * c.attachments.length >
+                    constraints.maxWidth - 16;
 
                 return ConditionalBackdropFilter(
                   condition: style.cardBlur > 0,
@@ -988,25 +973,28 @@ class _ChatViewState extends State<ChatView>
                                       ? SystemMouseCursors.grab
                                       : MouseCursor.defer,
                                   opaque: false,
-                                  child: SingleChildScrollView(
-                                    clipBehavior: Clip.none,
-                                    physics: grab
-                                        ? null
-                                        : const NeverScrollableScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: c.attachments
-                                          .map(
-                                            (e) => _buildAttachment(
-                                              c,
-                                              e.value,
-                                              e.key,
-                                            ),
-                                          )
-                                          .toList(),
+                                  child: ScrollConfiguration(
+                                    behavior: CustomScrollBehavior(),
+                                    child: SingleChildScrollView(
+                                      clipBehavior: Clip.none,
+                                      physics: grab
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: c.attachments
+                                            .map(
+                                              (e) => _buildAttachment(
+                                                c,
+                                                e.value,
+                                                e.key,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -2077,6 +2065,20 @@ extension DateTimeToRelative on DateTime {
         day +
         1721119;
   }
+}
+
+/// Custom [ScrollBehavior] allowing scrolling on drag.
+class CustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.unknown,
+        // etc.
+      };
 }
 
 class AllowMultipleHorizontalDragGestureRecognizer
