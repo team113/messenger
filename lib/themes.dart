@@ -52,21 +52,17 @@ class Themes {
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             messageColor: Colors.white,
+            primaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             dropButtonColor: Colors.red,
             hoveredBorderUnselected:
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
-            primaryBorder:
-                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
-            primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
+            primaryCardColor: const Color(0xFFD2E3F9),
             sidebarColor: Colors.white.withOpacity(0.4),
-            statusMessageError: Colors.red,
-            statusMessageNotRead: const Color(0xFF888888),
-            statusMessageRead: const Color(0xFF63B4FF),
-            subtitleColor: const Color(0xFF666666),
-            unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
+            unselectedHoverColor: const Color(0xFFF4F9FF),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
@@ -300,18 +296,14 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
-    required this.messageColor,
-    required this.primaryBorder,
-    required this.readMessageColor,
-    required this.secondaryBorder,
     required this.dropButtonColor,
     required this.hoveredBorderUnselected,
+    required this.messageColor,
+    required this.primaryBorder,
     required this.primaryCardColor,
+    required this.readMessageColor,
+    required this.secondaryBorder,
     required this.sidebarColor,
-    required this.statusMessageError,
-    required this.statusMessageNotRead,
-    required this.statusMessageRead,
-    required this.subtitleColor,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
@@ -331,7 +323,7 @@ class Style extends ThemeExtension<Style> {
   /// [Border] to apply to card-like [Widget]s.
   final Border cardBorder;
 
-  /// [Color] to use in sidebar for chats if chat is not selected.
+  /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.
@@ -371,18 +363,6 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// Status icon [Color] when an error occurred while sending a message.
-  final Color statusMessageError;
-
-  /// Status icon [Color] when a message has not been read.
-  final Color statusMessageNotRead;
-
-  /// Status icon [Color] when a message has been read.
-  final Color statusMessageRead;
-
-  /// [Color] used for the primary text in lists.
-  final Color subtitleColor;
-
   /// [Border] to apply to system messages.
   final Border systemMessageBorder;
 
@@ -418,10 +398,6 @@ class Style extends ThemeExtension<Style> {
     Color? readMessageColor,
     Border? secondaryBorder,
     Color? sidebarColor,
-    Color? statusMessageError,
-    Color? statusMessageNotRead,
-    Color? statusMessageRead,
-    Color? subtitleColor,
     Color? unselectedHoverColor,
     Border? systemMessageBorder,
     Color? systemMessageColor,
@@ -449,10 +425,6 @@ class Style extends ThemeExtension<Style> {
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
       primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
-      statusMessageError: statusMessageError ?? this.statusMessageError,
-      statusMessageNotRead: statusMessageNotRead ?? this.statusMessageNotRead,
-      statusMessageRead: statusMessageRead ?? this.statusMessageRead,
-      subtitleColor: subtitleColor ?? this.subtitleColor,
       unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
@@ -497,13 +469,6 @@ class Style extends ThemeExtension<Style> {
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      statusMessageError:
-          Color.lerp(statusMessageError, other.statusMessageError, t)!,
-      statusMessageNotRead:
-          Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
-      statusMessageRead:
-          Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
-      subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       unselectedHoverColor:
           Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
       systemMessageBorder:

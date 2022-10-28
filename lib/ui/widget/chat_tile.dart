@@ -84,7 +84,7 @@ class ChatTile extends StatelessWidget {
             selected: selected,
             hoveredBorder:
                 selected ? style.primaryBorder : style.hoveredBorderUnselected,
-            unhoveredBorder: selected ? style.primaryBorder : style.cardBorder,
+            border: selected ? style.primaryBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
             unselectedHoverColor: style.unselectedHoverColor,

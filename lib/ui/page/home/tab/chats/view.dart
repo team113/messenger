@@ -18,14 +18,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/custom_app_bar.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import 'component/recent_chat.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
+import 'widget/recent_chat.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -74,6 +75,7 @@ class ChatsTabView extends StatelessWidget {
                       controller: ScrollController(),
                       itemCount: c.chats.length,
                       itemBuilder: (_, i) {
+                        final RxChat chat = c.chats[i];
                         return AnimationConfiguration.staggeredList(
                           position: i,
                           duration: const Duration(milliseconds: 375),
@@ -84,7 +86,16 @@ class ChatsTabView extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                 ),
-                                child: RecentChatTile(c, c.chats[i]),
+                                child: RecentChatTile(
+                                  chat,
+                                  me: c.me,
+                                  getUser: c.getUser,
+                                  onJoin: () => c.joinCall(chat.id),
+                                  onDrop: () => c.dropCall(chat.id),
+                                  onLeave: () => c.leaveChat(chat.id),
+                                  onHide: () => c.hideChat(chat.id),
+                                  inCall: () => c.inCall(chat.id),
+                                ),
                               ),
                             ),
                           ),

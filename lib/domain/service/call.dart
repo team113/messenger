@@ -183,16 +183,14 @@ class CallService extends DisposableService {
   /// Leaves an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
-    deviceId ??= call?.value.deviceId;
-
     if (call != null) {
       deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
+    }
 
-      if (deviceId != null) {
-        await _callsRepo.leave(chatId, deviceId);
-      }
+    if (deviceId != null) {
+      await _callsRepo.leave(chatId, deviceId);
     }
 
     WebUtils.removeCall(chatId);

@@ -148,7 +148,7 @@ class _ChatWatchData {
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
               chat.lastItem!.authorId != me?.call()) {
-            final body = StringBuffer();
+            final StringBuffer body = StringBuffer();
 
             if (chat.lastItem is ChatMessage) {
               var msg = chat.lastItem as ChatMessage;
@@ -161,7 +161,7 @@ class _ChatWatchData {
 
               if (msg.attachments.isNotEmpty) {
                 body.write(
-                  'label_attachments_count'
+                  'label_attachments'
                       .l10nfmt({'count': msg.attachments.length}),
                 );
               }

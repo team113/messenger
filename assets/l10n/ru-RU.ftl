@@ -327,10 +327,10 @@ label_ago_date = { $years ->
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = вложение(я)
-label_attachments_count = [{$count} { $count ->
+label_attachments = [{$count} { $count ->
     [1] прикрепление
-    *[other] прикрепления
+    [few] прикрепления
+    *[other] прикреплений
     }]
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
@@ -360,11 +360,8 @@ label_chat_call_missed = Пропущенный звонок
 label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
-label_chat_created = Чат создан
 label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
-label_chat_was_added = {$who} был(а) добавлен(а)
-label_chat_was_removed = {$who} был(а) удален(а)
 label_chats = Чаты
 label_contact = Контакт
 label_contacts = Контакты

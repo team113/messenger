@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -40,15 +39,47 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
-/// [ChatTile] filled with [RxChat]'s information.
+/// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
-  const RecentChatTile(this.c, this.rxChat, {Key? key}) : super(key: key);
+  const RecentChatTile(
+    this.rxChat, {
+    Key? key,
+    this.me,
+    this.getUser,
+    this.inCall,
+    this.onLeave,
+    this.onHide,
+    this.onDrop,
+    this.onJoin,
+  }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
 
-  /// [ChatsTabController] of a [ChatsTabView] displaying this [RecentChatTile].
-  final ChatsTabController c;
+  /// [UserId] of the authenticated [MyUser].
+  final UserId? me;
+
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final Future<RxUser?> Function(UserId id)? getUser;
+
+  /// Callback, called to check whether this device of the currently
+  /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
+
+  /// Callback, called when this [rxChat] leave action is triggered.
+  final void Function()? onLeave;
+
+  /// Callback, called when this [rxChat] hide action is triggered.
+  final void Function()? onHide;
+
+  /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
+  /// triggered.
+  final void Function()? onDrop;
+
+  /// Callback, called when a join [Chat.ongoingCall] in this [rxChat] action is
+  /// triggered.
+  final void Function()? onJoin;
 
   @override
   Widget build(BuildContext context) {
@@ -68,47 +99,31 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        title: [
-          const SizedBox(height: 10),
-          if (chat.ongoingCall == null)
-            Text(
-              chat.updatedAt.val.toLocal().toShort(),
-              style: text,
-            ),
-        ],
         subtitle: [
           const SizedBox(height: 5),
           ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 38,
-            ),
+            constraints: const BoxConstraints(maxHeight: 38),
             child: Row(
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
-                if (chat.ongoingCall == null) ...[
-                  _status(context),
-                  _counter(),
-                ]
               ],
             ),
           ),
         ],
         trailing: [
           _callButtons(context),
-          if (chat.ongoingCall != null) ...[
-            const SizedBox(width: 7),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const SizedBox(height: 15),
+          const SizedBox(width: 7),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const SizedBox(height: 15),
+              if (chat.ongoingCall != null)
                 PeriodicBuilder(
                   period: const Duration(seconds: 1),
                   builder: (_) {
                     return ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: 35,
-                      ),
+                      constraints: const BoxConstraints(minWidth: 35),
                       child: Text(
                         DateTime.now()
                             .difference(chat.ongoingCall!.at.val)
@@ -117,27 +132,30 @@ class RecentChatTile extends StatelessWidget {
                       ),
                     );
                   },
-                ),
-                const SizedBox(height: 3),
-                Row(children: [
+                )
+              else
+                Text(chat.updatedAt.val.toLocal().toShort(), style: text),
+              const SizedBox(height: 8),
+              Row(
+                children: [
                   _status(context),
                   _counter(),
-                ]),
-              ],
-            ),
-          ]
+                ],
+              ),
+            ],
+          ),
         ],
         actions: [
           ContextMenuButton(
             key: const Key('ButtonHideChat'),
             label: 'btn_hide_chat'.l10n,
-            onPressed: () => c.hideChat(chat.id),
+            onPressed: onHide,
           ),
           if (chat.isGroup)
             ContextMenuButton(
               key: const Key('ButtonLeaveChat'),
               label: 'btn_leave_chat'.l10n,
-              onPressed: () => c.leaveChat(chat.id),
+              onPressed: onLeave,
             ),
         ],
         selected: selected,
@@ -149,7 +167,6 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
     final Chat chat = rxChat.chat.value;
 
     final ChatItem? item;
@@ -162,7 +179,7 @@ class RecentChatTile extends StatelessWidget {
     List<Widget> subtitle = [];
 
     final Iterable<String> typings = rxChat.typingUsers
-        .where((User user) => user.id != c.me)
+        .where((User user) => user.id != me)
         .map((User user) => user.name?.val ?? user.num.val);
 
     if (typings.isNotEmpty) {
@@ -213,9 +230,9 @@ class RecentChatTile extends StatelessWidget {
       }
     } else if (item != null) {
       if (item is ChatCall) {
-        final Widget widget = Padding(
-          padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
-          child: Icon(Icons.call, size: 16, color: style.subtitleColor),
+        const Widget widget = Padding(
+          padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
+          child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
         );
 
         if (item.finishedAt == null && item.finishReason == null) {
@@ -225,14 +242,14 @@ class RecentChatTile extends StatelessWidget {
           ];
         } else {
           final String description =
-              item.finishReason?.localizedString(item.authorId == c.me) ??
+              item.finishReason?.localizedString(item.authorId == me) ??
                   'label_chat_call_ended'.l10n;
           subtitle = [widget, Flexible(child: Text(description))];
         }
       } else if (item is ChatMessage) {
         final desc = StringBuffer();
 
-        if (!chat.isGroup && item.authorId == c.me) {
+        if (!chat.isGroup && item.authorId == me) {
           desc.write('${'label_you'.l10n}${'colon_space'.l10n}');
         }
 
@@ -245,8 +262,7 @@ class RecentChatTile extends StatelessWidget {
 
         if (item.attachments.isNotEmpty) {
           desc.write(
-            'label_attachments_count'
-                .l10nfmt({'count': item.attachments.length}),
+            'label_attachments'.l10nfmt({'count': item.attachments.length}),
           );
         }
 
@@ -255,7 +271,7 @@ class RecentChatTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: FutureBuilder<RxUser?>(
-                future: c.getUser(item.authorId),
+                future: getUser?.call(item.authorId),
                 builder: (_, snapshot) => snapshot.data != null
                     ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                     : AvatarWidget.fromUser(
@@ -272,7 +288,7 @@ class RecentChatTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: FutureBuilder<RxUser?>(
-                future: c.getUser(item.authorId),
+                future: getUser?.call(item.authorId),
                 builder: (_, snapshot) => snapshot.data != null
                     ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                     : AvatarWidget.fromUser(
@@ -288,19 +304,23 @@ class RecentChatTile extends StatelessWidget {
 
         switch (item.action) {
           case ChatMemberInfoAction.created:
-            content = Text('label_chat_created'.l10n);
+            if (chat.isGroup) {
+              content = Text('label_group_created'.l10n);
+            } else {
+              content = Text('label_dialog_created'.l10n);
+            }
             break;
 
           case ChatMemberInfoAction.added:
             content = Text(
-              'label_chat_was_added'
+              'label_was_added'
                   .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
             );
             break;
 
           case ChatMemberInfoAction.removed:
             content = Text(
-              'label_chat_was_removed'
+              'label_was_removed'
                   .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
             );
             break;
@@ -338,10 +358,10 @@ class RecentChatTile extends StatelessWidget {
         item = chat.lastItem;
       }
 
-      if (item?.authorId == c.me) {
+      if (item?.authorId == me) {
         final bool isSent = item?.status.value == SendingStatus.sent;
         final bool isRead = chat.lastReads.firstWhereOrNull((LastChatRead l) =>
-                    l.memberId != c.me && !l.at.isBefore(item!.at)) !=
+                    l.memberId != me && !l.at.isBefore(item!.at)) !=
                 null &&
             isSent;
         final bool isDelivered =
@@ -349,23 +369,20 @@ class RecentChatTile extends StatelessWidget {
         final bool isError = item?.status.value == SendingStatus.error;
         final bool isSending = item?.status.value == SendingStatus.sending;
 
-        return Padding(
-          padding: const EdgeInsets.only(left: 10, top: 8),
-          child: Icon(
-            isRead || isDelivered
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.statusMessageRead
-                : isError
-                    ? style.statusMessageError
-                    : style.statusMessageNotRead,
-            size: 16,
-          ),
+        return Icon(
+          isRead || isDelivered
+              ? Icons.done_all
+              : isSending
+                  ? Icons.access_alarm
+                  : isError
+                      ? Icons.error_outline
+                      : Icons.done,
+          color: isRead
+              ? Theme.of(context).colorScheme.secondary
+              : isError
+                  ? Colors.red
+                  : Theme.of(context).colorScheme.primary,
+          size: 16,
         );
       }
 
@@ -373,7 +390,7 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Returns a visual representation of the [Chat.unreadCount].
+  /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter() {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
@@ -381,7 +398,7 @@ class RecentChatTile extends StatelessWidget {
       if (chat.unreadCount > 0) {
         return Container(
           key: const Key('UnreadMessages'),
-          margin: const EdgeInsets.only(left: 10),
+          margin: const EdgeInsets.only(left: 4),
           width: 23,
           height: 23,
           decoration: const BoxDecoration(
@@ -419,10 +436,10 @@ class RecentChatTile extends StatelessWidget {
         final Widget trailing;
 
         if (chat.ongoingCall != null) {
-          if (c.hasCall(chat.id)) {
+          if (inCall?.call() == true) {
             trailing = WidgetButton(
               key: const Key('DropCallButton'),
-              onPressed: () => c.dropCall(chat.id),
+              onPressed: onDrop,
               child: Container(
                 height: 38,
                 width: 38,
@@ -442,7 +459,7 @@ class RecentChatTile extends StatelessWidget {
           } else {
             trailing = WidgetButton(
               key: const Key('JoinCallButton'),
-              onPressed: () => c.joinCall(chat.id),
+              onPressed: onJoin,
               child: Container(
                 height: 38,
                 width: 38,
@@ -478,10 +495,10 @@ class RecentChatTile extends StatelessWidget {
 extension DateTimeToShort on DateTime {
   /// Returns short text representing this [DateTime].
   ///
-  /// Returns string in format `HH:MM` if [DateTime] is today.
-  /// Returns short weekday name if [difference] between this [DateTime] and
-  /// [DateTime.now] is less then 7 days.
-  /// Elsewhere returns string in format `YYYY:MM:DD`.
+  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
+  /// short weekday name, if [difference] between this [DateTime] and
+  /// [DateTime.now] is less then 7 days. Otherwise returns a string in format
+  /// of `YYYY-MM-DD`.
   String toShort() {
     final DateTime now = DateTime.now();
     final DateTime from = DateTime(now.year, now.month, now.day);

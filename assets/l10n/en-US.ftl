@@ -311,8 +311,7 @@ label_ago_date = { $years ->
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
-label_attachments = attachment(s)
-label_attachments_count = [{$count} { $count ->
+label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
     }]
@@ -344,11 +343,8 @@ label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
-label_chat_created = Chat created
 label_chat_members = Members
 label_chat_monolog = Saved messages
-label_chat_was_added = {$who} was added
-label_chat_was_removed = {$who} was removed
 label_chats = Messages
 label_contact = Contact
 label_contacts = Contacts
@@ -500,7 +496,6 @@ label_tab_contacts = Contacts
 label_tab_menu = Menu
 label_transition_count = Transitions
 label_typing = Typing
-label_typings = are typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
 label_unread_messages = { $quantity ->
