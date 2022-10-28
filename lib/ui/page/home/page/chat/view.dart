@@ -354,8 +354,6 @@ class _ChatViewState extends State<ChatView>
                                       .elementAt(i)
                                       .id
                                       .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
                                   initIndex: c.initIndex,
                                   initOffset: c.initOffset,
                                   initOffsetBasedOnBottom: false,
@@ -2081,6 +2079,7 @@ class CustomScrollBehavior extends MaterialScrollBehavior {
       };
 }
 
+/// [GestureRecognizer] allowing multi horizontal drags.
 class AllowMultipleHorizontalDragGestureRecognizer
     extends HorizontalDragGestureRecognizer {
   @override

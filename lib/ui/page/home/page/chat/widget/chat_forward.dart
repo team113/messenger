@@ -143,7 +143,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
-  /// [Offset] of this [ChatItemWidget];
+  /// [Offset] of this [ChatForwardWidget];
   Offset _offset = Offset.zero;
 
   /// [Duration] of the offset animation.
@@ -152,7 +152,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Indicator whether this [ChatForwardWidget] is being dragged.
   bool _dragging = false;
 
-  /// Indicator whether dragging of this [ChatItemWidget] is started.
+  /// Indicator whether dragging of this [ChatForwardWidget] is started.
   bool _draggingStarted = false;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any

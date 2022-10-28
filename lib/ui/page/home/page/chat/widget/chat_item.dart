@@ -1301,13 +1301,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: item.status.value == SendingStatus.sending
                         ? const Padding(
                             key: Key('Sending'),
-                            padding: EdgeInsets.only(left: 8),
+                            padding: EdgeInsets.only(bottom: 8),
                             child: Icon(Icons.access_alarm, size: 15),
                           )
                         : item.status.value == SendingStatus.error
                             ? const Padding(
                                 key: Key('Error'),
-                                padding: EdgeInsets.only(left: 8),
+                                padding: EdgeInsets.only(bottom: 8),
                                 child: Icon(
                                   Icons.error_outline,
                                   size: 15,
