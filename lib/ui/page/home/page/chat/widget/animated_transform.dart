@@ -42,7 +42,6 @@ class AnimatedTransform extends ImplicitlyAnimatedWidget {
 /// [_transform].
 class _AnimatedTransformState
     extends ImplicitlyAnimatedWidgetState<AnimatedTransform> {
-
   /// [Animation] ot this [AnimatedTransform];
   late Animation<Offset> _animation;
 

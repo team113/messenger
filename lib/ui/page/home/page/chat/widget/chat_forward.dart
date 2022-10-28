@@ -790,7 +790,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
                                 if (widget.note.value != null) {
                                   quotes.add(
-                                    ChatItemQuote(item: widget.note.value!.value),
+                                    ChatItemQuote(
+                                      item: widget.note.value!.value,
+                                    ),
                                   );
                                 }
 
@@ -836,7 +838,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   title: 'label_delete_message'.l10n,
                                   description: deletable
                                       ? null
-                                      : 'label_message_will_deleted_for_you'.l10n,
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                                   variants: [
                                     ConfirmDialogVariant(
                                       onProceed: widget.onHide,
