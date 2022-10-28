@@ -6,7 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.7] · 2022-??-??
+## [0.1.0-alpha.8] · 2022-??-??
+[0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
+
+[Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesign forwarding modal. ([#189], [#181])
+
+[#181]: /../../issues/181
+[#189]: /../../pull/189
+
+
+
+
+## [0.1.0-alpha.7] · 2022-10-27
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
 [Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)

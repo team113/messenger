@@ -17,11 +17,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -63,8 +61,7 @@ class SearchView extends StatelessWidget {
   /// otherwise [onPressed] may be called.
   final bool enabled;
 
-  /// Indicator whether the selected items can be submitted, if [selectable], or
-  /// otherwise [onPressed] may be called.
+  /// Indicator whether the submit button should be displayed or not.
   final bool showSubmitButton;
 
   /// Title of this [SearchView].
@@ -81,7 +78,7 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called when the submit button is pressed.
+  /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults results)? onChanged;
 
   /// Callback, called when the back button is pressed.
@@ -319,6 +316,7 @@ class SearchView extends StatelessWidget {
     );
   }
 
+  /// Builds [Contact]s tile.
   Widget tile({
     required BuildContext context,
     RxUser? user,
@@ -363,6 +361,7 @@ class SearchView extends StatelessWidget {
     );
   }
 
+  /// Builds [Chat]s tile.
   Widget chatTile(
     BuildContext context, {
     required RxChat chat,
@@ -374,68 +373,64 @@ class SearchView extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
+      child: Container(
         height: 76,
-        child: ContextMenuRegion(
-          key: Key('ContextMenuRegion_${chat.chat.value.id}'),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              border: style.cardBorder,
-              color: Colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: selected
-                  ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                  : style.cardColor.darken(0.05),
-              child: InkWell(
-                borderRadius: style.cardRadius,
-                onTap: onTap,
-                hoverColor: selected
-                    ? const Color(0x00D7ECFF)
-                    : const Color(0xFFD7ECFF).withOpacity(0.8),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                  child: Row(
-                    children: [
-                      AvatarWidget.fromRxChat(chat, radius: 26),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          chat.title.value == 'Wall_$me'
-                              ? 'label_your_wall'.l10n
-                              : chat.title.value,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.headline5,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 30,
-                        height: 30,
-                        child: AnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: selected
-                              ? const CircleAvatar(
-                                  backgroundColor: Color(0xFF63B4FF),
-                                  radius: 12,
-                                  child: Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 14,
-                                  ),
-                                )
-                              : const CircleAvatar(
-                                  backgroundColor: Color(0xFFD7D7D7),
-                                  radius: 12,
-                                ),
-                        ),
-                      ),
-                    ],
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: selected
+              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+              : style.cardColor.darken(0.05),
+          child: InkWell(
+            key: Key('SearchViewChat_${chat.chat.value.id}'),
+            borderRadius: style.cardRadius,
+            onTap: onTap,
+            hoverColor: selected
+                ? const Color(0x00D7ECFF)
+                : const Color(0xFFD7ECFF).withOpacity(0.8),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              child: Row(
+                children: [
+                  AvatarWidget.fromRxChat(chat, radius: 26),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      chat.title.value == 'Wall_$me'
+                          ? 'label_your_wall'.l10n
+                          : chat.title.value,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
                   ),
-                ),
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: AnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: selected
+                          ? const CircleAvatar(
+                              backgroundColor: Color(0xFF63B4FF),
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            )
+                          : const CircleAvatar(
+                              backgroundColor: Color(0xFFD7D7D7),
+                              radius: 12,
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -462,12 +457,16 @@ extension _SearchCategoryL10n on SearchCategory {
   }
 }
 
+/// Wrapped [SearchView] selected items.
 class SearchViewResults {
   const SearchViewResults(this.chats, this.users, this.contacts);
 
+  /// Selected [Chat]s.
   final List<RxChat> chats;
 
+  /// Selected [User]s.
   final List<RxUser> users;
 
+  /// Selected [Contact]s.
   final List<RxChatContact> contacts;
 }

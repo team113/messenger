@@ -21,13 +21,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/search/controller.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/call/widget/round_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -40,14 +33,21 @@ import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/search/controller.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/init_callback.dart';
+import '/ui/page/home/page/chat/widget/my_dismissible.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
@@ -58,7 +58,6 @@ class ChatForwardView extends StatelessWidget {
     Key? key,
     required this.from,
     required this.quotes,
-    this.noEditing = false,
     this.text,
     this.attachments,
   }) : super(key: key);
@@ -69,9 +68,10 @@ class ChatForwardView extends StatelessWidget {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
-  final bool noEditing;
-
+  /// Initial send field value.
   final String? text;
+
+  /// Initial attachments.
   final RxList<Attachment>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
@@ -79,7 +79,6 @@ class ChatForwardView extends StatelessWidget {
     BuildContext context,
     ChatId from,
     List<ChatItemQuote> quotes, {
-    bool noEditing = false,
     String? text,
     RxList<Attachment>? attachments,
   }) {
@@ -97,9 +96,9 @@ class ChatForwardView extends StatelessWidget {
       mobilePadding: const EdgeInsets.all(0),
       desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: ChatForwardView(
+        key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        noEditing: noEditing,
         attachments: attachments,
         text: text,
       ),
@@ -114,93 +113,10 @@ class ChatForwardView extends StatelessWidget {
         Get.find(),
         from: from,
         quotes: quotes,
-        attachments: attachments,
         text: text,
+        attachments: attachments,
       ),
       builder: (ChatForwardController c) {
-        List<Widget> children = [
-          Expanded(
-            child: SearchView(
-                categories: const [
-                  SearchCategory.recent,
-                  SearchCategory.contacts,
-                  SearchCategory.users,
-                ],
-                title: 'label_forward_message'.l10n,
-                showSubmitButton: false,
-                onChanged: (SearchViewResults result) {
-                  c.searchResults.value = result;
-                }),
-          ),
-          if (noEditing) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: OutlinedRoundedButton(
-                maxWidth: null,
-                title: Text(
-                  'label_send'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  c.forward();
-                  Navigator.of(context).pop(true);
-                },
-                color: const Color(0xFF63B4FF),
-              ),
-            ),
-            const SizedBox(height: 18),
-          ] else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  shadowColor: const Color(0x55000000),
-                  iconTheme: const IconThemeData(color: Colors.blue),
-                  inputDecorationTheme: InputDecorationTheme(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusColor: Colors.white,
-                    fillColor: Colors.white,
-                    hoverColor: Colors.transparent,
-                    filled: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(
-                      15,
-                      PlatformUtils.isDesktop ? 30 : 23,
-                      15,
-                      0,
-                    ),
-                  ),
-                ),
-                child: _sendField(context, c),
-              ),
-            ),
-        ];
-
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2),
           constraints: const BoxConstraints(maxHeight: 650),
@@ -208,7 +124,67 @@ class ChatForwardView extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               const SizedBox(height: 16),
-              ...children,
+              Expanded(
+                child: SearchView(
+                    key: const Key('SearchView'),
+                    categories: const [
+                      SearchCategory.chats,
+                      SearchCategory.contacts,
+                      SearchCategory.users,
+                    ],
+                    title: 'label_forward_message'.l10n,
+                    showSubmitButton: false,
+                    onChanged: (SearchViewResults result) {
+                      c.searchResults.value = result;
+                    }),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    shadowColor: const Color(0x55000000),
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                    inputDecorationTheme: InputDecorationTheme(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusColor: Colors.white,
+                      fillColor: Colors.white,
+                      hoverColor: Colors.transparent,
+                      filled: true,
+                      isDense: true,
+                      contentPadding: EdgeInsets.fromLTRB(
+                        15,
+                        PlatformUtils.isDesktop ? 30 : 23,
+                        15,
+                        0,
+                      ),
+                    ),
+                  ),
+                  child: _sendField(context, c),
+                ),
+              ),
             ],
           ),
         );
@@ -333,7 +309,7 @@ class ChatForwardView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('Forwarded message', style: style.boldBody);
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
@@ -446,7 +422,6 @@ class ChatForwardView extends StatelessWidget {
                           key: const Key('Close'),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            // color: Colors.black.withOpacity(0.05),
                             color: style.cardColor,
                           ),
                           child: Center(
@@ -468,7 +443,7 @@ class ChatForwardView extends StatelessWidget {
   }
 
   /// Returns a visual representation of the provided [Attachment].
-  Widget _buildAttachment(ChatForwardController c, Attachment e, bool grab) {
+  Widget _buildAttachment(ChatForwardController c, Attachment e) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
 
@@ -599,12 +574,13 @@ class ChatForwardView extends StatelessWidget {
     );
   }
 
-  /// Returns a [ReactiveTextField] for sending a message in this [Chat].
+  /// Returns a [ReactiveTextField] for constructing a [ChatMessage] to attach
+  /// to the [quotes] to be forwarded.
   Widget _sendField(BuildContext context, ChatForwardController c) {
     Style style = Theme.of(context).extension<Style>()!;
     const double iconSize = 22;
     return Container(
-      key: const Key('ForwardField'),
+      key: const Key('ChatForwardView'),
       decoration: BoxDecoration(
         borderRadius: style.cardRadius,
         boxShadow: const [
@@ -750,7 +726,6 @@ class ChatForwardView extends StatelessWidget {
                                             (e) => _buildAttachment(
                                               c,
                                               e,
-                                              grab,
                                             ),
                                           )
                                           .toList(),
@@ -872,7 +847,7 @@ class ChatForwardView extends StatelessWidget {
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 150),
                             child: SizedBox(
-                              key: const Key('Send'),
+                              key: const Key('SendForward'),
                               width: 25.18,
                               height: 22.85,
                               child: Padding(
@@ -905,7 +880,6 @@ class ChatForwardView extends StatelessWidget {
         Widget? child,
         void Function()? onPressed,
       }) {
-        // TEXT MUST SCALE HORIZONTALLY!!!!!!!!
         return RoundFloatingButton(
           text: text,
           withBlur: false,
@@ -969,7 +943,6 @@ class ChatForwardView extends StatelessWidget {
         ),
       ];
 
-      // MAKE SIZE MINIMUM.
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -992,6 +965,7 @@ class ChatForwardView extends StatelessWidget {
   }
 }
 
+/// Custom scroll behavior.
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   // Override behavior methods and getters like dragDevices
   @override

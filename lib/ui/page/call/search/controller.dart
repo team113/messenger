@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/search/view.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -30,6 +29,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
+import '/ui/page/call/search/view.dart';
 import '/ui/widget/text_field.dart';
 
 export 'view.dart';
@@ -45,7 +45,7 @@ enum SearchCategory {
   /// Global [User]s.
   users,
 
-  /// Global [User]s.
+  /// [Chat]s of the authenticated [MyUser].
   chats,
 }
 
@@ -72,7 +72,7 @@ class SearchController extends GetxController {
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
 
-  /// Reactive list of the selected [User]s.
+  /// Reactive list of the selected [Chat]s.
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
@@ -98,7 +98,7 @@ class SearchController extends GetxController {
   /// [RxUser]s found under the [SearchCategory.users] category.
   final RxMap<UserId, RxUser> users = RxMap();
 
-  /// [RxUser]s found under the [SearchCategory.users] category.
+  /// [Chat]s found under the [SearchCategory.chats] category.
   final RxMap<ChatId, RxChat> chats = RxMap();
 
   /// Reactive list of the sorted [Chat]s.
@@ -122,7 +122,7 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when the submit button is pressed.
+  /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults results)? onChanged;
 
   /// Worker to react on [SearchResult.status] changes.

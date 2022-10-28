@@ -970,7 +970,7 @@ class _ChatViewState extends State<ChatView>
                                           .map(
                                             (e) => _buildAttachment(
                                               c,
-                                              e,
+                                              e.value,
                                               e.key,
                                             ),
                                           )
@@ -1071,7 +1071,11 @@ class _ChatViewState extends State<ChatView>
                                           .map((e) => ChatItemQuote(item: e))
                                           .toList(),
                                       text: c.send.text,
-                                      attachments: c.attachments,
+                                      attachments: RxList(
+                                        c.attachments
+                                            .map((e) => e.value)
+                                            .toList(),
+                                      ),
                                     );
 
                                     if (result == true) {
@@ -1356,12 +1360,15 @@ class _ChatViewState extends State<ChatView>
           }
         }
 
-        List<Attachment> attachments = c.attachments.where((e) {
-          Attachment a = e;
-          return a is ImageAttachment ||
-              (a is FileAttachment && a.isVideo) ||
-              (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-        }).toList();
+        List<Attachment> attachments = c.attachments
+            .where((e) {
+              Attachment a = e.value;
+              return a is ImageAttachment ||
+                  (a is FileAttachment && a.isVideo) ||
+                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+            })
+            .map((e) => e.value)
+            .toList();
 
         return WidgetButton(
           key: key,
@@ -1375,7 +1382,7 @@ class _ChatViewState extends State<ChatView>
                   initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o == a);
+                    c.attachments.removeWhere((o) => o.value == a);
                   },
                   children: attachments.map((o) {
                     var link = '${Config.files}${o.original.relativeRef}';
@@ -1520,8 +1527,8 @@ class _ChatViewState extends State<ChatView>
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () =>
-                                    c.attachments.removeWhere((a) => a == e),
+                                onTap: () => c.attachments
+                                    .removeWhere((a) => a.value == e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -1557,7 +1564,7 @@ class _ChatViewState extends State<ChatView>
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a == e),
+      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: attachment(),
     );
   }

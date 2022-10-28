@@ -52,6 +52,7 @@ import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -99,6 +100,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
+        iTapChatWith,
         tapText,
         tapWidget,
         twoUsers,

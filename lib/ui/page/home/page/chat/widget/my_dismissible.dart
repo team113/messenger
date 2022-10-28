@@ -252,8 +252,19 @@ class DismissUpdateDetails {
   final double progress;
 }
 
-enum _FlingGestureKind { none, forward, reverse }
+/// Fling gesture king.
+enum _FlingGestureKind {
+  /// None gesture kind.
+  none,
 
+  /// Forward gesture kind.
+  forward,
+
+  /// Reverse gesture kind.
+  reverse,
+}
+
+/// State of [MyDismissible].
 class _MyDismissibleState extends State<MyDismissible>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
@@ -266,16 +277,31 @@ class _MyDismissibleState extends State<MyDismissible>
     _updateMoveAnimation();
   }
 
+  /// Move [AnimationController].
   AnimationController? _moveController;
+
+  /// Current move [Animation] [Offset].
   late Animation<Offset> _moveAnimation;
 
+  /// [AnimationController] of resizing.
   AnimationController? _resizeController;
+
+  /// Current resize [Animation] [double].
   Animation<double>? _resizeAnimation;
 
+  /// [double] drag extent.
   double _dragExtent = 0.0;
+
+  /// Indicator whether confirming is required or not.
   bool _confirming = false;
+
+  /// Indicator whether drag is underway or not.
   bool _dragUnderway = false;
+
+  /// [Size] prior to collapse.
   Size? _sizePriorToCollapse;
+
+  /// Indicator whether dismiss threshold was reached or not.
   bool _dismissThresholdReached = false;
 
   @override
@@ -290,12 +316,14 @@ class _MyDismissibleState extends State<MyDismissible>
     super.dispose();
   }
 
+  /// Indicator whether direction is in X axis or not.
   bool get _directionIsXAxis {
     return widget.direction == MyDismissDirection.horizontal ||
         widget.direction == MyDismissDirection.endToStart ||
         widget.direction == MyDismissDirection.startToEnd;
   }
 
+  /// Defines dismiss direction.
   MyDismissDirection _extentToDirection(double extent) {
     if (extent == 0.0) return MyDismissDirection.none;
     if (_directionIsXAxis) {
@@ -313,17 +341,21 @@ class _MyDismissibleState extends State<MyDismissible>
     return extent > 0 ? MyDismissDirection.down : MyDismissDirection.up;
   }
 
+  /// Returns [MyDismissDirection].
   MyDismissDirection get _myDismissDirection => _extentToDirection(_dragExtent);
 
+  /// Indicator whether widget is active or not.
   bool get _isActive {
     return _dragUnderway || _moveController!.isAnimating;
   }
 
+  ///  Returns [double] overall drag axis extent.
   double get _overallDragAxisExtent {
     final Size size = context.size!;
     return _directionIsXAxis ? size.width : size.height;
   }
 
+  /// Handles drag start.
   void _handleDragStart(DragStartDetails details) {
     if (_confirming) return;
     _dragUnderway = true;
@@ -340,6 +372,7 @@ class _MyDismissibleState extends State<MyDismissible>
     });
   }
 
+  /// Handles drag update.
   void _handleDragUpdate(DragUpdateDetails details) {
     if (!_isActive || _moveController!.isAnimating) return;
 
@@ -395,6 +428,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Handles dismiss value changed.
   void _handleDismissUpdateValueChanged() {
     if (widget.onUpdate != null) {
       final bool oldDismissThresholdReached = _dismissThresholdReached;
@@ -410,6 +444,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Updates move animation.
   void _updateMoveAnimation() {
     final double end = _dragExtent.sign;
     _moveAnimation = _moveController!.drive(
@@ -422,6 +457,7 @@ class _MyDismissibleState extends State<MyDismissible>
     );
   }
 
+  /// Describes fling gesture.
   _FlingGestureKind _describeFlingGesture(Velocity velocity) {
     if (_dragExtent == 0.0) {
       // If it was a fling, then it was a fling that was let loose at the exact
@@ -450,6 +486,7 @@ class _MyDismissibleState extends State<MyDismissible>
     return _FlingGestureKind.reverse;
   }
 
+  /// Handles end of drag.
   void _handleDragEnd(DragEndDetails details) {
     if (!_isActive || _moveController!.isAnimating) return;
     _dragUnderway = false;
@@ -496,6 +533,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Handles on dismiss status was changed.
   Future<void> _handleDismissStatusChanged(AnimationStatus status) async {
     if (status == AnimationStatus.completed && !_dragUnderway) {
       await _handleMoveCompleted();
@@ -505,6 +543,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Handles completed move.
   Future<void> _handleMoveCompleted() async {
     if ((widget.dismissThresholds[_myDismissDirection] ?? _kDismissThreshold) >=
         1.0) {
@@ -521,6 +560,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Confirms start resize animation.
   Future<bool> _confirmStartResizeAnimation() async {
     if (widget.confirmDismiss != null) {
       _confirming = true;
@@ -534,6 +574,7 @@ class _MyDismissibleState extends State<MyDismissible>
     return true;
   }
 
+  /// Starts resize animation.
   void _startResizeAnimation() {
     assert(_moveController!.isCompleted);
     assert(_resizeController == null);
@@ -567,6 +608,7 @@ class _MyDismissibleState extends State<MyDismissible>
     }
   }
 
+  /// Handles resize progress.
   void _handleResizeProgressChanged() {
     if (_resizeController!.isCompleted) {
       widget.onDismissed?.call(_myDismissDirection);
@@ -577,7 +619,7 @@ class _MyDismissibleState extends State<MyDismissible>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // See AutomaticKeepAliveClientMixin.
+    super.build(context);
 
     assert(!_directionIsXAxis || debugCheckHasDirectionality(context));
 

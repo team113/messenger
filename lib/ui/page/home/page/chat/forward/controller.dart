@@ -21,12 +21,9 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/service/contact.dart';
 
-import '../../../../call/search/view.dart';
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -35,13 +32,12 @@ import '/domain/model/chat_item_quote.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/ui/page/call/search/view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -61,6 +57,7 @@ class ChatForwardController extends GetxController {
   })  : quotes = RxList(quotes),
         attachments = attachments ?? RxList();
 
+  /// Selected items in [SearchView] popup.
   final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -69,6 +66,7 @@ class ChatForwardController extends GetxController {
   /// Indicator whether reply is hovered or not.
   final Rx<ChatItem?> hoveredReply = Rx(null);
 
+  /// Initial [send] field value.
   final String? text;
 
   /// [ChatItemQuote]s to be forwarded.
@@ -127,6 +125,7 @@ class ChatForwardController extends GetxController {
     super.onInit();
   }
 
+  /// Forwards [ChatItem] to selected [Chat]s and [User]s.
   Future<void> forward() async {
     send.status.value = RxStatus.loading();
     send.editable.value = false;
