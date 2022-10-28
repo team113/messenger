@@ -962,19 +962,23 @@ class _ChatViewState extends State<ChatView>
                                         : const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: c.attachments
-                                          .map(
-                                            (e) => _buildAttachment(
-                                              c,
-                                              e.value,
-                                              e.key,
-                                            ),
-                                          )
-                                          .toList(),
-                                    ),
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: c.attachments
+                                            .map((key, value) =>
+                                                _buildAttachment(c, value, key))
+                                            .toList()
+                                        // c.attachments
+                                        //     .map(
+                                        //       (e) => _buildAttachment(
+                                        //         c,
+                                        //         e.value,
+                                        //         e.key,
+                                        //       ),
+                                        //     )
+                                        //     .toList(),
+                                        ),
                                   ),
                                 ),
                               ),
