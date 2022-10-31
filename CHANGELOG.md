@@ -15,9 +15,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142], [#124])
+        - Redesigned chats tab. ([#142])
 
-[#124]: /../../issues/124
 [#142]: /../../pull/142
 
 
