@@ -95,7 +95,8 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
-  final BoxConstraints? itemConstraints;
+  /// Callback, specifying a [BoxConstraints] of an item when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
 
   /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
@@ -265,7 +266,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
             // Current diagonal of a single square.
             double diagonal =
-            (pow(rWidth / columns, 2) + pow(rHeight / rows, 2)).toDouble();
+                (pow(rWidth / columns, 2) + pow(rHeight / rows, 2)).toDouble();
 
             // If there's any [children] left outside, then their diagonal will
             // always be bigger, so we need to recalculate.
@@ -446,7 +447,8 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
-  final BoxConstraints? itemConstraints;
+  /// Callback, specifying a [BoxConstraints] of an item when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
 
   /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
@@ -591,53 +593,53 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             key: item.cellKey,
             child: item.entry != null
                 ? SizedBox(
-              width: widget.wrapSize,
-              height: widget.wrapSize,
-            )
+                    width: widget.wrapSize,
+                    height: widget.wrapSize,
+                  )
                 : _ReorderableDraggable<T>(
-              item: item.item,
-              itemBuilder: (T o) => KeyedSubtree(
-                key: item.itemKey,
-                child: widget.itemBuilder(o),
-              ),
-              itemConstraints: widget.itemConstraints,
-              useLongPress: widget.useLongPress,
-              cellKey: item.cellKey,
-              sharedKey: item.sharedKey,
-              enabled:
-              _items.map((e) => e.entry).whereNotNull().isEmpty &&
-                  (widget.allowDraggingLast || _items.length != 1),
-              onDragEnd: (d) {
-                widget.onDragEnd?.call(item.item);
-                if (_doughDragged != null) {
-                  _animateReturn(item, d);
-                  _doughDragged = null;
-                }
-              },
-              onDragStarted: () {
-                item.dragStartedRect = item.cellKey.globalPaintBounds;
-                widget.onDragStarted?.call(item.item);
-              },
-              onDragCompleted: () =>
-                  widget.onDragCompleted?.call(item.item),
-              onDraggableCanceled: (d) {
-                widget.onDraggableCanceled?.call(item.item);
-                if (_doughDragged != null) {
-                  _animateReturn(item, d);
-                  _doughDragged = null;
-                }
-              },
-              onDoughBreak: () {
-                _doughDragged = item;
-                widget.onDoughBreak?.call(item.item);
-                _audioPlayer?.play(
-                  AssetSource('audio/pop.mp3'),
-                  volume: 0.3,
-                  position: Duration.zero,
-                  mode: PlayerMode.lowLatency,
-                );
-              },
-            ),
+                    item: item.item,
+                    itemBuilder: (T o) => KeyedSubtree(
+                      key: item.itemKey,
+                      child: widget.itemBuilder(o),
+                    ),
+                    itemConstraints: widget.itemConstraints,
+                    useLongPress: widget.useLongPress,
+                    cellKey: item.cellKey,
+                    sharedKey: item.sharedKey,
+                    enabled:
+                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
+                            (widget.allowDraggingLast || _items.length != 1),
+                    onDragEnd: (d) {
+                      widget.onDragEnd?.call(item.item);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
+                    },
+                    onDragStarted: () {
+                      item.dragStartedRect = item.cellKey.globalPaintBounds;
+                      widget.onDragStarted?.call(item.item);
+                    },
+                    onDragCompleted: () =>
+                        widget.onDragCompleted?.call(item.item),
+                    onDraggableCanceled: (d) {
+                      widget.onDraggableCanceled?.call(item.item);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
+                    },
+                    onDoughBreak: () {
+                      _doughDragged = item;
+                      widget.onDoughBreak?.call(item.item);
+                      _audioPlayer?.play(
+                        AssetSource('audio/pop.mp3'),
+                        volume: 0.3,
+                        position: Duration.zero,
+                        mode: PlayerMode.lowLatency,
+                      );
+                    },
+                  ),
           ),
           Row(
             children: [
@@ -771,7 +773,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                 onAccept: (o) => _onAccept(o, _items.length, _items.length),
                 onLeave: widget.onLeave,
                 onWillAccept: (o) =>
-                !_items.contains(o) &&
+                    !_items.contains(o) &&
                     (widget.onWillAccept?.call(o) ?? true),
                 builder: (context, candidates, rejected) {
                   return IgnorePointer(
@@ -798,21 +800,21 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               height: widget.height,
               child: widget.useWrap
                   ? Wrap(
-                direction: widget.axis ?? Axis.horizontal,
-                alignment: WrapAlignment.start,
-                runAlignment: WrapAlignment.start,
-                spacing: 0,
-                runSpacing: 0,
-                children: _items
-                    .mapIndexed(
-                      (i, e) => SizedBox(
-                    width: widget.wrapSize,
-                    height: widget.wrapSize,
-                    child: cell(i),
-                  ),
-                )
-                    .toList(),
-              )
+                      direction: widget.axis ?? Axis.horizontal,
+                      alignment: WrapAlignment.start,
+                      runAlignment: WrapAlignment.start,
+                      spacing: 0,
+                      runSpacing: 0,
+                      children: _items
+                          .mapIndexed(
+                            (i, e) => SizedBox(
+                              width: widget.wrapSize,
+                              height: widget.wrapSize,
+                              child: cell(i),
+                            ),
+                          )
+                          .toList(),
+                    )
                   : Column(children: createRows()),
             ),
           ),
@@ -820,13 +822,13 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
           // Pseudo-[Overlay].
           ..._items.map((e) => e.entry).whereNotNull().map(
                 (e) => IgnorePointer(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: e.builder(context),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: e.builder(context),
+                  ),
+                ),
               ),
-            ),
-          ),
         ],
       ),
     );
@@ -991,7 +993,9 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   /// Indicator whether dragging is allowed.
   final bool enabled;
 
-  final BoxConstraints? itemConstraints;
+  /// Callback, specifying a [BoxConstraints] of this [_ReorderableDraggable]
+  /// when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
 
   @override
   State<_ReorderableDraggable<T>> createState() =>
@@ -1039,13 +1043,13 @@ class _ReorderableDraggableState<T extends Object>
               isDragged = true;
             },
             dragAnchorStrategy: (
-                Draggable<Object> draggable,
-                BuildContext context,
-                Offset position,
-                ) {
+              Draggable<Object> draggable,
+              BuildContext context,
+              Offset position,
+            ) {
               _position.value = position;
               final RenderBox renderObject =
-              context.findRenderObject()! as RenderBox;
+                  context.findRenderObject()! as RenderBox;
               return renderObject.globalToLocal(position);
             },
             onDragCompleted: () {
@@ -1065,13 +1069,16 @@ class _ReorderableDraggableState<T extends Object>
               if (widget.enabled && isDragged) {
                 widget.onDoughBreak?.call();
 
+                BoxConstraints? itemConstraints =
+                    widget.itemConstraints?.call(widget.item);
+
                 double width = min(
-                  widget.itemConstraints?.maxWidth ?? constraints.maxWidth,
+                  itemConstraints?.maxWidth ?? constraints.maxWidth,
                   constraints.maxWidth,
                 );
 
                 double height = min(
-                  widget.itemConstraints?.maxHeight ?? constraints.maxHeight,
+                  itemConstraints?.maxHeight ?? constraints.maxHeight,
                   constraints.maxHeight,
                 );
 
@@ -1122,8 +1129,11 @@ class _Resizable extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
+  /// [GlobalKey] of this [_Resizable] representing the global position of
+  /// the cell this [item] is in.
   final GlobalKey cellKey;
   final BoxConstraints layout;
+
   final Rx<Offset?> position;
   final Rx<BoxConstraints?> constraints;
   final Widget child;
@@ -1161,7 +1171,6 @@ class _ResizableState extends State<_Resizable> {
         duration: 300.milliseconds,
         curve: Curves.ease,
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
-        // margin: EdgeInsets.only(left: offset.dx, top: offset.dy),
         width: widget.constraints.value?.maxWidth,
         height: widget.constraints.value?.maxHeight,
         child: widget.child,
@@ -1189,7 +1198,7 @@ class _ReorderableItem<T> {
 
   /// [GlobalKey] of the [entry].
   final GlobalKey<AnimatedTransitionState> entryKey =
-  GlobalKey<AnimatedTransitionState>();
+      GlobalKey<AnimatedTransitionState>();
 
   /// [OverlayEntry] of this [_ReorderableItem] used to animate the [item]
   /// changing its position.

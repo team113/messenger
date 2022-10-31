@@ -1359,10 +1359,20 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
-          itemConstraints: BoxConstraints(
-            maxWidth: max(c.secondaryWidth.value, c.secondaryHeight.value),
-            maxHeight: max(c.secondaryWidth.value, c.secondaryHeight.value),
-          ),
+          itemConstraints: (_DragData data) {
+            if (data.participant.video.value != null) {
+              double secondarySize =
+                  max(c.secondaryWidth.value, c.secondaryHeight.value);
+              double size = min(secondarySize, c.size.longestSide * 0.25);
+
+              return BoxConstraints(
+                maxWidth: size,
+                maxHeight: size,
+              );
+            }
+
+            return null;
+          },
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
