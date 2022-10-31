@@ -131,7 +131,7 @@ class DownloadView extends StatelessWidget {
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: '(x86-64)',
+          title: '(arm64-v8a)',
           link: 'messenger-arm64-v8a.apk',
         ),
         const SizedBox(height: 20),

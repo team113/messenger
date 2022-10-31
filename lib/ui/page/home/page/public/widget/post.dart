@@ -167,7 +167,7 @@ class _PostWidgetState extends State<PostWidget> {
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    const Color iconColor = Color(0xFF03a803);
+    const Color iconColor = Color(0xFF63B4FF); // Color(0xFF03a803);
     final Color badgeColor = Colors.black.withOpacity(0.05);
 
     Widget reaction({
@@ -190,7 +190,8 @@ class _PostWidgetState extends State<PostWidget> {
               borderRadius: BorderRadius.circular(32),
               // border: style.systemMessageBorder,
               // color: Colors.white.darken(0.05),
-              color: badgeColor,
+              // color: badgeColor,
+              color: Colors.white,
             ),
             child: DefaultTextStyle.merge(
               style: style.systemMessageTextStyle.copyWith(
@@ -287,9 +288,9 @@ class _PostWidgetState extends State<PostWidget> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
-                      10 + 10,
+                      10 + 4,
                       9,
-                      (files.isEmpty ? 10 : 0) + 10,
+                      (files.isEmpty ? 10 : 0) + 4,
                     ),
                     child: SelectableText(
                       text,
@@ -339,13 +340,14 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
                 Container(
                   padding: EdgeInsets.fromLTRB(
-                    16,
-                    media.isEmpty ? 0 : 0,
-                    16,
+                    0, // 16,
+                    media.isEmpty ? 0 : 8,
+                    0, // 16,
                     0,
                   ),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFEFF8F0),
+                    // color: Color(0xFFEFF8F0),
+                    color: Colors.white,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(15),
                       bottomRight: Radius.circular(15),
@@ -354,74 +356,99 @@ class _PostWidgetState extends State<PostWidget> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 6),
+                      // const SizedBox(height: 6),
                       DefaultTextStyle.merge(
                         style: const TextStyle(
                           fontSize: 13,
                           color: Color(0xFF888888),
                         ),
-                        child: WidgetButton(
-                          onPressed: () => setState(() => expanded = !expanded),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                           child: Row(
                             children: [
-                              Text(
-                                DateFormat.Hm()
-                                    .format(widget.item.value.at.val.toLocal()),
-                              ),
-                              const SizedBox(width: 24),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SvgLoader.asset(
-                                    'assets/icons/eye.svg',
-                                    height: 14.25 * 0.8,
+                              WidgetButton(
+                                onPressed: () =>
+                                    setState(() => expanded = !expanded),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color: badgeColor,
                                   ),
-                                  const SizedBox(width: 4),
-                                  const Text('12'),
-                                ],
-                              ),
-                              const SizedBox(width: 24),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(
-                                    Icons.pan_tool_alt,
-                                    size: 21,
-                                    color: Color(0xFFFFD03D),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        DateFormat.Hm().format(
+                                            widget.item.value.at.val.toLocal()),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SvgLoader.asset(
+                                            'assets/icons/eye.svg',
+                                            height: 14.25 * 0.8,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Text('12'),
+                                        ],
+                                      ),
+
+                                      // Row(
+                                      //   mainAxisSize: MainAxisSize.min,
+                                      //   children: const [
+                                      //     Icon(
+                                      //       Icons.pan_tool_alt,
+                                      //       size: 21,
+                                      //       color: Color(0xFFFFD03D),
+                                      //     ),
+                                      //     SizedBox(width: 6),
+                                      //     Text('152'),
+                                      //   ],
+                                      // ),
+
+                                      const SizedBox(width: 12),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: const [
+                                          Text(
+                                            '🤣',
+                                            style: TextStyle(fontSize: 17),
+                                          ),
+                                          SizedBox(width: 2),
+                                          Text('4'),
+                                        ],
+                                      ),
+
+                                      const SizedBox(width: 12),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: const [
+                                          Icon(
+                                            Icons.comment_outlined,
+                                            size: 17,
+                                            color: Color(0xFF888888),
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text('4'),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        expanded
+                                            ? Icons.expand_less
+                                            : Icons.expand_more,
+                                        size: 21,
+                                        color: const Color(0xFF63B4FF),
+                                      ),
+
+                                      // Text(msg.at.val.toDifferenceAgo()),
+                                      // Text('${msg.at.val.toRelative()}, '),
+                                    ],
                                   ),
-                                  SizedBox(width: 6),
-                                  Text('152'),
-                                ],
+                                ),
                               ),
-                              // if (!expanded) ...[
-                              //   const SizedBox(width: 24),
-                              //   Row(
-                              //     mainAxisSize: MainAxisSize.min,
-                              //     children: const [
-                              //       Text(
-                              //         '🤣',
-                              //         style: TextStyle(fontSize: 17),
-                              //       ),
-                              //       SizedBox(width: 2),
-                              //       Text('4'),
-                              //     ],
-                              //   ),
-                              // ],
-                              // if (!expanded) ...[
-                              //   const SizedBox(width: 24),
-                              //   Row(
-                              //     mainAxisSize: MainAxisSize.min,
-                              //     children: const [
-                              //       Icon(
-                              //         Icons.comment_outlined,
-                              //         size: 17,
-                              //         color: Color(0xFF888888),
-                              //       ),
-                              //       SizedBox(width: 6),
-                              //       Text('4'),
-                              //     ],
-                              //   ),
-                              // ],
                               const SizedBox(width: 24),
                               const Spacer(),
                               Container(
@@ -439,7 +466,8 @@ class _PostWidgetState extends State<PostWidget> {
                                         scaleX: -1,
                                         child: const Icon(
                                           Icons.reply_outlined,
-                                          color: Color(0xFF03A803),
+                                          color: Color(0xFF63B4FF),
+                                          // color: Color(0xFF03A803),
                                           size: 21,
                                         ),
                                       ),
@@ -449,106 +477,189 @@ class _PostWidgetState extends State<PostWidget> {
                                   ),
                                 ),
                               ),
-
-                              // Text(msg.at.val.toDifferenceAgo()),
-                              // Text('${msg.at.val.toRelative()}, '),
                             ],
                           ),
                         ),
                       ),
+
                       if (expanded) ...[
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 2),
                         Container(
-                          color: const Color(0x11000000),
-                          height: 1,
-                          width: double.infinity,
-                          padding: const EdgeInsets.only(left: 10, right: 10),
-                        ),
-                        const SizedBox(height: 10),
-                        DefaultTextStyle.merge(
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF888888),
+                          margin: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: const Color(0xFFF1F1F1),
                           ),
-                          child: Wrap(
-                            // alignment: WrapAlignment.spaceBetween,
-                            // runAlignment: WrapAlignment.spaceBetween,
-                            // crossAxisAlignment: WrapCrossAlignment.start,
-                            runSpacing: 10,
-                            spacing: 10,
+                          child: Column(
                             children: [
-                              reaction(icon: '👍'),
-                              reaction(icon: '👎'),
-                              reaction(icon: '😾'),
-                              reaction(icon: '😿'),
-                              reaction(icon: '🙀'),
-                              reaction(icon: '😽'),
-                              reaction(icon: '😼'),
-                              reaction(icon: '🤡'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          color: const Color(0x11000000),
-                          height: 1,
-                          width: double.infinity,
-                          padding: const EdgeInsets.only(left: 10, right: 10),
-                        ),
-                        const SizedBox(height: 10),
-                        DefaultTextStyle.merge(
-                          style: const TextStyle(
-                            fontSize: 17,
-                            color: Color(0xFF03A803),
-                          ),
-                          child: Row(
-                            children: [
-                              WidgetButton(
-                                onPressed: () {},
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    color: badgeColor,
-                                  ),
-                                  padding: const EdgeInsets.all(8),
-                                  child: const Text('152 комментариев >'),
+                              // Container(
+                              //   color: const Color(0x11000000),
+                              //   height: 1,
+                              //   width: double.infinity,
+                              //   padding:
+                              //       const EdgeInsets.only(left: 10, right: 10),
+                              // ),
+                              const SizedBox(height: 10),
+                              DefaultTextStyle.merge(
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF888888),
+                                ),
+                                child: Wrap(
+                                  // alignment: WrapAlignment.spaceBetween,
+                                  // runAlignment: WrapAlignment.spaceBetween,
+                                  // crossAxisAlignment: WrapCrossAlignment.start,
+                                  runSpacing: 10,
+                                  spacing: 10,
+                                  children: [
+                                    reaction(icon: '👍'),
+                                    reaction(icon: '👎'),
+                                    reaction(icon: '😾'),
+                                    reaction(icon: '😿'),
+                                    reaction(icon: '🙀'),
+                                    reaction(icon: '😽'),
+                                    reaction(icon: '😼'),
+                                    reaction(icon: '🤡'),
+                                  ],
                                 ),
                               ),
-                              const Spacer(),
-                              const SizedBox(width: 2),
-                              const AvatarWidget(
-                                title: '01',
-                                useLayoutBuilder: false,
-                                radius: 16,
+                              const SizedBox(height: 10),
+                              Container(
+                                color: const Color(0x11000000),
+                                height: 1,
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
                               ),
-                              const SizedBox(width: 2),
-                              const AvatarWidget(
-                                title: '02',
-                                useLayoutBuilder: false,
-                                radius: 16,
+                              // const SizedBox(height: 10),
+                              DefaultTextStyle.merge(
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  color: Color(0xFF63B4FF),
+                                  // color: Color(0xFF03A803),
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                  child: Row(
+                                    children: [
+                                      WidgetButton(
+                                        onPressed: () {},
+                                        child: Container(
+                                          // decoration: BoxDecoration(
+                                          //   borderRadius:
+                                          //       BorderRadius.circular(30),
+                                          //   color: badgeColor,
+                                          // ),
+                                          padding: const EdgeInsets.all(8),
+                                          child:
+                                              const Text('152 комментариев >'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 2),
-                              const AvatarWidget(
-                                title: '03',
-                                useLayoutBuilder: false,
-                                radius: 16,
-                              ),
-                              // WidgetButton(
-                              //   onPressed: () {},
-                              //   child: Transform.scale(
-                              //     scaleX: -1,
-                              //     child: const Icon(
-                              //       Icons.reply,
-                              //       color: Color(0xFF03A803),
-                              //       size: 27,
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
+                      ] else ...[
+                        const SizedBox(height: 10),
                       ],
-                      const SizedBox(height: 10),
+
+                      // if (expanded) ...[
+                      //   const SizedBox(height: 6),
+                      //   Container(
+                      //     color: const Color(0x11000000),
+                      //     height: 1,
+                      //     width: double.infinity,
+                      //     padding: const EdgeInsets.only(left: 10, right: 10),
+                      //   ),
+                      //   const SizedBox(height: 10),
+                      //   DefaultTextStyle.merge(
+                      //     style: const TextStyle(
+                      //       fontSize: 15,
+                      //       color: Color(0xFF888888),
+                      //     ),
+                      //     child: Wrap(
+                      //       // alignment: WrapAlignment.spaceBetween,
+                      //       // runAlignment: WrapAlignment.spaceBetween,
+                      //       // crossAxisAlignment: WrapCrossAlignment.start,
+                      //       runSpacing: 10,
+                      //       spacing: 10,
+                      //       children: [
+                      //         reaction(icon: '👍'),
+                      //         reaction(icon: '👎'),
+                      //         reaction(icon: '😾'),
+                      //         reaction(icon: '😿'),
+                      //         reaction(icon: '🙀'),
+                      //         reaction(icon: '😽'),
+                      //         reaction(icon: '😼'),
+                      //         reaction(icon: '🤡'),
+                      //       ],
+                      //     ),
+                      //   ),
+                      //   const SizedBox(height: 10),
+                      //   Container(
+                      //     color: const Color(0x11000000),
+                      //     height: 1,
+                      //     width: double.infinity,
+                      //     padding: const EdgeInsets.only(left: 10, right: 10),
+                      //   ),
+                      //   const SizedBox(height: 10),
+                      //   DefaultTextStyle.merge(
+                      //     style: const TextStyle(
+                      //       fontSize: 17,
+                      //       color: Color(0xFF03A803),
+                      //     ),
+                      //     child: Row(
+                      //       children: [
+                      //         WidgetButton(
+                      //           onPressed: () {},
+                      //           child: Container(
+                      //             decoration: BoxDecoration(
+                      //               borderRadius: BorderRadius.circular(30),
+                      //               color: badgeColor,
+                      //             ),
+                      //             padding: const EdgeInsets.all(8),
+                      //             child: const Text('152 комментариев >'),
+                      //           ),
+                      //         ),
+                      //         const Spacer(),
+                      //         const SizedBox(width: 2),
+                      //         const AvatarWidget(
+                      //           title: '01',
+                      //           useLayoutBuilder: false,
+                      //           radius: 16,
+                      //         ),
+                      //         const SizedBox(width: 2),
+                      //         const AvatarWidget(
+                      //           title: '02',
+                      //           useLayoutBuilder: false,
+                      //           radius: 16,
+                      //         ),
+                      //         const SizedBox(width: 2),
+                      //         const AvatarWidget(
+                      //           title: '03',
+                      //           useLayoutBuilder: false,
+                      //           radius: 16,
+                      //         ),
+                      //         // WidgetButton(
+                      //         //   onPressed: () {},
+                      //         //   child: Transform.scale(
+                      //         //     scaleX: -1,
+                      //         //     child: const Icon(
+                      //         //       Icons.reply,
+                      //         //       color: Color(0xFF03A803),
+                      //         //       size: 27,
+                      //         //     ),
+                      //         //   ),
+                      //         // ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ],
+
                       // DefaultTextStyle.merge(
                       //   style: const TextStyle(
                       //     fontSize: 15,
