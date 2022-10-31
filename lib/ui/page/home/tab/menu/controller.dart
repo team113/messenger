@@ -736,11 +736,14 @@ class MenuTabController extends GetxController {
 
   Future<void> uploadAvatar() async {
     try {
+      print('[uploadAvatar] picking files...');
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
-        withReadStream: true,
+        withReadStream: false,
       );
+      print(
+          '[uploadAvatar] files picked, result: $result (${result?.files.length}');
 
       if (result != null) {
         avatarUpload.value = RxStatus.loading();

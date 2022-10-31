@@ -422,10 +422,12 @@ jobs:
       - run: make docker.tags of=build-${{ github.run_number }}
                   registries=${{ matrix.registry }}
                   tags=${{ 'new-design-preview' }}
+                  as=review
         if: ${{ steps.skip.outputs.no == 'true' }}
       - run: make docker.push
                   registries=${{ matrix.registry }}
                   tags=${{ 'new-design-preview' }}
+                  image=review
         if: ${{ steps.skip.outputs.no == 'true' }}
 
   # release-github:
