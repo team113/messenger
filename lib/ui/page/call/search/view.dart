@@ -18,13 +18,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -316,7 +317,7 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Builds [Contact]s tile.
+  /// Builds [User]s tile.
   Widget tile({
     required BuildContext context,
     RxUser? user,
@@ -467,6 +468,6 @@ class SearchViewResults {
   /// Selected [User]s.
   final List<RxUser> users;
 
-  /// Selected [Contact]s.
+  /// Selected [ChatContact]s.
   final List<RxChatContact> contacts;
 }
