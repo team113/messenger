@@ -228,5 +228,5 @@ abstract class RxChat {
   Future<void> remove(ChatItemId itemId);
 
   /// Sets draft [ChatMessage] of this [Chat].
-  void setDraftMessage(ChatMessage? chatMessage);
+  void setDraftMessage(ChatMessage? message);
 }
