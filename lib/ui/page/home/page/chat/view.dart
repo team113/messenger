@@ -185,24 +185,25 @@ class _ChatViewState extends State<ChatView>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              c.chat!.title.value,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                            ),
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            c.chat!.title.value,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
                                           ),
-                                          if (chat.muted != null) ...const [
-                                            SizedBox(width: 5),
-                                            Icon(
-                                              Icons.volume_off,
-                                              key: Key('MutedInChatPage'),
-                                            ),
-                                          ]
-                                        ],
+                                        ),
+                                        if (c.chat?.chat.value.muted !=
+                                            null) ...const [
+                                          SizedBox(width: 5),
+                                          Icon(
+                                            Icons.volume_off,
+                                            key: Key('MutedInChatPage'),
+                                          ),
+                                        ]
+                                      ],
                                     ),
                                     _chatSubtitle(c),
                                   ],

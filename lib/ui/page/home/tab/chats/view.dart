@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -100,6 +101,37 @@ class ChatsTabView extends StatelessWidget {
                                   onLeave: () => c.leaveChat(chat.id),
                                   onHide: () => c.hideChat(chat.id),
                                   inCall: () => c.inCall(chat.id),
+                                  muteDialogOpened: () async {
+                                    c.isMuteDialogOpened.value = true;
+                                    await ConfirmDialog.show(
+                                      context,
+                                      title: 'label_mute_chat_for'.l10n,
+                                      variants: [
+                                        for (Duration? duration
+                                            in c.muteDateTimes)
+                                          ConfirmDialogVariant(
+                                            onProceed: () async =>
+                                                await c.muteChat(
+                                              chat.id,
+                                              duration: duration,
+                                            ),
+                                            child: Text(
+                                              'label_mute_for'.l10nfmt({
+                                                'days': duration?.inDays ?? 0,
+                                                'hours': duration?.inHours ?? 0,
+                                                'minutes':
+                                                    duration?.inMinutes ?? 0,
+                                              }),
+                                              key: duration == null
+                                                  ? const Key('MuteForever')
+                                                  : null,
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                    c.isMuteDialogOpened.value = false;
+                                  },
+                                  unmuteChat: () => c.unmuteChat(chat.id),
                                 ),
                               ),
                             ),
