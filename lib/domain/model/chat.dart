@@ -189,7 +189,7 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId me) {
+  bool isRead(ChatItem item, UserId? me) {
     return lastReads.firstWhereOrNull(
             (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
         null;
