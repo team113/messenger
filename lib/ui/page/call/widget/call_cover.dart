@@ -16,7 +16,6 @@
 
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -50,7 +49,7 @@ class CallCoverWidget extends StatelessWidget {
             : Stack(
                 children: [
                   Image.network(
-                    '${Config.files}${cover?.full.relativeRef}',
+                    cover!.full.url,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

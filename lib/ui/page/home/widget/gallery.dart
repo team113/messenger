@@ -20,7 +20,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/ui/widget/svg/svg.dart';
 import 'gallery_popup.dart';
@@ -93,8 +92,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   children: (widget.items ?? [])
                       .map(
                         (e) => GalleryItem.image(
-                          '${Config.files}${e.original.relativeRef}',
+                          e.original.url,
                           'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.id}',
+                          size: e.original.size,
                         ),
                       )
                       .toList(),
@@ -117,7 +117,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: NetworkImage(
-                            '${Config.files}${widget.items![widget.index].original.relativeRef}',
+                            widget.items![widget.index].original.url,
                           ),
                           fit: BoxFit.cover,
                         ),
@@ -148,7 +148,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   : widget.items!
                       .map(
                         (e) => Image.network(
-                          '${Config.files}${e.original.relativeRef}',
+                          e.original.url,
                           fit: BoxFit.fitHeight,
                         ),
                       )

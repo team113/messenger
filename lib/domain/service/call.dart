@@ -202,10 +202,10 @@ class CallService extends DisposableService {
       deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
+    }
 
-      if (deviceId != null) {
-        await _callsRepo.leave(chatId, deviceId);
-      }
+    if (deviceId != null) {
+      await _callsRepo.leave(chatId, deviceId);
     }
 
     WebUtils.removeCall(chatId);
