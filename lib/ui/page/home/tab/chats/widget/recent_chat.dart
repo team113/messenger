@@ -346,8 +346,6 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 

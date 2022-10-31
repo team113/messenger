@@ -166,9 +166,31 @@ class _ChatWatchData {
                 );
               }
             } else if (chat.lastItem is ChatMemberInfo) {
-              // TODO: Display [ChatMemberInfo] properly.
-              var msg = chat.lastItem as ChatMemberInfo;
-              body.write(msg.action.toString());
+              final ChatMemberInfo msg = chat.lastItem as ChatMemberInfo;
+
+              switch (msg.action) {
+                case ChatMemberInfoAction.created:
+                  // No-op, as it shouldn't be in a notification.
+                  break;
+
+                case ChatMemberInfoAction.added:
+                  body.write(
+                    'label_was_added'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.removed:
+                  body.write(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.artemisUnknown:
+                  body.write(msg.action.toString());
+                  break;
+              }
             } else if (chat.lastItem is ChatForward) {
               body.write('label_forwarded_message'.l10n);
             }
