@@ -1359,6 +1359,10 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: BoxConstraints(
+            maxWidth: max(c.secondaryWidth.value, c.secondaryHeight.value),
+            maxHeight: max(c.secondaryWidth.value, c.secondaryHeight.value),
+          ),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
