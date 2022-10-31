@@ -28,7 +28,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
@@ -86,12 +85,6 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final TextStyle? text = Theme.of(context).textTheme.subtitle2?.copyWith(
-            color: chat.ongoingCall == null
-                ? null
-                : Theme.of(context).colorScheme.secondary,
-          );
-
       final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith(Routes.chat))
               ?.startsWith('${Routes.chat}/${chat.id}') ==
@@ -128,13 +121,18 @@ class RecentChatTile extends StatelessWidget {
                         DateTime.now()
                             .difference(chat.ongoingCall!.at.val)
                             .hhMmSs(),
-                        style: text,
+                        style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                       ),
                     );
                   },
                 )
               else
-                Text(chat.updatedAt.val.toLocal().toShort(), style: text),
+                Text(
+                  chat.updatedAt.val.toLocal().toShort(),
+                  style: Theme.of(context).textTheme.subtitle2,
+                ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -326,7 +324,7 @@ class RecentChatTile extends StatelessWidget {
             break;
 
           case ChatMemberInfoAction.artemisUnknown:
-            // No-op.
+            content = Text(item.action.toString());
             break;
         }
 
@@ -358,14 +356,10 @@ class RecentChatTile extends StatelessWidget {
 
       if (item?.authorId == me) {
         final bool isSent = item?.status.value == SendingStatus.sent;
-        final bool isRead = chat.lastReads.firstWhereOrNull((LastChatRead l) =>
-                    l.memberId != me && !l.at.isBefore(item!.at)) !=
-                null &&
-            isSent;
-        final bool isDelivered =
-            isSent && !chat.lastDelivery.isBefore(item!.at);
-        final bool isError = item?.status.value == SendingStatus.error;
-        final bool isSending = item?.status.value == SendingStatus.sending;
+        final bool isRead = chat.isRead(item!, me) && isSent;
+        final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
+        final bool isError = item.status.value == SendingStatus.error;
+        final bool isSending = item.status.value == SendingStatus.sending;
 
         return Icon(
           isRead || isDelivered
@@ -405,7 +399,8 @@ class RecentChatTile extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Text(
-            '${chat.unreadCount > 99 ? '99${'plus'.l10n}' : chat.unreadCount}',
+            // TODO: Implement and test notations like `4k`, `54m`, etc.
+            chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
@@ -425,8 +420,6 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a drop or join call button, if any [OngoingCall] is happening in
   /// this [Chat].
   Widget _callButtons(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Padding(
       padding: const EdgeInsets.only(left: 5),
       child: Obx(() {
@@ -441,8 +434,8 @@ class RecentChatTile extends StatelessWidget {
               child: Container(
                 height: 38,
                 width: 38,
-                decoration: BoxDecoration(
-                  color: style.dropButtonColor,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -495,7 +488,7 @@ extension DateTimeToShort on DateTime {
   ///
   /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
   /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less then 7 days. Otherwise returns a string in format
+  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
   /// of `YYYY-MM-DD`.
   String toShort() {
     final DateTime now = DateTime.now();

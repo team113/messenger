@@ -68,7 +68,7 @@ class ChatsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
                     child: ListView.builder(
@@ -83,9 +83,8 @@ class ChatsTabView extends StatelessWidget {
                             horizontalOffset: 50,
                             child: FadeInAnimation(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: RecentChatTile(
                                   chat,
                                   me: c.me,

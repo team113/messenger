@@ -47,7 +47,11 @@ class Themes {
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
+            cardHoveredBorder:
+                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
+            cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
+            cardSelectedColor: const Color(0xFFD2E3F9),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
@@ -57,12 +61,7 @@ class Themes {
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
-            dropButtonColor: Colors.red,
-            hoveredBorderUnselected:
-                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
-            primaryCardColor: const Color(0xFFD2E3F9),
             sidebarColor: Colors.white.withOpacity(0.4),
-            unselectedHoverColor: const Color(0xFFF4F9FF),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
@@ -292,15 +291,15 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredBorder,
+    required this.cardHoveredColor,
     required this.cardRadius,
+    required this.cardSelectedColor,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
-    required this.dropButtonColor,
-    required this.hoveredBorderUnselected,
     required this.messageColor,
     required this.primaryBorder,
-    required this.primaryCardColor,
     required this.readMessageColor,
     required this.secondaryBorder,
     required this.sidebarColor,
@@ -308,7 +307,6 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageColor,
     required this.systemMessageStyle,
     required this.unreadMessageColor,
-    required this.unselectedHoverColor,
   });
 
   /// [Color] of the modal background barrier color.
@@ -326,8 +324,17 @@ class Style extends ThemeExtension<Style> {
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
+  /// [Border] to apply to hovered card-like [Widget]s.
+  final Border cardHoveredBorder;
+
+  /// Background [Color] of hovered card-like [Widget]s.
+  final Color cardHoveredColor;
+
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
+
+  /// Background [Color] of selected card-like [Widget]s.
+  final Color cardSelectedColor;
 
   /// Background [Color] of the [ContextMenu].
   final Color contextMenuBackgroundColor;
@@ -351,15 +358,6 @@ class Style extends ThemeExtension<Style> {
   /// [Border] to apply to [ColorScheme.secondary] color.
   final Border secondaryBorder;
 
-  /// [Color] reset button.
-  final Color dropButtonColor;
-
-  /// [Border] to use in sidebar for chats.
-  final Border hoveredBorderUnselected;
-
-  /// [Color] to use in sidebar for chats if chat is selected.
-  final Color primaryCardColor;
-
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
@@ -376,29 +374,25 @@ class Style extends ThemeExtension<Style> {
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
 
-  /// [Color] to use in sidebar for unselected chats when hovering.
-  final Color unselectedHoverColor;
-
   @override
   ThemeExtension<Style> copyWith({
     Color? barrierColor,
     TextStyle? boldBody,
     double? cardBlur,
     Border? cardBorder,
-    Border? hoveredBorderUnselected,
-    Border? primaryBorder,
-    BorderRadius? cardRadius,
-    BorderRadius? contextMenuRadius,
     Color? cardColor,
+    Border? cardHoveredBorder,
+    Color? cardHoveredColor,
+    BorderRadius? cardRadius,
+    Color? cardSelectedColor,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
-    Color? dropButtonColor,
-    Color? primaryCardColor,
+    BorderRadius? contextMenuRadius,
     Color? messageColor,
+    Border? primaryBorder,
     Color? readMessageColor,
     Border? secondaryBorder,
     Color? sidebarColor,
-    Color? unselectedHoverColor,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
@@ -410,7 +404,10 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardRadius: cardRadius ?? this.cardRadius,
+      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
@@ -420,12 +417,7 @@ class Style extends ThemeExtension<Style> {
       primaryBorder: primaryBorder ?? this.primaryBorder,
       readMessageColor: readMessageColor ?? this.readMessageColor,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
-      dropButtonColor: dropButtonColor ?? this.dropButtonColor,
-      hoveredBorderUnselected:
-          hoveredBorderUnselected ?? this.hoveredBorderUnselected,
-      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
-      unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
@@ -445,7 +437,13 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredBorder:
+          Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      cardSelectedColor:
+          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
         other.contextMenuBackgroundColor,
@@ -463,14 +461,7 @@ class Style extends ThemeExtension<Style> {
       readMessageColor:
           Color.lerp(readMessageColor, other.readMessageColor, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
-      dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
-      hoveredBorderUnselected: Border.lerp(
-          hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
-      primaryCardColor:
-          Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      unselectedHoverColor:
-          Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:

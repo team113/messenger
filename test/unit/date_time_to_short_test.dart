@@ -29,7 +29,7 @@ void main() {
 
     expect(
       DateTime(now.year, now.month, now.day, now.hour, now.minute).toShort(),
-      '${now.hour}:${now.minute}',
+      '${now.hour.toString().padLeft(2, '0')}:${now.minute}',
     );
 
     expect(

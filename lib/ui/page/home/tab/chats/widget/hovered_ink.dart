@@ -56,7 +56,7 @@ class InkWellWithHover extends StatefulWidget {
   /// Hovered [Border] of this [InkWellWithHover].
   final Border? hoveredBorder;
 
-  /// [BorderRadius] to paint behind the [child].
+  /// [BorderRadius] of this [InkWellWithHover].
   final BorderRadius? borderRadius;
 
   /// Callback, called when this [InkWellWithHover] is pressed.

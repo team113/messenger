@@ -222,5 +222,5 @@ abstract class RxChat {
   Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
-  Future<void> remove(ChatItemId id);
+  Future<void> remove(ChatItemId itemId);
 }

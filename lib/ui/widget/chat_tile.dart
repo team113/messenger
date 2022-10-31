@@ -77,18 +77,18 @@ class ChatTile extends StatelessWidget {
       child: SizedBox(
         height: height,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
+          padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: style.primaryCardColor,
+            selectedColor: style.cardSelectedColor,
             unselectedColor: style.cardColor,
             selected: selected,
             hoveredBorder:
-                selected ? style.primaryBorder : style.hoveredBorderUnselected,
+                selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.unselectedHoverColor,
-            selectedHoverColor: style.primaryCardColor,
+            unselectedHoverColor: style.cardHoveredColor,
+            selectedHoverColor: style.cardSelectedColor,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
