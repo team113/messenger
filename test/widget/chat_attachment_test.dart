@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -57,16 +59,20 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_attachment_widget');
+  Config.files = 'test';
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -318,6 +324,10 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+
     ChatController chatController =
         Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
     chatController.addPlatformAttachment(
@@ -329,7 +339,17 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    AttachmentId id1 =
+        Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .attachments
+            .first
+            .value
+            .id;
+
     expect(find.byKey(const Key('Send')), findsOneWidget);
+
+    await gesture.moveTo(tester.getCenter(find.byKey(Key('Attachment_$id1'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -346,11 +366,12 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    AttachmentId id = (chatController.chat!.messages.last.value as ChatMessage)
+    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
         .attachments
         .first
         .id;
-    expect(find.byKey(Key('File_$id'), skipOffstage: false), findsOneWidget);
+
+    expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

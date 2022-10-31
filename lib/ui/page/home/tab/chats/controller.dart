@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart'
     show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
 import '/routes.dart';
 import '/util/message_popup.dart';
+import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
 
 export 'view.dart';
@@ -231,6 +232,15 @@ class ChatsTabController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
+  /// [id].
+  bool inCall(ChatId id) =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {

@@ -174,6 +174,7 @@ btn_unmute_chat = Включить звук
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Указанный аккаунт не найден
@@ -329,7 +330,11 @@ label_ago_date = { $years ->
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = вложение(я)
+label_attachments = [{$count} { $count ->
+    [1] прикрепление
+    [few] прикрепления
+    *[other] прикреплений
+    }]
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
 label_biography = Биография
@@ -400,8 +405,7 @@ label_drop_here =
 label_duration_hour_short = ч
 label_duration_minute_short = м
 label_duration_second_short = с
-label_edit_message = Редактирование сообщения
-label_edit_message_hint = Без текста
+label_edit = Редактировать
 label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
@@ -473,6 +477,7 @@ label_new_password = Новый пароль
 label_no_chat_found = Чат не найден
 label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
+label_no_messages = Нет сообщений
 label_no_registration = без регистрации
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
@@ -512,6 +517,16 @@ label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_settings = Настройки
+label_short_weekday =
+    {$weekday ->
+        [1] пн
+        [2] вт
+        [3] ср
+        [4] чт
+        [5] пт
+        [6] сб
+        *[other] вс
+    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
 label_subtitle_participants = участников
@@ -519,8 +534,7 @@ label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
 label_transition_count = Переходов
-label_typing = печатает
-label_typings = печатают
+label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = { $quantity ->
@@ -538,3 +552,4 @@ label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 plus = +
+space_vertical_space = {" "}|{" "}

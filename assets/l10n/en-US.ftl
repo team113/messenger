@@ -174,6 +174,7 @@ btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Indicated account is not found
@@ -313,7 +314,10 @@ label_ago_date = { $years ->
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
-label_attachments = attachment(s)
+label_attachments = [{$count} { $count ->
+    [1] attachment
+    *[other] attachments
+    }]
 label_audio_call = Audio call
 label_away = Away
 label_biography = Biography
@@ -382,8 +386,7 @@ label_drop_here =
 label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
-label_edit_message = Message editing
-label_edit_message_hint = No text
+label_edit = Edit
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
@@ -452,6 +455,7 @@ label_new_password = New password
 label_no_chat_found = No chat found
 label_no_chats = No chats
 label_no_contacts = No contacts
+label_no_messages = No messages
 label_no_registration = no registration
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
@@ -491,6 +495,16 @@ label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_settings = Settings
+label_short_weekday =
+    {$weekday ->
+        [1] Mon
+        [2] Tue
+        [3] Wed
+        [4] Thu
+        [5] Fri
+        [6] Sat
+        *[other] Sun
+    }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone
 label_subtitle_participants = participants
@@ -498,8 +512,7 @@ label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
 label_transition_count = Transitions
-label_typing = is typing
-label_typings = are typing
+label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
 label_unread_messages = { $quantity ->
@@ -517,3 +530,4 @@ label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
 plus = +
+space_vertical_space = {" "}|{" "}

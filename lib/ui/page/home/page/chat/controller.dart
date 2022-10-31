@@ -62,6 +62,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -116,6 +117,9 @@ class ChatController extends GetxController {
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem> repliedMessages = RxList();
 
+  /// Indicator whether forwarding mode is enabled.
+  final RxBool forwarding = RxBool(false);
+
   /// State of an edit message field.
   TextFieldState? edit;
 
@@ -129,8 +133,9 @@ class ChatController extends GetxController {
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
-  /// Attachments to be attached to a message.
-  RxList<Attachment> attachments = RxList<Attachment>();
+  /// [Attachment]s to be attached to a message.
+  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -141,14 +146,29 @@ class ChatController extends GetxController {
   /// Indicates currently ongoing horizontal scroll of a view.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
+  /// [GlobalKey] of the bottom bar.
+  final GlobalKey bottomBarKey = GlobalKey();
+
+  /// [Rect] the bottom bar takes.
+  final Rx<Rect?> bottomBarRect = Rx(null);
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
+
+  /// [Attachment] being hovered.
+  final Rx<Attachment?> hoveredAttachment = Rx(null);
+
+  /// Replied [ChatItem] being hovered.
+  final Rx<ChatItem?> hoveredReply = Rx(null);
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
+
+  /// Duration of a [Chat.ongoingCall].
+  final Rx<Duration?> duration = Rx(null);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -180,7 +200,10 @@ class ChatController extends GetxController {
   StreamSubscription? _typingSubscription;
 
   /// Subscription for the [RxChat.messages] updating the [elements].
-  late final StreamSubscription _messagesSubscription;
+  StreamSubscription? _messagesSubscription;
+
+  /// Subscription for the [RxChat.chat] updating the [_durationTimer].
+  StreamSubscription? _chatSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -191,6 +214,9 @@ class ChatController extends GetxController {
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
+
+  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
+  Timer? _durationTimer;
 
   /// [AudioPlayer] playing a sent message sound.
   AudioPlayer? _audioPlayer;
@@ -237,6 +263,11 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  bool get inCall =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+
   @override
   void onInit() {
     send = TextFieldState(
@@ -250,7 +281,7 @@ class ChatController extends GetxController {
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
                 repliesTo: repliedMessages,
-                attachments: attachments,
+                attachments: attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -316,11 +347,13 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _messagesSubscription.cancel();
+    _messagesSubscription?.cancel();
+    _chatSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
+    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     listController.removeListener(_updateFabStates);
     listController.dispose();
@@ -340,6 +373,9 @@ class ChatController extends GetxController {
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);
+
+  /// Drops the call in the [Chat] identified by the [id].
+  Future<void> dropCall() => _callService.leave(id);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
@@ -627,6 +663,38 @@ class ChatController extends GetxController {
             break;
         }
       });
+
+      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
+      // changes.
+      ChatItemId? previousCall;
+
+      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
+      // from the stored [previousCall].
+      void updateTimer(Chat chat) {
+        if (previousCall != chat.ongoingCall?.id) {
+          previousCall = chat.ongoingCall?.id;
+
+          duration.value = null;
+          _durationTimer?.cancel();
+          _durationTimer = null;
+
+          if (chat.ongoingCall != null) {
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                if (chat.ongoingCall!.conversationStartedAt != null) {
+                  duration.value = DateTime.now().difference(
+                    chat.ongoingCall!.conversationStartedAt!.val,
+                  );
+                }
+              },
+            );
+          }
+        }
+      }
+
+      updateTimer(chat!.chat.value);
+      _chatSubscription = chat!.chat.listen(updateTimer);
 
       _messagesWorker ??= ever(
         chat!.messages,
@@ -995,13 +1063,13 @@ class ChatController extends GetxController {
     if (file.size < maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(attachment);
+        attachments.add(MapEntry(GlobalKey(), attachment));
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexOf(attachment);
         if (index != -1) {
-          attachments[index] = uploaded;
+          attachments[index] = MapEntry(attachments[index].key, uploaded);
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

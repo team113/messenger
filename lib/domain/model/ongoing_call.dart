@@ -516,7 +516,7 @@ class OngoingCall {
   /// Leaves this [OngoingCall].
   ///
   /// Throws a [LeaveChatCallException].
-  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId!);
+  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId);
 
   /// Declines this [OngoingCall].
   ///
@@ -911,6 +911,7 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
+        member._connection = conn;
         member.isConnected.value = true;
       } else {
         members[id] = CallMember(
