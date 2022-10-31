@@ -51,7 +51,7 @@ class Themes {
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
             cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
-            cardSelectedColor: const Color(0xFFD2E3F9),
+            cardSelectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
