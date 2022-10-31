@@ -810,11 +810,6 @@ class _ChatViewState extends State<ChatView>
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
 
-    List<Widget> attachmentsList = [];
-    c.attachments.forEach((key, value) {
-      attachmentsList.add(_buildAttachment(c, value, key));
-    });
-
     return SafeArea(
       child: Container(
         key: const Key('SendField'),
@@ -970,7 +965,10 @@ class _ChatViewState extends State<ChatView>
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
-                                      children: attachmentsList,
+                                      children: [
+                                        for (var a in c.attachments.entries)
+                                          _buildAttachment(c, a.value, a.key)
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -1372,7 +1370,7 @@ class _ChatViewState extends State<ChatView>
                   initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((key, value) => value == a);
+                    c.attachments.removeWhere((k, v) => v == a);
                   },
                   children: attachments.map((o) {
                     if (o is ImageAttachment ||
@@ -1524,8 +1522,8 @@ class _ChatViewState extends State<ChatView>
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments
-                                    .removeWhere((key, value) => value == e),
+                                onTap: () =>
+                                    c.attachments.removeWhere((k, v) => v == e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -1561,7 +1559,7 @@ class _ChatViewState extends State<ChatView>
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((key, value) => value == e),
+      onDismissed: (_) => c.attachments.removeWhere((k, v) => v == e),
       child: attachment(),
     );
   }
