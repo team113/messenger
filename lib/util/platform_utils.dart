@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -149,7 +150,7 @@ class PlatformUtilsImpl {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    _downloadDirectory = '$path/${Config.downloads}';
+    _downloadDirectory = '$path${Config.downloads}';
     return _downloadDirectory!;
   }
 
@@ -186,36 +187,124 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads a file from the provided [url].
-  FutureOr<File?> download(
-    String url,
+  /// Returns a [File] with the provided [filename] and [size], if any exist in
+  /// the [downloadsDirectory].
+  ///
+  /// If [size] is `null`, then an attempt to get the size from the given [url]
+  /// will be performed.
+  Future<File?> fileExists(
     String filename, {
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
+    int? size,
+    String? url,
   }) async {
-    if (PlatformUtils.isWeb) {
-      await WebUtils.downloadFile(url, filename);
-      return null;
-    } else {
-      final String name = p.basenameWithoutExtension(filename);
-      final String extension = p.extension(filename);
-      final String path = await downloadsDirectory;
+    if ((size != null || url != null) && !PlatformUtils.isWeb) {
+      size = size ??
+          int.parse(((await Dio().head(url!)).headers['content-length']
+              as List<String>)[0]);
 
-      // TODO: File might already be downloaded, compare hashes.
-      File file = File('$path/$filename');
-      for (int i = 1; await file.exists(); ++i) {
-        file = File('$path/$name ($i)$extension');
+      String downloads = await PlatformUtils.downloadsDirectory;
+      String name = p.basenameWithoutExtension(filename);
+      String ext = p.extension(filename);
+      File file = File('$downloads/$filename');
+
+      // TODO: Compare hashes instead of sizes.
+      for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+        file = File('$downloads/$name ($i)$ext');
       }
 
-      await Dio().download(
-        url,
-        file.path,
-        onReceiveProgress: onReceiveProgress,
-        cancelToken: cancelToken,
-      );
-
-      return file;
+      if (await file.exists()) {
+        return file;
+      }
     }
+
+    return null;
+  }
+
+  /// Downloads a file from the provided [url].
+  Future<File?> download(
+    String url,
+    String filename,
+    int? size, {
+    Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
+  }) {
+    // Calls the provided [callback] using the exponential backoff algorithm.
+    Future<T?> withBackoff<T>(Future<T> Function() callback) async {
+      Duration backoff = Duration.zero;
+      T? result;
+
+      while (result == null) {
+        try {
+          await Future.delayed(backoff);
+
+          if (cancelToken?.isCancelled == true) {
+            return null;
+          }
+
+          result = await callback();
+          return result;
+        } catch (e) {
+          // Rethrow if any other than `404` error is thrown.
+          if (e is! DioError || e.response?.statusCode != 404) {
+            rethrow;
+          }
+
+          if (backoff.inMilliseconds == 0) {
+            backoff = 125.milliseconds;
+          } else if (backoff < 16.seconds) {
+            backoff *= 2;
+          }
+        }
+      }
+
+      return result;
+    }
+
+    CancelableOperation<File?> operation = CancelableOperation.fromFuture(
+      Future(() async {
+        if (PlatformUtils.isWeb) {
+          await withBackoff(() => WebUtils.downloadFile(url, filename));
+        } else {
+          File? file;
+
+          // Retry fetching the size unless any other that `404` error is
+          // thrown.
+          file = await withBackoff<File?>(
+            () => fileExists(filename, size: size, url: url),
+          );
+
+          if (file == null) {
+            final String name = p.basenameWithoutExtension(filename);
+            final String extension = p.extension(filename);
+            final String path = await downloadsDirectory;
+
+            file = File('$path/$filename');
+            for (int i = 1; await file!.exists(); ++i) {
+              file = File('$path/$name ($i)$extension');
+            }
+
+            // Retry the downloading unless any other that `404` error is
+            // thrown.
+            await withBackoff(
+              () => Dio().download(
+                url,
+                file!.path,
+                onReceiveProgress: onReceiveProgress,
+                cancelToken: cancelToken,
+              ),
+            );
+
+            return file;
+          }
+        }
+
+        return null;
+      }),
+    );
+
+    cancelToken?.whenCancel.whenComplete(operation.cancel);
+
+    return operation.valueOrCancellation();
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
