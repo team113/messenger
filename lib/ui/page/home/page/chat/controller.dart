@@ -286,7 +286,7 @@ class ChatController extends GetxController {
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
                 repliesTo: repliedMessages,
-                attachments: attachments.values.map((e) => e).toList(),
+                attachments: attachments.values.toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -295,9 +295,9 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
+          s.clear();
           repliedMessages.clear();
           attachments.clear();
-          s.clear();
           s.unsubmit();
 
           _typingSubscription?.cancel();
@@ -501,7 +501,7 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
-      ChatMessage? chatMessage = chat!.draft?.value;
+      ChatMessage? chatMessage = chat!.draft.value;
       send.text = chatMessage?.text?.val ?? '';
       if (chatMessage?.attachments != null) {
         for (var element in chatMessage!.attachments) {

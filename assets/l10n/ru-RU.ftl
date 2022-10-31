@@ -471,7 +471,6 @@ label_password = Пароль
 label_password_not_set = Пароль не задан
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
-label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
 label_phones = Телефоны
@@ -490,6 +489,7 @@ label_replies = { $quantity ->
     [few] {$quantity} ответа
     *[other] {$quantity} ответов
 }
+label_personalization = Персонализация
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено

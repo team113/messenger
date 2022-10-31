@@ -155,12 +155,14 @@ class _ChatWatchData {
               if (msg.text != null) {
                 body = msg.text?.val;
                 if (msg.attachments.isNotEmpty) {
-                  body =
-                      '$body\n[${msg.attachments.length} ${'label_attachments'.l10n}]';
+                  body = '$body\n[${'label_attachments'.l10nfmt({
+                        'quantity': msg.attachments.length
+                      })}]';
                 }
               } else if (msg.attachments.isNotEmpty) {
-                body =
-                    '[${msg.attachments.length} ${'label_attachments'.l10n}]';
+                body = '[${'label_attachments'.l10nfmt({
+                      'quantity': msg.attachments.length
+                    })}]';
               }
             } else if (chat.lastItem is ChatMemberInfo) {
               // TODO: Display [ChatMemberInfo] properly.

@@ -108,7 +108,7 @@ class HiveChat extends HiveObject {
     this.ver,
     this.lastItemCursor,
     this.lastReadItemCursor, {
-    this.draftMessage,
+    this.draft,
   });
 
   /// Persisted [Chat] model.
@@ -132,5 +132,5 @@ class HiveChat extends HiveObject {
 
   /// Draft [ChatMessage] of this [Chat].
   @HiveField(4)
-  ChatMessage? draftMessage;
+  ChatMessage? draft;
 }

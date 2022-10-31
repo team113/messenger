@@ -58,7 +58,7 @@ class HiveRxChat implements RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(hiveChat.draftMessage);
+        draft = Rx<ChatMessage?>(hiveChat.draft);
 
   @override
   final Rx<Chat> chat;
@@ -82,7 +82,7 @@ class HiveRxChat implements RxChat {
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
   @override
-  Rx<ChatMessage?> draft;
+  final Rx<ChatMessage?> draft;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -225,12 +225,12 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  void setDraftMessage(ChatMessage? message) {
+  void setDraftMessage(ChatMessage? message) async {
     HiveChat? hiveChat = _chatLocal.get(id);
     if (hiveChat != null &&
         (message != null || message == null && draft.value != null)) {
       draft.value = message;
-      hiveChat.draftMessage = message;
+      hiveChat.draft = message;
       _chatLocal.put(hiveChat);
     }
   }
@@ -417,13 +417,6 @@ class HiveRxChat implements RxChat {
         remove(message.value.id, message.value.timestamp);
         _pending.remove(message.value);
         message = event.item.first as HiveChatMessage;
-
-        HiveChat? hiveChat = _chatLocal.get(id);
-        if (hiveChat != null) {
-          draft.value = null;
-          hiveChat.draftMessage = null;
-          await _chatLocal.put(hiveChat);
-        }
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;

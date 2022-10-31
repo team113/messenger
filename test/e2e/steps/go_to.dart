@@ -17,7 +17,6 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 
-import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -27,30 +26,6 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     router.user(context.world.sessions[user.name]!.userId);
     await context.world.appDriver.waitForAppToSettle();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Routes the [RouterState] to the previous page.
-final StepDefinitionGeneric iReturnToPreviousPage = then<CustomWorld>(
-  'I return to previous page',
-  (context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-      final finder =
-          context.world.appDriver.findByKeySkipOffstage('StyledBackButton');
-
-      if (await context.world.appDriver.isPresent(finder)) {
-        await context.world.appDriver.tap(
-          finder,
-          timeout: context.configuration.timeout,
-        );
-        await context.world.appDriver.waitForAppToSettle();
-        return true;
-      }
-      return false;
-    });
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

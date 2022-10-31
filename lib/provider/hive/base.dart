@@ -114,12 +114,10 @@ abstract class HiveBaseProvider<T extends HiveObject>
   }
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> putSafe(dynamic key, T value) async {
-    await _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        return box.put(key, value);
-      }
-    });
+  Future<void> putSafe(dynamic key, T value) {
+    if (_isReady && _box.isOpen) {
+      return box.put(key, value);
+    }
     return Future.value();
   }
 

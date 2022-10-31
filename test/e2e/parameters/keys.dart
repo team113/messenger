@@ -81,6 +81,7 @@ enum WidgetKey {
   SettingsButton,
   SignInButton,
   StartButton,
+  StyledBackButton,
   SuccessStage,
   UsernameField,
 }

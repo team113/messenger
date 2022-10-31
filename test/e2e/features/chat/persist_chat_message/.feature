@@ -25,7 +25,7 @@ Feature: Chat message have correct persisting
     And I fill `MessageField` field with "123"
 
   Scenario: Persist chat message
-    When I return to previous page
+    When I tap `StyledBackButton` button
     Then I wait until `DraftMessage` is present
 
     When I am in chat with Bob

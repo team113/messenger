@@ -985,7 +985,7 @@ class ChatRepository implements AbstractChatRepository {
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
     HiveRxChat? entry = chats[data.chat.value.id];
-
+    data.chat.draft = entry?.draft.value;
     _putChat(data.chat);
 
     if (entry == null) {

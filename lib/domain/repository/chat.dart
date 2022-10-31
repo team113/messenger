@@ -211,7 +211,7 @@ abstract class RxChat {
   UserCallCover? get callCover;
 
   /// Draft [ChatMessage] of this [Chat].
-  Rx<ChatMessage?>? get draft;
+  Rx<ChatMessage?> get draft;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();

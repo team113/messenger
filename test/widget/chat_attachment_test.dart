@@ -342,8 +342,8 @@ void main() async {
     AttachmentId id1 =
         Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
             .attachments
+            .values
             .first
-            .value
             .id;
 
     expect(find.byKey(const Key('Send')), findsOneWidget);

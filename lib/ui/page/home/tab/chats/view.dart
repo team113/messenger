@@ -109,7 +109,7 @@ class ChatsTabView extends StatelessWidget {
             .map((e) => e.name?.val ?? e.num.val);
 
         if (chat.ongoingCall == null) {
-          ChatMessage? draft = rxChat.draft?.value;
+          ChatMessage? draft = rxChat.draft.value;
           if (draft != null &&
               router.routes.last != '${Routes.chat}/${rxChat.chat.value.id}') {
             var desc = StringBuffer();
@@ -117,9 +117,9 @@ class ChatsTabView extends StatelessWidget {
               desc.write(draft.text!.val);
             }
             if (draft.attachments.isNotEmpty) {
-              desc.write(' [${'label_attachments'.l10nfmt(
-                {'quantity': draft.attachments.length},
-              )}]');
+              desc.write(' [${'label_attachments'.l10nfmt({
+                    'quantity': draft.attachments.length
+                  })}]');
             }
             if (draft.repliesTo.isNotEmpty) {
               desc.write(' [${'label_replies'.l10nfmt(
@@ -194,12 +194,14 @@ class ChatsTabView extends StatelessWidget {
               if (item.text != null) {
                 desc.write(item.text!.val);
                 if (item.attachments.isNotEmpty) {
-                  desc.write(
-                      ' [${item.attachments.length} ${'label_attachments'.l10n}]');
+                  desc.write(' [${'label_attachments'.l10nfmt({
+                        'quantity': item.attachments.length
+                      })}]');
                 }
               } else if (item.attachments.isNotEmpty) {
-                desc.write(
-                    '[${item.attachments.length} ${'label_attachments'.l10n}]');
+                desc.write(' [${'label_attachments'.l10nfmt({
+                      'quantity': item.attachments.length
+                    })}]');
               }
 
               subtitle = [

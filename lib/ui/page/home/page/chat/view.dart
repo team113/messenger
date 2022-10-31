@@ -810,6 +810,11 @@ class _ChatViewState extends State<ChatView>
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
 
+    List<Widget> attachmentsList = [];
+    c.attachments.forEach((key, value) {
+      attachmentsList.add(_buildAttachment(c, value, key));
+    });
+
     return SafeArea(
       child: Container(
         key: const Key('SendField'),
@@ -962,23 +967,11 @@ class _ChatViewState extends State<ChatView>
                                         : const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: c.attachments
-                                            .map((key, value) =>
-                                                _buildAttachment(c, value, key))
-                                            .toList()
-                                        // c.attachments
-                                        //     .map(
-                                        //       (e) => _buildAttachment(
-                                        //         c,
-                                        //         e.value,
-                                        //         e.key,
-                                        //       ),
-                                        //     )
-                                        //     .toList(),
-                                        ),
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: attachmentsList,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1077,9 +1070,8 @@ class _ChatViewState extends State<ChatView>
                                           .map((e) => ChatItemQuote(item: e))
                                           .toList(),
                                       text: c.send.text,
-                                      attachments: c.attachments
-                                          .map((e) => e.value)
-                                          .toList(),
+                                      attachments:
+                                          c.attachments.values.toList(),
                                     );
 
                                     if (result == true) {
@@ -1362,15 +1354,11 @@ class _ChatViewState extends State<ChatView>
           }
         }
 
-        List<Attachment> attachments = c.attachments
-            .where((e) {
-              Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
+        List<Attachment> attachments = c.attachments.values.where((a) {
+          return a is ImageAttachment ||
+              (a is FileAttachment && a.isVideo) ||
+              (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+        }).toList();
 
         return WidgetButton(
           key: key,
@@ -1384,19 +1372,19 @@ class _ChatViewState extends State<ChatView>
                   initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o.value == a);
+                    c.attachments.removeWhere((key, value) => value == a);
                   },
                   children: attachments.map((o) {
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
-                        e.original.url,
+                        o.original.url,
                         o.filename,
                         size: o.original.size,
                       );
                     }
                     return GalleryItem.video(
-                      e.original.url,
+                      o.original.url,
                       o.filename,
                       size: o.original.size,
                     );
@@ -1537,7 +1525,7 @@ class _ChatViewState extends State<ChatView>
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
                                 onTap: () => c.attachments
-                                    .removeWhere((a) => a.value == e),
+                                    .removeWhere((key, value) => value == e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -1573,7 +1561,7 @@ class _ChatViewState extends State<ChatView>
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+      onDismissed: (_) => c.attachments.removeWhere((key, value) => value == e),
       child: attachment(),
     );
   }

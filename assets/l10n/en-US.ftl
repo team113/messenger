@@ -452,7 +452,6 @@ label_password = Password
 label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
-label_personalization = Personalization
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
 label_phones = Phones
@@ -470,6 +469,7 @@ label_replies = { $quantity ->
     [1] 1 reply
     *[other] {$quantity} replies
 }
+label_personalization = Personalization
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
