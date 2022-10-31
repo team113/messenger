@@ -33,7 +33,7 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/chat_tile.dart';
+import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
