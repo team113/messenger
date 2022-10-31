@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// Animated transformation translation of the provided [child].
+/// Animated translation of the provided [child].
 class AnimatedTransform extends ImplicitlyAnimatedWidget {
   const AnimatedTransform({
     Key? key,

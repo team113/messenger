@@ -140,7 +140,7 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether there is an [ChatItem] is dragged.
+  /// Indicator whether an [ChatItem] is dragged.
   final RxBool isItemDragged = RxBool(false);
 
   /// Indicator whether timeline feedback was called.

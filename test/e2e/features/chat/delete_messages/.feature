@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat items are forwarded correctly
+Feature: Chat items are deleted correctly
 
   Background: User is in dialog with Bob
     Given I am Alice
