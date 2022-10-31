@@ -248,52 +248,52 @@ jobs:
   #       if: ${{ github.ref == 'refs/heads/main'
   #            || startsWith(github.ref, 'refs/tags/v') }}
 
-  # docker:
-  #   needs: ["build"]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: docker/setup-buildx-action@v2
+  docker:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
 
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-web-${{ github.run_number }}
-  #     - run: mkdir -p build/web/
-  #     - run: unzip *.zip -d build/web/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-web-${{ github.run_number }}
+      - run: mkdir -p build/web/
+      - run: unzip *.zip -d build/web/
 
-  #     - run: mkdir -p build/web/artifacts/
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-apk-${{ github.run_number }}
-  #         path: build/web/artifacts/
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-appbundle-${{ github.run_number }}
-  #         path: build/web/artifacts/
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-linux-${{ github.run_number }}
-  #         path: build/web/artifacts/
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-macos-${{ github.run_number }}
-  #         path: build/web/artifacts/
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: build-windows-${{ github.run_number }}
-  #         path: build/web/artifacts/
+      - run: mkdir -p build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-apk-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-appbundle-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows-${{ github.run_number }}
+          path: build/web/artifacts/
 
-  #     - run: make docker.image no-cache=yes
-  #                 tag=build-${{ github.run_number }}
+      - run: make docker.image no-cache=yes
+                  tag=build-${{ github.run_number }}
 
-  #     - run: make docker.tar to-file=.cache/image.tar
-  #                 tags=build-${{ github.run_number }}
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: docker-${{ github.run_number }}
-  #         path: .cache/image.tar
-  #         if-no-files-found: error
-  #         retention-days: 1
+      - run: make docker.tar to-file=.cache/image.tar
+                  tags=build-${{ github.run_number }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+          path: .cache/image.tar
+          if-no-files-found: error
+          retention-days: 1
 
 
 
@@ -365,122 +365,68 @@ jobs:
   # Releasing #
   #############
 
-  # release-docker:
-  #   name: Release Docker image
-  #   if: ${{ github.ref == 'refs/heads/main'
-  #        || startsWith(github.ref, 'refs/tags/v') }}
-  #   needs:
-  #     - copyright
-  #     - dartanalyze
-  #     - dartdoc
-  #     - dartfmt
-  #     # - docker
-  #     - test-e2e
-  #     - test-unit
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       registry: ["ghcr.io"]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     # Skip if this is fork and no credentials are provided.
-  #     - id: skip
-  #       run: echo ::set-output name=no::${{ !(
-  #              github.repository_owner != 'team113'
-  #              && ((matrix.registry == 'quay.io'
-  #                   && secrets.QUAYIO_ROBOT_USER == '')
-  #               || (matrix.registry == 'docker.io'
-  #                   && secrets.DOCKERHUB_BOT_USER == ''))
-  #            ) }}
+  release-docker:
+    name: Release Docker image
+    if: ${{ github.ref == 'refs/heads/new-design-preview' }}
+    needs:
+      # - copyright
+      # - dartanalyze
+      # - dartdoc
+      # - dartfmt
+      - docker
+      # - test-e2e
+      # - test-unit
+    strategy:
+      fail-fast: false
+      matrix:
+        registry: ["ghcr.io"]
+    runs-on: ubuntu-latest
+    steps:
+      # Skip if this is fork and no credentials are provided.
+      - id: skip
+        run: echo ::set-output name=no::${{ !(
+               github.repository_owner != 'team113'
+               && ((matrix.registry == 'quay.io'
+                    && secrets.QUAYIO_ROBOT_USER == '')
+                || (matrix.registry == 'docker.io'
+                    && secrets.DOCKERHUB_BOT_USER == ''))
+             ) }}
 
-  #     - uses: actions/checkout@v3
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/checkout@v3
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: docker-${{ github.run_number }}
-  #         path: .cache/
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
-  #     - run: make docker.untar from-file=.cache/image.tar
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+          path: .cache/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - run: make docker.untar from-file=.cache/image.tar
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
-  #     - name: Login to ${{ matrix.registry }} container registry
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: ${{ matrix.registry }}
-  #         username: ${{ (matrix.registry == 'docker.io'
-  #                        && secrets.DOCKERHUB_BOT_USER)
-  #                    || (matrix.registry == 'quay.io'
-  #                        && secrets.QUAYIO_ROBOT_USER)
-  #                    || github.repository_owner }}
-  #         password: ${{ (matrix.registry == 'docker.io'
-  #                        && secrets.DOCKERHUB_BOT_PASS)
-  #                    || (matrix.registry == 'quay.io'
-  #                        && secrets.QUAYIO_ROBOT_TOKEN)
-  #                    || secrets.GITHUB_TOKEN }}
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
+      - name: Login to ${{ matrix.registry }} container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ matrix.registry }}
+          username: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_BOT_USER)
+                     || (matrix.registry == 'quay.io'
+                         && secrets.QUAYIO_ROBOT_USER)
+                     || github.repository_owner }}
+          password: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_BOT_PASS)
+                     || (matrix.registry == 'quay.io'
+                         && secrets.QUAYIO_ROBOT_TOKEN)
+                     || secrets.GITHUB_TOKEN }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
-  #     - name: Parse semver versions from Git tag
-  #       id: semver
-  #       uses: actions-ecosystem/action-regex-match@v2
-  #       with:
-  #         text: ${{ github.ref }}
-  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-  #       if: ${{ steps.skip.outputs.no == 'true'
-  #            && startsWith(github.ref, 'refs/tags/v') }}
-  #     - name: Form version Docker tags
-  #       id: tags
-  #       uses: actions/github-script@v6
-  #       with:
-  #         result-encoding: string
-  #         script: |
-  #           let versions = '${{ steps.semver.outputs.group1 }}';
-  #           if ('${{ steps.semver.outputs.group5 }}' === '') {
-  #             versions += ',${{ steps.semver.outputs.group3 }}';
-  #             if ('${{ steps.semver.outputs.group4 }}' !== '0') {
-  #               versions += ',${{ steps.semver.outputs.group4 }}';
-  #             }
-  #             versions += 'latest';
-  #           }
-  #           return versions;
-  #       if: ${{ steps.skip.outputs.no == 'true'
-  #            && startsWith(github.ref, 'refs/tags/v') }}
-
-  #     - run: make docker.tags of=build-${{ github.run_number }}
-  #                 registries=${{ matrix.registry }}
-  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
-  #                           && steps.tags.outputs.result)
-  #                       ||     'edge' }}
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
-  #     - run: make docker.push
-  #                 registries=${{ matrix.registry }}
-  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
-  #                           && steps.tags.outputs.result)
-  #                       ||     'edge' }}
-  #       if: ${{ steps.skip.outputs.no == 'true' }}
-
-  #     # On GitHub Container Registry README is automatically updated on pushes.
-  #     - name: Update README on Docker Hub
-  #       uses: christian-korneck/update-container-description-action@v1
-  #       with:
-  #         provider: dockerhub
-  #         destination_container_repo: ${{ github.repository }}
-  #         readme_file: README.md
-  #       env:
-  #         DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
-  #         DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
-  #       if: ${{ steps.skip.outputs.no == 'true'
-  #            && matrix.registry == 'docker.io' }}
-  #     - name: Update README on Quay.io
-  #       uses: christian-korneck/update-container-description-action@v1
-  #       with:
-  #         provider: quay
-  #         destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
-  #         readme_file: README.md
-  #       env:
-  #         DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
-  #       if: ${{ steps.skip.outputs.no == 'true'
-  #            && matrix.registry == 'quay.io' }}
+      - run: make docker.tags of=build-${{ github.run_number }}
+                  registries=${{ matrix.registry }}
+                  tags=${{ 'new-design-preview' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - run: make docker.push
+                  registries=${{ matrix.registry }}
+                  tags=${{ 'new-design-preview' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
   # release-github:
   #   name: Release on GitHub

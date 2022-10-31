@@ -16,80 +16,86 @@
 
 import 'package:flutter/material.dart';
 
+/// [InkWell] button decorated differently based on the [selected] indicator.
+///
+/// Used to bypass [InkWell] incorrect behaviour when changing its
+/// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
     Key? key,
-    this.borderRadius,
-    this.selectedHoverColor,
-    this.unselectedHoverColor,
-    this.hoveredBorder,
-    this.unhoveredBorder,
-    this.isSelected = false,
-    this.onTap,
+    this.selected = false,
     this.selectedColor,
+    this.selectedHoverColor,
     this.unselectedColor,
+    this.unselectedHoverColor,
+    this.border,
+    this.hoveredBorder,
+    this.borderRadius,
+    this.onTap,
     required this.child,
   }) : super(key: key);
 
-  final void Function()? onTap;
-  final BorderRadius? borderRadius;
-  final Color? selectedHoverColor;
-  final Color? unselectedHoverColor;
+  /// Indicator whether this [InkWellWithHover] is selected.
+  final bool selected;
+
+  /// [Color] of this [InkWellWithHover] when [selected] is `true`.
   final Color? selectedColor;
+
+  /// Hovered [Color] of this [InkWellWithHover] when [selected] is `true`.
+  final Color? selectedHoverColor;
+
+  /// [Color] of this [InkWellWithHover] when [selected] is `false`.
   final Color? unselectedColor;
+
+  /// Hovered [Color] of this [InkWellWithHover] when [selected] is `false`.
+  final Color? unselectedHoverColor;
+
+  /// [Border] of this [InkWellWithHover].
+  final Border? border;
+
+  /// Hovered [Border] of this [InkWellWithHover].
   final Border? hoveredBorder;
-  final Border? unhoveredBorder;
+
+  /// [BorderRadius] of this [InkWellWithHover].
+  final BorderRadius? borderRadius;
+
+  /// Callback, called when this [InkWellWithHover] is pressed.
+  final void Function()? onTap;
+
+  /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
-  final bool isSelected;
 
   @override
   State<InkWellWithHover> createState() => _InkWellWithHoverState();
 }
 
+/// State of an [InkWellWithHover] maintaining the [hovered] indicator.
 class _InkWellWithHoverState extends State<InkWellWithHover> {
-  bool isHovered = false;
-  late bool isSelected;
-
-  @override
-  void initState() {
-    isSelected = widget.isSelected;
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant InkWellWithHover oldWidget) {
-    isSelected = widget.isSelected;
-    super.didUpdateWidget(oldWidget);
-  }
+  /// Indicator whether [InkWellWithHover.child] is hovered.
+  bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius,
-        border: isHovered ? widget.hoveredBorder : widget.unhoveredBorder,
-        color: Colors.transparent,
+        border: hovered ? widget.hoveredBorder : widget.border,
       ),
       child: Material(
         type: MaterialType.card,
         borderRadius: widget.borderRadius,
-        color: isHovered
-            ? isSelected
+        color: hovered
+            ? widget.selected
                 ? widget.selectedHoverColor
                 : widget.unselectedHoverColor
-            : isSelected
+            : widget.selected
                 ? widget.selectedColor
                 : widget.unselectedColor,
         child: InkWell(
           borderRadius: widget.borderRadius,
-          onTap: () {
-            setState(() {
-              isSelected = true;
-            });
-
-            widget.onTap?.call();
-          },
-          onHover: (b) => setState(() => isHovered = b),
+          onTap: widget.onTap?.call,
+          onHover: (v) => setState(() => hovered = v),
           hoverColor: Colors.transparent,
           child: widget.child,
         ),

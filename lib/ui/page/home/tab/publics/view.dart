@@ -1448,7 +1448,7 @@ class PublicsTabView extends StatelessWidget {
             child: InkWellWithHover(
               selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
               unselectedColor: style.cardColor,
-              isSelected: selected,
+              selected: selected,
               hoveredBorder: selected
                   ? Border.all(
                       color: const Color(0xFFB9D9FA),
@@ -1458,8 +1458,7 @@ class PublicsTabView extends StatelessWidget {
                       color: const Color(0xFFDAEDFF),
                       width: 0.5,
                     ),
-              unhoveredBorder:
-                  selected ? style.primaryBorder : style.cardBorder,
+              border: selected ? style.primaryBorder : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: () => router.public(chat.id),
               unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),

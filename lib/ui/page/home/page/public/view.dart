@@ -266,7 +266,7 @@ class _PublicViewState extends State<PublicView>
                               } else if (element is ChatForwardElement) {
                                 return Container();
                               } else if (element is DateTimeElement) {
-                                // return _timeLabel(element.id.at.val);
+                                return _timeLabel(element.id.at.val);
                               }
 
                               return Container();

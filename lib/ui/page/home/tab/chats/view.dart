@@ -58,6 +58,7 @@ import 'controller.dart';
 import 'create_group/controller.dart';
 import 'create_group/view.dart';
 import 'widget/hovered_ink.dart';
+import 'widget/recent_chat.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -630,7 +631,7 @@ class ChatsTabView extends StatelessWidget {
                           controller: ScrollController(),
                           itemCount: c.chats.length,
                           itemBuilder: (BuildContext context, int i) {
-                            RxChat e = c.sortedChats[i];
+                            RxChat chat = c.sortedChats[i];
                             return AnimationConfiguration.staggeredList(
                               position: i,
                               duration: const Duration(milliseconds: 375),
@@ -644,7 +645,16 @@ class ChatsTabView extends StatelessWidget {
                                       right: 10,
                                       bottom: i == c.chats.length - 1 ? 5 : 0,
                                     ),
-                                    child: buildChatTile(context, c, e),
+                                    child: RecentChatTile(
+                                      chat,
+                                      me: c.me,
+                                      getUser: c.getUser,
+                                      onJoin: () => c.joinCall(chat.id),
+                                      onDrop: () => c.dropCall(chat.id),
+                                      onLeave: () => c.leaveChat(chat.id),
+                                      onHide: () => c.hideChat(chat.id),
+                                      inCall: () => c.inCall(chat.id),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -736,127 +746,12 @@ class ChatsTabView extends StatelessWidget {
                               hint: 'Search',
                               maxLines: 1,
                               filled: true,
-                              // dense: true,
-                              // padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(fontSize: 17),
                               onChanged: () => c.query.value = c.search.text,
                             ),
                           ),
                         ),
                       ),
-                      // AnimatedSizeAndFade.showHide(
-                      //   fadeDuration: 300.milliseconds,
-                      //   sizeDuration: 300.milliseconds,
-                      //   show:
-                      //       (c.searching.value && c.query.isNotEmpty == true ||
-                      //           c.groupCreating.value),
-                      //   child: Container(
-                      // margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
-                      // height: 30,
-                      //     child: Row(
-                      //       mainAxisAlignment: c.groupCreating.value
-                      //           ? MainAxisAlignment.start
-                      //           : MainAxisAlignment.spaceEvenly,
-                      //       children: [
-                      //         if (c.groupCreating.value)
-                      //           const SizedBox(width: 10),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(0),
-                      //           child: Obx(() {
-                      //             return chip(
-                      //               Text(
-                      //                 'Chats',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 0
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ),
-                      //             );
-                      //           }),
-                      //         ),
-                      //         const SizedBox(width: 8),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(1),
-                      //           child: Obx(() {
-                      //             return chip(
-                      //               Text(
-                      //                 'Contacts',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 1
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ),
-                      //             );
-                      //           }),
-                      //         ),
-                      //         const SizedBox(width: 8),
-                      //         WidgetButton(
-                      //           onPressed: () => c.jumpTo(2),
-                      //           child: Obx(() {
-                      //             return chip(Text(
-                      //               'Users',
-                      //               style:
-                      //                   style.systemMessageTextStyle.copyWith(
-                      //                 fontSize: 15,
-                      //                 color: c.selected.value == 2
-                      //                     ? const Color(0xFF63B4FF)
-                      //                     : Colors.black,
-                      //               ),
-                      //             ));
-                      //           }),
-                      //         ),
-                      //         if (!c.groupCreating.value) ...[
-                      //           const SizedBox(width: 8),
-                      //           WidgetButton(
-                      //             onPressed: () => c.jumpTo(2),
-                      //             child: Obx(() {
-                      //               return chip(Text(
-                      //                 'Messages',
-                      //                 style:
-                      //                     style.systemMessageTextStyle.copyWith(
-                      //                   fontSize: 15,
-                      //                   color: c.selected.value == 3
-                      //                       ? const Color(0xFF63B4FF)
-                      //                       : Colors.black,
-                      //                 ),
-                      //               ));
-                      //             }),
-                      //           ),
-                      //         ] else ...[
-                      //           const Spacer(),
-                      //           Obx(() {
-                      //             return Row(
-                      //               mainAxisSize: MainAxisSize.min,
-                      //               children: [
-                      //                 // Text(
-                      //                 //   'Selected: ',
-                      //                 //   style: thin?.copyWith(fontSize: 15),
-                      //                 // ),
-                      //                 chip(Container(
-                      //                   constraints:
-                      //                       const BoxConstraints(minWidth: 10),
-                      //                   child: Center(
-                      //                     child: Text(
-                      //                       '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
-                      //                       style: thin?.copyWith(fontSize: 15),
-                      //                     ),
-                      //                   ),
-                      //                 )),
-                      //               ],
-                      //             );
-                      //           }),
-                      //           const SizedBox(width: 10),
-                      //         ],
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
                       Expanded(
                         child: center ??
                             ContextMenuInterceptor(
@@ -879,15 +774,21 @@ class ChatsTabView extends StatelessWidget {
                                           );
                                         });
                                       } else {
+                                        final RxChat chat = element.chat;
                                         child = Padding(
                                           padding: const EdgeInsets.only(
                                             left: 10,
                                             right: 10,
                                           ),
-                                          child: buildChatTile(
-                                            context,
-                                            c,
-                                            element.chat,
+                                          child: RecentChatTile(
+                                            chat,
+                                            me: c.me,
+                                            getUser: c.getUser,
+                                            onJoin: () => c.joinCall(chat.id),
+                                            onDrop: () => c.dropCall(chat.id),
+                                            onLeave: () => c.leaveChat(chat.id),
+                                            onHide: () => c.hideChat(chat.id),
+                                            inCall: () => c.inCall(chat.id),
                                           ),
                                         );
                                       }
@@ -1112,462 +1013,5 @@ class ChatsTabView extends StatelessWidget {
         );
       },
     );
-  }
-
-  /// Reactive [ListTile] with [RxChat]'s information.
-  Widget buildChatTile(
-    BuildContext context,
-    ChatsTabController c,
-    RxChat rxChat,
-  ) {
-    return Obx(() {
-      Chat chat = rxChat.chat.value;
-
-      ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      }
-      item ??= chat.lastItem;
-
-      const Color subtitleColor = Color(0xFF666666);
-      List<Widget>? subtitle;
-
-      Iterable<String> typings = rxChat.typingUsers
-          .where((e) => e.id != c.me)
-          .map((e) => e.name?.val ?? e.num.val);
-
-      // if (chat.currentCall == null) {
-      if (typings.isNotEmpty) {
-        if (!rxChat.chat.value.isGroup) {
-          subtitle = [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'Печатает'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-                const SizedBox(width: 3),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: AnimatedTyping(),
-                ),
-              ],
-            ),
-          ];
-        } else {
-          subtitle = [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      typings.join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: AnimatedTyping(),
-                  ),
-                ],
-              ),
-            )
-          ];
-        }
-      } else if (item != null) {
-        if (item is ChatCall) {
-          String description = 'label_chat_call_ended'.l10n;
-          if (item.finishedAt == null && item.finishReason == null) {
-            subtitle = [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-                child: Icon(Icons.call, size: 16, color: subtitleColor),
-              ),
-              Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              //   child: ElevatedButton(
-              //     onPressed: () => c.joinCall(chat.id),
-              //     child: Text('btn_chat_join_call'.l10n),
-              //   ),
-              // ),
-            ];
-          } else {
-            description =
-                item.finishReason?.localizedString(item.authorId == c.me) ??
-                    description;
-            subtitle = [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-                child: Icon(Icons.call, size: 16, color: subtitleColor),
-              ),
-              Flexible(child: Text(description, maxLines: 2)),
-            ];
-          }
-        } else if (item is ChatMessage) {
-          var desc = StringBuffer();
-
-          if (!chat.isGroup && item.authorId == c.me) {
-            desc.write('${'label_you'.l10n}: ');
-          }
-
-          String? text = item.text?.val.replaceAll(' ', '');
-          if (text?.isEmpty == true) {
-            text = null;
-          } else {
-            text = item.text?.val;
-          }
-
-          if (text != null) {
-            desc.write(text);
-            if (item.attachments.isNotEmpty) {
-              desc.write(
-                  ' [${item.attachments.length} ${'label_attachments'.l10n}]');
-            }
-          } else if (item.attachments.isNotEmpty) {
-            desc.write(
-                '[${item.attachments.length} ${'label_attachments'.l10n}]');
-          } else {
-            desc.write('[Quoted message]');
-          }
-
-          subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => AvatarWidget.fromRxUser(
-                    snapshot.data,
-                    radius: 10,
-                  ),
-                ),
-              ),
-            Flexible(child: Text(desc.toString(), maxLines: 2)),
-          ];
-        } else if (item is ChatForward) {
-          subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? Obx(
-                          () => AvatarWidget.fromUser(
-                            snapshot.data!.user.value,
-                            radius: 10,
-                          ),
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
-                          radius: 10,
-                        ),
-                ),
-              ),
-            Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
-          ];
-        } else if (item is ChatMemberInfo) {
-          final Widget content;
-
-          switch (item.action) {
-            case ChatMemberInfoAction.created:
-              if (chat.isGroup) {
-                content = Text('label_group_created'.l10n);
-              } else {
-                content = Text('label_dialog_created'.l10n);
-              }
-              break;
-
-            case ChatMemberInfoAction.added:
-              content = Text(
-                'label_was_added'
-                    .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
-              );
-              break;
-
-            case ChatMemberInfoAction.removed:
-              content = Text(
-                'label_was_removed'
-                    .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
-              );
-              break;
-
-            case ChatMemberInfoAction.artemisUnknown:
-              content = Text('${item.action}');
-              break;
-          }
-
-          subtitle = [Flexible(child: content)];
-        } else {
-          subtitle = [
-            Flexible(child: Text('label_empty_message'.l10n, maxLines: 2)),
-          ];
-        }
-      }
-
-      Widget circleButton({
-        Key? key,
-        void Function()? onPressed,
-        Color? color,
-        required Widget child,
-      }) {
-        return WidgetButton(
-          key: key,
-          onPressed: onPressed,
-          child: Container(
-            key: key,
-            height: 38,
-            width: 38,
-            decoration: BoxDecoration(
-              color: color ?? const Color(0xFF63B4FF),
-              shape: BoxShape.circle,
-            ),
-            child: Center(child: child),
-          ),
-        );
-      }
-
-      Style style = Theme.of(context).extension<Style>()!;
-
-      bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
-
-      final List<Widget> additional = [];
-      if (item?.authorId == c.me) {
-        bool isSent = item?.status.value == SendingStatus.sent;
-
-        bool isRead = false;
-        isRead = chat.lastReads.firstWhereOrNull(
-                    (e) => e.memberId != c.me && !e.at.isBefore(item!.at)) !=
-                null &&
-            isSent;
-
-        bool isDelivered = isSent && !chat.lastDelivery.isBefore(item!.at);
-        bool isError = item?.status.value == SendingStatus.error;
-        bool isSending = item?.status.value == SendingStatus.sending;
-
-        if (isSent || isDelivered || isRead || isSending || isError) {
-          additional.addAll([
-            // const SizedBox(width: 10),
-            Icon(
-              (isRead || isDelivered)
-                  ? Icons.done_all
-                  : isSending
-                      ? Icons.access_alarm
-                      : isError
-                          ? Icons.error_outline
-                          : Icons.done,
-              color: isRead
-                  ? const Color(0xFF63B4FF)
-                  : isError
-                      ? Colors.red
-                      : const Color(0xFF888888),
-              size: 16,
-            ),
-          ]);
-        }
-      }
-
-      return ContextMenuRegion(
-        key: Key('ContextMenuRegion_${chat.id}'),
-        preventContextMenu: false,
-        actions: [
-          ContextMenuButton(
-            key: const Key('ButtonHideChat'),
-            label: 'btn_hide_chat'.l10n,
-            onPressed: () => c.hideChat(chat.id),
-          ),
-          if (chat.isGroup)
-            ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: () => c.leaveChat(chat.id),
-            ),
-        ],
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-          child: ConditionalBackdropFilter(
-            condition: false,
-            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-            borderRadius:
-                context.isMobile ? BorderRadius.zero : style.cardRadius,
-            child: InkWellWithHover(
-              selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-              unselectedColor: style.cardColor,
-              isSelected: selected,
-              hoveredBorder: selected
-                  ? Border.all(
-                      color: const Color(0xFFB9D9FA),
-                      width: 0.5,
-                    )
-                  : Border.all(
-                      color: const Color(0xFFDAEDFF),
-                      width: 0.5,
-                    ),
-              unhoveredBorder:
-                  selected ? style.primaryBorder : style.cardBorder,
-              borderRadius: style.cardRadius,
-              onTap: () => router.chat(chat.id),
-              unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
-              // unselectedHoverColor: const Color.fromRGBO(230, 241, 254, 1),
-              selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(rxChat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  rxChat.title.value,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              // Text(
-                              //   chat.ongoingCall == null ? '10:10' : '32:02',
-                              //   // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
-                              //   style: Theme.of(context)
-                              //       .textTheme
-                              //       .subtitle2
-                              //       ?.copyWith(
-                              //         color: chat.ongoingCall == null
-                              //             ? null
-                              //             : const Color(0xFF63B4FF),
-                              //       ),
-                              // ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const SizedBox(height: 3),
-                              Expanded(
-                                child: DefaultTextStyle(
-                                  style: Theme.of(context).textTheme.subtitle2!,
-                                  overflow: TextOverflow.ellipsis,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 3),
-                                    child: Row(children: subtitle ?? []),
-                                  ),
-                                ),
-                              ),
-                              // ...additional,
-                              // if (chat.unreadCount != 0) ...[
-                              //   const SizedBox(width: 10),
-                              //   Badge(
-                              //     toAnimate: false,
-                              //     elevation: 0,
-                              //     badgeContent: Padding(
-                              //       padding: const EdgeInsets.all(2.0),
-                              //       child: Text(
-                              //         '${chat.unreadCount}',
-                              //         style: const TextStyle(
-                              //           color: Colors.white,
-                              //           fontSize: 11,
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ],
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (chat.ongoingCall != null) ...[
-                      const SizedBox(width: 5),
-                      AnimatedSwitcher(
-                        key: const Key('ActiveCallButton'),
-                        duration: 300.milliseconds,
-                        child: c.isInCall(chat.id)
-                            ? circleButton(
-                                key: const Key('Drop'),
-                                onPressed: () => c.dropCall(chat.id),
-                                color: Colors.red,
-                                child: SvgLoader.asset(
-                                  'assets/icons/call_end.svg',
-                                  width: 38,
-                                  height: 38,
-                                ),
-                              )
-                            : circleButton(
-                                key: const Key('Join'),
-                                onPressed: () => c.joinCall(chat.id),
-                                child: SvgLoader.asset(
-                                  'assets/icons/audio_call_start.svg',
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          chat.ongoingCall == null ? '10:10' : '32:02',
-                          // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
-                          style:
-                              Theme.of(context).textTheme.subtitle2?.copyWith(
-                                    color: chat.ongoingCall == null
-                                        ? null
-                                        : const Color(0xFF63B4FF),
-                                  ),
-                        ),
-                        if (additional.isNotEmpty || chat.unreadCount != 0)
-                          const SizedBox(height: 6),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...additional,
-                            if (chat.unreadCount != 0) ...[
-                              Badge(
-                                toAnimate: false,
-                                elevation: 0,
-                                badgeContent: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Text(
-                                    '${chat.unreadCount}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    });
   }
 }

@@ -292,8 +292,13 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  bool isInCall(ChatId id) =>
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
+  /// [id].
+  bool inCall(ChatId id) =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]

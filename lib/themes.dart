@@ -54,16 +54,20 @@ class Themes {
         extensions: [
           Style(
             barrierColor: const Color(0xBB000000),
-            callDock: const Color(0xFF1E88E5),
-            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
-            cardColor: Colors.white.withOpacity(0.95),
-            cardBlur: 5,
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            callDock: const Color(0xFF1E88E5),
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
+            cardColor: Colors.white.withOpacity(0.95),
+            cardBlur: 5,
+            cardHoveredBorder:
+                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
+            cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
+            cardSelectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
@@ -355,7 +359,10 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredBorder,
+    required this.cardHoveredColor,
     required this.cardRadius,
+    required this.cardSelectedColor,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
@@ -392,8 +399,17 @@ class Style extends ThemeExtension<Style> {
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
+  /// [Border] to apply to hovered card-like [Widget]s.
+  final Border cardHoveredBorder;
+
+  /// Background [Color] of hovered card-like [Widget]s.
+  final Color cardHoveredColor;
+
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
+
+  /// Background [Color] of selected card-like [Widget]s.
+  final Color cardSelectedColor;
 
   /// Background [Color] of the [ContextMenu].
   final Color contextMenuBackgroundColor;
@@ -443,7 +459,10 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Border? cardHoveredBorder,
+    Color? cardHoveredColor,
     BorderRadius? cardRadius,
+    Color? cardSelectedColor,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
@@ -468,7 +487,10 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardRadius: cardRadius ?? this.cardRadius,
+      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
@@ -501,7 +523,13 @@ class Style extends ThemeExtension<Style> {
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       callDock: Color.lerp(callDock, other.callDock, t)!,
+      cardHoveredBorder:
+          Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      cardSelectedColor:
+          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
         other.contextMenuBackgroundColor,
