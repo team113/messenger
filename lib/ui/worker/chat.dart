@@ -148,32 +148,55 @@ class _ChatWatchData {
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
               chat.lastItem!.authorId != me?.call()) {
-            String? body;
+            final StringBuffer body = StringBuffer();
 
             if (chat.lastItem is ChatMessage) {
               var msg = chat.lastItem as ChatMessage;
               if (msg.text != null) {
-                body = msg.text?.val;
+                body.write(msg.text?.val);
                 if (msg.attachments.isNotEmpty) {
-                  body = '$body\n[${'label_attachments'.l10nfmt({
-                        'quantity': msg.attachments.length
-                      })}]';
+                  body.write('\n');
                 }
-              } else if (msg.attachments.isNotEmpty) {
-                body = '[${'label_attachments'.l10nfmt({
-                      'quantity': msg.attachments.length
-                    })}]';
+              }
+
+              if (msg.attachments.isNotEmpty) {
+                body.write(
+                  'label_attachments'
+                      .l10nfmt({'count': msg.attachments.length}),
+                );
               }
             } else if (chat.lastItem is ChatMemberInfo) {
-              // TODO: Display [ChatMemberInfo] properly.
-              var msg = chat.lastItem as ChatMemberInfo;
-              body = msg.action.toString();
+              final ChatMemberInfo msg = chat.lastItem as ChatMemberInfo;
+
+              switch (msg.action) {
+                case ChatMemberInfoAction.created:
+                  // No-op, as it shouldn't be in a notification.
+                  break;
+
+                case ChatMemberInfoAction.added:
+                  body.write(
+                    'label_was_added'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.removed:
+                  body.write(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.artemisUnknown:
+                  body.write(msg.action.toString());
+                  break;
+              }
             } else if (chat.lastItem is ChatForward) {
-              body = 'label_forwarded_message'.l10n;
+              body.write('label_forwarded_message'.l10n);
             }
 
-            if (body != null) {
-              onNotification?.call(body, chat.lastItem?.id.val);
+            if (body.isNotEmpty) {
+              onNotification?.call(body.toString(), chat.lastItem?.id.val);
             }
           }
 

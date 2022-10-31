@@ -172,6 +172,7 @@ btn_submit = Применить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Указанный аккаунт не найден
@@ -326,11 +327,11 @@ label_ago_date = { $years ->
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = { $quantity ->
-    [1] 1 вложение
-    [few] {$quantity} вложения
-    *[other] {$quantity} вложений
-}
+label_attachments = [{$count} { $count ->
+    [1] прикрепление
+    [few] прикрепления
+    *[other] прикреплений
+    }]
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
 label_biography = Биография
@@ -484,11 +485,11 @@ label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
-label_replies = { $quantity ->
-    [1] 1 ответ
-    [few] {$quantity} ответа
-    *[other] {$quantity} ответов
-}
+label_replies = [{$count} { $count ->
+    [1] ответ
+    [few] ответа
+    *[other] ответов
+    }]
 label_personalization = Персонализация
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
@@ -502,6 +503,16 @@ label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_settings = Настройки
+label_short_weekday =
+    {$weekday ->
+        [1] пн
+        [2] вт
+        [3] ср
+        [4] чт
+        [5] пт
+        [6] сб
+        *[other] вс
+    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
 label_subtitle_participants = участников
@@ -510,7 +521,6 @@ label_tab_contacts = Контакты
 label_tab_menu = Меню
 label_transition_count = Переходов
 label_typing = Печатает
-label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = { $quantity ->

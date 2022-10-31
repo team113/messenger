@@ -123,23 +123,20 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
+  /// Routes history stack.
+  final RxList<String> routes = RxList([]);
+
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 
-  /// Routes history stack.
-  final RxList<String> _routes = RxList<String>();
-
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
   /// Current route (last in the [routes] history).
-  String get route => _routes.lastOrNull == null ? Routes.home : _routes.last;
-
-  /// Route history stack.
-  RxList<String> get routes => _routes;
+  String get route => routes.lastOrNull == null ? Routes.home : routes.last;
 
   /// Current [Routes.home] tab.
   HomeTab get tab => _tab;
@@ -157,20 +154,20 @@ class RouterState extends ChangeNotifier {
   /// Clears the whole [routes] stack.
   void go(String to) {
     arguments = null;
-    _routes.value = [_guarded(to)];
+    routes.value = [_guarded(to)];
     notifyListeners();
   }
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
     arguments = null;
-    int pageIndex = _routes.indexWhere((e) => e == to);
+    int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
-      while (_routes.length - 1 > pageIndex) {
+      while (routes.length - 1 > pageIndex) {
         pop();
       }
     } else {
-      _routes.add(_guarded(to));
+      routes.add(_guarded(to));
     }
 
     notifyListeners();
@@ -181,21 +178,21 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop() {
-    if (_routes.isNotEmpty) {
-      if (_routes.length == 1) {
-        String last = _routes.last.split('/').last;
-        _routes.last = _routes.last.replaceFirst('/$last', '');
-        if (_routes.last == '' ||
-            _routes.last == Routes.contact ||
-            _routes.last == Routes.chat ||
-            _routes.last == Routes.menu ||
-            _routes.last == Routes.user) {
-          _routes.last = Routes.home;
+    if (routes.isNotEmpty) {
+      if (routes.length == 1) {
+        String last = routes.last.split('/').last;
+        routes.last = routes.last.replaceFirst('/$last', '');
+        if (routes.last == '' ||
+            routes.last == Routes.contact ||
+            routes.last == Routes.chat ||
+            routes.last == Routes.menu ||
+            routes.last == Routes.user) {
+          routes.last = Routes.home;
         }
       } else {
-        _routes.removeLast();
-        if (_routes.isEmpty) {
-          _routes.add(Routes.home);
+        routes.removeLast();
+        if (routes.isEmpty) {
+          routes.add(Routes.home);
         }
       }
 
@@ -315,7 +312,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
-    _state._routes.value = [configuration.route];
+    _state.routes.value = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }

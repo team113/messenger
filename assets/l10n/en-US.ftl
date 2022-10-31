@@ -172,6 +172,7 @@ btn_submit = Submit
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Indicated account is not found
@@ -310,10 +311,10 @@ label_ago_date = { $years ->
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
-label_attachments = { $quantity ->
-    [1] 1 attachment
-    *[other] {$quantity} attachments
-}
+label_attachments = [{$count} { $count ->
+    [1] attachment
+    *[other] attachments
+    }]
 label_audio_call = Audio call
 label_away = Away
 label_biography = Biography
@@ -465,10 +466,10 @@ label_recent = Recent
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
-label_replies = { $quantity ->
-    [1] 1 reply
-    *[other] {$quantity} replies
-}
+label_replies = [{$count} { $count ->
+    [1] reply
+    *[other] replies
+    }]
 label_personalization = Personalization
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
@@ -482,6 +483,16 @@ label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_settings = Settings
+label_short_weekday =
+    {$weekday ->
+        [1] Mon
+        [2] Tue
+        [3] Wed
+        [4] Thu
+        [5] Fri
+        [6] Sat
+        *[other] Sun
+    }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone
 label_subtitle_participants = participants
@@ -490,7 +501,6 @@ label_tab_contacts = Contacts
 label_tab_menu = Menu
 label_transition_count = Transitions
 label_typing = Typing
-label_typings = are typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
 label_unread_messages = { $quantity ->
