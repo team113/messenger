@@ -30,3 +30,14 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Routes the [RouterState] to the previous page.
+final StepDefinitionGeneric backToPreviousPage = then<CustomWorld>(
+  'I back to previous page',
+  (context) async {
+    router.pop();
+    await context.world.appDriver.waitForAppToSettle();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
