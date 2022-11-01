@@ -30,6 +30,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/util/obs/obs.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
@@ -48,6 +49,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import '/ui/page/home/page/chat/widget/send_message_field.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
@@ -186,7 +188,21 @@ class ChatForwardView extends StatelessWidget {
                             ),
                           ),
                         ),
-                        child: _sendField(context, c),
+                        child: SendMessageField(
+                          send: c.send,
+                          attachments: RxObsList(c.attachments
+                              .map((element) => MapEntry(GlobalKey(), element))
+                              .toList()),
+                          me: c.me,
+                          onVideoImageFromCamera: c.pickVideoFromCamera,
+                          onPickMedia: c.pickMedia,
+                          onPickImageFromCamera: c.pickImageFromCamera,
+                          onPickFile: c.pickFile,
+                          onSend: () {
+                            c.send.submit();
+                            Navigator.of(context).pop(true);
+                          },
+                        ),
                       ),
                     ),
                   ],

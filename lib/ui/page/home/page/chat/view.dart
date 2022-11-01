@@ -806,7 +806,30 @@ class _ChatViewState extends State<ChatView>
           ),
         ),
       ),
-      child: c.editedMessage.value == null ? _sendField(c) : _editField(c),
+      child: c.editedMessage.value == null
+          ? SendMessageField(
+              onPickFile: c.pickFile,
+              onPickImageFromCamera: c.pickImageFromCamera,
+              onPickMedia: c.pickMedia,
+              onVideoImageFromCamera: c.pickVideoFromCamera,
+              forwarding: c.forwarding,
+              repliedMessages: c.repliedMessages,
+              onSend: c.send.submit,
+              send: c.send,
+              onReorder: (int old, int to) {
+                if (old < to) {
+                  --to;
+                }
+
+                final ChatItem item = c.repliedMessages.removeAt(old);
+                c.repliedMessages.insert(to, item);
+
+                HapticFeedback.lightImpact();
+              },
+              me: c.me,
+              attachments: c.attachments,
+            )
+          : _editField(c),
     );
   }
 
