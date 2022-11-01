@@ -101,9 +101,6 @@ class SearchController extends GetxController {
   /// [Chat]s found under the [SearchCategory.chats] category.
   final RxMap<ChatId, RxChat> chats = RxMap();
 
-  /// Reactive list of the sorted [Chat]s.
-  late final RxList<RxChat> sortedChats;
-
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
   ///
@@ -124,6 +121,9 @@ class SearchController extends GetxController {
 
   /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults results)? onChanged;
+
+  /// Reactive list of the sorted [Chat]s.
+  late final RxList<RxChat> _sortedChats;
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -148,7 +148,7 @@ class SearchController extends GetxController {
 
   @override
   void onInit() {
-    sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
+    _sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
     _sortChats();
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
@@ -302,30 +302,43 @@ class SearchController extends GetxController {
   /// Jumps the [controller] to the provided [category] of the search results.
   void jumpTo(SearchCategory category) {
     if (controller.hasClients) {
-      if (category == SearchCategory.chats && chats.isNotEmpty) {
-        controller.jumpTo(0);
-      } else if (category == SearchCategory.recent && recent.isNotEmpty) {
-        double to = chats.length * (76 + 10);
-        if (to > controller.position.maxScrollExtent) {
-          controller.jumpTo(controller.position.maxScrollExtent);
-        } else {
-          controller.jumpTo(to);
-        }
-      } else if (category == SearchCategory.contacts && contacts.isNotEmpty) {
-        double to = (recent.length + chats.length) * (76 + 10);
-        if (to > controller.position.maxScrollExtent) {
-          controller.jumpTo(controller.position.maxScrollExtent);
-        } else {
-          controller.jumpTo(to);
-        }
-      } else if (category == SearchCategory.users && users.isNotEmpty) {
-        double to =
-            (recent.length + contacts.length + chats.length) * (76 + 10);
-        if (to > controller.position.maxScrollExtent) {
-          controller.jumpTo(controller.position.maxScrollExtent);
-        } else {
-          controller.jumpTo(to);
-        }
+      switch (category) {
+        case SearchCategory.chats:
+          if (chats.isNotEmpty) {
+            controller.jumpTo(0);
+          }
+          break;
+        case SearchCategory.recent:
+          if (recent.isNotEmpty) {
+            double to = chats.length * (76 + 10);
+            if (to > controller.position.maxScrollExtent) {
+              controller.jumpTo(controller.position.maxScrollExtent);
+            } else {
+              controller.jumpTo(to);
+            }
+          }
+          break;
+        case SearchCategory.contacts:
+          if (contacts.isNotEmpty) {
+            double to = (recent.length + chats.length) * (76 + 10);
+            if (to > controller.position.maxScrollExtent) {
+              controller.jumpTo(controller.position.maxScrollExtent);
+            } else {
+              controller.jumpTo(to);
+            }
+          }
+          break;
+        case SearchCategory.users:
+          if (users.isNotEmpty) {
+            double to =
+                (recent.length + contacts.length + chats.length) * (76 + 10);
+            if (to > controller.position.maxScrollExtent) {
+              controller.jumpTo(controller.position.maxScrollExtent);
+            } else {
+              controller.jumpTo(to);
+            }
+          }
+          break;
       }
     }
   }
@@ -346,10 +359,9 @@ class SearchController extends GetxController {
   void populate() {
     if (categories.contains(SearchCategory.chats)) {
       chats.value = {
-        for (var c in sortedChats.where((p) {
+        for (var c in _sortedChats.where((p) {
           if (query.value != null) {
-            if (query.value != null &&
-                p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+            if (p.title.toLowerCase().contains(query.value!.toLowerCase())) {
               return true;
             }
             return false;
@@ -522,9 +534,9 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [_sortedChats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {
-    sortedChats.sort((a, b) {
+    _sortedChats.sort((a, b) {
       if (a.chat.value.ongoingCall != null &&
           b.chat.value.ongoingCall == null) {
         return -1;

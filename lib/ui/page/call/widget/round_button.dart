@@ -37,7 +37,6 @@ class RoundFloatingButton extends StatefulWidget {
     this.withBlur = false,
     this.textStyle,
     this.textSpacing = 5,
-    this.autoSizeText = false,
     this.maxLines,
     this.child,
   }) : super(key: key);
@@ -73,9 +72,6 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional spacing of the [text].
   final double? textSpacing;
-
-  /// Indicator whether text size should auto or not.
-  final bool autoSizeText;
 
   /// Optional max lines of the [text].
   final int? maxLines;

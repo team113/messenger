@@ -17,11 +17,12 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
     - Chat page:
-        - Redesign forwarding modal. ([#189], [#181])
+        - Redesigned forwarding modal. ([#189], [#181])
 
 [#142]: /../../pull/142
 [#181]: /../../issues/181
 [#189]: /../../pull/189
+
 
 
 

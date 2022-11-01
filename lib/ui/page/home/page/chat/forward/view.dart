@@ -39,7 +39,6 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/init_callback.dart';
-import '/ui/page/home/page/chat/widget/my_dismissible.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
@@ -132,7 +131,6 @@ class ChatForwardView extends StatelessWidget {
                       SearchCategory.users,
                     ],
                     title: 'label_forward_message'.l10n,
-                    showSubmitButton: false,
                     onChanged: (SearchViewResults result) {
                       c.searchResults.value = result;
                     }),
@@ -673,9 +671,9 @@ class ChatForwardView extends StatelessWidget {
                                     key: Key('Handle_${e.item.id}'),
                                     enabled: !PlatformUtils.isMobile,
                                     index: c.quotes.indexOf(e),
-                                    child: MyDismissible(
+                                    child: Dismissible(
                                       key: Key('${e.item.id}'),
-                                      direction: MyDismissDirection.horizontal,
+                                      direction: DismissDirection.horizontal,
                                       onDismissed: (_) {
                                         c.quotes.remove(e);
                                         if (c.quotes.isEmpty) {
@@ -705,7 +703,7 @@ class ChatForwardView extends StatelessWidget {
                                     : MouseCursor.defer,
                                 opaque: false,
                                 child: ScrollConfiguration(
-                                  behavior: MyCustomScrollBehavior(),
+                                  behavior: CustomScrollBehavior(),
                                   child: SingleChildScrollView(
                                     clipBehavior: Clip.none,
                                     physics: grab
@@ -886,7 +884,6 @@ class ChatForwardView extends StatelessWidget {
             fontSize: 15,
             color: Colors.black,
           ),
-          autoSizeText: true,
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,
@@ -961,7 +958,7 @@ class ChatForwardView extends StatelessWidget {
 }
 
 /// Custom scroll behavior.
-class MyCustomScrollBehavior extends MaterialScrollBehavior {
+class CustomScrollBehavior extends MaterialScrollBehavior {
   // Override behavior methods and getters like dragDevices
   @override
   Set<PointerDeviceKind> get dragDevices => {

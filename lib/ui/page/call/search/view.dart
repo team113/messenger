@@ -41,7 +41,6 @@ class SearchView extends StatelessWidget {
     this.chat,
     this.selectable = true,
     this.enabled = true,
-    this.showSubmitButton = true,
     this.submit,
     this.onPressed,
     this.onSubmit,
@@ -61,9 +60,6 @@ class SearchView extends StatelessWidget {
   /// Indicator whether the selected items can be submitted, if [selectable], or
   /// otherwise [onPressed] may be called.
   final bool enabled;
-
-  /// Indicator whether the submit button should be displayed or not.
-  final bool showSubmitButton;
 
   /// Title of this [SearchView].
   final String title;
@@ -233,7 +229,7 @@ class SearchView extends StatelessWidget {
                   );
                 }),
               ),
-              if (showSubmitButton || onBack != null) ...[
+              if (onSubmit != null || onBack != null) ...[
                 const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -256,7 +252,7 @@ class SearchView extends StatelessWidget {
                         ),
                         const SizedBox(width: 10),
                       ],
-                      if (showSubmitButton)
+                      if (onSubmit != null)
                         Expanded(
                           child: Obx(() {
                             bool enabled = this.enabled &&
@@ -402,9 +398,7 @@ class SearchView extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      chat.title.value == 'Wall_$me'
-                          ? 'label_your_wall'.l10n
-                          : chat.title.value,
+                      chat.title.value,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: Theme.of(context).textTheme.headline5,
