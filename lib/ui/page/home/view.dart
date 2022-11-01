@@ -19,10 +19,8 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -36,6 +34,7 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -147,8 +146,10 @@ class _HomeViewState extends State<HomeView> {
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
-                          onPageChanged: (i) => router.tab = HomeTab.values[i],
-
+                          onPageChanged: (int i) {
+                            router.tab = HomeTab.values[i];
+                            c.page.value = router.tab;
+                          },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
                             KeepAlivePage(child: ContactsTabView()),
@@ -158,29 +159,59 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
+                    extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
+                        // [AnimatedOpacity] boilerplate.
+                        Widget tab({required Widget child, HomeTab? tab}) {
+                          return Obx(() {
+                            return AnimatedOpacity(
+                              duration: 150.milliseconds,
+                              opacity: c.page.value == tab ? 1 : 0.6,
+                              child: child,
+                            );
+                          });
+                        }
+
                         return CustomNavigationBar(
-                          selectedColor: Colors.blue,
-                          unselectedColor: const Color(0xA6818181),
-                          size: 20,
                           items: [
                             CustomNavigationBarItem(
                               key: const Key('ContactsButton'),
-                              icon: FontAwesomeIcons.solidCircleUser,
-                              label: 'label_tab_contacts'.l10n,
+                              child: tab(
+                                tab: HomeTab.contacts,
+                                child: SvgLoader.asset(
+                                  'assets/icons/contacts.svg',
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
                             ),
                             CustomNavigationBarItem(
-                                key: const Key('ChatsButton'),
-                                icon: FontAwesomeIcons.solidComment,
-                                label: 'label_tab_chats'.l10n,
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}'),
+                              key: const Key('ChatsButton'),
+                              badge: c.unreadChatsCount.value == 0
+                                  ? null
+                                  : '${c.unreadChatsCount.value}',
+                              child: tab(
+                                tab: HomeTab.chats,
+                                child: SvgLoader.asset(
+                                  'assets/icons/chats.svg',
+                                  width: 36.06,
+                                  height: 30,
+                                ),
+                              ),
+                            ),
                             CustomNavigationBarItem(
                               key: const Key('MenuButton'),
-                              icon: FontAwesomeIcons.bars,
-                              label: 'label_tab_menu'.l10n,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: tab(
+                                  tab: HomeTab.menu,
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
+                                    radius: 15,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                           currentIndex: router.tab.index,
