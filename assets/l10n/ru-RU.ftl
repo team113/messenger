@@ -172,6 +172,7 @@ btn_submit = Применить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Указанный аккаунт не найден
@@ -326,7 +327,11 @@ label_ago_date = { $years ->
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = вложение(я)
+label_attachments = [{$count} { $count ->
+    [1] прикрепление
+    [few] прикрепления
+    *[other] прикреплений
+    }]
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
 label_biography = Биография
@@ -492,6 +497,16 @@ label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_settings = Настройки
+label_short_weekday =
+    {$weekday ->
+        [1] пн
+        [2] вт
+        [3] ср
+        [4] чт
+        [5] пт
+        [6] сб
+        *[other] вс
+    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
 label_subtitle_participants = участников
@@ -500,7 +515,6 @@ label_tab_contacts = Контакты
 label_tab_menu = Меню
 label_transition_count = Переходов
 label_typing = Печатает
-label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = { $quantity ->
