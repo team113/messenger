@@ -896,13 +896,6 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         to.cellKey.globalPaintBounds!;
     var endRect = to.cellKey.globalPaintBounds!;
 
-    // beginRect = Rect.fromLTRB(
-    //   d.dx,
-    //   d.dy,
-    //   (d.dx - beginRect.left) + beginRect.right,
-    //   (d.dy - beginRect.top) + beginRect.bottom,
-    // );
-
     if (beginRect != endRect) {
       Offset offset = widget.onOffset?.call() ?? Offset.zero;
       beginRect = beginRect.shift(offset);
@@ -963,6 +956,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   /// Item stored in this [_ReorderableDraggable].
   final T item;
 
+  /// [GlobalKey] of the cell this [_ReorderableDraggable] is in.
   final GlobalKey cellKey;
 
   /// [UniqueKey] of this [_ReorderableDraggable].
@@ -1008,9 +1002,13 @@ class _ReorderableDraggableState<T extends Object>
   /// Indicator whether this [_ReorderableDraggable] is dragged.
   bool isDragged = false;
 
+  /// Indicator whether dough of this [_ReorderableDraggable] is broke.
   bool isDough = false;
 
+  /// [Offset] of the anchor of this [_ReorderableDraggable] when it's dragged.
   final Rx<Offset?> _position = Rx(Offset.zero);
+
+  /// [BoxConstraints] applying to the feedback widget.
   final Rx<BoxConstraints?> _constraints = Rx(null);
 
   @override
@@ -1119,7 +1117,8 @@ class _ReorderableDraggableState<T extends Object>
   }
 }
 
-class _Resizable extends StatefulWidget {
+/// [Widget] changing its size from [layout] to [constraints] with animation.
+class _Resizable extends StatelessWidget {
   const _Resizable({
     Key? key,
     required this.cellKey,
@@ -1129,41 +1128,45 @@ class _Resizable extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
-  /// [GlobalKey] of this [_Resizable] representing the global position of
-  /// the cell this [item] is in.
+  /// [GlobalKey] of the cell this [_Resizable] is in.
   final GlobalKey cellKey;
   final BoxConstraints layout;
 
+  /// [Offset] of this [_Resizable].
   final Rx<Offset?> position;
+
+  /// [BoxConstraints] of this [_Resizable].
   final Rx<BoxConstraints?> constraints;
+
+  /// [Widget] to animate.
   final Widget child;
 
-  @override
-  State<_Resizable> createState() => _ResizableState();
-}
-
-class _ResizableState extends State<_Resizable> {
+//   @override
+//   State<_Resizable> createState() => _ResizableState();
+// }
+//
+// class _ResizableState extends State<_Resizable> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       Offset offset = Offset.zero;
-      if (widget.position.value != null &&
-          widget.constraints.value != widget.layout) {
-        Rect delta = widget.cellKey.globalPaintBounds ?? Rect.zero;
+      if (position.value != null &&
+          constraints.value != layout) {
+        Rect delta = cellKey.globalPaintBounds ?? Rect.zero;
         Offset position = Offset(
-          widget.position.value!.dx - delta.left,
-          widget.position.value!.dy - delta.top,
+          this.position.value!.dx - delta.left,
+          this.position.value!.dy - delta.top,
         );
 
         offset = Offset(
           position.dx -
-              (widget.constraints.value!.maxWidth *
+              (constraints.value!.maxWidth *
                   position.dx /
-                  widget.layout.maxWidth),
+                  layout.maxWidth),
           position.dy -
-              (widget.constraints.value!.maxHeight *
+              (constraints.value!.maxHeight *
                   position.dy /
-                  widget.layout.maxHeight),
+                  layout.maxHeight),
         );
       }
 
@@ -1171,9 +1174,9 @@ class _ResizableState extends State<_Resizable> {
         duration: 300.milliseconds,
         curve: Curves.ease,
         transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
-        width: widget.constraints.value?.maxWidth,
-        height: widget.constraints.value?.maxHeight,
-        child: widget.child,
+        width: constraints.value?.maxWidth,
+        height: constraints.value?.maxHeight,
+        child: child,
       );
     });
   }
@@ -1190,6 +1193,7 @@ class _ReorderableItem<T> {
   /// the cell this [item] is in.
   final GlobalKey cellKey = GlobalKey();
 
+  /// [GlobalKey] of this [_ReorderableItem].
   final GlobalKey itemKey = GlobalKey();
 
   /// [UniqueKey] of this [_ReorderableItem] representing the position in a
