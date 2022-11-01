@@ -17,6 +17,12 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Messages have reversed replies. ([#169], [#166])
+
 [#142]: /../../pull/142
 
 
