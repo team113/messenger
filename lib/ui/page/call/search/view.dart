@@ -271,7 +271,7 @@ class SearchView extends StatelessWidget {
                                 ),
                               ),
                               onPressed: enabled
-                                  ? () => onSubmit?.call(c.selected())
+                                  ? () => onSubmit!.call(c.selected())
                                   : null,
                               color: Theme.of(context).colorScheme.secondary,
                             );
@@ -464,4 +464,7 @@ class SearchViewResults {
 
   /// Selected [ChatContact]s.
   final List<RxChatContact> contacts;
+
+  bool get isEmpty =>
+      chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
 }

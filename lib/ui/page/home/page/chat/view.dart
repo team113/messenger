@@ -60,6 +60,7 @@ import 'forward/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
+import 'widget/send_message_field.dart';
 import 'widget/swipeable_status.dart';
 import 'widget/video_thumbnail/video_thumbnail.dart';
 
@@ -142,6 +143,7 @@ class _ChatViewState extends State<ChatView>
           }
 
           return DropTarget(
+            enable: !c.isForwardPopupOpen.value,
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -518,6 +520,7 @@ class _ChatViewState extends State<ChatView>
               await c.chat?.updateAttachments(e.value);
               await Future.delayed(Duration.zero);
             },
+            onForwardPopupToggle: (v) => c.isForwardPopupOpen.value = v,
           ),
         ),
       );
@@ -604,6 +607,7 @@ class _ChatViewState extends State<ChatView>
 
               await Future.delayed(Duration.zero);
             },
+            onForwardPopupToggle: (v) => c.isForwardPopupOpen.value = v,
           ),
         ),
       );
@@ -1013,8 +1017,13 @@ class _ChatViewState extends State<ChatView>
                       )
                     else
                       WidgetButton(
-                        onPressed: () =>
-                            AttachmentSourceSelector.show(context, c),
+                        onPressed: () => AttachmentSourceSelector.show(
+                          context,
+                          onPickFile: c.pickFile,
+                          onPickImageFromCamera: c.pickImageFromCamera,
+                          onPickMedia: c.pickMedia,
+                          onVideoImageFromCamera: c.pickVideoFromCamera,
+                        ),
                         child: SizedBox(
                           width: 56,
                           height: 56,
@@ -1070,11 +1079,9 @@ class _ChatViewState extends State<ChatView>
                                           .map((e) => ChatItemQuote(item: e))
                                           .toList(),
                                       text: c.send.text,
-                                      attachments: RxList(
-                                        c.attachments
-                                            .map((e) => e.value)
-                                            .toList(),
-                                      ),
+                                      attachments: c.attachments
+                                          .map((e) => e.value)
+                                          .toList(),
                                     );
 
                                     if (result == true) {

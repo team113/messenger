@@ -18,10 +18,13 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/animated_delayed_scale.dart';
 
+import '../component/attachment_selector.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -34,7 +37,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -42,7 +44,6 @@ import '/ui/page/home/page/chat/widget/init_callback.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -70,7 +71,7 @@ class ChatForwardView extends StatelessWidget {
   final String? text;
 
   /// Initial attachments.
-  final RxList<Attachment>? attachments;
+  final List<Attachment>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -78,7 +79,7 @@ class ChatForwardView extends StatelessWidget {
     ChatId from,
     List<ChatItemQuote> quotes, {
     String? text,
-    RxList<Attachment>? attachments,
+    List<Attachment>? attachments,
   }) {
     return ModalPopup.show(
       context: context,
@@ -92,7 +93,7 @@ class ChatForwardView extends StatelessWidget {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      desktopPadding: const EdgeInsets.all(0),
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
         from: from,
@@ -115,72 +116,117 @@ class ChatForwardView extends StatelessWidget {
         attachments: attachments,
       ),
       builder: (ChatForwardController c) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          constraints: const BoxConstraints(maxHeight: 650),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
+        return DropTarget(
+          onDragDone: (details) => c.dropFiles(details),
+          onDragEntered: (_) => c.isDraggingFiles.value = true,
+          onDragExited: (_) => c.isDraggingFiles.value = false,
+          child: Stack(
             children: [
-              const SizedBox(height: 16),
-              Expanded(
-                child: SearchView(
-                    key: const Key('SearchView'),
-                    categories: const [
-                      SearchCategory.chats,
-                      SearchCategory.contacts,
-                      SearchCategory.users,
-                    ],
-                    title: 'label_forward_message'.l10n,
-                    onChanged: (SearchViewResults result) {
-                      c.searchResults.value = result;
-                    }),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    shadowColor: const Color(0x55000000),
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                    inputDecorationTheme: InputDecorationTheme(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusColor: Colors.white,
-                      fillColor: Colors.white,
-                      hoverColor: Colors.transparent,
-                      filled: true,
-                      isDense: true,
-                      contentPadding: EdgeInsets.fromLTRB(
-                        15,
-                        PlatformUtils.isDesktop ? 30 : 23,
-                        15,
-                        0,
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                constraints: const BoxConstraints(maxHeight: 650),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: SearchView(
+                          key: const Key('SearchView'),
+                          categories: const [
+                            SearchCategory.chats,
+                            SearchCategory.contacts,
+                            SearchCategory.users,
+                          ],
+                          title: 'label_forward_message'.l10n,
+                          onChanged: (SearchViewResults result) {
+                            c.searchResults.value = result;
+                          }),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          shadowColor: const Color(0x55000000),
+                          iconTheme: const IconThemeData(color: Colors.blue),
+                          inputDecorationTheme: InputDecorationTheme(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusColor: Colors.white,
+                            fillColor: Colors.white,
+                            hoverColor: Colors.transparent,
+                            filled: true,
+                            isDense: true,
+                            contentPadding: EdgeInsets.fromLTRB(
+                              15,
+                              PlatformUtils.isDesktop ? 30 : 23,
+                              15,
+                              0,
+                            ),
+                          ),
+                        ),
+                        child: _sendField(context, c),
                       ),
                     ),
-                  ),
-                  child: _sendField(context, c),
+                  ],
                 ),
+              ),
+              IgnorePointer(
+                child: Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: c.isDraggingFiles.value
+                        ? Container(
+                            color: const Color(0x40000000),
+                            child: Center(
+                              child: AnimatedDelayedScale(
+                                duration: const Duration(milliseconds: 300),
+                                beginScale: 1,
+                                endScale: 1.06,
+                                child: ConditionalBackdropFilter(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: const Color(0x40000000),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Icon(
+                                        Icons.add_rounded,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : null,
+                  );
+                }),
               ),
             ],
           ),
@@ -776,13 +822,12 @@ class ChatForwardView extends StatelessWidget {
                   else
                     WidgetButton(
                       onPressed: () {
-                        ModalPopup.show(
-                          context: context,
-                          mobileConstraints: const BoxConstraints(),
-                          mobilePadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          desktopConstraints:
-                              const BoxConstraints(maxWidth: 400),
-                          child: _attachmentSelection(c),
+                        AttachmentSourceSelector.show(
+                          context,
+                          onPickFile: c.pickFile,
+                          onPickImageFromCamera: c.pickImageFromCamera,
+                          onPickMedia: c.pickMedia,
+                          onVideoImageFromCamera: c.pickVideoFromCamera,
                         );
                       },
                       child: SizedBox(
@@ -827,12 +872,12 @@ class ChatForwardView extends StatelessWidget {
                   const SizedBox(width: 0),
                   Obx(() {
                     return WidgetButton(
-                      onPressed: c.searchResults.value == null
-                          ? null
-                          : () {
+                      onPressed: c.searchResults.value?.isEmpty == false
+                          ? () {
                               c.forward();
                               Navigator.of(context).pop(true);
-                            },
+                            }
+                          : null,
                       child: SizedBox(
                         width: 56,
                         height: 56,
@@ -863,97 +908,6 @@ class ChatForwardView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _attachmentSelection(ChatForwardController c) {
-    return Builder(builder: (context) {
-      Widget button({
-        required String text,
-        IconData? icon,
-        Widget? child,
-        void Function()? onPressed,
-      }) {
-        return RoundFloatingButton(
-          text: text,
-          withBlur: false,
-          onPressed: () {
-            onPressed?.call();
-            Navigator.of(context).pop();
-          },
-          textStyle: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          ),
-          color: const Color(0xFF63B4FF),
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
-          ),
-        );
-      }
-
-      bool isAndroid = PlatformUtils.isAndroid;
-
-      List<Widget> children = [
-        button(
-          text: isAndroid ? 'label_photo'.l10n : 'label_media_camera'.l10n,
-          onPressed: c.pickImageFromCamera,
-          child: SvgLoader.asset(
-            'assets/icons/make_photo.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-        if (isAndroid)
-          button(
-            text: 'label_video'.l10n,
-            onPressed: c.pickVideoFromCamera,
-            child: SvgLoader.asset(
-              'assets/icons/video_on.svg',
-              width: 60,
-              height: 60,
-            ),
-          ),
-        button(
-          text: 'label_gallery'.l10n,
-          onPressed: c.pickMedia,
-          child: SvgLoader.asset(
-            'assets/icons/gallery.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-        button(
-          text: 'label_file'.l10n,
-          onPressed: c.pickFile,
-          child: SvgLoader.asset(
-            'assets/icons/file.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-      ];
-
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: children,
-          ),
-          const SizedBox(height: 40),
-          OutlinedRoundedButton(
-            key: const Key('CloseButton'),
-            title: Text('btn_close'.l10n),
-            onPressed: Navigator.of(context).pop,
-            color: const Color(0xFFEEEEEE),
-          ),
-          const SizedBox(height: 10),
-        ],
-      );
-    });
   }
 }
 

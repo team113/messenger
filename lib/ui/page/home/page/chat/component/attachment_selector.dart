@@ -16,7 +16,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../controller.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/modal_popup.dart';
@@ -28,19 +27,41 @@ import '/util/platform_utils.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AttachmentSourceSelector extends StatelessWidget {
-  const AttachmentSourceSelector(this.c, {Key? key}) : super(key: key);
+  const AttachmentSourceSelector({
+    Key? key,
+    this.onPickImageFromCamera,
+    this.onVideoImageFromCamera,
+    this.onPickMedia,
+    this.onPickFile,
+  }) : super(key: key);
 
-  /// [ChatController] of this [AttachmentSourceSelector].
-  final ChatController c;
+  final void Function()? onPickImageFromCamera;
+
+  final void Function()? onVideoImageFromCamera;
+
+  final void Function()? onPickMedia;
+
+  final void Function()? onPickFile;
 
   /// Displays an [AttachmentSourceSelector] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, ChatController c) {
+  static Future<T?> show<T>(
+    BuildContext context, {
+    Function()? onPickImageFromCamera,
+    Function()? onVideoImageFromCamera,
+    Function()? onPickMedia,
+    Function()? onPickFile,
+  }) {
     return ModalPopup.show(
       context: context,
       mobileConstraints: const BoxConstraints(),
       mobilePadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
       desktopConstraints: const BoxConstraints(maxWidth: 400),
-      child: AttachmentSourceSelector(c),
+      child: AttachmentSourceSelector(
+        onPickImageFromCamera: onPickImageFromCamera,
+        onVideoImageFromCamera: onVideoImageFromCamera,
+        onPickMedia: onPickMedia,
+        onPickFile: onPickFile,
+      ),
     );
   }
 
@@ -76,7 +97,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       button(
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
-        onPressed: c.pickImageFromCamera,
+        onPressed: onPickImageFromCamera,
         child: SvgLoader.asset(
           'assets/icons/make_photo.svg',
           width: 60,
@@ -86,7 +107,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       if (PlatformUtils.isAndroid)
         button(
           text: 'label_video'.l10n,
-          onPressed: c.pickVideoFromCamera,
+          onPressed: onVideoImageFromCamera,
           child: SvgLoader.asset(
             'assets/icons/video_on.svg',
             width: 60,
@@ -95,7 +116,7 @@ class AttachmentSourceSelector extends StatelessWidget {
         ),
       button(
         text: 'label_gallery'.l10n,
-        onPressed: c.pickMedia,
+        onPressed: onPickMedia,
         child: SvgLoader.asset(
           'assets/icons/gallery.svg',
           width: 60,
@@ -104,7 +125,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       ),
       button(
         text: 'label_file'.l10n,
-        onPressed: c.pickFile,
+        onPressed: onPickFile,
         child: SvgLoader.asset(
           'assets/icons/file.svg',
           width: 60,

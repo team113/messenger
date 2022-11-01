@@ -76,6 +76,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onResend,
     this.onFileTap,
     this.onAttachmentError,
+    this.onForwardPopupToggle,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -131,6 +132,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
+
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  final void Function(bool)? onForwardPopupToggle;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1315,11 +1319,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               height: 16,
                             ),
                             onPressed: () async {
+                              widget.onForwardPopupToggle?.call(true);
                               await ChatForwardView.show(
                                 context,
                                 widget.chat.value!.id,
                                 [ChatItemQuote(item: item)],
                               );
+                              widget.onForwardPopupToggle?.call(false);
                             },
                           ),
                         if (item is ChatMessage &&

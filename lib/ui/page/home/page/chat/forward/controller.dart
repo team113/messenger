@@ -53,9 +53,9 @@ class ChatForwardController extends GetxController {
     required this.from,
     required List<ChatItemQuote> quotes,
     this.text,
-    RxList<Attachment>? attachments,
+    List<Attachment>? attachments,
   })  : quotes = RxList(quotes),
-        attachments = attachments ?? RxList();
+        attachments = RxList(attachments ?? []);
 
   /// Selected items in [SearchView] popup.
   final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
@@ -77,6 +77,9 @@ class ChatForwardController extends GetxController {
 
   /// [Attachment]s to attach to the [quotes].
   final RxList<Attachment> attachments;
+
+  /// Indicator whether there is an ongoing drag-n-drop at the moment.
+  final RxBool isDraggingFiles = RxBool(false);
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;

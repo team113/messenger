@@ -119,7 +119,7 @@ abstract class ModalPopup {
                       alignment: Alignment.topRight,
                       child: Padding(
                         padding: desktopPadding.right == 0
-                            ? const EdgeInsets.only(right: 10)
+                            ? const EdgeInsets.only(right: 10, top: 10)
                             : EdgeInsets.zero,
                         child: SizedBox(
                           height: 16,
