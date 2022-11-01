@@ -1734,6 +1734,8 @@ class CallController extends GetxController {
     primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
     secondary.value =
         focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
+
+    applySecondaryConstraints();
   }
 
   /// Returns all [Participant]s identified by an [id] and [source].

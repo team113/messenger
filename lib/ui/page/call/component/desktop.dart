@@ -1361,9 +1361,7 @@ Widget _primaryView(CallController c) {
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemConstraints: (_DragData data) {
             if (data.participant.video.value != null) {
-              double secondarySize =
-                  max(c.secondaryWidth.value, c.secondaryHeight.value);
-              double size = min(secondarySize, c.size.longestSide * 0.25);
+              double size = (c.size.longestSide * 0.33).clamp(100, 250);
 
               return BoxConstraints(
                 maxWidth: size,
@@ -1873,6 +1871,18 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             decoratorBuilder: (_DragData item) =>
                 const ParticipantDecoratorWidget(),
+            itemConstraints: (_DragData data) {
+              if (data.participant.video.value != null) {
+                double size = (c.size.longestSide * 0.33).clamp(100, 250);
+
+                return BoxConstraints(
+                  maxWidth: size,
+                  maxHeight: size,
+                );
+              }
+
+              return null;
+            },
             itemBuilder: (_DragData data) {
               var participant = data.participant;
               return Obx(

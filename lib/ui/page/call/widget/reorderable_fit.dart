@@ -1070,18 +1070,19 @@ class _ReorderableDraggableState<T extends Object>
                 BoxConstraints? itemConstraints =
                     widget.itemConstraints?.call(widget.item);
 
-                double width = min(
-                  itemConstraints?.maxWidth ?? constraints.maxWidth,
-                  constraints.maxWidth,
-                );
+                if (itemConstraints != null &&
+                    itemConstraints.biggest.longestSide <
+                        constraints.biggest.longestSide) {
+                  double coefficient = constraints.biggest.longestSide /
+                      itemConstraints.biggest.longestSide;
 
-                double height = min(
-                  itemConstraints?.maxHeight ?? constraints.maxHeight,
-                  constraints.maxHeight,
-                );
-
-                _constraints.value =
-                    BoxConstraints(maxWidth: width, maxHeight: height);
+                  _constraints.value = BoxConstraints(
+                    maxWidth: constraints.maxWidth / coefficient,
+                    maxHeight: constraints.maxHeight / coefficient,
+                  );
+                } else {
+                  _constraints.value = constraints;
+                }
 
                 setState(() {
                   isDough = true;
@@ -1130,28 +1131,24 @@ class _Resizable extends StatelessWidget {
 
   /// [GlobalKey] of the cell this [_Resizable] is in.
   final GlobalKey cellKey;
+
+  /// Initial [BoxConstraints] of this [_Resizable].
   final BoxConstraints layout;
 
-  /// [Offset] of this [_Resizable].
+  /// [Offset] position of the anchor.
   final Rx<Offset?> position;
 
-  /// [BoxConstraints] of this [_Resizable].
+  /// Target [BoxConstraints] of this [_Resizable] to animate.
   final Rx<BoxConstraints?> constraints;
 
   /// [Widget] to animate.
   final Widget child;
 
-//   @override
-//   State<_Resizable> createState() => _ResizableState();
-// }
-//
-// class _ResizableState extends State<_Resizable> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       Offset offset = Offset.zero;
-      if (position.value != null &&
-          constraints.value != layout) {
+      if (position.value != null && constraints.value != layout) {
         Rect delta = cellKey.globalPaintBounds ?? Rect.zero;
         Offset position = Offset(
           this.position.value!.dx - delta.left,
@@ -1160,13 +1157,9 @@ class _Resizable extends StatelessWidget {
 
         offset = Offset(
           position.dx -
-              (constraints.value!.maxWidth *
-                  position.dx /
-                  layout.maxWidth),
+              (constraints.value!.maxWidth * position.dx / layout.maxWidth),
           position.dy -
-              (constraints.value!.maxHeight *
-                  position.dy /
-                  layout.maxHeight),
+              (constraints.value!.maxHeight * position.dy / layout.maxHeight),
         );
       }
 
