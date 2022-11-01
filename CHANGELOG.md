@@ -17,8 +17,15 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply message. ([#188], [#134])
 
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned chats tab. ([#142])
+
 [#134]: /../../pull/134
-[#142]: /../../pull/188
+[#142]: /../../pull/142
+[#188]: /../../pull/188
 
 
 
