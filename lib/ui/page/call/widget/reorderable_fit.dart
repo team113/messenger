@@ -1186,7 +1186,8 @@ class _ReorderableItem<T> {
   /// the cell this [item] is in.
   final GlobalKey cellKey = GlobalKey();
 
-  /// [GlobalKey] of this [_ReorderableItem].
+  /// [GlobalKey] of this [_ReorderableItem] representing the global position of
+  /// this [item].
   final GlobalKey itemKey = GlobalKey();
 
   /// [UniqueKey] of this [_ReorderableItem] representing the position in a
