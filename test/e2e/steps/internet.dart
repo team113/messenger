@@ -19,7 +19,6 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
-import '../../mock/platform_utils.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
