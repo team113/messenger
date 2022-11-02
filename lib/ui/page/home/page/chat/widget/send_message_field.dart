@@ -42,7 +42,7 @@ class SendMessageField extends StatefulWidget {
     this.forwarding,
     this.onSend,
     this.repliedMessages,
-    required this.attachments,
+    this.attachments,
     this.onReorder,
     required this.send,
     required this.me,
@@ -66,7 +66,7 @@ class SendMessageField extends StatefulWidget {
 
   final void Function(int old, int to)? onReorder;
 
-  final RxObsList<MapEntry<GlobalKey, Attachment>> attachments;
+  final RxObsList<MapEntry<GlobalKey, Attachment>>? attachments;
   final TextFieldState send;
   final RxBool? forwarding;
   final UserId? me;
@@ -169,7 +169,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
             }
           }
 
-          List<Attachment> _attachments = widget.attachments
+          List<Attachment> _attachments = widget.attachments!
               .where((e) {
                 Attachment a = e.value;
                 return a is ImageAttachment ||
@@ -183,16 +183,16 @@ class _SendMessageFieldState extends State<SendMessageField> {
           return WidgetButton(
             key: key,
             onPressed: () {
-              int index = widget.attachments.indexOf(e);
+              int index = widget.attachments!.indexOf(e);
               if (index != -1) {
                 GalleryPopup.show(
                   context: context,
                   gallery: GalleryPopup(
-                    initial: widget.attachments.indexOf(e),
+                    initial: widget.attachments!.indexOf(e),
                     initialKey: key,
                     onTrashPressed: (int i) {
                       Attachment a = _attachments[i];
-                      widget.attachments.removeWhere((o) => o.value == a);
+                      widget.attachments!.removeWhere((o) => o.value == a);
                     },
                     children: _attachments.map((o) {
                       if (o is ImageAttachment ||
@@ -344,7 +344,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                   PlatformUtils.isMobile)
                               ? InkWell(
                                   key: const Key('RemovePickedFile'),
-                                  onTap: () => widget.attachments
+                                  onTap: () => widget.attachments!
                                       .removeWhere((a) => a.value == e),
                                   child: Container(
                                     width: 15,
@@ -381,7 +381,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
       return Dismissible(
         key: Key(e.id.val),
         direction: DismissDirection.up,
-        onDismissed: (_) => widget.attachments.removeWhere((a) => a.value == e),
+        onDismissed: (_) =>
+            widget.attachments!.removeWhere((a) => a.value == e),
         child: attachment(),
       );
     }
@@ -640,8 +641,11 @@ class _SendMessageFieldState extends State<SendMessageField> {
             mainAxisSize: MainAxisSize.min,
             children: [
               LayoutBuilder(builder: (context, constraints) {
-                bool grab =
-                    127 * widget.attachments.length > constraints.maxWidth - 16;
+                bool grab = false;
+                if (widget.attachments != null) {
+                  grab = 127 * widget.attachments!.length >
+                      constraints.maxWidth - 16;
+                }
 
                 return ConditionalBackdropFilter(
                   condition: style.cardBlur > 0,
@@ -660,7 +664,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                           width: double.infinity,
                           padding: (widget.repliedMessages != null &&
                                       widget.repliedMessages!.isNotEmpty) ||
-                                  (widget.attachments.isNotEmpty)
+                                  (widget.attachments != null &&
+                                      widget.attachments!.isNotEmpty)
                               ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                               : EdgeInsets.zero,
                           child: Column(
@@ -786,7 +791,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                           }).toList(),
                                         ),
                                 ),
-                              if (widget.attachments.isNotEmpty &&
+                              if (widget.attachments != null &&
+                                  widget.attachments!.isNotEmpty &&
                                   widget.repliedMessages != null &&
                                   widget.repliedMessages!.isNotEmpty)
                                 const SizedBox(height: 4),
@@ -807,7 +813,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
-                                      children: widget.attachments
+                                      children: widget.attachments!
                                           .map(
                                             (e) => _buildAttachment(
                                               e.value,

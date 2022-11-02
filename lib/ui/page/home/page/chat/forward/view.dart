@@ -73,7 +73,7 @@ class ChatForwardView extends StatelessWidget {
   final String? text;
 
   /// Initial attachments.
-  final List<Attachment>? attachments;
+  final RxList<MapEntry<GlobalKey, Attachment>>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -83,6 +83,11 @@ class ChatForwardView extends StatelessWidget {
     String? text,
     List<Attachment>? attachments,
   }) {
+    RxList<MapEntry<GlobalKey, Attachment>> _attachments =
+        RxList<MapEntry<GlobalKey, Attachment>>();
+    attachments?.forEach((e) {
+      _attachments.add(MapEntry(GlobalKey(), e));
+    });
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -100,7 +105,7 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachments,
+        attachments: _attachments,
         text: text,
       ),
     );
@@ -190,17 +195,28 @@ class ChatForwardView extends StatelessWidget {
                         ),
                         child: SendMessageField(
                           send: c.send,
-                          attachments: RxObsList(c.attachments
-                              .map((element) => MapEntry(GlobalKey(), element))
-                              .toList()),
+                          attachments: c.attachments,
                           me: c.me,
                           onVideoImageFromCamera: c.pickVideoFromCamera,
                           onPickMedia: c.pickMedia,
                           onPickImageFromCamera: c.pickImageFromCamera,
                           onPickFile: c.pickFile,
                           onSend: () {
-                            c.send.submit();
-                            Navigator.of(context).pop(true);
+                            if (c.searchResults.value != null &&
+                                c.searchResults.value!.isEmpty == false) {
+                              c.send.submit();
+                              Navigator.of(context).pop(true);
+                            }
+                          },
+                          onReorder: (int old, int to) {
+                            if (old < to) {
+                              --to;
+                            }
+
+                            final ChatItemQuote item = c.quotes.removeAt(old);
+                            c.quotes.insert(to, item);
+
+                            HapticFeedback.lightImpact();
                           },
                         ),
                       ),
@@ -780,7 +796,7 @@ class ChatForwardView extends StatelessWidget {
                                           .map(
                                             (e) => _buildAttachment(
                                               c,
-                                              e,
+                                              e.value,
                                             ),
                                           )
                                           .toList(),

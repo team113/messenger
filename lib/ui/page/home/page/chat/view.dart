@@ -814,7 +814,30 @@ class _ChatViewState extends State<ChatView>
               onVideoImageFromCamera: c.pickVideoFromCamera,
               forwarding: c.forwarding,
               repliedMessages: c.repliedMessages,
-              onSend: c.send.submit,
+              onSend: () async {
+                if (c.forwarding.value) {
+                  if (c.repliedMessages.isNotEmpty) {
+                    bool? result = await ChatForwardView.show(
+                      context,
+                      c.id,
+                      c.repliedMessages
+                          .map((e) => ChatItemQuote(item: e))
+                          .toList(),
+                      text: c.send.text,
+                      attachments: c.attachments.map((e) => e.value).toList(),
+                    );
+
+                    if (result == true) {
+                      c.repliedMessages.clear();
+                      c.forwarding.value = false;
+                      c.attachments.clear();
+                      c.send.clear();
+                    }
+                  }
+                } else {
+                  c.send.submit();
+                }
+              },
               send: c.send,
               onReorder: (int old, int to) {
                 if (old < to) {
@@ -1219,84 +1242,13 @@ class _ChatViewState extends State<ChatView>
                 ],
               );
             }),
-            Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  IgnorePointer(
-                    child: WidgetButton(
-                      child: SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: Center(
-                          child: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
-                            child: SvgLoader.asset(
-                              'assets/icons/attach.svg',
-                              height: iconSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                        bottom: 13,
-                      ),
-                      child: Transform.translate(
-                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: ReactiveTextField(
-                          onChanged: c.keepTyping,
-                          key: const Key('MessageEditField'),
-                          state: c.edit!,
-                          hint: 'label_send_message_hint'.l10n,
-                          minLines: 1,
-                          maxLines: 7,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
-                          type: PlatformUtils.isDesktop
-                              ? TextInputType.text
-                              : TextInputType.multiline,
-                          textInputAction: PlatformUtils.isDesktop
-                              ? TextInputAction.send
-                              : TextInputAction.newline,
-                        ),
-                      ),
-                    ),
-                  ),
-                  WidgetButton(
-                    onPressed: c.edit!.submit,
-                    child: SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: SizedBox(
-                            key: const Key('Edit'),
-                            width: 25.18,
-                            height: 22.85,
-                            child: SvgLoader.asset(
-                              'assets/icons/send.svg',
-                              height: 22.85,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            SendMessageField(
+              onSend: () {
+                c.edit!.submit();
+              },
+              send: c.edit!,
+              me: c.me,
+              attachments: c.attachments,
             ),
           ],
         ),

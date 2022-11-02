@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../../util/obs/obs.dart';
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -53,9 +54,9 @@ class ChatForwardController extends GetxController {
     required this.from,
     required List<ChatItemQuote> quotes,
     this.text,
-    List<Attachment>? attachments,
+    RxList<MapEntry<GlobalKey, Attachment>>? attachments,
   })  : quotes = RxList(quotes),
-        attachments = RxList(attachments ?? []);
+        attachments = RxObsList(attachments ?? []);
 
   /// Selected items in [SearchView] popup.
   final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
@@ -76,7 +77,7 @@ class ChatForwardController extends GetxController {
   late final TextFieldState send;
 
   /// [Attachment]s to attach to the [quotes].
-  final RxList<Attachment> attachments;
+  final RxObsList<MapEntry<GlobalKey, Attachment>> attachments;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -159,7 +160,7 @@ class ChatForwardController extends GetxController {
             text: send.text == '' ? null : ChatMessageText(send.text),
             attachments: attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.id).toList(),
+                : attachments.map((a) => a.value.id).toList(),
           );
         }),
         ...searchResults.value!.users.map((e) async {
@@ -172,7 +173,7 @@ class ChatForwardController extends GetxController {
             text: send.text == '' ? null : ChatMessageText(send.text),
             attachments: attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.id).toList(),
+                : attachments.map((a) => a.value.id).toList(),
           );
         }),
         ...searchResults.value!.contacts.map((e) async {
@@ -187,7 +188,7 @@ class ChatForwardController extends GetxController {
             text: send.text == '' ? null : ChatMessageText(send.text),
             attachments: attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.id).toList(),
+                : attachments.map((a) => a.value.id).toList(),
           );
         })
       ];
@@ -292,13 +293,13 @@ class ChatForwardController extends GetxController {
     if (file.size < ChatController.maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(attachment);
+        attachments.add(MapEntry(GlobalKey(), attachment));
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexOf(attachment);
         if (index != -1) {
-          attachments[index] = uploaded;
+          attachments[index] = MapEntry(attachments[index].key, uploaded);
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
