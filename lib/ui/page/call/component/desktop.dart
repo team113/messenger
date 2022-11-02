@@ -521,38 +521,35 @@ Widget desktopCall(CallController c, BuildContext context) {
                   verticalDirection: VerticalDirection.up,
                   children: [
                     dock(),
-                    launchpad(),
+                    Obx(() {
+                      bool enabled = c.primaryDrags.value == 0 &&
+                          c.secondaryDrags.value == 0;
+
+                      return Align(
+                        alignment: Alignment.bottomCenter,
+                        child: MouseRegion(
+                          opaque: false,
+                          hitTestBehavior: HitTestBehavior.translucent,
+                          onEnter: (d) {
+                            if (enabled) {
+                              c.keepUi(true);
+                            }
+                          },
+                          onExit: (d) {
+                            if (enabled) {
+                              c.keepUi();
+                            }
+                          },
+                          child: launchpad(),
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
             ],
           ),
         ),
-
-        // More panel [MouseRegion] toggling UI on hover loss.
-        Obx(() {
-          bool enabled = c.displayMore.value &&
-              c.primaryDrags.value == 0 &&
-              c.secondaryDrags.value == 0;
-
-          if (enabled) {
-            return Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 450,
-                width: double.infinity,
-                child: MouseRegion(
-                  opaque: false,
-                  hitTestBehavior: HitTestBehavior.translucent,
-                  onEnter: (d) => c.keepUi(true),
-                  onExit: (d) => c.keepUi(),
-                ),
-              ),
-            );
-          }
-
-          return Container();
-        }),
 
         // Display the more hint, if not dismissed.
         Obx(() {
