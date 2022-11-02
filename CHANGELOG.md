@@ -19,9 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Image attachments not loading. ([#164], [#126])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Replies having reversed order in messages. ([#193], [#192])
+
 [#126]: /../../issues/126
 [#142]: /../../pull/142
 [#164]: /../../pull/164
+[#192]: /../../issues/192
+[#193]: /../../pull/193
 
 
 
