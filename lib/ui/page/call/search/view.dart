@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -176,31 +177,49 @@ class SearchView extends StatelessWidget {
                         Widget child = Container();
 
                         if (e is RxUser) {
-                          child = Obx(() {
-                            return tile(
-                              context: context,
-                              user: e,
-                              selected: c.selectedUsers.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectUser(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
+                          if (c.chats.values.firstWhereOrNull((element) =>
+                                  element.chat.value.isDialog &&
+                                  element.chat.value.members.firstWhereOrNull(
+                                          (element2) =>
+                                              element2.user.id ==
+                                              e.user.value.id) !=
+                                      null) ==
+                              null) {
+                            child = Obx(() {
+                              return tile(
+                                context: context,
+                                user: e,
+                                selected: c.selectedUsers.contains(e),
+                                onTap: selectable
+                                    ? () => c.selectUser(e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          }
                         } else if (e is RxChatContact) {
-                          child = Obx(() {
-                            return tile(
-                              context: context,
-                              contact: e,
-                              selected: c.selectedContacts.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectContact(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
+                          if (c.chats.values.firstWhereOrNull((element) =>
+                                  element.chat.value.isDialog &&
+                                  element.chat.value.members.firstWhereOrNull(
+                                          (element2) =>
+                                              element2.user.id ==
+                                              e.user.value!.id) !=
+                                      null) ==
+                              null) {
+                            child = Obx(() {
+                              return tile(
+                                context: context,
+                                contact: e,
+                                selected: c.selectedContacts.contains(e),
+                                onTap: selectable
+                                    ? () => c.selectContact(e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          }
                         } else if (e is RxChat) {
                           child = Obx(() {
                             return chatTile(
