@@ -31,6 +31,7 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/precise_date_time/src/non_web.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
@@ -562,6 +563,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           _userRepo.get(event.userId).then((v) {
             if (v != null) {
               v.user.value.online = false;
+              v.user.value.lastSeenAt = PreciseDateTime.now();
               _updateUser(v.user.value, versioned.ver);
             }
           });
