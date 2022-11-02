@@ -9,6 +9,6 @@ Feature: Image refetching
 
     When I am in chat with Bob
     Then I wait until image is loading
-    
+
     When I have Internet without delay
     Then I wait until image is loaded
