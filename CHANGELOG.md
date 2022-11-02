@@ -22,10 +22,15 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
+- Windows & web:
+    - Media panel:
+        - More panel hides when mouse enters the window from the bottom ([#197], [#125])
 
+[#125]: /../../issues/125
 [#142]: /../../pull/142
 [#192]: /../../issues/192
 [#193]: /../../pull/193
+[#197]: /../../pull/197
 
 
 
