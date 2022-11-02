@@ -100,7 +100,7 @@ class _RetryImageState extends State<RetryImage> {
   @override
   Widget build(BuildContext context) {
     if (_image != null) {
-      return (widget.imageFilter == null)
+      return widget.imageFilter == null
           ? Image.memory(
               _image!,
               key: const Key('RetryImageLoaded'),
