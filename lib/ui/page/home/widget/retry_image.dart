@@ -33,6 +33,9 @@ class RetryImage extends StatefulWidget {
     Key? key,
     this.fit,
     this.height,
+    this.width,
+    this.loaderPadding,
+    this.loaderStrokeWidth,
     this.onForbidden,
   }) : super(key: key);
 
@@ -48,6 +51,13 @@ class RetryImage extends StatefulWidget {
 
   /// Height of the fetched image.
   final double? height;
+
+  /// Width of the fetched image.
+  final double? width;
+
+  final EdgeInsetsGeometry? loaderPadding;
+
+  final double? loaderStrokeWidth;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -87,6 +97,7 @@ class _RetryImageState extends State<RetryImage> {
         _image!,
         key: const Key('RetryImageLoaded'),
         height: widget.height,
+        width: widget.width,
         fit: widget.fit,
       );
     }
@@ -95,7 +106,8 @@ class _RetryImageState extends State<RetryImage> {
       height: widget.height,
       width: 200,
       alignment: Alignment.center,
-      child: ConstrainedBox(
+      child: Container(
+        padding: widget.loaderPadding,
         constraints: const BoxConstraints(
           maxHeight: 40,
           maxWidth: 40,
@@ -106,6 +118,7 @@ class _RetryImageState extends State<RetryImage> {
           aspectRatio: 1 / 1,
           child: CircularProgressIndicator(
             key: const Key('RetryImageLoading'),
+            strokeWidth: widget.loaderStrokeWidth ?? 4,
             value: _progress == 0 ? null : _progress,
           ),
         ),
