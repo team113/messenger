@@ -30,6 +30,8 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;
+
+  String? configFiles;
 }
 
 /// [Session] with some additional info about the [User] it represents.

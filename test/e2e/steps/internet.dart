@@ -16,8 +16,10 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../../mock/platform_utils.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
@@ -34,6 +36,8 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
+    context.world.configFiles = Config.files;
+    Config.files = '';
   }),
 );
 
@@ -49,6 +53,11 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
+
+    if (context.world.configFiles != null &&
+        context.world.configFiles!.isNotEmpty) {
+      Config.files = context.world.configFiles!;
+    }
   }),
 );
 
@@ -62,7 +71,9 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.throwException = true;
+      provider.client.throwException = false;
     }
+    context.world.configFiles = Config.files;
+    Config.files = '';
   }),
 );
