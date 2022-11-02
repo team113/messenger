@@ -26,6 +26,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/gallery_item.dart';
 import 'package:messenger/domain/model/native_file.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -120,6 +121,8 @@ void main() async {
       'MyProfileView successfully adds and deletes gallery items, avatar and call cover',
       (WidgetTester tester) async {
     final StreamController<QueryResult> myUserEvents = StreamController();
+    when(graphQlProvider.getUser(const UserId('id')))
+        .thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
     when(graphQlProvider.myUserEvents(null)).thenAnswer((_) {
       myUserEvents.add(
         QueryResult.internal(
