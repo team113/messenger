@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Swipe to reply message. ([#188], [#134])
+        - Swipe to reply gesture. ([#188], [#134])
 
 ### Changed
 
@@ -23,9 +23,17 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
 
-[#134]: /../../pull/134
+### Fixed
+
+- UI:
+    - Chat page:
+        - Replies having reversed order in messages. ([#193], [#192])
+
+[#134]: /../../issues/134
 [#142]: /../../pull/142
 [#188]: /../../pull/188
+[#192]: /../../issues/192
+[#193]: /../../pull/193
 
 
 
