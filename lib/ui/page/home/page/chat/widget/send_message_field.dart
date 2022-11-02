@@ -32,6 +32,7 @@ import '../../../../../../util/obs/obs.dart';
 import 'init_callback.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
+///
 class SendMessageField extends StatefulWidget {
   SendMessageField({
     Key? key,
@@ -46,32 +47,32 @@ class SendMessageField extends StatefulWidget {
     this.attachments,
     this.onReorder,
     this.quotes,
-    required this.send,
-    required this.me,
+    this.me,
+    required this.textFieldState,
   }) : super(key: key);
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService = Get.find();
-  final void Function()? onPickImageFromCamera;
 
-  final void Function()? onVideoImageFromCamera;
-
-  final void Function()? onPickMedia;
-
-  final void Function()? onPickFile;
-
-  final void Function()? keepTyping;
-  final void Function()? onSend;
+  /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote>? quotes;
 
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem>? repliedMessages;
 
+  /// Callback, called when an item is reordered.
   final void Function(int old, int to)? onReorder;
 
+  /// [Attachment]s to be attached to a message.
   final RxObsList<MapEntry<GlobalKey, Attachment>>? attachments;
-  final TextFieldState send;
+
+  /// State of a send message field.
+  final TextFieldState textFieldState;
+
+  /// Indicator whether forwarding mode is enabled.
   final RxBool? forwarding;
+
+  /// Users [UserId].
   final UserId? me;
 
   /// [Attachment] being hovered.
@@ -79,6 +80,24 @@ class SendMessageField extends StatefulWidget {
 
   /// Replied [ChatItem] being hovered.
   final Rx<ChatItem?> hoveredReply = Rx(null);
+
+  /// Callback, called when called pick image from camera.
+  final void Function()? onPickImageFromCamera;
+
+  /// Callback, called when called pick video from camera.
+  final void Function()? onVideoImageFromCamera;
+
+  /// Callback, called when called pick media.
+  final void Function()? onPickMedia;
+
+  /// Callback, called when called pick file.
+  final void Function()? onPickFile;
+
+  /// Callback, called when user typing in message field.
+  final void Function()? keepTyping;
+
+  /// Callback, called when message was send.
+  final void Function()? onSend;
 
   @override
   State<SendMessageField> createState() => _SendMessageFieldState();
@@ -90,7 +109,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     Style style = Theme.of(context).extension<Style>()!;
 
     /// Returns a visual representation of the provided [Attachment].
-    Widget _buildAttachment(Attachment e, GlobalKey key) {
+    Widget buildAttachment(Attachment e, GlobalKey key) {
       bool isImage =
           (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
       bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -335,7 +354,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                     ),
                   ),
                 ),
-                if (!widget.send.status.value.isLoading)
+                if (!widget.textFieldState.status.value.isLoading)
                   Align(
                     alignment: Alignment.topRight,
                     child: Padding(
@@ -391,7 +410,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     }
 
     /// Builds a visual representation of the provided [item] being replied.
-    Widget _repliedMessage(ChatItem item) {
+    Widget repliedMessage(ChatItem item) {
       Style style = Theme.of(context).extension<Style>()!;
       bool fromMe = item.authorId == widget.me;
 
@@ -1018,118 +1037,79 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                     maxHeight:
                                         MediaQuery.of(context).size.height / 3,
                                   ),
-                                  child: widget.onReorder != null
-                                      ? ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: widget.onReorder!,
-                                          proxyDecorator:
-                                              (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves
-                                                    .easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
+                                  child: ReorderableListView(
+                                    shrinkWrap: true,
+                                    buildDefaultDragHandles:
+                                        PlatformUtils.isMobile,
+                                    onReorder: (i, a) {
+                                      widget.onReorder?.call(i, a);
+                                    },
+                                    proxyDecorator: (child, i, animation) {
+                                      return AnimatedBuilder(
+                                        animation: animation,
+                                        builder: (
+                                          BuildContext context,
+                                          Widget? child,
+                                        ) {
+                                          final double t = Curves.easeInOut
+                                              .transform(animation.value);
+                                          final double elevation =
+                                              lerpDouble(0, 6, t)!;
+                                          final Color color = Color.lerp(
+                                            const Color(0x00000000),
+                                            const Color(0x33000000),
+                                            t,
+                                          )!;
 
-                                                return InitCallback(
-                                                  callback: HapticFeedback
-                                                      .selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
+                                          return InitCallback(
+                                            callback:
+                                                HapticFeedback.selectionClick,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  CustomBoxShadow(
+                                                    color: color,
+                                                    blurRadius: elevation,
                                                   ),
-                                                );
-                                              },
+                                                ],
+                                              ),
                                               child: child,
-                                            );
+                                            ),
+                                          );
+                                        },
+                                        child: child,
+                                      );
+                                    },
+                                    reverse: true,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      1,
+                                      0,
+                                      1,
+                                      0,
+                                    ),
+                                    children: widget.repliedMessages!.map((e) {
+                                      return ReorderableDragStartListener(
+                                        key: Key('Handle_${e.id}'),
+                                        enabled: !PlatformUtils.isMobile,
+                                        index:
+                                            widget.repliedMessages!.indexOf(e),
+                                        child: Dismissible(
+                                          key: Key('${e.id}'),
+                                          direction:
+                                              DismissDirection.horizontal,
+                                          onDismissed: (_) {
+                                            widget.repliedMessages!.remove(e);
                                           },
-                                          reverse: true,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            1,
-                                            0,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 2,
+                                            ),
+                                            child: repliedMessage(e),
                                           ),
-                                          children:
-                                              widget.repliedMessages!.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: widget.repliedMessages!
-                                                  .indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  widget.repliedMessages!
-                                                      .remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: _repliedMessage(e),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        )
-                                      : ListView(
-                                          shrinkWrap: true,
-                                          reverse: true,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            1,
-                                            0,
-                                          ),
-                                          children:
-                                              widget.repliedMessages!.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: widget.repliedMessages!
-                                                  .indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  widget.repliedMessages!
-                                                      .remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: _repliedMessage(e),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
                                         ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                               if (widget.attachments != null &&
                                   widget.attachments!.isNotEmpty &&
@@ -1155,7 +1135,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                           MainAxisAlignment.start,
                                       children: widget.attachments!
                                           .map(
-                                            (e) => _buildAttachment(
+                                            (e) => buildAttachment(
                                               e.value,
                                               e.key,
                                             ),
@@ -1233,7 +1213,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                           child: ReactiveTextField(
                             onChanged: widget.keepTyping,
                             key: const Key('MessageField'),
-                            state: widget.send,
+                            state: widget.textFieldState,
                             hint: 'label_send_message_hint'.l10n,
                             minLines: 1,
                             maxLines: 7,

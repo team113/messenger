@@ -838,7 +838,7 @@ class _ChatViewState extends State<ChatView>
                   c.send.submit();
                 }
               },
-              send: c.send,
+              textFieldState: c.send,
               onReorder: (int old, int to) {
                 if (old < to) {
                   --to;
@@ -1199,7 +1199,6 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [ReactiveTextField] for editing a [ChatMessage].
   Widget _editField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
-    const double iconSize = 22;
 
     return Container(
       key: const Key('EditField'),
@@ -1246,7 +1245,7 @@ class _ChatViewState extends State<ChatView>
               onSend: () {
                 c.edit!.submit();
               },
-              send: c.edit!,
+              textFieldState: c.edit!,
               me: c.me,
               attachments: c.attachments,
             ),

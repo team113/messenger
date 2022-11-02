@@ -30,7 +30,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/util/obs/obs.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
@@ -195,7 +194,7 @@ class ChatForwardView extends StatelessWidget {
                         ),
                         child: SendMessageField(
                           quotes: c.quotes,
-                          send: c.send,
+                          textFieldState: c.send,
                           attachments: c.attachments,
                           me: c.me,
                           onVideoImageFromCamera: c.pickVideoFromCamera,
@@ -629,7 +628,7 @@ class ChatForwardView extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 2, top: 3),
                 child: InkWell(
                   key: const Key('RemovePickedFile'),
-                  onTap: () => c.attachments.remove(e),
+                  onTap: () => c.attachments.removeWhere((a) => a.value == e),
                   child: Container(
                     decoration: const BoxDecoration(
                       color: Color(0x99FFFFFF),
