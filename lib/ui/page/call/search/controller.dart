@@ -220,7 +220,7 @@ class SearchController extends GetxController {
     onChangedCall();
   }
 
-  /// Selects or unselects the specified [user].
+  /// Selects or unselects the specified [chat].
   void selectChat(RxChat chat) {
     if (selectedChats.contains(chat)) {
       selectedChats.remove(chat);

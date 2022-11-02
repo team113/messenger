@@ -484,6 +484,7 @@ class SearchViewResults {
   /// Selected [ChatContact]s.
   final List<RxChatContact> contacts;
 
+  /// Indicates whether [chats], [users] and [contacts] are empty or not.
   bool get isEmpty =>
       chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
 }

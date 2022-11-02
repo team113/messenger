@@ -120,6 +120,7 @@ class ChatForwardView extends StatelessWidget {
         quotes: quotes,
         text: text,
         attachments: attachments,
+        pop: () => Navigator.of(context).pop(true),
       ),
       builder: (ChatForwardController c) {
         return DropTarget(
@@ -201,13 +202,7 @@ class ChatForwardView extends StatelessWidget {
                           onPickMedia: c.pickMedia,
                           onPickImageFromCamera: c.pickImageFromCamera,
                           onPickFile: c.pickFile,
-                          onSend: () {
-                            if (c.searchResults.value != null &&
-                                c.searchResults.value!.isEmpty == false) {
-                              c.send.submit();
-                              Navigator.of(context).pop(true);
-                            }
-                          },
+                          onSend: c.send.submit,
                           onReorder: (int old, int to) {
                             if (old < to) {
                               --to;
@@ -904,12 +899,7 @@ class ChatForwardView extends StatelessWidget {
                   const SizedBox(width: 0),
                   Obx(() {
                     return WidgetButton(
-                      onPressed: c.searchResults.value?.isEmpty == false
-                          ? () {
-                              c.forward();
-                              Navigator.of(context).pop(true);
-                            }
-                          : null,
+                      onPressed: c.send.submit,
                       child: SizedBox(
                         width: 56,
                         height: 56,

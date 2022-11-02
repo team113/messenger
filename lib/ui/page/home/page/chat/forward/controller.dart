@@ -24,7 +24,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../../util/obs/obs.dart';
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -42,6 +41,7 @@ import '/ui/page/call/search/view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -54,6 +54,7 @@ class ChatForwardController extends GetxController {
     required this.from,
     required List<ChatItemQuote> quotes,
     this.text,
+    this.pop,
     RxList<MapEntry<GlobalKey, Attachment>>? attachments,
   })  : quotes = RxList(quotes),
         attachments = RxObsList(attachments ?? []);
@@ -76,6 +77,9 @@ class ChatForwardController extends GetxController {
   /// State of a send message field.
   late final TextFieldState send;
 
+  /// Callback called, when need make pop.
+  final void Function()? pop;
+
   /// [Attachment]s to attach to the [quotes].
   final RxObsList<MapEntry<GlobalKey, Attachment>> attachments;
 
@@ -96,7 +100,12 @@ class ChatForwardController extends GetxController {
     send = TextFieldState(
       text: text,
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) => forward(),
+      onSubmitted: (s) {
+        if (searchResults.value?.isEmpty == false) {
+          forward();
+          pop?.call();
+        }
+      },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&
