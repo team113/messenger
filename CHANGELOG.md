@@ -19,9 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Replies having reversed order in messages. ([#193], [#192])
+
 [#142]: /../../pull/142
 [#190]: /../../issues/190
 [#191]: /../../pull/191
+[#192]: /../../issues/192
+[#193]: /../../pull/193
 
 
 
