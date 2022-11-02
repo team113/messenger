@@ -22,7 +22,6 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/animated_delayed_scale.dart';
 
 import '../component/attachment_selector.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -36,11 +35,13 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/init_callback.dart';
+import '/ui/page/home/page/chat/widget/send_message_field.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
@@ -48,7 +49,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import '/ui/page/home/page/chat/widget/send_message_field.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///

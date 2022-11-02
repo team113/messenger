@@ -4,35 +4,35 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/chat_item_quote.dart';
-import 'package:messenger/domain/model/sending_status.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/home/page/chat/component/attachment_selector.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
-import 'package:messenger/ui/widget/animations.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 import 'package:path/path.dart' as p;
-import '/ui/page/home/page/chat/controller.dart';
-import '../../../../../../domain/model/user.dart';
-import '/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/platform_utils.dart';
-import '/api/backend/schema.dart' show ChatCallFinishReason;
 
-import '../../../../../../util/obs/obs.dart';
+import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/ui/page/home/page/chat/controller.dart';
+import '/domain/model/user.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
+import '/util/obs/obs.dart';
 import 'init_callback.dart';
 import 'video_thumbnail/video_thumbnail.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/sending_status.dart';
+import '/domain/repository/user.dart';
+import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/component/attachment_selector.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animations.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 
-///
+/// Send message field widget.
 class SendMessageField extends StatefulWidget {
   SendMessageField({
     Key? key,
@@ -103,6 +103,7 @@ class SendMessageField extends StatefulWidget {
   State<SendMessageField> createState() => _SendMessageFieldState();
 }
 
+/// [SendMessageField] state.
 class _SendMessageFieldState extends State<SendMessageField> {
   @override
   Widget build(BuildContext context) {
@@ -1114,37 +1115,38 @@ class _SendMessageFieldState extends State<SendMessageField> {
                               if (widget.attachments != null &&
                                   widget.attachments!.isNotEmpty &&
                                   widget.repliedMessages != null &&
-                                  widget.repliedMessages!.isNotEmpty)
+                                  widget.repliedMessages!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: grab
-                                      ? SystemMouseCursors.grab
-                                      : MouseCursor.defer,
-                                  opaque: false,
-                                  child: SingleChildScrollView(
-                                    clipBehavior: Clip.none,
-                                    physics: grab
-                                        ? null
-                                        : const NeverScrollableScrollPhysics(),
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: widget.attachments!
-                                          .map(
-                                            (e) => buildAttachment(
-                                              e.value,
-                                              e.key,
-                                            ),
-                                          )
-                                          .toList(),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: MouseRegion(
+                                    cursor: grab
+                                        ? SystemMouseCursors.grab
+                                        : MouseCursor.defer,
+                                    opaque: false,
+                                    child: SingleChildScrollView(
+                                      clipBehavior: Clip.none,
+                                      physics: grab
+                                          ? null
+                                          : const NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: widget.attachments!
+                                            .map(
+                                              (e) => buildAttachment(
+                                                e.value,
+                                                e.key,
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ]
                             ],
                           ),
                         );
