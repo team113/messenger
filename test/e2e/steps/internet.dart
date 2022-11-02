@@ -60,6 +60,46 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   }),
 );
 
+/// Removes delay from the [GraphQlProvider] requests.
+///
+/// Examples:
+/// - I have Internet without delay
+final StepDefinitionGeneric internet1 = given<CustomWorld>(
+  'I internet off',
+  (context) => Future.sync(() {
+    final GraphQlProvider provider = Get.find();
+    if (provider is MockGraphQlProvider) {
+      provider.client.delay = 3.seconds;
+      provider.client.throwException = false;
+    }
+
+    if (context.world.configFiles != null &&
+        context.world.configFiles!.isNotEmpty) {
+      Config.files = context.world.configFiles!;
+    }
+  }),
+);
+
+/// Removes delay from the [GraphQlProvider] requests.
+///
+/// Examples:
+/// - I have Internet without delay
+final StepDefinitionGeneric internet2 = given<CustomWorld>(
+  'I internet on',
+  (context) => Future.sync(() {
+    final GraphQlProvider provider = Get.find();
+    if (provider is MockGraphQlProvider) {
+      provider.client.delay = null;
+      provider.client.throwException = false;
+    }
+
+    if (context.world.configFiles != null &&
+        context.world.configFiles!.isNotEmpty) {
+      Config.files = context.world.configFiles!;
+    }
+  }),
+);
+
 /// Makes all [GraphQlProvider] requests throw a [ConnectionException].
 ///
 /// Examples:
