@@ -6,6 +6,6 @@ Feature: Image refetching
     And Bob has dialog with me
     And Bob sends image to me
 
-    When I open chat with Bob
+    When I am in chat with Bob
     Then I wait until image is loading
     And I wait until image is loaded
