@@ -288,49 +288,46 @@ class _ChatViewState extends State<ChatView>
                       },
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        gestures: c.horizontalScrollTimer.value == null
-                            ? {
-                                AllowMultipleHorizontalDragGestureRecognizer:
-                                    GestureRecognizerFactoryWithHandlers<
-                                        AllowMultipleHorizontalDragGestureRecognizer>(
-                                  () =>
-                                      AllowMultipleHorizontalDragGestureRecognizer(),
-                                  (AllowMultipleHorizontalDragGestureRecognizer
-                                      instance) {
-                                    instance.onStart = (d) {};
+                        gestures: {
+                          if (c.horizontalScrollTimer.value == null)
+                            AllowMultipleHorizontalDragGestureRecognizer:
+                                GestureRecognizerFactoryWithHandlers<
+                                    AllowMultipleHorizontalDragGestureRecognizer>(
+                              () =>
+                                  AllowMultipleHorizontalDragGestureRecognizer(),
+                              (AllowMultipleHorizontalDragGestureRecognizer
+                                  instance) {
+                                instance.onUpdate = (d) {
+                                  if (!c.isItemDragged.value) {
+                                    double value =
+                                        _animation.value - d.delta.dx / 100;
+                                    _animation.value = value.clamp(0, 1);
 
-                                    instance.onUpdate = (d) {
-                                      if (c.isItemDragged.isFalse) {
-                                        double value =
-                                            _animation.value - d.delta.dx / 100;
-                                        _animation.value = value.clamp(0, 1);
-
-                                        if (_animation.value == 1 ||
-                                            _animation.value == 0) {
-                                          if (c.timelineFeedback.isFalse) {
-                                            HapticFeedback.selectionClick();
-                                          }
-                                          c.timelineFeedback.value = true;
-                                        } else {
-                                          c.timelineFeedback.value = false;
-                                        }
+                                    if (_animation.value == 1 ||
+                                        _animation.value == 0) {
+                                      if (!c.timelineFeedback.value) {
+                                        HapticFeedback.selectionClick();
                                       }
-                                    };
-
-                                    instance.onEnd = (d) {
+                                      c.timelineFeedback.value = true;
+                                    } else {
                                       c.timelineFeedback.value = false;
-                                      if (!c.isItemDragged.value) {
-                                        if (_animation.value >= 0.5) {
-                                          _animation.forward();
-                                        } else {
-                                          _animation.reverse();
-                                        }
-                                      }
-                                    };
-                                  },
-                                )
-                              }
-                            : {},
+                                    }
+                                  }
+                                };
+
+                                instance.onEnd = (d) {
+                                  c.timelineFeedback.value = false;
+                                  if (!c.isItemDragged.value) {
+                                    if (_animation.value >= 0.5) {
+                                      _animation.forward();
+                                    } else {
+                                      _animation.reverse();
+                                    }
+                                  }
+                                };
+                              },
+                            )
+                        },
                         child: Stack(
                           children: [
                             // Required for the [Stack] to take [Scaffold]'s
@@ -2067,25 +2064,15 @@ extension DateTimeToRelative on DateTime {
   }
 }
 
-/// Custom [ScrollBehavior] allowing scrolling on drag.
+/// [ScrollBehavior] for scrolling with every available [PointerDeviceKind]s.
 class CustomScrollBehavior extends MaterialScrollBehavior {
-  // Override behavior methods and getters like dragDevices
   @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.stylus,
-        PointerDeviceKind.trackpad,
-        PointerDeviceKind.unknown,
-        // etc.
-      };
+  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
 }
 
-/// [GestureRecognizer] allowing multi horizontal drags.
+/// [GestureRecognizer] recognizing and allowing multiple horizontal drags.
 class AllowMultipleHorizontalDragGestureRecognizer
     extends HorizontalDragGestureRecognizer {
   @override
-  void rejectGesture(int pointer) {
-    acceptGesture(pointer);
-  }
+  void rejectGesture(int pointer) => acceptGesture(pointer);
 }

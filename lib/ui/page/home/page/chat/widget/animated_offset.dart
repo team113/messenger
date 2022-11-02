@@ -16,9 +16,9 @@
 
 import 'package:flutter/material.dart';
 
-/// Animated translation of the provided [child].
-class AnimatedTransform extends ImplicitlyAnimatedWidget {
-  const AnimatedTransform({
+/// Animated translation of the provided [child] on every [offset] changes.
+class AnimatedOffset extends ImplicitlyAnimatedWidget {
+  const AnimatedOffset({
     Key? key,
     required this.offset,
     Duration duration = const Duration(milliseconds: 250),
@@ -34,18 +34,17 @@ class AnimatedTransform extends ImplicitlyAnimatedWidget {
   final Widget child;
 
   @override
-  ImplicitlyAnimatedWidgetState<AnimatedTransform> createState() =>
-      _AnimatedTransformState();
+  ImplicitlyAnimatedWidgetState<AnimatedOffset> createState() =>
+      _AnimatedOffsetState();
 }
 
-/// State of an [AnimatedTransform] maintaining its [_animation] and
-/// [_transform].
-class _AnimatedTransformState
-    extends ImplicitlyAnimatedWidgetState<AnimatedTransform> {
-  /// [Animation] ot this [AnimatedTransform];
+/// State of an [AnimatedOffset] maintaining its [_animation] and [_transform].
+class _AnimatedOffsetState
+    extends ImplicitlyAnimatedWidgetState<AnimatedOffset> {
+  /// [Animation] animating the [Offset] changes.
   late Animation<Offset> _animation;
 
-  /// [Tween] ot this [_animation];
+  /// [Tween] to drive the [_animation] with.
   Tween<Offset>? _transform;
 
   @override
@@ -53,25 +52,19 @@ class _AnimatedTransformState
     _transform = visitor(
       _transform,
       widget.offset,
-      (dynamic value) => Tween<Offset>(begin: value as Offset),
+      (value) => Tween<Offset>(begin: value as Offset),
     ) as Tween<Offset>?;
   }
 
   @override
-  void didUpdateTweens() {
-    _animation = animation.drive(_transform!);
-  }
+  void didUpdateTweens() => _animation = animation.drive(_transform!);
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: _animation.value,
-          child: child!,
-        );
-      },
+      builder: (_, child) =>
+          Transform.translate(offset: _animation.value, child: child!),
       child: widget.child,
     );
   }

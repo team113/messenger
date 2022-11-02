@@ -47,7 +47,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import 'animated_transform.dart';
+import 'animated_offset.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -120,8 +120,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// in a gallery.
   final List<Attachment> Function()? onGallery;
 
-  /// Callback, called when the dragging state of this [ChatForwardWidget]
-  /// is changed.
+  /// Callback, called when a drag of these [forwards] starts or ends.
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [ChatForward] is tapped.
@@ -143,16 +142,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
-  /// [Offset] of this [ChatForwardWidget];
+  /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
+  /// gesture is happening.
   Offset _offset = Offset.zero;
 
-  /// [Duration] of the offset animation.
+  /// [Duration] to animate [_offset] changes with.
+  ///
+  /// Used to animate [_offset] resetting when swipe to reply gesture ends.
   Duration _offsetDuration = Duration.zero;
 
-  /// Indicator whether this [ChatForwardWidget] is being dragged.
+  /// Indicator whether this [ChatForwardWidget] is in an ongoing drag.
   bool _dragging = false;
 
-  /// Indicator whether dragging of this [ChatForwardWidget] is started.
+  /// Indicator whether [GestureDetector] of this [ChatForwardWidget] recognized
+  /// a horizontal drag start.
+  ///
+  /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
@@ -672,7 +677,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
-      child: AnimatedTransform(
+      child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
         curve: Curves.ease,

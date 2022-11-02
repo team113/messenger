@@ -53,7 +53,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import 'animated_transform.dart';
+import 'animated_offset.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -129,8 +129,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
 
-  /// Callback, called when the dragging state of this [ChatItemWidget] is
-  /// changed.
+  /// Callback, called when a drag of this [ChatItem] starts or ends.
   final void Function(bool)? onDrag;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
@@ -489,16 +488,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
-  /// [Offset] of this [ChatItemWidget];
+  /// [Offset] to translate this [ChatItemWidget] with when swipe to reply
+  /// gesture is happening.
   Offset _offset = Offset.zero;
 
-  /// [Duration] of the offset animation.
+  /// [Duration] to animate [_offset] changes with.
+  ///
+  /// Used to animate [_offset] resetting when swipe to reply gesture ends.
   Duration _offsetDuration = Duration.zero;
 
-  /// Indicator whether this [ChatItemWidget] is being dragged.
+  /// Indicator whether this [ChatItemWidget] is in an ongoing drag.
   bool _dragging = false;
 
-  /// Indicator whether dragging of this [ChatItemWidget] is started.
+  /// Indicator whether [GestureDetector] of this [ChatItemWidget] recognized a
+  /// horizontal drag start.
+  ///
+  /// This indicator doesn't mean that the started drag will become an ongoing.
   bool _draggingStarted = false;
 
   /// Indicates whether this [ChatItem] was read by any [User].
@@ -1242,7 +1247,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      child: AnimatedTransform(
+      child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
         curve: Curves.ease,

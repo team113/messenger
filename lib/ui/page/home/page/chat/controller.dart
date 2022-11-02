@@ -140,10 +140,13 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether an [ChatItem] is dragged.
+  /// Indicator whether any [ChatItem] is being dragged.
+  ///
+  /// Used to discard any horizontal gestures while this is `true`.
   final RxBool isItemDragged = RxBool(false);
 
-  /// Indicator whether timeline feedback was called.
+  /// Indicator whether [HapticFeedback.selectionClick] was invoked while
+  /// opening the timeline.
   final RxBool timelineFeedback = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [SingleChildScrollView]
