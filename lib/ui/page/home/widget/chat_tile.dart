@@ -105,16 +105,14 @@ class ChatTile extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Obx(
-                                () {
-                                  return Text(
-                                    chat?.title.value ?? ('dot'.l10n * 3),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: Theme.of(context).textTheme.headline5,
-                                  );
-                                }
-                              ),
+                              child: Obx(() {
+                                return Text(
+                                  chat?.title.value ?? ('dot'.l10n * 3),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
+                                );
+                              }),
                             ),
                             ...title,
                           ],

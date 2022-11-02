@@ -180,9 +180,12 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider,
-          userRepository,);
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
     await authService.init();
     Get.put(MyUserService(authService, myUserRepository));
 
