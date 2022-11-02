@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
     - Media panel:
-        - Scale down dragged participants. ([#191], [#190])
+        - Video resizing when dragged. ([#191], [#190])
 
 [#142]: /../../pull/142
 [#190]: /../../issues/190
