@@ -21,9 +21,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Messages have reversed replies. ([#169], [#166])
+        - Messages have reversed replies. ([#193], [#192])
 
 [#142]: /../../pull/142
+[#192]: /../../issues/192
+[#193]: /../../pull/193
 
 
 
