@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [UserCallCover].
@@ -48,7 +49,7 @@ class CallCoverWidget extends StatelessWidget {
               )
             : Stack(
                 children: [
-                  Image.network(
+                  RetryImage(
                     cover!.full.url,
                     width: double.infinity,
                     height: double.infinity,

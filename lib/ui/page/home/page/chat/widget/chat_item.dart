@@ -1011,13 +1011,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? Colors.white.withOpacity(0.25)
                       : Colors.black.withOpacity(0.03),
                   borderRadius: BorderRadius.circular(10),
-                  image: image == null
-                      ? null
-                      : DecorationImage(
-                          image: NetworkImage(image.medium.url),
-                          onError: (_, __) => widget.onAttachmentError?.call(),
-                          fit: BoxFit.cover,
-                        ),
                 ),
                 width: 50,
                 height: 50,
@@ -1027,7 +1020,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                         size: 28,
                       )
-                    : null,
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: RetryImage(
+                          image.medium.url,
+                          onForbidden: widget.onAttachmentError,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
               );
             })
             .take(3)

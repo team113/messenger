@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -37,6 +38,7 @@ class RetryImage extends StatefulWidget {
     this.loaderPadding,
     this.loaderStrokeWidth,
     this.onForbidden,
+    this.imageFilter,
   }) : super(key: key);
 
   /// URL of an image to display.
@@ -55,9 +57,14 @@ class RetryImage extends StatefulWidget {
   /// Width of the fetched image.
   final double? width;
 
+  /// [Padding] of loader.
   final EdgeInsetsGeometry? loaderPadding;
 
+  /// Loader stroke width.
   final double? loaderStrokeWidth;
+
+  /// [ImageFilter] of image.
+  final ImageFilter? imageFilter;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -93,13 +100,24 @@ class _RetryImageState extends State<RetryImage> {
   @override
   Widget build(BuildContext context) {
     if (_image != null) {
-      return Image.memory(
-        _image!,
-        key: const Key('RetryImageLoaded'),
-        height: widget.height,
-        width: widget.width,
-        fit: widget.fit,
-      );
+      return (widget.imageFilter == null)
+          ? Image.memory(
+              _image!,
+              key: const Key('RetryImageLoaded'),
+              height: widget.height,
+              width: widget.width,
+              fit: widget.fit,
+            )
+          : ImageFiltered(
+              imageFilter: widget.imageFilter!,
+              child: Image.memory(
+                _image!,
+                key: const Key('RetryImageLoaded'),
+                height: widget.height,
+                width: widget.width,
+                fit: widget.fit,
+              ),
+            );
     }
 
     return Container(
