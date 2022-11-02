@@ -132,8 +132,14 @@ void main() async {
   );
   await authService.init();
 
-  AbstractMyUserRepository myUserRepository =
-      MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+  UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  AbstractMyUserRepository myUserRepository = MyUserRepository(
+    graphQlProvider,
+    myUserProvider,
+    galleryItemProvider,
+    userRepository,
+  );
   MyUserService myUserService =
       Get.put(MyUserService(authService, myUserRepository));
 
@@ -197,8 +203,6 @@ void main() async {
       }).createChatDirectLink as MyUserEventsVersionedMixin?),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

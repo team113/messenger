@@ -322,13 +322,16 @@ void main() async {
     );
     await authService.init();
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    Get.put(MyUserService(authService, myUserRepository));
-
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
     Get.put(UserService(userRepository));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    Get.put(MyUserService(authService, myUserRepository));
 
     ContactRepository contactRepository = ContactRepository(
         graphQlProvider, contactProvider, userRepository, sessionProvider);

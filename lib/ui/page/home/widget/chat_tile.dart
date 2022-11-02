@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -104,11 +105,15 @@ class ChatTile extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                chat?.title.value ?? ('dot'.l10n * 3),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5,
+                              child: Obx(
+                                () {
+                                  return Text(
+                                    chat?.title.value ?? ('dot'.l10n * 3),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: Theme.of(context).textTheme.headline5,
+                                  );
+                                }
                               ),
                             ),
                             ...title,
