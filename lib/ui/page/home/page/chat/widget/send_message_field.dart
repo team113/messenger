@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/domain/service/user.dart';
@@ -44,6 +45,7 @@ class SendMessageField extends StatefulWidget {
     this.repliedMessages,
     this.attachments,
     this.onReorder,
+    this.quotes,
     required this.send,
     required this.me,
   }) : super(key: key);
@@ -60,6 +62,7 @@ class SendMessageField extends StatefulWidget {
 
   final void Function()? keepTyping;
   final void Function()? onSend;
+  final RxList<ChatItemQuote>? quotes;
 
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem>? repliedMessages;
@@ -618,6 +621,253 @@ class _SendMessageFieldState extends State<SendMessageField> {
       );
     }
 
+    /// Builds a visual representation of a [ChatController.repliedMessages].
+    Widget _forwardedMessage(
+      BuildContext context,
+      ChatItem item,
+    ) {
+      Style style = Theme.of(context).extension<Style>()!;
+      bool fromMe = item.authorId == widget.me;
+
+      Widget? content;
+      List<Widget> additional = [];
+
+      if (item is ChatMessage) {
+        var desc = StringBuffer();
+
+        if (item.text != null) {
+          desc.write(item.text!.val);
+        }
+
+        if (item.attachments.isNotEmpty) {
+          additional = item.attachments.map((a) {
+            ImageAttachment? image;
+
+            if (a is ImageAttachment) {
+              image = a;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(4),
+                image: image == null
+                    ? null
+                    : DecorationImage(image: NetworkImage(image.original.url)),
+              ),
+              width: 30,
+              height: 30,
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      size: 16,
+                    )
+                  : null,
+            );
+          }).toList();
+        }
+
+        if (desc.isNotEmpty) {
+          content = Text(
+            desc.toString(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style.boldBody,
+          );
+        }
+      } else if (item is ChatCall) {
+        String title = 'label_chat_call_ended'.l10n;
+        String? time;
+        bool fromMe = widget.me == item.authorId;
+        bool isMissed = false;
+
+        if (item.finishReason == null && item.conversationStartedAt != null) {
+          title = 'label_chat_call_ongoing'.l10n;
+        } else if (item.finishReason != null) {
+          title = item.finishReason!.localizedString(fromMe) ?? title;
+          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+              item.finishReason == ChatCallFinishReason.unanswered;
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        } else {
+          title = item.authorId == widget.me
+              ? 'label_outgoing_call'.l10n
+              : 'label_incoming_call'.l10n;
+        }
+
+        content = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+              child: item.withVideo
+                  ? SvgLoader.asset(
+                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 13,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 15,
+                    ),
+            ),
+            Flexible(child: Text(title, style: style.boldBody)),
+            if (time != null) ...[
+              const SizedBox(width: 9),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 1),
+                child: Text(
+                  time,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.boldBody
+                      .copyWith(color: const Color(0xFF888888), fontSize: 13),
+                ),
+              ),
+            ],
+          ],
+        );
+      } else if (item is ChatForward) {
+        // TODO: Implement `ChatForward`.
+        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+      } else if (item is ChatMemberInfo) {
+        // TODO: Implement `ChatMemberInfo`.
+        content = Text(item.action.toString(), style: style.boldBody);
+      } else {
+        content = Text('err_unknown'.l10n, style: style.boldBody);
+      }
+
+      return MouseRegion(
+        opaque: false,
+        onEnter: (d) => widget.hoveredReply.value = item,
+        onExit: (d) => widget.hoveredReply.value = null,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: FutureBuilder<RxUser?>(
+                    future: widget._userService.get(item.authorId),
+                    builder: (context, snapshot) {
+                      Color color = snapshot.data?.user.value.id == widget.me
+                          ? const Color(0xFF63B4FF)
+                          : AvatarWidget.colors[
+                              (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                  AvatarWidget.colors.length];
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              width: 2,
+                              color: color,
+                            ),
+                          ),
+                        ),
+                        margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FutureBuilder<RxUser?>(
+                              future: widget._userService.get(item.authorId),
+                              builder: (context, snapshot) {
+                                String? name;
+                                if (snapshot.hasData) {
+                                  name = snapshot.data?.user.value.name?.val;
+                                  if (snapshot.data?.user.value != null) {
+                                    return Obx(() {
+                                      Color color =
+                                          snapshot.data?.user.value.id ==
+                                                  widget.me
+                                              ? const Color(0xFF63B4FF)
+                                              : AvatarWidget.colors[snapshot
+                                                      .data!.user.value.num.val
+                                                      .sum() %
+                                                  AvatarWidget.colors.length];
+
+                                      return Text(
+                                          snapshot.data!.user.value.name?.val ??
+                                              snapshot.data!.user.value.num.val,
+                                          style: style.boldBody
+                                              .copyWith(color: color));
+                                    });
+                                  }
+                                }
+
+                                return Text(
+                                  name ?? '...',
+                                  style: style.boldBody
+                                      .copyWith(color: const Color(0xFF63B4FF)),
+                                );
+                              },
+                            ),
+                            if (content != null) ...[
+                              const SizedBox(height: 2),
+                              DefaultTextStyle.merge(
+                                maxLines: 1,
+                                child: content,
+                              ),
+                            ],
+                            if (additional.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Row(children: additional),
+                            ],
+                          ],
+                        ),
+                      );
+                    }),
+              ),
+              AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child:
+                    widget.hoveredReply.value == item || PlatformUtils.isMobile
+                        ? WidgetButton(
+                            key: const Key('CancelReplyButton'),
+                            onPressed: () {
+                              widget.quotes!.removeWhere((e) => e.item == item);
+                              if (widget.quotes!.isEmpty) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: Container(
+                              width: 15,
+                              height: 15,
+                              margin: const EdgeInsets.only(right: 4, top: 4),
+                              child: Container(
+                                key: const Key('Close'),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: style.cardColor,
+                                ),
+                                child: Center(
+                                  child: SvgLoader.asset(
+                                    'assets/icons/close_primary.svg',
+                                    width: 7,
+                                    height: 7,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return SafeArea(
       child: Container(
         key: const Key('SendField'),
@@ -671,6 +921,96 @@ class _SendMessageFieldState extends State<SendMessageField> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (widget.quotes != null &&
+                                  widget.quotes!.isNotEmpty)
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight:
+                                        MediaQuery.of(context).size.height / 3,
+                                  ),
+                                  child: ReorderableListView(
+                                    shrinkWrap: true,
+                                    buildDefaultDragHandles:
+                                        PlatformUtils.isMobile,
+                                    onReorder: (int old, int to) {
+                                      if (old < to) {
+                                        --to;
+                                      }
+
+                                      final ChatItemQuote item =
+                                          widget.quotes!.removeAt(old);
+                                      widget.quotes!.insert(to, item);
+
+                                      HapticFeedback.lightImpact();
+                                    },
+                                    proxyDecorator: (child, i, animation) {
+                                      return AnimatedBuilder(
+                                        animation: animation,
+                                        builder: (
+                                          BuildContext context,
+                                          Widget? child,
+                                        ) {
+                                          final double t = Curves.easeInOut
+                                              .transform(animation.value);
+                                          final double elevation =
+                                              lerpDouble(0, 6, t)!;
+                                          final Color color = Color.lerp(
+                                            const Color(0x00000000),
+                                            const Color(0x33000000),
+                                            t,
+                                          )!;
+
+                                          return InitCallback(
+                                            callback:
+                                                HapticFeedback.selectionClick,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  CustomBoxShadow(
+                                                    color: color,
+                                                    blurRadius: elevation,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: child,
+                                            ),
+                                          );
+                                        },
+                                        child: child,
+                                      );
+                                    },
+                                    reverse: true,
+                                    padding:
+                                        const EdgeInsets.fromLTRB(1, 0, 1, 0),
+                                    children: widget.quotes!.map((e) {
+                                      return ReorderableDragStartListener(
+                                        key: Key('Handle_${e.item.id}'),
+                                        enabled: !PlatformUtils.isMobile,
+                                        index: widget.quotes!.indexOf(e),
+                                        child: Dismissible(
+                                          key: Key('${e.item.id}'),
+                                          direction:
+                                              DismissDirection.horizontal,
+                                          onDismissed: (_) {
+                                            widget.quotes!.remove(e);
+                                            if (widget.quotes!.isEmpty) {
+                                              Navigator.of(context).pop();
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 2,
+                                            ),
+                                            child: _forwardedMessage(
+                                              context,
+                                              e.item,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
                               if (widget.repliedMessages != null &&
                                   widget.repliedMessages!.isNotEmpty)
                                 ConstrainedBox(

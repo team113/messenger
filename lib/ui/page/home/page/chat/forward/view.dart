@@ -194,6 +194,7 @@ class ChatForwardView extends StatelessWidget {
                           ),
                         ),
                         child: SendMessageField(
+                          quotes: c.quotes,
                           send: c.send,
                           attachments: c.attachments,
                           me: c.me,
