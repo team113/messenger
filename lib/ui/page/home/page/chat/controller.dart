@@ -283,7 +283,7 @@ class ChatController extends GetxController {
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessages,
+                repliesTo: repliedMessages.reversed.toList(),
                 attachments: attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
