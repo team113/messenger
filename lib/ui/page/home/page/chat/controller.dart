@@ -134,7 +134,8 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// [Attachment]s to be attached to a message.
-  RxMap<GlobalKey, Attachment> attachments = RxMap<GlobalKey, Attachment>();
+  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -285,8 +286,8 @@ class ChatController extends GetxController {
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessages,
-                attachments: attachments.values.toList(),
+                repliesTo: repliedMessages.reversed.toList(),
+                attachments: attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -484,7 +485,10 @@ class ChatController extends GetxController {
           const UserId(''),
           PreciseDateTime.now(),
           text: send.text.isEmpty ? null : ChatMessageText(send.text),
-          attachments: attachments.values.map((e) => e).toList(),
+          attachments: attachments
+              .where((e) => e.value is ImageAttachment)
+              .map((e) => e.value)
+              .toList(),
           repliesTo: repliedMessages,
         ),
       );
@@ -505,7 +509,7 @@ class ChatController extends GetxController {
       send.text = chatMessage?.text?.val ?? '';
       if (chatMessage?.attachments != null) {
         for (var element in chatMessage!.attachments) {
-          attachments.addAll({GlobalKey(): element});
+          attachments.add(MapEntry(GlobalKey(), element));
         }
       }
       repliedMessages.value = chatMessage?.repliesTo ?? [];
@@ -1101,13 +1105,13 @@ class ChatController extends GetxController {
     if (file.size < maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        GlobalKey key = GlobalKey();
-        attachments.addAll({key: attachment});
+        attachments.add(MapEntry(GlobalKey(), attachment));
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-        if (attachments.containsValue(attachment)) {
-          attachments[key] = uploaded;
+        int index = attachments.indexWhere((e) => e.value == attachment);
+        if (index != -1) {
+          attachments[index] = MapEntry(attachments[index].key, uploaded);
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
@@ -1552,4 +1556,12 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
+}
+
+class MyClass {
+  const MyClass(this.globalKey, this.attachment);
+
+  final GlobalKey globalKey;
+
+  final Rx<Attachment> attachment;
 }
