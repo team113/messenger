@@ -35,8 +35,6 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    context.world.configFiles = Config.files;
-    Config.files = '';
   }),
 );
 
@@ -51,11 +49,6 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
       provider.client.throwException = false;
-    }
-
-    if (context.world.configFiles != null &&
-        context.world.configFiles!.isNotEmpty) {
-      Config.files = context.world.configFiles!;
     }
   }),
 );
@@ -112,7 +105,5 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.delay = 2.seconds;
       provider.client.throwException = false;
     }
-    context.world.configFiles = Config.files;
-    Config.files = '';
   }),
 );
