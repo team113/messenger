@@ -37,21 +37,14 @@ class ResetAppHook extends Hook {
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
+
     await Get.deleteAll(force: true);
     Get.reset();
 
     await Future.delayed(Duration.zero);
     await Hive.close();
     await Hive.clean('hive');
-  }
-
-  @override
-  Future<void> onAfterScenarioWorldCreated(
-    World world,
-    String scenario,
-    Iterable<Tag> tags,
-  ) async {
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }
 
   @override

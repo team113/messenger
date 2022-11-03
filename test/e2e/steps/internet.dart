@@ -41,9 +41,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
     }
     PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
       ..onGet('*', (server) {});
-    Timer(delay.seconds, () {
-      PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
-    });
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }),
 );
 
