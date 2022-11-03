@@ -32,7 +32,7 @@ dependencies:
   flutter_app_badger: ^1.4.0
   flutter_background_service: ^2.1.3
   flutter_background_service_android: ^2.0.3
-  flutter_background_service_ios: ^2.1.0
+  # flutter_background_service_ios: ^2.1.0
   flutter_list_view: ^1.1.12
   flutter_local_notifications: ^10.0.0-dev.21
   flutter_svg: ^1.1.4
@@ -123,15 +123,8 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.6.0
-  # medea_flutter_webrtc:
-  #   git:
-  #     url: https://github.com/instrumentisto/flutter-webrtc
-  #     ref: 1e61067a0822b8877866011676f9d030bb9e99a4
-  # medea_jason:
-  #   git:
-  #     url: https://github.com/instrumentisto/medea-jason.git
-  #     path: flutter/
-  #     ref: b1b6f178c11b30242ed428abc3df15468aad423b
+  medea_flutter_webrtc: 0.8.0-dev+rev.d8614c179b76c3bfd4eb225891d327f7dca79209
+  medea_jason: 0.3.0-dev+rev.0fbcc1953be1c9fb816f10687b46499cef1698f8
 
 flutter:
   uses-material-design: true

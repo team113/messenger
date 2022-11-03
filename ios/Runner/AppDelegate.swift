@@ -1,6 +1,5 @@
 import UIKit
 import Flutter
-import flutter_background_service_ios
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -12,9 +11,6 @@ import flutter_background_service_ios
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
     GeneratedPluginRegistrant.register(with: self)
-    FlutterBackgroundServicePlugin.setPluginRegistrantCallback { registry in
-        GeneratedPluginRegistrant.register(with: registry)
-    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
