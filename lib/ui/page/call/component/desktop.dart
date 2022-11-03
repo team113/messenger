@@ -394,8 +394,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 c.secondaryDrags.value == 0;
 
             return MouseRegion(
-              opaque: false,
-              hitTestBehavior: HitTestBehavior.translucent,
               onEnter: enabled ? (d) => c.keepUi(true) : null,
               onHover: enabled ? (d) => c.keepUi(true) : null,
               onExit: enabled ? (d) => c.keepUi() : null,
