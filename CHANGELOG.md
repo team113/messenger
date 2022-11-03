@@ -19,9 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Replies having reversed order in messages. ([#193], [#192])
+
 [#63]: /../../issues/63
 [#142]: /../../pull/142
 [#172]: /../../pull/172
+[#192]: /../../issues/192
+[#193]: /../../pull/193
 
 
 
