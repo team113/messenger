@@ -76,6 +76,7 @@ class _PublicViewState extends State<PublicView>
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
+      value: 0,
     );
 
     super.initState();

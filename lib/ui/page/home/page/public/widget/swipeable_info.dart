@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -33,16 +34,20 @@ class SwipeableInfo extends StatelessWidget {
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
+    this.onPressed,
+    this.expanded = false,
   }) : super(key: key);
 
   /// Expanded width of the [swipeable].
-  static const double width = 65;
+  static const double width = 85;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
 
   /// Widget to display upon swipe.
   final Widget swipeable;
+
+  final bool expanded;
 
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
@@ -68,6 +73,8 @@ class SwipeableInfo extends StatelessWidget {
 
   /// Padding of a [swipeable].
   final EdgeInsetsGeometry padding;
+
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -111,27 +118,42 @@ class SwipeableInfo extends StatelessWidget {
   /// Returns a [Row] of [swipeable] and a status.
   Widget _swipeableWithStatus(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
-    return DefaultTextStyle.merge(
-      textAlign: TextAlign.end,
-      maxLines: 1,
-      overflow: TextOverflow.visible,
-      style: style.systemMessageTextStyle.copyWith(fontSize: 11),
-      // style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
-      child: Padding(
-        // padding: EdgeInsets.zero,
-        padding: const EdgeInsets.only(left: 8),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-          margin: const EdgeInsets.only(right: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: style.systemMessageBorder,
-            color: style.systemMessageColor,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [swipeable],
+    return Transform.translate(
+      offset: const Offset(0, 10),
+      child: WidgetButton(
+        onPressed: onPressed,
+        child: DefaultTextStyle.merge(
+          textAlign: TextAlign.end,
+          maxLines: 1,
+          overflow: TextOverflow.visible,
+          style: style.systemMessageTextStyle.copyWith(fontSize: 11),
+          // style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+          child: Padding(
+            // padding: EdgeInsets.zero,
+            padding: const EdgeInsets.only(left: 8),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+              margin: const EdgeInsets.only(right: 21),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: style.systemMessageBorder,
+                color: Colors.white,
+                // color: style.systemMessageColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    expanded ? Icons.expand_less : Icons.expand_more,
+                    color: const Color(0xFF888888),
+                    size: 15,
+                  ),
+                  const SizedBox(width: 3),
+                  swipeable,
+                ],
+              ),
+            ),
           ),
         ),
       ),
