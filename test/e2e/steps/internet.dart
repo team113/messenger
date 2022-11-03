@@ -103,7 +103,7 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.throwException = false;
+      provider.client.throwException = true;
     }
   }),
 );
