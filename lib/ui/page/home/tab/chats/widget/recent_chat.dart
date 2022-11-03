@@ -92,6 +92,22 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        badge: chat.unreadCount == 0
+            ? null
+            : Text(
+                // TODO: Implement and test notations like `4k`, `54m`, etc.
+                chat.unreadCount > 99
+                    ? '99${'plus'.l10n}'
+                    : '${chat.unreadCount}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  // fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                textAlign: TextAlign.center,
+              ),
         subtitle: [
           const SizedBox(height: 5),
           ConstrainedBox(
@@ -111,33 +127,35 @@ class RecentChatTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: 15),
-              if (chat.ongoingCall != null)
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 35),
-                      child: Text(
-                        DateTime.now()
-                            .difference(chat.ongoingCall!.at.val)
-                            .hhMmSs(),
-                        style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                      ),
-                    );
-                  },
-                )
-              else
-                Text(
-                  chat.updatedAt.val.toLocal().toShort(),
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
+
+              //   PeriodicBuilder(
+              //     period: const Duration(seconds: 1),
+              //     builder: (_) {
+              //       return ConstrainedBox(
+              //         constraints: const BoxConstraints(minWidth: 35),
+              //         child: Text(
+              //           DateTime.now()
+              //               .difference(chat.ongoingCall!.at.val)
+              //               .hhMmSs(),
+              //           style: Theme.of(context).textTheme.subtitle2?.copyWith(
+              //                 color: Theme.of(context).colorScheme.secondary,
+              //               ),
+              //         ),
+              //       );
+              //     },
+              //   )
+              // else
+              Text(
+                chat.ongoingCall == null
+                    ? chat.updatedAt.val.toLocal().toShort()
+                    : '',
+                style: Theme.of(context).textTheme.subtitle2,
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   _status(context),
-                  _counter(),
+                  // _counter(),
                 ],
               ),
             ],
@@ -236,7 +254,22 @@ class RecentChatTile extends StatelessWidget {
         if (item.finishedAt == null && item.finishReason == null) {
           subtitle = [
             widget,
-            Flexible(child: Text('label_call_active'.l10n)),
+            Flexible(
+              child: PeriodicBuilder(
+                period: const Duration(seconds: 1),
+                builder: (_) {
+                  return ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 35),
+                    child: Text(
+                      '${'label_call_active'.l10n}, ${DateTime.now().difference(chat.ongoingCall!.at.val).hhMmSs()}',
+                      style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                          // color: Theme.of(context).colorScheme.secondary,
+                          ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ];
         } else {
           final String description =
