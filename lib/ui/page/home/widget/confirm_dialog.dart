@@ -143,10 +143,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            child: ListView(
+            child: ListView.separated(
               physics: const ClampingScrollPhysics(),
               shrinkWrap: true,
-              children: widget.variants.map(button).toList(),
+              itemBuilder: (c, i) => button(widget.variants[i]),
+              separatorBuilder: (c, i) => const SizedBox(height: 10),
+              itemCount: widget.variants.length,
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)

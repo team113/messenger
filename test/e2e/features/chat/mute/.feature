@@ -20,21 +20,19 @@ Feature: Chat muting and unmuting
     Given I am Alice
     And user Bob
     And I have "Alice and Bob" group with Bob
+    And I wait until text "Alice and Bob" is present
 
   Scenario: User mutes chat
-    When I wait until text "Alice and Bob" is present
-    And I long press "Alice and Bob" chat
-    Then I tap `MuteChatButton` button
-
-    When I tap `MuteForever` button
+    When I long press "Alice and Bob" chat
+    And I tap `MuteChatButton` button
+    And I tap `MuteForever` button
     And I tap `Proceed` button
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmutes chat
-    Given "Alice and Bob" chat is muted
+    When "Alice and Bob" chat is muted
+    Then I see "Alice and Bob" chat as muted
 
-    When I see "Alice and Bob" chat as muted
-    Then I long press "Alice and Bob" chat
-
-    When I tap `UnmuteChatButton` button
+    When I long press "Alice and Bob" chat
+    And I tap `UnmuteChatButton` button
     Then I see "Alice and Bob" chat as unmuted

@@ -57,25 +57,17 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// Status of a [muteChat] completion.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning no [muteChat] is executing.
-  /// - `status.isLoading`, meaning [muteChat] is executing.
-  /// - `status.isError`, meaning [muteChat] got an error.
-  final Rx<RxStatus> muteStatus = Rx<RxStatus>(RxStatus.empty());
-
   /// List of the mute periods.
   ///
   /// `null` meaning mute forever.
-  final List<Duration?> muteDateTimes = const [
-    Duration(minutes: 15),
-    Duration(minutes: 30),
-    Duration(hours: 1),
-    Duration(hours: 6),
-    Duration(hours: 12),
-    Duration(days: 1),
-    Duration(days: 7),
+  final List<Duration?> muteDateTimes = [
+    const Duration(minutes: 15),
+    const Duration(minutes: 30),
+    const Duration(hours: 1),
+    const Duration(hours: 6),
+    const Duration(hours: 12),
+    const Duration(days: 1),
+    const Duration(days: 7),
     null,
   ];
 
@@ -214,7 +206,6 @@ class ChatsTabController extends GetxController {
 
   /// Mutes the [Chat] identified by the provided [id].
   Future<void> muteChat(ChatId id, {Duration? duration}) async {
-    muteStatus.value = RxStatus.loading();
     try {
       PreciseDateTime? dateTime;
       if (duration != null) {
@@ -223,9 +214,9 @@ class ChatsTabController extends GetxController {
 
       await _chatService.toggleChatMute(id, Muting(duration: dateTime));
     } on ToggleChatMuteException catch (e) {
-      muteStatus.value = RxStatus.error(e.toMessage());
+      MessagePopup.error(e);
     } catch (e) {
-      muteStatus.value = RxStatus.error(e.toString());
+      MessagePopup.error(e);
       rethrow;
     }
   }

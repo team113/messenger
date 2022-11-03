@@ -182,7 +182,7 @@ class _ChatViewState extends State<ChatView>
                                 overflow: TextOverflow.ellipsis,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Row(
                                       mainAxisAlignment:

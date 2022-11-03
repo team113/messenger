@@ -147,7 +147,8 @@ class _ChatWatchData {
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
-              chat.lastItem!.authorId != me?.call()) {
+              chat.lastItem!.authorId != me?.call() &&
+              chat.muted == null) {
             final StringBuffer body = StringBuffer();
 
             if (chat.lastItem is ChatMessage) {
@@ -195,7 +196,7 @@ class _ChatWatchData {
               body.write('label_forwarded_message'.l10n);
             }
 
-            if (body.isNotEmpty && chat.muted == null) {
+            if (body.isNotEmpty) {
               onNotification?.call(body.toString(), chat.lastItem?.id.val);
             }
           }
