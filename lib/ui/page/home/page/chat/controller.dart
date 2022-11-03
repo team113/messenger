@@ -145,15 +145,14 @@ class ChatController extends GetxController {
   /// Used to discard any horizontal gestures while this is `true`.
   final RxBool isItemDragged = RxBool(false);
 
-  /// Indicator whether [HapticFeedback.selectionClick] was invoked while
-  /// opening the timeline.
-  final RxBool timelineFeedback = RxBool(false);
+  /// Global scroll [Offset] to determine scroll direction.
+  Offset globalScrollOffset = Offset.zero;
 
-  /// [Timer] for discarding any vertical movement in a [SingleChildScrollView]
-  /// of [ChatItem]s when non-`null`.
+  /// Indicator whether a horizontal scrolling of the view is ongoing.
   ///
-  /// Indicates currently ongoing horizontal scroll of a view.
-  final Rx<Timer?> horizontalScrollTimer = Rx(null);
+  /// Used for discarding any vertical movement in a [SingleChildScrollView]
+  /// of [ChatItem]s when `true`.
+  RxBool isHorizontalScroll = RxBool(false);
 
   /// [GlobalKey] of the bottom bar.
   final GlobalKey bottomBarKey = GlobalKey();
@@ -363,7 +362,6 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
-    horizontalScrollTimer.value?.cancel();
     listController.removeListener(_updateFabStates);
     listController.dispose();
 

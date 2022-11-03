@@ -267,66 +267,60 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          // TODO: Use [PointerPanZoomUpdateEvent] here.
-                          if (s.scrollDelta.dy.abs() < 3 &&
-                              (s.scrollDelta.dx.abs() > 3 ||
-                                  c.horizontalScrollTimer.value != null)) {
-                            double value =
-                                _animation.value + s.scrollDelta.dx / 100;
-                            _animation.value = value.clamp(0, 1);
-
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 100.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
-                            }
-                          }
+                      onPointerMove: (d) {
+                        if (c.isHorizontalScroll.isFalse) {
+                          c.globalScrollOffset = c.globalScrollOffset.translate(
+                            d.delta.dx.abs(),
+                            d.delta.dy.abs(),
+                          );
                         }
                       },
                       child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
                         gestures: {
-                          if (c.horizontalScrollTimer.value == null)
-                            AllowMultipleHorizontalDragGestureRecognizer:
-                                GestureRecognizerFactoryWithHandlers<
-                                    AllowMultipleHorizontalDragGestureRecognizer>(
-                              () =>
-                                  AllowMultipleHorizontalDragGestureRecognizer(),
-                              (AllowMultipleHorizontalDragGestureRecognizer
-                                  instance) {
-                                instance.onUpdate = (d) {
-                                  if (!c.isItemDragged.value) {
-                                    double value =
-                                        _animation.value - d.delta.dx / 100;
-                                    _animation.value = value.clamp(0, 1);
+                          AllowMultipleHorizontalDragGestureRecognizer:
+                              GestureRecognizerFactoryWithHandlers<
+                                  AllowMultipleHorizontalDragGestureRecognizer>(
+                            () =>
+                                AllowMultipleHorizontalDragGestureRecognizer(),
+                            (AllowMultipleHorizontalDragGestureRecognizer
+                                instance) {
+                              instance.onUpdate = (d) {
+                                if (!c.isItemDragged.value &&
+                                    c.globalScrollOffset.dy.abs() < 7 &&
+                                    (c.globalScrollOffset.dx.abs() > 7 ||
+                                        c.isHorizontalScroll.isTrue)) {
+                                  double value =
+                                      (_animation.value - d.delta.dx / 100)
+                                          .clamp(0, 1);
 
-                                    if (_animation.value == 1 ||
-                                        _animation.value == 0) {
-                                      if (!c.timelineFeedback.value) {
-                                        HapticFeedback.selectionClick();
-                                      }
-                                      c.timelineFeedback.value = true;
-                                    } else {
-                                      c.timelineFeedback.value = false;
-                                    }
+                                  if (_animation.value != 1 && value == 1 ||
+                                      _animation.value != 0 && value == 0) {
+                                    HapticFeedback.selectionClick();
                                   }
-                                };
 
-                                instance.onEnd = (d) {
-                                  c.timelineFeedback.value = false;
-                                  if (!c.isItemDragged.value) {
-                                    if (_animation.value >= 0.5) {
-                                      _animation.forward();
-                                    } else {
-                                      _animation.reverse();
-                                    }
+                                  _animation.value = value.clamp(0, 1);
+                                  c.isHorizontalScroll.value = true;
+                                }
+                              };
+
+                              instance.onEnd = (d) async {
+                                c.isHorizontalScroll.value = false;
+                                c.globalScrollOffset = Offset.zero;
+                                if (!c.isItemDragged.value &&
+                                    _animation.value != 1 &&
+                                    _animation.value != 0) {
+                                  if (_animation.value >= 0.5) {
+                                    await _animation.forward();
+                                    HapticFeedback.selectionClick();
+                                  } else {
+                                    await _animation.reverse();
+                                    HapticFeedback.selectionClick();
                                   }
-                                };
-                              },
-                            )
+                                }
+                              };
+                            },
+                          )
                         },
                         child: Stack(
                           children: [
@@ -339,7 +333,7 @@ class _ChatViewState extends State<ChatView>
                               return FlutterListView(
                                 key: const Key('MessagesList'),
                                 controller: c.listController,
-                                physics: c.horizontalScrollTimer.value == null
+                                physics: c.isHorizontalScroll.isFalse
                                     ? const BouncingScrollPhysics()
                                     : const NeverScrollableScrollPhysics(),
                                 delegate: FlutterListViewDelegate(
@@ -1980,22 +1974,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox.shrink();
-  }
-
-  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
-  /// [duration].
-  ///
-  /// Defaults to 150 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.horizontalScrollTimer.value = null;
-    });
   }
 
   /// Builds a visual representation of an [UnreadMessagesElement].
