@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///
@@ -149,7 +150,7 @@ class _RetryImageState extends State<RetryImage> {
     Response? data;
 
     try {
-      data = await Dio().get(
+      data = await PlatformUtils.dio.get(
         widget.url,
         onReceiveProgress: (received, total) {
           if (total != -1) {

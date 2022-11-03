@@ -9,6 +9,7 @@ Feature: Image refetching
 
     When I am in chat with Bob
     Then I wait until image is loading
+    Then I pause for 10 seconds
 
     When I internet on
     Then I wait until image is loaded

@@ -43,7 +43,6 @@ import 'package:messenger/store/my_user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:network_image_mock/network_image_mock.dart';
 
 import 'my_profile_gallery_test.mocks.dart';
 
@@ -365,7 +364,6 @@ void main() async {
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const MyProfileView()));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byKey(const Key('AddGallery')), findsOneWidget);
     Get.find<MyUserService>().uploadGalleryItem(
       NativeFile(
@@ -374,15 +372,15 @@ void main() async {
         bytes: Uint8List.fromList([1, 1]),
       ),
     );
-    await mockNetworkImagesFor(
-        () async => await tester.pumpAndSettle(const Duration(seconds: 2)));
+    await tester.pump(const Duration(seconds: 2));
+
     expect(find.byKey(const Key('DeleteGallery')), findsOneWidget);
     expect(find.byKey(const Key('AvatarStatus')), findsOneWidget);
     expect(myUserService.myUser.value?.gallery, isNotEmpty);
 
     await tester.tap(find.byKey(const Key('AvatarStatus')));
-    await mockNetworkImagesFor(
-        () async => await tester.pumpAndSettle(const Duration(seconds: 2)));
+    await tester.pump(const Duration(seconds: 2));
+
     expect(
       myUserService.myUser.value?.avatar?.galleryItem?.id,
       const GalleryItemId('testId'),
@@ -393,14 +391,14 @@ void main() async {
     );
 
     await tester.tap(find.byKey(const Key('AvatarStatus')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
     expect(myUserService.myUser.value?.avatar?.galleryItem?.id, isNull);
     expect(myUserService.myUser.value?.callCover?.galleryItem?.id, isNull);
 
     await tester.tap(find.byKey(const Key('DeleteGallery')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AlertYesButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
     expect(find.byKey(const Key('DeleteGallery')), findsNothing);
     expect(myUserService.myUser.value?.gallery, isEmpty);
 

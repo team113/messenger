@@ -14,10 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:dio/adapter.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/platform_utils.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
 
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -60,16 +62,20 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
 final StepDefinitionGeneric internet1 = given<CustomWorld>(
   'I internet off',
   (context) => Future.sync(() {
-    final GraphQlProvider provider = Get.find();
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = 3.seconds;
-      provider.client.throwException = false;
-    }
+    // final GraphQlProvider provider = Get.find();
+    // if (provider is MockGraphQlProvider) {
+    //   provider.client.delay = 3.seconds;
+    //   provider.client.throwException = false;
+    // }
 
-    if (context.world.configFiles != null &&
-        context.world.configFiles!.isNotEmpty) {
-      Config.files = context.world.configFiles!;
-    }
+    // if (context.world.configFiles != null &&
+    //     context.world.configFiles!.isNotEmpty) {
+    //   Config.files = context.world.configFiles!;
+    // }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio);
+    DioAdapter(dio: PlatformUtils.dio).onGet('*', (server) {
+      // print('dioAdapter');
+    });
   }),
 );
 
@@ -80,16 +86,17 @@ final StepDefinitionGeneric internet1 = given<CustomWorld>(
 final StepDefinitionGeneric internet2 = given<CustomWorld>(
   'I internet on',
   (context) => Future.sync(() {
-    final GraphQlProvider provider = Get.find();
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = null;
-      provider.client.throwException = false;
-    }
+    // final GraphQlProvider provider = Get.find();
+    // if (provider is MockGraphQlProvider) {
+    //   provider.client.delay = null;
+    //   provider.client.throwException = false;
+    // }
 
-    if (context.world.configFiles != null &&
-        context.world.configFiles!.isNotEmpty) {
-      Config.files = context.world.configFiles!;
-    }
+    // if (context.world.configFiles != null &&
+    //     context.world.configFiles!.isNotEmpty) {
+    //   Config.files = context.world.configFiles!;
+    // }
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }),
 );
 

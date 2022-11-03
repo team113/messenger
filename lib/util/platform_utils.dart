@@ -43,6 +43,8 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  Dio dio = Dio();
+
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 
