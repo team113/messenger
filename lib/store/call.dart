@@ -97,7 +97,7 @@ class CallRepository implements AbstractCallRepository {
     if (chatCall != null) {
       call.value.call.value = chatCall;
     } else {
-      throw CallAlreadyJoinedException();
+      throw CallAlreadyJoinedException(response.deviceId);
     }
     calls[call.value.chatId.value]?.refresh();
   }
@@ -113,14 +113,13 @@ class CallRepository implements AbstractCallRepository {
     if (chatCall != null) {
       call.value.call.value = chatCall;
     } else {
-      throw CallAlreadyJoinedException();
+      throw CallAlreadyJoinedException(response.deviceId);
     }
   }
 
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
-    calls.remove(chatId);
   }
 
   @override

@@ -640,10 +640,8 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) {
-    print('[ChatRepository] Remove credentials of $id');
-    return _credentialsProvider.remove(id);
-  }
+  Future<void> removeCredentials(ChatItemId id) =>
+      _credentialsProvider.remove(id);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(

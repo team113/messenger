@@ -146,6 +146,11 @@ class CallDoesNotExistException
 class CallAlreadyJoinedException
     with LocalizedExceptionMixin
     implements Exception {
+  const CallAlreadyJoinedException(this.deviceId);
+
+  /// [ChatCallDeviceId] of the already joined device.
+  final ChatCallDeviceId deviceId;
+
   @override
   String toMessage() => 'err_call_already_joined'.l10n;
 }

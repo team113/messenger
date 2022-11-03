@@ -445,7 +445,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ChatService chatService =
                   deps.put(ChatService(chatRepository, Get.find()));
               deps.put(CallService(
-                  Get.find(), chatService, settingsRepository, callRepository));
+                Get.find(),
+                chatService,
+                settingsRepository,
+                callRepository,
+              ));
 
               return deps;
             },

@@ -41,9 +41,6 @@ typedef InputDevices = RxList<MediaDeviceInfo>;
 
 /// Possible states of an [OngoingCall].
 enum OngoingCallState {
-  // TODO: ???
-  // notStarted,
-
   /// Initialized locally, so a server is not yet aware of it.
   local,
 

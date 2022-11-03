@@ -56,7 +56,7 @@ class CallService extends DisposableService {
   /// [AuthService] to get the authenticated [MyUser].
   final AuthService _authService;
 
-  /// [ChatService] to access the [Chat.ongoingCall].
+  /// [ChatService] to access a [Chat.ongoingCall].
   final ChatService _chatService;
 
   /// Repository of [OngoingCall]s collection.
@@ -143,7 +143,7 @@ class CallService extends DisposableService {
       throw CallIsInPopupException();
     }
 
-    Rx<OngoingCall>? stored = _callsRepo[chatId];
+    final Rx<OngoingCall>? stored = _callsRepo[chatId];
     ChatCallCredentials? credentials = stored?.value.creds;
 
     try {
@@ -175,7 +175,12 @@ class CallService extends DisposableService {
         );
 
         _callsRepo.add(call);
-        await _callsRepo.join(call);
+        try {
+          await _callsRepo.join(call);
+        } on CallAlreadyJoinedException catch (e) {
+          await _callsRepo.leave(chatId, e.deviceId);
+          await _callsRepo.join(call);
+        }
         call.value.connect(this);
       } else if (stored.value.state.value != OngoingCallState.active) {
         stored.value.state.value = OngoingCallState.joining;
@@ -206,6 +211,7 @@ class CallService extends DisposableService {
 
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
+      _callsRepo.remove(chatId);
     }
 
     WebUtils.removeCall(chatId);
