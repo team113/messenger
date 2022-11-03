@@ -1224,7 +1224,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             style: style.boldBody.copyWith(fontSize: 17),
                             type: TextInputType.multiline,
-                            textInputAction: TextInputAction.newline,
+                            textInputAction: TextInputAction.send,
                           ),
                         ),
                       ),

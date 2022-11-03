@@ -463,6 +463,34 @@ class ChatController extends GetxController {
             }
           }
         },
+        focus: FocusNode(
+          onKey: (FocusNode node, RawKeyEvent e) {
+            if (e.logicalKey == LogicalKeyboardKey.enter &&
+                e is RawKeyDownEvent) {
+              if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+                int cursor;
+
+                if (edit!.controller.selection.isCollapsed) {
+                  cursor = edit!.controller.selection.base.offset;
+                  edit!.text =
+                      '${edit!.text.substring(0, cursor)}\n${edit!.text.substring(cursor, edit!.text.length)}';
+                } else {
+                  cursor = edit!.controller.selection.start;
+                  edit!.text =
+                      '${edit!.text.substring(0, edit!.controller.selection.start)}\n${edit!.text.substring(edit!.controller.selection.end, edit!.text.length)}';
+                }
+
+                edit!.controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: cursor + 1));
+              } else if (!e.isShiftPressed) {
+                edit!.submit();
+                return KeyEventResult.handled;
+              }
+            }
+
+            return KeyEventResult.ignored;
+          },
+        ),
       )..focus.requestFocus();
     }
   }
