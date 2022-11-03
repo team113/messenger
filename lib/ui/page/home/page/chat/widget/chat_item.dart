@@ -1279,6 +1279,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   key: Key('Message_${item.id}'),
                   type: MaterialType.transparency,
                   child: ContextMenuRegion(
+                    preventContextMenu: false,
                     alignment:
                         _fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
                     actions: [
