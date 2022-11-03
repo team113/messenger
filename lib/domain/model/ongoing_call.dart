@@ -435,7 +435,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
-                  if(node.user.id == _me.userId) {
+                  if (node.user.id == _me.userId) {
                     break;
                   }
 
@@ -452,7 +452,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  if(node.user.id == _me.userId) {
+                  if (node.user.id == _me.userId) {
                     break;
                   }
 
