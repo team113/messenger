@@ -5,11 +5,10 @@ Feature: Image refetching
     And user Bob
     And Bob has dialog with me
     And Bob sends image to me
-    And I internet off
+    And I have Internet with delay of 2 seconds
 
     When I am in chat with Bob
     Then I wait until image is loading
-    Then I pause for 10 seconds
 
-    When I internet on
+    When I have Internet without delay
     Then I wait until image is loaded

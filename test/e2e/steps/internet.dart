@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:dio/adapter.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -37,6 +39,11 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (server) {});
+    Timer(delay.seconds, () {
+      PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
+    });
   }),
 );
 
@@ -52,6 +59,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }),
 );
 
@@ -72,10 +80,8 @@ final StepDefinitionGeneric internet1 = given<CustomWorld>(
     //     context.world.configFiles!.isNotEmpty) {
     //   Config.files = context.world.configFiles!;
     // }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio);
-    DioAdapter(dio: PlatformUtils.dio).onGet('*', (server) {
-      // print('dioAdapter');
-    });
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (server) {});
   }),
 );
 
@@ -112,5 +118,7 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.delay = 2.seconds;
       provider.client.throwException = true;
     }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (server) {});
   }),
 );
