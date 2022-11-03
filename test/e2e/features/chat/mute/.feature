@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Toggle chat muting
+Feature: Chat muting and unmuting
 
   Background: User is in group chat with Bob
     Given I am Alice
@@ -31,7 +31,7 @@ Feature: Toggle chat muting
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmutes chat
-    Given chat "Alice and Bob" is muted
+    Given "Alice and Bob" chat is muted
 
     When I see "Alice and Bob" chat as muted
     Then I long press "Alice and Bob" chat

@@ -21,8 +21,8 @@ import '../configuration.dart';
 import '../parameters/muted_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether the [Chat] with the provided name displayed with the
-/// specified [MutedStatus]  or not.
+/// Indicates whether a [Chat] with the provided name is displayed with the
+/// specified [MutedStatus] or not.
 final StepDefinitionGeneric seeChatAsMuted =
     then2<String, MutedStatus, CustomWorld>(
   'I see {string} chat as {muted}',

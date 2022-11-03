@@ -17,7 +17,7 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 
-/// [MutedStatus]es available in an [MutedStatusParameter].
+/// Status of a [Chat.muted] field available in an [MutedStatusParameter].
 enum MutedStatus { muted, unmuted }
 
 /// [CustomParameter] representing an [Chat] mute status.

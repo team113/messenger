@@ -98,7 +98,7 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
-  /// [Timer], used to unmmute [Chat].
+  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
 
   /// [ChatItemHiveProvider.boxEvents] subscription.

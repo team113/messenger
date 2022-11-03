@@ -26,9 +26,9 @@ import '../world/custom_world.dart';
 /// Mutes the [Chat] with the provided name.
 ///
 /// Examples:
-/// - Given chat "Name" is muted.
+/// - Given "Name" chat is muted.
 final StepDefinitionGeneric chatIsMuted = given1<String, CustomWorld>(
-  'chat {string} is muted',
+  '{string} chat is muted',
   (String name, context) async {
     final provider = GraphQlProvider();
     final AuthService authService = Get.find();

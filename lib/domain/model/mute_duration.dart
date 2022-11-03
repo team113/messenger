@@ -24,10 +24,10 @@ part 'mute_duration.g.dart';
 /// Mute duration of a [Chat] or [MyUser].
 @HiveType(typeId: ModelTypeId.muteDuration)
 class MuteDuration {
-  /// Mute duration until an exact datetime.
+  /// Mute duration until an exact [PreciseDateTime].
   ///
-  /// Once this datetime pasts (or is in the past already), it should be
-  /// considered as automatically unmuted.
+  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
+  /// be considered as automatically unmuted.
   @HiveField(0)
   PreciseDateTime? until;
 

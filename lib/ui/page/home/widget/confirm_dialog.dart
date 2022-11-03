@@ -143,11 +143,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            fit: FlexFit.loose,
             child: ListView(
               physics: const ClampingScrollPhysics(),
               shrinkWrap: true,
-              children: [for (var variant in widget.variants) button(variant)],
+              children: widget.variants.map(button).toList(),
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)

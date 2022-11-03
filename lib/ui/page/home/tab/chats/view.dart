@@ -110,8 +110,7 @@ class ChatsTabView extends StatelessWidget {
                                         for (Duration? duration
                                             in c.muteDateTimes)
                                           ConfirmDialogVariant(
-                                            onProceed: () async =>
-                                                await c.muteChat(
+                                            onProceed: () => c.muteChat(
                                               chat.id,
                                               duration: duration,
                                             ),
