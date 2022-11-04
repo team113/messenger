@@ -406,7 +406,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put<AbstractUserRepository>(userRepository);
               AbstractCallRepository callRepository =
-              deps.put<AbstractCallRepository>(CallRepository(
+                  deps.put<AbstractCallRepository>(CallRepository(
                 graphQlProvider,
                 userRepository,
                 Get.find(),
@@ -499,7 +499,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             );
             deps.put<AbstractUserRepository>(userRepository);
             AbstractCallRepository callRepository =
-            deps.put<AbstractCallRepository>(CallRepository(
+                deps.put<AbstractCallRepository>(CallRepository(
               graphQlProvider,
               userRepository,
               Get.find(),

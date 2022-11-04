@@ -372,8 +372,14 @@ void main() async {
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    Get.put(CallService(
-        authService, chatService, settingsRepository, callRepository));
+    Get.put(
+      CallService(
+        authService,
+        chatService,
+        settingsRepository,
+        callRepository,
+      ),
+    );
     Get.put(UserService(userRepository));
 
     await tester.pumpWidget(createWidgetForTesting(

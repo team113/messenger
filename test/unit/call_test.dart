@@ -328,8 +328,14 @@ void main() async {
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    CallService callService =
-        Get.put(CallService(authService, chatService, settingsRepository, callRepository));
+    CallService callService = Get.put(
+      CallService(
+        authService,
+        chatService,
+        settingsRepository,
+        callRepository,
+      ),
+    );
     callService.onReady();
 
     await Future.delayed(Duration.zero);
