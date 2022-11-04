@@ -232,6 +232,7 @@ void main() async {
 
   test('CallService registers and successfully answers the call', () async {
     final graphQlProvider = _FakeGraphQlProvider();
+    Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
@@ -459,6 +460,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     ));
     return Future.value(ongoingCallStream.stream);
   }
+
+  @override
+  Future<Stream<QueryResult>> recentChatsTopEvents(int count) =>
+      Future.value(const Stream.empty());
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
