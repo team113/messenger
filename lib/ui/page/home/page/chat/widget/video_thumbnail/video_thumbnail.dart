@@ -139,7 +139,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                       child: VideoPlayer(_controller),
                     ),
                   ),
-                  ContextMenuInterceptor(child: const SizedBox())
+                  ContextMenuInterceptor(child: const SizedBox()),
+                  // [Container] to receive pointer events since
+                  // [ContextMenuInterceptor] intercepts its.
+                  Container(color: Colors.transparent),
                 ],
               ),
             )
