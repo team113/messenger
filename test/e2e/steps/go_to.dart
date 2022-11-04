@@ -32,7 +32,7 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
 );
 
 /// Routes the [RouterState] to the previous page.
-final StepDefinitionGeneric backToPreviousPage = then<CustomWorld>(
+final StepDefinitionGeneric returnToPreviousPage = then<CustomWorld>(
   'I return to previous page',
   (context) async {
     router.pop();

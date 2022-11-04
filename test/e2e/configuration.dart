@@ -72,7 +72,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
-        backToPreviousPage,
         cancelFileDownload,
         changeChatAvatar,
         copyFromField,
@@ -94,6 +93,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         restartApp,
+        returnToPreviousPage,
         scrollAndSee,
         seesAs,
         sendsAttachmentToMe,
