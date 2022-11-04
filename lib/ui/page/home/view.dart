@@ -166,9 +166,9 @@ class _HomeViewState extends State<HomeView> {
 
                             // [KeepAlivePage] used to keep the tabs' states.
                             children: const [
-                              KeepAlivePage(child: FinanceTabView()),
+                              // KeepAlivePage(child: FinanceTabView()),
                               KeepAlivePage(child: ContactsTabView()),
-                              KeepAlivePage(child: PublicsTabView()),
+                              // KeepAlivePage(child: PublicsTabView()),
                               KeepAlivePage(child: ChatsTabView()),
                               KeepAlivePage(
                                 child: MenuTabView(),
@@ -185,7 +185,7 @@ class _HomeViewState extends State<HomeView> {
                         key: const Key('NavigationBar'),
                         child: Obx(() {
                           Widget animated({
-                            HomeTab tab = HomeTab.finance,
+                            HomeTab tab = HomeTab.contacts,
                             required Widget child,
                           }) {
                             return Obx(() {
@@ -207,19 +207,19 @@ class _HomeViewState extends State<HomeView> {
                                 unselectedColor: const Color(0xFF88c6ff),
                                 size: 30,
                                 items: [
-                                  CustomNavigationBarItem(
-                                    key: const Key('FinanceButton'),
-                                    // icon: FontAwesomeIcons.solidCircleUser,
-                                    // label: 'label_tab_contacts'.l10n,
-                                    leading: animated(
-                                      tab: HomeTab.finance,
-                                      child: SvgLoader.asset(
-                                        'assets/icons/money.svg',
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                    ),
-                                  ),
+                                  // CustomNavigationBarItem(
+                                  //   key: const Key('FinanceButton'),
+                                  //   // icon: FontAwesomeIcons.solidCircleUser,
+                                  //   // label: 'label_tab_contacts'.l10n,
+                                  //   leading: animated(
+                                  //     tab: HomeTab.finance,
+                                  //     child: SvgLoader.asset(
+                                  //       'assets/icons/money.svg',
+                                  //       width: 30,
+                                  //       height: 30,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   CustomNavigationBarItem(
                                     key: const Key('ContactsButton'),
                                     leading: animated(
@@ -231,20 +231,20 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     ),
                                   ),
-                                  CustomNavigationBarItem(
-                                    key: const Key('PublicsButton'),
-                                    badge: c.unreadChatsCount.value == 0
-                                        ? null
-                                        : '${c.unreadChatsCount.value}',
-                                    leading: animated(
-                                      tab: HomeTab.public,
-                                      child: SvgLoader.asset(
-                                        'assets/icons/publics.svg',
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                    ),
-                                  ),
+                                  // CustomNavigationBarItem(
+                                  //   key: const Key('PublicsButton'),
+                                  //   badge: c.unreadChatsCount.value == 0
+                                  //       ? null
+                                  //       : '${c.unreadChatsCount.value}',
+                                  //   leading: animated(
+                                  //     tab: HomeTab.public,
+                                  //     child: SvgLoader.asset(
+                                  //       'assets/icons/publics.svg',
+                                  //       width: 30,
+                                  //       height: 30,
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   CustomNavigationBarItem(
                                     key: const Key('ChatsButton'),
                                     badge: c.unreadChatsCount.value == 0

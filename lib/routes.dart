@@ -101,7 +101,13 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { finance, contacts, public, chats, menu }
+enum HomeTab {
+  // finance,
+  contacts,
+  // public,
+  chats,
+  menu,
+}
 
 /// Application's router state.
 ///
@@ -269,12 +275,12 @@ class AppRouteInformationParser
       case Routes.menu:
         configuration = RouteConfiguration(Routes.home, HomeTab.menu);
         break;
-      case Routes.finance:
-        configuration = RouteConfiguration(Routes.home, HomeTab.finance);
-        break;
-      case Routes.public:
-        configuration = RouteConfiguration(Routes.home, HomeTab.public);
-        break;
+      // case Routes.finance:
+      //   configuration = RouteConfiguration(Routes.home, HomeTab.finance);
+      //   break;
+      // case Routes.public:
+      //   configuration = RouteConfiguration(Routes.home, HomeTab.public);
+      //   break;
       default:
         configuration = RouteConfiguration(routeInformation.location!, null);
         break;
@@ -299,12 +305,12 @@ class AppRouteInformationParser
         case HomeTab.menu:
           route = Routes.menu;
           break;
-        case HomeTab.finance:
-          route = Routes.finance;
-          break;
-        case HomeTab.public:
-          route = Routes.public;
-          break;
+        // case HomeTab.finance:
+        //   route = Routes.finance;
+        //   break;
+        // case HomeTab.public:
+        //   route = Routes.public;
+        //   break;
       }
     }
 
@@ -646,12 +652,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         case HomeTab.menu:
           WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
-        case HomeTab.finance:
-          WebUtils.title('$prefix${'label_tab_finance'.l10n}');
-          break;
-        case HomeTab.public:
-          WebUtils.title('$prefix${'label_tab_public'.l10n}');
-          break;
+        // case HomeTab.finance:
+        //   WebUtils.title('$prefix${'label_tab_finance'.l10n}');
+        //   break;
+        // case HomeTab.public:
+        //   WebUtils.title('$prefix${'label_tab_public'.l10n}');
+        //   break;
       }
     } else {
       WebUtils.title('Gapopa');

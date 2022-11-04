@@ -122,44 +122,23 @@ class RecentChatTile extends StatelessWidget {
         ],
         trailing: [
           _callButtons(context),
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(height: 15),
-
-              //   PeriodicBuilder(
-              //     period: const Duration(seconds: 1),
-              //     builder: (_) {
-              //       return ConstrainedBox(
-              //         constraints: const BoxConstraints(minWidth: 35),
-              //         child: Text(
-              //           DateTime.now()
-              //               .difference(chat.ongoingCall!.at.val)
-              //               .hhMmSs(),
-              //           style: Theme.of(context).textTheme.subtitle2?.copyWith(
-              //                 color: Theme.of(context).colorScheme.secondary,
-              //               ),
-              //         ),
-              //       );
-              //     },
-              //   )
-              // else
-              Text(
-                chat.ongoingCall == null
-                    ? chat.updatedAt.val.toLocal().toShort()
-                    : '',
-                style: Theme.of(context).textTheme.subtitle2,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _status(context),
-                  // _counter(),
-                ],
-              ),
-            ],
-          ),
+          if (chat.ongoingCall == null) ...[
+            const SizedBox(width: 7),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const SizedBox(height: 15),
+                Text(
+                  chat.ongoingCall == null
+                      ? chat.updatedAt.val.toLocal().toShort()
+                      : '',
+                  style: Theme.of(context).textTheme.subtitle2,
+                ),
+                const SizedBox(height: 8),
+                _status(context),
+              ],
+            ),
+          ],
         ],
         actions: [
           ContextMenuButton(
@@ -255,19 +234,11 @@ class RecentChatTile extends StatelessWidget {
           subtitle = [
             widget,
             Flexible(
-              child: PeriodicBuilder(
-                period: const Duration(seconds: 1),
-                builder: (_) {
-                  return ConstrainedBox(
-                    constraints: const BoxConstraints(minWidth: 35),
-                    child: Text(
-                      '${'label_call_active'.l10n}, ${DateTime.now().difference(chat.ongoingCall!.at.val).hhMmSs()}',
-                      style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                          // color: Theme.of(context).colorScheme.secondary,
-                          ),
+              child: Text(
+                'label_call_active'.l10n,
+                style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                    // color: Theme.of(context).colorScheme.secondary,
                     ),
-                  );
-                },
               ),
             ),
           ];
@@ -457,7 +428,7 @@ class RecentChatTile extends StatelessWidget {
       padding: const EdgeInsets.only(left: 5),
       child: Obx(() {
         final Chat chat = rxChat.chat.value;
-        final Widget trailing;
+        Widget trailing;
 
         if (chat.ongoingCall != null) {
           if (inCall?.call() == true) {
@@ -501,6 +472,28 @@ class RecentChatTile extends StatelessWidget {
               ),
             );
           }
+
+          trailing = Column(
+            key: trailing.key,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              trailing,
+              const SizedBox(height: 4),
+              PeriodicBuilder(
+                period: const Duration(seconds: 1),
+                builder: (_) {
+                  return Text(
+                    DateTime.now()
+                        .difference(chat.ongoingCall!.at.val)
+                        .hhMmSs(),
+                    style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                  );
+                },
+              ),
+            ],
+          );
         } else {
           trailing = Container(key: const Key('NoCall'));
         }
