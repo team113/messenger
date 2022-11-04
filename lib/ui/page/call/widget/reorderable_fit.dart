@@ -1002,11 +1002,11 @@ class _ReorderableDraggableState<T extends Object>
   /// Indicator whether this [_ReorderableDraggable] is dragged.
   bool _isDragged = false;
 
-  /// Reactive [Offset] of the anchor of this [_ReorderableDraggable] when it's
+  /// Reactive [Offset] of an anchor of this [_ReorderableDraggable] when it's
   /// dragged.
   final Rx<Offset?> _position = Rx(Offset.zero);
 
-  /// Reactive [BoxConstraints] the [_ReorderableDraggable.item] should take
+  /// Reactive [BoxConstraints] the [_ReorderableDraggable.item] should occupy
   /// passed to a [_Resizable] to animate its changes.
   final Rx<BoxConstraints?> _constraints = Rx(null);
 
@@ -1130,7 +1130,7 @@ class _Resizable extends StatelessWidget {
   /// Initial [BoxConstraints] of this [_Resizable].
   final BoxConstraints layout;
 
-  /// [Offset] position of the anchor.
+  /// [Offset] position of a drag anchor.
   final Rx<Offset?> position;
 
   /// Target [BoxConstraints] of this [_Resizable] to occupy.
