@@ -92,7 +92,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressMessageByText,
         longPressWidget,
         noInternetConnection,
-        noInternetConnectionWithoutException,
         openChatInfo,
         pasteToField,
         restartApp,

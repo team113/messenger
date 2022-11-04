@@ -76,27 +76,7 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.throwException = false;
+      provider.client.throwException = true;
     }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (server) {});
-  }),
-);
-
-/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
-///
-/// Examples:
-/// - I do not have Internet
-final StepDefinitionGeneric noInternetConnectionWithoutException =
-    given<CustomWorld>(
-  'I do not have Internet without exception',
-  (context) => Future.sync(() {
-    final GraphQlProvider provider = Get.find();
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = 2.seconds;
-      provider.client.throwException = false;
-    }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (server) {});
   }),
 );
