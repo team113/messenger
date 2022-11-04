@@ -98,7 +98,7 @@ class ChatTile extends StatelessWidget {
               child: Row(
                 children: [
                   Badge(
-                    position: BadgePosition.topStart(start: 0, top: -5),
+                    position: BadgePosition.bottomStart(start: 0, bottom: -5),
                     showBadge: badge != null,
                     badgeContent: badge,
                     child: AvatarWidget.fromRxChat(chat, radius: 30),

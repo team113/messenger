@@ -133,7 +133,7 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: ConditionalBackdropFilter(
-                    condition: context.isNarrow,
+                    condition: context.isNarrow && !PlatformUtils.isIOS,
                     filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                     child: Scaffold(
                       backgroundColor:
