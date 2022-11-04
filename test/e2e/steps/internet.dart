@@ -17,6 +17,8 @@
 import 'dart:async';
 
 import 'package:dio/adapter.dart';
+import 'package:dio/adapter_browser.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -41,6 +43,9 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
     }
     PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
       ..onGet('*', (server) {});
+    // Timer(delay.seconds, () {
+    //   PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
+    // });
   }),
 );
 
@@ -56,7 +61,9 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
+    PlatformUtils.dio.httpClientAdapter = PlatformUtils.isWeb
+        ? BrowserHttpClientAdapter()
+        : DefaultHttpClientAdapter();
   }),
 );
 
@@ -70,7 +77,27 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.throwException = true;
+      provider.client.throwException = false;
     }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (server) {});
+  }),
+);
+
+/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
+///
+/// Examples:
+/// - I do not have Internet
+final StepDefinitionGeneric noInternetConnectionWithoutException =
+    given<CustomWorld>(
+  'I do not have Internet without exception',
+  (context) => Future.sync(() {
+    final GraphQlProvider provider = Get.find();
+    if (provider is MockGraphQlProvider) {
+      provider.client.delay = 2.seconds;
+      provider.client.throwException = false;
+    }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (server) {});
   }),
 );

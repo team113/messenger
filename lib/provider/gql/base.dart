@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show Dio, DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -205,7 +206,7 @@ class GraphQlClient {
     void Function(int, int)? onSendProgress,
   }) =>
       _middleware(() async {
-        var client = dio.Dio();
+        var client = PlatformUtils.dio;
         var authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
         authorized.headers!['Authorization'] = 'Bearer $token';

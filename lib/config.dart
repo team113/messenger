@@ -139,8 +139,8 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        var response =
-            await Dio().fetch(RequestOptions(path: '$url:$port/conf.toml'));
+        var response = await PlatformUtils.dio
+            .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
           Map<String, dynamic> remote =
               TomlDocument.parse(response.data.toString()).toMap();

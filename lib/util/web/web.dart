@@ -486,7 +486,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    Response response = await Dio().head(url);
+    Response response = await PlatformUtils.dio.head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
