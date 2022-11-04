@@ -486,7 +486,7 @@ class ChatController extends GetxController {
           PreciseDateTime.now(),
           text: send.text.isEmpty ? null : ChatMessageText(send.text),
           attachments: attachments
-              .where((e) => e.value is ImageAttachment)
+              // .where((e) => e.value is ImageAttachment)
               .map((e) => e.value)
               .toList(),
           repliesTo: repliedMessages,
@@ -1556,12 +1556,4 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
-}
-
-class MyClass {
-  const MyClass(this.globalKey, this.attachment);
-
-  final GlobalKey globalKey;
-
-  final Rx<Attachment> attachment;
 }

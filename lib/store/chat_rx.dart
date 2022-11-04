@@ -222,12 +222,11 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  void setDraftMessage(ChatMessage? message) async {
+  void setDraftMessage(ChatMessage? draft) async {
     HiveChat? hiveChat = _chatLocal.get(id);
     if (hiveChat != null &&
-        (message != null || message == null && draft.value != null)) {
-      draft.value = message;
-      hiveChat.draft = message;
+        (draft != null || draft == null && hiveChat.draft != null)) {
+      hiveChat.draft = draft;
       _chatLocal.put(hiveChat);
     }
   }

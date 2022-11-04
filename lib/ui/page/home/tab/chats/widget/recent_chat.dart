@@ -199,7 +199,7 @@ class RecentChatTile extends StatelessWidget {
       subtitle = [
         Flexible(
           child: Text(
-            '${'label_draft'.l10n}${'semicolon_space'.l10n} ${desc.toString().trim()}',
+            '${'label_draft'.l10n}${'semicolon_space'.l10n}${desc.toString().trim()}',
             maxLines: 2,
             key: const Key('DraftMessage'),
           ),
