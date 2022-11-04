@@ -520,8 +520,9 @@ class ChatController extends GetxController {
       ChatMessage? draft = chat!.draft.value;
       send.text = draft?.text?.val ?? '';
       if (draft?.attachments != null) {
-        draft!.attachments
-            .map((e) => attachments.add(MapEntry(GlobalKey(), e)));
+        for (Attachment e in draft!.attachments) {
+          attachments.add(MapEntry(GlobalKey(), e));
+        }
       }
       repliedMessages.value = draft?.repliesTo ?? [];
 
