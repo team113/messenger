@@ -314,7 +314,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         onHover: (d) => c.keepUi(true),
                         onExit: c.showUi.value && !c.displayMore.value
                             ? (d) => c.keepUi(false)
-                            : null,
+                            : (d) => c.keepUi(),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.transparent,
@@ -388,100 +388,111 @@ Widget desktopCall(CallController c, BuildContext context) {
           List<CallButton?> candidate,
           List<dynamic> rejected,
         ) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: const [
-                CustomBoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 8,
-                  blurStyle: BlurStyle.outer,
-                )
-              ],
-            ),
-            margin: const EdgeInsets.all(2),
-            child: ConditionalBackdropFilter(
-              borderRadius: BorderRadius.circular(30),
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: Obx(() {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.c == c)
-                        ? const Color(0xE0165084)
-                        : const Color(0x9D165084),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 440),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 35),
-                        Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          alignment: WrapAlignment.center,
-                          spacing: 4,
-                          runSpacing: 21,
-                          children: c.panel.map((e) {
-                            return SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Column(
-                                children: [
-                                  Draggable(
-                                    feedback: Transform.translate(
-                                      offset: const Offset(
-                                        CallController.buttonSize / 2 * -1,
-                                        CallController.buttonSize / 2 * -1,
+          return Obx(() {
+            bool enabled = c.displayMore.isTrue &&
+                c.primaryDrags.value == 0 &&
+                c.secondaryDrags.value == 0;
+
+            return MouseRegion(
+              onEnter: enabled ? (d) => c.keepUi(true) : null,
+              onHover: enabled ? (d) => c.keepUi(true) : null,
+              onExit: enabled ? (d) => c.keepUi() : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: const [
+                    CustomBoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.all(2),
+                child: ConditionalBackdropFilter(
+                  borderRadius: BorderRadius.circular(30),
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Obx(() {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      decoration: BoxDecoration(
+                        color: candidate.any((e) => e?.c == c)
+                            ? const Color(0xE0165084)
+                            : const Color(0x9D165084),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 440),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 35),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.start,
+                              alignment: WrapAlignment.center,
+                              spacing: 4,
+                              runSpacing: 21,
+                              children: c.panel.map((e) {
+                                return SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: Column(
+                                    children: [
+                                      Draggable(
+                                        feedback: Transform.translate(
+                                          offset: const Offset(
+                                            CallController.buttonSize / 2 * -1,
+                                            CallController.buttonSize / 2 * -1,
+                                          ),
+                                          child: SizedBox(
+                                            height: CallController.buttonSize,
+                                            width: CallController.buttonSize,
+                                            child: e.build(),
+                                          ),
+                                        ),
+                                        data: e,
+                                        onDragStarted: () {
+                                          c.isMoreHintDismissed.value = true;
+                                          c.draggedButton.value = e;
+                                        },
+                                        onDragCompleted: () =>
+                                            c.draggedButton.value = null,
+                                        onDragEnd: (_) =>
+                                            c.draggedButton.value = null,
+                                        onDraggableCanceled: (_, __) =>
+                                            c.draggedButton.value = null,
+                                        maxSimultaneousDrags:
+                                            e.isRemovable ? null : 0,
+                                        dragAnchorStrategy:
+                                            pointerDragAnchorStrategy,
+                                        child: e.build(hinted: false),
                                       ),
-                                      child: SizedBox(
-                                        height: CallController.buttonSize,
-                                        width: CallController.buttonSize,
-                                        child: e.build(),
-                                      ),
-                                    ),
-                                    data: e,
-                                    onDragStarted: () {
-                                      c.isMoreHintDismissed.value = true;
-                                      c.draggedButton.value = e;
-                                    },
-                                    onDragCompleted: () =>
-                                        c.draggedButton.value = null,
-                                    onDragEnd: (_) =>
-                                        c.draggedButton.value = null,
-                                    onDraggableCanceled: (_, __) =>
-                                        c.draggedButton.value = null,
-                                    maxSimultaneousDrags:
-                                        e.isRemovable ? null : 0,
-                                    dragAnchorStrategy:
-                                        pointerDragAnchorStrategy,
-                                    child: e.build(hinted: false),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        e.hint,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    e.hint,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          );
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            );
+          });
         }
 
         return Padding(
@@ -528,31 +539,6 @@ Widget desktopCall(CallController c, BuildContext context) {
             ],
           ),
         ),
-
-        // More panel [MouseRegion] toggling UI on hover loss.
-        Obx(() {
-          bool enabled = c.displayMore.value &&
-              c.primaryDrags.value == 0 &&
-              c.secondaryDrags.value == 0;
-
-          if (enabled) {
-            return Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 450,
-                width: double.infinity,
-                child: MouseRegion(
-                  opaque: false,
-                  hitTestBehavior: HitTestBehavior.translucent,
-                  onEnter: (d) => c.keepUi(true),
-                  onExit: (d) => c.keepUi(),
-                ),
-              ),
-            );
-          }
-
-          return Container();
-        }),
 
         // Display the more hint, if not dismissed.
         Obx(() {
@@ -733,9 +719,8 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
-          bool enabled = !c.displayMore.value &&
-              c.primaryDrags.value == 0 &&
-              c.secondaryDrags.value == 0;
+          final bool enabled =
+              c.primaryDrags.value == 0 && c.secondaryDrags.value == 0;
           return Align(
             alignment: Alignment.bottomCenter,
             child: SizedBox(
@@ -745,8 +730,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                 opaque: false,
                 onEnter: enabled ? (d) => c.keepUi(true) : null,
                 onHover: enabled ? (d) => c.keepUi(true) : null,
-                onExit:
-                    c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
+                onExit: c.showUi.value && enabled
+                    ? (d) {
+                        if (c.displayMore.isTrue) {
+                          c.keepUi();
+                        } else {
+                          c.keepUi(false);
+                        }
+                      }
+                    : null,
               ),
             ),
           );

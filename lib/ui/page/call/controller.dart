@@ -623,7 +623,11 @@ class CallController extends GetxController {
       if (!e) {
         hoveredRenderer.value = null;
         if (_uiTimer?.isActive != true) {
-          keepUi(false);
+          if (displayMore.isTrue) {
+            keepUi();
+          } else {
+            keepUi(false);
+          }
         }
       }
     });
