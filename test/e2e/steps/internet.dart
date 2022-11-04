@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/adapter_browser.dart';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
