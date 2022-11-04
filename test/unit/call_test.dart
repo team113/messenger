@@ -31,9 +31,12 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -41,6 +44,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
+import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
@@ -75,6 +79,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -131,10 +139,24 @@ void main() async {
       ),
     );
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService = Get.put(
-      CallService(authService, settingsRepository, callRepository),
+      CallService(authService, chatService, settingsRepository, callRepository),
     );
     callService.onReady();
 
@@ -225,10 +247,25 @@ void main() async {
       ),
     );
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
-    CallService callService =
-        Get.put(CallService(authService, settingsRepository, callRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    CallService callService = Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
     callService.onReady();
 
     await Future.delayed(Duration.zero);
@@ -275,10 +312,24 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService =
-        Get.put(CallService(authService, settingsRepository, callRepository));
+        Get.put(CallService(authService, chatService, settingsRepository, callRepository));
     callService.onReady();
 
     await Future.delayed(Duration.zero);

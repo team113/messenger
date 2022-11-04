@@ -359,8 +359,6 @@ class OngoingCall {
               calls.remove(chatId.value);
               calls.removeCredentials(node.call.id);
             } else {
-              calls.transferCredentials(chatId.value, node.call.id);
-
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
                     ? OngoingCallState.pending

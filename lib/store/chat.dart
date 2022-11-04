@@ -33,6 +33,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -58,7 +59,7 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._credentialsProvider,
+    this._callRepo,
     this._userRepo, {
     this.me,
   });
@@ -77,7 +78,7 @@ class ChatRepository implements AbstractChatRepository {
   final ChatHiveProvider _chatLocal;
 
   /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
-  final ChatCallCredentialsHiveProvider _credentialsProvider;
+  final AbstractCallRepository _callRepo;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -641,7 +642,7 @@ class ChatRepository implements AbstractChatRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
-      _credentialsProvider.remove(id);
+      _callRepo.removeCredentials(id);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(

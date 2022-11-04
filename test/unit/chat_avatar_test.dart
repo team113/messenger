@@ -28,11 +28,13 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -79,6 +81,8 @@ void main() async {
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -148,9 +152,17 @@ void main() async {
       userHiveProvider,
       galleryItemProvider,
     );
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      callRepository,
       userRepository,
     );
 
@@ -218,9 +230,17 @@ void main() async {
       userHiveProvider,
       galleryItemProvider,
     );
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      callRepository,
       userRepository,
     );
 

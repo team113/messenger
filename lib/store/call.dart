@@ -96,6 +96,7 @@ class CallRepository implements AbstractCallRepository {
     var chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
+      transferCredentials(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
@@ -112,6 +113,7 @@ class CallRepository implements AbstractCallRepository {
     var chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
+      transferCredentials(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
