@@ -267,6 +267,32 @@ class _ChatViewState extends State<ChatView>
                       ],
                     ),
                     body: Listener(
+                      onPointerSignal: (s) {
+                        if (s is PointerScrollEvent) {
+                          if (s.scrollDelta.dy.abs() < 3 &&
+                              (s.scrollDelta.dx.abs() > 3 ||
+                                  c.isHorizontalScroll.isTrue)) {
+                            double value =
+                                _animation.value + s.scrollDelta.dx / 100;
+                            _animation.value = value.clamp(0, 1);
+
+                            if (_animation.value == 0 ||
+                                _animation.value == 1) {
+                              _resetHorizontalScroll(c, 100.milliseconds);
+                            } else {
+                              _resetHorizontalScroll(c);
+                            }
+                          }
+                        }
+                      },
+                      onPointerPanZoomUpdate: (s) {
+                        if (!c.isHorizontalScroll.value) {
+                          c.scrollOffset = c.scrollOffset.translate(
+                            s.panDelta.dx.abs(),
+                            s.panDelta.dy.abs(),
+                          );
+                        }
+                      },
                       onPointerMove: (d) {
                         if (!c.isHorizontalScroll.value) {
                           c.scrollOffset = c.scrollOffset.translate(
@@ -1974,6 +2000,24 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox.shrink();
+  }
+
+  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
+  /// [duration].
+  ///
+  /// Defaults to 150 milliseconds if no [duration] is provided.
+  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
+    c.horizontalScrollTimer.value?.cancel();
+    c.isHorizontalScroll.value = true;
+    c.horizontalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
+      if (_animation.value >= 0.5) {
+        _animation.forward();
+      } else {
+        _animation.reverse();
+      }
+      c.isHorizontalScroll.value = false;
+      c.horizontalScrollTimer.value = null;
+    });
   }
 
   /// Builds a visual representation of an [UnreadMessagesElement].
