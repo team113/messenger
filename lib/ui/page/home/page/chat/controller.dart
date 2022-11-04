@@ -145,14 +145,13 @@ class ChatController extends GetxController {
   /// Used to discard any horizontal gestures while this is `true`.
   final RxBool isItemDragged = RxBool(false);
 
-  /// Global scroll [Offset] to determine scroll direction.
-  Offset globalScrollOffset = Offset.zero;
+  /// Summarized [Offset] of an ongoing scroll.
+  Offset scrollOffset = Offset.zero;
 
-  /// Indicator whether a horizontal scrolling of the view is ongoing.
+  /// Indicator whether an ongoing horizontal scroll is happening.
   ///
-  /// Used for discarding any vertical movement in a [SingleChildScrollView]
-  /// of [ChatItem]s when `true`.
-  RxBool isHorizontalScroll = RxBool(false);
+  /// Used to discard any vertical gestures while this is `true`.
+  final RxBool isHorizontalScroll = RxBool(false);
 
   /// [GlobalKey] of the bottom bar.
   final GlobalKey bottomBarKey = GlobalKey();

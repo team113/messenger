@@ -268,8 +268,8 @@ class _ChatViewState extends State<ChatView>
                     ),
                     body: Listener(
                       onPointerMove: (d) {
-                        if (c.isHorizontalScroll.isFalse) {
-                          c.globalScrollOffset = c.globalScrollOffset.translate(
+                        if (!c.isHorizontalScroll.value) {
+                          c.scrollOffset = c.scrollOffset.translate(
                             d.delta.dx.abs(),
                             d.delta.dy.abs(),
                           );
@@ -287,8 +287,8 @@ class _ChatViewState extends State<ChatView>
                                 instance) {
                               instance.onUpdate = (d) {
                                 if (!c.isItemDragged.value &&
-                                    c.globalScrollOffset.dy.abs() < 7 &&
-                                    (c.globalScrollOffset.dx.abs() > 7 ||
+                                    c.scrollOffset.dy.abs() < 7 &&
+                                    (c.scrollOffset.dx.abs() > 7 ||
                                         c.isHorizontalScroll.isTrue)) {
                                   double value =
                                       (_animation.value - d.delta.dx / 100)
@@ -306,7 +306,7 @@ class _ChatViewState extends State<ChatView>
 
                               instance.onEnd = (d) async {
                                 c.isHorizontalScroll.value = false;
-                                c.globalScrollOffset = Offset.zero;
+                                c.scrollOffset = Offset.zero;
                                 if (!c.isItemDragged.value &&
                                     _animation.value != 1 &&
                                     _animation.value != 0) {
