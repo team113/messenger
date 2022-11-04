@@ -187,9 +187,9 @@ class RecentChatTile extends StatelessWidget {
         desc.write(draft.text!.val);
       }
       if (draft.attachments.isNotEmpty) {
-        desc.write(' ${'label_attachments'.l10nfmt({
-              'count': draft.attachments.length
-            })}');
+        desc.write(' ${'label_attachments'.l10nfmt(
+          {'count': draft.attachments.length},
+        )}');
       }
       if (draft.repliesTo.isNotEmpty) {
         desc.write(' ${'label_replies'.l10nfmt(

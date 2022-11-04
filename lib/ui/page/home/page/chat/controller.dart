@@ -476,8 +476,13 @@ class ChatController extends GetxController {
   /// Updates draft message of this [Chat].
   void updateDraftMessage() {
     if (send.text.isNotEmpty ||
-        attachments.isNotEmpty ||
-        repliedMessages.isNotEmpty) {
+        repliedMessages.isNotEmpty ||
+        ((PlatformUtils.isWeb &&
+                attachments
+                    .where((e) =>
+                        e.value is ImageAttachment || e.value is FileAttachment)
+                    .isNotEmpty) ||
+            (!PlatformUtils.isWeb && attachments.isNotEmpty))) {
       chat?.setDraftMessage(
         ChatMessage(
           const ChatItemId(''),
@@ -486,7 +491,14 @@ class ChatController extends GetxController {
           PreciseDateTime.now(),
           text: send.text.isEmpty ? null : ChatMessageText(send.text),
           attachments: attachments
-              // .where((e) => e.value is ImageAttachment)
+              .where((e) {
+                if (PlatformUtils.isWeb) {
+                  return e.value is ImageAttachment ||
+                      e.value is FileAttachment;
+                } else {
+                  return true;
+                }
+              })
               .map((e) => e.value)
               .toList(),
           repliesTo: repliedMessages,
@@ -1112,6 +1124,9 @@ class ChatController extends GetxController {
         int index = attachments.indexWhere((e) => e.value == attachment);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
+        }
+        if (isClosed) {
+          updateDraftMessage();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
