@@ -41,7 +41,6 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
     }
     PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
       ..onGet('*', (server) {});
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }),
 );
 
@@ -61,49 +60,6 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   }),
 );
 
-/// Removes delay from the [GraphQlProvider] requests.
-///
-/// Examples:
-/// - I have Internet without delay
-final StepDefinitionGeneric internet1 = given<CustomWorld>(
-  'I internet off',
-  (context) => Future.sync(() {
-    // final GraphQlProvider provider = Get.find();
-    // if (provider is MockGraphQlProvider) {
-    //   provider.client.delay = 3.seconds;
-    //   provider.client.throwException = false;
-    // }
-
-    // if (context.world.configFiles != null &&
-    //     context.world.configFiles!.isNotEmpty) {
-    //   Config.files = context.world.configFiles!;
-    // }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (server) {});
-  }),
-);
-
-/// Removes delay from the [GraphQlProvider] requests.
-///
-/// Examples:
-/// - I have Internet without delay
-final StepDefinitionGeneric internet2 = given<CustomWorld>(
-  'I internet on',
-  (context) => Future.sync(() {
-    // final GraphQlProvider provider = Get.find();
-    // if (provider is MockGraphQlProvider) {
-    //   provider.client.delay = null;
-    //   provider.client.throwException = false;
-    // }
-
-    // if (context.world.configFiles != null &&
-    //     context.world.configFiles!.isNotEmpty) {
-    //   Config.files = context.world.configFiles!;
-    // }
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
-  }),
-);
-
 /// Makes all [GraphQlProvider] requests throw a [ConnectionException].
 ///
 /// Examples:
@@ -116,7 +72,5 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.delay = 2.seconds;
       provider.client.throwException = true;
     }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (server) {});
   }),
 );

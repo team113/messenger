@@ -16,13 +16,11 @@
 
 import 'dart:async';
 
-import 'package:dio/adapter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 /// [Hook] resetting the [Hive] and [Get] states after a test.
 class ResetAppHook extends Hook {
@@ -36,8 +34,6 @@ class ResetAppHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
-
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
 
     await Get.deleteAll(force: true);
     Get.reset();
