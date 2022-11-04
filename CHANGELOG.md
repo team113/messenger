@@ -23,8 +23,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
 - Web:
-    - Chat page:
-        - RMB on video opens default context menu. ([#198], [#196])
+    - Context menu not opening over video previews. ([#198], [#196])
 
 [#142]: /../../pull/142
 [#192]: /../../issues/192
