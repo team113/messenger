@@ -626,7 +626,11 @@ class CallController extends GetxController {
       if (!e) {
         hoveredRenderer.value = null;
         if (_uiTimer?.isActive != true) {
-          keepUi(false);
+          if (displayMore.isTrue) {
+            keepUi();
+          } else {
+            keepUi(false);
+          }
         }
       }
     });
@@ -1748,6 +1752,8 @@ class CallController extends GetxController {
     primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
     secondary.value =
         focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
+
+    applySecondaryConstraints();
   }
 
   /// Returns all [Participant]s identified by an [id] and [source].
