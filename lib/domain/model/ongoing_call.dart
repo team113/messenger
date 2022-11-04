@@ -435,10 +435,6 @@ class OngoingCall {
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
-                  if (node.user.id == _me.userId) {
-                    break;
-                  }
-
                   for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = false;
@@ -452,10 +448,6 @@ class OngoingCall {
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  if (node.user.id == _me.userId) {
-                    break;
-                  }
-
                   for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = true;
