@@ -201,8 +201,8 @@ class PlatformUtilsImpl {
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
-          int.parse(((await PlatformUtils.dio.head(url!))
-              .headers['content-length'] as List<String>)[0]);
+          int.parse(((await Dio().head(url!)).headers['content-length']
+              as List<String>)[0]);
 
       String downloads = await PlatformUtils.downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
@@ -288,7 +288,7 @@ class PlatformUtilsImpl {
             // Retry the downloading unless any other that `404` error is
             // thrown.
             await withBackoff(
-              () => PlatformUtils.dio.download(
+              () => Dio().download(
                 url,
                 file!.path,
                 onReceiveProgress: onReceiveProgress,
@@ -314,7 +314,7 @@ class PlatformUtilsImpl {
     if (isMobile && !isWeb) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
-      await PlatformUtils.dio.download(url, path);
+      await Dio().download(url, path);
       await ImageGallerySaver.saveFile(path, name: name);
       File(path).delete();
     }
@@ -324,7 +324,7 @@ class PlatformUtilsImpl {
   Future<void> share(String url, String name) async {
     final Directory temp = await getTemporaryDirectory();
     final String path = '${temp.path}/$name';
-    await PlatformUtils.dio.download(url, path);
+    await Dio().download(url, path);
     await Share.shareFiles([path]);
     File(path).delete();
   }
