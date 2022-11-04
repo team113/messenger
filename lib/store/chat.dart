@@ -654,6 +654,7 @@ class ChatRepository implements AbstractChatRepository {
       (await _graphQlProvider.chatEvents(chatId, ver))
           .asyncExpand((event) async* {
         var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+        print(events.$$typename);
         if (events.$$typename == 'SubscriptionInitialized') {
           events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
           yield const ChatEventsInitialized();

@@ -106,27 +106,25 @@ class ChatsTabView extends StatelessWidget {
                                     await ConfirmDialog.show(
                                       context,
                                       title: 'label_mute_chat_for'.l10n,
-                                      variants: [
-                                        for (Duration? duration
-                                            in c.muteDateTimes)
-                                          ConfirmDialogVariant(
-                                            onProceed: () => c.muteChat(
-                                              chat.id,
-                                              duration: duration,
-                                            ),
-                                            child: Text(
-                                              'label_mute_for'.l10nfmt({
-                                                'days': duration?.inDays ?? 0,
-                                                'hours': duration?.inHours ?? 0,
-                                                'minutes':
-                                                    duration?.inMinutes ?? 0,
-                                              }),
-                                              key: duration == null
-                                                  ? const Key('MuteForever')
-                                                  : null,
-                                            ),
-                                          ),
-                                      ],
+                                      variants: c.muteDateTimes
+                                          .map((e) => ConfirmDialogVariant(
+                                                onProceed: () => c.muteChat(
+                                                  chat.id,
+                                                  duration: e,
+                                                ),
+                                                child: Text(
+                                                  'label_mute_for'.l10nfmt({
+                                                    'days': e?.inDays ?? 0,
+                                                    'hours': e?.inHours ?? 0,
+                                                    'minutes':
+                                                        e?.inMinutes ?? 0,
+                                                  }),
+                                                  key: e == null
+                                                      ? const Key('MuteForever')
+                                                      : null,
+                                                ),
+                                              ))
+                                          .toList(),
                                     );
                                     c.isMuteDialogOpened.value = false;
                                   },

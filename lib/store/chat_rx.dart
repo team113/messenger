@@ -528,7 +528,13 @@ class HiveRxChat extends RxChat {
     if (chat.value.muted?.until != null) {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
-        () => chat.value.muted = null,
+        () {
+          var chat = _chatLocal.get(id);
+          if (chat != null) {
+            chat.value.muted = null;
+            _chatLocal.put(chat);
+          }
+        },
       );
     }
 
