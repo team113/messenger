@@ -435,6 +435,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
+
                   for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = false;
