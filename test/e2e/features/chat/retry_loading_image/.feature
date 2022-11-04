@@ -5,7 +5,7 @@ Feature: Image refetching
     And user Bob
     And Bob has dialog with me
     And Bob sends image to me
-    And I do not have Internet
+    And I do not have Internet without exception
     And I am in chat with Bob
 
   Scenario: User sees image refetched in chat

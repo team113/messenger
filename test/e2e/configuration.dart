@@ -88,6 +88,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        internetWithoutException,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
