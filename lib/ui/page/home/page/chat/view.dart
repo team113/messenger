@@ -269,19 +269,13 @@ class _ChatViewState extends State<ChatView>
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
-                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                  s.scrollDelta.dx.abs() > 3) ||
-                              c.isHorizontalScroll.value) {
+                          if (s.scrollDelta.dy.abs() < 3 &&
+                              (s.scrollDelta.dx.abs() > 3 ||
+                                  c.isHorizontalScroll.value)) {
                             double value =
                                 _animation.value + s.scrollDelta.dx / 100;
                             _animation.value = value.clamp(0, 1);
-
-                            if (_animation.value == 0 ||
-                                _animation.value == 1) {
-                              _resetHorizontalScroll(c, 100.milliseconds);
-                            } else {
-                              _resetHorizontalScroll(c);
-                            }
+                            _resetHorizontalScroll(c);
                           }
                         }
                       },
@@ -2004,11 +1998,11 @@ class _ChatViewState extends State<ChatView>
   /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
   /// [duration].
   ///
-  /// Defaults to 150 milliseconds if no [duration] is provided.
+  /// Defaults to 50 milliseconds if no [duration] is provided.
   void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.horizontalScrollTimer.value?.cancel();
     c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
+    c.horizontalScrollTimer.value?.cancel();
+    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
       if (_animation.value >= 0.5) {
         _animation.forward();
       } else {

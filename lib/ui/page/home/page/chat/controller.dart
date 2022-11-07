@@ -153,7 +153,8 @@ class ChatController extends GetxController {
   /// Used to discard any vertical gestures while this is `true`.
   final RxBool isHorizontalScroll = RxBool(false);
 
-  /// [Timer] for playing end animation of a horizontal scroll on web.
+  /// [Timer] for discarding any vertical movement in a [FlutterListView] of
+  /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
   /// [GlobalKey] of the bottom bar.
@@ -364,6 +365,7 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
+    horizontalScrollTimer.value?.cancel();
     listController.removeListener(_updateFabStates);
     listController.dispose();
 
