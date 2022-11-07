@@ -131,7 +131,7 @@ class MenuTabView extends StatelessWidget {
                     onTap: onTap,
                     hoverColor: const Color.fromARGB(255, 244, 249, 255),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                       child: Row(
                         children: [
                           if (leading != null) ...[
@@ -343,6 +343,7 @@ class MenuTabView extends StatelessWidget {
               //   onTap: () {},
               // ),
 
+              const SizedBox(height: 8),
               bigButton(
                 leading: const Icon(
                   Icons.person,
@@ -491,6 +492,7 @@ class MenuTabView extends StatelessWidget {
                   }
                 },
               ),
+              const SizedBox(height: 8),
             ],
           ),
         );

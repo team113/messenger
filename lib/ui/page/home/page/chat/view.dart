@@ -269,9 +269,9 @@ class _ChatViewState extends State<ChatView>
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
-                          if (s.scrollDelta.dy.abs() < 3 &&
-                              (s.scrollDelta.dx.abs() > 3 ||
-                                  c.isHorizontalScroll.value)) {
+                          if ((s.scrollDelta.dy.abs() < 3 &&
+                                  s.scrollDelta.dx.abs() > 3) ||
+                              c.isHorizontalScroll.value) {
                             double value =
                                 _animation.value + s.scrollDelta.dx / 100;
                             _animation.value = value.clamp(0, 1);

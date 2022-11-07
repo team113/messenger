@@ -141,13 +141,7 @@ class RecentChatTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // _status(context),
-                  _counter(),
-                ],
-              ),
+              _counter(),
               // chat.unreadCount != 0 ? _counter() : _status(context),
             ],
           ),
@@ -181,39 +175,61 @@ class RecentChatTile extends StatelessWidget {
 
     if (chat.ongoingCall != null) {
       subtitle = [
-        WidgetButton(
-          onPressed: inCall?.call() == true ? onDrop : onJoin,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: inCall?.call() == true
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  inCall?.call() == true ? Icons.call_end : Icons.call,
-                  size: 16,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 4),
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return Text(
-                      DateTime.now()
-                          .difference(chat.ongoingCall!.at.val)
-                          .hhMmSs(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2
-                          ?.copyWith(color: Colors.white),
-                    );
-                  },
-                )
-              ],
+        Flexible(
+          child: WidgetButton(
+            onPressed: inCall?.call() == true ? onDrop : onJoin,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: inCall?.call() == true
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.secondary,
+              ),
+              child: LayoutBuilder(builder: (context, constraints) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 8),
+                    Icon(
+                      inCall?.call() == true ? Icons.call_end : Icons.call,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    if (constraints.maxWidth > 110)
+                      Flexible(
+                        child: Text(
+                          inCall?.call() == true
+                              ? 'btn_call_end'.l10n
+                              : 'btn_join_call'.l10n,
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2
+                              ?.copyWith(color: Colors.white),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    PeriodicBuilder(
+                      period: const Duration(seconds: 1),
+                      builder: (_) {
+                        return Text(
+                          DateTime.now()
+                              .difference(chat.ongoingCall!.at.val)
+                              .hhMmSs(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle2
+                              ?.copyWith(color: Colors.white),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                );
+              }),
             ),
           ),
         ),
@@ -452,8 +468,8 @@ class RecentChatTile extends StatelessWidget {
         return Container(
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 4),
-          width: 23,
-          height: 23,
+          constraints: const BoxConstraints(minWidth: 26),
+          height: 26,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.red,
@@ -464,8 +480,7 @@ class RecentChatTile extends StatelessWidget {
             chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
             maxLines: 1,
             overflow: TextOverflow.clip,

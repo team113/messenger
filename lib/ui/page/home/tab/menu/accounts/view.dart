@@ -40,13 +40,11 @@ class AccountsView extends StatelessWidget {
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
       context: context,
-      // desktopPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      // desktopConstraints: const BoxConstraints(
-      //   maxWidth: double.infinity,
-      //   maxHeight: double.infinity,
-      // ),
-      // desktopConstraints: const BoxConstraints(maxWidth: 400),
-      // modalConstraints: const BoxConstraints(maxWidth: 520),
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
       mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       mobileConstraints: const BoxConstraints(
         maxWidth: double.infinity,
@@ -151,11 +149,40 @@ class AccountsView extends StatelessWidget {
                     maxWidth: null,
                   ),
                 ),
+                const SizedBox(height: 50),
+                Center(
+                  child: Text(
+                    'OR'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 50),
+                ReactiveTextField(
+                  key: const Key('LoginField'),
+                  state: c.login,
+                  label: 'label_login'.l10n,
+                  style: thin,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  key: const Key('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  style: thin,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
                 const SizedBox(height: 18),
                 Center(
                   child: OutlinedRoundedButton(
                     title: Text('Login'.l10n),
-                    onPressed: () => c.stage.value = AccountsViewStage.login,
+                    onPressed: () {},
                     color: const Color(0xFFEEEEEE),
                     maxWidth: null,
                   ),
@@ -188,7 +215,7 @@ class AccountsView extends StatelessWidget {
                   // border:
                   // Border.all(width: 0.5, color: const Color(0xFF888888)),
                   trailing: const [
-                    Icon(Icons.check_circle_outline, color: Color(0xFF63B4FF))
+                    Text('Active', style: TextStyle(color: Color(0xFF63B4FF))),
                   ],
                   subtitle: const [
                     SizedBox(height: 5),

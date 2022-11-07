@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/util/platform_utils.dart';
 
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -53,50 +54,65 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          border: style.cardBorder,
-          boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-              blurStyle: BlurStyle.outer,
-            ),
-          ],
-        ),
-        child: ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(
-            sigmaX: style.cardBlur,
-            sigmaY: style.cardBlur,
+    final double top = MediaQuery.of(context).padding.top;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (top != 0)
+          Container(
+            height: top,
+            width: double.infinity,
+            color: Colors.white,
           ),
-          borderRadius: style.cardRadius,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              color: style.cardColor,
-            ),
-            padding: padding,
-            child: SafeArea(
-              child: Row(
-                children: [
-                  ...leading,
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: Theme.of(context).appBarTheme.titleTextStyle,
-                      child: Center(child: title ?? const SizedBox.shrink()),
-                    ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                border: style.cardBorder,
+                boxShadow: const [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: Color(0x22000000),
+                    blurStyle: BlurStyle.outer,
                   ),
-                  ...actions,
                 ],
+              ),
+              child: ConditionalBackdropFilter(
+                condition: style.cardBlur > 0,
+                filter: ImageFilter.blur(
+                  sigmaX: style.cardBlur,
+                  sigmaY: style.cardBlur,
+                ),
+                borderRadius: style.cardRadius,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    color: style.cardColor,
+                  ),
+                  padding: padding,
+                  child: Row(
+                    children: [
+                      ...leading,
+                      Expanded(
+                        child: DefaultTextStyle.merge(
+                          style: Theme.of(context).appBarTheme.titleTextStyle,
+                          child:
+                              Center(child: title ?? const SizedBox.shrink()),
+                        ),
+                      ),
+                      ...actions,
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
