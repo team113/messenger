@@ -47,7 +47,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
     - Chat page:
-        - Persist a draft chat message. ([#173], [#102])
+        - Messages drafts. ([#173], [#102])
 
 ### Changed
 

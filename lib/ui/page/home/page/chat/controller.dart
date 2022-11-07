@@ -339,8 +339,6 @@ class ChatController extends GetxController {
         },
       ),
     );
-    _repliesWorker = ever(repliedMessages, (_) => updateDraftMessage());
-    _attachmentsWorker = ever(attachments, (_) => updateDraftMessage());
 
     super.onInit();
   }
@@ -473,39 +471,31 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Updates draft message of this [Chat].
-  void updateDraftMessage() {
-    if (send.text.isNotEmpty ||
-        repliedMessages.isNotEmpty ||
-        ((PlatformUtils.isWeb &&
-                attachments
-                    .where((e) =>
-                        e.value is ImageAttachment || e.value is FileAttachment)
-                    .isNotEmpty) ||
-            (!PlatformUtils.isWeb && attachments.isNotEmpty))) {
-      chat?.setDraftMessage(
-        ChatMessage(
-          const ChatItemId(''),
-          id,
-          const UserId(''),
-          PreciseDateTime.now(),
-          text: send.text.isEmpty ? null : ChatMessageText(send.text),
-          attachments: attachments
-              .where((e) {
-                if (PlatformUtils.isWeb) {
-                  return e.value is ImageAttachment ||
-                      e.value is FileAttachment;
-                } else {
-                  return true;
-                }
-              })
-              .map((e) => e.value)
-              .toList(),
-          repliesTo: repliedMessages,
-        ),
+  /// Updates [RxChat.draft] with the current [send], [attachments] and
+  /// [repliedMessages] fields.
+  void updateDraft() {
+    // [Attachment]s to persist in a [RxChat.draft].
+    final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
+
+    // Only persist uploaded [Attachment]s on Web to minimize byte writing lags.
+    if (PlatformUtils.isWeb) {
+      persisted = attachments.where(
+        (e) => e.value is ImageAttachment || e.value is FileAttachment,
       );
     } else {
-      chat?.setDraftMessage(null);
+      persisted = attachments;
+    }
+
+    if (send.text.isNotEmpty ||
+        repliedMessages.isNotEmpty ||
+        persisted.isNotEmpty) {
+      chat?.setDraft(
+        text: send.text.isEmpty ? null : ChatMessageText(send.text),
+        attachments: persisted.map((e) => e.value).toList(),
+        repliesTo: repliedMessages,
+      );
+    } else {
+      chat?.setDraft();
     }
   }
 
@@ -517,14 +507,18 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
+
       ChatMessage? draft = chat!.draft.value;
+
       send.text = draft?.text?.val ?? '';
-      if (draft?.attachments != null) {
-        for (Attachment e in draft!.attachments) {
-          attachments.add(MapEntry(GlobalKey(), e));
-        }
-      }
       repliedMessages.value = draft?.repliesTo ?? [];
+
+      for (Attachment e in draft?.attachments ?? []) {
+        attachments.add(MapEntry(GlobalKey(), e));
+      }
+
+      _repliesWorker ??= ever(repliedMessages, (_) => updateDraft());
+      _attachmentsWorker ??= ever(attachments, (_) => updateDraft());
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -1124,9 +1118,7 @@ class ChatController extends GetxController {
         int index = attachments.indexWhere((e) => e.value == attachment);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
-        }
-        if (isClosed) {
-          updateDraftMessage();
+          updateDraft();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

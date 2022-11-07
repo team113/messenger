@@ -16,9 +16,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -26,7 +24,6 @@ import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -36,21 +33,17 @@ import '/store/model/chat.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
-part 'chat.g.dart';
-
-/// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
+/// [Hive] storage for [ChatMessage]s being [RxChat.draft]s.
+class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'chat';
+  String get boxName => 'draft';
 
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
-    Hive.maybeRegisterAdapter(ChatAdapter());
-    Hive.maybeRegisterAdapter(ChatAvatarAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
@@ -69,17 +62,14 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(CropAreaAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
-    Hive.maybeRegisterAdapter(HiveChatAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
-    Hive.maybeRegisterAdapter(LastChatReadAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
-    Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
@@ -87,45 +77,15 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 
-  /// Returns a list of [Chat]s from [Hive].
-  Iterable<HiveChat> get chats => valuesSafe;
+  /// Returns a list of [ChatMessage]s from [Hive].
+  Iterable<ChatMessage> get drafts => valuesSafe;
 
-  /// Puts the provided [Chat] to [Hive].
-  Future<void> put(HiveChat chat) => putSafe(chat.value.id.val, chat);
+  /// Puts the provided [ChatMessage] to [Hive].
+  Future<void> put(ChatId id, ChatMessage draft) => putSafe(id.val, draft);
 
-  /// Returns a [Chat] from [Hive] by its [id].
-  HiveChat? get(ChatId id) => getSafe(id.val);
+  /// Returns a [ChatMessage] from [Hive] by the provided [id].
+  ChatMessage? get(ChatId id) => getSafe(id.val);
 
-  /// Removes a [Chat] from [Hive] by the provided [id].
+  /// Removes a [ChatMessage] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) => deleteSafe(id.val);
-}
-
-/// Persisted in [Hive] storage [Chat]'s [value].
-@HiveType(typeId: ModelTypeId.hiveChat)
-class HiveChat extends HiveObject {
-  HiveChat(
-    this.value,
-    this.ver,
-    this.lastItemCursor,
-    this.lastReadItemCursor,
-  );
-
-  /// Persisted [Chat] model.
-  @HiveField(0)
-  Chat value;
-
-  /// Version of this [Chat]'s state.
-  ///
-  /// It increases monotonically, so may be used (and is intended to) for
-  /// tracking state's actuality.
-  @HiveField(1)
-  ChatVersion ver;
-
-  /// Cursor of a [Chat.lastItem].
-  @HiveField(2)
-  ChatItemsCursor? lastItemCursor;
-
-  /// Cursor of a [Chat.lastReadItem].
-  @HiveField(3)
-  ChatItemsCursor? lastReadItemCursor;
 }

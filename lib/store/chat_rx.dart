@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -55,10 +56,11 @@ class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
+    this._draftLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(hiveChat.draft);
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
   @override
   final Rx<Chat> chat;
@@ -89,6 +91,9 @@ class HiveRxChat extends RxChat {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [RxChat.draft]s local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -222,12 +227,40 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  void setDraftMessage(ChatMessage? draft) {
-    HiveChat? hiveChat = _chatLocal.get(id);
-    if (hiveChat != null &&
-        (draft != null || draft == null && hiveChat.draft != null)) {
-      hiveChat.draft = draft;
-      _chatLocal.put(hiveChat);
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {
+    ChatMessage? draft = _draftLocal.get(id);
+
+    if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
+      if (draft != null) {
+        _draftLocal.remove(id);
+      }
+    } else {
+      final bool repliesEqual = const IterableEquality().equals(
+        (draft?.repliesTo ?? []).map((e) => e.id),
+        repliesTo.map((e) => e.id),
+      );
+
+      final bool attachmentsEqual = const IterableEquality().equals(
+        (draft?.attachments ?? []).map((e) => e.id),
+        attachments.map((e) => e.id),
+      );
+
+      if (draft?.text != text || !repliesEqual || !attachmentsEqual) {
+        draft = ChatMessage(
+          ChatItemId.local(),
+          id,
+          me ?? const UserId('dummy'),
+          PreciseDateTime.now(),
+          text: text,
+          repliesTo: repliesTo,
+          attachments: attachments,
+        );
+        _draftLocal.put(id, draft);
+      }
     }
   }
 

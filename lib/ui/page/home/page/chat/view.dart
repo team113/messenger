@@ -1041,7 +1041,7 @@ class _ChatViewState extends State<ChatView>
                           child: ReactiveTextField(
                             onChanged: () {
                               c.keepTyping();
-                              c.updateDraftMessage();
+                              c.updateDraft();
                             },
                             key: const Key('MessageField'),
                             state: c.send,

@@ -14,9 +14,9 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat message have correct persisting
+Feature: Drafts
 
-  Background: User is in dialog with Bob
+  Scenario: Message is persisted
     Given I am Alice
     And user Bob
     And Bob has dialog with me
@@ -24,7 +24,6 @@ Feature: Chat message have correct persisting
     And I attach "test.txt" file
     And I fill `MessageField` field with "123"
 
-  Scenario: Persist chat message
     When I return to previous page
     Then I wait until `DraftMessage` is present
 

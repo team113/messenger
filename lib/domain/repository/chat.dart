@@ -213,7 +213,7 @@ abstract class RxChat {
   /// Returns an actual [UserCallCover] of this [RxChat].
   UserCallCover? get callCover;
 
-  /// Draft [ChatMessage] of this [Chat].
+  /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
   /// Fetches the [messages] from the service.
@@ -227,6 +227,13 @@ abstract class RxChat {
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId itemId);
 
-  /// Sets draft [ChatMessage] of this [Chat].
-  void setDraftMessage(ChatMessage? draft);
+  /// Updates the [draft] with the provided [text], [attachments] and
+  /// [repliesTo].
+  ///
+  /// Resets it, if the specified fields are empty or `null`.
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  });
 }
