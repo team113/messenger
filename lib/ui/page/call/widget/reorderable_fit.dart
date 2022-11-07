@@ -20,7 +20,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
@@ -62,6 +64,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.useLongPress = false,
     this.allowEmptyTarget = false,
     this.allowDraggingLast = true,
+    this.itemConstraints,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -91,6 +94,9 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
   /// Size of a divider between [children].
   final double dividerSize;
+
+  /// Callback, specifying a [BoxConstraints] of an item when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
 
   /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
@@ -374,6 +380,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onOffset: onOffset,
           useLongPress: useLongPress,
           allowDraggingLast: allowDraggingLast,
+          itemConstraints: itemConstraints,
         );
       }),
     );
@@ -413,6 +420,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onOffset,
     this.useLongPress = false,
     this.allowDraggingLast = true,
+    this.itemConstraints,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -438,6 +446,9 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
 
   /// Size of a divider between [children].
   final double dividerSize;
+
+  /// Callback, specifying a [BoxConstraints] of an item when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
 
   /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
@@ -579,7 +590,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
           if (widget.decoratorBuilder != null)
             widget.decoratorBuilder!.call(item.item),
           KeyedSubtree(
-            key: item.key,
+            key: item.cellKey,
             child: item.entry != null
                 ? SizedBox(
                     width: widget.wrapSize,
@@ -587,8 +598,13 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   )
                 : _ReorderableDraggable<T>(
                     item: item.item,
-                    itemBuilder: widget.itemBuilder,
+                    itemBuilder: (o) => KeyedSubtree(
+                      key: item.itemKey,
+                      child: widget.itemBuilder(o),
+                    ),
+                    itemConstraints: widget.itemConstraints,
                     useLongPress: widget.useLongPress,
+                    cellKey: item.cellKey,
                     sharedKey: item.sharedKey,
                     enabled:
                         _items.map((e) => e.entry).whereNotNull().isEmpty &&
@@ -601,7 +617,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       }
                     },
                     onDragStarted: () {
-                      item.dragStartedRect = item.key.globalPaintBounds;
+                      item.dragStartedRect = item.cellKey.globalPaintBounds;
                       widget.onDragStarted?.call(item.item);
                     },
                     onDragCompleted: () =>
@@ -832,8 +848,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       var from = _items[i];
       var to = _items[index];
 
-      var beginRect = from.key.globalPaintBounds!;
-      var endRect = to.key.globalPaintBounds!;
+      Rect beginRect = from.cellKey.globalPaintBounds!;
+      Rect endRect = to.cellKey.globalPaintBounds!;
 
       if (beginRect != endRect) {
         Offset offset = widget.onOffset?.call() ?? Offset.zero;
@@ -875,15 +891,10 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   void _animateReturn(_ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
-    var beginRect = to.dragStartedRect ?? to.key.globalPaintBounds!;
-    var endRect = to.key.globalPaintBounds!;
-
-    beginRect = Rect.fromLTRB(
-      d.dx,
-      d.dy,
-      (d.dx - beginRect.left) + beginRect.right,
-      (d.dy - beginRect.top) + beginRect.bottom,
-    );
+    Rect beginRect = to.itemKey.globalPaintBounds ??
+        to.dragStartedRect ??
+        to.cellKey.globalPaintBounds!;
+    Rect endRect = to.cellKey.globalPaintBounds!;
 
     if (beginRect != endRect) {
       Offset offset = widget.onOffset?.call() ?? Offset.zero;
@@ -930,6 +941,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
     Key? key,
     required this.item,
     required this.sharedKey,
+    required this.cellKey,
     required this.itemBuilder,
     this.onDragEnd,
     this.onDragStarted,
@@ -938,10 +950,14 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
     this.onDoughBreak,
     this.useLongPress = false,
     this.enabled = true,
+    this.itemConstraints,
   }) : super(key: key);
 
   /// Item stored in this [_ReorderableDraggable].
   final T item;
+
+  /// [GlobalKey] of a cell this [_ReorderableDraggable] occupies.
+  final GlobalKey cellKey;
 
   /// [UniqueKey] of this [_ReorderableDraggable].
   final UniqueKey sharedKey;
@@ -971,6 +987,10 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   /// Indicator whether dragging is allowed.
   final bool enabled;
 
+  /// Callback, specifying a [BoxConstraints] of this [_ReorderableDraggable]
+  /// when it's dragged.
+  final BoxConstraints? Function(T)? itemConstraints;
+
   @override
   State<_ReorderableDraggable<T>> createState() =>
       _ReorderableDraggableState<T>();
@@ -980,7 +1000,15 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
 class _ReorderableDraggableState<T extends Object>
     extends State<_ReorderableDraggable<T>> {
   /// Indicator whether this [_ReorderableDraggable] is dragged.
-  bool isDragged = false;
+  bool _isDragged = false;
+
+  /// Reactive [Offset] of an anchor of this [_ReorderableDraggable] when it's
+  /// dragged.
+  final Rx<Offset?> _position = Rx(Offset.zero);
+
+  /// Reactive [BoxConstraints] the [_ReorderableDraggable.item] should occupy
+  /// passed to a [_Resizable] to animate its changes.
+  final Rx<BoxConstraints?> _constraints = Rx(null);
 
   @override
   Widget build(BuildContext context) {
@@ -995,35 +1023,75 @@ class _ReorderableDraggableState<T extends Object>
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          var child = widget.itemBuilder(widget.item);
+          final Widget child = widget.itemBuilder(widget.item);
+
           return DraggableDough<T>(
             data: widget.item,
             longPress: widget.useLongPress,
             maxSimultaneousDrags: widget.enabled ? 1 : 0,
             onDragEnd: (d) {
               widget.onDragEnd?.call(d.offset);
-              isDragged = false;
+              _isDragged = false;
             },
             onDragStarted: () {
+              _constraints.value = constraints;
               widget.onDragStarted?.call();
               HapticFeedback.lightImpact();
-              isDragged = true;
+              _isDragged = true;
             },
-            onDragCompleted: widget.onDragCompleted,
-            onDraggableCanceled: (_, d) => widget.onDraggableCanceled?.call(d),
+            dragAnchorStrategy: (
+              Draggable<Object> draggable,
+              BuildContext context,
+              Offset position,
+            ) {
+              _position.value = position;
+              final RenderBox renderObject =
+                  context.findRenderObject()! as RenderBox;
+              return renderObject.globalToLocal(position);
+            },
+            onDragCompleted: () {
+              widget.onDragCompleted?.call();
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                _constraints.value = constraints;
+              });
+            },
+            onDraggableCanceled: (_, d) {
+              widget.onDraggableCanceled?.call(d);
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                _constraints.value = constraints;
+              });
+            },
             onDoughBreak: () {
-              if (widget.enabled && isDragged) {
+              if (widget.enabled && _isDragged) {
                 widget.onDoughBreak?.call();
+
+                final BoxConstraints? itemConstraints =
+                    widget.itemConstraints?.call(widget.item);
+
+                if (itemConstraints != null &&
+                    itemConstraints.biggest.longestSide <
+                        constraints.biggest.longestSide) {
+                  final double coefficient = constraints.biggest.longestSide /
+                      itemConstraints.biggest.longestSide;
+
+                  _constraints.value = BoxConstraints(
+                    maxWidth: constraints.maxWidth / coefficient,
+                    maxHeight: constraints.maxHeight / coefficient,
+                  );
+                } else {
+                  _constraints.value = constraints;
+                }
+
                 HapticFeedback.lightImpact();
               }
             },
-            feedback: SizedBox(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: KeyedSubtree(
-                key: widget.sharedKey,
-                child: child,
-              ),
+            feedback: _Resizable(
+              key: widget.sharedKey,
+              cellKey: widget.cellKey,
+              layout: constraints,
+              position: _position,
+              constraints: _constraints,
+              child: child,
             ),
             childWhenDragging: KeyedSubtree(
               key: widget.sharedKey,
@@ -1044,6 +1112,64 @@ class _ReorderableDraggableState<T extends Object>
   }
 }
 
+/// [Widget] animating its size changes from the provided [layout] to the
+/// specified reactive [constraints].
+class _Resizable extends StatelessWidget {
+  const _Resizable({
+    Key? key,
+    required this.cellKey,
+    required this.layout,
+    required this.position,
+    required this.constraints,
+    required this.child,
+  }) : super(key: key);
+
+  /// [GlobalKey] of a cell this [_Resizable] occupies.
+  final GlobalKey cellKey;
+
+  /// Initial [BoxConstraints] of this [_Resizable].
+  final BoxConstraints layout;
+
+  /// [Offset] position of a drag anchor.
+  final Rx<Offset?> position;
+
+  /// Target [BoxConstraints] of this [_Resizable] to occupy.
+  final Rx<BoxConstraints?> constraints;
+
+  /// [Widget] to animate.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      Offset offset = Offset.zero;
+      if (position.value != null && constraints.value != layout) {
+        final Rect delta = cellKey.globalPaintBounds ?? Rect.zero;
+        final Offset position = Offset(
+          this.position.value!.dx - delta.left,
+          this.position.value!.dy - delta.top,
+        );
+
+        offset = Offset(
+          position.dx -
+              (constraints.value!.maxWidth * position.dx / layout.maxWidth),
+          position.dy -
+              (constraints.value!.maxHeight * position.dy / layout.maxHeight),
+        );
+      }
+
+      return AnimatedContainer(
+        duration: 300.milliseconds,
+        curve: Curves.ease,
+        transform: Matrix4.translationValues(offset.dx, offset.dy, 0),
+        width: constraints.value?.maxWidth,
+        height: constraints.value?.maxHeight,
+        child: child,
+      );
+    });
+  }
+}
+
 /// Data of an [Object] used in a [_ReorderableFit] to be reordered around.
 class _ReorderableItem<T> {
   _ReorderableItem(this.item);
@@ -1051,9 +1177,11 @@ class _ReorderableItem<T> {
   /// Reorderable [Object] itself.
   final T item;
 
-  /// [GlobalKey] of this [_ReorderableItem] representing the global position of
-  /// this [item].
-  final GlobalKey key = GlobalKey();
+  /// [GlobalKey] of a cell this [_ReorderableItem] occupies.
+  final GlobalKey cellKey = GlobalKey();
+
+  /// [GlobalKey] of an [item] this [_ReorderableItem] builds.
+  final GlobalKey itemKey = GlobalKey();
 
   /// [UniqueKey] of this [_ReorderableItem] representing the position in a
   /// [_ReorderableFit] of this [item].

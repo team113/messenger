@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+    - Media panel:
+        - Video resizing when dragged. ([#191], [#190])
 
 ### Fixed
 
@@ -26,6 +28,8 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#142]: /../../pull/142
+[#190]: /../../issues/190
+[#191]: /../../pull/191
 [#192]: /../../issues/192
 [#193]: /../../pull/193
 [#196]: /../../issues/196
