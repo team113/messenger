@@ -20,7 +20,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ChatItem]s.
+/// [Hive] storage for [ChatCallCredentials].
 class ChatCallCredentialsHiveProvider
     extends HiveBaseProvider<ChatCallCredentials> {
   ChatCallCredentialsHiveProvider();

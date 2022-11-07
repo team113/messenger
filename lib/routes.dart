@@ -406,11 +406,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put<AbstractUserRepository>(userRepository);
               AbstractCallRepository callRepository =
-                  deps.put<AbstractCallRepository>(CallRepository(
-                graphQlProvider,
-                userRepository,
-                Get.find(),
-              ));
+                  deps.put<AbstractCallRepository>(
+                CallRepository(
+                  graphQlProvider,
+                  userRepository,
+                  Get.find(),
+                ),
+              );
               AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
@@ -499,11 +501,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             );
             deps.put<AbstractUserRepository>(userRepository);
             AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(CallRepository(
-              graphQlProvider,
-              userRepository,
-              Get.find(),
-            ));
+                deps.put<AbstractCallRepository>(
+              CallRepository(
+                graphQlProvider,
+                userRepository,
+                Get.find(),
+              ),
+            );
             AbstractChatRepository chatRepository =
                 deps.put<AbstractChatRepository>(
               ChatRepository(
