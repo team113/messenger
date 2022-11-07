@@ -310,7 +310,7 @@ class MyUserView extends StatelessWidget {
                                             : MouseCursor.defer,
                                         opaque: false,
                                         child: ScrollConfiguration(
-                                          behavior: MyCustomScrollBehavior(),
+                                          behavior: CustomScrollBehavior(),
                                           child: SingleChildScrollView(
                                             clipBehavior: Clip.none,
                                             physics: grab
