@@ -891,7 +891,8 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
+        !PlatformUtils.isWeb) {
       List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {

@@ -279,8 +279,8 @@ class MenuTabView extends StatelessWidget {
                   onPressed: () => AccountsView.show(context),
                   child: SvgLoader.asset(
                     'assets/icons/switch_account.svg',
-                    width: 21.77,
-                    height: 26.17,
+                    width: 28.81,
+                    height: 25.35,
                   ),
                 ),
               ),
