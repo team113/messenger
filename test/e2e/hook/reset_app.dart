@@ -40,19 +40,21 @@ class ResetAppHook extends Hook {
     await Get.deleteAll(force: true);
     Get.reset();
 
+    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+
     await Future.delayed(Duration.zero);
     await Hive.close();
     await Hive.clean('hive');
   }
 
-  @override
-  Future<void> onAfterScenarioWorldCreated(
-    World world,
-    String scenario,
-    Iterable<Tag> tags,
-  ) async {
-    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
-  }
+  // @override
+  // Future<void> onAfterScenarioWorldCreated(
+  //   World world,
+  //   String scenario,
+  //   Iterable<Tag> tags,
+  // ) async {
+  //   PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+  // }
 
   @override
   Future<void> onAfterScenario(
