@@ -1292,3 +1292,28 @@ class UpdateChatAvatarException
     }
   }
 }
+
+/// Exception of `Mutation.registerFcmDevice` described in the [code].
+class RegisterFcmDeviceException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RegisterFcmDeviceException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RegisterFcmDeviceErrorCode code;
+
+  @override
+  String toString() => 'UpdateChatAvatarException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
+        return 'err_dimensions_too_big'.l10n;
+      case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
+        return 'err_dimensions_too_big'.l10n;
+      case RegisterFcmDeviceErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

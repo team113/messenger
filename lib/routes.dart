@@ -15,9 +15,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/fcm_registration_token.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -545,6 +547,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ));
 
             deps.put(MyUserWorker(myUserService));
+
+            String? token = await FirebaseMessaging.instance.getToken();
+            if(token != null) {
+              graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
+            }
 
             return deps;
           },

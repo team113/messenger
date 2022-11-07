@@ -19,12 +19,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioError;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:messenger/domain/model/fcm_registration_token.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
@@ -953,5 +955,66 @@ abstract class UserGraphQlMixin {
       operationName: 'KeepOnline',
       document: KeepOnlineSubscription().document,
     ));
+  }
+
+
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  ///
+  /// See Firebase Cloud Messaging documentation for how to generate
+  /// `FcmRegistrationToken`s for Flutter and for JavaScript.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `null` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified token is registered already.
+  Future<void> registerFcmDevice(FcmRegistrationToken token) async {
+    final variables = RegisterFcmDeviceArguments(token: token);
+    await client.mutate(
+      MutationOptions(
+        operationName: 'RegisterFcmDevice',
+        document: RegisterFcmDeviceMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) {
+        return RegisterFcmDeviceException(
+          RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
+              as RegisterFcmDeviceErrorCode);
+      },
+    );
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `true` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified token is not registered already.
+  Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
+    final variables = UnregisterFcmDeviceArguments(token: token);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnregisterFcmDevice',
+        document: UnregisterFcmDeviceMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UnregisterFcmDevice$Mutation.fromJson(result.data!)
+        .unregisterFcmDevice;
   }
 }

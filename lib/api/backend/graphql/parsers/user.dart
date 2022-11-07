@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:messenger/domain/model/fcm_registration_token.dart';
+
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
@@ -842,3 +844,45 @@ List<String?>?
             ?.map((e) =>
                 fromDartUsersCursorNullableToGraphQLUsersCursorNullable(e))
             .toList();
+
+// FcmRegistrationToken
+
+FcmRegistrationToken fromGraphQLFcmRegistrationTokenToDartFcmRegistrationToken(String v) => FcmRegistrationToken(v);
+String fromDartFcmRegistrationTokenToGraphQLFcmRegistrationToken(FcmRegistrationToken v) => v.val;
+List<FcmRegistrationToken> fromGraphQLListFcmRegistrationTokenToDartListFcmRegistrationToken(List<Object?> v) =>
+    v.map((e) => fromGraphQLFcmRegistrationTokenToDartFcmRegistrationToken(e as String)).toList();
+List<String> fromDartListFcmRegistrationTokenToGraphQLListFcmRegistrationToken(List<FcmRegistrationToken> v) =>
+    v.map((e) => fromDartFcmRegistrationTokenToGraphQLFcmRegistrationToken(e)).toList();
+List<FcmRegistrationToken>? fromGraphQLListNullableFcmRegistrationTokenToDartListNullableFcmRegistrationToken(
+    List<Object?>? v) =>
+    v?.map((e) => fromGraphQLFcmRegistrationTokenToDartFcmRegistrationToken(e as String)).toList();
+List<String>? fromDartListNullableFcmRegistrationTokenToGraphQLListNullableFcmRegistrationToken(
+    List<FcmRegistrationToken>? v) =>
+    v?.map((e) => fromDartFcmRegistrationTokenToGraphQLFcmRegistrationToken(e)).toList();
+
+FcmRegistrationToken? fromGraphQLFcmRegistrationTokenNullableToDartFcmRegistrationTokenNullable(String? v) =>
+    v == null ? null : FcmRegistrationToken(v);
+String? fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(FcmRegistrationToken? v) =>
+    v?.val;
+List<FcmRegistrationToken?> fromGraphQLListFcmRegistrationTokenNullableToDartListFcmRegistrationTokenNullable(
+    List<Object?> v) =>
+    v
+        .map((e) =>
+        fromGraphQLFcmRegistrationTokenNullableToDartFcmRegistrationTokenNullable(e as String?))
+        .toList();
+List<String?> fromDartListFcmRegistrationTokenNullableToGraphQLListFcmRegistrationTokenNullable(
+    List<FcmRegistrationToken?> v) =>
+    v.map((e) => fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(e)).toList();
+List<FcmRegistrationToken?>?
+fromGraphQLListNullableFcmRegistrationTokenNullableToDartListNullableFcmRegistrationTokenNullable(
+    List<Object?>? v) =>
+    v
+        ?.map((e) =>
+        fromGraphQLFcmRegistrationTokenNullableToDartFcmRegistrationTokenNullable(e as String?))
+        .toList();
+List<String?>?
+fromDartListNullableFcmRegistrationTokenNullableToGraphQLListNullableFcmRegistrationTokenNullable(
+    List<FcmRegistrationToken?>? v) =>
+    v
+        ?.map((e) => fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(e))
+        .toList();

@@ -22,6 +22,7 @@ library main;
 
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -53,6 +54,7 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
 
+  await Firebase.initializeApp();
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();

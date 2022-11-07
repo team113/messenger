@@ -25,6 +25,8 @@ dependencies:
   email_validator: ^2.1.17
   expandable: ^5.0.1
   file_picker: ^5.0.1
+  firebase_core: ^2.1.1
+  firebase_messaging: ^14.0.4
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
