@@ -153,10 +153,7 @@ class ChatController extends GetxController {
   /// Used to discard any vertical gestures while this is `true`.
   final RxBool isHorizontalScroll = RxBool(false);
 
-  /// [Timer] for discarding any vertical movement in a [SingleChildScrollView]
-  /// of [ChatItem]s when non-`null`.
-  ///
-  /// Indicates currently ongoing horizontal scroll of a view on web.
+  /// [Timer] for playing end animation of a horizontal scroll on web.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
   /// [GlobalKey] of the bottom bar.
