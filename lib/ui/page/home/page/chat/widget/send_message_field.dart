@@ -47,12 +47,22 @@ class SendMessageField extends StatefulWidget {
     this.attachments,
     this.onReorder,
     this.quotes,
+    this.editedMessage,
+    this.animateTo,
+    this.messageFieldKey,
+    this.messageSendButtonKey,
     this.me,
     required this.textFieldState,
   }) : super(key: key);
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService = Get.find();
+
+  /// [Key] of message field.
+  final Key? messageFieldKey;
+
+  /// [Key] of message send button.
+  final Key? messageSendButtonKey;
 
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote>? quotes;
@@ -75,6 +85,9 @@ class SendMessageField extends StatefulWidget {
   /// Users [UserId].
   final UserId? me;
 
+  /// [ChatItem] being edited.
+  final Rx<ChatItem?>? editedMessage;
+
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
@@ -83,6 +96,13 @@ class SendMessageField extends StatefulWidget {
 
   /// Callback, called when called pick image from camera.
   final void Function()? onPickImageFromCamera;
+
+  /// Callback, called when need animate to some [ChatMessage].
+  final Future<void> Function(
+    ChatItemId id, {
+    bool offsetBasedOnBottom,
+    double offset,
+  })? animateTo;
 
   /// Callback, called when called pick video from camera.
   final void Function()? onVideoImageFromCamera;
@@ -108,785 +128,6 @@ class _SendMessageFieldState extends State<SendMessageField> {
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
-
-    /// Returns a visual representation of the provided [Attachment].
-    Widget buildAttachment(Attachment e, GlobalKey key) {
-      bool isImage =
-          (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-      bool isVideo = (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && e.file.isVideo);
-
-      const double size = 125;
-
-      // Builds the visual representation of the provided [Attachment] itself.
-      Widget content() {
-        if (isImage || isVideo) {
-          Widget child;
-
-          if (isImage) {
-            if (e is LocalAttachment) {
-              if (e.file.bytes == null) {
-                if (e.file.path == null) {
-                  child = const Center(
-                    child: SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                } else {
-                  if (e.file.isSvg) {
-                    child = SvgLoader.file(
-                      File(e.file.path!),
-                      width: size,
-                      height: size,
-                    );
-                  } else {
-                    child = Image.file(
-                      File(e.file.path!),
-                      fit: BoxFit.cover,
-                      width: size,
-                      height: size,
-                    );
-                  }
-                }
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.bytes(
-                    e.file.bytes!,
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.memory(
-                    e.file.bytes!,
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              child = Image.network(
-                e.original.url,
-                fit: BoxFit.cover,
-                width: size,
-                height: size,
-              );
-            }
-          } else {
-            if (e is LocalAttachment) {
-              if (e.file.bytes == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-              }
-            } else {
-              child = VideoThumbnail.url(url: e.original.url);
-            }
-          }
-
-          List<Attachment> _attachments = widget.attachments!
-              .where((e) {
-                Attachment a = e.value;
-                return a is ImageAttachment ||
-                    (a is FileAttachment && a.isVideo) ||
-                    (a is LocalAttachment &&
-                        (a.file.isImage || a.file.isVideo));
-              })
-              .map((e) => e.value)
-              .toList();
-
-          return WidgetButton(
-            key: key,
-            onPressed: () {
-              int index = widget.attachments!.indexOf(e);
-              if (index != -1) {
-                GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    initial: widget.attachments!.indexOf(e),
-                    initialKey: key,
-                    onTrashPressed: (int i) {
-                      Attachment a = _attachments[i];
-                      widget.attachments!.removeWhere((o) => o.value == a);
-                    },
-                    children: _attachments.map((o) {
-                      if (o is ImageAttachment ||
-                          (o is LocalAttachment && o.file.isImage)) {
-                        return GalleryItem.image(
-                          e.original.url,
-                          o.filename,
-                          size: o.original.size,
-                        );
-                      }
-                      return GalleryItem.video(
-                        e.original.url,
-                        o.filename,
-                        size: o.original.size,
-                      );
-                    }).toList(),
-                  ),
-                );
-              }
-            },
-            child: isVideo
-                ? IgnorePointer(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        child,
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0x80000000),
-                          ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : child,
-          );
-        }
-
-        return Container(
-          width: size,
-          height: size,
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        p.basenameWithoutExtension(e.filename),
-                        style: const TextStyle(fontSize: 13),
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Text(
-                      p.extension(e.filename),
-                      style: const TextStyle(fontSize: 13),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Text(
-                  'label_kb'.l10nfmt({
-                    'amount': e.original.size == null
-                        ? 'dot'.l10n * 3
-                        : e.original.size! ~/ 1024
-                  }),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
-      // Builds the [content] along with manipulation buttons and statuses.
-      Widget attachment() {
-        Style style = Theme.of(context).extension<Style>()!;
-        return MouseRegion(
-          key: Key('Attachment_${e.id}'),
-          opaque: false,
-          onEnter: (_) => widget.hoveredAttachment.value = e,
-          onExit: (_) => widget.hoveredAttachment.value = null,
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: const Color(0xFFF5F5F5),
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: content(),
-                ),
-                Center(
-                  child: SizedBox.square(
-                    dimension: 30,
-                    child: ElasticAnimatedSwitcher(
-                      child: e is LocalAttachment
-                          ? e.status.value == SendingStatus.error
-                              ? Container(
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                  ),
-                                  child: const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
-                                  ),
-                                )
-                              : const SizedBox()
-                          : const SizedBox(),
-                    ),
-                  ),
-                ),
-                if (!widget.textFieldState.status.value.isLoading)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4, top: 4),
-                      child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: (widget.hoveredAttachment.value == e ||
-                                  PlatformUtils.isMobile)
-                              ? InkWell(
-                                  key: const Key('RemovePickedFile'),
-                                  onTap: () => widget.attachments!
-                                      .removeWhere((a) => a.value == e),
-                                  child: Container(
-                                    width: 15,
-                                    height: 15,
-                                    margin: const EdgeInsets.only(
-                                        left: 8, bottom: 8),
-                                    child: Container(
-                                      key: const Key('Close'),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: style.cardColor,
-                                      ),
-                                      child: Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/close_primary.svg',
-                                          width: 7,
-                                          height: 7,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox(),
-                        );
-                      }),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      return Dismissible(
-        key: Key(e.id.val),
-        direction: DismissDirection.up,
-        onDismissed: (_) =>
-            widget.attachments!.removeWhere((a) => a.value == e),
-        child: attachment(),
-      );
-    }
-
-    /// Builds a visual representation of the provided [item] being replied.
-    Widget repliedMessage(ChatItem item) {
-      Style style = Theme.of(context).extension<Style>()!;
-      bool fromMe = item.authorId == widget.me;
-
-      Widget? content;
-      List<Widget> additional = [];
-
-      if (item is ChatMessage) {
-        if (item.attachments.isNotEmpty) {
-          additional = item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
-              ),
-              width: 30,
-              height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                      size: 16,
-                    )
-                  : null,
-            );
-          }).toList();
-        }
-
-        if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Text(
-            item.text!.val.toString(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: style.boldBody,
-          );
-        }
-      } else if (item is ChatCall) {
-        String title = 'label_chat_call_ended'.l10n;
-        String? time;
-        bool fromMe = widget.me == item.authorId;
-        bool isMissed = false;
-
-        if (item.finishReason == null && item.conversationStartedAt != null) {
-          title = 'label_chat_call_ongoing'.l10n;
-        } else if (item.finishReason != null) {
-          title = item.finishReason!.localizedString(fromMe) ?? title;
-          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-              item.finishReason == ChatCallFinishReason.unanswered;
-
-          if (item.finishedAt != null && item.conversationStartedAt != null) {
-            time = item.conversationStartedAt!.val
-                .difference(item.finishedAt!.val)
-                .localizedString();
-          }
-        } else {
-          title = item.authorId == widget.me
-              ? 'label_outgoing_call'.l10n
-              : 'label_incoming_call'.l10n;
-        }
-
-        content = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
-                  ? SvgLoader.asset(
-                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 13,
-                    )
-                  : SvgLoader.asset(
-                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 15,
-                    ),
-            ),
-            Flexible(child: Text(title, style: style.boldBody)),
-            if (time != null) ...[
-              const SizedBox(width: 9),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  time,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      } else if (item is ChatForward) {
-        // TODO: Implement `ChatForward`.
-        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-      } else if (item is ChatMemberInfo) {
-        // TODO: Implement `ChatMemberInfo`.
-        content = Text(item.action.toString(), style: style.boldBody);
-      } else {
-        content = Text('err_unknown'.l10n, style: style.boldBody);
-      }
-
-      return MouseRegion(
-        opaque: false,
-        onEnter: (d) => widget.hoveredReply.value = item,
-        onExit: (d) => widget.hoveredReply.value = null,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: FutureBuilder<RxUser?>(
-                    future: widget._userService.get(item.authorId),
-                    builder: (context, snapshot) {
-                      Color color = snapshot.data?.user.value.id == widget.me
-                          ? Theme.of(context).colorScheme.secondary
-                          : AvatarWidget.colors[
-                              (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                  AvatarWidget.colors.length];
-
-                      return Container(
-                        key: Key(
-                            'Reply_${widget.repliedMessages!.indexOf(item)}'),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(width: 2, color: color),
-                          ),
-                        ),
-                        margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Builder(
-                              builder: (context) {
-                                String? name;
-
-                                if (snapshot.hasData) {
-                                  name = snapshot.data?.user.value.name?.val;
-                                  if (snapshot.data?.user.value != null) {
-                                    return Obx(() {
-                                      return Text(
-                                        snapshot.data!.user.value.name?.val ??
-                                            snapshot.data!.user.value.num.val,
-                                        style: style.boldBody
-                                            .copyWith(color: color),
-                                      );
-                                    });
-                                  }
-                                }
-
-                                return Text(
-                                  name ?? ('dot'.l10n * 3),
-                                  style: style.boldBody.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                );
-                              },
-                            ),
-                            if (content != null) ...[
-                              const SizedBox(height: 2),
-                              DefaultTextStyle.merge(
-                                  maxLines: 1, child: content),
-                            ],
-                            if (additional.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Row(children: additional),
-                            ],
-                          ],
-                        ),
-                      );
-                    }),
-              ),
-              AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child:
-                    widget.hoveredReply.value == item || PlatformUtils.isMobile
-                        ? WidgetButton(
-                            key: const Key('CancelReplyButton'),
-                            onPressed: () {
-                              widget.repliedMessages!.remove(item);
-                            },
-                            child: Container(
-                              width: 15,
-                              height: 15,
-                              margin: const EdgeInsets.only(right: 4, top: 4),
-                              child: Container(
-                                key: const Key('Close'),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: style.cardColor,
-                                ),
-                                child: Center(
-                                  child: SvgLoader.asset(
-                                    'assets/icons/close_primary.svg',
-                                    width: 7,
-                                    height: 7,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    /// Builds a visual representation of a [ChatController.repliedMessages].
-    Widget _forwardedMessage(
-      BuildContext context,
-      ChatItem item,
-    ) {
-      Style style = Theme.of(context).extension<Style>()!;
-      bool fromMe = item.authorId == widget.me;
-
-      Widget? content;
-      List<Widget> additional = [];
-
-      if (item is ChatMessage) {
-        var desc = StringBuffer();
-
-        if (item.text != null) {
-          desc.write(item.text!.val);
-        }
-
-        if (item.attachments.isNotEmpty) {
-          additional = item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.original.url)),
-              ),
-              width: 30,
-              height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                      size: 16,
-                    )
-                  : null,
-            );
-          }).toList();
-        }
-
-        if (desc.isNotEmpty) {
-          content = Text(
-            desc.toString(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: style.boldBody,
-          );
-        }
-      } else if (item is ChatCall) {
-        String title = 'label_chat_call_ended'.l10n;
-        String? time;
-        bool fromMe = widget.me == item.authorId;
-        bool isMissed = false;
-
-        if (item.finishReason == null && item.conversationStartedAt != null) {
-          title = 'label_chat_call_ongoing'.l10n;
-        } else if (item.finishReason != null) {
-          title = item.finishReason!.localizedString(fromMe) ?? title;
-          isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-              item.finishReason == ChatCallFinishReason.unanswered;
-          time = item.conversationStartedAt!.val
-              .difference(item.finishedAt!.val)
-              .localizedString();
-        } else {
-          title = item.authorId == widget.me
-              ? 'label_outgoing_call'.l10n
-              : 'label_incoming_call'.l10n;
-        }
-
-        content = Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
-                  ? SvgLoader.asset(
-                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 13,
-                    )
-                  : SvgLoader.asset(
-                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 15,
-                    ),
-            ),
-            Flexible(child: Text(title, style: style.boldBody)),
-            if (time != null) ...[
-              const SizedBox(width: 9),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  time,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody
-                      .copyWith(color: const Color(0xFF888888), fontSize: 13),
-                ),
-              ),
-            ],
-          ],
-        );
-      } else if (item is ChatForward) {
-        // TODO: Implement `ChatForward`.
-        content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-      } else if (item is ChatMemberInfo) {
-        // TODO: Implement `ChatMemberInfo`.
-        content = Text(item.action.toString(), style: style.boldBody);
-      } else {
-        content = Text('err_unknown'.l10n, style: style.boldBody);
-      }
-
-      return MouseRegion(
-        opaque: false,
-        onEnter: (d) => widget.hoveredReply.value = item,
-        onExit: (d) => widget.hoveredReply.value = null,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: FutureBuilder<RxUser?>(
-                    future: widget._userService.get(item.authorId),
-                    builder: (context, snapshot) {
-                      Color color = snapshot.data?.user.value.id == widget.me
-                          ? const Color(0xFF63B4FF)
-                          : AvatarWidget.colors[
-                              (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                  AvatarWidget.colors.length];
-
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              width: 2,
-                              color: color,
-                            ),
-                          ),
-                        ),
-                        margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FutureBuilder<RxUser?>(
-                              future: widget._userService.get(item.authorId),
-                              builder: (context, snapshot) {
-                                String? name;
-                                if (snapshot.hasData) {
-                                  name = snapshot.data?.user.value.name?.val;
-                                  if (snapshot.data?.user.value != null) {
-                                    return Obx(() {
-                                      Color color =
-                                          snapshot.data?.user.value.id ==
-                                                  widget.me
-                                              ? const Color(0xFF63B4FF)
-                                              : AvatarWidget.colors[snapshot
-                                                      .data!.user.value.num.val
-                                                      .sum() %
-                                                  AvatarWidget.colors.length];
-
-                                      return Text(
-                                          snapshot.data!.user.value.name?.val ??
-                                              snapshot.data!.user.value.num.val,
-                                          style: style.boldBody
-                                              .copyWith(color: color));
-                                    });
-                                  }
-                                }
-
-                                return Text(
-                                  name ?? '...',
-                                  style: style.boldBody
-                                      .copyWith(color: const Color(0xFF63B4FF)),
-                                );
-                              },
-                            ),
-                            if (content != null) ...[
-                              const SizedBox(height: 2),
-                              DefaultTextStyle.merge(
-                                maxLines: 1,
-                                child: content,
-                              ),
-                            ],
-                            if (additional.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Row(children: additional),
-                            ],
-                          ],
-                        ),
-                      );
-                    }),
-              ),
-              AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child:
-                    widget.hoveredReply.value == item || PlatformUtils.isMobile
-                        ? WidgetButton(
-                            key: const Key('CancelReplyButton'),
-                            onPressed: () {
-                              widget.quotes!.removeWhere((e) => e.item == item);
-                              if (widget.quotes!.isEmpty) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            child: Container(
-                              width: 15,
-                              height: 15,
-                              margin: const EdgeInsets.only(right: 4, top: 4),
-                              child: Container(
-                                key: const Key('Close'),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: style.cardColor,
-                                ),
-                                child: Center(
-                                  child: SvgLoader.asset(
-                                    'assets/icons/close_primary.svg',
-                                    width: 7,
-                                    height: 7,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 
     return SafeArea(
       child: Container(
@@ -941,6 +182,30 @@ class _SendMessageFieldState extends State<SendMessageField> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (widget.editedMessage?.value != null)
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxHeight:
+                                        MediaQuery.of(context).size.height / 3,
+                                  ),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                                    child: Dismissible(
+                                      key: Key(
+                                          '${widget.editedMessage?.value?.id}'),
+                                      direction: DismissDirection.horizontal,
+                                      onDismissed: (_) =>
+                                          widget.editedMessage?.value = null,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                        ),
+                                        child: editedMessage(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               if (widget.quotes != null &&
                                   widget.quotes!.isNotEmpty)
                                 ConstrainedBox(
@@ -1021,7 +286,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 2,
                                             ),
-                                            child: _forwardedMessage(
+                                            child: buildForwardedMessage(
                                               context,
                                               e.item,
                                             ),
@@ -1113,9 +378,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                   ),
                                 ),
                               if (widget.attachments != null &&
-                                  widget.attachments!.isNotEmpty &&
-                                  widget.repliedMessages != null &&
-                                  widget.repliedMessages!.isNotEmpty) ...[
+                                  widget.attachments!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Align(
                                   alignment: Alignment.centerLeft,
@@ -1214,7 +477,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                           offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                           child: ReactiveTextField(
                             onChanged: widget.keepTyping,
-                            key: const Key('MessageField'),
+                            key: widget.messageFieldKey ??
+                                const Key('MessageField'),
                             state: widget.textFieldState,
                             hint: 'label_send_message_hint'.l10n,
                             minLines: 1,
@@ -1269,7 +533,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                       duration:
                                           const Duration(milliseconds: 150),
                                       child: SizedBox(
-                                        key: const Key('Send'),
+                                        key: widget.messageSendButtonKey ??
+                                            const Key('Send'),
                                         width: 25.18,
                                         height: 22.85,
                                         child: SvgLoader.asset(
@@ -1291,5 +556,946 @@ class _SendMessageFieldState extends State<SendMessageField> {
         ),
       ),
     );
+  }
+
+  /// Returns a visual representation of the provided [Attachment].
+  Widget buildAttachment(Attachment e, GlobalKey key) {
+    bool isImage =
+        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
+    bool isVideo = (e is FileAttachment && e.isVideo) ||
+        (e is LocalAttachment && e.file.isVideo);
+
+    const double size = 125;
+
+    // Builds the visual representation of the provided [Attachment] itself.
+    Widget content() {
+      if (isImage || isVideo) {
+        Widget child;
+
+        if (isImage) {
+          if (e is LocalAttachment) {
+            if (e.file.bytes == null) {
+              if (e.file.path == null) {
+                child = const Center(
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              } else {
+                if (e.file.isSvg) {
+                  child = SvgLoader.file(
+                    File(e.file.path!),
+                    width: size,
+                    height: size,
+                  );
+                } else {
+                  child = Image.file(
+                    File(e.file.path!),
+                    fit: BoxFit.cover,
+                    width: size,
+                    height: size,
+                  );
+                }
+              }
+            } else {
+              if (e.file.isSvg) {
+                child = SvgLoader.bytes(
+                  e.file.bytes!,
+                  width: size,
+                  height: size,
+                );
+              } else {
+                child = Image.memory(
+                  e.file.bytes!,
+                  fit: BoxFit.cover,
+                  width: size,
+                  height: size,
+                );
+              }
+            }
+          } else {
+            child = Image.network(
+              e.original.url,
+              fit: BoxFit.cover,
+              width: size,
+              height: size,
+            );
+          }
+        } else {
+          if (e is LocalAttachment) {
+            if (e.file.bytes == null) {
+              child = const Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            } else {
+              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
+            }
+          } else {
+            child = VideoThumbnail.url(url: e.original.url);
+          }
+        }
+
+        List<Attachment> attachments = widget.attachments!
+            .where((e) {
+              Attachment a = e.value;
+              return a is ImageAttachment ||
+                  (a is FileAttachment && a.isVideo) ||
+                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+            })
+            .map((e) => e.value)
+            .toList();
+
+        return WidgetButton(
+          key: key,
+          onPressed: () {
+            int index = widget.attachments!.indexOf(e);
+            if (index != -1) {
+              GalleryPopup.show(
+                context: context,
+                gallery: GalleryPopup(
+                  initial: widget.attachments!.indexOf(e),
+                  initialKey: key,
+                  onTrashPressed: (int i) {
+                    Attachment a = attachments[i];
+                    widget.attachments!.removeWhere((o) => o.value == a);
+                  },
+                  children: attachments.map((o) {
+                    if (o is ImageAttachment ||
+                        (o is LocalAttachment && o.file.isImage)) {
+                      return GalleryItem.image(
+                        e.original.url,
+                        o.filename,
+                        size: o.original.size,
+                      );
+                    }
+                    return GalleryItem.video(
+                      e.original.url,
+                      o.filename,
+                      size: o.original.size,
+                    );
+                  }).toList(),
+                ),
+              );
+            }
+          },
+          child: isVideo
+              ? IgnorePointer(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      child,
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0x80000000),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : child,
+        );
+      }
+
+      return Container(
+        width: size,
+        height: size,
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      p.basenameWithoutExtension(e.filename),
+                      style: const TextStyle(fontSize: 13),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    p.extension(e.filename),
+                    style: const TextStyle(fontSize: 13),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Text(
+                'label_kb'.l10nfmt({
+                  'amount': e.original.size == null
+                      ? 'dot'.l10n * 3
+                      : e.original.size! ~/ 1024
+                }),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Builds the [content] along with manipulation buttons and statuses.
+    Widget attachment() {
+      Style style = Theme.of(context).extension<Style>()!;
+      return MouseRegion(
+        key: Key('Attachment_${e.id}'),
+        opaque: false,
+        onEnter: (_) => widget.hoveredAttachment.value = e,
+        onExit: (_) => widget.hoveredAttachment.value = null,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0xFFF5F5F5),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: content(),
+              ),
+              Center(
+                child: SizedBox.square(
+                  dimension: 30,
+                  child: ElasticAnimatedSwitcher(
+                    child: e is LocalAttachment
+                        ? e.status.value == SendingStatus.error
+                            ? Container(
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.error, color: Colors.red),
+                                ),
+                              )
+                            : const SizedBox()
+                        : const SizedBox(),
+                  ),
+                ),
+              ),
+              if (!widget.textFieldState.status.value.isLoading)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 4, top: 4),
+                    child: Obx(() {
+                      return AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: (widget.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile)
+                            ? InkWell(
+                                key: const Key('RemovePickedFile'),
+                                onTap: () => widget.attachments!
+                                    .removeWhere((a) => a.value == e),
+                                child: Container(
+                                  width: 15,
+                                  height: 15,
+                                  margin:
+                                      const EdgeInsets.only(left: 8, bottom: 8),
+                                  child: Container(
+                                    key: const Key('Close'),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: style.cardColor,
+                                    ),
+                                    child: Center(
+                                      child: SvgLoader.asset(
+                                        'assets/icons/close_primary.svg',
+                                        width: 7,
+                                        height: 7,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+                      );
+                    }),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Dismissible(
+      key: Key(e.id.val),
+      direction: DismissDirection.up,
+      onDismissed: (_) => widget.attachments!.removeWhere((a) => a.value == e),
+      child: attachment(),
+    );
+  }
+
+  /// Builds a visual representation of the provided [item] being replied.
+  Widget repliedMessage(ChatItem item) {
+    Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = item.authorId == widget.me;
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      if (item.attachments.isNotEmpty) {
+        additional = item.attachments.map((a) {
+          ImageAttachment? image;
+
+          if (a is ImageAttachment) {
+            image = a;
+          }
+
+          return Container(
+            margin: const EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(
+              color: fromMe
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(4),
+              image: image == null
+                  ? null
+                  : DecorationImage(image: NetworkImage(image.small.url)),
+            ),
+            width: 30,
+            height: 30,
+            child: image == null
+                ? Icon(
+                    Icons.file_copy,
+                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                    size: 16,
+                  )
+                : null,
+          );
+        }).toList();
+      }
+
+      if (item.text != null && item.text!.val.isNotEmpty) {
+        content = Text(
+          item.text!.val.toString(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool fromMe = widget.me == item.authorId;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
+      } else {
+        title = item.authorId == widget.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title, style: style.boldBody)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatForward) {
+      // TODO: Implement `ChatForward`.
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (d) => widget.hoveredReply.value = item,
+      onExit: (d) => widget.hoveredReply.value = null,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: FutureBuilder<RxUser?>(
+                  future: widget._userService.get(item.authorId),
+                  builder: (context, snapshot) {
+                    Color color = snapshot.data?.user.value.id == widget.me
+                        ? Theme.of(context).colorScheme.secondary
+                        : AvatarWidget.colors[
+                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                AvatarWidget.colors.length];
+
+                    return Container(
+                      key:
+                          Key('Reply_${widget.repliedMessages!.indexOf(item)}'),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(width: 2, color: color),
+                        ),
+                      ),
+                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Builder(
+                            builder: (context) {
+                              String? name;
+
+                              if (snapshot.hasData) {
+                                name = snapshot.data?.user.value.name?.val;
+                                if (snapshot.data?.user.value != null) {
+                                  return Obx(() {
+                                    return Text(
+                                      snapshot.data!.user.value.name?.val ??
+                                          snapshot.data!.user.value.num.val,
+                                      style:
+                                          style.boldBody.copyWith(color: color),
+                                    );
+                                  });
+                                }
+                              }
+
+                              return Text(
+                                name ?? ('dot'.l10n * 3),
+                                style: style.boldBody.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                              );
+                            },
+                          ),
+                          if (content != null) ...[
+                            const SizedBox(height: 2),
+                            DefaultTextStyle.merge(maxLines: 1, child: content),
+                          ],
+                          if (additional.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(children: additional),
+                          ],
+                        ],
+                      ),
+                    );
+                  }),
+            ),
+            AnimatedSwitcher(
+              duration: 200.milliseconds,
+              child: widget.hoveredReply.value == item || PlatformUtils.isMobile
+                  ? WidgetButton(
+                      key: const Key('CancelReplyButton'),
+                      onPressed: () {
+                        widget.repliedMessages!.remove(item);
+                      },
+                      child: Container(
+                        width: 15,
+                        height: 15,
+                        margin: const EdgeInsets.only(right: 4, top: 4),
+                        child: Container(
+                          key: const Key('Close'),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: style.cardColor,
+                          ),
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              width: 7,
+                              height: 7,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds a visual representation of a [ChatController.repliedMessages].
+  Widget buildForwardedMessage(
+    BuildContext context,
+    ChatItem item,
+  ) {
+    Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = item.authorId == widget.me;
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      var desc = StringBuffer();
+
+      if (item.text != null) {
+        desc.write(item.text!.val);
+      }
+
+      if (item.attachments.isNotEmpty) {
+        additional = item.attachments.map((a) {
+          ImageAttachment? image;
+
+          if (a is ImageAttachment) {
+            image = a;
+          }
+
+          return Container(
+            margin: const EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(
+              color: fromMe
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(4),
+              image: image == null
+                  ? null
+                  : DecorationImage(image: NetworkImage(image.original.url)),
+            ),
+            width: 30,
+            height: 30,
+            child: image == null
+                ? Icon(
+                    Icons.file_copy,
+                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                    size: 16,
+                  )
+                : null,
+          );
+        }).toList();
+      }
+
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool fromMe = widget.me == item.authorId;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+        time = item.conversationStartedAt!.val
+            .difference(item.finishedAt!.val)
+            .localizedString();
+      } else {
+        title = item.authorId == widget.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title, style: style.boldBody)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody
+                    .copyWith(color: const Color(0xFF888888), fontSize: 13),
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatForward) {
+      // TODO: Implement `ChatForward`.
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (d) => widget.hoveredReply.value = item,
+      onExit: (d) => widget.hoveredReply.value = null,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: FutureBuilder<RxUser?>(
+                  future: widget._userService.get(item.authorId),
+                  builder: (context, snapshot) {
+                    Color color = snapshot.data?.user.value.id == widget.me
+                        ? const Color(0xFF63B4FF)
+                        : AvatarWidget.colors[
+                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                AvatarWidget.colors.length];
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
+                            width: 2,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FutureBuilder<RxUser?>(
+                            future: widget._userService.get(item.authorId),
+                            builder: (context, snapshot) {
+                              String? name;
+                              if (snapshot.hasData) {
+                                name = snapshot.data?.user.value.name?.val;
+                                if (snapshot.data?.user.value != null) {
+                                  return Obx(() {
+                                    Color color =
+                                        snapshot.data?.user.value.id ==
+                                                widget.me
+                                            ? const Color(0xFF63B4FF)
+                                            : AvatarWidget.colors[snapshot
+                                                    .data!.user.value.num.val
+                                                    .sum() %
+                                                AvatarWidget.colors.length];
+
+                                    return Text(
+                                        snapshot.data!.user.value.name?.val ??
+                                            snapshot.data!.user.value.num.val,
+                                        style: style.boldBody
+                                            .copyWith(color: color));
+                                  });
+                                }
+                              }
+
+                              return Text(
+                                name ?? '...',
+                                style: style.boldBody
+                                    .copyWith(color: const Color(0xFF63B4FF)),
+                              );
+                            },
+                          ),
+                          if (content != null) ...[
+                            const SizedBox(height: 2),
+                            DefaultTextStyle.merge(
+                              maxLines: 1,
+                              child: content,
+                            ),
+                          ],
+                          if (additional.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(children: additional),
+                          ],
+                        ],
+                      ),
+                    );
+                  }),
+            ),
+            AnimatedSwitcher(
+              duration: 200.milliseconds,
+              child: widget.hoveredReply.value == item || PlatformUtils.isMobile
+                  ? WidgetButton(
+                      key: const Key('CancelReplyButton'),
+                      onPressed: () {
+                        widget.quotes!.removeWhere((e) => e.item == item);
+                        if (widget.quotes!.isEmpty) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Container(
+                        width: 15,
+                        height: 15,
+                        margin: const EdgeInsets.only(right: 4, top: 4),
+                        child: Container(
+                          key: const Key('Close'),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: style.cardColor,
+                          ),
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              width: 7,
+                              height: 7,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds a visual representation of a [ChatController.editedMessage].
+  Widget editedMessage() {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final bool fromMe = widget.editedMessage?.value?.authorId == widget.me;
+
+    if (widget.editedMessage?.value != null) {
+      if (widget.editedMessage?.value is ChatMessage) {
+        Widget? content;
+        List<Widget> additional = [];
+
+        final ChatMessage item = widget.editedMessage?.value as ChatMessage;
+
+        var desc = StringBuffer();
+        if (item.text != null) {
+          desc.write(item.text!.val);
+        }
+
+        if (item.attachments.isNotEmpty) {
+          additional = item.attachments.map((a) {
+            ImageAttachment? image;
+
+            if (a is ImageAttachment) {
+              image = a;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(4),
+                image: image == null
+                    ? null
+                    : DecorationImage(image: NetworkImage(image.small.url)),
+              ),
+              width: 30,
+              height: 30,
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      size: 16,
+                    )
+                  : null,
+            );
+          }).toList();
+        }
+
+        if (item.text != null) {
+          content = Text(
+            item.text!.val,
+            style: style.boldBody,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+        }
+
+        return WidgetButton(
+          onPressed: () =>
+              widget.animateTo?.call(item.id, offsetBasedOnBottom: true),
+          child: MouseRegion(
+            opaque: false,
+            onEnter: (d) => widget.hoveredReply.value = item,
+            onExit: (d) => widget.hoveredReply.value = null,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 12),
+                        SvgLoader.asset(
+                          'assets/icons/edit.svg',
+                          width: 17,
+                          height: 17,
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  width: 2,
+                                  color: Color(0xFF63B4FF),
+                                ),
+                              ),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'label_edit'.l10n,
+                                  style: style.boldBody.copyWith(
+                                    color: const Color(0xFF63B4FF),
+                                  ),
+                                ),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  DefaultTextStyle.merge(
+                                    maxLines: 1,
+                                    child: content,
+                                  ),
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(children: additional),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Obx(() {
+                    return AnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: widget.hoveredReply.value == item ||
+                              PlatformUtils.isMobile
+                          ? WidgetButton(
+                              key: const Key('CancelEditButton'),
+                              onPressed: () =>
+                                  widget.editedMessage?.value = null,
+                              child: Container(
+                                width: 15,
+                                height: 15,
+                                margin: const EdgeInsets.only(right: 4, top: 4),
+                                child: Container(
+                                  key: const Key('Close'),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: style.cardColor,
+                                  ),
+                                  child: Center(
+                                    child: SvgLoader.asset(
+                                      'assets/icons/close_primary.svg',
+                                      width: 7,
+                                      height: 7,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return const SizedBox.shrink();
   }
 }

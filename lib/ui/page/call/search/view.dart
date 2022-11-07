@@ -177,12 +177,10 @@ class SearchView extends StatelessWidget {
                         Widget child = Container();
 
                         if (e is RxUser) {
-                          if (c.chats.values.firstWhereOrNull((element) =>
-                                  element.chat.value.isDialog &&
-                                  element.chat.value.members.firstWhereOrNull(
-                                          (element2) =>
-                                              element2.user.id ==
-                                              e.user.value.id) !=
+                          if (c.chats.values.firstWhereOrNull((e1) =>
+                                  e1.chat.value.isDialog &&
+                                  e1.chat.value.members.firstWhereOrNull((e2) =>
+                                          e2.user.id == e.user.value.id) !=
                                       null) ==
                               null) {
                             child = Obx(() {
@@ -199,12 +197,10 @@ class SearchView extends StatelessWidget {
                             });
                           }
                         } else if (e is RxChatContact) {
-                          if (c.chats.values.firstWhereOrNull((element) =>
-                                  element.chat.value.isDialog &&
-                                  element.chat.value.members.firstWhereOrNull(
-                                          (element2) =>
-                                              element2.user.id ==
-                                              e.user.value!.id) !=
+                          if (c.chats.values.firstWhereOrNull((e1) =>
+                                  e1.chat.value.isDialog &&
+                                  e1.chat.value.members.firstWhereOrNull((e2) =>
+                                          e2.user.id == e.user.value!.id) !=
                                       null) ==
                               null) {
                             child = Obx(() {
@@ -383,7 +379,6 @@ class SearchView extends StatelessWidget {
     required RxChat chat,
     void Function()? onTap,
     bool selected = false,
-    UserId? me,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 

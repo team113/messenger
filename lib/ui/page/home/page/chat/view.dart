@@ -15,8 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -27,15 +25,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 
-import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -47,14 +40,10 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'component/attachment_selector.dart';
 import 'controller.dart';
 import 'forward/view.dart';
 import 'widget/back_button.dart';
@@ -62,7 +51,6 @@ import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/send_message_field.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -814,6 +802,7 @@ class _ChatViewState extends State<ChatView>
               onVideoImageFromCamera: c.pickVideoFromCamera,
               forwarding: c.forwarding,
               repliedMessages: c.repliedMessages,
+              animateTo: c.animateTo,
               onSend: () async {
                 if (c.forwarding.value) {
                   if (c.repliedMessages.isNotEmpty) {
@@ -853,235 +842,13 @@ class _ChatViewState extends State<ChatView>
               attachments: c.attachments,
             )
           : SendMessageField(
-              onSend: () {
-                c.edit!.submit();
-              },
-              textFieldState: c.edit!,
-              me: c.me,
-            ),
-    );
-  }
-
-  /// Returns a [ReactiveTextField] for editing a [ChatMessage].
-  Widget _editField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      key: const Key('EditField'),
-      decoration: BoxDecoration(
-        borderRadius: style.cardRadius,
-        color: const Color(0xFFFFFFFF).withOpacity(0.4),
-        boxShadow: const [
-          CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-        ],
-      ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-        borderRadius: style.cardRadius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LayoutBuilder(builder: (context, constraints) {
-              return Stack(
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height / 3,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                      child: Dismissible(
-                        key: Key('${c.editedMessage.value?.id}'),
-                        direction: DismissDirection.horizontal,
-                        onDismissed: (_) => c.editedMessage.value = null,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                          ),
-                          child: _editedMessage(c),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            }),
-            SendMessageField(
               onSend: c.edit!.submit,
+              animateTo: c.animateTo,
+              editedMessage: c.editedMessage,
               textFieldState: c.edit!,
               me: c.me,
-              attachments: c.attachments,
             ),
-          ],
-        ),
-      ),
     );
-  }
-
-  /// Builds a visual representation of a [ChatController.editedMessage].
-  Widget _editedMessage(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = c.editedMessage.value?.authorId == c.me;
-
-    if (c.editedMessage.value != null && c.edit != null) {
-      if (c.editedMessage.value is ChatMessage) {
-        Widget? content;
-        List<Widget> additional = [];
-
-        final ChatMessage item = c.editedMessage.value as ChatMessage;
-
-        var desc = StringBuffer();
-        if (item.text != null) {
-          desc.write(item.text!.val);
-        }
-
-        if (item.attachments.isNotEmpty) {
-          additional = item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
-              ),
-              width: 30,
-              height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                      size: 16,
-                    )
-                  : null,
-            );
-          }).toList();
-        }
-
-        if (item.text != null) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
-
-        return WidgetButton(
-          onPressed: () => c.animateTo(item.id, offsetBasedOnBottom: true),
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => c.hoveredReply.value = item,
-            onExit: (d) => c.hoveredReply.value = null,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 12),
-                        SvgLoader.asset(
-                          'assets/icons/edit.svg',
-                          width: 17,
-                          height: 17,
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  width: 2,
-                                  color: Color(0xFF63B4FF),
-                                ),
-                              ),
-                            ),
-                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'label_edit'.l10n,
-                                  style: style.boldBody.copyWith(
-                                    color: const Color(0xFF63B4FF),
-                                  ),
-                                ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  DefaultTextStyle.merge(
-                                    maxLines: 1,
-                                    child: content,
-                                  ),
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Row(children: additional),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Obx(() {
-                    return AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: c.hoveredReply.value == item ||
-                              PlatformUtils.isMobile
-                          ? WidgetButton(
-                              key: const Key('CancelEditButton'),
-                              onPressed: () => c.editedMessage.value = null,
-                              child: Container(
-                                width: 15,
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 4, top: 4),
-                                child: Container(
-                                  key: const Key('Close'),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: style.cardColor,
-                                  ),
-                                  child: Center(
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      width: 7,
-                                      height: 7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    return const SizedBox.shrink();
   }
 
   /// Cancels a [_horizontalScrollTimer] and starts it again with the provided

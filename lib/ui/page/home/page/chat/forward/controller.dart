@@ -306,7 +306,7 @@ class ChatForwardController extends GetxController {
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-        int index = attachments.indexOf(attachment);
+        int index = attachments.indexWhere((e) => e.value == attachment);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
         }

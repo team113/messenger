@@ -433,7 +433,6 @@ class ChatController extends GetxController {
             ? s.status.value = RxStatus.error()
             : s.status.value = RxStatus.empty(),
         onSubmitted: (s) async {
-          print('submit');
           if (s.text == item.text?.val) {
             editedMessage.value = null;
             edit = null;
