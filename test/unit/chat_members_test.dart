@@ -27,6 +27,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -58,6 +59,8 @@ void main() async {
   await chatHiveProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
 
   var recentChats = {
     'recentChats': {'nodes': []}
@@ -180,8 +183,13 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+    AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      draftProvider,
+      userRepository,
+    ));
     return Get.put(ChatService(chatRepository, authService));
   }
 

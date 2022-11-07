@@ -31,6 +31,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -56,6 +57,8 @@ void main() async {
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
   sessionProvider.setCredentials(
     Credentials(
       Session(
@@ -134,8 +137,13 @@ void main() async {
 
   UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-  AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
+  AbstractChatRepository chatRepository =
+      Get.put<AbstractChatRepository>(ChatRepository(
+    graphQlProvider,
+    chatHiveProvider,
+    draftProvider,
+    userRepository,
+  ));
   ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
   test('ChatService successfully deletes chat message', () async {

@@ -29,6 +29,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -109,6 +110,8 @@ void main() async {
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
     await chatHiveProvider.init();
+    var draftProvider = DraftHiveProvider();
+    await draftProvider.init();
 
     AuthService authService = Get.put(
       AuthService(
@@ -121,8 +124,13 @@ void main() async {
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
+    AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(ChatRepository(
+      graphQlProvider,
+      chatHiveProvider,
+      draftProvider,
+      userRepository,
+    ));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.editChatMessageText(
@@ -157,6 +165,8 @@ void main() async {
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
     await chatHiveProvider.init();
+    var draftProvider = DraftHiveProvider();
+    await draftProvider.init();
 
     AuthService authService = Get.put(
       AuthService(
@@ -169,8 +179,13 @@ void main() async {
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
+    AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(ChatRepository(
+      graphQlProvider,
+      chatHiveProvider,
+      draftProvider,
+      userRepository,
+    ));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.editChatMessageText(
