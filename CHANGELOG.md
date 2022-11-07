@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+    - Media panel:
+        - Video resizing when dragged. ([#191], [#190])
     - Chat page:
         - Redesigned forwarding modal. ([#189], [#181])
 
@@ -30,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
 [#142]: /../../pull/142
 [#181]: /../../issues/181
 [#189]: /../../pull/189
+[#190]: /../../issues/190
+[#191]: /../../pull/191
 [#192]: /../../issues/192
 [#193]: /../../pull/193
 [#196]: /../../issues/196
