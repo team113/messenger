@@ -615,14 +615,17 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> toggleChatMute(ChatId id, Muting? mute) async {
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
     HiveRxChat? chat = _chats[id];
     MuteDuration? muted = chat?.chat.value.muted;
+    Muting? muteFor = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
 
-    chat?.chat.update((c) => c?.muted = mute?.toModel());
+    chat?.chat.update((c) => c?.muted = muteFor?.toModel());
 
     try {
-      await _graphQlProvider.toggleChatMute(id, mute);
+      await _graphQlProvider.toggleChatMute(id, muteFor);
     } catch (e) {
       chat?.chat.update((c) => c?.muted = muted);
       rethrow;
@@ -654,7 +657,6 @@ class ChatRepository implements AbstractChatRepository {
       (await _graphQlProvider.chatEvents(chatId, ver))
           .asyncExpand((event) async* {
         var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-        print(events.$$typename);
         if (events.$$typename == 'SubscriptionInitialized') {
           events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
           yield const ChatEventsInitialized();

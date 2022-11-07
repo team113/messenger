@@ -20,6 +20,7 @@ import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
@@ -287,7 +288,7 @@ class ChatService extends DisposableService {
 
   /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
   /// Overrides an existing mute even if it's longer.
-  Future<void> toggleChatMute(ChatId id, Muting? mute) =>
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) =>
       _chatRepository.toggleChatMute(id, mute);
 
   /// Callback, called when a [User] identified by the provided [userId] gets

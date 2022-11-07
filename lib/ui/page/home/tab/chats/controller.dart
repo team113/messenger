@@ -19,8 +19,8 @@ import 'dart:collection';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.graphql.dart' show Muting;
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -212,7 +212,11 @@ class ChatsTabController extends GetxController {
         dateTime = PreciseDateTime.now().add(duration);
       }
 
-      await _chatService.toggleChatMute(id, Muting(duration: dateTime));
+      await _chatService.toggleChatMute(
+          id,
+          duration == null
+              ? MuteDuration.forever()
+              : MuteDuration(until: dateTime));
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
