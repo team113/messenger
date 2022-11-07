@@ -72,7 +72,7 @@ class ChatsTabController extends GetxController {
   ];
 
   /// Indicates whether the mute chat dialog is opened or not.
-  final RxBool isMuteDialogOpened = RxBool(false);
+  final Rx<ChatId?> openedMuteDialogChatId = Rx<ChatId?>(null);
 
   /// Pops the mute chat dialog.
   final Function() pop;
@@ -122,7 +122,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.removed:
-          if (isMuteDialogOpened.value) {
+          if (openedMuteDialogChatId.value == event.key) {
             pop();
           }
           _sortingData.remove(event.key)?.dispose();

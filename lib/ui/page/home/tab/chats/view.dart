@@ -102,7 +102,7 @@ class ChatsTabView extends StatelessWidget {
                                   onHide: () => c.hideChat(chat.id),
                                   inCall: () => c.inCall(chat.id),
                                   muteDialogOpened: () async {
-                                    c.isMuteDialogOpened.value = true;
+                                    c.openedMuteDialogChatId.value = chat.id;
                                     await ConfirmDialog.show(
                                       context,
                                       title: 'label_mute_chat_for'.l10n,
@@ -126,7 +126,7 @@ class ChatsTabView extends StatelessWidget {
                                               ))
                                           .toList(),
                                     );
-                                    c.isMuteDialogOpened.value = false;
+                                    c.openedMuteDialogChatId.value = null;
                                   },
                                   unmuteChat: () => c.unmuteChat(chat.id),
                                 ),
