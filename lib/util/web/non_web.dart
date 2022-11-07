@@ -16,6 +16,8 @@
 
 import 'dart:async';
 
+import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 
@@ -64,6 +66,8 @@ class WebUtils {
 
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
+
+  static HttpClientAdapter get httpClientAdapter => DefaultHttpClientAdapter();
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {

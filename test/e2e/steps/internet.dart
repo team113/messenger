@@ -15,14 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-
-import 'package:dio/adapter.dart';
-import 'package:dio/adapter_browser.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
+import 'package:messenger/util/web/non_web.dart';
 
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -60,9 +58,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = PlatformUtils.isWeb
-        ? BrowserHttpClientAdapter()
-        : DefaultHttpClientAdapter();
+    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
   }),
 );
 

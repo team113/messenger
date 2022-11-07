@@ -1,14 +1,13 @@
 Feature: Image refetching
 
-  Background: User is in dialog with Bob
+  Scenario: User sees image refetched in chat
     Given I am Alice
     And user Bob
     And Bob has dialog with me
     And Bob sends image to me
     And I do not have Internet without exception
-    And I am in chat with Bob
 
-  Scenario: User sees image refetched in chat
+    When I am in chat with Bob
     Then I wait until image is loading
 
     When I have Internet without delay

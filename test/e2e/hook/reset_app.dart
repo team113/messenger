@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:dio/adapter.dart';
-import 'package:dio/adapter_browser.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -52,9 +51,7 @@ class ResetAppHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
-    PlatformUtils.dio.httpClientAdapter = PlatformUtils.isWeb
-        ? BrowserHttpClientAdapter()
-        : DefaultHttpClientAdapter();
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }
 
   @override

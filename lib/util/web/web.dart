@@ -27,6 +27,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:dio/adapter_browser.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -133,6 +134,8 @@ class WebUtils {
 
   /// Indicates whether device's browser is in focus.
   static bool get isFocused => _hasFocus();
+
+  static HttpClientAdapter get httpClientAdapter => BrowserHttpClientAdapter();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
