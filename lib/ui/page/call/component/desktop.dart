@@ -1428,7 +1428,8 @@ Widget _primaryView(CallController c) {
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemConstraints: (_DragData data) {
-            if (data.participant.video.value != null) {
+            if (data.participant.video.value != null ||
+                data.participant.user.value?.user.value.callCover != null) {
               final double size = (c.size.longestSide * 0.33).clamp(100, 250);
               return BoxConstraints(maxWidth: size, maxHeight: size);
             }
@@ -1943,7 +1944,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
             itemConstraints: (_DragData data) {
-              if (data.participant.video.value != null) {
+              if (data.participant.video.value != null ||
+                  data.participant.user.value?.user.value.callCover != null) {
                 final double size = (c.size.longestSide * 0.33).clamp(100, 250);
                 return BoxConstraints(maxWidth: size, maxHeight: size);
               }
