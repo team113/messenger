@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+    - Media panel:
+        - Video resizing when dragged. ([#191], [#190])
     - Chat page:
         - Image attachments not loading. ([#164], [#126])
 
@@ -30,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
 [#126]: /../../issues/126
 [#142]: /../../pull/142
 [#164]: /../../pull/164
+[#190]: /../../issues/190
+[#191]: /../../pull/191
 [#192]: /../../issues/192
 [#193]: /../../pull/193
 [#196]: /../../issues/196
