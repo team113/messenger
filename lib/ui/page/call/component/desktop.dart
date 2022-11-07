@@ -1351,6 +1351,15 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: (_DragData data) {
+            if (data.participant.video.value != null ||
+                data.participant.user.value?.user.value.callCover != null) {
+              final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+              return BoxConstraints(maxWidth: size, maxHeight: size);
+            }
+
+            return null;
+          },
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -1849,8 +1858,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 );
               });
             },
-            decoratorBuilder: (_DragData item) =>
-                const ParticipantDecoratorWidget(),
+            decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+            itemConstraints: (_DragData data) {
+              if (data.participant.video.value != null ||
+                  data.participant.user.value?.user.value.callCover != null) {
+                final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+                return BoxConstraints(maxWidth: size, maxHeight: size);
+              }
+
+              return null;
+            },
             itemBuilder: (_DragData data) {
               var participant = data.participant;
               return Obx(
