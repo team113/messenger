@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -58,6 +59,7 @@ class SearchController extends GetxController {
     required this.categories,
     this.chat,
     this.onChanged,
+    this.onResultsUpdated,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -122,6 +124,9 @@ class SearchController extends GetxController {
   /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults results)? onChanged;
 
+  /// Callback, called when the selected items was changed.
+  final void Function(SearchViewResults results)? onResultsUpdated;
+
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> _sortedChats;
 
@@ -181,6 +186,22 @@ class SearchController extends GetxController {
     populate();
 
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    StreamGroup.mergeBroadcast(
+            [chats.stream, recent.stream, contacts.stream, users.stream])
+        .listen((event) {
+      onResultsUpdated?.call(
+        SearchViewResults(
+          chats.values.map((e) => e).toList(),
+          users.values.map((e) => e).toList(),
+          contacts.values.map((e) => e).toList(),
+        ),
+      );
+    });
+    super.onReady();
   }
 
   @override

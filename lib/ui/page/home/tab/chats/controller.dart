@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/search/controller.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -60,6 +61,8 @@ class ChatsTabController extends GetxController {
 
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
+
+  final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
 
   final RxBool searching = RxBool(false);
 

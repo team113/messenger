@@ -14,12 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -28,9 +25,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the [User]s search.
@@ -47,6 +42,7 @@ class NewSearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onChanged,
+    this.onResultsUpdated,
   }) : super(key: key);
 
   /// [SearchCategory]ies to search through.
@@ -79,6 +75,9 @@ class NewSearchView extends StatelessWidget {
   /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults results)? onChanged;
 
+  /// Callback, called when the selected items was changed.
+  final void Function(SearchViewResults results)? onResultsUpdated;
+
   /// Callback, called when the back button is pressed.
   ///
   /// If `null`, then no back button will be displayed.
@@ -86,9 +85,6 @@ class NewSearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: SearchController(
         Get.find(),
@@ -97,6 +93,7 @@ class NewSearchView extends StatelessWidget {
         chat: chat,
         categories: categories,
         onChanged: onChanged,
+        onResultsUpdated: onResultsUpdated,
       ),
       builder: (SearchController c) {
         return ReactiveTextField(
@@ -113,30 +110,6 @@ class NewSearchView extends StatelessWidget {
           onChanged: () => c.query.value = c.search.text,
         );
       },
-    );
-  }
-
-  /// Builds a [WidgetButton] of the provided [category].
-  Widget _category(
-    BuildContext context,
-    SearchController c,
-    SearchCategory category,
-  ) {
-    return WidgetButton(
-      onPressed: () => c.jumpTo(category),
-      child: Obx(() {
-        final TextStyle? thin = Theme.of(context).textTheme.bodyText1?.copyWith(
-              fontSize: 15,
-              color: c.category.value == category
-                  ? Theme.of(context).colorScheme.secondary
-                  : null,
-            );
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: Text(category.l10n, style: thin),
-        );
-      }),
     );
   }
 
@@ -258,22 +231,5 @@ class NewSearchView extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Extension adding [L10n] to a [SearchCategory].
-extension _SearchCategoryL10n on SearchCategory {
-  /// Returns a localized [String] of this [SearchCategory].
-  String get l10n {
-    switch (this) {
-      case SearchCategory.recent:
-        return 'label_recent'.l10n;
-      case SearchCategory.contacts:
-        return 'label_contacts'.l10n;
-      case SearchCategory.users:
-        return 'label_users'.l10n;
-      case SearchCategory.chats:
-        return 'label_chats'.l10n;
-    }
   }
 }

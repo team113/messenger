@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../../../../../themes.dart';
 import '../../../call/search/newview.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -97,7 +96,12 @@ class ChatsTabView extends StatelessWidget {
                         offset: const Offset(0, 1),
                         child: NewSearchView(
                           title: 'Search',
-                          categories: [SearchCategory.chats],
+                          categories: const [
+                            SearchCategory.chats,
+                            SearchCategory.contacts,
+                            SearchCategory.users,
+                          ],
+                          onResultsUpdated: (val) => c.searchResult.value = val,
                         )
                         // ReactiveTextField(
                         //   state: c.search,
