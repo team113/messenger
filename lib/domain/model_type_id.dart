@@ -100,4 +100,5 @@ class ModelTypeId {
   static const mediaType = 78;
   static const hiveBackground = 79;
   static const storageFile = 80;
+  static const chatCallCredentials = 81;
 }

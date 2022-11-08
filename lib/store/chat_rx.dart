@@ -798,6 +798,8 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.lastItem = event.call;
               }
 
+              _chatRepository.removeCredentials(event.call.id);
+
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
 

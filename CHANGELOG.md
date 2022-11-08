@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
 
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply gesture. ([#188], [#134])
+
 ### Changed
 
 - UI:
@@ -30,8 +36,10 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#126]: /../../issues/126
+[#134]: /../../issues/134
 [#142]: /../../pull/142
 [#164]: /../../pull/164
+[#188]: /../../pull/188
 [#190]: /../../issues/190
 [#191]: /../../pull/191
 [#192]: /../../issues/192
