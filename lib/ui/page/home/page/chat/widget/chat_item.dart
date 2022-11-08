@@ -66,7 +66,6 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.getUser,
-    this.onJoinCall,
     this.animation,
     this.onHide,
     this.onDelete,
@@ -102,9 +101,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a delete action of this [ChatItem] is triggered.
   final void Function()? onDelete;
-
-  /// Callback, called when join call button is pressed.
-  final void Function()? onJoinCall;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
   final void Function()? onReply;
