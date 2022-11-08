@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -27,6 +26,7 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
@@ -56,11 +56,11 @@ class CallService extends DisposableService {
   /// [AuthService] to get the authenticated [MyUser].
   final AuthService _authService;
 
+  /// [ChatService] to access a [Chat.ongoingCall].
+  final ChatService _chatService;
+
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
-
-  /// [Chat]s service used to check an [Chat] existence.
-  final ChatService _chatService;
 
   /// Settings repository, used to get the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -116,7 +116,7 @@ class CallService extends DisposableService {
           withVideo: withVideo,
           withScreen: withScreen,
           mediaSettings: media.value,
-          creds: ChatCallCredentials(const Uuid().v4()),
+          creds: _callsRepo.generateCredentials(chatId),
           state: OngoingCallState.local,
         ),
       );
@@ -143,7 +143,8 @@ class CallService extends DisposableService {
       throw CallIsInPopupException();
     }
 
-    Rx<OngoingCall>? stored = _callsRepo[chatId];
+    final Rx<OngoingCall>? stored = _callsRepo[chatId];
+    ChatCallCredentials? credentials = stored?.value.creds;
 
     try {
       if (stored == null ||
@@ -152,6 +153,12 @@ class CallService extends DisposableService {
         if (stored?.value.state.value == OngoingCallState.ended) {
           var removed = _callsRepo.remove(chatId);
           removed?.value.dispose();
+        } else {
+          RxChat? chat = await _chatService.get(chatId);
+          ChatItemId? id = chat?.chat.value.ongoingCall?.id;
+          if (id != null) {
+            credentials = _callsRepo.getCredentials(id);
+          }
         }
 
         Rx<OngoingCall> call = Rx<OngoingCall>(
@@ -162,14 +169,18 @@ class CallService extends DisposableService {
             withVideo: withVideo,
             withScreen: withScreen,
             mediaSettings: media.value,
-            creds:
-                stored?.value.creds ?? ChatCallCredentials(const Uuid().v4()),
+            creds: credentials ?? _callsRepo.generateCredentials(chatId),
             state: OngoingCallState.joining,
           ),
         );
 
         _callsRepo.add(call);
-        await _callsRepo.join(call);
+        try {
+          await _callsRepo.join(call);
+        } on CallAlreadyJoinedException catch (e) {
+          await _callsRepo.leave(chatId, e.deviceId);
+          await _callsRepo.join(call);
+        }
         call.value.connect(this);
       } else if (stored.value.state.value != OngoingCallState.active) {
         stored.value.state.value = OngoingCallState.joining;
@@ -200,6 +211,7 @@ class CallService extends DisposableService {
 
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
+      _callsRepo.remove(chatId);
     }
 
     WebUtils.removeCall(chatId);
@@ -307,15 +319,31 @@ class CallService extends DisposableService {
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
-  void moveCall(ChatId chatId, ChatId newChatId) {
+  void moveCall({
+    required ChatId chatId,
+    required ChatId newChatId,
+    required ChatItemId callId,
+    required ChatItemId newCallId,
+  }) {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
+      _callsRepo.moveCredentials(callId, newCallId);
       if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }
     }
   }
+
+  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
+  /// specified [OngoingCall].
+  void transferCredentials(ChatId chatId, ChatItemId callId) =>
+      _callsRepo.transferCredentials(chatId, callId);
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callsRepo.removeCredentials(id);
 
   /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
@@ -342,7 +370,7 @@ class CallService extends DisposableService {
                         c.conversationStartedAt == null,
                     withScreen: false,
                     mediaSettings: media.value,
-                    creds: ChatCallCredentials(const Uuid().v4()),
+                    creds: _callsRepo.getCredentials(c.id),
                   ),
                 );
                 _callsRepo.add(call);

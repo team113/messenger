@@ -39,6 +39,7 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/chat.dart';
+import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
@@ -385,6 +386,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
+                deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -404,19 +406,22 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put<AbstractUserRepository>(userRepository);
               AbstractCallRepository callRepository =
-                  deps.put<AbstractCallRepository>(CallRepository(
-                graphQlProvider,
-                userRepository,
-                settingsRepository,
-                me: me,
-              ));
+                  deps.put<AbstractCallRepository>(
+                CallRepository(
+                  graphQlProvider,
+                  userRepository,
+                  Get.find(),
+                  settingsRepository,
+                  me: me,
+                ),
+              );
               AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
                   Get.find(),
-                  userRepository,
                   callRepository,
+                  userRepository,
                   me: me,
                 ),
               );
@@ -441,15 +446,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
-              deps.put(ChatService(chatRepository, Get.find()));
-              deps.put(
-                CallService(
-                  Get.find(),
-                  Get.find(),
-                  settingsRepository,
-                  callRepository,
-                ),
-              );
+              ChatService chatService =
+                  deps.put(ChatService(chatRepository, Get.find()));
+              deps.put(CallService(
+                Get.find(),
+                chatService,
+                settingsRepository,
+                callRepository,
+              ));
 
               return deps;
             },
@@ -479,6 +483,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
+              deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
@@ -498,19 +503,22 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             );
             deps.put<AbstractUserRepository>(userRepository);
             AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(CallRepository(
-              graphQlProvider,
-              userRepository,
-              settingsRepository,
-              me: me,
-            ));
+                deps.put<AbstractCallRepository>(
+              CallRepository(
+                graphQlProvider,
+                userRepository,
+                Get.find(),
+                settingsRepository,
+                me: me,
+              ),
+            );
             AbstractChatRepository chatRepository =
                 deps.put<AbstractChatRepository>(
               ChatRepository(
                 graphQlProvider,
                 Get.find(),
-                userRepository,
                 callRepository,
+                userRepository,
                 me: me,
               ),
             );
@@ -538,14 +546,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put(ContactService(contactRepository));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
-            CallService callService = deps.put(
-              CallService(
-                Get.find(),
-                Get.find(),
-                settingsRepository,
-                callRepository,
-              ),
-            );
+            CallService callService = deps.put(CallService(
+              Get.find(),
+              chatService,
+              settingsRepository,
+              callRepository,
+            ));
 
             deps.put(CallWorker(
               Get.find(),

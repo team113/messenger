@@ -30,11 +30,13 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/my_user.dart';
@@ -63,6 +65,8 @@ void main() async {
   await myUserProvider.clear();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -199,8 +203,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.createChatDirectLink(
@@ -228,8 +245,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.deleteChatDirectLink(
@@ -278,8 +308,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     Get.put(ChatService(chatRepository, authService));
 
     authService.useChatDirectLink(ChatDirectLinkSlug('link'));
@@ -304,8 +347,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
@@ -341,8 +397,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
@@ -369,8 +438,21 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     Get.put(ChatService(chatRepository, authService));
 
     expect(

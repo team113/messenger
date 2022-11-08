@@ -93,6 +93,29 @@ abstract class AbstractCallRepository {
     ChatName? groupName,
   );
 
+  /// Generates the [ChatCallCredentials] for a [Chat] identified by the
+  /// provided [id].
+  ///
+  /// These [ChatCallCredentials] are considered temporary. Use
+  /// [transferCredentials] to persist them, once [ChatItemId] of the
+  /// [OngoingCall] is acquired.
+  ChatCallCredentials generateCredentials(ChatId id);
+
+  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
+  /// specified [OngoingCall].
+  void transferCredentials(ChatId chatId, ChatItemId callId);
+
+  /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
+  /// provided [id].
+  ChatCallCredentials getCredentials(ChatItemId id);
+
+  /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
+  void moveCredentials(ChatItemId callId, ChatItemId newCallId);
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id);
+
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///
   /// This subscription is mandatory to be created after executing [start] or
@@ -134,6 +157,11 @@ class CallDoesNotExistException
 class CallAlreadyJoinedException
     with LocalizedExceptionMixin
     implements Exception {
+  const CallAlreadyJoinedException(this.deviceId);
+
+  /// [ChatCallDeviceId] of the already joined device.
+  final ChatCallDeviceId deviceId;
+
   @override
   String toMessage() => 'err_call_already_joined'.l10n;
 }
