@@ -22,7 +22,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:messenger/util/web/non_web.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 /// [Hook] resetting the [Hive] and [Get] states after a test.
 class ResetAppHook extends Hook {
@@ -46,15 +46,6 @@ class ResetAppHook extends Hook {
     await Hive.close();
     await Hive.clean('hive');
   }
-
-  // @override
-  // Future<void> onAfterScenarioWorldCreated(
-  //   World world,
-  //   String scenario,
-  //   Iterable<Tag> tags,
-  // ) async {
-  //   PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
-  // }
 
   @override
   Future<void> onAfterScenario(

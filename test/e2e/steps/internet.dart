@@ -15,13 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'package:dio/adapter.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:messenger/util/web/non_web.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -39,11 +38,6 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    // PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-    //   ..onGet('*', (server) {});
-    // Timer(delay.seconds, () {
-    //   PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
-    // });
   }),
 );
 
@@ -59,7 +53,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
+    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
   }),
 );
 
@@ -78,10 +72,10 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   }),
 );
 
-/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
+/// Makes all [GraphQlProvider] without exception.
 ///
 /// Examples:
-/// - I do not have Internet
+/// - I do not have Internet without exception
 final StepDefinitionGeneric internetWithoutException = given<CustomWorld>(
   'I do not have Internet without exception',
   (context) => Future.sync(() {

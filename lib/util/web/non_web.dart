@@ -67,6 +67,7 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
+  /// [HttpClientAdapter] for [Dio].
   static HttpClientAdapter get httpClientAdapter => DefaultHttpClientAdapter();
 
   /// Pushes [title] to browser's window title.

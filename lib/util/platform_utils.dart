@@ -43,6 +43,7 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
+  /// Global [Dio].
   Dio dio = Dio();
 
   /// Indicates whether application is running in a web browser.

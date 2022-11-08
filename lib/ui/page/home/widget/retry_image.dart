@@ -20,7 +20,8 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
+
+import '/util/platform_utils.dart';
 
 /// [Image.memory] displaying an image fetched from the provided [url].
 ///

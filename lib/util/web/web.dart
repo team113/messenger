@@ -135,6 +135,7 @@ class WebUtils {
   /// Indicates whether device's browser is in focus.
   static bool get isFocused => _hasFocus();
 
+  /// [HttpClientAdapter] for [Dio].
   static HttpClientAdapter get httpClientAdapter => BrowserHttpClientAdapter();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
