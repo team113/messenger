@@ -292,14 +292,14 @@ class _HomeViewState extends State<HomeView> {
                                             backgroundColor: Colors.orange,
                                           ),
                                         ),
-                                        ContextMenuButton(
-                                          label: 'Muted',
-                                          onPressed: () {},
-                                          leading: const CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        ),
+                                        // ContextMenuButton(
+                                        //   label: 'Muted',
+                                        //   onPressed: () {},
+                                        //   leading: const CircleAvatar(
+                                        //     radius: 8,
+                                        //     backgroundColor: Colors.red,
+                                        //   ),
+                                        // ),
                                         ContextMenuButton(
                                           label: 'Hidden',
                                           onPressed: () =>

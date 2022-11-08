@@ -17,6 +17,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 
@@ -71,13 +72,15 @@ class AccountsView extends StatelessWidget {
           switch (c.stage.value) {
             case AccountsViewStage.login:
               children = [
-                Center(
-                  child: Text(
-                    'Login'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'Login'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 50 - 12),
                 ReactiveTextField(
                   key: const Key('LoginField'),
                   state: c.login,
@@ -131,142 +134,148 @@ class AccountsView extends StatelessWidget {
 
             case AccountsViewStage.add:
               children = [
-                Center(
-                  child: Text(
-                    'Add account'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 50),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text(
-                      'New account'.l10n,
-                      style: const TextStyle(color: Colors.white),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'Add account'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
                     ),
-                    onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFF63B4FF),
-                    maxWidth: null,
+                  ),
+                  onBack: () => c.stage.value = null,
+                ),
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ReactiveTextField(
+                    key: const Key('LoginField'),
+                    state: c.login,
+                    label: 'label_login'.l10n,
+                    style: thin,
+                    treatErrorAsStatus: false,
                   ),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ReactiveTextField(
+                    key: const Key('PasswordField'),
+                    state: c.password,
+                    label: 'label_password'.l10n,
+                    obscure: c.obscurePassword.value,
+                    style: thin,
+                    onSuffixPressed: c.obscurePassword.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgLoader.asset(
+                      'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                      width: 17.07,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: OutlinedRoundedButton(
+                      title: Text('Login'.l10n),
+                      onPressed: () {},
+                      color: const Color(0xFFEEEEEE),
+                      maxWidth: null,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
                 Center(
                   child: Text(
                     'OR'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
-                const SizedBox(height: 50),
-                ReactiveTextField(
-                  key: const Key('LoginField'),
-                  state: c.login,
-                  label: 'label_login'.l10n,
-                  style: thin,
-                  treatErrorAsStatus: false,
-                ),
-                const SizedBox(height: 12),
-                ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  style: thin,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text('Login'.l10n),
-                    onPressed: () {},
-                    color: const Color(0xFFEEEEEE),
-                    maxWidth: null,
-                  ),
-                ),
-                const SizedBox(height: 50),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('CloseButton'),
-                    title: Text('btn_back'.l10n),
-                    onPressed: () => c.stage.value = null,
-                    color: const Color(0xFFEEEEEE),
-                    maxWidth: null,
+                const SizedBox(height: 25),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: OutlinedRoundedButton(
+                      title: Text(
+                        'Create account'.l10n,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      onPressed: Navigator.of(context).pop,
+                      color: const Color(0xFF63B4FF),
+                      maxWidth: null,
+                    ),
                   ),
                 ),
               ];
               break;
 
             default:
+              final Style style = Theme.of(context).extension<Style>()!;
               children = [
-                Center(
-                  child: Text(
-                    'Your accounts'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'Your accounts'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 25),
-                ContactTile(
-                  myUser: c.myUser.value,
-                  // darken: 0,
-                  // border:
-                  // Border.all(width: 0.5, color: const Color(0xFF888888)),
-                  trailing: const [
-                    Text('Active', style: TextStyle(color: Color(0xFF63B4FF))),
-                  ],
-                  subtitle: const [
-                    SizedBox(height: 5),
-                    Text(
-                      'Online',
-                      style: TextStyle(color: Color(0xFF888888)),
-                    ),
-                  ],
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ContactTile(
+                    myUser: c.myUser.value,
+                    // darken: 0,
+                    border: style.cardBorder,
+                    selected: true,
+                    trailing: const [
+                      Text('Active',
+                          style: TextStyle(color: Color(0xFF63B4FF))),
+                    ],
+                    subtitle: const [
+                      SizedBox(height: 5),
+                      Text(
+                        'Online',
+                        style: TextStyle(color: Color(0xFF888888)),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ContactTile(
+                    myUser: c.myUser.value,
+                    // darken: 0,
+                    border: style.cardBorder,
+                    selected: false,
+                    onTap: () {},
+                    // trailing: const [
+                    //   Text('Active', style: TextStyle(color: Color(0xFF63B4FF))),
+                    // ],
+                    subtitle: const [
+                      SizedBox(height: 5),
+                      Text(
+                        'Last seen 10 days ago',
+                        style: TextStyle(color: Color(0xFF888888)),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10),
-                OutlinedRoundedButton(
-                  maxWidth: null,
-                  title: Text(
-                    'Add account'.l10n,
-                    // style: thin?.copyWith(color: Colors.white),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: OutlinedRoundedButton(
+                    maxWidth: null,
+                    title: Text(
+                      'Add account'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onPressed: () => c.stage.value = AccountsViewStage.add,
+                    color: const Color(0xFF63B4FF),
+                    // color: Colors.white.darken(0.05),
                   ),
-                  onPressed: () => c.stage.value = AccountsViewStage.add,
-                  // color: const Color(0xFF63B4FF),
-                  color: Colors.white.darken(0.05),
                 ),
-                // const SizedBox(height: 25),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: OutlinedRoundedButton(
-                //         key: const Key('CloseButton'),
-                //         maxWidth: null,
-                //         title: Text('btn_close'.l10n, style: thin),
-                //         onPressed: Navigator.of(context).pop,
-                //         color: const Color(0xFFEEEEEE),
-                //       ),
-                //     ),
-                //     // const SizedBox(width: 10),
-                //     // Expanded(
-                //     //   child: OutlinedRoundedButton(
-                //     //     key: const Key('SetPasswordButton'),
-                //     //     maxWidth: null,
-                //     //     title: Text(
-                //     //       'Add account'.l10n,
-                //     //       style: thin?.copyWith(color: Colors.white),
-                //     //       maxLines: 1,
-                //     //       overflow: TextOverflow.ellipsis,
-                //     //     ),
-                //     //     onPressed: () => c.stage.value = AccountsViewStage.add,
-                //     //     color: const Color(0xFF63B4FF),
-                //     //   ),
-                //     // ),
-                //   ],
-                // ),
               ];
               break;
           }
@@ -279,7 +288,7 @@ class AccountsView extends StatelessWidget {
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: 0),
                 ...children,
                 const SizedBox(height: 12),
               ],

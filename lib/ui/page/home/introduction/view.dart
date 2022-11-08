@@ -173,11 +173,12 @@ class IntroductionView extends StatelessWidget {
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    'label_account_created'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'label_account_created'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),

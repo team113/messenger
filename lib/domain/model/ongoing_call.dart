@@ -1364,7 +1364,7 @@ class OngoingCall {
   /// 1. bluetooth headset;
   /// 2. speakerphone.
   void _pickOutputDevice() {
-    if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
       var output = devices
               .output()
               .firstWhereOrNull((e) => e.deviceId() == 'bluetooth-headset')

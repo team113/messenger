@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -23,6 +24,10 @@ import '/util/platform_utils.dart';
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
+  static EdgeInsets padding(BuildContext context) => context.isMobile
+      ? EdgeInsets.zero
+      : const EdgeInsets.symmetric(horizontal: 30);
+
   /// Opens a new [ModalPopup] wrapping the provided [child].
   static Future<T?> show<T>({
     required BuildContext context,
@@ -34,6 +39,8 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
     Color? color,
+    Widget? header,
+    void Function()? onBack,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 
@@ -110,6 +117,33 @@ abstract class ModalPopup {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // const SizedBox(height: 16),
+                      // Row(
+                      //   children: [
+                      //     if (onBack != null)
+                      //       WidgetButton(
+                      //         onPressed: onBack,
+                      //         child: Icon(
+                      //           Icons.arrow_back_ios_new,
+                      //           size: 16,
+                      //           color: Theme.of(context).colorScheme.secondary,
+                      //         ),
+                      //       )
+                      //     else
+                      //       const SizedBox(width: 20),
+                      //     if (header != null)
+                      //       Expanded(child: header)
+                      //     else
+                      //       const Spacer(),
+                      //     WidgetButton(
+                      //       onPressed: Navigator.of(context).pop,
+                      //       child: const Icon(
+                      //         Icons.close,
+                      //         size: 16,
+                      //         color: Color(0xBB818181),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                       Flexible(
                         child: ConstrainedBox(
                           constraints: desktopConstraints,
@@ -119,30 +153,29 @@ abstract class ModalPopup {
                       // const SizedBox(height: 16),
                     ],
                   ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Padding(
-                        padding: desktopPadding.right == 0
-                            ? const EdgeInsets.only(right: 10)
-                            : EdgeInsets.zero,
-                        child: SizedBox(
-                          height: 16,
-                          child: isDismissible
-                              ? InkResponse(
-                                  onTap: Navigator.of(context).pop,
-                                  radius: 11,
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Color(0xBB818181),
-                                  ),
-                                )
-                              : null,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned.fill(
+                  //   child: Align(
+                  //     alignment: Alignment.topRight,
+                  //     child: Padding(
+                  //       padding: desktopPadding.right == 0
+                  //           ? const EdgeInsets.only(right: 10)
+                  //           : EdgeInsets.zero,
+                  //       child: SizedBox(
+                  //         height: 16,
+                  //         child: isDismissible
+                  // ? WidgetButton(
+                  //     onPressed: Navigator.of(context).pop,
+                  //     child: const Icon(
+                  //       Icons.close,
+                  //       size: 16,
+                  //       color: Color(0xBB818181),
+                  //     ),
+                  //   )
+                  //             : null,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -150,5 +183,57 @@ abstract class ModalPopup {
         },
       );
     }
+  }
+}
+
+class ModalPopupHeader extends StatelessWidget {
+  const ModalPopupHeader({
+    Key? key,
+    this.onBack,
+    this.header,
+  }) : super(key: key);
+
+  final void Function()? onBack;
+  final Widget? header;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          if (onBack != null)
+            WidgetButton(
+              onPressed: onBack,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 40),
+          if (header != null) Expanded(child: header!) else const Spacer(),
+          // const SizedBox(width: 36, height: 16 + 12 * 2),
+          if (!context.isMobile)
+            WidgetButton(
+              onPressed: Navigator.of(context).pop,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: Color(0xBB818181),
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 40),
+        ],
+      ),
+    );
   }
 }
