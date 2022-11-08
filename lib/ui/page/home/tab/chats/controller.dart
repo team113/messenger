@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -47,7 +48,6 @@ export 'view.dart';
 /// Controller of the [HomeTab.chats] tab .
 class ChatsTabController extends GetxController {
   ChatsTabController(
-    this.pop,
     this._chatService,
     this._callService,
     this._authService,
@@ -74,8 +74,8 @@ class ChatsTabController extends GetxController {
   /// Indicates whether the mute chat dialog is opened or not.
   final Rx<ChatId?> openedMuteDialogChatId = Rx<ChatId?>(null);
 
-  /// Pops the mute chat dialog.
-  final Function() pop;
+  /// [CancelableOperation] of mute popup.
+  final Rx<CancelableOperation?> mutePopup = Rx<CancelableOperation?>(null);
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -123,7 +123,7 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           if (openedMuteDialogChatId.value == event.key) {
-            pop();
+            mutePopup.value?.cancel();
           }
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);

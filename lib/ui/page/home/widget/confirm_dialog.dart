@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -52,6 +53,37 @@ class ConfirmDialog extends StatefulWidget {
 
   /// Optional description to display above the [variants].
   final String? description;
+
+  /// Returns [CancelableOperation] and displays a [ConfirmDialog] wrapped in
+  /// a [ModalPopup].
+  static Future<CancelableOperation> showCancelable(
+    BuildContext context, {
+    String? description,
+    Function? onClosed,
+    required String title,
+    required List<ConfirmDialogVariant> variants,
+  }) async {
+    bool isClosed = false;
+    return CancelableOperation.fromFuture(
+      Future(() async {
+        await ModalPopup.show<ConfirmDialog?>(
+          context: context,
+          child: ConfirmDialog(
+            description: description,
+            title: title,
+            variants: variants,
+          ),
+        );
+        isClosed = true;
+        onClosed?.call();
+      }),
+      onCancel: () {
+        if (!isClosed) {
+          Navigator.of(context).pop();
+        }
+      },
+    );
+  }
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(

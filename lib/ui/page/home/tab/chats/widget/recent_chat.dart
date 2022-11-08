@@ -82,10 +82,10 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onJoin;
 
-  /// Callback, called when need to open mute dialog.
+  /// Callback, called when open mute dialog action is triggered.
   final void Function()? muteDialogOpened;
 
-  /// Callback, called when chat unmuting was called.
+  /// Callback, called when this [rxChat] unmute action is triggered.
   final void Function()? unmuteChat;
 
   @override

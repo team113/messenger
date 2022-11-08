@@ -38,7 +38,6 @@ class ChatsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ChatsTab'),
       init: ChatsTabController(
-        Navigator.of(context).pop,
         Get.find(),
         Get.find(),
         Get.find(),
@@ -103,30 +102,34 @@ class ChatsTabView extends StatelessWidget {
                                   inCall: () => c.inCall(chat.id),
                                   muteDialogOpened: () async {
                                     c.openedMuteDialogChatId.value = chat.id;
-                                    await ConfirmDialog.show(
+                                    c.mutePopup.value =
+                                        await ConfirmDialog.showCancelable(
                                       context,
                                       title: 'label_mute_chat_for'.l10n,
+                                      onClosed: () {
+                                        c.openedMuteDialogChatId.value = null;
+                                      },
                                       variants: c.muteDateTimes
-                                          .map((e) => ConfirmDialogVariant(
-                                                onProceed: () => c.muteChat(
-                                                  chat.id,
-                                                  duration: e,
-                                                ),
-                                                child: Text(
-                                                  'label_mute_for'.l10nfmt({
-                                                    'days': e?.inDays ?? 0,
-                                                    'hours': e?.inHours ?? 0,
-                                                    'minutes':
-                                                        e?.inMinutes ?? 0,
-                                                  }),
-                                                  key: e == null
-                                                      ? const Key('MuteForever')
-                                                      : null,
-                                                ),
-                                              ))
+                                          .map(
+                                            (e) => ConfirmDialogVariant(
+                                              onProceed: () => c.muteChat(
+                                                chat.id,
+                                                duration: e,
+                                              ),
+                                              child: Text(
+                                                'label_mute_for'.l10nfmt({
+                                                  'days': e?.inDays ?? 0,
+                                                  'hours': e?.inHours ?? 0,
+                                                  'minutes': e?.inMinutes ?? 0,
+                                                }),
+                                                key: e == null
+                                                    ? const Key('MuteForever')
+                                                    : null,
+                                              ),
+                                            ),
+                                          )
                                           .toList(),
                                     );
-                                    c.openedMuteDialogChatId.value = null;
                                   },
                                   unmuteChat: () => c.unmuteChat(chat.id),
                                 ),
