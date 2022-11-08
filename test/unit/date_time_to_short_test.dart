@@ -101,19 +101,19 @@ void main() {
         sevenDaysAgo.hour,
         sevenDaysAgo.minute,
       ).toShort(),
-      '${sevenDaysAgo.year}-${sevenDaysAgo.month}-${sevenDaysAgo.day}',
+      '${sevenDaysAgo.year}-${sevenDaysAgo.month.toString().padLeft(2, '0')}-${sevenDaysAgo.day.toString().padLeft(2, '0')}',
     );
 
     expect(
       DateTime(sevenDaysAgo.year, sevenDaysAgo.month, sevenDaysAgo.day, 23, 59)
           .toShort(),
-      '${sevenDaysAgo.year}-${sevenDaysAgo.month}-${sevenDaysAgo.day}',
+      '${sevenDaysAgo.year}-${sevenDaysAgo.month.toString().padLeft(2, '0')}-${sevenDaysAgo.day.toString().padLeft(2, '0')}',
     );
 
     expect(
       DateTime(sevenDaysAgo.year, sevenDaysAgo.month, sevenDaysAgo.day, 0, 1)
           .toShort(),
-      '${sevenDaysAgo.year}-${sevenDaysAgo.month}-${sevenDaysAgo.day}',
+      '${sevenDaysAgo.year}-${sevenDaysAgo.month.toString().padLeft(2, '0')}-${sevenDaysAgo.day.toString().padLeft(2, '0')}',
     );
 
     final DateTime monthAgo = now.subtract(31.days);
