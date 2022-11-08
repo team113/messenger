@@ -128,6 +128,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     bool oldValue = false;
     if (user != null) {
+      oldValue = user.value.hasPassword;
       user.value.hasPassword = true;
       _myUserLocal.set(user);
     }
