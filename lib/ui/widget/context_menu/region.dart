@@ -18,6 +18,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
 import 'mobile.dart';
@@ -26,7 +27,7 @@ import 'mobile.dart';
 /// or a long tap.
 ///
 /// Depending on the current platform it displays:
-/// - [ContextMenu] on desktop;
+/// - [ContextMenu] or [Selector] on desktop;
 /// - [FloatingContextMenu] on mobile.
 class ContextMenuRegion extends StatelessWidget {
   const ContextMenuRegion({
@@ -38,6 +39,9 @@ class ContextMenuRegion extends StatelessWidget {
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
+    this.selector,
+    this.width = 260,
+    this.margin = EdgeInsets.zero,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -64,6 +68,22 @@ class ContextMenuRegion extends StatelessWidget {
   /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
 
+  /// [GlobalKey] of a [Selector.buttonKey].
+  ///
+  /// If specified, then this [ContextMenuRegion] will display a [Selector]
+  /// instead of a [ContextMenu].
+  final GlobalKey? selector;
+
+  /// Width of a [Selector].
+  ///
+  /// Only meaningful, if [selector] is specified.
+  final double width;
+
+  /// Margin to apply to a [Selector].
+  ///
+  /// Only meaningful, if [selector] is specified.
+  final EdgeInsets margin;
+
   @override
   Widget build(BuildContext context) {
     if (enabled) {
@@ -81,6 +101,7 @@ class ContextMenuRegion extends StatelessWidget {
                   alignment: alignment,
                   moveDownwards: moveDownwards,
                   actions: actions,
+                  margin: margin,
                   child: child,
                 )
               : GestureDetector(
@@ -98,12 +119,59 @@ class ContextMenuRegion extends StatelessWidget {
   }
 
   /// Shows the [ContextMenu] wrapping the [actions].
-  void _show(BuildContext context, Offset position) {
+  Future<void> _show(BuildContext context, Offset position) async {
     if (actions.isEmpty) {
       return;
     }
 
-    showDialog(
+    if (selector != null) {
+      await Selector.show(
+        context: context,
+        items: actions,
+        width: width,
+        margin: margin,
+        buttonBuilder: (int i, ContextMenuButton b) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              b,
+              if (i < actions.length - 1)
+                Container(
+                  color: const Color(0x11000000),
+                  height: 1,
+                  width: double.infinity,
+                ),
+            ],
+          );
+        },
+        itemBuilder: (ContextMenuButton b) {
+          final TextStyle? thin = Theme.of(context)
+              .textTheme
+              .caption
+              ?.copyWith(color: Colors.black);
+          return Row(
+            children: [
+              if (b.leading != null) ...[
+                b.leading!,
+                const SizedBox(width: 12),
+              ],
+              Text(b.label, style: thin?.copyWith(fontSize: 15)),
+              if (b.trailing != null) ...[
+                const SizedBox(width: 12),
+                b.trailing!,
+              ],
+            ],
+          );
+        },
+        onSelected: (ContextMenuButton b) => b.onPressed?.call(),
+        buttonKey: selector,
+        alignment: Alignment(-alignment.x, -alignment.y),
+      );
+
+      return;
+    }
+
+    await showDialog(
       barrierColor: Colors.transparent,
       context: context,
       builder: (context) {
