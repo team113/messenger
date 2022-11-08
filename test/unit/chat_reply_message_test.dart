@@ -29,11 +29,13 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/user.dart';
@@ -53,8 +55,8 @@ void main() async {
 
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
-  await chatHiveProvider.init();
+  var chatProvider = Get.put(ChatHiveProvider());
+  await chatProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   var draftProvider = Get.put(DraftHiveProvider());
@@ -62,6 +64,8 @@ void main() async {
   var userProvider = UserHiveProvider();
   await userProvider.init();
   await userProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -179,13 +183,21 @@ void main() async {
           as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned),
     );
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         draftProvider,
         userRepository,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
@@ -238,13 +250,21 @@ void main() async {
     )).thenThrow(
         const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         draftProvider,
         userRepository,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),

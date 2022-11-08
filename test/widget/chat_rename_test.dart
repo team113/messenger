@@ -35,6 +35,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -124,6 +125,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -239,19 +242,26 @@ void main() async {
         backgroundProvider,
       ),
     );
-    AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
+    AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
-      chatProvider,
-      draftProvider,
       userRepository,
-    ));
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
+      credentialsProvider,
+    );
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
 
     Get.put(UserService(userRepository));
-    Get.put(ChatService(chatRepository, authService));
-    Get.put(CallService(authService, settingsRepository, callRepository));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

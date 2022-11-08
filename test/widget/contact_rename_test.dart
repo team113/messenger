@@ -38,6 +38,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
@@ -110,6 +111,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -228,18 +231,25 @@ void main() async {
       ),
     );
 
-    AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
+    CallRepository callRepository = CallRepository(
       graphQlProvider,
-      chatProvider,
-      draftProvider,
       userRepository,
-    ));
-    Get.put(ChatService(chatRepository, authService));
+      credentialsProvider,
+    );
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    CallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
-    Get.put(CallService(authService, settingsRepository, callRepository));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ContactsTabView()));

@@ -37,6 +37,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
@@ -146,6 +147,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -154,6 +157,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
   Get.put(chatProvider);
+  Get.put(credentialsProvider);
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(home: Builder(
@@ -338,13 +342,19 @@ void main() async {
         graphQlProvider, contactProvider, userRepository, sessionProvider);
     Get.put(ContactService(contactRepository));
 
+    CallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatProvider,
+      callRepository,
       draftProvider,
       userRepository,
     );
-    Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     SettingsRepository settingsRepository = SettingsRepository(
       mediaProvider,
@@ -352,9 +362,9 @@ void main() async {
       backgroundProvider,
     );
 
-    CallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
-    Get.put(CallService(authService, settingsRepository, callRepository));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const UserView(UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')),
