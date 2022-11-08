@@ -123,8 +123,23 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserPassword(
     UserPassword? oldPassword,
     UserPassword newPassword,
-  ) =>
-      _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+  ) async {
+    HiveMyUser? user = _myUserLocal.myUser;
+
+    bool oldValue = false;
+    if (user != null) {
+      user.value.hasPassword = true;
+      _myUserLocal.set(user);
+    }
+    try {
+      await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+    } catch (e) {
+      if (user != null) {
+        user.value.hasPassword = oldValue;
+        _myUserLocal.set(user);
+      }
+    }
+  }
 
   @override
   Future<void> deleteMyUser() => _graphQlProvider.deleteMyUser();
