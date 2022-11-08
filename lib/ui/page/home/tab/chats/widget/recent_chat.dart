@@ -114,38 +114,19 @@ class RecentChatTile extends StatelessWidget {
             constraints: const BoxConstraints(maxHeight: 38),
             child: Row(
               children: [
-                const SizedBox(height: 3),
+                const SizedBox(height: 26),
                 Expanded(child: _subtitle(context)),
+                _counter(),
               ],
             ),
           ),
         ],
-        trailing: [
-          // _callButtons(context),
-          // if (chat.ongoingCall == null) ...[
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  _status(context),
-                  Text(
-                    chat.updatedAt.val.toLocal().toShort(),
-                    // chat.ongoingCall == null
-                    //     ? chat.updatedAt.val.toLocal().toShort()
-                    //     : '',
-                    style: Theme.of(context).textTheme.subtitle2,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              _counter(),
-              // chat.unreadCount != 0 ? _counter() : _status(context),
-            ],
+        title: [
+          _status(context),
+          Text(
+            chat.updatedAt.val.toLocal().toShort(),
+            style: Theme.of(context).textTheme.subtitle2,
           ),
-          // ],
         ],
         actions: [
           ContextMenuButton(
