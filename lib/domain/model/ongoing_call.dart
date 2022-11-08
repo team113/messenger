@@ -1173,7 +1173,7 @@ class OngoingCall {
   /// Re-initializes the [_room], if this [link] is different from the currently
   /// used [ChatCall.joinLink].
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
-    me.isConnected.value = false;
+    me.isConnected.value = false; //s
 
     Log.print('Joining the room...', 'CALL');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
