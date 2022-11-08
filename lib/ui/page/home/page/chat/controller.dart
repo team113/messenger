@@ -357,6 +357,7 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     listController.addListener(_updateFabStates);
+    send.controller.addListener(updateDraft);
     _fetchChat();
     _initAudio();
     super.onReady();
@@ -374,6 +375,7 @@ class ChatController extends GetxController {
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
+    send.controller.removeListener(updateDraft);
     listController.removeListener(_updateFabStates);
     listController.dispose();
 

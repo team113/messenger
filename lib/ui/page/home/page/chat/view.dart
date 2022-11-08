@@ -1075,10 +1075,7 @@ class _ChatViewState extends State<ChatView>
                         child: Transform.translate(
                           offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                           child: ReactiveTextField(
-                            onChanged: () {
-                              c.keepTyping();
-                              c.updateDraft();
-                            },
+                            onChanged: c.keepTyping,
                             key: const Key('MessageField'),
                             state: c.send,
                             hint: 'label_send_message_hint'.l10n,

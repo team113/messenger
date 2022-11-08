@@ -161,6 +161,7 @@ void main() async {
         Get.put<AbstractChatRepository>(ChatRepository(
       graphQlProvider,
       Get.find(),
+      callRepository,
       draftProvider,
       userRepository,
     ));
