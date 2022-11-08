@@ -275,7 +275,13 @@ class _ChatViewState extends State<ChatView>
                             double value =
                                 _animation.value + s.scrollDelta.dx / 100;
                             _animation.value = value.clamp(0, 1);
-                            _resetHorizontalScroll(c);
+
+                            if (_animation.value == 0 ||
+                                _animation.value == 1) {
+                              _resetHorizontalScroll(c, 10.milliseconds);
+                            } else {
+                              _resetHorizontalScroll(c);
+                            }
                           }
                         }
                       },
