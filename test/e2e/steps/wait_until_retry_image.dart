@@ -18,10 +18,9 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
-import '../parameters/keys.dart';
 import '../parameters/retry_image.dart';
 
-/// Waits until the provided [WidgetKey] is present or absent.
+/// Waits until the image is present or absent.
 ///
 /// Examples:
 /// - Then I wait until image is loading
