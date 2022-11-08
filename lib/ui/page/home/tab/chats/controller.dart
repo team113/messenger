@@ -61,6 +61,8 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
+  final RxBool searching = RxBool(false);
+
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
 
