@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'package:dio/adapter.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -58,7 +59,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+    PlatformUtils.dio.httpClientAdapter = DefaultHttpClientAdapter();
   }),
 );
 
