@@ -307,9 +307,9 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          s.clear();
           repliedMessages.clear();
           attachments.clear();
+          s.clear();
           s.unsubmit();
 
           _typingSubscription?.cancel();
