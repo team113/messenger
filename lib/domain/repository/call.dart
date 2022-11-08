@@ -70,17 +70,6 @@ abstract class AbstractCallRepository {
   /// authenticated [MyUser].
   Future<void> decline(ChatId chatId);
 
-  /// Adds the provided [ChatCall] to the [calls].
-  ///
-  /// Should be called when a new [ChatCall] added.
-  void onCallAdded(ChatCall chatCall);
-
-  /// Removes the [OngoingCall] with the provided [ChatId] from the [calls] if
-  /// this [OngoingCall] is notification about started [ChatCall].
-  ///
-  /// Should be called when a [ChatCall] finished.
-  void onCallRemoved(ChatId chatId);
-
   /// Raises/lowers a hand of the authenticated [MyUser] in the specified
   /// [ChatCall].
   Future<void> toggleHand(ChatId chatId, bool raised);
@@ -115,6 +104,17 @@ abstract class AbstractCallRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
+
+  /// Adds the provided [ChatCall] to the [calls].
+  ///
+  /// Should be called when a new [ChatCall] added.
+  void addCall(ChatCall chatCall);
+
+  /// Removes the [OngoingCall] with the provided [ChatId] from the [calls] if
+  /// this [OngoingCall] is notification about started [ChatCall].
+  ///
+  /// Should be called when a [ChatCall] finished.
+  void endCall(ChatId chatId);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///

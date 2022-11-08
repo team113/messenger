@@ -383,7 +383,7 @@ class CallService extends DisposableService {
             bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
-              _callsRepo.onCallAdded(e.call);
+              _callsRepo.addCall(e.call);
             }
             break;
 
@@ -392,7 +392,7 @@ class CallService extends DisposableService {
             bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
-              _callsRepo.onCallRemoved(e.call.chatId);
+              _callsRepo.endCall(e.call.chatId);
             }
             break;
         }

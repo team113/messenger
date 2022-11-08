@@ -28,12 +28,10 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -56,7 +54,6 @@ import 'event/chat.dart';
 class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
-    this._callsRepository,
     this._chatLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
@@ -85,9 +82,6 @@ class HiveRxChat extends RxChat {
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
-
-  /// Repository of [OngoingCall]s collection.
-  final AbstractCallRepository _callsRepository;
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
@@ -786,7 +780,7 @@ class HiveRxChat extends RxChat {
                     PreciseDateTime.now();
               }
 
-              _callsRepository.onCallAdded(event.call);
+              _chatRepository.addCall(event.call);
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -817,7 +811,7 @@ class HiveRxChat extends RxChat {
                 message.save();
               }
 
-              _callsRepository.onCallRemoved(event.call.chatId);
+              _chatRepository.endCall(event.call.chatId);
               break;
 
             case ChatEventKind.callMemberLeft:

@@ -27,6 +27,7 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
@@ -642,6 +643,10 @@ class ChatRepository implements AbstractChatRepository {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callRepo.removeCredentials(id);
+
+  void addCall(ChatCall chatCall) => _callRepo.addCall(chatCall);
+
+  void endCall(ChatId chatId) => _callRepo.endCall(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(

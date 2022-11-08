@@ -140,7 +140,7 @@ class CallRepository implements AbstractCallRepository {
   }
 
   @override
-  void onCallAdded(ChatCall chatCall) {
+  void addCall(ChatCall chatCall) {
     // If we're already in this call, then ignore it.
     if (chatCall.members.any((e) => e.user.id == me)) {
       return;
@@ -158,7 +158,7 @@ class CallRepository implements AbstractCallRepository {
           withVideo: false,
           withScreen: false,
           mediaSettings: _settingsRepository.mediaSettings.value,
-          creds: ChatCallCredentials(const Uuid().v4()),
+          creds: getCredentials(chatCall.id),
         ),
       );
       add(call);
@@ -168,7 +168,7 @@ class CallRepository implements AbstractCallRepository {
   }
 
   @override
-  void onCallRemoved(ChatId chatId) {
+  void endCall(ChatId chatId) {
     Rx<OngoingCall>? call = calls[chatId];
     // If call is not yet connected to the remote updates, then it's still just
     // a notification and it should be removed.
