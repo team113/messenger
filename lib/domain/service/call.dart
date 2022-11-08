@@ -59,7 +59,7 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
 
-  /// Chat]s service used to check an [Chat] existence.
+  /// [Chat]s service used to check an [Chat] existence.
   final ChatService _chatService;
 
   /// Settings repository, used to get the stored [MediaSettings].

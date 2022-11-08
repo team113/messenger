@@ -164,8 +164,8 @@ class CallRepository implements AbstractCallRepository {
   @override
   void onCallRemoved(ChatId chatId) {
     Rx<OngoingCall>? call = _calls[chatId];
-    // If call is not yet connected to the remote updates, then it's
-    // still just a notification and it should be removed.
+    // If call is not yet connected to the remote updates, then it's still just
+    // a notification and it should be removed.
     if (call?.value.connected == false && call?.value.isActive == false) {
       var removed = remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
