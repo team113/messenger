@@ -175,6 +175,9 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
+  /// Returns a [ChatId] of the [chat].
+  ChatId get id => chat.value.id;
+
   // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
   //       [PreciseDateTime] and [ChatItemId] as a key.
   /// Observable list of [ChatItem]s of the [chat].
@@ -219,5 +222,5 @@ abstract class RxChat {
   Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
-  Future<void> remove(ChatItemId id);
+  Future<void> remove(ChatItemId itemId);
 }

@@ -6,7 +6,47 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.7] · 2022-??-??
+## [0.1.0-alpha.8] · 2022-??-??
+[0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
+
+[Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
+
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply gesture. ([#188], [#134])
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned chats tab. ([#142])
+    - Media panel:
+        - Video resizing when dragged. ([#191], [#190])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Replies having reversed order in messages. ([#193], [#192])
+- Web:
+    - Context menu not opening over video previews. ([#198], [#196])
+
+[#134]: /../../issues/134
+[#142]: /../../pull/142
+[#188]: /../../pull/188
+[#190]: /../../issues/190
+[#191]: /../../pull/191
+[#192]: /../../issues/192
+[#193]: /../../pull/193
+[#196]: /../../issues/196
+[#198]: /../../pull/198
+
+
+
+
+## [0.1.0-alpha.7] · 2022-10-27
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
 [Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
@@ -23,17 +63,17 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Redesigned system messages; ([#161], [#158])
-        - Redesigned messages and forwards; ([#162], [#151])
+        - Redesigned system messages. ([#161], [#158])
+        - Redesigned messages and forwards. ([#162], [#151])
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal; ([#127], [#122])
+        - Redesigned participants modal. ([#127], [#122])
         - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
 - macOS:
-    - Escape not exiting fullscreen in calls. ([#169], [#166])
+    - Escape key not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
     - Media panel:

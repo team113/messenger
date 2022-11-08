@@ -53,7 +53,7 @@ import 'chat.dart';
 import 'event/chat.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
-class HiveRxChat implements RxChat {
+class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
     this._callsRepository,
@@ -121,9 +121,6 @@ class HiveRxChat implements RxChat {
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
-
-  /// Returns [ChatId] of the [chat].
-  ChatId get id => chat.value.id;
 
   @override
   UserId? get me => _chatRepository.me;

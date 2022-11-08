@@ -27,7 +27,7 @@ class Themes {
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
-          background: Colors.white,
+          background: const Color(0xFFF5F8FA),
           onBackground: Colors.black,
         );
 
@@ -47,13 +47,17 @@ class Themes {
             cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
+            cardHoveredBorder:
+                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
+            cardHoveredColor: const Color(0xFFF4F9FF),
             cardRadius: BorderRadius.circular(14),
+            cardSelectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             messageColor: Colors.white,
             primaryBorder:
-                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
@@ -108,7 +112,7 @@ class Themes {
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: TextStyle(color: colors.primary, fontSize: 24),
+          headline4: const TextStyle(color: Colors.black, fontSize: 18),
           headline5: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
@@ -116,6 +120,11 @@ class Themes {
           ),
           caption: TextStyle(
             color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 13,
+          ),
+          button: const TextStyle(
+            color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
@@ -282,7 +291,10 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredBorder,
+    required this.cardHoveredColor,
     required this.cardRadius,
+    required this.cardSelectedColor,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
@@ -312,8 +324,17 @@ class Style extends ThemeExtension<Style> {
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
+  /// [Border] to apply to hovered card-like [Widget]s.
+  final Border cardHoveredBorder;
+
+  /// Background [Color] of hovered card-like [Widget]s.
+  final Color cardHoveredColor;
+
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
+
+  /// Background [Color] of selected card-like [Widget]s.
+  final Color cardSelectedColor;
 
   /// Background [Color] of the [ContextMenu].
   final Color contextMenuBackgroundColor;
@@ -360,7 +381,10 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Border? cardHoveredBorder,
+    Color? cardHoveredColor,
     BorderRadius? cardRadius,
+    Color? cardSelectedColor,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
@@ -380,7 +404,10 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardRadius: cardRadius ?? this.cardRadius,
+      cardSelectedColor: cardSelectedColor ?? this.cardSelectedColor,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
@@ -410,7 +437,13 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredBorder:
+          Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      cardSelectedColor:
+          Color.lerp(cardSelectedColor, other.cardSelectedColor, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
         other.contextMenuBackgroundColor,
