@@ -295,9 +295,9 @@ class _NestedHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isNarrow && tab == HomeTab.menu) {
-      return UserView(me);
-    }
+    // if (!context.isNarrow && tab == HomeTab.menu) {
+    //   return UserView(me);
+    // }
 
     return Container();
   }

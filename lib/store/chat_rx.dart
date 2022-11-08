@@ -116,8 +116,6 @@ class HiveRxChat extends RxChat {
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
 
-
-
   @override
   UserId? get me => _chatRepository.me;
 

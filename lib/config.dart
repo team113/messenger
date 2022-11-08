@@ -102,7 +102,7 @@ class Config {
 
     origin = url;
 
-    /// Change default values to browser's location on web platform.
+    // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
           !const bool.hasEnvironment('SOCAPP_HTTP_URL')) {

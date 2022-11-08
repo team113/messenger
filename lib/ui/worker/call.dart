@@ -180,17 +180,11 @@ class CallWorker extends DisposableService {
                       c.caller?.name?.val ??
                       c.caller?.num.val;
 
-                  String? avatarUrl;
-                  Avatar? avatar = chat?.avatar.value;
-                  if (avatar != null) {
-                    avatarUrl = '${Config.files}${avatar.original.relativeRef}';
-                  }
-
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,
                     body: title == null ? null : 'label_incoming_call'.l10n,
                     payload: '${Routes.chat}/${c.chatId}',
-                    icon: avatarUrl,
+                    icon: chat?.avatar.value?.original.url,
                     playSound: false,
                   );
                 });

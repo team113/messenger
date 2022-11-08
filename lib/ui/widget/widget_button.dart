@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+/// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
     Key? key,
@@ -23,7 +24,10 @@ class WidgetButton extends StatelessWidget {
     this.onPressed,
   }) : super(key: key);
 
+  /// [Widget] to press.
   final Widget child;
+
+  /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
   @override

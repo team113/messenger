@@ -33,6 +33,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -43,6 +44,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
+import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
@@ -57,6 +59,7 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
+    this._callRepo,
     this._userRepo, {
     this.me,
   });
@@ -73,6 +76,9 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
+  final AbstractCallRepository _callRepo;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -279,12 +285,8 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     try {
-      var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
-      // Response is `null` if [MyUser] removed himself (left the chat).
-      if (response == null) {
-        _chatLocal.remove(chatId);
-      }
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));
@@ -636,6 +638,11 @@ class ChatRepository implements AbstractChatRepository {
     var response = await _graphQlProvider.attachments(item.value.id);
     return response.chatItem?.toModel() ?? [];
   }
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callRepo.removeCredentials(id);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(
