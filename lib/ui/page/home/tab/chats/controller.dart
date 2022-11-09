@@ -17,7 +17,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -56,26 +55,6 @@ class ChatsTabController extends GetxController {
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
-
-  /// List of the mute periods.
-  ///
-  /// `null` meaning mute forever.
-  final List<Duration?> muteDateTimes = [
-    const Duration(minutes: 15),
-    const Duration(minutes: 30),
-    const Duration(hours: 1),
-    const Duration(hours: 6),
-    const Duration(hours: 12),
-    const Duration(days: 1),
-    const Duration(days: 7),
-    null,
-  ];
-
-  /// Indicates whether the mute chat dialog is opened or not.
-  final Rx<ChatId?> openedMuteDialogChatId = Rx<ChatId?>(null);
-
-  /// [CancelableOperation] of mute popup.
-  final Rx<CancelableOperation?> mutePopup = Rx<CancelableOperation?>(null);
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -122,9 +101,6 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.removed:
-          if (openedMuteDialogChatId.value == event.key) {
-            mutePopup.value?.cancel();
-          }
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
           break;

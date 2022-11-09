@@ -21,12 +21,12 @@ import 'package:get/get.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
+import 'widget/mute_chat_popup.dart';
 import 'widget/recent_chat.dart';
 
 /// View of the `HomeTab.chats` tab.
@@ -100,38 +100,15 @@ class ChatsTabView extends StatelessWidget {
                                   onLeave: () => c.leaveChat(chat.id),
                                   onHide: () => c.hideChat(chat.id),
                                   inCall: () => c.inCall(chat.id),
-                                  muteDialogOpened: () async {
-                                    c.openedMuteDialogChatId.value = chat.id;
-                                    c.mutePopup.value =
-                                        await ConfirmDialog.showCancelable(
-                                      context,
-                                      title: 'label_mute_chat_for'.l10n,
-                                      onClosed: () {
-                                        c.openedMuteDialogChatId.value = null;
-                                      },
-                                      variants: c.muteDateTimes
-                                          .map(
-                                            (e) => ConfirmDialogVariant(
-                                              onProceed: () => c.muteChat(
-                                                chat.id,
-                                                duration: e,
-                                              ),
-                                              child: Text(
-                                                'label_mute_for'.l10nfmt({
-                                                  'days': e?.inDays ?? 0,
-                                                  'hours': e?.inHours ?? 0,
-                                                  'minutes': e?.inMinutes ?? 0,
-                                                }),
-                                                key: e == null
-                                                    ? const Key('MuteForever')
-                                                    : null,
-                                              ),
-                                            ),
-                                          )
-                                          .toList(),
-                                    );
-                                  },
-                                  unmuteChat: () => c.unmuteChat(chat.id),
+                                  onMuteDialogOpened: () => MuteChatPopup.show(
+                                    context,
+                                    chatId: chat.id,
+                                    onMute: (duration) => c.muteChat(
+                                      chat.id,
+                                      duration: duration,
+                                    ),
+                                  ),
+                                  onUnmuteChat: () => c.unmuteChat(chat.id),
                                 ),
                               ),
                             ),

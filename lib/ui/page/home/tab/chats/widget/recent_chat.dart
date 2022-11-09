@@ -50,8 +50,8 @@ class RecentChatTile extends StatelessWidget {
     this.onHide,
     this.onDrop,
     this.onJoin,
-    this.muteDialogOpened,
-    this.unmuteChat,
+    this.onMuteDialogOpened,
+    this.onUnmuteChat,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -83,10 +83,10 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onJoin;
 
   /// Callback, called when open mute dialog action is triggered.
-  final void Function()? muteDialogOpened;
+  final void Function()? onMuteDialogOpened;
 
   /// Callback, called when this [rxChat] unmute action is triggered.
-  final void Function()? unmuteChat;
+  final void Function()? onUnmuteChat;
 
   @override
   Widget build(BuildContext context) {
@@ -174,12 +174,12 @@ class RecentChatTile extends StatelessWidget {
               ? ContextMenuButton(
                   key: const Key('MuteChatButton'),
                   label: 'btn_mute_chat'.l10n,
-                  onPressed: muteDialogOpened,
+                  onPressed: onMuteDialogOpened,
                 )
               : ContextMenuButton(
                   key: const Key('UnmuteChatButton'),
                   label: 'btn_unmute_chat'.l10n,
-                  onPressed: unmuteChat,
+                  onPressed: onUnmuteChat,
                 ),
         ],
         selected: selected,
