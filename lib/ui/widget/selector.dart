@@ -325,6 +325,14 @@ class _SelectorState<T> extends State<Selector<T>> {
 
           left = offset.dx - widget.width / 2;
           top = offset.dy;
+        } else if (widget.alignment == Alignment.bottomRight) {
+          offset = Offset(
+            offset.dx + (box?.size.width ?? 0),
+            offset.dy + (box?.size.height ?? 0),
+          );
+
+          left = offset.dx - widget.width / 2;
+          top = offset.dy;
         } else {
           offset = Offset(
             offset.dx + (box?.size.width ?? 0) / 2,

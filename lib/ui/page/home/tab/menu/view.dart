@@ -28,8 +28,11 @@ import 'package:messenger/ui/page/home/tab/menu/more/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/selector.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -226,11 +229,80 @@ class MenuTabView extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Flexible(
-                        child: InkWell(
-                          onTap: onBack,
-                          splashFactory: NoSplash.splashFactory,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
+                        child: WidgetButton(
+                          onPressed: () async {
+                            await Selector.show(
+                              context: context,
+                              items: [
+                                ContextMenuButton(
+                                  label: 'Online',
+                                  onPressed: () =>
+                                      c.setPresence(Presence.present),
+                                  leading: const CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                                ContextMenuButton(
+                                  label: 'Away',
+                                  onPressed: () => c.setPresence(Presence.away),
+                                  leading: const CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                ),
+                                ContextMenuButton(
+                                  label: 'Hidden',
+                                  onPressed: () =>
+                                      c.setPresence(Presence.hidden),
+                                  leading: const CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                              width: 220,
+                              margin: const EdgeInsets.only(top: 13),
+                              buttonBuilder: (int i, ContextMenuButton b) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    b,
+                                    if (i < 3)
+                                      Container(
+                                        color: const Color(0x11000000),
+                                        height: 1,
+                                        width: double.infinity,
+                                      ),
+                                  ],
+                                );
+                              },
+                              itemBuilder: (ContextMenuButton b) {
+                                final TextStyle? thin = Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(color: Colors.black);
+                                return Row(
+                                  children: [
+                                    if (b.leading != null) ...[
+                                      b.leading!,
+                                      const SizedBox(width: 12),
+                                    ],
+                                    Text(b.label,
+                                        style: thin?.copyWith(fontSize: 15)),
+                                    if (b.trailing != null) ...[
+                                      const SizedBox(width: 12),
+                                      b.trailing!,
+                                    ],
+                                  ],
+                                );
+                              },
+                              onSelected: (ContextMenuButton b) =>
+                                  b.onPressed?.call(),
+                              buttonKey: c.profileKey,
+                              alignment: Alignment.bottomRight,
+                            );
+                          },
                           child: DefaultTextStyle.merge(
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -244,9 +316,49 @@ class MenuTabView extends StatelessWidget {
                                       '...',
                                   style: const TextStyle(color: Colors.black),
                                 ),
-                                Text(
-                                  'Online',
-                                  style: Theme.of(context).textTheme.caption,
+                                Row(
+                                  key: c.profileKey,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Obx(() {
+                                      final String status;
+
+                                      switch (c.myUser.value?.presence) {
+                                        case Presence.hidden:
+                                          status = 'Hidden';
+                                          break;
+
+                                        case Presence.away:
+                                          status = 'Away';
+                                          break;
+
+                                        case Presence.present:
+                                          status = 'Online';
+                                          break;
+
+                                        default:
+                                          status = '...';
+                                          break;
+                                      }
+
+                                      return Text(
+                                        status,
+                                        style:
+                                            Theme.of(context).textTheme.caption,
+                                      );
+                                    }),
+                                    const SizedBox(width: 2),
+                                    Transform.translate(
+                                      offset: const Offset(0, 1),
+                                      child: Icon(
+                                        Icons.expand_more,
+                                        size: 18,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

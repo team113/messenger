@@ -35,7 +35,7 @@ class DownloadView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget _button({
+    Widget button({
       String? asset,
       double? width,
       double? height,
@@ -69,75 +69,116 @@ class DownloadView extends StatelessWidget {
       );
     }
 
+    final Widget windows = button(
+      asset: 'windows',
+      width: 21.93,
+      height: 22,
+      title: 'Windows',
+      link: 'messenger-windows.zip',
+    );
+
+    final Widget macos = button(
+      asset: 'apple',
+      width: 23,
+      height: 29,
+      title: 'macOS',
+      link: 'messenger-macos.zip',
+    );
+
+    final Widget linux = button(
+      asset: 'linux',
+      width: 18.85,
+      height: 22,
+      title: 'Linux',
+      link: 'messenger-linux.zip',
+    );
+
+    final Widget ios = button(
+      asset: 'apple',
+      width: 23,
+      height: 29,
+      title: 'iOS',
+    );
+
+    final Widget androidBundle = button(
+      asset: 'google',
+      width: 20.33,
+      height: 22.02,
+      title: 'Android',
+      link: 'messenger-android.aab',
+    );
+
+    final Widget androidX86_64 = button(
+      asset: 'google',
+      width: 20.33,
+      height: 22.02,
+      title: '(x86-64)',
+      link: 'messenger-android-x86_64.apk',
+    );
+
+    final Widget androidArmeabi = button(
+      asset: 'google',
+      width: 20.33,
+      height: 22.02,
+      title: '(armeabi-v7a)',
+      link: 'messenger-android-armeabi-v7a.apk',
+    );
+
+    final Widget androidAarch64 = button(
+      asset: 'google',
+      width: 20.33,
+      height: 22.02,
+      title: '(arm64-v8a)',
+      link: 'messenger-arm64-v8a.apk',
+    );
+
+    final List<Widget> binaries = [
+      windows,
+      macos,
+      linux,
+      ios,
+      androidBundle,
+      androidX86_64,
+      androidArmeabi,
+      androidAarch64,
+    ];
+
+    Widget? primary;
+
+    if (PlatformUtils.isWindows) {
+      primary = windows;
+    } else if (PlatformUtils.isMacOS) {
+      primary = macos;
+    } else if (PlatformUtils.isLinux) {
+      primary = linux;
+    } else if (PlatformUtils.isIOS) {
+      primary = ios;
+    } else if (PlatformUtils.isAndroid) {
+      primary = androidBundle;
+    }
+
+    if (primary != null) {
+      binaries.remove(primary);
+    }
+
     Widget content = ListView(
       shrinkWrap: true,
       children: [
         if (PlatformUtils.isWeb) ...[
           const SizedBox(height: 20),
-          Text('Navigator.platform is: ${WebUtils.arch}'),
+          Center(child: Text('Navigator.platform is: ${WebUtils.arch}')),
         ],
         const SizedBox(height: 20),
-        _button(
-          asset: 'windows',
-          width: 21.93,
-          height: 22,
-          title: 'Windows',
-          link: 'messenger-windows.zip',
-        ),
-        const SizedBox(height: 10),
-        _button(
-          asset: 'apple',
-          width: 23,
-          height: 29,
-          title: 'macOS',
-          link: 'messenger-macos.zip',
-        ),
-        const SizedBox(height: 10),
-        _button(
-          asset: 'linux',
-          width: 18.85,
-          height: 22,
-          title: 'Linux',
-          link: 'messenger-linux.zip',
-        ),
-        const SizedBox(height: 30),
-        _button(
-          asset: 'apple',
-          width: 23,
-          height: 29,
-          title: 'iOS',
-        ),
-        const SizedBox(height: 30),
-        _button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: 'Android',
-          link: 'messenger-android.aab',
-        ),
-        const SizedBox(height: 10),
-        _button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: '(x86-64)',
-          link: 'messenger-android-x86_64.apk',
-        ),
-        const SizedBox(height: 10),
-        _button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: '(armeabi-v7a)',
-          link: 'messenger-android-armeabi-v7a.apk',
-        ),
-        const SizedBox(height: 10),
-        _button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: '(arm64-v8a)',
-          link: 'messenger-arm64-v8a.apk',
+        if (primary != null) ...[
+          const SizedBox(height: 20),
+          primary,
+          const SizedBox(height: 20),
+        ],
+        ...binaries.map(
+          (e) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: e,
+          ),
         ),
         const SizedBox(height: 20),
       ],

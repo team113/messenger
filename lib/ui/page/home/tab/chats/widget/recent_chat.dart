@@ -179,7 +179,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     if (constraints.maxWidth > 110)
-                      Flexible(
+                      Expanded(
                         child: Text(
                           inCall?.call() == true
                               ? 'btn_call_end'.l10n

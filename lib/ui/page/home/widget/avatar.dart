@@ -34,6 +34,13 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
 
+enum AvatarQuality {
+  original,
+  big,
+  medium,
+  small,
+}
+
 /// Widget to build an [Avatar].
 ///
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
@@ -53,6 +60,7 @@ class AvatarWidget extends StatelessWidget {
     this.useLayoutBuilder = true,
     this.onBadgeTap,
     this.onAvatarTap,
+    this.quality = AvatarQuality.big,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -140,6 +148,7 @@ class AvatarWidget extends StatelessWidget {
     bool showBadge = true,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         isOnline: showBadge && myUser?.online == true,
@@ -153,6 +162,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -340,6 +350,8 @@ class AvatarWidget extends StatelessWidget {
   final void Function()? onBadgeTap;
   final void Function()? onAvatarTap;
 
+  final AvatarQuality quality;
+
   /// Avatar color swatches.
   static const List<Color> colors = [
     Colors.purple,
@@ -415,6 +427,26 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
+      String? link;
+
+      switch (quality) {
+        case AvatarQuality.original:
+          link = avatar?.original.relativeRef;
+          break;
+
+        case AvatarQuality.big:
+          link = avatar?.big.relativeRef;
+          break;
+
+        case AvatarQuality.medium:
+          link = avatar?.medium.relativeRef;
+          break;
+
+        case AvatarQuality.small:
+          link = avatar?.small.relativeRef;
+          break;
+      }
+
       return Badge(
         showBadge: isOnline,
         badgeContent: WidgetButton(
@@ -453,9 +485,7 @@ class AvatarWidget extends StatelessWidget {
               image: avatar == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.files}${avatar?.big.relativeRef}',
-                      ),
+                      image: NetworkImage('${Config.files}$link'),
                       fit: BoxFit.cover,
                       isAntiAlias: true,
                     ),

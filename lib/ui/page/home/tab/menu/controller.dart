@@ -21,6 +21,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart'
     show CreateChatDirectLinkErrorCode, Presence;
@@ -114,6 +115,8 @@ class MenuTabController extends GetxController {
 
   /// Delete status of the [ImageGalleryItem].
   final Rx<RxStatus> deleteGalleryStatus = Rx<RxStatus>(RxStatus.empty());
+
+  final GlobalKey profileKey = GlobalKey();
 
   final AuthService _authService;
   final CallService _callService;

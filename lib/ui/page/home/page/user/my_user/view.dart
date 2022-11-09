@@ -59,6 +59,27 @@ class MyUserView extends StatelessWidget {
       init: MyUserController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (MyUserController c) {
         return Scaffold(
+          appBar: const CustomAppBar(
+            title: Text('Profile'),
+            padding: EdgeInsets.only(left: 4, right: 20),
+            leading: [StyledBackButton()],
+          ),
+          body: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              constraints: const BoxConstraints(maxWidth: 300),
+              child: ListView(
+                shrinkWrap: true,
+                children: [],
+              ),
+            ),
+          ),
+        );
+
+        return Scaffold(
           appBar: context.isNarrow
               ? CustomAppBar(
                   title: Row(

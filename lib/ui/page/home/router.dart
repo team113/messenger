@@ -98,7 +98,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),
           name: Routes.settings,
-          child: SettingsView(),
+          child: MyProfileView(),
         ));
       } else if (route == Routes.privacy) {
         pages.add(const _CustomPage(
