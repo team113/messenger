@@ -127,32 +127,23 @@ class ChatsTabView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(
-                        offset: const Offset(0, 1),
-                        child: NewSearchView(
-                          title: 'Search',
-                          categories: const [
-                            SearchCategory.chats,
-                            SearchCategory.contacts,
-                            SearchCategory.users,
-                          ],
-                          searchStatus: c.searchStatus,
-                          onResultsUpdated: (v, q) {
-                            c.searchResult.value = v;
-                            c.searchQuery.value = q;
-                            c.populate();
-                          },
-                        )
-                        // ReactiveTextField(
-                        //   state: c.search,
-                        //   hint: 'Search',
-                        //   maxLines: 1,
-                        //   filled: false,
-                        //   dense: true,
-                        //   padding: const EdgeInsets.symmetric(vertical: 8),
-                        //   style: style.boldBody.copyWith(fontSize: 17),
-                        //   onChanged: () => c.query.value = c.search.text,
-                        // ),
-                        ),
+                      offset: const Offset(0, 1),
+                      child: NewSearchView(
+                        title: 'Search',
+                        categories: const [
+                          SearchCategory.chats,
+                          SearchCategory.contacts,
+                          SearchCategory.users,
+                        ],
+                        searchStatus: c.searchStatus,
+                        onResultsUpdated: (v, q) {
+                          c.searchResult.value = v;
+                          c.searchQuery.value = q;
+                          c.populate();
+                        },
+                        autoFocus: true,
+                      ),
+                    ),
                   ),
                 );
               } else {
@@ -174,13 +165,7 @@ class ChatsTabView extends StatelessWidget {
                     child: WidgetButton(
                       onPressed: c.searching.value
                           ? null
-                          : () {
-                              c.searching.value = true;
-                              Future.delayed(
-                                Duration.zero,
-                                // c.search.focus.requestFocus,
-                              );
-                            },
+                          : () => c.searching.value = true,
                       child: SvgLoader.asset(
                         'assets/icons/search.svg',
                         width: 17.77,
@@ -236,7 +221,9 @@ class ChatsTabView extends StatelessWidget {
                     (c.searchResult.value == null ||
                         c.searchResult.value?.isEmpty == true)) {
                   center = Center(child: Text('No user found'.l10n));
-                } else if (c.searchStatus.value.isLoading) {
+                } else if (c.searchStatus.value.isLoading &&
+                    (c.searchResult.value == null ||
+                        c.searchResult.value?.isEmpty == true)) {
                   center = const Center(child: CircularProgressIndicator());
                 } else {
                   center = ListView.builder(
@@ -296,12 +283,6 @@ class ChatsTabView extends StatelessWidget {
                               6,
                             ),
                             width: double.infinity,
-                            // decoration: BoxDecoration(
-                            //   borderRadius:
-                            //       BorderRadius.circular(15),
-                            //   border: style.systemMessageBorder,
-                            //   color: style.systemMessageColor,
-                            // ),
                             child: Center(
                               child: Text(
                                 element.category.name.capitalizeFirst!,
@@ -313,64 +294,6 @@ class ChatsTabView extends StatelessWidget {
                             ),
                           ),
                         );
-
-                        // return Container(
-                        //   margin: const EdgeInsets.fromLTRB(
-                        //     0,
-                        //     20,
-                        //     0,
-                        //     4,
-                        //   ),
-                        //   child: Row(
-                        //     children: [
-                        //       const SizedBox(width: 8),
-                        //       Expanded(
-                        //         child: Container(
-                        //           width: double.infinity,
-                        //           padding:
-                        //               const EdgeInsets.fromLTRB(
-                        //             12,
-                        //             8,
-                        //             12,
-                        //             8,
-                        //           ),
-                        //           child: Row(
-                        //             children: [
-                        //               Expanded(
-                        //                 child: Container(
-                        //                   height: 0.5,
-                        //                   color: const Color(
-                        //                     0xFF000000,
-                        //                   ),
-                        //                 ),
-                        //               ),
-                        //               const SizedBox(width: 10),
-                        //               Text(
-                        //                 element.category.name
-                        //                     .capitalizeFirst!,
-                        //                 style: const TextStyle(
-                        //                   fontSize: 13,
-                        //                   color:
-                        //                       Color(0xFF000000),
-                        //                 ),
-                        //               ),
-                        //               const SizedBox(width: 10),
-                        //               Expanded(
-                        //                 child: Container(
-                        //                   height: 0.5,
-                        //                   color: const Color(
-                        //                     0xFF000000,
-                        //                   ),
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 8),
-                        //     ],
-                        //   ),
-                        // );
                       }
 
                       return Padding(

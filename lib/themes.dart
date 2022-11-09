@@ -308,6 +308,7 @@ class Style extends ThemeExtension<Style> {
     required this.readMessageColor,
     required this.secondaryBorder,
     required this.sidebarColor,
+    required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
@@ -367,6 +368,7 @@ class Style extends ThemeExtension<Style> {
   final Color sidebarColor;
 
   /// [Border] to apply to system messages.
+  final TextStyle systemMessageTextStyle;
   final Border systemMessageBorder;
 
   /// [Color] of system messages.
@@ -398,6 +400,7 @@ class Style extends ThemeExtension<Style> {
     Color? readMessageColor,
     Border? secondaryBorder,
     Color? sidebarColor,
+    TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
@@ -423,6 +426,8 @@ class Style extends ThemeExtension<Style> {
       readMessageColor: readMessageColor ?? this.readMessageColor,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
+      systemMessageTextStyle:
+          systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
@@ -467,6 +472,11 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(readMessageColor, other.readMessageColor, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
+      systemMessageTextStyle: TextStyle.lerp(
+        systemMessageTextStyle,
+        other.systemMessageTextStyle,
+        t,
+      )!,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:

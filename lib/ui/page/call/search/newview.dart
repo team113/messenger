@@ -39,6 +39,7 @@ class NewSearchView extends StatelessWidget {
     this.enabled = true,
     this.submit,
     this.searchStatus,
+    this.autoFocus,
     this.onPressed,
     this.onSubmit,
     this.onBack,
@@ -61,6 +62,8 @@ class NewSearchView extends StatelessWidget {
 
   /// Title of this [SearchView].
   final String title;
+
+  final bool? autoFocus;
 
   /// Label of the submit button.
   ///
@@ -98,6 +101,7 @@ class NewSearchView extends StatelessWidget {
         onChanged: onChanged,
         onResultsUpdated: onResultsUpdated,
         search: searchStatus,
+        autoFocus: autoFocus,
       ),
       builder: (SearchController c) {
         return ReactiveTextField(

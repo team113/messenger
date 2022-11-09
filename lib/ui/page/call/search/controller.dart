@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -60,6 +61,7 @@ class SearchController extends GetxController {
     this.chat,
     this.onChanged,
     this.onResultsUpdated,
+    this.autoFocus,
     Rx<RxStatus>? search,
   })  : searchStatus = search ?? Rx<RxStatus>(RxStatus.empty()),
         assert(categories.isNotEmpty);
@@ -113,6 +115,8 @@ class SearchController extends GetxController {
 
   /// [TextFieldState] of the search field.
   late final TextFieldState search;
+
+  final bool? autoFocus;
 
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;
@@ -192,8 +196,10 @@ class SearchController extends GetxController {
 
   @override
   void onReady() {
-    StreamGroup.mergeBroadcast(
-            [chats.stream, recent.stream, contacts.stream, users.stream])
+    if (autoFocus == true) {
+      search.focus.requestFocus();
+    }
+    StreamGroup.mergeBroadcast([chats.stream, contacts.stream, users.stream])
         .listen((event) {
       onResultsUpdated?.call(
         SearchViewResults(
