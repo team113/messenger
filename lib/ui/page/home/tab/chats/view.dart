@@ -101,7 +101,12 @@ class ChatsTabView extends StatelessWidget {
                             SearchCategory.contacts,
                             SearchCategory.users,
                           ],
-                          onResultsUpdated: (val) => c.searchResult.value = val,
+                          searchStatus: c.searchStatus,
+                          onResultsUpdated: (v, q) {
+                            c.searchResult.value = v;
+                            c.searchQuery.value = q;
+                            c.populate();
+                          },
                         )
                         // ReactiveTextField(
                         //   state: c.search,
@@ -190,44 +195,59 @@ class ChatsTabView extends StatelessWidget {
           ),
           body: Obx(() {
             if (c.chatsReady.value) {
-              if (c.chats.isEmpty) {
-                return Center(child: Text('label_no_chats'.l10n));
+              Widget? center;
+
+              if (c.searchQuery.isEmpty &&
+                  c.searchResult.value?.isEmpty == true) {
+                center = Center(child: Text('label_no_chats'.l10n));
+              } else if (c.searchQuery.isNotEmpty &&
+                  c.searchResult.value?.isEmpty == true) {
+                if (c.searchStatus.value.isSuccess) {
+                  center = Center(child: Text('No user found'.l10n));
+                } else {
+                  center = const Center(child: CircularProgressIndicator());
+                }
+              } else {
+                if (!c.searching.value ||
+                    c.searchQuery.value.isEmpty != false) {
+                  center = ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: c.chats.length,
+                    itemBuilder: (_, i) {
+                      final RxChat chat = c.chats[i];
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: RecentChatTile(
+                                chat,
+                                me: c.me,
+                                getUser: c.getUser,
+                                onJoin: () => c.joinCall(chat.id),
+                                onDrop: () => c.dropCall(chat.id),
+                                onLeave: () => c.leaveChat(chat.id),
+                                onHide: () => c.hideChat(chat.id),
+                                inCall: () => c.inCall(chat.id),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
               }
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
-                    child: ListView.builder(
-                      controller: ScrollController(),
-                      itemCount: c.chats.length,
-                      itemBuilder: (_, i) {
-                        final RxChat chat = c.chats[i];
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: RecentChatTile(
-                                  chat,
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onJoin: () => c.joinCall(chat.id),
-                                  onDrop: () => c.dropCall(chat.id),
-                                  onLeave: () => c.leaveChat(chat.id),
-                                  onHide: () => c.hideChat(chat.id),
-                                  inCall: () => c.inCall(chat.id),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    child: center!,
                   ),
                 ),
               );

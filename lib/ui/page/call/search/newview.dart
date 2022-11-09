@@ -38,6 +38,7 @@ class NewSearchView extends StatelessWidget {
     this.selectable = true,
     this.enabled = true,
     this.submit,
+    this.searchStatus,
     this.onPressed,
     this.onSubmit,
     this.onBack,
@@ -66,6 +67,8 @@ class NewSearchView extends StatelessWidget {
   /// Only meaningful if [onSubmit] is non-`null`.
   final String? submit;
 
+  final Rx<RxStatus>? searchStatus;
+
   /// Callback, called when a searched item is pressed.
   final void Function(dynamic)? onPressed;
 
@@ -76,7 +79,7 @@ class NewSearchView extends StatelessWidget {
   final void Function(SearchViewResults results)? onChanged;
 
   /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults results)? onResultsUpdated;
+  final void Function(SearchViewResults result, String query)? onResultsUpdated;
 
   /// Callback, called when the back button is pressed.
   ///
@@ -94,6 +97,7 @@ class NewSearchView extends StatelessWidget {
         categories: categories,
         onChanged: onChanged,
         onResultsUpdated: onResultsUpdated,
+        search: searchStatus,
       ),
       builder: (SearchController c) {
         return ReactiveTextField(

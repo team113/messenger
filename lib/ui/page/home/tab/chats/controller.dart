@@ -19,6 +19,7 @@ import 'dart:collection';
 
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
+import 'package:messenger/domain/repository/contact.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -64,7 +65,13 @@ class ChatsTabController extends GetxController {
 
   final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
 
+  final RxString searchQuery = RxString('');
+
+  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
   final RxBool searching = RxBool(false);
+
+  final RxList<ListElement> elements = RxList([]);
 
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
@@ -172,6 +179,31 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  void populate() {
+    elements.clear();
+
+    if (searchResult.value?.chats.isNotEmpty == true) {
+      elements.add(const DividerElement(SearchCategory.chats));
+      for (var c in searchResult.value!.chats) {
+        elements.add(ChatElement(c));
+      }
+    }
+
+    if (searchResult.value?.contacts.isNotEmpty == true) {
+      elements.add(const DividerElement(SearchCategory.contacts));
+      for (var c in searchResult.value!.contacts) {
+        elements.add(ContactElement(c));
+      }
+    }
+
+    if (searchResult.value?.users.isNotEmpty == true) {
+      elements.add(const DividerElement(SearchCategory.users));
+      for (var c in searchResult.value!.users) {
+        elements.add(UserElement(c));
+      }
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -233,4 +265,28 @@ class _ChatSortingData {
 
   /// Disposes this [_ChatSortingData].
   void dispose() => worker.dispose();
+}
+
+abstract class ListElement {
+  const ListElement();
+}
+
+class ChatElement extends ListElement {
+  const ChatElement(this.chat);
+  final RxChat chat;
+}
+
+class ContactElement extends ListElement {
+  const ContactElement(this.contact);
+  final RxChatContact contact;
+}
+
+class UserElement extends ListElement {
+  const UserElement(this.user);
+  final RxUser user;
+}
+
+class DividerElement extends ListElement {
+  const DividerElement(this.category);
+  final SearchCategory category;
 }

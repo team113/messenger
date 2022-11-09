@@ -60,7 +60,9 @@ class SearchController extends GetxController {
     this.chat,
     this.onChanged,
     this.onResultsUpdated,
-  }) : assert(categories.isNotEmpty);
+    Rx<RxStatus>? search,
+  })  : searchStatus = search ?? Rx<RxStatus>(RxStatus.empty()),
+        assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
   ///
@@ -89,7 +91,7 @@ class SearchController extends GetxController {
   ///   [searchResults] were already acquired.
   /// - `searchStatus.success`, meaning search is done and [searchResults] are
   ///   acquired.
-  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+  late final Rx<RxStatus> searchStatus;
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
@@ -125,7 +127,7 @@ class SearchController extends GetxController {
   final void Function(SearchViewResults results)? onChanged;
 
   /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults results)? onResultsUpdated;
+  final void Function(SearchViewResults result, String query)? onResultsUpdated;
 
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> _sortedChats;
@@ -199,6 +201,7 @@ class SearchController extends GetxController {
           users.values.map((e) => e).toList(),
           contacts.values.map((e) => e).toList(),
         ),
+        search.text,
       );
     });
     super.onReady();
