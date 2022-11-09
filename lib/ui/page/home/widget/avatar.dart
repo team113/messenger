@@ -407,8 +407,7 @@ class AvatarWidget extends StatelessWidget {
                         ),
                   ),
                 )
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
+              : ClipOval(
                   child: RetryImage(
                     avatar!.original.url,
                     fit: BoxFit.cover,

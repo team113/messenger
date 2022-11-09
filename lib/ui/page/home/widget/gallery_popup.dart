@@ -445,7 +445,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                           }
                         },
                       )
-                    : RetryImage(e.link),
+                    : RetryImage(
+                        e.link,
+                        onForbidden: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      ),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
