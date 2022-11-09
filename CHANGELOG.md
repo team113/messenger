@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
+        - Messages drafts. ([#173], [#102])
 
 ### Changed
 
@@ -33,8 +34,10 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
+[#102]: /../../issues/102
 [#134]: /../../issues/134
 [#142]: /../../pull/142
+[#173]: /../../pull/173
 [#188]: /../../pull/188
 [#190]: /../../issues/190
 [#191]: /../../pull/191
@@ -58,8 +61,6 @@ All user visible changes to this project will be documented in this file. This p
         - Dock buttons persistence. ([#159], [#137])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
-    - Chat page:
-        - Messages drafts. ([#173], [#102])
 
 ### Changed
 
@@ -83,7 +84,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [#95]: /../../issues/95
 [#96]: /../../pull/96
-[#102]: /../../issues/102
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#128]: /../../issues/128
@@ -100,7 +100,6 @@ All user visible changes to this project will be documented in this file. This p
 [#169]: /../../pull/169
 [#170]: /../../pull/170
 [#171]: /../../pull/171
-[#173]: /../../pull/173
 [#179]: /../../issues/179
 [#182]: /../../pull/182
 
