@@ -20,7 +20,11 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import '../../../../../domain/repository/contact.dart';
+import '../../../../../domain/repository/user.dart';
+import '../../../../../themes.dart';
 import '../../../call/search/newview.dart';
+import '../../widget/contact_tile.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -37,6 +41,36 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Style style = Theme.of(context).extension<Style>()!;
+
+    Widget tile({
+      RxUser? user,
+      RxChatContact? contact,
+      void Function()? onTap,
+    }) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ContactTile(
+          contact: contact,
+          user: user,
+          darken: 0,
+          onTap: () {
+            onTap?.call();
+          },
+          // subtitle: [
+          //   const SizedBox(height: 5),
+          //   Text(
+          //     'Gapopa ID: ${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
+          //       RegExp(r'.{4}'),
+          //       (match) => '${match.group(0)} ',
+          //     )}',
+          //     style: const TextStyle(color: Color(0xFF888888)),
+          //   ),
+          // ],
+        ),
+      );
+    }
+
     return GetBuilder(
       key: const Key('ChatsTab'),
       init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
@@ -197,19 +231,162 @@ class ChatsTabView extends StatelessWidget {
             if (c.chatsReady.value) {
               Widget? center;
 
-              if (c.searchQuery.isEmpty &&
-                  c.searchResult.value?.isEmpty == true) {
-                center = Center(child: Text('label_no_chats'.l10n));
-              } else if (c.searchQuery.isNotEmpty &&
-                  c.searchResult.value?.isEmpty == true) {
-                if (c.searchStatus.value.isSuccess) {
+              if (c.searching.isTrue) {
+                if (c.searchStatus.value.isSuccess &&
+                    (c.searchResult.value == null ||
+                        c.searchResult.value?.isEmpty == true)) {
                   center = Center(child: Text('No user found'.l10n));
-                } else {
+                } else if (c.searchStatus.value.isLoading) {
                   center = const Center(child: CircularProgressIndicator());
+                } else {
+                  center = ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      ListElement element = c.elements[i];
+                      Widget child = const SizedBox();
+
+                      if (element is ChatElement) {
+                        final RxChat chat = element.chat;
+                        child = Padding(
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                          ),
+                          child: RecentChatTile(
+                            chat,
+                            me: c.me,
+                            getUser: c.getUser,
+                            onJoin: () => c.joinCall(chat.id),
+                            onDrop: () => c.dropCall(chat.id),
+                            onLeave: () => c.leaveChat(chat.id),
+                            onHide: () => c.hideChat(chat.id),
+                            inCall: () => c.inCall(chat.id),
+                          ),
+                        );
+                      } else if (element is ContactElement) {
+                        child = tile(
+                          contact: element.contact,
+                          onTap: () {
+                            c.openChat(
+                              contact: element.contact,
+                            );
+                          },
+                        );
+                      } else if (element is UserElement) {
+                        child = tile(
+                          user: element.user,
+                          onTap: () {
+                            c.openChat(user: element.user);
+                          },
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(
+                              10,
+                              2,
+                              10,
+                              2,
+                            ),
+                            padding: const EdgeInsets.fromLTRB(
+                              12,
+                              10,
+                              12,
+                              6,
+                            ),
+                            width: double.infinity,
+                            // decoration: BoxDecoration(
+                            //   borderRadius:
+                            //       BorderRadius.circular(15),
+                            //   border: style.systemMessageBorder,
+                            //   color: style.systemMessageColor,
+                            // ),
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageTextStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+
+                        // return Container(
+                        //   margin: const EdgeInsets.fromLTRB(
+                        //     0,
+                        //     20,
+                        //     0,
+                        //     4,
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       const SizedBox(width: 8),
+                        //       Expanded(
+                        //         child: Container(
+                        //           width: double.infinity,
+                        //           padding:
+                        //               const EdgeInsets.fromLTRB(
+                        //             12,
+                        //             8,
+                        //             12,
+                        //             8,
+                        //           ),
+                        //           child: Row(
+                        //             children: [
+                        //               Expanded(
+                        //                 child: Container(
+                        //                   height: 0.5,
+                        //                   color: const Color(
+                        //                     0xFF000000,
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //               const SizedBox(width: 10),
+                        //               Text(
+                        //                 element.category.name
+                        //                     .capitalizeFirst!,
+                        //                 style: const TextStyle(
+                        //                   fontSize: 13,
+                        //                   color:
+                        //                       Color(0xFF000000),
+                        //                 ),
+                        //               ),
+                        //               const SizedBox(width: 10),
+                        //               Expanded(
+                        //                 child: Container(
+                        //                   height: 0.5,
+                        //                   color: const Color(
+                        //                     0xFF000000,
+                        //                   ),
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ),
+                        //       const SizedBox(width: 8),
+                        //     ],
+                        //   ),
+                        // );
+                      }
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          top: i == 0 ? 3 : 0,
+                          bottom: i == c.elements.length - 1 ? 4 : 0,
+                        ),
+                        child: child,
+                      );
+                    },
+                  );
                 }
               } else {
-                if (!c.searching.value ||
-                    c.searchQuery.value.isEmpty != false) {
+                if (c.chats.isEmpty) {
+                  center = Center(child: Text('label_no_chats'.l10n));
+                } else {
                   center = ListView.builder(
                     controller: ScrollController(),
                     itemCount: c.chats.length,
@@ -247,7 +424,7 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
-                    child: center!,
+                    child: center,
                   ),
                 ),
               );

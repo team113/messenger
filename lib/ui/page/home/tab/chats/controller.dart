@@ -135,6 +135,24 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
+  Future<void> openChat({
+    RxUser? user,
+    RxChatContact? contact,
+    RxChat? chat,
+  }) async {
+    if (chat != null) {
+      router.chat(chat.chat.value.id);
+    } else {
+      user ??= contact?.user.value;
+
+      if (user != null) {
+        Chat? dialog = user.user.value.dialog;
+        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
+        router.chat(dialog.id);
+      }
+    }
+  }
+
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {

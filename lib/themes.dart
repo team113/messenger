@@ -55,6 +55,11 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            systemMessageTextStyle: GoogleFonts.roboto(
+              color: const Color(0xFF888888),
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
