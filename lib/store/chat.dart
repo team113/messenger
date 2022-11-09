@@ -624,9 +624,14 @@ class ChatRepository implements AbstractChatRepository {
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
   Future<List<HiveChatItem>> messages(ChatId id) async {
+    GetMessages$Query? query;
     const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(id, first: maxInt);
-    return query.chat?.items.edges
+    try {
+      query = await _graphQlProvider.chatItems(id, first: maxInt);
+    } catch (e) {
+      // No-op.
+    }
+    return query?.chat?.items.edges
             .map((e) => e.toHive())
             .expand((e) => e)
             .toList() ??

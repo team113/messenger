@@ -14,11 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' as dio;
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
@@ -46,38 +44,6 @@ final StepDefinitionGeneric sendsAttachmentToMe =
         Uint8List.fromList([1, 1]),
         filename: filename,
         contentType: type != null ? MediaType.parse(type) : null,
-      ),
-    );
-
-    await provider.postChatMessage(
-      context.world.sessions[user.name]!.dialog!,
-      text: null,
-      attachments: [response.attachment.toModel().id],
-    );
-
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog with the image.
-///
-/// Examples:
-/// - Then Bob sends image to me
-final StepDefinitionGeneric sendsImageToMe = and1<TestUser, CustomWorld>(
-  '{user} sends image to me',
-  (TestUser user, context) async {
-    final GraphQlProvider provider = Get.find();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    var response = await provider.uploadAttachment(
-      dio.MultipartFile.fromBytes(
-        base64Decode(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-        ),
-        filename: 'test.jpg',
-        contentType: MediaType.parse('image/png'),
       ),
     );
 
