@@ -16,20 +16,19 @@
 
 Feature: Drafts
 
-  Scenario: Message is persisted
+  Scenario: Draft is persisted
     Given I am Alice
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
     And I attach "test.txt" file
-    And I fill `MessageField` field with "123"
+    And I fill `MessageField` field with "He-he, draft!"
 
     When I return to previous page
-    Then I wait until `DraftMessage` is present
+    Then I see draft "He-he, draft!" in chat with Bob
 
     When I am in chat with Bob
-    Then I wait until text "test" is present
-    And I wait until text "123" is present
+    Then I wait until text "He-he, draft!" is present
 
     When I tap `Send` button
-    Then I wait until `DraftMessage` is absent
+    Then I wait until status of "He-he, draft!" message is sent

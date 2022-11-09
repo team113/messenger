@@ -205,8 +205,8 @@ class RecentChatTile extends StatelessWidget {
         Flexible(
           child: Text(
             '${'label_draft'.l10n}${'semicolon_space'.l10n}$desc',
+            key: const Key('Draft'),
             maxLines: 2,
-            key: const Key('DraftMessage'),
           ),
         ),
       ];
