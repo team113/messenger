@@ -38,7 +38,7 @@ class RetryImage extends StatefulWidget {
     this.height,
     this.width,
     this.loaderPadding,
-    this.loaderStrokeWidth,
+    this.loaderStrokeWidth = 4,
     this.onForbidden,
     this.imageFilter,
   }) : super(key: key);
@@ -63,7 +63,7 @@ class RetryImage extends StatefulWidget {
   final EdgeInsetsGeometry? loaderPadding;
 
   /// Loader stroke width.
-  final double? loaderStrokeWidth;
+  final double loaderStrokeWidth;
 
   /// [ImageFilter] of image.
   final ImageFilter? imageFilter;
@@ -138,7 +138,7 @@ class _RetryImageState extends State<RetryImage> {
           aspectRatio: 1 / 1,
           child: CircularProgressIndicator(
             key: const Key('RetryImageLoading'),
-            strokeWidth: widget.loaderStrokeWidth ?? 4,
+            strokeWidth: widget.loaderStrokeWidth,
             value: _progress == 0 ? null : _progress,
           ),
         ),
@@ -148,6 +148,7 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads image using the exponential backoff algorithm.
   Future<void> _loadImage() async {
+    _timer?.cancel();
     Response? data;
 
     try {
@@ -174,18 +175,17 @@ class _RetryImageState extends State<RetryImage> {
       if (mounted) {
         setState(() {});
       }
-      return;
+    } else {
+      _timer = Timer(
+        _backoffTimeout,
+        () {
+          if (_backoffTimeout < const Duration(seconds: 32)) {
+            _backoffTimeout *= 2;
+          }
+
+          _loadImage();
+        },
+      );
     }
-
-    _timer = Timer(
-      _backoffTimeout,
-      () {
-        if (_backoffTimeout < const Duration(seconds: 32)) {
-          _backoffTimeout *= 2;
-        }
-
-        _loadImage();
-      },
-    );
   }
 }
