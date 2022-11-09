@@ -288,7 +288,10 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     send = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+        updateDraft();
+      },
       onSubmitted: (s) {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
@@ -357,7 +360,6 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     listController.addListener(_updateFabStates);
-    send.controller.addListener(updateDraft);
     _fetchChat();
     _initAudio();
     super.onReady();
@@ -375,7 +377,6 @@ class ChatController extends GetxController {
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
-    send.controller.removeListener(updateDraft);
     listController.removeListener(_updateFabStates);
     listController.dispose();
 
