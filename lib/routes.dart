@@ -19,10 +19,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/fcm_registration_token.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
+import 'domain/model/fcm_registration_token.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -62,6 +62,7 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
+import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -548,9 +549,32 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             deps.put(MyUserWorker(myUserService));
 
-            String? token = await FirebaseMessaging.instance.getToken();
-            if(token != null) {
-              graphQlProvider.registerFcmDevice(FcmRegistrationToken(token));
+            if(PlatformUtils.isWeb || PlatformUtils.isMobile) {
+              String? oldToken;
+
+              FirebaseMessaging.instance
+                  .getToken(
+                  vapidKey: PlatformUtils.isWeb
+                      ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
+                      : null)
+                  .then((value) {
+                if (value != null) {
+                  oldToken = value;
+                  graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
+                }
+              });
+
+              FirebaseMessaging.instance.onTokenRefresh
+                  .listen((fcmToken) {
+                    print('onTokenRefresh');
+                    if(oldToken != null) {
+                      graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(fcmToken));
+                    }
+                graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+              })
+                  .onError((err) {
+                // Error getting token.
+              });
             }
 
             return deps;

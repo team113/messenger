@@ -983,11 +983,9 @@ abstract class UserGraphQlMixin {
         document: RegisterFcmDeviceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) {
-        return RegisterFcmDeviceException(
+      onException: (data) => RegisterFcmDeviceException(
           RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
-              as RegisterFcmDeviceErrorCode);
-      },
+              as RegisterFcmDeviceErrorCode),
     );
   }
 

@@ -14,14 +14,18 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/util/platform_utils.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -91,7 +95,20 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> logout() async => await _graphQlProvider.deleteSession();
+  Future<void> logout() async {
+    if (PlatformUtils.isWeb || PlatformUtils.isMobile) {
+      String? token = await FirebaseMessaging.instance.getToken(
+        vapidKey: PlatformUtils.isWeb
+            ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
+            : null,
+      );
+      if (token != null) {
+        _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(token));
+      }
+    }
+
+    await _graphQlProvider.deleteSession();
+  }
 
   @override
   Future<void> validateToken() async => await _graphQlProvider.validateToken();
