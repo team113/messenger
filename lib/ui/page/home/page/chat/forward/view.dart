@@ -234,7 +234,7 @@ class ChatForwardView extends StatelessWidget {
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: RetryImage(
-                      image.original.url,
+                      image.medium.url,
                       fit: BoxFit.cover,
                     ),
                   ),
