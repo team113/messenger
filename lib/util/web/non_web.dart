@@ -65,6 +65,8 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
+  static String? get arch => null;
+
   /// Pushes [title] to browser's window title.
   static void title(String title) {
     // No-op.

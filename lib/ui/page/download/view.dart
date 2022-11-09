@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
 import '/ui/widget/modal_popup.dart';
@@ -71,6 +72,10 @@ class DownloadView extends StatelessWidget {
     Widget content = ListView(
       shrinkWrap: true,
       children: [
+        if (PlatformUtils.isWeb) ...[
+          const SizedBox(height: 20),
+          Text('Navigator.platform is: ${WebUtils.arch}'),
+        ],
         const SizedBox(height: 20),
         _button(
           asset: 'windows',

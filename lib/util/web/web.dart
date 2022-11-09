@@ -261,6 +261,8 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
+  static String? get arch => html.window.navigator.platform;
+
   /// Pushes [title] to browser's window title.
   static void title(String title) =>
       SystemChrome.setApplicationSwitcherDescription(
