@@ -565,7 +565,7 @@ Widget _name(MyProfileController c) {
       key: const Key('NameField'),
       state: c.name,
       // style: const TextStyle(fontSize: 20),
-      suffix: Icons.edit,
+      // suffix: Icons.edit,
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
     ),
