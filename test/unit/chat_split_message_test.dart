@@ -33,10 +33,12 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/user.dart';
@@ -60,14 +62,16 @@ void main() async {
 
   var galleryItemProvider = Get.put(GalleryItemHiveProvider(), permanent: true);
   await galleryItemProvider.init();
-  var chatHiveProvider = Get.put(ChatHiveProvider(), permanent: true);
-  await chatHiveProvider.init();
-  await chatHiveProvider.clear();
+  var chatProvider = Get.put(ChatHiveProvider(), permanent: true);
+  await chatProvider.init();
+  await chatProvider.clear();
   var sessionProvider = Get.put(SessionDataHiveProvider(), permanent: true);
   await sessionProvider.init();
   var userProvider = Get.put(UserHiveProvider(), permanent: true);
   await userProvider.init();
   await userProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   AuthService authService = Get.put(
     AuthService(
@@ -135,10 +139,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
@@ -190,10 +202,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
@@ -253,10 +273,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
@@ -310,10 +338,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
@@ -359,10 +395,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
@@ -422,10 +466,18 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
+        chatProvider,
+        callRepository,
         userRepository,
         me: const UserId('me'),
       ),
