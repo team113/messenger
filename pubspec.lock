@@ -587,10 +587,12 @@ packages:
   flutter_list_view:
     dependency: "direct main"
     description:
-      name: flutter_list_view
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.12"
+      path: "."
+      ref: HEAD
+      resolved-ref: ff22427b2eb6cb2f0d56a7e48324d023d951139a
+      url: "https://github.com/krida2000/flutter_list_view.git"
+    source: git
+    version: "1.1.18"
   flutter_local_notifications:
     dependency: "direct main"
     description:

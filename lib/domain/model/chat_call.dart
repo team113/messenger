@@ -110,8 +110,24 @@ class ChatCallMember {
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
 /// server.
-class ChatCallCredentials extends NewType<String> {
-  const ChatCallCredentials(String val) : super(val);
+@HiveType(typeId: ModelTypeId.chatCallCredentials)
+class ChatCallCredentials extends HiveObject {
+  ChatCallCredentials(this.val);
+
+  /// Actual value of these [ChatCallCredentials].
+  @HiveField(0)
+  final String val;
+
+  @override
+  int get hashCode => val.hashCode;
+
+  @override
+  String toString() => val.toString();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatCallCredentials && val == other.val;
 }
 
 /// Link for joining a [ChatCall] room on a media server.

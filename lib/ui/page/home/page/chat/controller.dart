@@ -140,10 +140,21 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// [Timer] for discarding any vertical movement in a [SingleChildScrollView]
-  /// of [ChatItem]s when non-`null`.
+  /// Indicator whether any [ChatItem] is being dragged.
   ///
-  /// Indicates currently ongoing horizontal scroll of a view.
+  /// Used to discard any horizontal gestures while this is `true`.
+  final RxBool isItemDragged = RxBool(false);
+
+  /// Summarized [Offset] of an ongoing scroll.
+  Offset scrollOffset = Offset.zero;
+
+  /// Indicator whether an ongoing horizontal scroll is happening.
+  ///
+  /// Used to discard any vertical gestures while this is `true`.
+  final RxBool isHorizontalScroll = RxBool(false);
+
+  /// [Timer] for discarding any vertical movement in a [FlutterListView] of
+  /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
   /// [GlobalKey] of the bottom bar.

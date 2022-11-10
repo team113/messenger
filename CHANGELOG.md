@@ -11,11 +11,19 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
 
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply gesture. ([#188], [#134])
+
 ### Changed
 
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+    - Media panel:
+        - Video resizing when dragged. ([#191], [#190])
 
 ### Fixed
 
@@ -25,7 +33,11 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
+[#134]: /../../issues/134
 [#142]: /../../pull/142
+[#188]: /../../pull/188
+[#190]: /../../issues/190
+[#191]: /../../pull/191
 [#192]: /../../issues/192
 [#193]: /../../pull/193
 [#196]: /../../issues/196
