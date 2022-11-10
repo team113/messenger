@@ -171,7 +171,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     if (data?.data != null && data?.statusCode == 200) {
-      _image = data?.data;
+      _image = data!.data;
       if (mounted) {
         setState(() {});
       }
