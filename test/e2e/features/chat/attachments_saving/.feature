@@ -7,7 +7,7 @@ Feature: Attachments downloading
     And I am in chat with Bob
 
   Scenario: Attachments can be downloaded
-    When Bob sends "test.txt" attachment to me
+    When Bob sends "test.txt" file to me
     Then I wait until "test.txt" file is not downloaded
 
     When I download "test.txt" file
@@ -15,7 +15,7 @@ Feature: Attachments downloading
     And I wait until "test.txt" file is downloaded
 
   Scenario: Attachment download can be canceled
-    When Bob sends "test.txt" attachment to me
+    When Bob sends "test.txt" file to me
     Then I wait until "test.txt" file is not downloaded
 
     When I download "test.txt" file

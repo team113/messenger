@@ -1641,12 +1641,10 @@ class _ChatViewState extends State<ChatView>
                     color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                     size: 16,
                   )
-                : ClipRRect(
+                : RetryImage(
+                    image.small.url,
+                    fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(4),
-                    child: RetryImage(
-                      image.small.url,
-                      fit: BoxFit.cover,
-                    ),
                   ),
           );
         }).toList();
@@ -1880,12 +1878,10 @@ class _ChatViewState extends State<ChatView>
                       color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                       size: 16,
                     )
-                  : ClipRRect(
+                  : RetryImage(
+                      image.small.url,
+                      fit: BoxFit.cover,
                       borderRadius: BorderRadius.circular(4),
-                      child: RetryImage(
-                        image.small.url,
-                        fit: BoxFit.cover,
-                      ),
                     ),
             );
           }).toList();

@@ -80,7 +80,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         downloadFile,
         fillField,
         fillFieldN,
-        goToPreviousPage,
         goToUserPage,
         hasDialogWithMe,
         haveGroupNamed,

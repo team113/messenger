@@ -39,6 +39,8 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
+      ..onGet('*', (_) {});
     Timer(delay.seconds, () {
       PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
     });
@@ -74,6 +76,6 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.throwException = true;
     }
     PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (server) {});
+      ..onGet('*', (_) {});
   }),
 );

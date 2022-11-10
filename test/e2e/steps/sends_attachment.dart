@@ -14,38 +14,60 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:gherkin/gherkin.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/mime.dart';
 
+import '../parameters/attachment.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog with the provided attachment.
+/// their [Chat]-dialog with the provided file or image attachment.
 ///
 /// Examples:
-/// - Then Bob sends "test.txt" attachment to me
+/// - Then Bob sends "test.txt" file to me
+/// - Then Bob sends "test.jpg" image to me
 final StepDefinitionGeneric sendsAttachmentToMe =
-    and2<TestUser, String, CustomWorld>(
-  '{user} sends {string} attachment to me',
-  (TestUser user, String filename, context) async {
+    and3<TestUser, String, AttachmentType, CustomWorld>(
+  '{user} sends {string} {attachment} to me',
+  (TestUser user, String filename, AttachmentType attachmentType,
+      context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
 
     String? type = MimeResolver.lookup(filename);
-    var response = await provider.uploadAttachment(
-      dio.MultipartFile.fromBytes(
-        Uint8List.fromList([1, 1]),
-        filename: filename,
-        contentType: type != null ? MediaType.parse(type) : null,
-      ),
-    );
+    UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk response;
+    switch (attachmentType) {
+      case AttachmentType.file:
+        response = await provider.uploadAttachment(
+          dio.MultipartFile.fromBytes(
+            Uint8List.fromList([1, 1]),
+            filename: filename,
+            contentType: type != null ? MediaType.parse(type) : null,
+          ),
+        );
+        break;
+
+      case AttachmentType.image:
+        response = await provider.uploadAttachment(
+          dio.MultipartFile.fromBytes(
+            base64Decode(
+              'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            ),
+            filename: filename,
+            contentType: MediaType.parse('image/png'),
+          ),
+        );
+        break;
+    }
 
     await provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,

@@ -38,6 +38,7 @@ class RetryImage extends StatefulWidget {
     this.height,
     this.width,
     this.loaderPadding,
+    this.borderRadius,
     this.loaderStrokeWidth = 4,
     this.onForbidden,
     this.imageFilter,
@@ -67,6 +68,9 @@ class RetryImage extends StatefulWidget {
 
   /// [ImageFilter] of image.
   final ImageFilter? imageFilter;
+
+  /// [BorderRadius] of image.
+  final BorderRadius? borderRadius;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -98,7 +102,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
+    _loadImage();
     super.didChangeDependencies();
   }
 
@@ -119,26 +123,29 @@ class _RetryImageState extends State<RetryImage> {
   @override
   Widget build(BuildContext context) {
     if (_image != null) {
-      if (widget.imageFilter == null) {
-        return Image.memory(
-          _image!,
-          key: const Key('RetryImageLoaded'),
-          height: widget.height,
-          width: widget.width,
-          fit: widget.fit,
-        );
-      } else {
-        return ImageFiltered(
+      Widget image = Image.memory(
+        _image!,
+        key: Key('RetryImageLoaded${widget.url}'),
+        height: widget.height,
+        width: widget.width,
+        fit: widget.fit,
+      );
+
+      if (widget.imageFilter != null) {
+        image = ImageFiltered(
           imageFilter: widget.imageFilter!,
-          child: Image.memory(
-            _image!,
-            key: const Key('RetryImageLoaded'),
-            height: widget.height,
-            width: widget.width,
-            fit: widget.fit,
-          ),
+          child: image,
         );
       }
+
+      if (widget.borderRadius != null) {
+        image = ClipRRect(
+          borderRadius: widget.borderRadius!,
+          child: image,
+        );
+      }
+
+      return image;
     }
 
     return Container(
@@ -156,7 +163,7 @@ class _RetryImageState extends State<RetryImage> {
         child: AspectRatio(
           aspectRatio: 1 / 1,
           child: CircularProgressIndicator(
-            key: const Key('RetryImageLoading'),
+            key: Key('RetryImageLoading${widget.url}'),
             strokeWidth: widget.loaderStrokeWidth,
             value: _progress == 0 ? null : _progress,
           ),

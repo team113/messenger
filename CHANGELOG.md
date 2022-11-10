@@ -25,7 +25,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
     - Chat page:
-        - Image attachments not loading. ([#164], [#126])
+        - Backoff retry failed images. ([#164], [#126])
 
 ### Fixed
 

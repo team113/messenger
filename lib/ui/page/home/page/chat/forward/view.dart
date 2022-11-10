@@ -231,12 +231,10 @@ class ChatForwardView extends StatelessWidget {
             height: 50,
             child: image == null
                 ? const Icon(Icons.attach_file, size: 16)
-                : ClipRRect(
+                : RetryImage(
+                    image.medium.url,
+                    fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(4),
-                    child: RetryImage(
-                      image.medium.url,
-                      fit: BoxFit.cover,
-                    ),
                   ),
           );
         }).toList();

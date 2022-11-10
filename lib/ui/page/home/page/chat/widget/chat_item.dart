@@ -1040,13 +1040,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                         size: 28,
                       )
-                    : ClipRRect(
+                    : RetryImage(
+                        image.medium.url,
+                        onForbidden: widget.onAttachmentError,
+                        fit: BoxFit.cover,
                         borderRadius: BorderRadius.circular(10.0),
-                        child: RetryImage(
-                          image.medium.url,
-                          onForbidden: widget.onAttachmentError,
-                          fit: BoxFit.cover,
-                        ),
                       ),
               );
             })

@@ -15,7 +15,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:gherkin/gherkin.dart';
+import 'package:get/get.dart';
+import 'package:gherkin/gherkin.dart' hide Attachment;
+import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../parameters/retry_image.dart';
@@ -23,22 +30,34 @@ import '../parameters/retry_image.dart';
 /// Waits until the image is present or absent.
 ///
 /// Examples:
-/// - Then I wait until image is loading
-/// - Then I wait until image is loaded
+/// - Then I wait until image "test.jpg" is loading
+/// - Then I wait until image "test.jpg" is loaded
 final StepDefinitionGeneric waitUntilImage =
-    then1<RetryImageStatus, FlutterWorld>(
-  'I wait until image is {retry_status}',
-  (status, context) async {
+    then2<String, RetryImageStatus, FlutterWorld>(
+  'I wait until image {string} is {retry_status}',
+  (fileName, status, context) async {
+    RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    Attachment attachment;
     await context.world.appDriver.waitUntil(
       () async {
+        try {
+          attachment = chat!.messages
+              .map((e) => e.value)
+              .whereType<ChatMessage>()
+              .expand((e) => e.attachments)
+              .firstWhere((a) => a.filename == fileName);
+        } catch (e) {
+          return false;
+        }
         return status == RetryImageStatus.loading
             ? context.world.appDriver.isPresent(
-                context.world.appDriver
-                    .findByKeySkipOffstage('RetryImageLoading'),
+                context.world.appDriver.findByKeySkipOffstage(
+                    'RetryImageLoading${(attachment as ImageAttachment).big.url}'),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver
-                    .findByKeySkipOffstage('RetryImageLoaded'),
+                context.world.appDriver.findByKeySkipOffstage(
+                    'RetryImageLoaded${(attachment as ImageAttachment).big.url}'),
               );
       },
       pollInterval: const Duration(milliseconds: 1),

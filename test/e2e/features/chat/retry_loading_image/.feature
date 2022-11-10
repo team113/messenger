@@ -4,16 +4,9 @@ Feature: Image refetching
     Given I am Alice
     And user Bob
     And Bob has dialog with me
+    And Bob sends "test.jpg" image to me
+    And I have Internet with delay of 4 seconds
     And I am in chat with Bob
 
-    When I attach "test.jpg" image
-    Then I tap `Send` button
-
-    When I go to previous page
-    Then I do not have Internet
-
-    When I am in chat with Bob
-    Then I wait until image is loading
-
-    When I have Internet without delay
-    Then I wait until image is loaded
+    When I wait until image "test.jpg" is loading
+    Then I wait until image "test.jpg" is loaded
