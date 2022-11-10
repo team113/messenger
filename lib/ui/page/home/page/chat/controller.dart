@@ -500,17 +500,11 @@ class ChatController extends GetxController {
       persisted = attachments;
     }
 
-    if (send.text.isNotEmpty ||
-        repliedMessages.isNotEmpty ||
-        persisted.isNotEmpty) {
-      chat?.setDraft(
-        text: send.text.isEmpty ? null : ChatMessageText(send.text),
-        attachments: persisted.map((e) => e.value).toList(),
-        repliesTo: repliedMessages,
-      );
-    } else {
-      chat?.setDraft();
-    }
+    chat?.setDraft(
+      text: send.text.isEmpty ? null : ChatMessageText(send.text),
+      attachments: persisted.map((e) => e.value).toList(),
+      repliesTo: repliedMessages,
+    );
   }
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].

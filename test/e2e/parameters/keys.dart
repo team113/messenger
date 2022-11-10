@@ -42,7 +42,6 @@ enum WidgetKey {
   DeleteAccountButton,
   DeleteAvatar,
   DeleteForAll,
-  DraftMessage,
   EmailsExpandable,
   ForwardButton,
   ForwardField,

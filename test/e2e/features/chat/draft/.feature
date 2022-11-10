@@ -21,10 +21,10 @@ Feature: Drafts
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    And I attach "test.txt" file
-    And I fill `MessageField` field with "He-he, draft!"
 
-    When I return to previous page
+    When I attach "test.txt" file
+    And I fill `MessageField` field with "He-he, draft!"
+    And I return to previous page
     Then I see draft "He-he, draft!" in chat with Bob
 
     When I am in chat with Bob

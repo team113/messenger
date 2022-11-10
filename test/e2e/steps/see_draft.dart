@@ -26,7 +26,7 @@ import 'package:messenger/domain/service/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether there's any drafts with the provided [String] in a
+/// Indicates whether there's any drafts containing the provided [String] in a
 /// [Chat]-dialog with the specified [TestUser] on the [Chat]s tab.
 ///
 /// Examples:

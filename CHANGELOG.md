@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
-        - Messages drafts. ([#173], [#102])
+        - Drafts. ([#173], [#102])
 
 ### Changed
 
