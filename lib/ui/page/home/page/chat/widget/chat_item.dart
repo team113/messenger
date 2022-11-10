@@ -1382,14 +1382,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   height: 16,
                                 ),
                                 onPressed: () async {
-    widget.onForwardPopupToggle?.call(true);
+                                  widget.onForwardPopupToggle?.call(true);
                                   await ChatForwardView.show(
                                     context,
                                     widget.chat.value!.id,
                                     [ChatItemQuote(item: item)],
                                   );
 
-    widget.onForwardPopupToggle?.call(false);
+                                  widget.onForwardPopupToggle?.call(false);
                                 },
                               ),
                             if (item is ChatMessage &&

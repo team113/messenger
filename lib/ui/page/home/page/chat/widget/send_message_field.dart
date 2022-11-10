@@ -48,8 +48,7 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 
-/// Send message field widget.
-class SendMessageField extends StatefulWidget {
+class SendMessageField extends StatelessWidget {
   SendMessageField({
     Key? key,
     this.onPickImageFromCamera,
@@ -136,14 +135,30 @@ class SendMessageField extends StatefulWidget {
   final void Function()? onSend;
 
   @override
-  State<SendMessageField> createState() => _SendMessageFieldState();
-}
-
-/// [SendMessageField] state.
-class _SendMessageFieldState extends State<SendMessageField> {
-  @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
+
+    Widget sendButton() => WidgetButton(
+          onPressed: onSend,
+          child: SizedBox(
+            width: 56,
+            height: 56,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: SizedBox(
+                  key: messageSendButtonKey ?? const Key('Send'),
+                  width: 25.18,
+                  height: 22.85,
+                  child: SvgLoader.asset(
+                    'assets/icons/send.svg',
+                    height: 22.85,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
 
     return SafeArea(
       child: Container(
@@ -169,8 +184,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
             children: [
               LayoutBuilder(builder: (context, constraints) {
                 bool grab = false;
-                if (widget.attachments != null) {
-                  grab = 127 * widget.attachments!.length >
+                if (attachments != null) {
+                  grab = (125 + 2) * attachments!.length >
                       constraints.maxWidth - 16;
                 }
 
@@ -189,16 +204,16 @@ class _SendMessageFieldState extends State<SendMessageField> {
                       child: Obx(() {
                         return Container(
                           width: double.infinity,
-                          padding: (widget.repliedMessages != null &&
-                                      widget.repliedMessages!.isNotEmpty) ||
-                                  (widget.attachments != null &&
-                                      widget.attachments!.isNotEmpty)
+                          padding: (repliedMessages != null &&
+                                      repliedMessages!.isNotEmpty) ||
+                                  (attachments != null &&
+                                      attachments!.isNotEmpty)
                               ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                               : EdgeInsets.zero,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (widget.editedMessage?.value != null)
+                              if (editedMessage?.value != null)
                                 ConstrainedBox(
                                   constraints: BoxConstraints(
                                     maxHeight:
@@ -208,22 +223,20 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                     padding:
                                         const EdgeInsets.fromLTRB(4, 4, 4, 4),
                                     child: Dismissible(
-                                      key: Key(
-                                          '${widget.editedMessage?.value?.id}'),
+                                      key: Key('${editedMessage?.value?.id}'),
                                       direction: DismissDirection.horizontal,
                                       onDismissed: (_) =>
-                                          widget.editedMessage?.value = null,
+                                          editedMessage?.value = null,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 2,
                                         ),
-                                        child: editedMessage(),
+                                        child: editedMessageWidget(context),
                                       ),
                                     ),
                                   ),
                                 ),
-                              if (widget.quotes != null &&
-                                  widget.quotes!.isNotEmpty)
+                              if (quotes != null && quotes!.isNotEmpty)
                                 ConstrainedBox(
                                   constraints: BoxConstraints(
                                     maxHeight:
@@ -239,8 +252,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                       }
 
                                       final ChatItemQuote item =
-                                          widget.quotes!.removeAt(old);
-                                      widget.quotes!.insert(to, item);
+                                          quotes!.removeAt(old);
+                                      quotes!.insert(to, item);
 
                                       HapticFeedback.lightImpact();
                                     },
@@ -283,18 +296,18 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                     reverse: true,
                                     padding:
                                         const EdgeInsets.fromLTRB(1, 0, 1, 0),
-                                    children: widget.quotes!.map((e) {
+                                    children: quotes!.map((e) {
                                       return ReorderableDragStartListener(
                                         key: Key('Handle_${e.item.id}'),
                                         enabled: !PlatformUtils.isMobile,
-                                        index: widget.quotes!.indexOf(e),
+                                        index: quotes!.indexOf(e),
                                         child: Dismissible(
                                           key: Key('${e.item.id}'),
                                           direction:
                                               DismissDirection.horizontal,
                                           onDismissed: (_) {
-                                            widget.quotes!.remove(e);
-                                            if (widget.quotes!.isEmpty) {
+                                            quotes!.remove(e);
+                                            if (quotes!.isEmpty) {
                                               Navigator.of(context).pop();
                                             }
                                           },
@@ -312,8 +325,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                     }).toList(),
                                   ),
                                 ),
-                              if (widget.repliedMessages != null &&
-                                  widget.repliedMessages!.isNotEmpty)
+                              if (repliedMessages != null &&
+                                  repliedMessages!.isNotEmpty)
                                 ConstrainedBox(
                                   constraints: BoxConstraints(
                                     maxHeight:
@@ -324,7 +337,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                     buildDefaultDragHandles:
                                         PlatformUtils.isMobile,
                                     onReorder: (i, a) {
-                                      widget.onReorder?.call(i, a);
+                                      onReorder?.call(i, a);
                                     },
                                     proxyDecorator: (child, i, animation) {
                                       return AnimatedBuilder(
@@ -369,32 +382,31 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                       1,
                                       0,
                                     ),
-                                    children: widget.repliedMessages!.map((e) {
+                                    children: repliedMessages!.map((e) {
                                       return ReorderableDragStartListener(
                                         key: Key('Handle_${e.id}'),
                                         enabled: !PlatformUtils.isMobile,
-                                        index:
-                                            widget.repliedMessages!.indexOf(e),
+                                        index: repliedMessages!.indexOf(e),
                                         child: Dismissible(
                                           key: Key('${e.id}'),
                                           direction:
                                               DismissDirection.horizontal,
                                           onDismissed: (_) {
-                                            widget.repliedMessages!.remove(e);
+                                            repliedMessages!.remove(e);
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 2,
                                             ),
-                                            child: repliedMessage(e),
+                                            child: repliedMessage(context, e),
                                           ),
                                         ),
                                       );
                                     }).toList(),
                                   ),
                                 ),
-                              if (widget.attachments != null &&
-                                  widget.attachments!.isNotEmpty) ...[
+                              if (attachments != null &&
+                                  attachments!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Align(
                                   alignment: Alignment.centerLeft,
@@ -403,24 +415,28 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                         ? SystemMouseCursors.grab
                                         : MouseCursor.defer,
                                     opaque: false,
-                                    child: SingleChildScrollView(
-                                      clipBehavior: Clip.none,
-                                      physics: grab
-                                          ? null
-                                          : const NeverScrollableScrollPhysics(),
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: widget.attachments!
-                                            .map(
-                                              (e) => buildAttachment(
-                                                e.value,
-                                                e.key,
-                                              ),
-                                            )
-                                            .toList(),
+                                    child: ScrollConfiguration(
+                                      behavior: CustomScrollBehavior(),
+                                      child: SingleChildScrollView(
+                                        clipBehavior: Clip.none,
+                                        physics: grab
+                                            ? null
+                                            : const NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: attachments!
+                                              .map(
+                                                (e) => buildAttachment(
+                                                  context,
+                                                  e.value,
+                                                  e.key,
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -443,7 +459,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                   children: [
                     if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
                       WidgetButton(
-                        onPressed: widget.onPickFile,
+                        onPressed: onPickFile,
                         child: SizedBox(
                           width: 56,
                           height: 56,
@@ -463,10 +479,10 @@ class _SendMessageFieldState extends State<SendMessageField> {
                       WidgetButton(
                         onPressed: () => AttachmentSourceSelector.show(
                           context,
-                          onPickFile: widget.onPickFile,
-                          onPickImageFromCamera: widget.onPickImageFromCamera,
-                          onPickMedia: widget.onPickMedia,
-                          onVideoImageFromCamera: widget.onVideoImageFromCamera,
+                          onPickFile: onPickFile,
+                          onPickImageFromCamera: onPickImageFromCamera,
+                          onPickMedia: onPickMedia,
+                          onVideoImageFromCamera: onVideoImageFromCamera,
                         ),
                         child: SizedBox(
                           width: 56,
@@ -492,10 +508,9 @@ class _SendMessageFieldState extends State<SendMessageField> {
                         child: Transform.translate(
                           offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                           child: ReactiveTextField(
-                            onChanged: widget.keepTyping,
-                            key: widget.messageFieldKey ??
-                                const Key('MessageField'),
-                            state: widget.textFieldState,
+                            onChanged: keepTyping,
+                            key: messageFieldKey ?? const Key('MessageField'),
+                            state: textFieldState,
                             hint: 'label_send_message_hint'.l10n,
                             minLines: 1,
                             maxLines: 7,
@@ -511,58 +526,38 @@ class _SendMessageFieldState extends State<SendMessageField> {
                     ),
                     GestureDetector(
                       onLongPress: () {
-                        widget.forwarding?.toggle();
-                        setState(() {});
+                        forwarding?.toggle();
+                        // setState(() {});
                       },
-                      child: AnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: widget.forwarding?.value == true
-                            ? WidgetButton(
-                                onPressed: widget.onSend,
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        width: 26,
-                                        height: 22,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/forward.svg',
-                                          width: 26,
-                                          height: 22,
+                      child: forwarding != null
+                          ? Obx(() => AnimatedSwitcher(
+                                duration: 300.milliseconds,
+                                child: forwarding?.value == true
+                                    ? WidgetButton(
+                                        onPressed: onSend,
+                                        child: SizedBox(
+                                          width: 56,
+                                          height: 56,
+                                          child: Center(
+                                            child: AnimatedSwitcher(
+                                              duration: const Duration(
+                                                  milliseconds: 150),
+                                              child: SizedBox(
+                                                width: 26,
+                                                height: 22,
+                                                child: SvgLoader.asset(
+                                                  'assets/icons/forward.svg',
+                                                  width: 26,
+                                                  height: 22,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : WidgetButton(
-                                onPressed: widget.onSend,
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        key: widget.messageSendButtonKey ??
-                                            const Key('Send'),
-                                        width: 25.18,
-                                        height: 22.85,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/send.svg',
-                                          height: 22.85,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                      ),
+                                      )
+                                    : sendButton(),
+                              ))
+                          : sendButton(),
                     ),
                   ],
                 ),
@@ -575,7 +570,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
   }
 
   /// Returns a visual representation of the provided [Attachment].
-  Widget buildAttachment(Attachment e, GlobalKey key) {
+  Widget buildAttachment(BuildContext context, Attachment e, GlobalKey key) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
     bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -657,7 +652,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
           }
         }
 
-        List<Attachment> attachments = widget.attachments!
+        List<Attachment> attachmentsList = attachments!
             .where((e) {
               Attachment a = e.value;
               return a is ImageAttachment ||
@@ -670,18 +665,18 @@ class _SendMessageFieldState extends State<SendMessageField> {
         return WidgetButton(
           key: key,
           onPressed: () {
-            int index = widget.attachments!.indexOf(e);
+            int index = attachments!.indexOf(e);
             if (index != -1) {
               GalleryPopup.show(
                 context: context,
                 gallery: GalleryPopup(
-                  initial: widget.attachments!.indexOf(e),
+                  initial: attachments!.indexOf(e),
                   initialKey: key,
                   onTrashPressed: (int i) {
-                    Attachment a = attachments[i];
-                    widget.attachments!.removeWhere((o) => o.value == a);
+                    Attachment a = attachmentsList[i];
+                    attachments!.removeWhere((o) => o.value == a);
                   },
-                  children: attachments.map((o) {
+                  children: attachmentsList.map((o) {
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
@@ -778,13 +773,13 @@ class _SendMessageFieldState extends State<SendMessageField> {
     }
 
     // Builds the [content] along with manipulation buttons and statuses.
-    Widget attachment() {
+    Widget attachmentWidget() {
       Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
-        onEnter: (_) => widget.hoveredAttachment.value = e,
-        onExit: (_) => widget.hoveredAttachment.value = null,
+        onEnter: (_) => hoveredAttachment.value = e,
+        onExit: (_) => hoveredAttachment.value = null,
         child: Container(
           width: size,
           height: size,
@@ -819,7 +814,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                   ),
                 ),
               ),
-              if (!widget.textFieldState.status.value.isLoading)
+              if (!textFieldState.status.value.isLoading)
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
@@ -827,11 +822,11 @@ class _SendMessageFieldState extends State<SendMessageField> {
                     child: Obx(() {
                       return AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        child: (widget.hoveredAttachment.value == e ||
+                        child: (hoveredAttachment.value == e ||
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () => widget.attachments!
+                                onTap: () => attachments!
                                     .removeWhere((a) => a.value == e),
                                 child: Container(
                                   width: 15,
@@ -868,15 +863,15 @@ class _SendMessageFieldState extends State<SendMessageField> {
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => widget.attachments!.removeWhere((a) => a.value == e),
-      child: attachment(),
+      onDismissed: (_) => attachments!.removeWhere((a) => a.value == e),
+      child: attachmentWidget(),
     );
   }
 
   /// Builds a visual representation of the provided [item] being replied.
-  Widget repliedMessage(ChatItem item) {
+  Widget repliedMessage(BuildContext context, ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == widget.me;
+    bool fromMe = item.authorId == me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -925,7 +920,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
+      bool fromMe = me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -941,7 +936,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
               .localizedString();
         }
       } else {
-        title = item.authorId == widget.me
+        title = item.authorId == me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -991,8 +986,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
 
     return MouseRegion(
       opaque: false,
-      onEnter: (d) => widget.hoveredReply.value = item,
-      onExit: (d) => widget.hoveredReply.value = null,
+      onEnter: (d) => hoveredReply.value = item,
+      onExit: (d) => hoveredReply.value = null,
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
@@ -1004,17 +999,16 @@ class _SendMessageFieldState extends State<SendMessageField> {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: widget._userService.get(item.authorId),
+                  future: _userService.get(item.authorId),
                   builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == widget.me
+                    Color color = snapshot.data?.user.value.id == me
                         ? Theme.of(context).colorScheme.secondary
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
 
                     return Container(
-                      key:
-                          Key('Reply_${widget.repliedMessages!.indexOf(item)}'),
+                      key: Key('Reply_${repliedMessages!.indexOf(item)}'),
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(width: 2, color: color),
@@ -1068,11 +1062,11 @@ class _SendMessageFieldState extends State<SendMessageField> {
             ),
             AnimatedSwitcher(
               duration: 200.milliseconds,
-              child: widget.hoveredReply.value == item || PlatformUtils.isMobile
+              child: hoveredReply.value == item || PlatformUtils.isMobile
                   ? WidgetButton(
                       key: const Key('CancelReplyButton'),
                       onPressed: () {
-                        widget.repliedMessages!.remove(item);
+                        repliedMessages!.remove(item);
                       },
                       child: Container(
                         width: 15,
@@ -1108,7 +1102,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     ChatItem item,
   ) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == widget.me;
+    bool fromMe = item.authorId == me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1163,7 +1157,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
+      bool fromMe = me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -1176,7 +1170,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
             .difference(item.finishedAt!.val)
             .localizedString();
       } else {
-        title = item.authorId == widget.me
+        title = item.authorId == me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1224,8 +1218,8 @@ class _SendMessageFieldState extends State<SendMessageField> {
 
     return MouseRegion(
       opaque: false,
-      onEnter: (d) => widget.hoveredReply.value = item,
-      onExit: (d) => widget.hoveredReply.value = null,
+      onEnter: (d) => hoveredReply.value = item,
+      onExit: (d) => hoveredReply.value = null,
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
@@ -1237,9 +1231,9 @@ class _SendMessageFieldState extends State<SendMessageField> {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: widget._userService.get(item.authorId),
+                  future: _userService.get(item.authorId),
                   builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == widget.me
+                    Color color = snapshot.data?.user.value.id == me
                         ? const Color(0xFF63B4FF)
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
@@ -1261,7 +1255,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           FutureBuilder<RxUser?>(
-                            future: widget._userService.get(item.authorId),
+                            future: _userService.get(item.authorId),
                             builder: (context, snapshot) {
                               String? name;
                               if (snapshot.hasData) {
@@ -1269,8 +1263,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
                                 if (snapshot.data?.user.value != null) {
                                   return Obx(() {
                                     Color color =
-                                        snapshot.data?.user.value.id ==
-                                                widget.me
+                                        snapshot.data?.user.value.id == me
                                             ? const Color(0xFF63B4FF)
                                             : AvatarWidget.colors[snapshot
                                                     .data!.user.value.num.val
@@ -1311,12 +1304,12 @@ class _SendMessageFieldState extends State<SendMessageField> {
             ),
             AnimatedSwitcher(
               duration: 200.milliseconds,
-              child: widget.hoveredReply.value == item || PlatformUtils.isMobile
+              child: hoveredReply.value == item || PlatformUtils.isMobile
                   ? WidgetButton(
                       key: const Key('CancelReplyButton'),
                       onPressed: () {
-                        widget.quotes!.removeWhere((e) => e.item == item);
-                        if (widget.quotes!.isEmpty) {
+                        quotes!.removeWhere((e) => e.item == item);
+                        if (quotes!.isEmpty) {
                           Navigator.of(context).pop();
                         }
                       },
@@ -1349,16 +1342,16 @@ class _SendMessageFieldState extends State<SendMessageField> {
   }
 
   /// Builds a visual representation of a [ChatController.editedMessage].
-  Widget editedMessage() {
+  Widget editedMessageWidget(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = widget.editedMessage?.value?.authorId == widget.me;
+    final bool fromMe = editedMessage?.value?.authorId == me;
 
-    if (widget.editedMessage?.value != null) {
-      if (widget.editedMessage?.value is ChatMessage) {
+    if (editedMessage?.value != null) {
+      if (editedMessage?.value is ChatMessage) {
         Widget? content;
         List<Widget> additional = [];
 
-        final ChatMessage item = widget.editedMessage?.value as ChatMessage;
+        final ChatMessage item = editedMessage?.value as ChatMessage;
 
         var desc = StringBuffer();
         if (item.text != null) {
@@ -1407,12 +1400,11 @@ class _SendMessageFieldState extends State<SendMessageField> {
         }
 
         return WidgetButton(
-          onPressed: () =>
-              widget.animateTo?.call(item.id, offsetBasedOnBottom: true),
+          onPressed: () => animateTo?.call(item.id, offsetBasedOnBottom: true),
           child: MouseRegion(
             opaque: false,
-            onEnter: (d) => widget.hoveredReply.value = item,
-            onExit: (d) => widget.hoveredReply.value = null,
+            onEnter: (d) => hoveredReply.value = item,
+            onExit: (d) => hoveredReply.value = null,
             child: Container(
               margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
               decoration: BoxDecoration(
@@ -1475,12 +1467,11 @@ class _SendMessageFieldState extends State<SendMessageField> {
                   Obx(() {
                     return AnimatedSwitcher(
                       duration: 200.milliseconds,
-                      child: widget.hoveredReply.value == item ||
+                      child: hoveredReply.value == item ||
                               PlatformUtils.isMobile
                           ? WidgetButton(
                               key: const Key('CancelEditButton'),
-                              onPressed: () =>
-                                  widget.editedMessage?.value = null,
+                              onPressed: () => editedMessage?.value = null,
                               child: Container(
                                 width: 15,
                                 height: 15,

@@ -14,8 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,7 +72,7 @@ class ChatForwardView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
-        maxHeight: double.infinity,
+        maxHeight: 650,
       ),
       modalConstraints: const BoxConstraints(maxWidth: 380),
       mobileConstraints: const BoxConstraints(
@@ -114,7 +112,6 @@ class ChatForwardView extends StatelessWidget {
             children: [
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
-                constraints: const BoxConstraints(maxHeight: 650),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
@@ -246,17 +243,4 @@ class ChatForwardView extends StatelessWidget {
       },
     );
   }
-}
-
-/// Custom scroll behavior.
-class CustomScrollBehavior extends MaterialScrollBehavior {
-  // Override behavior methods and getters like dragDevices
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.stylus,
-        PointerDeviceKind.trackpad,
-        PointerDeviceKind.unknown,
-      };
 }

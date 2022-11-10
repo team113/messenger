@@ -805,13 +805,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   );
                                 }
 
-                            widget.onForwardPopupToggle?.call(true);
+                                widget.onForwardPopupToggle?.call(true);
                                 await ChatForwardView.show(
                                   context,
                                   widget.chat.value!.id,
                                   quotes,
                                 );
-                            widget.onForwardPopupToggle?.call(false);
+                                widget.onForwardPopupToggle?.call(false);
                               },
                             ),
                             if (_fromMe &&
