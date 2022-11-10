@@ -568,7 +568,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   .listen((fcmToken) {
                     print('onTokenRefresh');
                     if(oldToken != null) {
-                      graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(fcmToken));
+                      graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
                     }
                 graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
               })
