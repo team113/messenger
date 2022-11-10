@@ -39,6 +39,9 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
+    Timer(delay.seconds, () {
+      PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+    });
   }),
 );
 

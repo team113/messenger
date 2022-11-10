@@ -87,10 +87,27 @@ class _RetryImageState extends State<RetryImage> {
   /// [Duration] of the [_timer].
   Duration _backoffTimeout = const Duration(microseconds: 250);
 
+  /// Initial [Duration] of the [_timer].
+  static const Duration _backoffInitialTimeout = Duration(microseconds: 250);
+
   @override
   void initState() {
     _loadImage();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
+  void didUpdateWidget(covariant RetryImage oldWidget) {
+    if (oldWidget.url != widget.url) {
+      _loadImage();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -102,24 +119,26 @@ class _RetryImageState extends State<RetryImage> {
   @override
   Widget build(BuildContext context) {
     if (_image != null) {
-      return widget.imageFilter == null
-          ? Image.memory(
-              _image!,
-              key: const Key('RetryImageLoaded'),
-              height: widget.height,
-              width: widget.width,
-              fit: widget.fit,
-            )
-          : ImageFiltered(
-              imageFilter: widget.imageFilter!,
-              child: Image.memory(
-                _image!,
-                key: const Key('RetryImageLoaded'),
-                height: widget.height,
-                width: widget.width,
-                fit: widget.fit,
-              ),
-            );
+      if (widget.imageFilter == null) {
+        return Image.memory(
+          _image!,
+          key: const Key('RetryImageLoaded'),
+          height: widget.height,
+          width: widget.width,
+          fit: widget.fit,
+        );
+      } else {
+        return ImageFiltered(
+          imageFilter: widget.imageFilter!,
+          child: Image.memory(
+            _image!,
+            key: const Key('RetryImageLoaded'),
+            height: widget.height,
+            width: widget.width,
+            fit: widget.fit,
+          ),
+        );
+      }
     }
 
     return Container(
@@ -172,6 +191,7 @@ class _RetryImageState extends State<RetryImage> {
 
     if (data?.data != null && data?.statusCode == 200) {
       _image = data!.data;
+      _backoffTimeout = _backoffInitialTimeout;
       if (mounted) {
         setState(() {});
       }
