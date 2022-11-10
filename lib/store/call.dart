@@ -26,6 +26,7 @@ import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
@@ -34,7 +35,9 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
 import 'event/incoming_chat_call.dart';
 
@@ -44,7 +47,7 @@ class CallRepository implements AbstractCallRepository {
     this._graphQlProvider,
     this._userRepo,
     this._credentialsProvider,
-    this._settingsRepository, {
+    this._settingsRepo, {
     required this.me,
   });
 
@@ -64,11 +67,17 @@ class CallRepository implements AbstractCallRepository {
   final ChatCallCredentialsHiveProvider _credentialsProvider;
 
   /// Settings repository, used to get the stored [MediaSettings].
-  final AbstractSettingsRepository _settingsRepository;
+  final AbstractSettingsRepository _settingsRepo;
 
   /// Temporary [ChatCallCredentials] of the [Chat]s containing just started
   /// [OngoingCall]s.
   final Map<ChatId, ChatCallCredentials> _credentials = {};
+
+  /// Subscription to [IncomingChatCallsTopEvent]s list.
+  StreamSubscription? _events;
+
+  /// Returns the current [MediaSettings] value.
+  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   @override
   Rx<OngoingCall>? operator [](ChatId chatId) => calls[chatId];
@@ -76,6 +85,16 @@ class CallRepository implements AbstractCallRepository {
   @override
   void operator []=(ChatId chatId, Rx<OngoingCall> call) =>
       calls[chatId] = call;
+
+  @override
+  void init() {
+    _subscribe(3);
+  }
+
+  @override
+  void dispose() {
+    _events?.cancel();
+  }
 
   @override
   void add(Rx<OngoingCall> call) => calls[call.value.chatId.value] = call;
@@ -90,7 +109,25 @@ class CallRepository implements AbstractCallRepository {
   bool contains(ChatId chatId) => calls.containsKey(chatId);
 
   @override
-  Future<void> start(Rx<OngoingCall> call) async {
+  Future<OngoingCall> start(
+    ChatId chatId, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  }) async {
+    Rx<OngoingCall> call = Rx<OngoingCall>(
+      OngoingCall(
+        chatId,
+        me,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
+        mediaSettings: media.value,
+        creds: generateCredentials(chatId),
+        state: OngoingCallState.local,
+      ),
+    );
+
     calls[call.value.chatId.value] = call;
 
     var response = await _graphQlProvider.startChatCall(
@@ -110,10 +147,58 @@ class CallRepository implements AbstractCallRepository {
       throw CallAlreadyJoinedException(response.deviceId);
     }
     calls[call.value.chatId.value]?.refresh();
+
+    return call.value;
   }
 
   @override
-  Future<void> join(Rx<OngoingCall> call) async {
+  Future<OngoingCall?> join(
+    ChatId chatId,
+    ChatItemId? callId, {
+    bool withAudio = true,
+    bool withVideo = false,
+    bool withScreen = false,
+  }) async {
+    Rx<OngoingCall> call;
+    final Rx<OngoingCall>? stored = calls[chatId];
+
+    if (stored == null || stored.value.state.value == OngoingCallState.ended) {
+      // If we're joining an already disposed call, then replace it.
+      if (stored?.value.state.value == OngoingCallState.ended) {
+        var removed = remove(chatId);
+        removed?.value.dispose();
+      }
+
+      ChatCallCredentials? credentials;
+      if (callId != null) {
+        credentials = getCredentials(callId);
+      }
+
+      call = Rx<OngoingCall>(
+        OngoingCall(
+          chatId,
+          me,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+          mediaSettings: media.value,
+          creds: credentials ?? generateCredentials(chatId),
+          state: OngoingCallState.joining,
+        ),
+      );
+    } else if (stored.value.state.value != OngoingCallState.active) {
+      stored.value.state.value = OngoingCallState.joining;
+      stored.value.setAudioEnabled(withAudio);
+      stored.value.setVideoEnabled(withVideo);
+      stored.value.setScreenShareEnabled(withScreen);
+
+      call = stored;
+    } else {
+      return null;
+    }
+
+    calls[chatId] = call;
+
     var response = await _graphQlProvider.joinChatCall(
         call.value.chatId.value, call.value.creds!);
 
@@ -126,6 +211,8 @@ class CallRepository implements AbstractCallRepository {
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
+
+    return call.value;
   }
 
   @override
@@ -141,8 +228,12 @@ class CallRepository implements AbstractCallRepository {
 
   @override
   void addCall(ChatCall chatCall) {
-    // If we're already in this call, then ignore it.
-    if (chatCall.members.any((e) => e.user.id == me)) {
+    final Rx<OngoingCall>? stored = calls[chatCall.chatId];
+
+    // If we're already in this call or call already exist, then ignore it.
+    if ((stored != null &&
+            stored.value.state.value != OngoingCallState.ended) ||
+        chatCall.members.any((e) => e.user.id == me)) {
       return;
     }
 
@@ -157,7 +248,7 @@ class CallRepository implements AbstractCallRepository {
           withAudio: false,
           withVideo: false,
           withScreen: false,
-          mediaSettings: _settingsRepository.mediaSettings.value,
+          mediaSettings: media.value,
           creds: getCredentials(chatCall.id),
         ),
       );
@@ -165,6 +256,41 @@ class CallRepository implements AbstractCallRepository {
     } else {
       call.value.call.value = chatCall;
     }
+  }
+
+  @override
+  Rx<OngoingCall> addStoredCall(
+    WebStoredCall stored, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  }) {
+    Rx<OngoingCall>? call = calls[stored.chatId];
+
+    if (call == null) {
+      call = Rx(
+        OngoingCall(
+          stored.chatId,
+          me,
+          call: stored.call,
+          creds: stored.creds,
+          deviceId: stored.deviceId,
+          state: stored.state,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+          mediaSettings: media.value,
+        ),
+      );
+
+      add(call);
+    } else {
+      call.value.call.value = call.value.call.value ?? stored.call;
+      call.value.creds = call.value.creds ?? stored.creds;
+      call.value.deviceId = call.value.deviceId ?? stored.deviceId;
+    }
+
+    return call;
   }
 
   @override
@@ -446,5 +572,44 @@ class CallRepository implements AbstractCallRepository {
     }
 
     return null;
+  }
+
+  /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
+  void _subscribe(int count) async {
+    _events?.cancel();
+    _events = (await events(count)).listen(
+          (e) async {
+        switch (e.kind) {
+          case IncomingChatCallsTopEventKind.initialized:
+          // No-op.
+            break;
+
+          case IncomingChatCallsTopEventKind.list:
+            e as IncomingChatCallsTop;
+            for (ChatCall c in e.list) {
+              addCall(c);
+            }
+            break;
+
+          case IncomingChatCallsTopEventKind.added:
+            e as EventIncomingChatCallsTopChatCallAdded;
+            addCall(e.call);
+            break;
+
+          case IncomingChatCallsTopEventKind.removed:
+            e as EventIncomingChatCallsTopChatCallRemoved;
+            endCall(e.call.chatId);
+            break;
+        }
+      },
+      onError: (e) {
+        if (e is ResubscriptionRequiredException) {
+          _subscribe(count);
+        } else {
+          Log.print(e.toString(), 'CallService');
+          throw e;
+        }
+      },
+    );
   }
 }

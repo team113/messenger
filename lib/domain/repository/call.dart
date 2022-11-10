@@ -18,9 +18,10 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../model/chat.dart';
 import '../model/chat_call.dart';
 import '../model/chat_item.dart';
-import '../model/chat.dart';
+import '../model/my_user.dart';
 import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -28,6 +29,7 @@ import '/store/event/chat_call.dart';
 import '/store/event/incoming_chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 /// [OngoingCall]s repository interface.
 abstract class AbstractCallRepository {
@@ -43,6 +45,12 @@ abstract class AbstractCallRepository {
   /// Adds [call] identified by [chatId] to the [calls] map.
   void add(Rx<OngoingCall> call);
 
+  /// Initializes the repository.
+  void init();
+
+  /// Disposes the repository.
+  void dispose();
+
   /// Switches the [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
@@ -56,11 +64,22 @@ abstract class AbstractCallRepository {
 
   /// Starts a new [OngoingCall] in the specified [chatId] by the authenticated
   /// [MyUser].
-  Future<void> start(Rx<OngoingCall> call);
+  Future<OngoingCall> start(
+    ChatId chatId, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  });
 
   /// Joins the current [OngoingCall] in the specified [chatId] by the
   /// authenticated [MyUser].
-  Future<void> join(Rx<OngoingCall> call);
+  Future<OngoingCall?> join(
+    ChatId chatId,
+    ChatItemId? callId, {
+    bool withAudio = true,
+    bool withVideo = false,
+    bool withScreen = false,
+  });
 
   /// Leaves the current [OngoingCall] in the specified [chatId] by the
   /// authenticated [MyUser].
@@ -104,6 +123,15 @@ abstract class AbstractCallRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
+
+  /// Constructs an [OngoingCall] from the provided [stored] call and adds it to
+  /// the [calls].
+  Rx<OngoingCall> addStoredCall(
+    WebStoredCall stored, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  });
 
   /// Adds the provided [ChatCall] to the [calls].
   ///

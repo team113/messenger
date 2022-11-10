@@ -22,21 +22,15 @@ import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ResubscriptionRequiredException,
-        TransformDialogCallIntoGroupCallException;
+    show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
-import '/store/event/incoming_chat_call.dart';
-import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -46,7 +40,6 @@ class CallService extends DisposableService {
   CallService(
     this._authService,
     this._chatService,
-    this._settingsRepo,
     this._callsRepo,
   );
 
@@ -62,23 +55,8 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
 
-  /// Settings repository, used to get the stored [MediaSettings].
-  final AbstractSettingsRepository _settingsRepo;
-
-  /// Subscription to [IncomingChatCallsTopEvent]s list.
-  StreamSubscription? _events;
-
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
-
-  /// Returns the current [MediaSettings] value.
-  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
-
-  @override
-  void onReady() {
-    super.onReady();
-    _subscribe(3);
-  }
 
   @override
   void onClose() {
@@ -91,37 +69,33 @@ class CallService extends DisposableService {
       removed?.value.dispose();
     }
 
-    _events?.cancel();
+    _callsRepo.dispose();
   }
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(
     ChatId chatId, {
     bool withAudio = true,
-    bool withVideo = true,
+    bool withVideo = false,
     bool withScreen = false,
   }) async {
+    final Rx<OngoingCall>? stored = _callsRepo[chatId];
+
     if (WebUtils.containsCall(chatId)) {
       throw CallIsInPopupException();
-    } else if (_callsRepo.contains(chatId)) {
+    } else if (stored != null &&
+        stored.value.state.value != OngoingCallState.ended) {
       throw CallAlreadyExistsException();
     }
 
     try {
-      Rx<OngoingCall> call = Rx<OngoingCall>(
-        OngoingCall(
-          chatId,
-          me,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-          mediaSettings: media.value,
-          creds: _callsRepo.generateCredentials(chatId),
-          state: OngoingCallState.local,
-        ),
+      OngoingCall call = await _callsRepo.start(
+        chatId,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
       );
-      await _callsRepo.start(call);
-      call.value.connect(this);
+      call.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -136,60 +110,38 @@ class CallService extends DisposableService {
   Future<void> join(
     ChatId chatId, {
     bool withAudio = true,
-    bool withVideo = true,
+    bool withVideo = false,
     bool withScreen = false,
   }) async {
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
     }
 
-    final Rx<OngoingCall>? stored = _callsRepo[chatId];
-    ChatCallCredentials? credentials = stored?.value.creds;
-
     try {
-      if (stored == null ||
-          stored.value.state.value == OngoingCallState.ended) {
-        // If we're joining an already disposed call, then replace it.
-        if (stored?.value.state.value == OngoingCallState.ended) {
-          var removed = _callsRepo.remove(chatId);
-          removed?.value.dispose();
-        } else {
-          RxChat? chat = await _chatService.get(chatId);
-          ChatItemId? id = chat?.chat.value.ongoingCall?.id;
-          if (id != null) {
-            credentials = _callsRepo.getCredentials(id);
-          }
-        }
+      RxChat? chat = await _chatService.get(chatId);
+      ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
 
-        Rx<OngoingCall> call = Rx<OngoingCall>(
-          OngoingCall(
-            chatId,
-            me,
-            withAudio: withAudio,
-            withVideo: withVideo,
-            withScreen: withScreen,
-            mediaSettings: media.value,
-            creds: credentials ?? _callsRepo.generateCredentials(chatId),
-            state: OngoingCallState.joining,
-          ),
+      OngoingCall? call;
+
+      try {
+        call = await _callsRepo.join(
+          chatId,
+          callId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
         );
-
-        _callsRepo.add(call);
-        try {
-          await _callsRepo.join(call);
-        } on CallAlreadyJoinedException catch (e) {
-          await _callsRepo.leave(chatId, e.deviceId);
-          await _callsRepo.join(call);
-        }
-        call.value.connect(this);
-      } else if (stored.value.state.value != OngoingCallState.active) {
-        stored.value.state.value = OngoingCallState.joining;
-        stored.value.setAudioEnabled(withAudio);
-        stored.value.setVideoEnabled(withVideo);
-        stored.value.setScreenShareEnabled(withScreen);
-        await _callsRepo.join(stored);
-        stored.value.connect(this);
+      } on CallAlreadyJoinedException catch (e) {
+        await _callsRepo.leave(chatId, e.deviceId);
+        call = await _callsRepo.join(
+          chatId,
+          callId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+        );
       }
+      call?.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -241,34 +193,13 @@ class CallService extends DisposableService {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
-  }) {
-    Rx<OngoingCall>? call = _callsRepo[stored.chatId];
-
-    if (call == null) {
-      call = Rx(
-        OngoingCall(
-          stored.chatId,
-          me,
-          call: stored.call,
-          creds: stored.creds,
-          deviceId: stored.deviceId,
-          state: stored.state,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-          mediaSettings: media.value,
-        ),
+  }) =>
+      _callsRepo.addStoredCall(
+        stored,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
       );
-
-      _callsRepo.add(call);
-    } else {
-      call.value.call.value = call.value.call.value ?? stored.call;
-      call.value.creds = call.value.creds ?? stored.creds;
-      call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-    }
-
-    return call;
-  }
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {
@@ -344,67 +275,4 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callsRepo.removeCredentials(id);
-
-  /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
-  void _subscribe(int count) async {
-    _events?.cancel();
-    _events = (await _callsRepo.events(count)).listen(
-      (e) async {
-        switch (e.kind) {
-          case IncomingChatCallsTopEventKind.initialized:
-            // No-op.
-            break;
-
-          case IncomingChatCallsTopEventKind.list:
-            e as IncomingChatCallsTop;
-            for (ChatCall c in e.list) {
-              if (!_callsRepo.calls.containsKey(c.chatId)) {
-                Rx<OngoingCall> call = Rx<OngoingCall>(
-                  OngoingCall(
-                    c.chatId,
-                    me,
-                    call: c,
-                    withAudio: false,
-                    withVideo: c.withVideo &&
-                        c.caller?.id == me &&
-                        c.conversationStartedAt == null,
-                    withScreen: false,
-                    mediaSettings: media.value,
-                    creds: _callsRepo.getCredentials(c.id),
-                  ),
-                );
-                _callsRepo.add(call);
-              }
-            }
-            break;
-
-          case IncomingChatCallsTopEventKind.added:
-            e as EventIncomingChatCallsTopChatCallAdded;
-            bool exist = _chatService.ensureExist(e.call.chatId);
-
-            if (!exist) {
-              _callsRepo.addCall(e.call);
-            }
-            break;
-
-          case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            bool exist = _chatService.ensureExist(e.call.chatId);
-
-            if (!exist) {
-              _callsRepo.endCall(e.call.chatId);
-            }
-            break;
-        }
-      },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _subscribe(count);
-        } else {
-          Log.print(e.toString(), 'CallService');
-          throw e;
-        }
-      },
-    );
-  }
 }
