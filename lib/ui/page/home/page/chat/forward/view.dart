@@ -184,7 +184,7 @@ class ChatForwardView extends StatelessWidget {
                           onPickMedia: c.pickMedia,
                           onPickImageFromCamera: c.pickImageFromCamera,
                           onPickFile: c.pickFile,
-                          onSend: c.send.submit,
+                          onSend: c.forward,
                           onReorder: (int old, int to) {
                             if (old < to) {
                               --to;

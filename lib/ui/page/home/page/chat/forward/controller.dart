@@ -92,20 +92,22 @@ class ChatForwardController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [Worker] to react on the [quotes] updates.
+  late final Worker quotesChanges;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
+    quotesChanges = ever(quotes, (_) {
+      if (quotes.isEmpty) pop?.call();
+    });
+
     send = TextFieldState(
       text: text,
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) {
-        if (searchResults.value?.isEmpty == false) {
-          forward();
-          pop?.call();
-        }
-      },
+      onSubmitted: (s) => forward(),
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&
@@ -139,8 +141,18 @@ class ChatForwardController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    quotesChanges.dispose();
+
+    super.onClose();
+  }
+
   /// Forwards [ChatItem] to selected [Chat]s and [User]s.
   Future<void> forward() async {
+    if (searchResults.value?.isEmpty != false) {
+      return;
+    }
     send.status.value = RxStatus.loading();
     send.editable.value = false;
 
@@ -203,6 +215,7 @@ class ChatForwardController extends GetxController {
       ];
 
       await Future.wait(futures);
+      pop?.call();
     } on ForwardChatItemsException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

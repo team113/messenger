@@ -122,10 +122,10 @@ class SendMessageField extends StatelessWidget {
   /// Callback, called when called pick video from camera.
   final void Function()? onVideoImageFromCamera;
 
-  /// Callback, called when called pick media.
+  /// Callback, called when a media picking is triggered.
   final void Function()? onPickMedia;
 
-  /// Callback, called when called pick file.
+  /// Callback, called when a file picking is triggered.
   final void Function()? onPickFile;
 
   /// Callback, called when user typing in message field.
@@ -1309,9 +1309,6 @@ class SendMessageField extends StatelessWidget {
                       key: const Key('CancelReplyButton'),
                       onPressed: () {
                         quotes!.removeWhere((e) => e.item == item);
-                        if (quotes!.isEmpty) {
-                          Navigator.of(context).pop();
-                        }
                       },
                       child: Container(
                         width: 15,
