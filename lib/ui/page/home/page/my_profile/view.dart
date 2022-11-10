@@ -80,84 +80,42 @@ class MyProfileView extends StatelessWidget {
               padding: EdgeInsets.only(left: 4, right: 20),
               leading: [StyledBackButton()],
             ),
-            body: Center(
-              child: Obx(() {
-                if (c.myUser.value == null) {
-                  return const CircularProgressIndicator();
-                }
+            body: SingleChildScrollView(
+              child: Center(
+                child: Obx(() {
+                  if (c.myUser.value == null) {
+                    return const CircularProgressIndicator();
+                  }
 
-                return Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  constraints: context.isNarrow
-                      ? null
-                      : const BoxConstraints(maxWidth: 400),
-                  child: ListView(
+                  return Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      // color: Colors.white,
+                      color: const Color(0xFFF8F8F8),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    constraints: context.isNarrow
+                        ? null
+                        : const BoxConstraints(maxWidth: 400),
                     padding: const EdgeInsets.all(32),
-                    shrinkWrap: true,
-                    children: [
-                      // const SizedBox(height: 10),
-                      WidgetButton(
-                        onPressed: () async {
-                          await c.uploadAvatar();
-                          return;
-
-                          if (c.myUser.value?.avatar == null) {
-                            await c.uploadAvatar();
-                          } else {
-                            await ModalPopup.show(
-                              context: context,
-                              modalConstraints:
-                                  const BoxConstraints(maxWidth: 300),
-                              child: Builder(builder: (context) {
-                                return ListView(
-                                  shrinkWrap: true,
-                                  children: [
-                                    OutlinedRoundedButton(
-                                      title: const Text(
-                                        'Change',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      color: const Color(0xFF63B4FF),
-                                      onPressed: () {
-                                        c.uploadAvatar();
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    const SizedBox(height: 10),
-                                    OutlinedRoundedButton(
-                                      color: const Color(0xFF63B4FF),
-                                      title: const Text(
-                                        'Delete',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        c.deleteAvatar();
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              }),
-                            );
-                          }
-                        },
-                        child: Stack(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // const SizedBox(height: 10),
+                        Stack(
                           alignment: Alignment.center,
                           children: [
-                            AvatarWidget.fromMyUser(
-                              c.myUser.value,
-                              radius: 100,
-                              showBadge: false,
-                              quality: AvatarQuality.original,
+                            WidgetButton(
+                              onPressed: () async {
+                                await c.uploadAvatar();
+                              },
+                              child: AvatarWidget.fromMyUser(
+                                c.myUser.value,
+                                radius: 100,
+                                showBadge: false,
+                                quality: AvatarQuality.original,
+                              ),
                             ),
                             Positioned.fill(
                               child: Obx(() {
@@ -181,46 +139,46 @@ class MyProfileView extends StatelessWidget {
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      Center(
-                        child: WidgetButton(
-                          onPressed: c.myUser.value?.avatar == null
-                              ? null
-                              : c.deleteAvatar,
-                          child: SizedBox(
-                            height: 20,
-                            child: c.myUser.value?.avatar == null
+                        const SizedBox(height: 5),
+                        Center(
+                          child: WidgetButton(
+                            onPressed: c.myUser.value?.avatar == null
                                 ? null
-                                : Text(
-                                    'Delete',
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      fontSize: 11,
+                                : c.deleteAvatar,
+                            child: SizedBox(
+                              height: 20,
+                              child: c.myUser.value?.avatar == null
+                                  ? null
+                                  : Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontSize: 11,
+                                      ),
                                     ),
-                                  ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      _name(c),
-                      const SizedBox(height: 20),
-                      _num(c),
-                      _link(context, c),
-                      const SizedBox(height: 20),
-                      const SizedBox(height: 10),
-                      _login(c),
-                      const SizedBox(height: 10),
-                      _emails(c, context),
-                      _password(context, c),
-                      const SizedBox(height: 10),
-                      _deleteAccount(c),
-                    ],
-                  ),
-                );
-              }),
+                        const SizedBox(height: 10),
+                        _name(c),
+                        const SizedBox(height: 20),
+                        _num(c),
+                        // _link(context, c),
+                        // const SizedBox(height: 20),
+                        const SizedBox(height: 10),
+                        _login(c),
+                        const SizedBox(height: 10),
+                        // _emails(c, context),
+                        _password(context, c),
+                        const SizedBox(height: 10),
+                        _deleteAccount(c),
+                      ],
+                    ),
+                  );
+                }),
+              ),
             ),
           ),
         );
@@ -568,6 +526,7 @@ Widget _name(MyProfileController c) {
       // suffix: Icons.edit,
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
+      filled: true,
     ),
   );
 }
@@ -594,11 +553,32 @@ Widget _presence(MyProfileController c) => _padding(
 
 /// Returns [MyUser.num] copyable field.
 Widget _num(MyProfileController c) => _padding(
-      CopyableTextField(
-        key: const Key('NumCopyable'),
-        state: c.num,
-        label: 'label_num'.l10n,
-        copy: c.myUser.value?.num.val,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CopyableTextField(
+            key: const Key('NumCopyable'),
+            state: c.num,
+            label: 'label_num'.l10n,
+            copy: c.myUser.value?.num.val,
+          ),
+          const SizedBox(height: 4),
+          RichText(
+            text: const TextSpan(
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+              children: [
+                TextSpan(
+                  text: 'Ваш логин публичен. Для изменения этой настройки... ',
+                  style: TextStyle(color: Color(0xFF888888)),
+                ),
+                TextSpan(
+                  text: 'Ещё',
+                  style: TextStyle(color: Color(0xFF00A3FF)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
 

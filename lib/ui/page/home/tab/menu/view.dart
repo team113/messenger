@@ -348,15 +348,12 @@ class MenuTabView extends StatelessWidget {
                                       );
                                     }),
                                     const SizedBox(width: 2),
-                                    Transform.translate(
-                                      offset: const Offset(0, 1),
-                                      child: Icon(
-                                        Icons.expand_more,
-                                        size: 18,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
+                                    Icon(
+                                      Icons.expand_more,
+                                      size: 18,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                     ),
                                   ],
                                 ),
@@ -464,6 +461,28 @@ class MenuTabView extends StatelessWidget {
                 title: Text('Profile'.l10n),
                 subtitle: Text('Avatar, name, login, password.'.l10n),
                 onTap: () => router.profile(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.link,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Link'.l10n),
+                subtitle: Text('Direct link to a chat with you.'.l10n),
+                onTap: () {},
+                // onTap: () => router.privacy(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.email,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Contact information'.l10n),
+                subtitle: Text('Emails, phones and documents.'.l10n),
+                onTap: () {},
+                // onTap: () => router.privacy(push: context.isNarrow),
               ),
               const SizedBox(height: 8),
               bigButton(

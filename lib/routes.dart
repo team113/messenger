@@ -88,6 +88,8 @@ class Routes {
   static const user = '/user';
 
   static const profile = '/profile';
+  static const link = '/link';
+  static const emails = '/emails';
   static const privacy = '/privacy';
   static const devices = '/devices';
   static const storage = '/storage';
@@ -618,6 +620,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.personalization ||
         _state.route == Routes.download ||
         _state.route == Routes.profile ||
+        _state.route == Routes.link ||
+        _state.route == Routes.emails ||
         _state.route == Routes.media ||
         _state.route == Routes.privacy ||
         _state.route == Routes.storage ||
@@ -742,6 +746,12 @@ extension RouteLinks on RouterState {
 
   void profile({bool push = false}) =>
       push ? this.push(Routes.profile) : go(Routes.profile);
+
+  void link({bool push = false}) =>
+      push ? this.push(Routes.profile) : go(Routes.link);
+
+  void emails({bool push = false}) =>
+      push ? this.push(Routes.emails) : go(Routes.emails);
 
   void privacy({bool push = false}) =>
       push ? this.push(Routes.privacy) : go(Routes.privacy);

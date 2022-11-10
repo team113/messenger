@@ -124,6 +124,18 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.language,
           child: SettingsView(),
         ));
+      } else if (route == Routes.link) {
+        pages.add(const _CustomPage(
+          key: ValueKey('LinkPage'),
+          name: Routes.language,
+          child: SettingsView(),
+        ));
+      } else if (route == Routes.emails) {
+        pages.add(const _CustomPage(
+          key: ValueKey('EmailsPage'),
+          name: Routes.emails,
+          child: SettingsView(),
+        ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),
