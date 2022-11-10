@@ -245,8 +245,8 @@ class HiveRxChat extends RxChat {
       );
 
       final bool attachmentsEqual = const IterableEquality().equals(
-        (draft?.attachments ?? []).map((e) => e.id),
-        attachments.map((e) => e.id),
+        (draft?.attachments ?? []).map((e) => [e.id, e.runtimeType]),
+        attachments.map((e) => [e.id, e.runtimeType]),
       );
 
       if (draft?.text != text || !repliesEqual || !attachmentsEqual) {

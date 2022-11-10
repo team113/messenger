@@ -288,10 +288,7 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     send = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        updateDraft();
-      },
+      onChanged: (s) {},
       onSubmitted: (s) {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
@@ -314,6 +311,8 @@ class ChatController extends GetxController {
           attachments.clear();
           s.clear();
           s.unsubmit();
+
+          chat?.setDraft();
 
           _typingSubscription?.cancel();
           _typingSubscription = null;
@@ -497,13 +496,13 @@ class ChatController extends GetxController {
         (e) => e.value is ImageAttachment || e.value is FileAttachment,
       );
     } else {
-      persisted = attachments;
+      persisted = List.from(attachments, growable: false);
     }
 
     chat?.setDraft(
       text: send.text.isEmpty ? null : ChatMessageText(send.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: repliedMessages,
+      repliesTo: List.from(repliedMessages, growable: false),
     );
   }
 
@@ -519,12 +518,13 @@ class ChatController extends GetxController {
       ChatMessage? draft = chat!.draft.value;
 
       send.text = draft?.text?.val ?? '';
-      repliedMessages.value = draft?.repliesTo ?? [];
+      repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
         attachments.add(MapEntry(GlobalKey(), e));
       }
 
+      send.onChanged = (s) => updateDraft();
       _repliesWorker ??= ever(repliedMessages, (_) => updateDraft());
       _attachmentsWorker ??= ever(attachments, (_) => updateDraft());
 
@@ -1123,7 +1123,7 @@ class ChatController extends GetxController {
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-        int index = attachments.indexWhere((e) => e.value == attachment);
+        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
           updateDraft();
