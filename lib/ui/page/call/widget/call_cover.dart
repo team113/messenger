@@ -30,7 +30,7 @@ import '/ui/widget/svg/svg.dart';
 class CallCoverWidget extends StatelessWidget {
   const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
 
-  /// Call cover data object.
+  /// [UserCallCover] to display.
   final UserCallCover? cover;
 
   /// [User] this [UserCallCover] belongs to.

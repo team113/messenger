@@ -27,29 +27,32 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../parameters/retry_image.dart';
 
-/// Waits until the image is present or absent.
+/// Waits until the specified image attachment is present or absent.
 ///
 /// Examples:
-/// - Then I wait until image "test.jpg" is loading
-/// - Then I wait until image "test.jpg" is loaded
-final StepDefinitionGeneric waitUntilImage =
+/// - Then I wait until "test.jpg" attachment is loading
+/// - Then I wait until "test.jpg" attachment is loaded
+final StepDefinitionGeneric untilAttachmentLoaded =
     then2<String, RetryImageStatus, FlutterWorld>(
-  'I wait until image {string} is {retry_status}',
-  (fileName, status, context) async {
-    RxChat? chat =
+  'I wait until attachment {string} is {retry_status}',
+  (filename, status, context) async {
+    final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    Attachment attachment;
+
     await context.world.appDriver.waitUntil(
       () async {
+        final Attachment attachment;
+
         try {
           attachment = chat!.messages
               .map((e) => e.value)
               .whereType<ChatMessage>()
               .expand((e) => e.attachments)
-              .firstWhere((a) => a.filename == fileName);
+              .firstWhere((a) => a.filename == filename);
         } catch (e) {
           return false;
         }
+
         return status == RetryImageStatus.loading
             ? context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage(

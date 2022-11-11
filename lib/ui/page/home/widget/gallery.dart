@@ -116,7 +116,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     child: RetryImage(
                       widget.items![widget.index].original.url,
                       fit: BoxFit.cover,
-                      imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     ),
                   ),
                 )

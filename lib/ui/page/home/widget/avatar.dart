@@ -413,8 +413,6 @@ class AvatarWidget extends StatelessWidget {
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
-                    loaderPadding: const EdgeInsets.all(5),
-                    loaderStrokeWidth: 3,
                   ),
                 ),
         ),
