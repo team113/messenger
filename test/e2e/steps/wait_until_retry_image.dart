@@ -34,7 +34,7 @@ import '../parameters/retry_image.dart';
 /// - Then I wait until "test.jpg" attachment is loaded
 final StepDefinitionGeneric untilAttachmentLoaded =
     then2<String, RetryImageStatus, FlutterWorld>(
-  'I wait until attachment {string} is {retry_status}',
+  'I wait until {string} attachment is {retry_status}',
   (filename, status, context) async {
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];

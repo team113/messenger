@@ -115,7 +115,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         user,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
-        waitUntilImage,
+        untilAttachmentLoaded,
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
