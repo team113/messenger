@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat_call.dart';
