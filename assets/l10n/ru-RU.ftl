@@ -399,6 +399,7 @@ label_direct_chat_link_in_chat_description =
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,
     - совершать звонки
+label_draft = Черновик
 label_drop_here =
     Перетащите сюда,
     чтобы прикрепить
@@ -491,6 +492,7 @@ label_password = Пароль
 label_password_not_set = Пароль не задан
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
+label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
 label_phones = Телефоны
@@ -504,7 +506,11 @@ label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
-label_personalization = Персонализация
+label_replies = [{$count} { $count ->
+    [1] ответ
+    [few] ответа
+    *[other] ответов
+    }]
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
@@ -552,4 +558,6 @@ label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 plus = +
+semicolon_space = :{" "}
+space = {" "}
 space_vertical_space = {" "}|{" "}

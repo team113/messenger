@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
+        - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
 
@@ -36,9 +37,11 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#63]: /../../issues/63
+[#102]: /../../issues/102
 [#134]: /../../issues/134
 [#142]: /../../pull/142
 [#172]: /../../pull/172
+[#173]: /../../pull/173
 [#188]: /../../pull/188
 [#190]: /../../issues/190
 [#191]: /../../pull/191
