@@ -130,13 +130,22 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           ? SizedBox(
               width: width,
               height: height,
-              child: IgnorePointer(
-                child: ContextMenuInterceptor(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  IgnorePointer(
+                    child: AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    ),
                   ),
-                ),
+                  ContextMenuInterceptor(child: const SizedBox()),
+
+                  // [Container] for receiving pointer events over this
+                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                  // intercepts them.
+                  Container(color: Colors.transparent),
+                ],
               ),
             )
           : SizedBox(

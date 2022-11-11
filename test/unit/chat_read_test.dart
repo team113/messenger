@@ -27,10 +27,12 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/user.dart';
@@ -51,12 +53,14 @@ void main() async {
 
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
-  var chatHiveProvider = ChatHiveProvider();
-  await chatHiveProvider.init();
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -158,11 +162,24 @@ void main() async {
           },
         )));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, Get.find(), userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.readChat(
@@ -193,11 +210,24 @@ void main() async {
       const ChatItemId(''),
     )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, Get.find(), userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
