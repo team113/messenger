@@ -48,6 +48,7 @@ import '/util/platform_utils.dart';
 import 'attachment_selector.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
+/// Send message field.
 class SendMessageField extends StatelessWidget {
   SendMessageField({
     Key? key,
@@ -110,7 +111,7 @@ class SendMessageField extends StatelessWidget {
   /// Replied [ChatItem] being hovered.
   final Rx<ChatItem?> hoveredReply = Rx(null);
 
-  /// Callback, called when called pick image from camera.
+  /// Callback, called when a image picking from camera is triggered.
   final void Function()? onPickImageFromCamera;
 
   /// Callback, called when need animate to some [ChatMessage].
@@ -120,7 +121,7 @@ class SendMessageField extends StatelessWidget {
     double offset,
   })? animateTo;
 
-  /// Callback, called when called pick video from camera.
+  /// Callback, called when a video picking from camera is triggered.
   final void Function()? onVideoImageFromCamera;
 
   /// Callback, called when a media picking is triggered.
@@ -232,7 +233,7 @@ class SendMessageField extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 2,
                                         ),
-                                        child: editedMessageWidget(context),
+                                        child: buildEditedMessage(context),
                                       ),
                                     ),
                                   ),
@@ -248,7 +249,7 @@ class SendMessageField extends StatelessWidget {
                                     buildDefaultDragHandles:
                                         PlatformUtils.isMobile,
                                     onReorder: (int from, int to) {
-                                      widget.onReorder?.call(from, to);
+                                      onReorder?.call(from, to);
                                     },
                                     proxyDecorator: (child, i, animation) {
                                       return AnimatedBuilder(
@@ -518,14 +519,11 @@ class SendMessageField extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onLongPress: () {
-                        forwarding?.toggle();
-                        // setState(() {});
-                      },
+                      onLongPress: forwarding?.toggle,
                       child: forwarding != null
                           ? Obx(() => AnimatedSwitcher(
                                 duration: 300.milliseconds,
-                                child: forwarding?.value == true
+                                child: forwarding!.value == true
                                     ? WidgetButton(
                                         onPressed: onSend,
                                         child: SizedBox(
@@ -766,7 +764,7 @@ class SendMessageField extends StatelessWidget {
     }
 
     // Builds the [content] along with manipulation buttons and statuses.
-    Widget attachmentWidget() {
+    Widget attachment() {
       Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
@@ -857,7 +855,7 @@ class SendMessageField extends StatelessWidget {
       key: Key(e.id.val),
       direction: DismissDirection.up,
       onDismissed: (_) => attachments!.removeWhere((a) => a.value == e),
-      child: attachmentWidget(),
+      child: attachment(),
     );
   }
 
@@ -1332,7 +1330,7 @@ class SendMessageField extends StatelessWidget {
   }
 
   /// Builds a visual representation of a [SendMessageField.editedMessage].
-  Widget editedMessageWidget(BuildContext context) {
+  Widget buildEditedMessage(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = editedMessage?.value?.authorId == me;
 

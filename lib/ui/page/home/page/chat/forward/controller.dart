@@ -105,7 +105,7 @@ class ChatForwardController extends GetxController {
     send = TextFieldState(
       text: text,
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) => forward(),
+      onSubmitted: (_) => forward(),
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&
