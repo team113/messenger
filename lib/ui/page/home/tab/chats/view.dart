@@ -93,6 +93,7 @@ class ChatsTabView extends StatelessWidget {
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 child: RecentChatTile(
                                   chat,
+                                  key: Key('ContextMenuRegion_${chat.id}'),
                                   me: c.me,
                                   getUser: c.getUser,
                                   onJoin: () => c.joinCall(chat.id),
