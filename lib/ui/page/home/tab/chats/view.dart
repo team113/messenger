@@ -26,7 +26,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
-import 'widget/mute_chat_popup.dart';
+import 'mute_chat_popup/view.dart';
 import 'widget/recent_chat.dart';
 
 /// View of the `HomeTab.chats` tab.
@@ -100,7 +100,7 @@ class ChatsTabView extends StatelessWidget {
                                   onLeave: () => c.leaveChat(chat.id),
                                   onHide: () => c.hideChat(chat.id),
                                   inCall: () => c.inCall(chat.id),
-                                  onMuteDialogOpened: () => MuteChatPopup.show(
+                                  onMute: () => MuteChatView.show(
                                     context,
                                     chatId: chat.id,
                                     onMute: (duration) => c.muteChat(
@@ -108,7 +108,7 @@ class ChatsTabView extends StatelessWidget {
                                       duration: duration,
                                     ),
                                   ),
-                                  onUnmuteChat: () => c.unmuteChat(chat.id),
+                                  onUnmute: () => c.unmuteChat(chat.id),
                                 ),
                               ),
                             ),

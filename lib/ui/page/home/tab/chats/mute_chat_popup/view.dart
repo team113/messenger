@@ -18,31 +18,48 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/modal_popup.dart';
-import '/util/obs/obs.dart';
+import 'controller.dart';
 
-class MuteChatPopup {
+/// View for muting specified [Chat].
+class MuteChatView extends StatelessWidget {
+  const MuteChatView({
+    Key? key,
+    this.onMute,
+    required this.chatId,
+  }) : super(key: key);
+
+  /// ID of the [Chat] the would be muted.
+  final ChatId chatId;
+
+  /// Callback called, when chat must be muted.
+  final Function(Duration? duration)? onMute;
+
+  /// Displays a [MuteChatView] wrapped in a [ModalPopup].
   static void show(
     BuildContext context, {
     Function(Duration? duration)? onMute,
     required ChatId chatId,
-  }) async {
-    // [Chat]s service.
-    final ChatService chatService = Get.find();
+  }) =>
+      ModalPopup.show<MuteChatView?>(
+        context: context,
+        child: MuteChatView(
+          chatId: chatId,
+          onMute: onMute,
+        ),
+      );
 
-    // Subscription for [ChatService.chats] changes.
-    final chatsSubscription = chatService.chats.changes.listen((event) {
-      if (event.op == OperationKind.removed && chatId == event.key) {
-        Navigator.of(context).pop();
-      }
-    });
-
-    await ModalPopup.show<ConfirmDialog?>(
-      context: context,
-      child: ConfirmDialog(
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder(
+      init: MuteChatController(
+        Get.find(),
+        chatId: chatId,
+        pop: Navigator.of(context).pop,
+      ),
+      builder: (MuteChatController c) => ConfirmDialog(
         title: 'label_mute_chat_for'.l10n,
         variants: const [
           Duration(minutes: 15),
@@ -70,7 +87,5 @@ class MuteChatPopup {
             .toList(),
       ),
     );
-
-    chatsSubscription.cancel();
   }
 }
