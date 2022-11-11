@@ -18,8 +18,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/search/controller.dart';
-import 'package:messenger/domain/repository/contact.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -30,6 +28,7 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -39,6 +38,7 @@ import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatMemberException, HideChatException;
 import '/routes.dart';
+import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
@@ -63,14 +63,27 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
+  /// Results of search.
   final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
 
+  /// Search query.
   final RxString searchQuery = RxString('');
 
+  /// Status of a search completion.
+  ///
+  /// May be:
+  /// - `searchStatus.empty`, meaning no search.
+  /// - `searchStatus.loading`, meaning search is in progress.
+  /// - `searchStatus.loadingMore`, meaning search is in progress after some
+  ///   [searchResults] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [searchResults] are
+  ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
+  /// Indicator whether searching mode is on or not.
   final RxBool searching = RxBool(false);
 
+  /// Elements of wrapped [SearchViewResults].
   final RxList<ListElement> elements = RxList([]);
 
   /// [AuthService] used to get [me] value.
@@ -135,6 +148,10 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
+  // TODO: No [Chat] should be created.
+  /// Opens a [Chat]-dialog with this [user].
+  ///
+  /// Creates a new one if it doesn't exist.
   Future<void> openChat({
     RxUser? user,
     RxChatContact? contact,
@@ -197,6 +214,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Updates the [elements] according to the [searchResult].
   void populate() {
     elements.clear();
 
@@ -285,26 +303,39 @@ class _ChatSortingData {
   void dispose() => worker.dispose();
 }
 
+/// Element of search results.
 abstract class ListElement {
   const ListElement();
 }
 
+/// Chat of search results.
 class ChatElement extends ListElement {
   const ChatElement(this.chat);
+
+  /// Chat that should be displayed as search result.
   final RxChat chat;
 }
 
+/// Contact of search results.
 class ContactElement extends ListElement {
   const ContactElement(this.contact);
+
+  /// Contact that should be displayed as search result.
   final RxChatContact contact;
 }
 
+/// User of search results.
 class UserElement extends ListElement {
   const UserElement(this.user);
+
+  /// User that should be displayed as search result.
   final RxUser user;
 }
 
+/// Divider of search results.
 class DividerElement extends ListElement {
   const DividerElement(this.category);
+
+  /// Search category that should be displayed before search results.
   final SearchCategory category;
 }

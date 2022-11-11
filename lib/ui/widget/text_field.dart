@@ -36,8 +36,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
-    this.suffixColor,
-    this.suffixSize,
+    this.prefix,
     this.trailing,
     this.type,
     this.padding,
@@ -46,12 +45,8 @@ class ReactiveTextField extends StatelessWidget {
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.prefix,
-    this.treatErrorAsStatus = true,
     this.filled,
-    this.prefixIcon,
-    this.prefixIconColor,
-    this.focusNode,
+    this.treatErrorAsStatus = true,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -77,9 +72,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional prefix [Widget].
   final Widget? prefix;
 
-  final Color? suffixColor;
-  final double? suffixSize;
-
+  /// Optional content padding.
   final EdgeInsets? padding;
 
   /// Optional trailing [Widget].
@@ -133,12 +126,6 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
 
-  final Widget? prefixIcon;
-
-  final Color? prefixIconColor;
-
-  final FocusNode? focusNode;
-
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -148,18 +135,18 @@ class ReactiveTextField extends StatelessWidget {
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-              : const EdgeInsets.fromLTRB(12, 12, 12, 12));
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12);
         } else {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-              : const EdgeInsets.fromLTRB(0, 12, 0, 12));
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12);
         }
       } else {
-        contentPadding = (isDense
+        contentPadding = isDense
             ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-            : const EdgeInsets.fromLTRB(12, 24, 12, 16));
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16);
       }
 
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
@@ -177,7 +164,7 @@ class ReactiveTextField extends StatelessWidget {
             TextField(
               controller: state.controller,
               style: style,
-              focusNode: focusNode ?? state.focus,
+              focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
                 onChanged?.call();
@@ -190,10 +177,8 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                prefixIcon: prefixIcon,
-                prefixIconColor: prefixIconColor,
-                fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
+                fillColor: filled == false ? Colors.transparent : null,
                 suffixIconConstraints: suffix == null &&
                         trailing == null &&
                         state.status.value.isEmpty
@@ -242,11 +227,7 @@ class ReactiveTextField extends StatelessWidget {
                                                 key: const ValueKey('Icon'),
                                                 onPressed: onSuffixPressed,
                                                 icon: suffix != null
-                                                    ? Icon(
-                                                        suffix,
-                                                        color: suffixColor,
-                                                        size: suffixSize,
-                                                      )
+                                                    ? Icon(suffix)
                                                     : trailing == null
                                                         ? Container()
                                                         : trailing!,
@@ -264,7 +245,6 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
-
                 hintText: hint,
                 hintMaxLines: 1,
 

@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -116,6 +115,7 @@ class SearchController extends GetxController {
   /// [TextFieldState] of the search field.
   late final TextFieldState search;
 
+  /// Indicator whether search field is autofocus or not.
   final bool? autoFocus;
 
   /// [SearchCategory]ies to search through.
@@ -200,7 +200,7 @@ class SearchController extends GetxController {
       search.focus.requestFocus();
     }
     StreamGroup.mergeBroadcast([chats.stream, contacts.stream, users.stream])
-        .listen((event) {
+        .listen((_) {
       onResultsUpdated?.call(
         SearchViewResults(
           chats.values.map((e) => e).toList(),
@@ -210,6 +210,7 @@ class SearchController extends GetxController {
         search.text,
       );
     });
+
     super.onReady();
   }
 

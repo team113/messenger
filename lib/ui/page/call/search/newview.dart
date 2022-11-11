@@ -63,6 +63,7 @@ class NewSearchView extends StatelessWidget {
   /// Title of this [SearchView].
   final String title;
 
+  /// Indicator whether search field is autofocus or not.
   final bool? autoFocus;
 
   /// Label of the submit button.
@@ -70,6 +71,15 @@ class NewSearchView extends StatelessWidget {
   /// Only meaningful if [onSubmit] is non-`null`.
   final String? submit;
 
+  /// Status of a search completion.
+  ///
+  /// May be:
+  /// - `searchStatus.empty`, meaning no search.
+  /// - `searchStatus.loading`, meaning search is in progress.
+  /// - `searchStatus.loadingMore`, meaning search is in progress after some
+  ///   [searchResults] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [searchResults] are
+  ///   acquired.
   final Rx<RxStatus>? searchStatus;
 
   /// Callback, called when a searched item is pressed.

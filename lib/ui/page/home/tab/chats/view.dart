@@ -17,20 +17,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/search/controller.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import '../../../../../domain/repository/contact.dart';
-import '../../../../../domain/repository/user.dart';
-import '../../../../../themes.dart';
-import '../../../call/search/newview.dart';
-import '../../widget/contact_tile.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/call/search/controller.dart';
+import '/ui/page/call/search/newview.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
 import 'widget/recent_chat.dart';
@@ -57,16 +57,6 @@ class ChatsTabView extends StatelessWidget {
           onTap: () {
             onTap?.call();
           },
-          // subtitle: [
-          //   const SizedBox(height: 5),
-          //   Text(
-          //     'Gapopa ID: ${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
-          //       RegExp(r'.{4}'),
-          //       (match) => '${match.group(0)} ',
-          //     )}',
-          //     style: const TextStyle(color: Color(0xFF888888)),
-          //   ),
-          // ],
         ),
       );
     }
@@ -129,7 +119,7 @@ class ChatsTabView extends StatelessWidget {
                     child: Transform.translate(
                       offset: const Offset(0, 1),
                       child: NewSearchView(
-                        title: 'Search',
+                        title: 'label_search'.l10n,
                         categories: const [
                           SearchCategory.chats,
                           SearchCategory.contacts,
@@ -155,7 +145,6 @@ class ChatsTabView extends StatelessWidget {
                 child: child,
               );
             }),
-            // padding: const EdgeInsets.symmetric(horizontal: 21),
             leading: [
               Padding(
                 padding: const EdgeInsets.only(left: 20, right: 12),
@@ -220,7 +209,7 @@ class ChatsTabView extends StatelessWidget {
                 if (c.searchStatus.value.isSuccess &&
                     (c.searchResult.value == null ||
                         c.searchResult.value?.isEmpty == true)) {
-                  center = Center(child: Text('No user found'.l10n));
+                  center = Center(child: Text('label_nothing_found'.l10n));
                 } else if (c.searchStatus.value.isLoading &&
                     (c.searchResult.value == null ||
                         c.searchResult.value?.isEmpty == true)) {

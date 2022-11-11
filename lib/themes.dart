@@ -367,8 +367,10 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// [Border] to apply to system messages.
+  /// [TextStyle] of system message text.
   final TextStyle systemMessageTextStyle;
+
+  /// [Border] to apply to system messages.
   final Border systemMessageBorder;
 
   /// [Color] of system messages.
