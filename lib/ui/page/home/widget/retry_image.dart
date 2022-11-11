@@ -96,12 +96,6 @@ class _RetryImageState extends State<RetryImage> {
   }
 
   @override
-  void didChangeDependencies() {
-    _loadImage();
-    super.didChangeDependencies();
-  }
-
-  @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
     if (oldWidget.url != widget.url) {
       _loadImage();
