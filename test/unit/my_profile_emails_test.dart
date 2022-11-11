@@ -171,6 +171,8 @@ void main() async {
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    await Future.delayed(Duration.zero);
+
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.addUserEmail(UserEmail('test@mail.ru'));

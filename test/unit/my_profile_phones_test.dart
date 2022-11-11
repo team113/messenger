@@ -173,6 +173,8 @@ void main() async {
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    await Future.delayed(Duration.zero);
+
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.addUserPhone(UserPhone('+380999999999'));
