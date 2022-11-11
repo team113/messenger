@@ -35,16 +35,20 @@ class AttachmentSourceSelector extends StatelessWidget {
     this.onPickFile,
   }) : super(key: key);
 
-  /// Callback, called when called pick image from camera.
+  /// Callback, called when a pick image from camera action of this
+  /// [AttachmentSourceSelector] is triggered.
   final void Function()? onPickImageFromCamera;
 
-  /// Callback, called when called pick video from camera.
+  /// Callback, called when a pick video from camera action of this
+  /// [AttachmentSourceSelector] is triggered.
   final void Function()? onVideoImageFromCamera;
 
-  /// Callback, called when called pick media.
+  /// Callback, called when a pick media action of this
+  /// [AttachmentSourceSelector] is triggered.
   final void Function()? onPickMedia;
 
-  /// Callback, called when called pick file.
+  /// Callback, called when a pick file action of this
+  /// [AttachmentSourceSelector] is triggered.
   final void Function()? onPickFile;
 
   /// Displays an [AttachmentSourceSelector] wrapped in a [ModalPopup].

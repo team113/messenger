@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -76,7 +75,7 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called when the selected items was changed.
+  /// Callback, called when an item was selected or unselected.
   final void Function(SearchViewResults results)? onChanged;
 
   /// Callback, called when the back button is pressed.
@@ -177,12 +176,10 @@ class SearchView extends StatelessWidget {
                         Widget child = Container();
 
                         if (e is RxUser) {
-                          if (c.chats.values.firstWhereOrNull((e1) =>
-                                  e1.chat.value.isDialog &&
-                                  e1.chat.value.members.firstWhereOrNull((e2) =>
-                                          e2.user.id == e.user.value.id) !=
-                                      null) ==
-                              null) {
+                          if (c.chats.values.none((e1) =>
+                              e1.chat.value.isDialog &&
+                              e1.chat.value.members.any(
+                                  (e2) => e2.user.id == e.user.value.id))) {
                             child = Obx(() {
                               return tile(
                                 context: context,
@@ -197,12 +194,10 @@ class SearchView extends StatelessWidget {
                             });
                           }
                         } else if (e is RxChatContact) {
-                          if (c.chats.values.firstWhereOrNull((e1) =>
-                                  e1.chat.value.isDialog &&
-                                  e1.chat.value.members.firstWhereOrNull((e2) =>
-                                          e2.user.id == e.user.value!.id) !=
-                                      null) ==
-                              null) {
+                          if (c.chats.values.none((e1) =>
+                              e1.chat.value.isDialog &&
+                              e1.chat.value.members.any(
+                                  (e2) => e2.user.id == e.user.value!.id))) {
                             child = Obx(() {
                               return tile(
                                 context: context,
@@ -464,22 +459,4 @@ extension _SearchCategoryL10n on SearchCategory {
         return 'label_chats'.l10n;
     }
   }
-}
-
-/// Wrapped [SearchView] selected items.
-class SearchViewResults {
-  const SearchViewResults(this.chats, this.users, this.contacts);
-
-  /// Selected [Chat]s.
-  final List<RxChat> chats;
-
-  /// Selected [User]s.
-  final List<RxUser> users;
-
-  /// Selected [ChatContact]s.
-  final List<RxChatContact> contacts;
-
-  /// Indicates whether [chats], [users] and [contacts] are empty or not.
-  bool get isEmpty =>
-      chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
 }

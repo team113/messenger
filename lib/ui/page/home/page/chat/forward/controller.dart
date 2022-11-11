@@ -37,7 +37,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/call/search/view.dart';
+import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -65,9 +65,6 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
-  /// Indicator whether reply is hovered or not.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
-
   /// Initial [send] field value.
   final String? text;
 
@@ -77,7 +74,8 @@ class ChatForwardController extends GetxController {
   /// State of a send message field.
   late final TextFieldState send;
 
-  /// Callback called, when need make pop.
+  /// Callback, called when a [ChatForwardView] this controller is bound to
+  /// should be popped from the [Navigator].
   final void Function()? pop;
 
   /// [Attachment]s to attach to the [quotes].

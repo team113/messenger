@@ -140,7 +140,7 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
+  /// Indicator whether forward popup is open.
   final RxBool isForwardPopupOpen = RxBool(false);
 
   /// Indicator whether any [ChatItem] is being dragged.

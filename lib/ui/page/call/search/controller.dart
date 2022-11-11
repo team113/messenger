@@ -119,7 +119,7 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when the selected items was changed.
+  /// Callback, called when an item was selected or unselected.
   final void Function(SearchViewResults results)? onChanged;
 
   /// Reactive list of the sorted [Chat]s.
@@ -550,4 +550,22 @@ class SearchController extends GetxController {
 
     populate();
   }
+}
+
+/// [SearchView] selected items.
+class SearchViewResults {
+  const SearchViewResults(this.chats, this.users, this.contacts);
+
+  /// Selected [Chat]s.
+  final List<RxChat> chats;
+
+  /// Selected [User]s.
+  final List<RxUser> users;
+
+  /// Selected [ChatContact]s.
+  final List<RxChatContact> contacts;
+
+  /// Indicates whether [chats], [users] and [contacts] are empty or not.
+  bool get isEmpty =>
+      chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
 }

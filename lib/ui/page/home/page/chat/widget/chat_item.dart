@@ -135,7 +135,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
-  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  /// Callback, called when a forwarding modal is opened or closed.
   final void Function(bool)? onForwardPopupToggle;
 
   @override

@@ -23,30 +23,30 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/ui/page/home/page/chat/controller.dart';
-import '/domain/model/user.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/platform_utils.dart';
-import '/util/obs/obs.dart';
-import 'init_callback.dart';
-import 'video_thumbnail/video_thumbnail.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/component/attachment_selector.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
+import 'attachment_selector.dart';
+import 'video_thumbnail/video_thumbnail.dart';
 
 class SendMessageField extends StatelessWidget {
   SendMessageField({
@@ -85,7 +85,8 @@ class SendMessageField extends StatelessWidget {
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem>? repliedMessages;
 
-  /// Callback, called when an item is reordered.
+  /// Callback, called when the [quotes] or the [repliedMessages] were
+  /// reordered.
   final void Function(int old, int to)? onReorder;
 
   /// [Attachment]s to be attached to a message.
@@ -246,16 +247,8 @@ class SendMessageField extends StatelessWidget {
                                     shrinkWrap: true,
                                     buildDefaultDragHandles:
                                         PlatformUtils.isMobile,
-                                    onReorder: (int old, int to) {
-                                      if (old < to) {
-                                        --to;
-                                      }
-
-                                      final ChatItemQuote item =
-                                          quotes!.removeAt(old);
-                                      quotes!.insert(to, item);
-
-                                      HapticFeedback.lightImpact();
+                                    onReorder: (int from, int to) {
+                                      widget.onReorder?.call(from, to);
                                     },
                                     proxyDecorator: (child, i, animation) {
                                       return AnimatedBuilder(
@@ -336,8 +329,8 @@ class SendMessageField extends StatelessWidget {
                                     shrinkWrap: true,
                                     buildDefaultDragHandles:
                                         PlatformUtils.isMobile,
-                                    onReorder: (i, a) {
-                                      onReorder?.call(i, a);
+                                    onReorder: (from, to) {
+                                      onReorder?.call(from, to);
                                     },
                                     proxyDecorator: (child, i, animation) {
                                       return AnimatedBuilder(
@@ -1096,7 +1089,7 @@ class SendMessageField extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [ChatController.repliedMessages].
+  /// Builds a visual representation of a [SendMessageField.repliedMessages].
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,
@@ -1338,7 +1331,7 @@ class SendMessageField extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [ChatController.editedMessage].
+  /// Builds a visual representation of a [SendMessageField.editedMessage].
   Widget editedMessageWidget(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = editedMessage?.value?.authorId == me;
