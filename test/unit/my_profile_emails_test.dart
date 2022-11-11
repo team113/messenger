@@ -170,7 +170,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.addUserEmail(UserEmail('test@mail.ru'));
@@ -225,7 +225,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     expect(

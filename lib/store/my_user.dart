@@ -31,7 +31,6 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
@@ -40,11 +39,11 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
-import '/store/model/user.dart';
-import '/store/user.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
+import 'model/user.dart';
+import 'user.dart';
 
 /// [MyUser] repository.
 class MyUserRepository implements AbstractMyUserRepository {
@@ -88,10 +87,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final void Function() onPasswordUpdated;
 
   @override
-  Future<void> init({
+  void init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
-  }) async {
+  }) {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
@@ -289,17 +288,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Updates the provided [user] in the [_userRepo].
-  void _updateUser(User user, MyUserVersion ver) {
-    _userRepo.put(
-      HiveUser(
-        user,
-        UserVersion(ver.val),
-        ver,
-      ),
-    );
-  }
-
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
     var userEntity = _myUserLocal.myUser;
@@ -310,101 +298,68 @@ class MyUserRepository implements AbstractMyUserRepository {
     userEntity.ver = versioned.ver;
 
     for (var event in versioned.events) {
+      // Updates a [User] associated with this [MyUserEvent.userId].
+      void put(User Function(User u) convertor) {
+        _userRepo.get(event.userId).then((user) {
+          if (user != null) {
+            _userRepo.put(
+              HiveUser(
+                convertor(user.user.value),
+                UserVersion(versioned.ver.val),
+                versioned.ver,
+              ),
+            );
+          }
+        });
+      }
+
       switch (event.kind) {
         case MyUserEventKind.nameUpdated:
           event as EventUserNameUpdated;
           userEntity.value.name = event.name;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.name = event.name;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..name = event.name);
           break;
 
         case MyUserEventKind.nameDeleted:
           event as EventUserNameDeleted;
           userEntity.value.name = null;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.name = null;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..name = null);
           break;
 
         case MyUserEventKind.bioUpdated:
           event as EventUserBioUpdated;
           userEntity.value.bio = event.bio;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.bio = event.bio;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..bio = event.bio);
           break;
 
         case MyUserEventKind.bioDeleted:
           event as EventUserBioDeleted;
           userEntity.value.bio = null;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.bio = null;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..bio = null);
           break;
 
         case MyUserEventKind.avatarUpdated:
           event as EventUserAvatarUpdated;
           userEntity.value.avatar = event.avatar;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.avatar = event.avatar;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..avatar = event.avatar);
           break;
 
         case MyUserEventKind.avatarDeleted:
           event as EventUserAvatarDeleted;
           userEntity.value.avatar = null;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.avatar = null;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..avatar = null);
           break;
 
         case MyUserEventKind.callCoverUpdated:
           event as EventUserCallCoverUpdated;
           userEntity.value.callCover = event.callCover;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.callCover = event.callCover;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..callCover = event.callCover);
           break;
 
         case MyUserEventKind.callCoverDeleted:
           event as EventUserCallCoverDeleted;
           userEntity.value.callCover = null;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.callCover = null;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..callCover = null);
           break;
 
         case MyUserEventKind.galleryItemAdded:
@@ -412,13 +367,10 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.gallery ??= [];
           userEntity.value.gallery!.insert(0, event.galleryItem);
           _galleryItemLocal.put(event.galleryItem);
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.gallery ??= [];
-              v.user.value.gallery!.insert(0, event.galleryItem);
-              _updateUser(v.user.value, versioned.ver);
-            }
+          put((u) {
+            u.gallery ??= [];
+            u.gallery!.insert(0, event.galleryItem);
+            return u;
           });
           break;
 
@@ -427,50 +379,26 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.gallery
               ?.removeWhere((e) => e.id == event.galleryItemId);
           _galleryItemLocal.remove(event.galleryItemId);
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.gallery
-                  ?.removeWhere((e) => e.id == event.galleryItemId);
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) =>
+              u..gallery?.removeWhere((e) => e.id == event.galleryItemId));
           break;
 
         case MyUserEventKind.presenceUpdated:
           event as EventUserPresenceUpdated;
           userEntity.value.presence = event.presence;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.presence = event.presence;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..presence = event.presence);
           break;
 
         case MyUserEventKind.statusUpdated:
           event as EventUserStatusUpdated;
           userEntity.value.status = event.status;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.status = event.status;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..status = event.status);
           break;
 
         case MyUserEventKind.statusDeleted:
           event as EventUserStatusDeleted;
           userEntity.value.status = null;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.status = null;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..status = null);
           break;
 
         case MyUserEventKind.loginUpdated:
@@ -547,26 +475,13 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.cameOnline:
           event as EventUserCameOnline;
           userEntity.value.online = true;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.online = true;
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..online = true);
           break;
 
         case MyUserEventKind.cameOffline:
           event as EventUserCameOffline;
           userEntity.value.online = false;
-
-          _userRepo.get(event.userId).then((v) {
-            if (v != null) {
-              v.user.value.online = false;
-              v.user.value.lastSeenAt = PreciseDateTime.now();
-              _updateUser(v.user.value, versioned.ver);
-            }
-          });
+          put((u) => u..online = false);
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:

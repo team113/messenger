@@ -172,7 +172,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.addUserPhone(UserPhone('+380999999999'));
@@ -232,7 +232,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     expect(

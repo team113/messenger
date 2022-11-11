@@ -263,7 +263,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.uploadGalleryItem(
@@ -330,7 +330,7 @@ void main() async {
       galleryItemProvider,
       userRepository,
     );
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     Object? exception;
