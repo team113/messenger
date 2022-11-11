@@ -77,6 +77,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         cancelFileDownload,
         changeChatAvatar,
         copyFromField,
+        doNotHaveInternetFor,
         downloadFile,
         fillField,
         fillFieldN,

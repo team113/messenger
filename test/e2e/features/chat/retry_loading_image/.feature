@@ -5,7 +5,7 @@ Feature: Image refetching
     And user Bob
     And Bob has dialog with me
     And Bob sends "test.jpg" image to me
-    And I have Internet with delay of 4 seconds
+    And I do not have Internet for 4 seconds
     And I am in chat with Bob
 
     When I wait until image "test.jpg" is loading
