@@ -198,7 +198,7 @@ class Themes {
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
-              hoverColor: colors.secondary,
+              hoverColor: Colors.transparent,
               fillColor: colors.secondary,
               hintStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               labelStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
@@ -207,6 +207,7 @@ class Themes {
               prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              // floatingLabelStyle: GoogleFonts.roboto(color: colors.secondary),
               floatingLabelStyle:
                   GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorMaxLines: 5,

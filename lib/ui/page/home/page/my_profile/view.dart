@@ -20,6 +20,8 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
@@ -80,16 +82,16 @@ class MyProfileView extends StatelessWidget {
               padding: EdgeInsets.only(left: 4, right: 20),
               leading: [StyledBackButton()],
             ),
-            body: SingleChildScrollView(
-              child: Center(
-                child: Obx(() {
-                  if (c.myUser.value == null) {
-                    return const CircularProgressIndicator();
-                  }
+            body: Obx(() {
+              if (c.myUser.value == null) {
+                return const CircularProgressIndicator();
+              }
 
-                  return Container(
+              Widget block({List<Widget> children = const []}) {
+                return Center(
+                  child: Container(
                     width: double.infinity,
-                    margin: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                     decoration: BoxDecoration(
                       // color: Colors.white,
                       color: const Color(0xFFF8F8F8),
@@ -101,85 +103,100 @@ class MyProfileView extends StatelessWidget {
                     padding: const EdgeInsets.all(32),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // const SizedBox(height: 10),
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            WidgetButton(
-                              onPressed: () async {
-                                await c.uploadAvatar();
-                              },
-                              child: AvatarWidget.fromMyUser(
-                                c.myUser.value,
-                                radius: 100,
-                                showBadge: false,
-                                quality: AvatarQuality.original,
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: Obx(() {
-                                return AnimatedSwitcher(
-                                  duration: 200.milliseconds,
-                                  child: c.avatarUpload.value.isLoading
-                                      ? Container(
-                                          width: 200,
-                                          height: 200,
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Color(0x22000000),
-                                          ),
-                                          child: const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Center(
-                          child: WidgetButton(
-                            onPressed: c.myUser.value?.avatar == null
-                                ? null
-                                : c.deleteAvatar,
-                            child: SizedBox(
-                              height: 20,
-                              child: c.myUser.value?.avatar == null
-                                  ? null
-                                  : Text(
-                                      'Delete',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontSize: 11,
-                                      ),
-                                    ),
+                      children: children,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView(
+                children: [
+                  const SizedBox(height: 8),
+                  block(
+                    children: [
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          WidgetButton(
+                            onPressed: () async {
+                              await c.uploadAvatar();
+                            },
+                            child: AvatarWidget.fromMyUser(
+                              c.myUser.value,
+                              radius: 100,
+                              showBadge: false,
+                              quality: AvatarQuality.original,
                             ),
                           ),
+                          Positioned.fill(
+                            child: Obx(() {
+                              return AnimatedSwitcher(
+                                duration: 200.milliseconds,
+                                child: c.avatarUpload.value.isLoading
+                                    ? Container(
+                                        width: 200,
+                                        height: 200,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Color(0x22000000),
+                                        ),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Center(
+                        child: WidgetButton(
+                          onPressed: c.myUser.value?.avatar == null
+                              ? null
+                              : c.deleteAvatar,
+                          child: SizedBox(
+                            height: 20,
+                            child: c.myUser.value?.avatar == null
+                                ? null
+                                : Text(
+                                    'Delete',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        _name(c),
-                        const SizedBox(height: 20),
-                        _num(c),
-                        // _link(context, c),
-                        // const SizedBox(height: 20),
-                        const SizedBox(height: 10),
-                        _login(c),
-                        const SizedBox(height: 10),
-                        // _emails(c, context),
-                        _password(context, c),
-                        const SizedBox(height: 10),
-                        _deleteAccount(c),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ),
+                      ),
+                      const SizedBox(height: 10),
+                      _name(c),
+                    ],
+                  ),
+                  // _label(context, 'Параметры входа'),
+                  block(
+                    children: [
+                      _num(c),
+                      // _link(context, c),
+                      // const SizedBox(height: 20),
+                      const SizedBox(height: 10),
+                      _login(c),
+                      const SizedBox(height: 10),
+                      // const SizedBox(height: 10),
+                      // // _emails(c, context),
+                      // _password(context, c),
+                      // const SizedBox(height: 10),
+                      // _deleteAccount(c),
+                      _emails(c, context),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              );
+            }),
           ),
         );
 
@@ -562,22 +579,22 @@ Widget _num(MyProfileController c) => _padding(
             label: 'label_num'.l10n,
             copy: c.myUser.value?.num.val,
           ),
-          const SizedBox(height: 4),
-          RichText(
-            text: const TextSpan(
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
-              children: [
-                TextSpan(
-                  text: 'Ваш логин публичен. Для изменения этой настройки... ',
-                  style: TextStyle(color: Color(0xFF888888)),
-                ),
-                TextSpan(
-                  text: 'Ещё',
-                  style: TextStyle(color: Color(0xFF00A3FF)),
-                ),
-              ],
-            ),
-          ),
+          // const SizedBox(height: 4),
+          // RichText(
+          //   text: const TextSpan(
+          //     style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+          //     children: [
+          //       TextSpan(
+          //         text: 'Ваш логин публичен. Для изменения этой настройки... ',
+          //         style: TextStyle(color: Color(0xFF888888)),
+          //       ),
+          //       TextSpan(
+          //         text: 'Ещё',
+          //         style: TextStyle(color: Color(0xFF00A3FF)),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
@@ -769,7 +786,16 @@ Widget _login(MyProfileController c) => _padding(
       ReactiveTextField(
         key: const Key('LoginField'),
         state: c.login,
-        suffix: Icons.edit,
+        trailing: Transform.translate(
+          offset: const Offset(0, -1),
+          child: Transform.scale(
+            scale: 1.15,
+            child: SvgLoader.asset(
+              'assets/icons/copy.svg',
+              height: 15,
+            ),
+          ),
+        ),
         label: 'label_login'.l10n,
         hint: 'label_login_hint'.l10n,
       ),
@@ -883,113 +909,203 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
       ),
     );
 
-/// Returns addable list of [MyUser.emails].
-Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
-      key: const Key('EmailsExpandable'),
-      header: ListTile(
-        leading: const Icon(Icons.email),
-        title: Text('label_emails'.l10n),
+Widget _label(BuildContext context, String text) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 24),
+    child: Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
+        ),
+        child: Text(text, style: style.systemMessageStyle),
       ),
-      collapsed: Container(),
-      expanded: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Obx(
-          () => Column(
+    ),
+  );
+}
+
+/// Returns addable list of [MyUser.emails].
+Widget _emails(MyProfileController c, BuildContext context) {
+  return Obx(() {
+    final List<Widget> widgets = [];
+
+    for (var e in [
+      ...c.myUser.value?.emails.confirmed ?? [],
+      const UserEmail.unchecked('jflqjfqw@gmail.com'),
+      const UserEmail.unchecked('jajajajajajaj@icloud.com'),
+    ]) {
+      widgets.add(
+        ReactiveTextField(
+          state: TextFieldState(text: e.val, editable: false),
+          label: 'E-mail',
+          suffix: Icons.delete_outline,
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    widgets.addAll([
+      ReactiveTextField(
+        state: TextFieldState(text: 'alalal@mail.ru', editable: false),
+        label: 'Неподтверждённый E-mail',
+        suffix: Icons.delete_outline,
+        style: const TextStyle(color: Color(0xFF888888)),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: RichText(
+          text: const TextSpan(
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
             children: [
-              ...c.myUser.value!.emails.confirmed.map(
-                (e) => ListTile(
-                  leading: const Icon(Icons.email),
-                  trailing: IconButton(
-                    key: const Key('DeleteConfirmedEmail'),
-                    onPressed: (!c.emailsOnDeletion.contains(e))
-                        ? () => c.deleteUserEmail(e)
-                        : null,
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                  title: Text(e.val),
-                  dense: true,
-                ),
+              // TextSpan(
+              //   text: 'E-mail не подтверждён. ',
+              //   style: TextStyle(color: Color(0xFF888888)),
+              // ),
+              TextSpan(
+                text: 'Верифицировать',
+                style: TextStyle(color: Color(0xFF00A3FF)),
               ),
-              if (c.myUser.value?.emails.unconfirmed != null)
-                ListTile(
-                  leading: const Icon(Icons.email),
-                  trailing: IconButton(
-                    onPressed: !c.emailsOnDeletion
-                            .contains(c.myUser.value?.emails.unconfirmed)
-                        ? () => c.deleteUserEmail(
-                            c.myUser.value!.emails.unconfirmed!)
-                        : null,
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                  title: Text(c.myUser.value!.emails.unconfirmed!.val),
-                  subtitle: Text('label_unconfirmed'.l10n),
-                  dense: true,
-                ),
-              _dense(
-                c.myUser.value?.emails.unconfirmed == null
-                    ? ReactiveTextField(
-                        key: const Key('EmailInput'),
-                        state: c.email,
-                        type: TextInputType.emailAddress,
-                        dense: true,
-                        label: 'label_add_email'.l10n,
-                        hint: 'label_add_email_hint'.l10n,
-                      )
-                    : ReactiveTextField(
-                        key: const Key('EmailCodeInput'),
-                        state: c.emailCode,
-                        type: TextInputType.number,
-                        dense: true,
-                        label: 'label_enter_confirmation_code'.l10n,
-                        hint: 'label_enter_confirmation_code_hint'.l10n,
-                        onChanged: () => c.showEmailCodeButton.value =
-                            c.emailCode.text.isNotEmpty,
-                      ),
-              ),
-              if (c.myUser.value?.emails.unconfirmed == null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Spacer(),
-                    _textButton(
-                      context,
-                      key: const Key('addEmailButton'),
-                      onPressed: c.email.submit,
-                      label: 'btn_add'.l10n,
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                ),
-              if (c.myUser.value?.emails.unconfirmed != null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Spacer(),
-                    c.showEmailCodeButton.value
-                        ? _textButton(
-                            context,
-                            key: const Key('ConfirmEmailCode'),
-                            onPressed: c.emailCode.submit,
-                            label: 'btn_confirm'.l10n,
-                          )
-                        : _textButton(
-                            context,
-                            key: const Key('ResendEmailCode'),
-                            onPressed: c.resendEmailTimeout.value == 0
-                                ? c.resendEmail
-                                : null,
-                            label: c.resendEmailTimeout.value == 0
-                                ? 'btn_resend_code'.l10n
-                                : '${'btn_resend_code'.l10n} (${c.resendEmailTimeout.value})',
-                          ),
-                    const SizedBox(width: 12),
-                  ],
-                )
             ],
           ),
         ),
       ),
+    ]);
+    widgets.add(const SizedBox(height: 10));
+
+    widgets.add(
+      ReactiveTextField(
+        state: TextFieldState(text: 'Добавить E-mail', editable: false),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
     );
+    widgets.add(const SizedBox(height: 10));
+
+    widgets.add(
+      ReactiveTextField(
+        state: TextFieldState(text: 'Добавить номер телефона', editable: false),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+    widgets.add(const SizedBox(height: 10));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => _dense(e)).toList(),
+    );
+  });
+
+  // ExpandablePanel(
+  //   key: const Key('EmailsExpandable'),
+  //   header: ListTile(
+  //     leading: const Icon(Icons.email),
+  //     title: Text('label_emails'.l10n),
+  //   ),
+  //   collapsed: Container(),
+  //   expanded: Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+  //     child: Obx(
+  //       () => Column(
+  //         children: [
+  //           ...c.myUser.value!.emails.confirmed.map(
+  //             (e) => ListTile(
+  //               leading: const Icon(Icons.email),
+  //               trailing: IconButton(
+  //                 key: const Key('DeleteConfirmedEmail'),
+  //                 onPressed: (!c.emailsOnDeletion.contains(e))
+  //                     ? () => c.deleteUserEmail(e)
+  //                     : null,
+  //                 icon: const Icon(Icons.delete, color: Colors.red),
+  //               ),
+  //               title: Text(e.val),
+  //               dense: true,
+  //             ),
+  //           ),
+  //           if (c.myUser.value?.emails.unconfirmed != null)
+  //             ListTile(
+  //               leading: const Icon(Icons.email),
+  //               trailing: IconButton(
+  //                 onPressed: !c.emailsOnDeletion
+  //                         .contains(c.myUser.value?.emails.unconfirmed)
+  //                     ? () =>
+  //                         c.deleteUserEmail(c.myUser.value!.emails.unconfirmed!)
+  //                     : null,
+  //                 icon: const Icon(Icons.delete, color: Colors.red),
+  //               ),
+  //               title: Text(c.myUser.value!.emails.unconfirmed!.val),
+  //               subtitle: Text('label_unconfirmed'.l10n),
+  //               dense: true,
+  //             ),
+  //           _dense(
+  //             c.myUser.value?.emails.unconfirmed == null
+  //                 ? ReactiveTextField(
+  //                     key: const Key('EmailInput'),
+  //                     state: c.email,
+  //                     type: TextInputType.emailAddress,
+  //                     dense: true,
+  //                     label: 'label_add_email'.l10n,
+  //                     hint: 'label_add_email_hint'.l10n,
+  //                   )
+  //                 : ReactiveTextField(
+  //                     key: const Key('EmailCodeInput'),
+  //                     state: c.emailCode,
+  //                     type: TextInputType.number,
+  //                     dense: true,
+  //                     label: 'label_enter_confirmation_code'.l10n,
+  //                     hint: 'label_enter_confirmation_code_hint'.l10n,
+  //                     onChanged: () => c.showEmailCodeButton.value =
+  //                         c.emailCode.text.isNotEmpty,
+  //                   ),
+  //           ),
+  //           if (c.myUser.value?.emails.unconfirmed == null)
+  //             Row(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 const Spacer(),
+  //                 _textButton(
+  //                   context,
+  //                   key: const Key('addEmailButton'),
+  //                   onPressed: c.email.submit,
+  //                   label: 'btn_add'.l10n,
+  //                 ),
+  //                 const SizedBox(width: 12),
+  //               ],
+  //             ),
+  //           if (c.myUser.value?.emails.unconfirmed != null)
+  //             Row(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 const Spacer(),
+  //                 c.showEmailCodeButton.value
+  //                     ? _textButton(
+  //                         context,
+  //                         key: const Key('ConfirmEmailCode'),
+  //                         onPressed: c.emailCode.submit,
+  //                         label: 'btn_confirm'.l10n,
+  //                       )
+  //                     : _textButton(
+  //                         context,
+  //                         key: const Key('ResendEmailCode'),
+  //                         onPressed: c.resendEmailTimeout.value == 0
+  //                             ? c.resendEmail
+  //                             : null,
+  //                         label: c.resendEmailTimeout.value == 0
+  //                             ? 'btn_resend_code'.l10n
+  //                             : '${'btn_resend_code'.l10n} (${c.resendEmailTimeout.value})',
+  //                       ),
+  //                 const SizedBox(width: 12),
+  //               ],
+  //             )
+  //         ],
+  //       ),
+  //     ),
+  //   ),
+  // );
+}
 
 /// Returns editable fields of [MyUser.password].
 Widget _password(BuildContext context, MyProfileController c) => Obx(
