@@ -180,7 +180,37 @@ class RecentChatTile extends StatelessWidget {
         .where((User user) => user.id != me)
         .map((User user) => user.name?.val ?? user.num.val);
 
-    if (typings.isNotEmpty) {
+    ChatMessage? draft = rxChat.draft.value;
+
+    if (draft != null && router.routes.last != '${Routes.chat}/${chat.id}') {
+      final StringBuffer desc = StringBuffer();
+
+      if (draft.text != null) {
+        desc.write(draft.text!.val);
+      }
+
+      if (draft.attachments.isNotEmpty) {
+        if (desc.isNotEmpty) desc.write('space'.l10n);
+        desc.write(
+          'label_attachments'.l10nfmt({'count': draft.attachments.length}),
+        );
+      }
+
+      if (draft.repliesTo.isNotEmpty) {
+        if (desc.isNotEmpty) desc.write('space'.l10n);
+        desc.write('label_replies'.l10nfmt({'count': draft.repliesTo.length}));
+      }
+
+      subtitle = [
+        Flexible(
+          child: Text(
+            '${'label_draft'.l10n}${'semicolon_space'.l10n}$desc',
+            key: const Key('Draft'),
+            maxLines: 2,
+          ),
+        ),
+      ];
+    } else if (typings.isNotEmpty) {
       if (!rxChat.chat.value.isGroup) {
         subtitle = [
           Row(
