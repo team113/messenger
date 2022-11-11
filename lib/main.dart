@@ -24,6 +24,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
@@ -52,7 +53,13 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+    ),
+  );
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
