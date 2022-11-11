@@ -43,7 +43,9 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
-  /// Global [Dio].
+  /// [Dio] client to use in queries.
+  ///
+  /// May be overridden to be mocked in tests.
   Dio dio = Dio();
 
   /// Indicates whether application is running in a web browser.

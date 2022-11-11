@@ -25,14 +25,13 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned chats tab. ([#142])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-    - Chat page:
-        - Backoff retry failed images. ([#164], [#126])
 
 ### Fixed
 
 - UI:
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
+        - Images sometimes not loading. ([#164], [#126])
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 

@@ -59,7 +59,7 @@ final StepDefinitionGeneric doNotHaveInternetFor = given1<int, CustomWorld>(
       ..onGet('*', (_) {});
 
     Timer(delay.seconds, () {
-      PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+      PlatformUtils.dio.httpClientAdapter = WebUtils.defaultClientAdapter;
       if (provider is MockGraphQlProvider) {
         provider.client.delay = null;
         provider.client.throwException = false;
@@ -80,7 +80,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+    PlatformUtils.dio.httpClientAdapter = WebUtils.defaultClientAdapter;
   }),
 );
 

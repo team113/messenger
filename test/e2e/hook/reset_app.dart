@@ -40,7 +40,7 @@ class ResetAppHook extends Hook {
     await Get.deleteAll(force: true);
     Get.reset();
 
-    PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
+    PlatformUtils.dio.httpClientAdapter = WebUtils.defaultClientAdapter;
 
     await Future.delayed(Duration.zero);
     await Hive.close();

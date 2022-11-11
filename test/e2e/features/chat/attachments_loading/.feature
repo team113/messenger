@@ -1,4 +1,4 @@
-Feature: Image refetching
+Feature: Attachments refetching
 
   Scenario: User sees image refetched in chat
     Given I am Alice
@@ -8,5 +8,5 @@ Feature: Image refetching
     And I do not have Internet for 4 seconds
     And I am in chat with Bob
 
-    When I wait until image "test.jpg" is loading
-    Then I wait until image "test.jpg" is loaded
+    When I wait until "test.jpg" attachment is loading
+    Then I wait until "test.jpg" attachment is loaded

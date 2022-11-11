@@ -37,11 +37,9 @@ class RetryImage extends StatefulWidget {
     this.fit,
     this.height,
     this.width,
-    this.loaderPadding,
     this.borderRadius,
-    this.loaderStrokeWidth = 4,
     this.onForbidden,
-    this.imageFilter,
+    this.filter,
   }) : super(key: key);
 
   /// URL of an image to display.
@@ -51,25 +49,19 @@ class RetryImage extends StatefulWidget {
   /// a forbidden network error.
   final Future<void> Function()? onForbidden;
 
-  /// [BoxFit] to apply to the fetched image.
+  /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
 
-  /// Height of the fetched image.
+  /// Height of this [RetryImage].
   final double? height;
 
-  /// Width of the fetched image.
+  /// Width of this [RetryImage].
   final double? width;
 
-  /// [Padding] of loader.
-  final EdgeInsetsGeometry? loaderPadding;
+  /// [ImageFilter] to apply to this [RetryImage].
+  final ImageFilter? filter;
 
-  /// Loader stroke width.
-  final double loaderStrokeWidth;
-
-  /// [ImageFilter] of image.
-  final ImageFilter? imageFilter;
-
-  /// [BorderRadius] of image.
+  /// [BorderRadius] to apply to this [RetryImage].
   final BorderRadius? borderRadius;
 
   @override
@@ -88,11 +80,14 @@ class _RetryImageState extends State<RetryImage> {
   /// Image fetching progress.
   double _progress = 0;
 
-  /// [Duration] of the [_timer].
-  Duration _backoffTimeout = const Duration(microseconds: 250);
+  /// Starting period of exponential backoff image fetching.
+  static const Duration _minBackoffPeriod = Duration(microseconds: 250);
 
-  /// Initial [Duration] of the [_timer].
-  static const Duration _backoffInitialTimeout = Duration(microseconds: 250);
+  /// Maximum possible period of exponential backoff image fetching.
+  static const Duration _maxBackoffPeriod = Duration(seconds: 32);
+
+  /// Current period of exponential backoff image fetching.
+  Duration _backoffPeriod = const Duration(microseconds: 250);
 
   @override
   void initState() {
@@ -122,6 +117,8 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   Widget build(BuildContext context) {
+    final Widget child;
+
     if (_image != null) {
       Widget image = Image.memory(
         _image!,
@@ -131,9 +128,9 @@ class _RetryImageState extends State<RetryImage> {
         fit: widget.fit,
       );
 
-      if (widget.imageFilter != null) {
+      if (widget.filter != null) {
         image = ImageFiltered(
-          imageFilter: widget.imageFilter!,
+          imageFilter: widget.filter!,
           child: image,
         );
       }
@@ -145,34 +142,40 @@ class _RetryImageState extends State<RetryImage> {
         );
       }
 
-      return image;
-    }
-
-    return Container(
-      height: widget.height,
-      width: 200,
-      alignment: Alignment.center,
-      child: Container(
-        padding: widget.loaderPadding,
-        constraints: const BoxConstraints(
-          maxHeight: 40,
-          maxWidth: 40,
-          minWidth: 10,
-          minHeight: 10,
-        ),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: CircularProgressIndicator(
-            key: Key('RetryImageLoading${widget.url}'),
-            strokeWidth: widget.loaderStrokeWidth,
-            value: _progress == 0 ? null : _progress,
+      child = image;
+    } else {
+      child = Container(
+        key: Key('RetryImageLoading${widget.url}'),
+        height: widget.height,
+        width: 200,
+        alignment: Alignment.center,
+        child: Container(
+          padding: const EdgeInsets.all(5),
+          constraints: const BoxConstraints(
+            maxHeight: 40,
+            maxWidth: 40,
+            minWidth: 10,
+            minHeight: 10,
+          ),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: CircularProgressIndicator(
+              value: _progress == 0 ? null : _progress,
+            ),
           ),
         ),
-      ),
+      );
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 150),
+      child: child,
     );
   }
 
-  /// Loads image using the exponential backoff algorithm.
+  /// Loads the [_image] from the provided URL.
+  ///
+  /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadImage() async {
     _timer?.cancel();
     Response? data;
@@ -198,16 +201,16 @@ class _RetryImageState extends State<RetryImage> {
 
     if (data?.data != null && data?.statusCode == 200) {
       _image = data!.data;
-      _backoffTimeout = _backoffInitialTimeout;
+      _backoffPeriod = _minBackoffPeriod;
       if (mounted) {
         setState(() {});
       }
     } else {
       _timer = Timer(
-        _backoffTimeout,
+        _backoffPeriod,
         () {
-          if (_backoffTimeout < const Duration(seconds: 32)) {
-            _backoffTimeout *= 2;
+          if (_backoffPeriod < _maxBackoffPeriod) {
+            _backoffPeriod *= 2;
           }
 
           _loadImage();
