@@ -39,19 +39,14 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (_) {});
-    Timer(delay.seconds, () {
-      PlatformUtils.dio.httpClientAdapter = WebUtils.httpClientAdapter;
-    });
   }),
 );
 
-/// Sets the provided delay to all [GraphQlProvider] requests.
+/// Turn off internet for specified time.
 ///
 /// Examples:
-/// - I have Internet with delay of 1 second
-/// - I have Internet with delay of 2 seconds
+/// - I do not have Internet for 1 second
+/// - I do not have Internet for 2 seconds
 final StepDefinitionGeneric doNotHaveInternetFor = given1<int, CustomWorld>(
   'I do not have Internet for {int} second(s)?',
   (int delay, context) => Future.sync(() {

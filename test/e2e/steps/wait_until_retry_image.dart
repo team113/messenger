@@ -35,7 +35,7 @@ import '../parameters/retry_image.dart';
 final StepDefinitionGeneric waitUntilImage =
     then2<String, RetryImageStatus, FlutterWorld>(
   'I wait until image {string} is {retry_status}',
-  (fileName, status, context) async {
+  (filename, status, context) async {
     RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
     Attachment attachment;
@@ -46,7 +46,7 @@ final StepDefinitionGeneric waitUntilImage =
               .map((e) => e.value)
               .whereType<ChatMessage>()
               .expand((e) => e.attachments)
-              .firstWhere((a) => a.filename == fileName);
+              .firstWhere((a) => a.filename == filename);
         } catch (e) {
           return false;
         }

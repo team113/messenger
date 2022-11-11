@@ -161,7 +161,7 @@ class _RetryImageState extends State<RetryImage> {
           minHeight: 10,
         ),
         child: AspectRatio(
-          aspectRatio: 1 / 1,
+          aspectRatio: 1,
           child: CircularProgressIndicator(
             key: Key('RetryImageLoading${widget.url}'),
             strokeWidth: widget.loaderStrokeWidth,
