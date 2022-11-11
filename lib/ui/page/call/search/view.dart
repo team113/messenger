@@ -42,7 +42,6 @@ class SearchView extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     this.onBack,
-    this.onChanged,
   }) : super(key: key);
 
   /// [SearchCategory]ies to search through.
@@ -72,9 +71,6 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults results)? onChanged;
-
   /// Callback, called when the back button is pressed.
   ///
   /// If `null`, then no back button will be displayed.
@@ -92,7 +88,6 @@ class SearchView extends StatelessWidget {
         Get.find(),
         chat: chat,
         categories: categories,
-        onChanged: onChanged,
       ),
       builder: (SearchController c) {
         Widget tile({

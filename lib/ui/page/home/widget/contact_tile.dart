@@ -34,6 +34,7 @@ class ContactTile extends StatelessWidget {
     this.trailing = const [],
     this.onTap,
     this.selected = false,
+    this.subtitle = const [],
     this.darken = 0,
   }) : super(key: key);
 
@@ -57,6 +58,9 @@ class ContactTile extends StatelessWidget {
 
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
+
+  /// Optional subtitle [Widget]s.
+  final List<Widget> subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -92,16 +96,29 @@ class ContactTile extends StatelessWidget {
                   AvatarWidget.fromRxUser(user, radius: 26),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    contact?.contact.value.name.val ??
-                        contact?.user.value?.user.value.name?.val ??
-                        contact?.user.value?.user.value.num.val ??
-                        user?.user.value.name?.val ??
-                        user?.user.value.num.val ??
-                        '...',
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.headline5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              contact?.contact.value.name.val ??
+                                  contact?.user.value?.user.value.name?.val ??
+                                  contact?.user.value?.user.value.num.val ??
+                                  user?.user.value.name?.val ??
+                                  user?.user.value.num.val ??
+                                  '...',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ...subtitle,
+                    ],
                   ),
                 ),
                 ...trailing,

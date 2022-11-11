@@ -58,11 +58,10 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
-    this.onChanged,
     this.onResultsUpdated,
     this.autoFocus,
-    Rx<RxStatus>? search,
-  })  : searchStatus = search ?? Rx<RxStatus>(RxStatus.empty()),
+    Rx<RxStatus>? status,
+  })  : searchStatus = status ?? Rx<RxStatus>(RxStatus.empty()),
         assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -76,9 +75,6 @@ class SearchController extends GetxController {
 
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
-
-  /// Reactive list of the selected [Chat]s.
-  final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
@@ -128,9 +124,6 @@ class SearchController extends GetxController {
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
   /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults results)? onChanged;
-
-  /// Callback, called when the selected items was changed.
   final void Function(SearchViewResults result, String query)? onResultsUpdated;
 
   /// Reactive list of the sorted [Chat]s.
@@ -177,14 +170,12 @@ class SearchController extends GetxController {
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
       int? first = list.firstOrNull?.index;
       if (first != null) {
-        if (first >= recent.length + contacts.length + chats.length) {
+        if (first >= recent.length + contacts.length) {
           category.value = SearchCategory.users;
-        } else if (first >= recent.length + chats.length) {
+        } else if (first >= recent.length) {
           category.value = SearchCategory.contacts;
-        } else if (first >= chats.length) {
-          category.value = SearchCategory.recent;
         } else {
-          category.value = SearchCategory.chats;
+          category.value = SearchCategory.recent;
         }
       }
     };
@@ -199,6 +190,7 @@ class SearchController extends GetxController {
     if (autoFocus == true) {
       search.focus.requestFocus();
     }
+
     StreamGroup.mergeBroadcast([chats.stream, contacts.stream, users.stream])
         .listen((_) {
       onResultsUpdated?.call(
@@ -238,7 +230,6 @@ class SearchController extends GetxController {
     } else {
       selectedContacts.add(contact);
     }
-    onChangedCall();
   }
 
   /// Selects or unselects the specified [user].
@@ -248,27 +239,7 @@ class SearchController extends GetxController {
     } else {
       selectedUsers.add(user);
     }
-    onChangedCall();
   }
-
-  /// Selects or unselects the specified [chat].
-  void selectChat(RxChat chat) {
-    if (selectedChats.contains(chat)) {
-      selectedChats.remove(chat);
-    } else {
-      selectedChats.add(chat);
-    }
-    onChangedCall();
-  }
-
-  /// Calls [onChanged] callback.
-  void onChangedCall() => onChanged?.call(
-        SearchViewResults(
-          selectedChats,
-          selectedUsers,
-          selectedContacts,
-        ),
-      );
 
   /// Searches the [User]s based on the provided [query].
   ///
@@ -333,43 +304,22 @@ class SearchController extends GetxController {
   /// Jumps the [controller] to the provided [category] of the search results.
   void jumpTo(SearchCategory category) {
     if (controller.hasClients) {
-      switch (category) {
-        case SearchCategory.chats:
-          if (chats.isNotEmpty) {
-            controller.jumpTo(0);
-          }
-          break;
-        case SearchCategory.recent:
-          if (recent.isNotEmpty) {
-            double to = chats.length * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
-        case SearchCategory.contacts:
-          if (contacts.isNotEmpty) {
-            double to = (recent.length + chats.length) * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
-        case SearchCategory.users:
-          if (users.isNotEmpty) {
-            double to =
-                (recent.length + contacts.length + chats.length) * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
+      if (category == SearchCategory.recent && recent.isNotEmpty) {
+        controller.jumpTo(0);
+      } else if (category == SearchCategory.contacts && contacts.isNotEmpty) {
+        double to = recent.length * (76 + 10);
+        if (to > controller.position.maxScrollExtent) {
+          controller.jumpTo(controller.position.maxScrollExtent);
+        } else {
+          controller.jumpTo(to);
+        }
+      } else if (category == SearchCategory.users && users.isNotEmpty) {
+        double to = (recent.length + contacts.length) * (76 + 10);
+        if (to > controller.position.maxScrollExtent) {
+          controller.jumpTo(controller.position.maxScrollExtent);
+        } else {
+          controller.jumpTo(to);
+        }
       }
     }
   }
@@ -378,12 +328,7 @@ class SearchController extends GetxController {
   ///
   /// Returned item is either a [RxUser] or [RxChatContact].
   dynamic getIndex(int i) {
-    return [
-      ...chats.values,
-      ...recent.values,
-      ...contacts.values,
-      ...users.values
-    ].elementAt(i);
+    return [...recent.values, ...contacts.values, ...users.values].elementAt(i);
   }
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
@@ -583,7 +528,7 @@ class SearchController extends GetxController {
   }
 }
 
-/// Wrapped [SearchView] selected items.
+/// Wrapped [SearchView] items.
 class SearchViewResults {
   const SearchViewResults(this.chats, this.users, this.contacts);
 

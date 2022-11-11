@@ -75,8 +75,8 @@ class ChatsTabController extends GetxController {
   /// - `searchStatus.empty`, meaning no search.
   /// - `searchStatus.loading`, meaning search is in progress.
   /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [searchResults] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [searchResults] are
+  ///   [searchResult] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [searchResult] are
   ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
