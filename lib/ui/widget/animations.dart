@@ -30,7 +30,7 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 900 + 450),
       switchInCurve: Curves.elasticInOut,
       switchOutCurve: Curves.elasticInOut,
       transitionBuilder: (child, animation) => ScaleTransition(

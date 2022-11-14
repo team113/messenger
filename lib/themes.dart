@@ -213,19 +213,20 @@ class Themes {
               errorMaxLines: 5,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.secondary),
+                borderSide:
+                    const BorderSide(width: 2, color: Color(0xFFD0D0D0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFC4C4C4)),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFC4C4C4)),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: const BorderSide(color: Color(0xFFC4C4C4)),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
             ),
         textSelectionTheme: ThemeData.light().textSelectionTheme.copyWith(

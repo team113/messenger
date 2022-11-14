@@ -217,31 +217,6 @@ class ContactTile extends StatelessWidget {
   }
 }
 
-class _QuadPainter extends CustomPainter {
-  const _QuadPainter({this.color = Colors.black});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const double width = 15;
-    final Paint paint = Paint()..color = color;
-
-    Path path = Path();
-    path.moveTo(0, 0);
-    path.lineTo(0, width);
-    path.lineTo(width, width);
-    path.lineTo(width, 0);
-    path.lineTo(0, 0);
-    path.close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
-
 class _FoldedClipper extends CustomClipper<Path> {
   const _FoldedClipper({this.radius = 10});
 

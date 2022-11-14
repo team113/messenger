@@ -246,7 +246,7 @@ class MyProfileController extends GetxController {
             await _myUserService
                 .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
             s.status.value = RxStatus.success();
-            _nameTimer = Timer(const Duration(seconds: 1),
+            _nameTimer = Timer(const Duration(milliseconds: 1500),
                 () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
@@ -365,7 +365,7 @@ class MyProfileController extends GetxController {
             await _myUserService
                 .updateUserBio(s.text.isNotEmpty ? UserBio(s.text) : null);
             s.status.value = RxStatus.success();
-            _bioTimer = Timer(const Duration(seconds: 1),
+            _bioTimer = Timer(const Duration(milliseconds: 1500),
                 () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
@@ -392,7 +392,7 @@ class MyProfileController extends GetxController {
           try {
             await _myUserService.updateUserPresence(presence.value!);
             s.status.value = RxStatus.success();
-            _presenceTimer = Timer(const Duration(seconds: 1),
+            _presenceTimer = Timer(const Duration(milliseconds: 1500),
                 () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
@@ -440,7 +440,7 @@ class MyProfileController extends GetxController {
           try {
             await _myUserService.createChatDirectLink(slug!);
             s.status.value = RxStatus.success();
-            _linkTimer = Timer(const Duration(seconds: 1),
+            _linkTimer = Timer(const Duration(milliseconds: 1500),
                 () => s.status.value = RxStatus.empty());
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
@@ -461,10 +461,17 @@ class MyProfileController extends GetxController {
       text: myUser.value?.login?.val,
       onChanged: (s) async {
         s.error.value = null;
+
+        if (s.text.isEmpty) {
+          s.unchecked = myUser.value?.login?.val ?? '';
+          s.status.value = RxStatus.empty();
+          return;
+        }
+
         try {
           UserLogin(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
+          s.error.value = 'err_incorrect_login_input'.l10n;
         }
 
         if (s.error.value == null) {
@@ -474,13 +481,15 @@ class MyProfileController extends GetxController {
           try {
             await _myUserService.updateUserLogin(UserLogin(s.text));
             s.status.value = RxStatus.success();
-            _loginTimer = Timer(const Duration(seconds: 1),
-                () => s.status.value = RxStatus.empty());
+            _loginTimer = Timer(
+              const Duration(milliseconds: 1500),
+              () => s.status.value = RxStatus.empty(),
+            );
           } on UpdateUserLoginException catch (e) {
             s.error.value = e.toMessage();
             s.status.value = RxStatus.empty();
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {
@@ -860,7 +869,7 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      _deleteGalleryTimer = Timer(const Duration(seconds: 1),
+      _deleteGalleryTimer = Timer(const Duration(milliseconds: 1500),
           () => deleteGalleryStatus.value = RxStatus.empty());
     }
   }
@@ -889,7 +898,7 @@ class MyProfileController extends GetxController {
         link.text = slug.val;
         link.status.value = RxStatus.success();
         link.error.value = null;
-        _linkTimer = Timer(const Duration(seconds: 1),
+        _linkTimer = Timer(const Duration(milliseconds: 1500),
             () => link.status.value = RxStatus.empty());
         generated = true;
       } on CreateChatDirectLinkException catch (e) {
@@ -921,7 +930,7 @@ class MyProfileController extends GetxController {
       link.status.value = RxStatus.success();
       link.error.value = null;
       link.unchecked = '';
-      _linkTimer = Timer(const Duration(seconds: 1),
+      _linkTimer = Timer(const Duration(milliseconds: 1500),
           () => link.status.value = RxStatus.empty());
     } on DeleteChatDirectLinkException catch (e) {
       link.status.value = RxStatus.empty();
@@ -965,7 +974,7 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      _addGalleryTimer = Timer(const Duration(seconds: 1),
+      _addGalleryTimer = Timer(const Duration(milliseconds: 1500),
           () => addGalleryStatus.value = RxStatus.empty());
     }
   }
@@ -990,7 +999,7 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      _avatarTimer = Timer(const Duration(seconds: 1),
+      _avatarTimer = Timer(const Duration(milliseconds: 1500),
           () => avatarStatus.value = RxStatus.empty());
     }
   }
@@ -1000,7 +1009,7 @@ class MyProfileController extends GetxController {
     if (enabled) {
       resendEmailTimeout.value = 30;
       _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
+        const Duration(milliseconds: 1500),
         (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {
@@ -1022,7 +1031,7 @@ class MyProfileController extends GetxController {
     if (enabled) {
       resendPhoneTimeout.value = 30;
       _resendPhoneTimer = Timer.periodic(
-        const Duration(seconds: 1),
+        const Duration(milliseconds: 1500),
         (_) {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {

@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '/util/platform_utils.dart';
 import 'animations.dart';
@@ -170,6 +171,11 @@ class ReactiveTextField extends StatelessWidget {
         data: Theme.of(context).copyWith(
           platform: TargetPlatform.macOS,
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
+          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+                floatingLabelStyle: state.error.value?.isNotEmpty == true
+                    ? GoogleFonts.roboto(color: Colors.red)
+                    : null,
+              ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -196,11 +202,11 @@ class ReactiveTextField extends StatelessWidget {
                 filled: true,
                 // fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
-                suffixIconConstraints: suffix == null &&
-                        trailing == null &&
-                        state.status.value.isEmpty
-                    ? const BoxConstraints(maxWidth: 0)
-                    : null,
+                // suffixIconConstraints: suffix == null &&
+                //         trailing == null &&
+                //         state.status.value.isEmpty
+                //     ? const BoxConstraints(maxWidth: 0)
+                //     : null,
                 suffixIcon: ElasticAnimatedSwitcher(
                   child: (suffix != null ||
                           trailing != null ||
@@ -291,7 +297,11 @@ class ReactiveTextField extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 24, top: 4),
+                          padding: const EdgeInsets.only(
+                            left: 20,
+                            right: 20,
+                            top: 4,
+                          ),
                           child: Text(
                             state.error.value!,
                             style: (style ?? const TextStyle()).copyWith(

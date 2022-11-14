@@ -19,6 +19,7 @@ import 'dart:math';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/themes.dart';
@@ -29,6 +30,7 @@ import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart';
@@ -39,6 +41,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
+import 'add_email/view.dart';
 import 'controller.dart';
 import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
@@ -96,6 +99,7 @@ class MyProfileView extends StatelessWidget {
                       // color: Colors.white,
                       color: const Color(0xFFF8F8F8),
                       borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
                     constraints: context.isNarrow
                         ? null
@@ -111,7 +115,8 @@ class MyProfileView extends StatelessWidget {
 
               return ListView(
                 children: [
-                  const SizedBox(height: 8),
+                  // const SizedBox(height: 8),
+                  _label(context, 'Публичная информация'),
                   block(
                     children: [
                       Stack(
@@ -176,7 +181,7 @@ class MyProfileView extends StatelessWidget {
                       _name(c),
                     ],
                   ),
-                  // _label(context, 'Параметры входа'),
+                  _label(context, 'Параметры входа'),
                   block(
                     children: [
                       _num(c),
@@ -786,18 +791,28 @@ Widget _login(MyProfileController c) => _padding(
       ReactiveTextField(
         key: const Key('LoginField'),
         state: c.login,
-        trailing: Transform.translate(
-          offset: const Offset(0, -1),
-          child: Transform.scale(
-            scale: 1.15,
-            child: SvgLoader.asset(
-              'assets/icons/copy.svg',
-              height: 15,
-            ),
-          ),
-        ),
+        onSuffixPressed: c.login.text.isEmpty
+            ? null
+            : () {
+                Clipboard.setData(ClipboardData(text: c.login.text));
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+        trailing: c.login.text.isEmpty
+            ? null
+            : Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
         label: 'label_login'.l10n,
-        hint: 'label_login_hint'.l10n,
+        hint: c.myUser.value?.login == null
+            ? 'label_login_hint'.l10n
+            : c.myUser.value!.login!.val,
       ),
     );
 
@@ -913,14 +928,16 @@ Widget _label(BuildContext context, String text) {
   final Style style = Theme.of(context).extension<Style>()!;
 
   return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 24),
+    padding: const EdgeInsets.fromLTRB(0, 18, 0, 12),
     child: Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          border: style.systemMessageBorder,
-          color: style.systemMessageColor,
+          // border: style.systemMessageBorder,
+          // color: style.systemMessageColor,
+          border: Border.all(color: const Color(0xFFE0E0E0)),
+          color: const Color(0xFFF8F8F8),
         ),
         child: Text(text, style: style.systemMessageStyle),
       ),
@@ -942,44 +959,56 @@ Widget _emails(MyProfileController c, BuildContext context) {
         ReactiveTextField(
           state: TextFieldState(text: e.val, editable: false),
           label: 'E-mail',
-          suffix: Icons.delete_outline,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset(
+                'assets/icons/delete.svg',
+                height: 14,
+              ),
+            ),
+          ),
         ),
       );
       widgets.add(const SizedBox(height: 10));
     }
 
     widgets.addAll([
-      ReactiveTextField(
-        state: TextFieldState(text: 'alalal@mail.ru', editable: false),
-        label: 'Неподтверждённый E-mail',
-        suffix: Icons.delete_outline,
-        style: const TextStyle(color: Color(0xFF888888)),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        child: RichText(
-          text: const TextSpan(
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
-            children: [
-              // TextSpan(
-              //   text: 'E-mail не подтверждён. ',
-              //   style: TextStyle(color: Color(0xFF888888)),
-              // ),
-              TextSpan(
-                text: 'Верифицировать',
-                style: TextStyle(color: Color(0xFF00A3FF)),
+      Theme(
+        data: Theme.of(context).copyWith(
+          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+              floatingLabelStyle:
+                  TextStyle(color: Theme.of(context).colorScheme.secondary)),
+        ),
+        child: ReactiveTextField(
+          state: TextFieldState(text: 'alalal@mail.ru', editable: false),
+          label: 'Верифицировать E-mail',
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset(
+                'assets/icons/delete.svg',
+                height: 14,
               ),
-            ],
+            ),
           ),
+          style: const TextStyle(color: Color(0xFF888888)),
         ),
       ),
     ]);
     widgets.add(const SizedBox(height: 10));
 
     widgets.add(
-      ReactiveTextField(
-        state: TextFieldState(text: 'Добавить E-mail', editable: false),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      WidgetButton(
+        onPressed: () => AddEmailView.show(context),
+        child: IgnorePointer(
+          child: ReactiveTextField(
+            state: TextFieldState(text: 'Добавить E-mail', editable: false),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
+        ),
       ),
     );
     widgets.add(const SizedBox(height: 10));
