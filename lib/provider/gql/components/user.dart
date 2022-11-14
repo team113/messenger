@@ -957,7 +957,6 @@ abstract class UserGraphQlMixin {
     ));
   }
 
-
   /// Registers a device (Android, iOS, or Web) for receiving notifications via
   /// Firebase Cloud Messaging.
   ///

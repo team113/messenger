@@ -476,7 +476,7 @@ class _BackgroundService {
         } else {
           _setForegroundNotificationInfo(
             title: 'label_service_encountered_error'.l10n,
-            content: e,
+            content: e.toString(),
           );
           throw e;
         }

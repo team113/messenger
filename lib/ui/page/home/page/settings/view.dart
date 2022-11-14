@@ -67,30 +67,28 @@ class SettingsView extends StatelessWidget {
                       return Switch(
                         value: c.settings.value?.enablePopups ?? true,
                         onChanged: (_) async {
-                          String? token = await FirebaseMessaging.instance
-                              .getToken(
+                          await Future.delayed(1.seconds);
+                          String? token = await FirebaseMessaging.instance.getToken(
                               vapidKey: PlatformUtils.isWeb
                                   ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
                                   : null);
                           await http
                               .post(
-                            Uri.parse('https://fcm.googleapis.com/fcm/send'),
-                            headers: <String, String>{
-                              'Content-Type': 'application/json',
-                              'Authorization':
-                              'key=AAAA5Y3eNzc:APA91bFYrrb1rdKqLFBKv6KRLc7YeYQHYVFJK-0058cun3azgZcQTG9GeJZQc04pd18gXzahodkgBk2n3FxXusR7GdGo23aDUr1JNExPLO4WoI1e4ATk0BaL333AED8gEGEJcHb7IX3E'
-                            },
-                            body: json.encode({
-                              'to': token,
-                              'message': {
-                                'token': token,
-                              },
-                              'notification': {
-                                'title': 'Push Notification',
-                                'body': 'Firebase  push notification'
-                              }
-                            }),
-                          )
+                                Uri.parse(
+                                    'https://fcm.googleapis.com/fcm/send'),
+                                headers: <String, String>{
+                                  'Content-Type': 'application/json',
+                                  'Authorization':
+                                      'key=AAAA5Y3eNzc:APA91bFYrrb1rdKqLFBKv6KRLc7YeYQHYVFJK-0058cun3azgZcQTG9GeJZQc04pd18gXzahodkgBk2n3FxXusR7GdGo23aDUr1JNExPLO4WoI1e4ATk0BaL333AED8gEGEJcHb7IX3E'
+                                },
+                                body: json.encode({
+                                  'to': token,
+                                  'data': {
+                                    'title': 'Push Notification',
+                                    'body': 'Firebase  push notification'
+                                  }
+                                }),
+                              )
                               .then((value) => print(value.body));
                         },
                       );

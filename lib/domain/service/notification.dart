@@ -19,9 +19,15 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 
+import '/domain/model/fcm_registration_token.dart';
+import '/firebase_options.dart';
+import '/main.dart';
+import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -39,6 +45,9 @@ class NotificationService extends DisposableService {
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
+
+  /// Subscription to the [FirebaseMessaging.onTokenRefresh].
+  StreamSubscription? _onTokenRefresh;
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
@@ -87,9 +96,71 @@ class NotificationService extends DisposableService {
     }
   }
 
+  /// Initializes the [FirebaseMessaging] to receive push notifications.
+  Future<void> initPushNotifications(GraphQlProvider graphQlProvider) async {
+    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform);
+
+      if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
+        await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+      }
+
+      String? oldToken;
+
+      FirebaseMessaging.instance
+          .getToken(
+              vapidKey: PlatformUtils.isWeb
+                  ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
+                  : null)
+          .then((value) {
+        if (value != null) {
+          print('registerFcmDevice');
+          oldToken = value;
+          print(value);
+          // fWXDT-EiRraDuyYFvCQW6L:APA91bE2ASvxJm27cC1eDid8nU8fMR8SLHTm2RyhWgKrOXuQuV8olzSd-u-AK4gPdkvx_ABo0cjabHKtmiVTxDhxaSVE8RjDvoF7ghV-G1niq6J_gfNS8kdebsWP3QbXTITuVtcoh_1u
+          graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
+        }
+      });
+
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
+        if (oldToken != null) {
+          graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
+        }
+        graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+      });
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        print('Got a message whilst in the foreground!');
+        print('Message data: ${message.data}');
+
+        if (message.notification != null) {
+          print(
+              'Message also contained a notification: ${message.notification}');
+          print(
+              'Message also contained a notification: ${message.notification?.title}');
+          print(
+              'Message also contained a notification: ${message.notification?.body}');
+        }
+      });
+
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    }
+  }
+
   @override
   void onClose() {
     _onFocusChanged?.cancel();
+    _onTokenRefresh?.cancel();
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/notification.mp3']]
         .whereNotNull()

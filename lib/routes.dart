@@ -15,14 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
-import 'domain/model/fcm_registration_token.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -35,8 +33,10 @@ import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
+import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
+import 'main.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
@@ -63,7 +63,6 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
-import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -539,6 +538,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
+            Get.put(NotificationService())
+              ..init(onNotificationResponse: onNotificationResponse)
+              ..initPushNotifications(graphQlProvider);
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
@@ -555,8 +557,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put(CallWorker(
               Get.find(),
               callService,
-              chatService,
-              Get.find(),
             ));
 
             deps.put(ChatWorker(
@@ -565,34 +565,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ));
 
             deps.put(MyUserWorker(myUserService));
-
-            if(PlatformUtils.isWeb || PlatformUtils.isMobile) {
-              String? oldToken;
-
-              FirebaseMessaging.instance
-                  .getToken(
-                  vapidKey: PlatformUtils.isWeb
-                      ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-                      : null)
-                  .then((value) {
-                if (value != null) {
-                  oldToken = value;
-                  graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
-                }
-              });
-
-              FirebaseMessaging.instance.onTokenRefresh
-                  .listen((fcmToken) {
-                    print('onTokenRefresh');
-                    if(oldToken != null) {
-                      graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
-                    }
-                graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
-              })
-                  .onError((err) {
-                // Error getting token.
-              });
-            }
 
             return deps;
           },

@@ -29,11 +29,8 @@ import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
-import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
-import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
@@ -48,8 +45,6 @@ class CallWorker extends DisposableService {
   CallWorker(
     this._background,
     this._callService,
-    this._chatService,
-    this._notificationService,
   );
 
   /// [BackgroundWorker] used to get data from its service.
@@ -60,12 +55,6 @@ class CallWorker extends DisposableService {
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
-
-  /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
-  final ChatService _chatService;
-
-  /// [NotificationService] used to show an incoming call notification.
-  final NotificationService _notificationService;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -156,34 +145,6 @@ class CallWorker extends DisposableService {
                 }
               }
             });
-
-            // Show a notification of an incoming call.
-            if (!calling) {
-              // On mobile, notification should be displayed only if application
-              // is not in the foreground and the call permissions are not
-              // granted.
-              bool showNotification = !PlatformUtils.isMobile;
-              if (PlatformUtils.isMobile) {
-                showNotification =
-                    !isInForeground && !(await _callKeep.hasPhoneAccount());
-              }
-
-              if (showNotification) {
-                _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
-
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: chat?.avatar.value?.original.url,
-                    playSound: false,
-                  );
-                });
-              }
-            }
           }
 
           break;
