@@ -69,11 +69,13 @@ Future<void> main() async {
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     var authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
-    await authService.init();
-
-    await L10n.init();
-
     router = RouterState(authService);
+
+    Get.put(NotificationService())
+        .init(onNotificationResponse: onNotificationResponse);
+
+    await authService.init();
+    await L10n.init();
 
     Get.put(BackgroundWorker(Get.find()));
 

@@ -1419,13 +1419,13 @@ class _ChatViewState extends State<ChatView>
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
-                        e.original.url,
+                        o.original.url,
                         o.filename,
                         size: o.original.size,
                       );
                     }
                     return GalleryItem.video(
-                      e.original.url,
+                      o.original.url,
                       o.filename,
                       size: o.original.size,
                     );

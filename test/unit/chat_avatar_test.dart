@@ -29,6 +29,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -83,6 +84,9 @@ void main() async {
   await galleryItemProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
+  await draftProvider.clear();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -163,6 +167,7 @@ void main() async {
       graphQlProvider,
       chatHiveProvider,
       callRepository,
+      draftProvider,
       userRepository,
     );
 
@@ -241,6 +246,7 @@ void main() async {
       graphQlProvider,
       chatHiveProvider,
       callRepository,
+      draftProvider,
       userRepository,
     );
 
