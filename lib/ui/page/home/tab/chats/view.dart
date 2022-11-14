@@ -37,12 +37,7 @@ class ChatsTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: ChatsTabController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
+      init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (ChatsTabController c) {
         return Scaffold(
           extendBodyBehindAppBar: true,
