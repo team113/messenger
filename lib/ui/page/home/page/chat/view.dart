@@ -198,7 +198,7 @@ class _ChatViewState extends State<ChatView>
                                           const SizedBox(width: 5),
                                           Icon(
                                             Icons.volume_off,
-                                            color: Themes.light()
+                                            color: Theme.of(context)
                                                 .primaryIconTheme
                                                 .color,
                                             size: 17,
