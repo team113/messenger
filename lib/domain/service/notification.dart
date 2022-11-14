@@ -145,8 +145,6 @@ class NotificationService extends DisposableService {
 
         if (message.notification != null) {
           print(
-              'Message also contained a notification: ${message.notification}');
-          print(
               'Message also contained a notification: ${message.notification?.title}');
           print(
               'Message also contained a notification: ${message.notification?.body}');
