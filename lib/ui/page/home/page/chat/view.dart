@@ -182,11 +182,9 @@ class _ChatViewState extends State<ChatView>
                                 overflow: TextOverflow.ellipsis,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
                                       children: [
                                         Flexible(
                                           child: Text(
@@ -196,11 +194,15 @@ class _ChatViewState extends State<ChatView>
                                           ),
                                         ),
                                         if (c.chat?.chat.value.muted !=
-                                            null) ...const [
-                                          SizedBox(width: 5),
+                                            null) ...[
+                                          const SizedBox(width: 5),
                                           Icon(
                                             Icons.volume_off,
-                                            key: Key('MutedInChatPage'),
+                                            color: Themes.light()
+                                                .primaryIconTheme
+                                                .color,
+                                            size: 17,
+                                            key: const Key('MutedInChatPage'),
                                           ),
                                         ]
                                       ],

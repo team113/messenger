@@ -28,6 +28,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
@@ -104,6 +105,8 @@ class RecentChatTile extends StatelessWidget {
           if (chat.muted != null)
             Icon(
               Icons.volume_off,
+              size: 17,
+              color: Themes.light().primaryIconTheme.color,
               key: Key('MuteIndicator_${chat.id}'),
             ),
         ],
