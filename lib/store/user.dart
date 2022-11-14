@@ -131,7 +131,7 @@ class UserRepository implements AbstractUserRepository {
   /// Updates the locally stored [HiveUser] with the provided [user] value.
   void updateUser(User user) {
     HiveUser? hiveUser = _userLocal.get(user.id);
-    if(hiveUser != null) {
+    if (hiveUser != null) {
       hiveUser.value = user;
       put(hiveUser, ignoreVersion: true);
     }

@@ -31,6 +31,7 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
@@ -38,11 +39,9 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
-import '/provider/hive/user.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
-import 'model/user.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
@@ -475,7 +474,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.cameOffline:
           event as EventUserCameOffline;
           userEntity.value.online = false;
-          put((u) => u..online = false);
+          put((u) => u
+            ..online = false
+            ..lastSeenAt = PreciseDateTime.now());
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
