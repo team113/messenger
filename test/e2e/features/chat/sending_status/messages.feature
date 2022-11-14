@@ -12,7 +12,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sent
 
   Scenario: Message status changes from `sending` to `sent`
-    Given I have Internet with delay of 4 seconds
+    Given I do not have Internet for 4 seconds
 
     When I fill `MessageField` field with "123"
     And I tap `Send` button
@@ -37,7 +37,7 @@ Feature: Chat messages have correct sending status
     And I tap `Send` button
     Then I wait until status of "123" message is error
 
-    Given I have Internet with delay of 4 seconds
+    Given I do not have Internet for 4 seconds
     When I long press "123" message
     And I tap `Resend` button
     Then I wait until status of "123" message is sending
@@ -49,7 +49,7 @@ Feature: Chat messages have correct sending status
     And I tap `Send` button
     Then I wait until status of "123" message is error
 
-    Given I have Internet with delay of 4 seconds
+    Given I do not have Internet for 4 seconds
     When I restart app
     And I am in chat with Bob
     Then I wait until status of "123" message is error

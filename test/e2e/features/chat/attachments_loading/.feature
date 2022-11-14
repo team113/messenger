@@ -4,7 +4,7 @@ Feature: Attachments refetching
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And Bob sends "test.jpg" image to me
+    And Bob sends "test.jpg" to me
     And I do not have Internet for 4 seconds
     And I am in chat with Bob
 

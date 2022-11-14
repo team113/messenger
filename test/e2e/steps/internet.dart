@@ -26,22 +26,6 @@ import 'package:messenger/util/web/web_utils.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
-/// Sets the provided delay to all [GraphQlProvider] requests.
-///
-/// Examples:
-/// - I have Internet with delay of 1 second
-/// - I have Internet with delay of 2 seconds
-final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
-  'I have Internet with delay of {int} second(s)?',
-  (int delay, context) => Future.sync(() {
-    final GraphQlProvider provider = Get.find();
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = delay.seconds;
-      provider.client.throwException = false;
-    }
-  }),
-);
-
 /// Turn off internet for specified time.
 ///
 /// Examples:

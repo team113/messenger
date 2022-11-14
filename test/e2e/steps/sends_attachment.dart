@@ -33,41 +33,30 @@ import '../world/custom_world.dart';
 /// their [Chat]-dialog with the provided file or image attachment.
 ///
 /// Examples:
-/// - Then Bob sends "test.txt" file to me
-/// - Then Bob sends "test.jpg" image to me
+/// - Then Bob sends "test.txt" to me
+/// - Then Bob sends "test.jpg" to me
 final StepDefinitionGeneric sendsAttachmentToMe =
-    and3<TestUser, String, AttachmentType, CustomWorld>(
-  '{user} sends {string} {attachment} to me',
-  (TestUser user, String filename, AttachmentType attachmentType,
-      context) async {
+    and2<TestUser, String, CustomWorld>(
+  '{user} sends {string} to me',
+  (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
 
     String? type = MimeResolver.lookup(filename);
+    MediaType? mediaType = type != null ? MediaType.parse(type) : null;
     UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk response;
-    switch (attachmentType) {
-      case AttachmentType.file:
-        response = await provider.uploadAttachment(
-          dio.MultipartFile.fromBytes(
-            Uint8List.fromList([1, 1]),
-            filename: filename,
-            contentType: type != null ? MediaType.parse(type) : null,
-          ),
-        );
-        break;
 
-      case AttachmentType.image:
-        response = await provider.uploadAttachment(
-          dio.MultipartFile.fromBytes(
-            base64Decode(
-              'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-            ),
-            filename: filename,
-            contentType: MediaType.parse('image/png'),
-          ),
-        );
-        break;
-    }
+    response = await provider.uploadAttachment(
+      dio.MultipartFile.fromBytes(
+        mediaType?.type == 'image'
+            ? base64Decode(
+                '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+              )
+            : Uint8List.fromList([1, 1]),
+        filename: filename,
+        contentType: type != null ? MediaType.parse(type) : null,
+      ),
+    );
 
     await provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,
