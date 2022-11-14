@@ -302,13 +302,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       void put(User Function(User u) convertor) {
         _userRepo.get(event.userId).then((user) {
           if (user != null) {
-            _userRepo.put(
-              HiveUser(
-                convertor(user.user.value),
-                UserVersion(versioned.ver.val),
-                versioned.ver,
-              ),
-            );
+            _userRepo.updateUser(convertor(user.user.value));
           }
         });
       }

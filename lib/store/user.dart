@@ -128,13 +128,22 @@ class UserRepository implements AbstractUserRepository {
     });
   }
 
+  /// Updates the locally stored [HiveUser] with the provided [user] value.
+  void updateUser(User user) {
+    HiveUser? hiveUser = _userLocal.get(user.id);
+    if(hiveUser != null) {
+      hiveUser.value = user;
+      put(hiveUser, ignoreVersion: true);
+    }
+  }
+
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user) {
+  void put(HiveUser user, {bool ignoreVersion = false}) {
     List<ImageGalleryItem> gallery = user.value.gallery ?? [];
     for (ImageGalleryItem item in gallery) {
       _galleryItemLocal.put(item);
     }
-    _putUser(user);
+    _putUser(user, ignoreVersion: ignoreVersion);
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
@@ -172,9 +181,9 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Puts the provided [user] to [Hive].
-  Future<void> _putUser(HiveUser user) async {
+  Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver) {
+    if (saved == null || saved.ver < user.ver || ignoreVersion) {
       await _userLocal.put(user);
     }
   }
