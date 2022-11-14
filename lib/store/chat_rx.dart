@@ -801,6 +801,7 @@ class HiveRxChat extends RxChat {
               }
 
               _chatRepository.removeCredentials(event.call.id);
+              _chatRepository.endCall(event.call.chatId);
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
@@ -810,8 +811,6 @@ class HiveRxChat extends RxChat {
                 message.value = event.call;
                 message.save();
               }
-
-              _chatRepository.endCall(event.call.chatId);
               break;
 
             case ChatEventKind.callMemberLeft:

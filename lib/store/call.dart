@@ -97,9 +97,6 @@ class CallRepository implements AbstractCallRepository {
   }
 
   @override
-  void add(Rx<OngoingCall> call) => calls[call.value.chatId.value] = call;
-
-  @override
   void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
 
   @override
@@ -252,7 +249,7 @@ class CallRepository implements AbstractCallRepository {
           creds: getCredentials(chatCall.id),
         ),
       );
-      add(call);
+      calls[chatCall.chatId] = call;
     } else {
       call.value.call.value = chatCall;
     }
@@ -282,8 +279,7 @@ class CallRepository implements AbstractCallRepository {
           mediaSettings: media.value,
         ),
       );
-
-      add(call);
+      calls[stored.chatId] = call;
     } else {
       call.value.call.value = call.value.call.value ?? stored.call;
       call.value.creds = call.value.creds ?? stored.creds;
@@ -295,14 +291,9 @@ class CallRepository implements AbstractCallRepository {
 
   @override
   void endCall(ChatId chatId) {
-    Rx<OngoingCall>? call = calls[chatId];
-    // If call is not yet connected to the remote updates, then it's still just
-    // a notification and it should be removed.
-    if (call?.value.connected == false && call?.value.isActive == false) {
-      var removed = remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
-    }
+    var removed = remove(chatId);
+    removed?.value.state.value = OngoingCallState.ended;
+    removed?.value.dispose();
   }
 
   @override
@@ -578,10 +569,10 @@ class CallRepository implements AbstractCallRepository {
   void _subscribe(int count) async {
     _events?.cancel();
     _events = (await events(count)).listen(
-          (e) async {
+      (e) async {
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
-          // No-op.
+            // No-op.
             break;
 
           case IncomingChatCallsTopEventKind.list:

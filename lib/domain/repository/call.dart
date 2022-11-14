@@ -42,9 +42,6 @@ abstract class AbstractCallRepository {
   /// Replaces the value of [OngoingCall] identified by [chatId] to [call].
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
-  /// Adds [call] identified by [chatId] to the [calls] map.
-  void add(Rx<OngoingCall> call);
-
   /// Initializes the repository.
   void init();
 
