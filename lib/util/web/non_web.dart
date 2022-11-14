@@ -68,7 +68,8 @@ class WebUtils {
   static bool get isPopup => false;
 
   /// Default [HttpClientAdapter] of a [Dio] client.
-  static HttpClientAdapter get defaultClientAdapter => DefaultHttpClientAdapter();
+  static HttpClientAdapter get defaultClientAdapter =>
+      DefaultHttpClientAdapter();
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {

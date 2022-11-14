@@ -25,7 +25,6 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/mime.dart';
 
-import '../parameters/attachment.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -33,11 +32,11 @@ import '../world/custom_world.dart';
 /// their [Chat]-dialog with the provided file or image attachment.
 ///
 /// Examples:
-/// - Then Bob sends "test.txt" to me
-/// - Then Bob sends "test.jpg" to me
+/// - Then Bob sends "test.txt" attachment to me
+/// - Then Bob sends "test.jpg" attachment to me
 final StepDefinitionGeneric sendsAttachmentToMe =
     and2<TestUser, String, CustomWorld>(
-  '{user} sends {string} to me',
+  '{user} sends {string} attachment to me',
   (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
