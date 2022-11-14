@@ -117,6 +117,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       widget.items![widget.index].original.url,
                       fit: BoxFit.cover,
                       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
                   ),
                 )
@@ -144,6 +146,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       .map(
                         (e) => RetryImage(
                           e.original.url,
+                          width: double.infinity,
+                          height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),
                       )
