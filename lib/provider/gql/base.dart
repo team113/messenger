@@ -17,15 +17,15 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show Dio, DioError, Options, Response;
+import 'package:dio/dio.dart' as dio show DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../../util/platform_utils.dart';
 import '/config.dart';
 import '/domain/model/session.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 import 'exceptions.dart';
 
 /// Base GraphQl provider.
