@@ -101,13 +101,15 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         title: [
-          if (chat.muted != null)
+          if (chat.muted != null) ...[
+            const SizedBox(width: 5),
             Icon(
               Icons.volume_off,
               size: 17,
               color: Theme.of(context).primaryIconTheme.color,
               key: Key('MuteIndicator_${chat.id}'),
             ),
+          ]
         ],
         subtitle: [
           const SizedBox(height: 5),
