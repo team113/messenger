@@ -41,6 +41,7 @@ import 'provider/hive/background.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
+import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
@@ -387,6 +388,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+                deps.put(DraftHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -419,6 +421,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   callRepository,
+                  Get.find(),
                   userRepository,
                   me: me,
                 ),
@@ -483,6 +486,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+              deps.put(DraftHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
@@ -515,6 +519,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 graphQlProvider,
                 Get.find(),
                 callRepository,
+                Get.find(),
                 userRepository,
                 me: me,
               ),
