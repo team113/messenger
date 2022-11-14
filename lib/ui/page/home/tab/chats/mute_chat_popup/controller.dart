@@ -32,23 +32,34 @@ class MuteChatController extends GetxController {
     this.pop,
   });
 
-  /// ID of the [Chat] the would be muted.
+  /// ID of the [Chat] to mute.
   final ChatId chatId;
 
-  /// Callback called, when need to close popup.
+  /// Callback, called when a [MuteChatView] this controller is bound to should
+  /// be popped from the [Navigator].
   final void Function()? pop;
 
-  /// [StreamSubscription] to chats changes.
-  late final StreamSubscription? chatsSubscription;
+  /// Subscription for the [ChatService.chats] changes.
+  late final StreamSubscription? _chatsSubscription;
 
-  /// [Chat]s service.
+  /// [ChatService] for [pop]ping the view when a [Chat] identified by the
+  /// [chatId] is removed.
   final ChatService _chatService;
 
   @override
   void onInit() {
-    chatsSubscription = _chatService.chats.changes.listen((event) {
-      if (event.op == OperationKind.removed && chatId == event.key) {
-        pop?.call();
+    _chatsSubscription = _chatService.chats.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.removed:
+          if (chatId == e.key) {
+            pop?.call();
+          }
+          break;
+
+        case OperationKind.added:
+        case OperationKind.updated:
+          // No-op.
+          break;
       }
     });
     super.onInit();
@@ -56,7 +67,7 @@ class MuteChatController extends GetxController {
 
   @override
   void onClose() {
-    chatsSubscription?.cancel();
+    _chatsSubscription?.cancel();
     super.onClose();
   }
 }

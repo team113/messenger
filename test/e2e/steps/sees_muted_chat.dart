@@ -26,23 +26,25 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeChatAsMuted =
     then2<String, MutedStatus, CustomWorld>(
   'I see {string} chat as {muted}',
-  (String name, MutedStatus status, context) async {
+  (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        ChatId chatId = context.world.groups[name]!;
+        final ChatId chatId = context.world.groups[name]!;
 
-        if (status == MutedStatus.muted) {
-          return context.world.appDriver.isPresent(
-            context.world.appDriver
-                .findByKeySkipOffstage('MuteIndicator_$chatId'),
-          );
-        } else {
-          return context.world.appDriver.isAbsent(
-            context.world.appDriver
-                .findByKeySkipOffstage('MuteIndicator_$chatId'),
-          );
+        switch (status) {
+          case MutedStatus.muted:
+            return await context.world.appDriver.isPresent(
+              context.world.appDriver
+                  .findByKeySkipOffstage('MuteIndicator_$chatId'),
+            );
+
+          case MutedStatus.unmuted:
+            return await context.world.appDriver.isAbsent(
+              context.world.appDriver
+                  .findByKeySkipOffstage('MuteIndicator_$chatId'),
+            );
         }
       },
     );

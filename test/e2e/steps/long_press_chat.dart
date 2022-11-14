@@ -20,7 +20,7 @@ import 'package:messenger/domain/model/chat.dart';
 
 import '../world/custom_world.dart';
 
-/// Long presses the [Chat] with the provided name.
+/// Long presses a [Chat] with the provided name.
 ///
 /// Examples:
 /// - When I long press "Name" chat.
@@ -29,7 +29,7 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
     final finder = context.world.appDriver.findBy(
-      'ContextMenuRegion_${context.world.groups[name]}',
+      'RecentChat_${context.world.groups[name]}',
       FindType.key,
     );
 

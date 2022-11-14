@@ -23,7 +23,9 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for muting specified [Chat].
+/// View for muting a [Chat] identified by its [chatId].
+///
+/// Intended to be displayed with the [show] method.
 class MuteChatView extends StatelessWidget {
   const MuteChatView({
     Key? key,
@@ -31,25 +33,26 @@ class MuteChatView extends StatelessWidget {
     required this.chatId,
   }) : super(key: key);
 
-  /// ID of the [Chat] the would be muted.
+  /// ID of the [Chat] to mute.
   final ChatId chatId;
 
-  /// Callback called, when chat must be muted.
-  final Function(Duration? duration)? onMute;
+  /// Callback, called when a [Chat] mute action is triggered.
+  final void Function(Duration? duration)? onMute;
 
   /// Displays a [MuteChatView] wrapped in a [ModalPopup].
-  static void show(
+  static Future<T?> show<T>(
     BuildContext context, {
-    Function(Duration? duration)? onMute,
     required ChatId chatId,
-  }) =>
-      ModalPopup.show<MuteChatView?>(
-        context: context,
-        child: MuteChatView(
-          chatId: chatId,
-          onMute: onMute,
-        ),
-      );
+    void Function(Duration? duration)? onMute,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: MuteChatView(
+        chatId: chatId,
+        onMute: onMute,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,33 +62,35 @@ class MuteChatView extends StatelessWidget {
         chatId: chatId,
         pop: Navigator.of(context).pop,
       ),
-      builder: (MuteChatController c) => ConfirmDialog(
-        title: 'label_mute_chat_for'.l10n,
-        variants: const [
-          Duration(minutes: 15),
-          Duration(minutes: 30),
-          Duration(hours: 1),
-          Duration(hours: 6),
-          Duration(hours: 12),
-          Duration(days: 1),
-          Duration(days: 7),
-          null,
-        ]
-            .map(
-              (e) => ConfirmDialogVariant(
-                onProceed: () => onMute?.call(e),
-                child: Text(
-                  'label_mute_for'.l10nfmt({
-                    'days': e?.inDays ?? 0,
-                    'hours': e?.inHours ?? 0,
-                    'minutes': e?.inMinutes ?? 0,
-                  }),
-                  key: e == null ? const Key('MuteForever') : null,
+      builder: (MuteChatController c) {
+        return ConfirmDialog(
+          title: 'label_mute_chat_for'.l10n,
+          variants: const [
+            Duration(minutes: 15),
+            Duration(minutes: 30),
+            Duration(hours: 1),
+            Duration(hours: 6),
+            Duration(hours: 12),
+            Duration(days: 1),
+            Duration(days: 7),
+            null,
+          ]
+              .map(
+                (e) => ConfirmDialogVariant(
+                  onProceed: () => onMute?.call(e),
+                  child: Text(
+                    'label_mute_for'.l10nfmt({
+                      'days': e?.inDays ?? 0,
+                      'hours': e?.inHours ?? 0,
+                      'minutes': e?.inMinutes ?? 0,
+                    }),
+                    key: e == null ? const Key('MuteForever') : null,
+                  ),
                 ),
-              ),
-            )
-            .toList(),
-      ),
+              )
+              .toList(),
+        );
+      },
     );
   }
 }

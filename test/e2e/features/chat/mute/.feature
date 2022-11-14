@@ -30,8 +30,8 @@ Feature: Chat muting and unmuting
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmutes chat
-    When "Alice and Bob" chat is muted
-    Then I see "Alice and Bob" chat as muted
+    Given "Alice and Bob" chat is muted
+    And I see "Alice and Bob" chat as muted
 
     When I long press "Alice and Bob" chat
     And I tap `UnmuteChatButton` button

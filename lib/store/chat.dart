@@ -632,16 +632,17 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
-    HiveRxChat? chat = _chats[id];
-    MuteDuration? muted = chat?.chat.value.muted;
-    Muting? muteFor = mute == null
+    final HiveRxChat? chat = _chats[id];
+    final MuteDuration? muted = chat?.chat.value.muted;
+
+    final Muting? muting = mute == null
         ? null
         : Muting(duration: mute.forever == true ? null : mute.until);
 
-    chat?.chat.update((c) => c?.muted = muteFor?.toModel());
+    chat?.chat.update((c) => c?.muted = muting?.toModel());
 
     try {
-      await _graphQlProvider.toggleChatMute(id, muteFor);
+      await _graphQlProvider.toggleChatMute(id, muting);
     } catch (e) {
       chat?.chat.update((c) => c?.muted = muted);
       rethrow;
