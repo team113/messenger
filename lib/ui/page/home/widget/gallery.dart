@@ -146,7 +146,6 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       .map(
                         (e) => RetryImage(
                           e.original.url,
-                          width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),
