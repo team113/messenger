@@ -65,7 +65,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
 
-  /// [User]s repository, used to put the fetched [User]s into it.
+  /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
@@ -301,7 +301,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       void put(User Function(User u) convertor) {
         _userRepo.get(event.userId).then((user) {
           if (user != null) {
-            _userRepo.updateUser(convertor(user.user.value));
+            _userRepo.update(convertor(user.user.value));
           }
         });
       }
