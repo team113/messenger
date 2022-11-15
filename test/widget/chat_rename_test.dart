@@ -38,6 +38,7 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -117,6 +118,9 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
@@ -248,6 +252,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
       ),
     );

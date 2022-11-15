@@ -32,8 +32,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -69,6 +71,8 @@ void main() async {
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
+  var userProvider = UserHiveProvider();
+  await userProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -251,9 +255,15 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.uploadGalleryItem(
@@ -312,9 +322,15 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     Object? exception;
