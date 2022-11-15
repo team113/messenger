@@ -60,6 +60,8 @@ enum WidgetKey {
   MenuTab,
   MessageField,
   MonologButton,
+  MuteChatButton,
+  MuteForever,
   MyProfileButton,
   MyProfileScrollable,
   MyProfileView,
@@ -85,6 +87,7 @@ enum WidgetKey {
   SignInButton,
   StartButton,
   SuccessStage,
+  UnmuteChatButton,
   UsernameField,
 }
 

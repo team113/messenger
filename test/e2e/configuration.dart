@@ -33,11 +33,13 @@ import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
+import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_muted.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
@@ -45,6 +47,7 @@ import 'steps/has_group.dart';
 import 'steps/have_contact.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
+import 'steps/long_press_chat.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
@@ -52,6 +55,7 @@ import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_draft.dart';
 import 'steps/sees_as.dart';
+import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
@@ -77,6 +81,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsMuted,
         copyFromField,
         downloadFile,
         fillField,
@@ -90,6 +95,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        longPressChat,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
@@ -99,6 +105,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
+        seeChatAsMuted,
         seesAs,
         seeDraftInDialog,
         sendsAttachmentToMe,
@@ -140,6 +147,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        MutedStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
