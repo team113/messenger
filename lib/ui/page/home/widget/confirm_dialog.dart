@@ -42,6 +42,7 @@ class ConfirmDialog extends StatefulWidget {
     this.description,
     required this.title,
     required this.variants,
+    this.proceedLabel,
   })  : assert(variants.isNotEmpty),
         super(key: key);
 
@@ -54,19 +55,33 @@ class ConfirmDialog extends StatefulWidget {
   /// Optional description to display above the [variants].
   final String? description;
 
+  final String? proceedLabel;
+
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
     BuildContext context, {
     String? description,
     required String title,
     required List<ConfirmDialogVariant> variants,
+    String? proceedLabel,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
       child: ConfirmDialog(
         description: description,
         title: title,
         variants: variants,
+        proceedLabel: proceedLabel,
       ),
     );
   }
@@ -94,33 +109,36 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
       Style style = Theme.of(context).extension<Style>()!;
-      return Material(
-        type: MaterialType.card,
-        borderRadius: style.cardRadius,
-        child: InkWell(
-          onTap: () => setState(() => _variant = variant),
+      return Padding(
+        padding: ModalPopup.padding(context),
+        child: Material(
+          type: MaterialType.card,
           borderRadius: style.cardRadius,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DefaultTextStyle.merge(
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: Colors.black, fontSize: 18),
-                    child: variant.child,
+          child: InkWell(
+            onTap: () => setState(() => _variant = variant),
+            borderRadius: style.cardRadius,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DefaultTextStyle.merge(
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          ?.copyWith(color: Colors.black, fontSize: 18),
+                      child: variant.child,
+                    ),
                   ),
-                ),
-                IgnorePointer(
-                  child: Radio<ConfirmDialogVariant>(
-                    value: variant,
-                    groupValue: _variant,
-                    onChanged: null,
+                  IgnorePointer(
+                    child: Radio<ConfirmDialogVariant>(
+                      value: variant,
+                      groupValue: _variant,
+                      onChanged: null,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -130,14 +148,30 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SizedBox(height: 12),
-        Center(child: Text(widget.title, style: thin?.copyWith(fontSize: 18))),
-        const SizedBox(height: 25),
-        if (widget.description != null)
-          Center(
+        // const SizedBox(height: 12),
+        ModalPopupHeader(
+          header: Center(
             child: Text(
-              widget.description!,
+              widget.title,
               style: thin?.copyWith(fontSize: 18),
+            ),
+          ),
+        ),
+        // Center(
+        //   child: Text(
+        //     widget.title,
+        //     style: thin?.copyWith(fontSize: 18),
+        //   ),
+        // ),
+        const SizedBox(height: 25 - 12),
+        if (widget.description != null)
+          Padding(
+            padding: ModalPopup.padding(context),
+            child: Center(
+              child: Text(
+                widget.description!,
+                style: thin?.copyWith(fontSize: 18),
+              ),
             ),
           ),
         if (widget.variants.length > 1 && widget.description != null)
@@ -148,33 +182,36 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               ),
         if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('Proceed'),
-                maxWidth: null,
-                title: Text(
-                  'btn_proceed'.l10n,
-                  style: thin?.copyWith(color: Colors.white),
+        Padding(
+          padding: ModalPopup.padding(context),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedRoundedButton(
+                  maxWidth: null,
+                  title: Text('btn_cancel'.l10n, style: thin),
+                  onPressed: Navigator.of(context).pop,
+                  color: const Color(0xFFEEEEEE),
                 ),
-                onPressed: () {
-                  _variant.onProceed?.call();
-                  Navigator.of(context).pop();
-                },
-                color: const Color(0xFF63B4FF),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedRoundedButton(
-                maxWidth: null,
-                title: Text('btn_cancel'.l10n, style: thin),
-                onPressed: Navigator.of(context).pop,
-                color: const Color(0xFFEEEEEE),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedRoundedButton(
+                  key: const Key('Proceed'),
+                  maxWidth: null,
+                  title: Text(
+                    widget.proceedLabel ?? 'btn_proceed'.l10n,
+                    style: thin?.copyWith(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    _variant.onProceed?.call();
+                    Navigator.of(context).pop();
+                  },
+                  color: const Color(0xFF63B4FF),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 25),
       ],

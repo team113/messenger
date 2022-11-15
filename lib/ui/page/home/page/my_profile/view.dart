@@ -18,6 +18,7 @@ import 'dart:math';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:expandable/expandable.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,6 +27,7 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -73,6 +75,8 @@ class MyProfileView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
@@ -84,6 +88,7 @@ class MyProfileView extends StatelessWidget {
               title: Text('Profile'),
               padding: EdgeInsets.only(left: 4, right: 20),
               leading: [StyledBackButton()],
+              actions: [SizedBox(width: 40)],
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
@@ -97,9 +102,10 @@ class MyProfileView extends StatelessWidget {
                     margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                     decoration: BoxDecoration(
                       // color: Colors.white,
-                      color: const Color(0xFFF8F8F8),
+                      border: style.primaryBorder,
+                      color: style.messageColor,
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                      // border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
                     constraints: context.isNarrow
                         ? null
@@ -188,7 +194,7 @@ class MyProfileView extends StatelessWidget {
                       // _link(context, c),
                       // const SizedBox(height: 20),
                       const SizedBox(height: 10),
-                      _login(c),
+                      _login(c, context),
                       const SizedBox(height: 10),
                       // const SizedBox(height: 10),
                       // // _emails(c, context),
@@ -323,7 +329,7 @@ class MyProfileView extends StatelessWidget {
                         const SizedBox(height: 10),
                         _link(context, c),
                         const SizedBox(height: 15),
-                        _login(c),
+                        _login(c, context),
                         const SizedBox(height: 10),
                         _phones(c, context),
                         _emails(c, context),
@@ -787,34 +793,85 @@ Widget _expanded(
 }
 
 /// Returns [MyUser.login] editable field.
-Widget _login(MyProfileController c) => _padding(
-      ReactiveTextField(
-        key: const Key('LoginField'),
-        state: c.login,
-        onSuffixPressed: c.login.text.isEmpty
-            ? null
-            : () {
-                Clipboard.setData(ClipboardData(text: c.login.text));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
-              },
-        trailing: c.login.text.isEmpty
-            ? null
-            : Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
+Widget _login(MyProfileController c, BuildContext context) {
+  return _padding(
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ReactiveTextField(
+          key: const Key('LoginField'),
+          state: c.login,
+          onSuffixPressed: c.login.text.isEmpty
+              ? null
+              : () {
+                  Clipboard.setData(ClipboardData(text: c.login.text));
+                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                },
+          trailing: c.login.text.isEmpty
+              ? null
+              : Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/copy.svg',
+                      height: 15,
+                    ),
                   ),
                 ),
-              ),
-        label: 'label_login'.l10n,
-        hint: c.myUser.value?.login == null
-            ? 'label_login_hint'.l10n
-            : c.myUser.value!.login!.val,
-      ),
-    );
+          label: 'label_login'.l10n,
+          hint: c.myUser.value?.login == null
+              ? 'label_login_hint'.l10n
+              : c.myUser.value!.login!.val,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+          child: RichText(
+            text: TextSpan(
+              style:
+                  const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+              children: [
+                const TextSpan(
+                  text: 'Доступен всем. ',
+                  style: TextStyle(color: Color(0xFF888888)),
+                ),
+                TextSpan(
+                  text: 'Изменить.',
+                  style: const TextStyle(color: Color(0xFF00A3FF)),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      await ConfirmDialog.show(
+                        context,
+                        title: 'Логин'.l10n,
+                        proceedLabel: 'Confirm',
+                        description:
+                            'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+                        variants: [
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('Все'.l10n),
+                          ),
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('Мои контакты'.l10n),
+                          ),
+                          ConfirmDialogVariant(
+                            onProceed: () {},
+                            child: Text('Никто'.l10n),
+                          ),
+                        ],
+                      );
+                    },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 /// Returns addable list of [MyUser.phones].
 Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
@@ -936,8 +993,10 @@ Widget _label(BuildContext context, String text) {
           borderRadius: BorderRadius.circular(15),
           // border: style.systemMessageBorder,
           // color: style.systemMessageColor,
-          border: Border.all(color: const Color(0xFFE0E0E0)),
-          color: const Color(0xFFF8F8F8),
+          // border: Border.all(color: const Color(0xFFE0E0E0)),
+          border: style.primaryBorder,
+          color: style.messageColor,
+          // color: const Color(0xFFF8F8F8),
         ),
         child: Text(text, style: style.systemMessageStyle),
       ),
