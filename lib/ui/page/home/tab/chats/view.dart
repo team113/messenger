@@ -23,12 +23,11 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/search/controller.dart';
-import '/ui/page/call/search/search_field_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -54,9 +53,7 @@ class ChatsTabView extends StatelessWidget {
           contact: contact,
           user: user,
           darken: 0,
-          onTap: () {
-            onTap?.call();
-          },
+          onTap: onTap,
           subtitle: [
             const SizedBox(height: 5),
             Text(
@@ -73,7 +70,13 @@ class ChatsTabView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       builder: (ChatsTabController c) {
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -128,19 +131,17 @@ class ChatsTabView extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: SearchFieldView(
-                        categories: const [
-                          SearchCategory.chats,
-                          SearchCategory.contacts,
-                          SearchCategory.users,
-                        ],
-                        searchStatus: c.searchStatus,
-                        onResultsUpdated: (v, q) {
-                          c.searchResult.value = v;
-                          c.searchQuery.value = q;
-                          c.populate();
-                        },
-                        autoFocus: true,
+                      child: ReactiveTextField(
+                        state: c.searchField,
+                        hint: 'label_search'.l10n,
+                        maxLines: 1,
+                        filled: false,
+                        dense: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        style: Theme.of(context)
+                            .extension<Style>()!
+                            .boldBody
+                            .copyWith(fontSize: 17),
                       ),
                     ),
                   ),
@@ -163,7 +164,10 @@ class ChatsTabView extends StatelessWidget {
                     child: WidgetButton(
                       onPressed: c.searching.value
                           ? null
-                          : () => c.searching.value = true,
+                          : () {
+                              c.searching.value = true;
+                              c.searchField.focus.requestFocus();
+                            },
                       child: SvgLoader.asset(
                         'assets/icons/search.svg',
                         width: 17.77,
@@ -185,8 +189,8 @@ class ChatsTabView extends StatelessWidget {
                       onPressed: () {
                         c.searching.value = false;
                         c.searchStatus.value = RxStatus.empty();
+                        c.searchField.text = '';
                         c.searchResult.value = null;
-                        c.searchQuery.value = '';
                         c.elements.clear();
                       },
                       child: SvgLoader.asset(
@@ -200,8 +204,10 @@ class ChatsTabView extends StatelessWidget {
                         context: context,
                         builder: (_) => const CreateGroupView(),
                       ),
-                      child: SvgLoader.asset('assets/icons/group.svg',
-                          height: 18.44),
+                      child: SvgLoader.asset(
+                        'assets/icons/group.svg',
+                        height: 18.44,
+                      ),
                     );
                   }
 
@@ -260,34 +266,18 @@ class ChatsTabView extends StatelessWidget {
                     } else if (element is ContactElement) {
                       child = tile(
                         contact: element.contact,
-                        onTap: () {
-                          c.openChat(
-                            contact: element.contact,
-                          );
-                        },
+                        onTap: () => c.openChat(contact: element.contact),
                       );
                     } else if (element is UserElement) {
                       child = tile(
                         user: element.user,
-                        onTap: () {
-                          c.openChat(user: element.user);
-                        },
+                        onTap: () => c.openChat(user: element.user),
                       );
                     } else if (element is DividerElement) {
                       child = Center(
                         child: Container(
-                          margin: const EdgeInsets.fromLTRB(
-                            10,
-                            2,
-                            10,
-                            2,
-                          ),
-                          padding: const EdgeInsets.fromLTRB(
-                            12,
-                            10,
-                            12,
-                            6,
-                          ),
+                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
                           width: double.infinity,
                           child: Center(
                             child: Text(

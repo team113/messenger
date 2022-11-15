@@ -59,7 +59,6 @@ class SearchController extends GetxController {
     required this.categories,
     this.chat,
     this.onResultsUpdated,
-    this.autoFocus,
     Rx<RxStatus>? status,
   })  : searchStatus = status ?? Rx<RxStatus>(RxStatus.empty()),
         assert(categories.isNotEmpty);
@@ -111,23 +110,20 @@ class SearchController extends GetxController {
   /// [TextFieldState] of the search field.
   late final TextFieldState search;
 
-  /// Indicator whether search field is autofocus or not.
-  final bool? autoFocus;
-
   /// [SearchCategory]ies to search through.
   final List<SearchCategory> categories;
 
   /// Reactive value of the [search] field passed to the [_search] method.
-  final RxnString query = RxnString();
+  final RxString query = RxString('');
 
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
   /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults result, String query)? onResultsUpdated;
+  final void Function(SearchViewResults result)? onResultsUpdated;
 
   /// Reactive list of the sorted [Chat]s.
-  late final RxList<RxChat> _sortedChats;
+  final RxList<RxChat> _sortedChats = RxList<RxChat>();
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -139,7 +135,7 @@ class SearchController extends GetxController {
   Worker? _searchDebounce;
 
   /// Subscription to listen changes inside [chats], [users] and [contacts].
-  StreamSubscription? _itemsStream;
+  StreamSubscription? _searchItems;
 
   /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
@@ -155,7 +151,7 @@ class SearchController extends GetxController {
 
   @override
   void onInit() {
-    _sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
+    _sortedChats.addAll(_chatService.chats.values);
     _sortChats();
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
@@ -185,16 +181,7 @@ class SearchController extends GetxController {
 
     populate();
 
-    super.onInit();
-  }
-
-  @override
-  void onReady() {
-    if (autoFocus == true) {
-      search.focus.requestFocus();
-    }
-
-    _itemsStream = StreamGroup.mergeBroadcast([
+    _searchItems = StreamGroup.mergeBroadcast([
       chats.stream,
       contacts.stream,
       users.stream,
@@ -205,16 +192,15 @@ class SearchController extends GetxController {
           users.values.map((e) => e).toList(),
           contacts.values.map((e) => e).toList(),
         ),
-        search.text,
       );
     });
 
-    super.onReady();
+    super.onInit();
   }
 
   @override
   void onClose() {
-    _itemsStream?.cancel();
+    _searchItems?.cancel();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
@@ -343,8 +329,8 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.chats)) {
       chats.value = {
         for (var c in _sortedChats.where((p) {
-          if (query.value != null) {
-            if (p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+          if (query.value.isNotEmpty) {
+            if (p.title.toLowerCase().contains(query.value.toLowerCase())) {
               return true;
             }
             return false;
@@ -366,8 +352,8 @@ class SearchController extends GetxController {
 
                 if (user != null &&
                     chat?.members.containsKey(user.id) != true) {
-                  if (query.value != null) {
-                    if (user.user.value.name?.val.contains(query.value!) ==
+                  if (query.value.isNotEmpty) {
+                    if (user.user.value.name?.val.contains(query.value) ==
                         true) {
                       return user;
                     }
@@ -393,10 +379,10 @@ class SearchController extends GetxController {
 
             if (chat?.members.containsKey(user?.id) != true &&
                 !recent.containsKey(user?.id)) {
-              if (query.value != null) {
+              if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
-                        .contains(query.value!.toLowerCase()) ==
+                        .contains(query.value.toLowerCase()) ==
                     true) {
                   return true;
                 }
@@ -415,10 +401,10 @@ class SearchController extends GetxController {
         for (var u in selectedContacts.where((e) {
           if (!recent.containsKey(e.id) &&
               !allContacts.containsKey(e.user.value!.id)) {
-            if (query.value != null) {
+            if (query.value.isNotEmpty) {
               if (e.contact.value.name.val
                       .toLowerCase()
-                      .contains(query.value!.toLowerCase()) ==
+                      .contains(query.value.toLowerCase()) ==
                   true) {
                 return true;
               }
@@ -454,7 +440,7 @@ class SearchController extends GetxController {
             if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
               if (e.user.value.name?.val
                       .toLowerCase()
-                      .contains(query.value!.toLowerCase()) ==
+                      .contains(query.value.toLowerCase()) ==
                   true) {
                 return true;
               }
@@ -475,10 +461,10 @@ class SearchController extends GetxController {
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id)) {
-                if (query.value != null) {
+                if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
-                          .contains(query.value!.toLowerCase()) ==
+                          .contains(query.value.toLowerCase()) ==
                       true) {
                     return user;
                   }
@@ -496,10 +482,10 @@ class SearchController extends GetxController {
         users.value = {
           for (var u in selectedUsers.where((e) {
             if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-              if (query.value != null) {
+              if (query.value.isNotEmpty) {
                 if (e.user.value.name?.val
                         .toLowerCase()
-                        .contains(query.value!.toLowerCase()) ==
+                        .contains(query.value.toLowerCase()) ==
                     true) {
                   return true;
                 }
@@ -517,7 +503,8 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Sorts the [_sortedChats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [_sortedChats] by the [Chat.updatedAt] and [Chat.ongoingCall]
+  /// values.
   void _sortChats() {
     _sortedChats.sort((a, b) {
       if (a.chat.value.ongoingCall != null &&

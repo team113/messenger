@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart'
     show RemoveChatMemberException, HideChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
@@ -52,6 +53,7 @@ class ChatsTabController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._contactService,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -63,11 +65,11 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
+  /// [ChatContact]s service used by [searchController].
+  final ContactService _contactService;
+
   /// Results of search.
   final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
-
-  /// Search query.
-  final RxString searchQuery = RxString('');
 
   /// Status of a search completion.
   ///
@@ -79,6 +81,12 @@ class ChatsTabController extends GetxController {
   /// - `searchStatus.success`, meaning search is done and [searchResult] are
   ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// Used to search chats.
+  late final SearchController searchController;
+
+  /// [TextFieldState] of the search field.
+  final TextFieldState searchField = TextFieldState();
 
   /// Indicator whether searching mode is on or not.
   final RxBool searching = RxBool(false);
@@ -135,6 +143,24 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    searchController = SearchController(
+      _chatService,
+      _userService,
+      _contactService,
+      categories: const [
+        SearchCategory.chats,
+        SearchCategory.contacts,
+        SearchCategory.users,
+      ],
+      onResultsUpdated: (SearchViewResults? results) {
+        searchResult.value = results;
+        populate();
+      },
+      status: searchStatus,
+    )..onInit();
+
+    searchField.controller.addListener(_searchFieldListener);
+
     super.onInit();
   }
 
@@ -144,6 +170,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    searchField.controller.removeListener(_searchFieldListener);
 
     super.onClose();
   }
@@ -265,6 +292,13 @@ class ChatsTabController extends GetxController {
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
+  }
+
+  /// Listener of [searchField].
+  void _searchFieldListener() {
+    if (searchController.query.value != searchField.text) {
+      searchController.query.value = searchField.text;
+    }
   }
 }
 
