@@ -46,6 +46,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
@@ -60,6 +61,7 @@ class ChatRepository implements AbstractChatRepository {
     this._graphQlProvider,
     this._chatLocal,
     this._callRepo,
+    this._draftLocal,
     this._userRepo, {
     this.me,
   });
@@ -80,6 +82,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
   final AbstractCallRepository _callRepo;
 
+  /// [RxChat.draft] local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
+
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
@@ -91,6 +96,9 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [DraftHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _draftSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
   ///
@@ -111,7 +119,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, c);
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -119,6 +127,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initLocalSubscription();
+    _initDraftSubscription();
 
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
@@ -145,6 +154,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _localSubscription?.cancel();
+    _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
   }
 
@@ -892,13 +902,31 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
+          HiveRxChat entry =
+              HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
         } else {
           chat.chat.value = event.value.value;
           chat.chat.refresh();
+        }
+      }
+    }
+  }
+
+  /// Initializes [DraftHiveProvider.boxEvents] subscription.
+  Future<void> _initDraftSubscription() async {
+    _draftSubscription = StreamIterator(_draftLocal.boxEvents);
+    while (await _draftSubscription!.moveNext()) {
+      BoxEvent event = _draftSubscription!.current;
+      if (event.deleted) {
+        _chats[ChatId(event.key)]?.draft.value = null;
+      } else {
+        HiveRxChat? chat = _chats[ChatId(event.key)];
+        if (chat != null) {
+          chat.draft.value = event.value;
+          chat.draft.refresh();
         }
       }
     }
@@ -1000,7 +1028,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, data.chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();

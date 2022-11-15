@@ -49,6 +49,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/see_draft.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -93,8 +94,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         restartApp,
+        returnToPreviousPage,
         scrollAndSee,
         seesAs,
+        seeDraftInDialog,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,

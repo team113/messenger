@@ -377,6 +377,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_draft = Draft
 label_drop_here =
     Drop here
     to upload
@@ -452,6 +453,7 @@ label_password = Password
 label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
+label_personalization = Personalization
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
 label_phones = Phones
@@ -465,7 +467,10 @@ label_recent = Recent
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
-label_personalization = Personalization
+label_replies = [{$count} { $count ->
+    [1] reply
+    *[other] replies
+    }]
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -513,4 +518,6 @@ label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
 plus = +
+semicolon_space = :{" "}
+space = {" "}
 space_vertical_space = {" "}|{" "}

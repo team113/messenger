@@ -355,7 +355,7 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [focus] node changed its focus;
   /// - setter or [submit] was manually called.
-  final Function(TextFieldState)? onChanged;
+  Function(TextFieldState)? onChanged;
 
   /// Callback, called when the [text] is submitted.
   ///
@@ -396,6 +396,7 @@ class TextFieldState extends ReactiveFieldState {
   /// Sets the text of [TextEditingController] to [value] and calls [onChanged].
   set text(String value) {
     controller.text = value;
+    _previousText = value;
     isEmpty.value = value.isEmpty;
     onChanged?.call(this);
   }
