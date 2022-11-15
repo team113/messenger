@@ -15,14 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_background_service_ios/flutter_background_service_ios.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -38,7 +36,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
-import '/routes.dart';
 
 /// Background service iOS handler.
 ///
@@ -68,10 +65,6 @@ class _BackgroundService {
 
   /// [FlutterCallkeep], used to display calls via native call APIs.
   final FlutterCallkeep _callKeep = FlutterCallkeep();
-
-  /// [FlutterLocalNotificationsPlugin] displaying an incoming call notification
-  /// in case the [FlutterCallkeep] has no permissions to do so.
-  FlutterLocalNotificationsPlugin? _notificationPlugin;
 
   /// [Credentials] to use in the [_provider].
   Credentials? _credentials;
@@ -347,45 +340,10 @@ class _BackgroundService {
     });
   }
 
-  /// Returns the lazily initialized [FlutterLocalNotificationsPlugin].
-  Future<FlutterLocalNotificationsPlugin> _getNotificationPlugin() async {
-    if (_notificationPlugin == null) {
-      _notificationPlugin = FlutterLocalNotificationsPlugin();
-      await _notificationPlugin!.initialize(
-        const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-          iOS: DarwinInitializationSettings(),
-        ),
-      );
-    }
-
-    return _notificationPlugin!;
-  }
-
   /// Displays an incoming call notification for the provided [chatId] with the
   /// provided [name].
   void _displayIncomingCall(ChatId chatId, String name) {
     _callKeep.displayIncomingCall(chatId.val, name, handleType: 'generic');
-
-    // Show a notification if phone account permission is not granted.
-    Future(() => _callKeep.hasPhoneAccount()).then((b) {
-      if (!b) {
-        _getNotificationPlugin().then((v) {
-          v.show(
-            Random().nextInt(1 << 31),
-            'label_incoming_call'.l10n,
-            name,
-            const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'com.team113.messenger',
-                'Gapopa',
-              ),
-            ),
-            payload: '${Routes.chat}/$chatId',
-          );
-        });
-      }
-    });
   }
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].

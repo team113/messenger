@@ -26,7 +26,6 @@ import 'package:flutter/services.dart';
 
 import '/domain/model/fcm_registration_token.dart';
 import '/firebase_options.dart';
-import '/main.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -62,7 +61,8 @@ class NotificationService extends DisposableService {
   /// Optional [onDidReceiveLocalNotification] callback is called
   /// when a notification is triggered while the app is in the foreground and is
   /// only applicable to iOS versions older than 10.
-  Future<void> init({
+  Future<void> init(
+    GraphQlProvider graphQlProvider, {
     void Function(NotificationResponse)? onNotificationResponse,
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
@@ -71,6 +71,7 @@ class NotificationService extends DisposableService {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
+    _initPushNotifications(graphQlProvider);
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
@@ -93,65 +94,6 @@ class NotificationService extends DisposableService {
           onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
         );
       }
-    }
-  }
-
-  /// Initializes the [FirebaseMessaging] to receive push notifications.
-  Future<void> initPushNotifications(GraphQlProvider graphQlProvider) async {
-    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
-      await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform);
-
-      if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
-        await FirebaseMessaging.instance.requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        );
-      }
-
-      String? oldToken;
-
-      FirebaseMessaging.instance
-          .getToken(
-              vapidKey: PlatformUtils.isWeb
-                  ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-                  : null)
-          .then((value) {
-        if (value != null) {
-          print('registerFcmDevice');
-          oldToken = value;
-          print(value);
-          // fWXDT-EiRraDuyYFvCQW6L:APA91bE2ASvxJm27cC1eDid8nU8fMR8SLHTm2RyhWgKrOXuQuV8olzSd-u-AK4gPdkvx_ABo0cjabHKtmiVTxDhxaSVE8RjDvoF7ghV-G1niq6J_gfNS8kdebsWP3QbXTITuVtcoh_1u
-          graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
-        }
-      });
-
-      _onTokenRefresh =
-          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-        if (oldToken != null) {
-          graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
-        }
-        graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
-      });
-
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print('Got a message whilst in the foreground!');
-        print('Message data: ${message.data}');
-
-        if (message.notification != null) {
-          print(
-              'Message also contained a notification: ${message.notification?.title}');
-          print(
-              'Message also contained a notification: ${message.notification?.body}');
-        }
-      });
-
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     }
   }
 
@@ -230,6 +172,48 @@ class NotificationService extends DisposableService {
       await AudioCache.instance.loadAll(['audio/notification.mp3']);
     } on MissingPluginException {
       _audioPlayer = null;
+    }
+  }
+
+  /// Initializes the [FirebaseMessaging] to receive push notifications.
+  Future<void> _initPushNotifications(GraphQlProvider graphQlProvider) async {
+    if ((PlatformUtils.isWeb || PlatformUtils.isMobile) && !WebUtils.isPopup) {
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform);
+
+      if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
+        await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          criticalAlert: false,
+          provisional: false,
+          sound: true,
+        );
+      }
+
+      String? oldToken;
+
+      FirebaseMessaging.instance
+          .getToken(
+              vapidKey: PlatformUtils.isWeb
+                  ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
+                  : null)
+          .then((value) {
+        if (value != null) {
+          oldToken = value;
+          graphQlProvider.registerFcmDevice(FcmRegistrationToken(value));
+        }
+      });
+
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
+        if (oldToken != null) {
+          graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
+        }
+        graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+      });
     }
   }
 }

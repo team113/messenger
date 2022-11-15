@@ -22,8 +22,6 @@ library main;
 
 import 'dart:async';
 
-import 'package:callkeep/callkeep.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -38,7 +36,6 @@ import 'package:window_manager/window_manager.dart';
 import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
-import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
@@ -70,9 +67,6 @@ Future<void> main() async {
     var authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
-
-    Get.put(NotificationService())
-        .init(onNotificationResponse: onNotificationResponse);
 
     await authService.init();
     await L10n.init();
@@ -124,47 +118,6 @@ Future<void> main() async {
     },
     appRunner: appRunner,
   );
-}
-
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // print("Handling a background message: ${message.messageId}");
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  //await Firebase.initializeApp();
-
-  final callKeep = FlutterCallkeep();
-
-  await callKeep.setup(
-    null,
-    {
-      'ios': {'appName': 'Gapopa'},
-      'android': {
-        'alertTitle': 'label_call_permissions_title'.l10n,
-        'alertDescription': 'label_call_permissions_description'.l10n,
-        'cancelButton': 'btn_dismiss'.l10n,
-        'okButton': 'btn_allow'.l10n,
-        'foregroundService': {
-          'channelId': 'com.team113.messenger',
-          'channelName': 'Foreground calls service',
-          'notificationTitle': 'My app is running on background',
-          'notificationIcon': 'mipmap/ic_notification_launcher',
-        },
-        'additionalPermissions': <String>[],
-      },
-    },
-    backgroundMode: true,
-  );
-
-  if (await callKeep.hasPhoneAccount()) {
-    callKeep.displayIncomingCall('chatId.val', 'name', handleType: 'generic');
-  } else {
-    var c = NotificationService();
-    await c.init();
-    await c.show('backgroundNotification');
-  }
-
-  print('Handling a background message: ${message.messageId}');
 }
 
 /// Callback, triggered when an user taps on a notification.

@@ -14,12 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:convert';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -53,44 +49,6 @@ class SettingsView extends StatelessWidget {
                       return Switch(
                         value: c.settings.value?.enablePopups ?? true,
                         onChanged: c.setPopupsEnabled,
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('SendNotification'.l10n),
-                    const SizedBox(width: 10),
-                    Obx(() {
-                      return Switch(
-                        value: c.settings.value?.enablePopups ?? true,
-                        onChanged: (_) async {
-                          await Future.delayed(1.seconds);
-                          String? token = await FirebaseMessaging.instance.getToken(
-                              vapidKey: PlatformUtils.isWeb
-                                  ? 'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0'
-                                  : null);
-                          await http
-                              .post(
-                                Uri.parse(
-                                    'https://fcm.googleapis.com/fcm/send'),
-                                headers: <String, String>{
-                                  'Content-Type': 'application/json',
-                                  'Authorization':
-                                      'key=AAAA5Y3eNzc:APA91bFYrrb1rdKqLFBKv6KRLc7YeYQHYVFJK-0058cun3azgZcQTG9GeJZQc04pd18gXzahodkgBk2n3FxXusR7GdGo23aDUr1JNExPLO4WoI1e4ATk0BaL333AED8gEGEJcHb7IX3E'
-                                },
-                                body: json.encode({
-                                  'to': token,
-                                  'data': {
-                                    'title': 'Push Notification',
-                                    'body': 'Firebase  push notification'
-                                  }
-                                }),
-                              )
-                              .then((value) => print(value.body));
-                        },
                       );
                     }),
                   ],

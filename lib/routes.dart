@@ -545,9 +545,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            Get.put(NotificationService())
-              ..init(onNotificationResponse: onNotificationResponse)
-              ..initPushNotifications(graphQlProvider);
+            Get.put(NotificationService()).init(
+              graphQlProvider,
+              onNotificationResponse: onNotificationResponse,
+            );
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
