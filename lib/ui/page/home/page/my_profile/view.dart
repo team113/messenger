@@ -844,9 +844,10 @@ Widget _login(MyProfileController c, BuildContext context) {
                       await ConfirmDialog.show(
                         context,
                         title: 'Логин'.l10n,
-                        proceedLabel: 'Confirm',
                         description:
                             'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+                        proceedLabel: 'Confirm',
+                        withCancel: false,
                         variants: [
                           ConfirmDialogVariant(
                             onProceed: () {},

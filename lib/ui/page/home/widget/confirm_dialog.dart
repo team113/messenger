@@ -43,6 +43,7 @@ class ConfirmDialog extends StatefulWidget {
     required this.title,
     required this.variants,
     this.proceedLabel,
+    this.withCancel = true,
   })  : assert(variants.isNotEmpty),
         super(key: key);
 
@@ -56,6 +57,7 @@ class ConfirmDialog extends StatefulWidget {
   final String? description;
 
   final String? proceedLabel;
+  final bool withCancel;
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
@@ -64,6 +66,7 @@ class ConfirmDialog extends StatefulWidget {
     required String title,
     required List<ConfirmDialogVariant> variants,
     String? proceedLabel,
+    bool withCancel = true,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
@@ -82,6 +85,7 @@ class ConfirmDialog extends StatefulWidget {
         title: title,
         variants: variants,
         proceedLabel: proceedLabel,
+        withCancel: withCancel,
       ),
     );
   }
@@ -186,15 +190,17 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           padding: ModalPopup.padding(context),
           child: Row(
             children: [
-              Expanded(
-                child: OutlinedRoundedButton(
-                  maxWidth: null,
-                  title: Text('btn_cancel'.l10n, style: thin),
-                  onPressed: Navigator.of(context).pop,
-                  color: const Color(0xFFEEEEEE),
+              if (widget.withCancel) ...[
+                Expanded(
+                  child: OutlinedRoundedButton(
+                    maxWidth: null,
+                    title: Text('btn_cancel'.l10n, style: thin),
+                    onPressed: Navigator.of(context).pop,
+                    color: const Color(0xFFEEEEEE),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ],
               Expanded(
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
