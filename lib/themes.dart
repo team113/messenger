@@ -55,11 +55,6 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
-            systemMessageTextStyle: GoogleFonts.roboto(
-              color: const Color(0xFF888888),
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
@@ -308,7 +303,6 @@ class Style extends ThemeExtension<Style> {
     required this.readMessageColor,
     required this.secondaryBorder,
     required this.sidebarColor,
-    required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
@@ -367,9 +361,6 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// [TextStyle] of system message text.
-  final TextStyle systemMessageTextStyle;
-
   /// [Border] to apply to system messages.
   final Border systemMessageBorder;
 
@@ -402,7 +393,6 @@ class Style extends ThemeExtension<Style> {
     Color? readMessageColor,
     Border? secondaryBorder,
     Color? sidebarColor,
-    TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
@@ -428,8 +418,6 @@ class Style extends ThemeExtension<Style> {
       readMessageColor: readMessageColor ?? this.readMessageColor,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
-      systemMessageTextStyle:
-          systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
@@ -474,11 +462,6 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(readMessageColor, other.readMessageColor, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      systemMessageTextStyle: TextStyle.lerp(
-        systemMessageTextStyle,
-        other.systemMessageTextStyle,
-        t,
-      )!,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:

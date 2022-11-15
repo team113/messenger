@@ -292,7 +292,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               element.category.name.capitalizeFirst!,
-                              style: style.systemMessageTextStyle.copyWith(
+                              style: style.systemMessageStyle.copyWith(
                                 color: Colors.black,
                                 fontSize: 15,
                               ),

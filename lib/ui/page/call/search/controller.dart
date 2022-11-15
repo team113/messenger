@@ -138,6 +138,9 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
+  /// Subscription to listen changes inside [chats], [users] and [contacts].
+  StreamSubscription? _itemsStream;
+
   /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
 
@@ -191,8 +194,11 @@ class SearchController extends GetxController {
       search.focus.requestFocus();
     }
 
-    StreamGroup.mergeBroadcast([chats.stream, contacts.stream, users.stream])
-        .listen((_) {
+    _itemsStream = StreamGroup.mergeBroadcast([
+      chats.stream,
+      contacts.stream,
+      users.stream,
+    ]).listen((_) {
       onResultsUpdated?.call(
         SearchViewResults(
           chats.values.map((e) => e).toList(),
@@ -208,6 +214,7 @@ class SearchController extends GetxController {
 
   @override
   void onClose() {
+    _itemsStream?.cancel();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();

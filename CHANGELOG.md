@@ -17,13 +17,14 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
+    - Chats tab:
+        - Chats searching. ([#206], [#205])
 
 ### Changed
 
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
-        - Redesigned chats searching. ([#206], [#205])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
 
