@@ -22,9 +22,9 @@ class ScopedDependencies {
   final List<void Function()> _cleanup = [];
 
   /// Puts the given [dependency] in this scope.
-  T put<T>(T dependency) {
+  T put<T>(T dependency, {String? tag}) {
     _cleanup.add(() => Get.delete<T>());
-    return Get.put<T>(dependency);
+    return Get.put<T>(dependency, tag: tag);
   }
 
   /// Disposes all the scoped dependencies.

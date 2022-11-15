@@ -532,6 +532,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 userRepository,
                 Get.find(),
               ),
+              tag: 'ContactRepository',
             );
             AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(

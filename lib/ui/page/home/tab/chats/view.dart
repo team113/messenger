@@ -45,11 +45,13 @@ class ChatsTabView extends StatelessWidget {
     Widget tile({
       RxUser? user,
       RxChatContact? contact,
+      Key? key,
       void Function()? onTap,
     }) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
+          key: key,
           contact: contact,
           user: user,
           darken: 0,
@@ -132,6 +134,7 @@ class ChatsTabView extends StatelessWidget {
                     child: Transform.translate(
                       offset: const Offset(0, 1),
                       child: ReactiveTextField(
+                        key: const Key('SearchField'),
                         state: c.searchField,
                         hint: 'label_search'.l10n,
                         maxLines: 1,
@@ -162,6 +165,7 @@ class ChatsTabView extends StatelessWidget {
                   return AnimatedSwitcher(
                     duration: 250.milliseconds,
                     child: WidgetButton(
+                      key: const Key('SearchButton'),
                       onPressed: c.searching.value
                           ? null
                           : () {
@@ -237,7 +241,8 @@ class ChatsTabView extends StatelessWidget {
                       c.searchResult.value?.isEmpty == true)) {
                 child = const Center(child: CircularProgressIndicator());
               } else if (c.searching.isTrue &&
-                  c.searchResult.value?.isEmpty == false) {
+                  c.searchResult.value?.isEmpty == false &&
+                  c.searchField.isEmpty.isFalse) {
                 child = ListView.builder(
                   controller: ScrollController(),
                   itemCount: c.elements.length,
@@ -261,17 +266,20 @@ class ChatsTabView extends StatelessWidget {
                           onLeave: () => c.leaveChat(chat.id),
                           onHide: () => c.hideChat(chat.id),
                           inCall: () => c.inCall(chat.id),
+                          key: Key('SearchChat_${chat.id}'),
                         ),
                       );
                     } else if (element is ContactElement) {
                       child = tile(
                         contact: element.contact,
                         onTap: () => c.openChat(contact: element.contact),
+                        key: Key('SearchContact_${element.contact.id}'),
                       );
                     } else if (element is UserElement) {
                       child = tile(
                         user: element.user,
                         onTap: () => c.openChat(user: element.user),
+                        key: Key('SearchUser_${element.user.id}'),
                       );
                     } else if (element is DividerElement) {
                       child = Center(

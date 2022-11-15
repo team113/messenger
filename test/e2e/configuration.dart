@@ -42,6 +42,7 @@ import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
+import 'steps/have_contact.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
@@ -63,6 +64,7 @@ import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message_status.dart';
+import 'steps/wait_until_search_results.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
 import 'steps/wait_until_widget.dart';
@@ -81,6 +83,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        haveContact,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -106,7 +109,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapWidget,
         twoUsers,
         untilAttachmentExists,
+        untilChatInSearchResults,
+        untilContactInSearchResults,
         untilTextExists,
+        untilUserInSearchResults,
         untilTextExistsWithin,
         updateBio,
         user,
