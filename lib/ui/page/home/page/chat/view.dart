@@ -202,7 +202,6 @@ class _ChatViewState extends State<ChatView>
                                                 .primaryIconTheme
                                                 .color,
                                             size: 17,
-                                            key: const Key('MutedInChatPage'),
                                           ),
                                         ]
                                       ],
