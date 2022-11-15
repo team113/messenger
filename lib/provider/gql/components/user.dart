@@ -19,11 +19,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioError;
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:messenger/domain/model/fcm_registration_token.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
@@ -973,7 +973,7 @@ abstract class UserGraphQlMixin {
   ///
   /// ### Idempotent
   ///
-  /// Succeeds if the specified token is registered already.
+  /// Succeeds if the specified [token] is registered already.
   Future<void> registerFcmDevice(FcmRegistrationToken token) async {
     final variables = RegisterFcmDeviceArguments(token: token);
     await client.mutate(
@@ -1001,7 +1001,7 @@ abstract class UserGraphQlMixin {
   ///
   /// ### Idempotent
   ///
-  /// Succeeds if the specified token is not registered already.
+  /// Succeeds if the specified [token] is not registered already.
   Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
     final variables = UnregisterFcmDeviceArguments(token: token);
     final QueryResult result = await client.mutate(

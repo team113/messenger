@@ -22,6 +22,7 @@
 /.pub/
 /build/
 /doc/
+/android/app/google-services.json
 
 # GraphQL generation related
 /lib/**/*.g.dart
@@ -49,4 +50,3 @@ app.*.map.json
 /test/e2e/reports/
 /test_driver/build/
 /test_driver/report.json
-android/app/google-services.json

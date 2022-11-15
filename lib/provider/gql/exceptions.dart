@@ -1329,7 +1329,7 @@ class RegisterFcmDeviceException
 
   @override
   String toString() => 'UpdateChatAvatarException($code)';
-  
+
   @override
   String toMessage() {
     switch (code) {
@@ -1338,7 +1338,7 @@ class RegisterFcmDeviceException
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
         return 'err_dimensions_too_big'.l10n;
       case RegisterFcmDeviceErrorCode.artemisUnknown:
-      return 'err_unknown'.l10n;
+        return 'err_unknown'.l10n;
     }
   }
 }

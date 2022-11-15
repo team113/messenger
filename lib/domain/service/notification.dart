@@ -207,13 +207,15 @@ class NotificationService extends DisposableService {
         }
       });
 
-      _onTokenRefresh =
-          FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
-        if (oldToken != null) {
-          graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(oldToken!));
-        }
-        graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
-      });
+      _onTokenRefresh = FirebaseMessaging.instance.onTokenRefresh.listen(
+        (fcmToken) {
+          if (oldToken != null) {
+            graphQlProvider
+                .unregisterFcmDevice(FcmRegistrationToken(oldToken!));
+          }
+          graphQlProvider.registerFcmDevice(FcmRegistrationToken(fcmToken));
+        },
+      );
     }
   }
 }

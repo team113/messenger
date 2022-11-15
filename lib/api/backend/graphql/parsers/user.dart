@@ -14,8 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:messenger/domain/model/fcm_registration_token.dart';
-
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
