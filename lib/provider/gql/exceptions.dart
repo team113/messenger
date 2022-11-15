@@ -1293,6 +1293,31 @@ class UpdateChatAvatarException
   }
 }
 
+/// Exception of `Mutation.toggleChatMute` described in the [code].
+class ToggleChatMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleChatMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleChatMuteErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ToggleChatMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.registerFcmDevice` described in the [code].
 class RegisterFcmDeviceException
     with LocalizedExceptionMixin
@@ -1304,7 +1329,7 @@ class RegisterFcmDeviceException
 
   @override
   String toString() => 'UpdateChatAvatarException($code)';
-
+  
   @override
   String toMessage() {
     switch (code) {
@@ -1313,7 +1338,7 @@ class RegisterFcmDeviceException
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
         return 'err_dimensions_too_big'.l10n;
       case RegisterFcmDeviceErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+      return 'err_unknown'.l10n;
     }
   }
 }
