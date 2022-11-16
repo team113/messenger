@@ -83,13 +83,13 @@ class ChatsTabController extends GetxController {
   ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
-  /// Used to search chats.
+  /// Controller of searching.
   late final SearchController searchController;
 
   /// [TextFieldState] of the search field.
   final TextFieldState searchField = TextFieldState();
 
-  /// Indicator whether searching mode is on or not.
+  /// Indicator whether searching mode is enabled or not.
   final RxBool searching = RxBool(false);
 
   /// Elements of wrapped [SearchViewResults].

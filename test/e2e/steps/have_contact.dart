@@ -17,7 +17,6 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatContactRecord;
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -25,11 +24,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-group with the provided [User] and the authenticated
-/// [MyUser].
+/// Creates a [Contact] with the provided [User] for the authenticated [MyUser].
 ///
 /// Examples:
-/// - Given I have "Name" group with Bob.
+/// - Given I have contact Bob.
 final StepDefinitionGeneric haveContact = given1<TestUser, CustomWorld>(
   'I have contact {user}',
   (TestUser user, context) async {
@@ -37,9 +35,12 @@ final StepDefinitionGeneric haveContact = given1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = authService.credentials.value!.session.token;
 
-    await provider.createChatContact(name: UserName(user.name), records: [
-      ChatContactRecord(userId: context.world.sessions[user.name]!.userId)
-    ]);
+    await provider.createChatContact(
+      name: UserName(user.name),
+      records: [
+        ChatContactRecord(userId: context.world.sessions[user.name]!.userId)
+      ],
+    );
 
     provider.disconnect();
   },

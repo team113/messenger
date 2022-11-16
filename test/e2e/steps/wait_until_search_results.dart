@@ -15,6 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -22,6 +24,7 @@ import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/contact.dart';
 
+import '../parameters/seach_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -30,43 +33,25 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I wait until text "Dummy" is absent
 /// - Then I wait until text "Dummy" is present
-final StepDefinitionGeneric untilChatInSearchResults =
-    then1<String, CustomWorld>(
-  'I wait until {string} chat in search results',
-  (String name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        final ChatId chatId = context.world.groups[name]!;
-
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
-        );
-      },
-      timeout: const Duration(seconds: 30),
-    );
-  },
-);
-
-/// Waits until the provided text is present or absent.
-///
-/// Examples:
-/// - Then I wait until text "Dummy" is absent
-/// - Then I wait until text "Dummy" is present
 final StepDefinitionGeneric untilUserInSearchResults =
-    then1<TestUser, CustomWorld>(
-  'I wait until {user} user in search results',
-  (TestUser user, context) async {
+    then2<TestUser, Existence, CustomWorld>(
+  'I wait until {user} user in search results is {existence}',
+  (TestUser user, Existence existence, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         final UserId userId = context.world.sessions[user.name]!.userId;
 
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('SearchUser_$userId', FindType.key),
-        );
+        return existence == Existence.absent
+            ? context.world.appDriver.isAbsent(
+                context.world.appDriver
+                    .findBy('SearchUser_$userId', FindType.key),
+              )
+            : context.world.appDriver.isPresent(
+                context.world.appDriver
+                    .findBy('SearchUser_$userId', FindType.key),
+              );
       },
       timeout: const Duration(seconds: 30),
     );
@@ -78,24 +63,38 @@ final StepDefinitionGeneric untilUserInSearchResults =
 /// Examples:
 /// - Then I wait until text "Dummy" is absent
 /// - Then I wait until text "Dummy" is present
-final StepDefinitionGeneric untilContactInSearchResults =
-    then1<String, CustomWorld>(
-  'I wait until {string} contact in search results',
-  (String contact, context) async {
+final StepDefinitionGeneric untilChatInSearchResults =
+    then3<String, SearchChats, Existence, CustomWorld>(
+  'I wait until {string} {search_chats} in search results is {existence}',
+  (String name, SearchChats search, Existence existence, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        ContactService contactService = Get.find<ContactService>();
+        String searchKey = '';
 
-        final ChatContactId contactId = contactService.contacts.values
-            .firstWhere((e) => e.contact.value.name.val == contact)
-            .id;
+        if (search == SearchChats.chat) {
+          final ChatId chatId = context.world.groups[name]!;
 
-        return context.world.appDriver.isPresent(
-          context.world.appDriver
-              .findBy('SearchContact_$contactId', FindType.key),
+          searchKey = 'SearchChat_$chatId';
+        } else if (search == SearchChats.contact) {
+          ContactService contactService = Get.find<ContactService>();
+
+          final ChatContactId contactId = contactService.contacts.values
+              .firstWhere((e) => e.contact.value.name.val == name)
+              .id;
+
+          searchKey = 'SearchContact_$contactId';
+        }
+
+        Finder finder = context.world.appDriver.findBy(
+          searchKey,
+          FindType.key,
         );
+
+        return existence == Existence.absent
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
       },
       timeout: const Duration(seconds: 30),
     );

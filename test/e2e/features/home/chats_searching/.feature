@@ -25,12 +25,12 @@ Feature: Chats searching
 
   Scenario: I found "Example" group
     When I fill `SearchField` field with "Example"
-    Then I wait until "Example" chat in search results
+    Then I wait until "Example" chat in search results is present
 
   Scenario: I found Bob user
     When I fill `SearchField` field with "Bob"
-    Then I wait until Bob user in search results
+    Then I wait until Bob user in search results is present
 
   Scenario: I found "Charlie" contact
     When I fill `SearchField` field with "Charlie"
-    Then I wait until "Charlie" contact in search results
+    Then I wait until "Charlie" contact in search results is present
