@@ -84,11 +84,19 @@ class MyProfileView extends StatelessWidget {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
-            appBar: const CustomAppBar(
-              title: Text('Profile'),
-              padding: EdgeInsets.only(left: 4, right: 20),
-              leading: [StyledBackButton()],
-              actions: [SizedBox(width: 40)],
+            appBar: CustomAppBar(
+              title: const Text('Profile'),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: const [StyledBackButton()],
+              actions: [
+                WidgetButton(
+                  onPressed: () {},
+                  child: SvgLoader.asset(
+                    'assets/icons/search.svg',
+                    width: 17.77,
+                  ),
+                ),
+              ],
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
@@ -110,7 +118,7 @@ class MyProfileView extends StatelessWidget {
                     constraints: context.isNarrow
                         ? null
                         : const BoxConstraints(maxWidth: 400),
-                    padding: const EdgeInsets.all(32),
+                    padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: children,
@@ -121,10 +129,11 @@ class MyProfileView extends StatelessWidget {
 
               return ListView(
                 children: [
-                  // const SizedBox(height: 8),
-                  _label(context, 'Публичная информация'),
+                  const SizedBox(height: 8),
+                  // _label(context, 'Публичная информация'),
                   block(
                     children: [
+                      _label(context, 'Публичная информация'),
                       Stack(
                         alignment: Alignment.center,
                         children: [
@@ -187,9 +196,10 @@ class MyProfileView extends StatelessWidget {
                       _name(c),
                     ],
                   ),
-                  _label(context, 'Параметры входа'),
+                  // _label(context, 'Параметры входа'),
                   block(
                     children: [
+                      _label(context, 'Параметры входа'),
                       _num(c),
                       // _link(context, c),
                       // const SizedBox(height: 20),
@@ -833,19 +843,40 @@ Widget _login(MyProfileController c, BuildContext context) {
                   const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
               children: [
                 const TextSpan(
-                  text: 'Доступен всем. ',
+                  text: 'Ваш логин видят: ',
                   style: TextStyle(color: Color(0xFF888888)),
                 ),
                 TextSpan(
-                  text: 'Изменить.',
+                  text: 'все.',
                   style: const TextStyle(color: Color(0xFF00A3FF)),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
                       await ConfirmDialog.show(
                         context,
                         title: 'Логин'.l10n,
-                        description:
-                            'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+                        // description:
+                        //     'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+                        additional: const [
+                          Center(
+                            child: Text(
+                              'Unique login is an additional unique identifier for your account.\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF888888),
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Visible to:',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
                         proceedLabel: 'Confirm',
                         withCancel: false,
                         variants: [
@@ -986,6 +1017,16 @@ Widget _label(BuildContext context, String text) {
   final Style style = Theme.of(context).extension<Style>()!;
 
   return Padding(
+    padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+    child: Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+        child: Text(text, style: style.systemMessageStyle),
+      ),
+    ),
+  );
+
+  return Padding(
     padding: const EdgeInsets.fromLTRB(0, 18, 0, 12),
     child: Center(
       child: Container(
@@ -1010,23 +1051,174 @@ Widget _emails(MyProfileController c, BuildContext context) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (var e in [
-      ...c.myUser.value?.emails.confirmed ?? [],
-      const UserEmail.unchecked('jflqjfqw@gmail.com'),
-      const UserEmail.unchecked('jajajajajajaj@icloud.com'),
-    ]) {
+    for (UserEmail e in [...c.myUser.value?.emails.confirmed ?? []]) {
       widgets.add(
-        ReactiveTextField(
-          state: TextFieldState(text: e.val, editable: false),
-          label: 'E-mail',
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgLoader.asset(
-                'assets/icons/delete.svg',
-                height: 14,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                WidgetButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: e.val));
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  },
+                  child: IgnorePointer(
+                    child: ReactiveTextField(
+                      state: TextFieldState(text: e.val, editable: false),
+                      label: 'E-mail',
+                      trailing: Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: Transform.scale(
+                          scale: 1.15,
+                          child: SvgLoader.asset('assets/icons/delete.svg',
+                              height: 14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                WidgetButton(
+                  onPressed: () => c.deleteUserEmail(e),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  children: [
+                    const TextSpan(
+                      text: 'Ваш E-mail видят: ',
+                      style: TextStyle(color: Color(0xFF888888)),
+                    ),
+                    TextSpan(
+                      text: 'никто.',
+                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await ConfirmDialog.show(
+                            context,
+                            title: 'E-mail'.l10n,
+                            additional: const [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Visible to:',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            proceedLabel: 'Confirm',
+                            withCancel: false,
+                            variants: [
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Все'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Мои контакты'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Никто'.l10n),
+                              ),
+                            ],
+                          );
+                        },
+                    ),
+                  ],
+                ),
               ),
+            ),
+          ],
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.emails.unconfirmed != null) {
+      widgets.addAll([
+        Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: Theme.of(context)
+                .inputDecorationTheme
+                .copyWith(
+                  floatingLabelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
+          ),
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              WidgetButton(
+                behavior: HitTestBehavior.deferToChild,
+                onPressed: () {
+                  AddEmailView.show(
+                    context,
+                    email: c.myUser.value!.emails.unconfirmed!,
+                  );
+                },
+                child: IgnorePointer(
+                  child: ReactiveTextField(
+                    state: TextFieldState(
+                      text: c.myUser.value!.emails.unconfirmed!.val,
+                      editable: false,
+                    ),
+                    label: 'Верифицировать E-mail',
+                    trailing: Transform.translate(
+                      offset: const Offset(0, -1),
+                      child: Transform.scale(
+                        scale: 1.15,
+                        child: SvgLoader.asset(
+                          'assets/icons/delete.svg',
+                          height: 14,
+                        ),
+                      ),
+                    ),
+                    style: const TextStyle(color: Color(0xFF888888)),
+                  ),
+                ),
+              ),
+              WidgetButton(
+                onPressed: () =>
+                    c.deleteUserEmail(c.myUser.value!.emails.unconfirmed!),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]);
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    if (c.myUser.value?.emails.unconfirmed == null) {
+      widgets.add(
+        WidgetButton(
+          onPressed: () => AddEmailView.show(context),
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(text: 'Добавить E-mail', editable: false),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
         ),
@@ -1034,52 +1226,16 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.add(const SizedBox(height: 10));
     }
 
-    widgets.addAll([
-      Theme(
-        data: Theme.of(context).copyWith(
-          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-              floatingLabelStyle:
-                  TextStyle(color: Theme.of(context).colorScheme.secondary)),
+    if (c.myUser.value?.phones.unconfirmed == null) {
+      widgets.add(
+        ReactiveTextField(
+          state:
+              TextFieldState(text: 'Добавить номер телефона', editable: false),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
-        child: ReactiveTextField(
-          state: TextFieldState(text: 'alalal@mail.ru', editable: false),
-          label: 'Верифицировать E-mail',
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgLoader.asset(
-                'assets/icons/delete.svg',
-                height: 14,
-              ),
-            ),
-          ),
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-      ),
-    ]);
-    widgets.add(const SizedBox(height: 10));
-
-    widgets.add(
-      WidgetButton(
-        onPressed: () => AddEmailView.show(context),
-        child: IgnorePointer(
-          child: ReactiveTextField(
-            state: TextFieldState(text: 'Добавить E-mail', editable: false),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          ),
-        ),
-      ),
-    );
-    widgets.add(const SizedBox(height: 10));
-
-    widgets.add(
-      ReactiveTextField(
-        state: TextFieldState(text: 'Добавить номер телефона', editable: false),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-      ),
-    );
-    widgets.add(const SizedBox(height: 10));
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -16,31 +16,14 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/api/backend/schema.dart'
+    show ConfirmUserEmailErrorCode;
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
-import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/user.dart';
-import '/domain/model/native_file.dart';
-import '/domain/model/sending_status.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
-import '/domain/service/chat.dart';
-import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -49,20 +32,158 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+enum AddEmailFlowStage {
+  code,
+}
+
 /// Controller of a [ChatForwardView].
 class AddEmailController extends GetxController {
-  AddEmailController(this._myUserService);
+  AddEmailController(this._myUserService, {this.initial, this.pop});
+
+  final void Function()? pop;
+  final UserEmail? initial;
 
   late final TextFieldState email;
+  late final TextFieldState emailCode;
+
+  /// Timeout of a [resendEmail] action.
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  final Rx<AddEmailFlowStage?> stage = Rx(null);
 
   final MyUserService _myUserService;
+
+  /// [Timer] to decrease [resendEmailTimeout].
+  Timer? _resendEmailTimer;
+
+  /// Returns current [MyUser] value.
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
     email = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      text: initial?.val,
+      onChanged: (s) {
+        s.error.value = null;
+        s.unsubmit();
+      },
+      onSubmitted: (s) async {
+        UserEmail? email;
+        try {
+          email = UserEmail(s.text);
+
+          if (myUser.value!.emails.confirmed.contains(email) ||
+              myUser.value?.emails.unconfirmed == email) {
+            s.error.value = 'err_you_already_add_this_email'.l10n;
+          }
+        } on FormatException {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await _myUserService.addUserEmail(email!);
+            _setResendEmailTimer(true);
+            stage.value = AddEmailFlowStage.code;
+          } on FormatException {
+            s.error.value = 'err_incorrect_email'.l10n;
+          } on AddUserEmailException catch (e) {
+            s.error.value = e.toMessage();
+          } catch (e) {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
     );
 
+    emailCode = TextFieldState(
+      onChanged: (s) {
+        s.error.value = null;
+        s.unsubmit();
+      },
+      onSubmitted: (s) async {
+        if (s.text.isEmpty) {
+          s.error.value = 'err_input_empty'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+            pop?.call();
+            s.clear();
+          } on FormatException {
+            s.error.value = 'err_wrong_recovery_code'.l10n;
+          } on ConfirmUserEmailException catch (e) {
+            s.error.value = e.toMessage();
+          } catch (e) {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
+    );
+
+    if (initial != null) {
+      stage.value = AddEmailFlowStage.code;
+    }
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _setResendEmailTimer(false);
+    super.onClose();
+  }
+
+  /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field to
+  /// [MyUser.emails].
+  Future<void> resendEmail() async {
+    try {
+      await _myUserService.resendEmail();
+      _setResendEmailTimer(true);
+      MessagePopup.success('label_email_confirmation_code_was_sent'.l10n);
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Starts or stops [resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(
+        const Duration(milliseconds: 1500),
+        (_) {
+          resendEmailTimeout.value--;
+          if (resendEmailTimeout.value <= 0) {
+            resendEmailTimeout.value = 0;
+            _resendEmailTimer?.cancel();
+            _resendEmailTimer = null;
+          }
+        },
+      );
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
+    }
   }
 }

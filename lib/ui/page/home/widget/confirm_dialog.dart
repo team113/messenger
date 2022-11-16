@@ -16,6 +16,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -44,6 +45,7 @@ class ConfirmDialog extends StatefulWidget {
     required this.variants,
     this.proceedLabel,
     this.withCancel = true,
+    this.additional = const [],
   })  : assert(variants.isNotEmpty),
         super(key: key);
 
@@ -59,6 +61,8 @@ class ConfirmDialog extends StatefulWidget {
   final String? proceedLabel;
   final bool withCancel;
 
+  final List<Widget> additional;
+
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
     BuildContext context, {
@@ -67,6 +71,7 @@ class ConfirmDialog extends StatefulWidget {
     required List<ConfirmDialogVariant> variants,
     String? proceedLabel,
     bool withCancel = true,
+    List<Widget> additional = const [],
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
@@ -84,6 +89,7 @@ class ConfirmDialog extends StatefulWidget {
         description: description,
         title: title,
         variants: variants,
+        additional: additional,
         proceedLabel: proceedLabel,
         withCancel: withCancel,
       ),
@@ -118,6 +124,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
+          color: _variant == variant
+              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+              : style.cardColor.darken(0.05),
           child: InkWell(
             onTap: () => setState(() => _variant = variant),
             borderRadius: style.cardRadius,
@@ -168,13 +177,22 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         //   ),
         // ),
         const SizedBox(height: 25 - 12),
+        ...widget.additional.map((e) {
+          return Padding(padding: ModalPopup.padding(context), child: e);
+        }),
+        if (widget.additional.isNotEmpty &&
+            (widget.variants.length > 1 || widget.description != null))
+          const SizedBox(height: 15),
         if (widget.description != null)
           Padding(
             padding: ModalPopup.padding(context),
             child: Center(
               child: Text(
                 widget.description!,
-                style: thin?.copyWith(fontSize: 18),
+                style: thin?.copyWith(
+                  fontSize: 15,
+                  color: const Color(0xFF888888),
+                ),
               ),
             ),
           ),

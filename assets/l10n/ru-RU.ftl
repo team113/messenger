@@ -260,7 +260,7 @@ err_uploaded_file_malformed = Файл повреждён
 err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный текущий пароль
-err_wrong_recovery_code = Неверный код
+err_wrong_recovery_code = Код подтверждения неверен.
 err_you_already_add_this_email = Email уже добавлен
 err_you_already_add_this_phone = Номер телефона уже добавлен
 err_you_already_has_unconfirmed_email =
@@ -269,6 +269,7 @@ err_you_already_has_unconfirmed_phone =
     У вас уже есть неподтвержденный телефон
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
+err_incorrect_email = Некорректный E-mail
 label_a_of_b = {$a} из {$b}
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
@@ -413,7 +414,7 @@ label_duration_minute_short = м
 label_duration_second_short = с
 label_edit = Редактировать
 label_email_confirmation_code_was_sent =
-    Код подтверждения был отправлен Вам на Email и/или на телефон
+    Код подтверждения был отправлен на указанный Email.
 label_emails = Эл.почта
 label_empty_message = Пустое сообщение
 label_enable_popup_calls = Отображать звонки в отдельных окнах

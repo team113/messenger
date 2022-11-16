@@ -202,11 +202,9 @@ class ReactiveTextField extends StatelessWidget {
                 filled: true,
                 // fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
-                // suffixIconConstraints: suffix == null &&
-                //         trailing == null &&
-                //         state.status.value.isEmpty
-                //     ? const BoxConstraints(maxWidth: 0)
-                //     : null,
+                suffixIconConstraints: suffix == null && trailing == null
+                    ? const BoxConstraints(maxWidth: 44)
+                    : null,
                 suffixIcon: ElasticAnimatedSwitcher(
                   child: (suffix != null ||
                           trailing != null ||

@@ -253,13 +253,14 @@ err_uploaded_file_malformed = File is malformed
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_items_count = Wrong items count
 err_wrong_old_password = Wrong current password
-err_wrong_recovery_code = Provided code is wrong
+err_wrong_recovery_code = Provided code is wrong.
 err_you_already_add_this_email = Email is already added
 err_you_already_add_this_phone = Phone number is already added
 err_you_already_has_unconfirmed_email = You already has unconfirmed Email
 err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
+err_incorrect_email = Incorrect E-mail
 label_a_of_b = {$a} of {$b}
 label_add_chat_member = Add member
 label_add_email = Add an email
@@ -389,7 +390,7 @@ label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
 label_email_confirmation_code_was_sent =
-      Confirmation code was send to your Email and/or to your phone
+      Confirmation code was send to the provided E-mail.
 label_emails = Emails
 label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows

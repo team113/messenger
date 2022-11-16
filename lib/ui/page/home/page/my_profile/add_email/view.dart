@@ -61,47 +61,192 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {
-  const AddEmailView({Key? key}) : super(key: key);
+  const AddEmailView({Key? key, this.email}) : super(key: key);
+
+  final UserEmail? email;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
     return ModalPopup.show(
       context: context,
-      child: const AddEmailView(),
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      child: AddEmailView(email: email),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
     return GetBuilder(
-      init: AddEmailController(Get.find()),
+      init: AddEmailController(
+        Get.find(),
+        initial: email,
+        pop: Navigator.of(context).pop,
+      ),
       builder: (AddEmailController c) {
-        final List<Widget> children;
+        return Obx(() {
+          final List<Widget> children;
 
-        children = [
-          ListView(
-            shrinkWrap: true,
-            children: [
-              ReactiveTextField(
-                state: c.email,
-                label: 'E-mail',
-              ),
-            ],
-          ),
-        ];
+          switch (c.stage.value) {
+            case AddEmailFlowStage.code:
+              children = [
+                Flexible(
+                  child: Padding(
+                    padding: ModalPopup.padding(context),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            'На указанный Вам E-mail был отправлен код подтверждения. Код подтверждения действителен в течение 24 часов. Пожалуйста, введите его ниже.',
+                            style: thin?.copyWith(
+                              fontSize: 15,
+                              color: const Color(0xFF888888),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+                        ReactiveTextField(
+                          state: c.emailCode,
+                          label: 'Код подтверждения',
+                        ),
+                        const SizedBox(height: 25),
+                        Obx(() {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedRoundedButton(
+                                  key: const Key('Resend'),
+                                  maxWidth: null,
+                                  title: Text(
+                                    c.resendEmailTimeout.value == 0
+                                        ? 'Resend'.l10n
+                                        : 'Resend (${c.resendEmailTimeout.value})',
+                                    style: thin?.copyWith(
+                                      color: c.resendEmailTimeout.value == 0
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: c.resendEmailTimeout.value == 0
+                                      ? c.resendEmail
+                                      : null,
+                                  color: const Color(0xFF63B4FF),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: OutlinedRoundedButton(
+                                  key: const Key('Proceed'),
+                                  maxWidth: null,
+                                  title: Text(
+                                    'btn_proceed'.l10n,
+                                    style: thin?.copyWith(
+                                      color: c.emailCode.isEmpty.value
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                  onPressed: c.emailCode.isEmpty.value
+                                      ? null
+                                      : c.emailCode.submit,
+                                  color: const Color(0xFF63B4FF),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+              break;
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          constraints: const BoxConstraints(maxHeight: 650),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const SizedBox(height: 16),
-              ...children,
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
+            default:
+              children = [
+                Flexible(
+                  child: Padding(
+                    padding: ModalPopup.padding(context),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            'На указанный Вами E-mail будет отправлен код подтверждения.',
+                            style: thin?.copyWith(
+                              fontSize: 15,
+                              color: const Color(0xFF888888),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+                        ReactiveTextField(
+                          state: c.email,
+                          label: 'E-mail',
+                          hint: 'example@gmail.com',
+                        ),
+                        const SizedBox(height: 25),
+                        Obx(() {
+                          return OutlinedRoundedButton(
+                            key: const Key('Proceed'),
+                            maxWidth: null,
+                            title: Text(
+                              'btn_proceed'.l10n,
+                              style: thin?.copyWith(
+                                color: c.email.isEmpty.value
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ),
+                            onPressed:
+                                c.email.isEmpty.value ? null : c.email.submit,
+                            color: const Color(0xFF63B4FF),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+              break;
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 250),
+            sizeDuration: const Duration(milliseconds: 250),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16 - 12),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'Add E-mail'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25 - 12),
+                ...children,
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        });
       },
     );
   }

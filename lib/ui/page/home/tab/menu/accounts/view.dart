@@ -228,8 +228,10 @@ class AccountsView extends StatelessWidget {
                     border: style.cardBorder,
                     selected: true,
                     trailing: const [
-                      Text('Active',
-                          style: TextStyle(color: Color(0xFF63B4FF))),
+                      Text(
+                        'Active',
+                        style: TextStyle(color: Color(0xFF63B4FF)),
+                      ),
                     ],
                     subtitle: const [
                       SizedBox(height: 5),
