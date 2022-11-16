@@ -47,10 +47,12 @@ class MyUserService extends DisposableService {
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
   @override
-  Future<void> onInit() async {
+  void onInit() {
     assert(_auth.initialized);
-    await _userRepo.init(
-        onPasswordUpdated: _onPasswordUpdated, onUserDeleted: _onUserDeleted);
+    _userRepo.init(
+      onPasswordUpdated: _onPasswordUpdated,
+      onUserDeleted: _onUserDeleted,
+    );
     super.onInit();
   }
 

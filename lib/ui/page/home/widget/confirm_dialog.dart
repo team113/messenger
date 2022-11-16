@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -143,9 +142,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         if (widget.variants.length > 1 && widget.description != null)
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
-          ...widget.variants.map(button).expandIndexed(
-                (i, e) => i > 0 ? [const SizedBox(height: 10), e] : [e],
-              ),
+          Flexible(
+            child: ListView.separated(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (c, i) => button(widget.variants[i]),
+              separatorBuilder: (c, i) => const SizedBox(height: 10),
+              itemCount: widget.variants.length,
+            ),
+          ),
         if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
         Row(
