@@ -16,12 +16,11 @@
 
 import 'dart:async';
 
-import 'package:get/get.dart';
+import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:gherkin/gherkin.dart';
-import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:messenger/util/web/web_utils.dart';
 
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -29,26 +28,21 @@ import '../world/custom_world.dart';
 /// Turn off internet for specified time.
 ///
 /// Examples:
-/// - I do not have Internet for 1 second
-/// - I do not have Internet for 2 seconds
-final StepDefinitionGeneric doNotHaveInternetFor = given1<int, CustomWorld>(
-  'I do not have Internet for {int} second(s)?',
+/// - I have Internet with delay of 1 second
+/// - I have Internet with delay of 2 seconds
+final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
+  'I have Internet with delay of {int} second(s)?',
   (int delay, context) => Future.sync(() {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (_) {});
-
-    Timer(delay.seconds, () {
-      PlatformUtils.dio.httpClientAdapter = WebUtils.defaultClientAdapter;
-      if (provider is MockGraphQlProvider) {
-        provider.client.delay = null;
-        provider.client.throwException = false;
-      }
-    });
+    PlatformUtils.dio.interceptors.add(
+      AppInterceptors(
+        delay: Duration(seconds: delay),
+      ),
+    );
   }),
 );
 
@@ -64,7 +58,6 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.httpClientAdapter = WebUtils.defaultClientAdapter;
   }),
 );
 
@@ -80,7 +73,22 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.delay = 2.seconds;
       provider.client.throwException = true;
     }
-    PlatformUtils.dio.httpClientAdapter = DioAdapter(dio: PlatformUtils.dio)
-      ..onGet('*', (_) {});
   }),
 );
+
+/// [Interceptor] for [Dio] requests.
+class AppInterceptors extends Interceptor {
+  AppInterceptors({required this.delay});
+
+  /// Delay for requests.
+  Duration delay;
+
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future.delayed(delay);
+    handler.next(options);
+  }
+}
