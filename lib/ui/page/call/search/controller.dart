@@ -31,6 +31,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/ui/page/call/search/view.dart';
 import '/ui/widget/text_field.dart';
+import '/util/obs/obs.dart';
 
 export 'view.dart';
 
@@ -123,7 +124,7 @@ class SearchController extends GetxController {
   final void Function(SearchViewResults results)? onChanged;
 
   /// Reactive list of the sorted [Chat]s.
-  late final RxList<RxChat> _sortedChats;
+  final RxList<RxChat> _sortedChats = RxList<RxChat>();
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -143,12 +144,15 @@ class SearchController extends GetxController {
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
+  /// Subscription for [ChatService.chats] changes.
+  late final StreamSubscription _chatsSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    _sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
+    _sortedChats.addAll(_chatService.chats.values);
     _sortChats();
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
@@ -161,6 +165,24 @@ class SearchController extends GetxController {
       }
 
       populate();
+    });
+
+    _chatsSubscription = _chatService.chats.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          _sortedChats.add(event.value!);
+          _sortChats();
+          break;
+
+        case OperationKind.removed:
+          _sortedChats.removeWhere((e) => e.chat.value.id == event.key);
+          _sortChats();
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
     });
 
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
@@ -188,6 +210,7 @@ class SearchController extends GetxController {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
+    _chatsSubscription.cancel();
     _searchStatusWorker = null;
     super.onClose();
   }
