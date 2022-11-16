@@ -107,6 +107,9 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
+  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
+  Timer? _muteTimer;
+
   /// [ChatItemHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
@@ -206,6 +209,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
       messages.clear();
+      _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
@@ -565,6 +569,20 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isGroup) {
       avatar.value = chat.value.avatar;
+    }
+
+    _muteTimer?.cancel();
+    if (chat.value.muted?.until != null) {
+      _muteTimer = Timer(
+        chat.value.muted!.until!.val.difference(DateTime.now()),
+        () {
+          final HiveChat? chat = _chatLocal.get(id);
+          if (chat != null) {
+            chat.value.muted = null;
+            _chatLocal.put(chat);
+          }
+        },
+      );
     }
 
     // TODO: Users list can be huge, so we should implement pagination and

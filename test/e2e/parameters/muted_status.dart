@@ -14,35 +14,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-import '../model_type_id.dart';
-import 'precise_date_time/precise_date_time.dart';
+/// Status of a [Chat.muted] field available in a [MutedStatusParameter].
+enum MutedStatus { muted, unmuted }
 
-part 'mute_duration.g.dart';
-
-/// Mute duration of a [Chat] or [MyUser].
-@HiveType(typeId: ModelTypeId.muteDuration)
-class MuteDuration {
-  /// Mute duration until an exact [PreciseDateTime].
-  ///
-  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
-  /// be considered as automatically unmuted.
-  @HiveField(0)
-  PreciseDateTime? until;
-
-  /// Forever mute duration.
-  @HiveField(1)
-  bool? forever;
-
-  @HiveField(2)
-  MuteDuration({
-    this.until,
-    this.forever,
-  });
-
-  factory MuteDuration.forever() => MuteDuration(forever: true);
-
-  factory MuteDuration.until(PreciseDateTime until) =>
-      MuteDuration(until: until);
+/// [CustomParameter] representing a [Chat.muted] status.
+class MutedStatusParameter extends CustomParameter<MutedStatus> {
+  MutedStatusParameter()
+      : super(
+          'muted',
+          RegExp(
+            '(${MutedStatus.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => MutedStatus.values.firstWhere((e) => e.name == c),
+        );
 }

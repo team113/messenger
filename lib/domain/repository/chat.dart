@@ -23,6 +23,7 @@ import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -168,6 +169,10 @@ abstract class AbstractChatRepository {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   });
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

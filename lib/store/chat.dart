@@ -630,6 +630,25 @@ class ChatRepository implements AbstractChatRepository {
     );
   }
 
+  @override
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
+    final HiveRxChat? chat = _chats[id];
+    final MuteDuration? muted = chat?.chat.value.muted;
+
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
+
+    chat?.chat.update((c) => c?.muted = muting?.toModel());
+
+    try {
+      await _graphQlProvider.toggleChatMute(id, muting);
+    } catch (e) {
+      chat?.chat.update((c) => c?.muted = muted);
+      rethrow;
+    }
+  }
+
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
@@ -735,7 +754,7 @@ class ChatRepository implements AbstractChatRepository {
       var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
       return EventChatMuted(
         e.chatId,
-        node.duration as MuteDuration,
+        node.duration.toModel(),
       );
     } else if (e.$$typename == 'EventChatAvatarDeleted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarDeleted;
