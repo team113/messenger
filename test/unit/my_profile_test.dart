@@ -24,18 +24,22 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
 
 void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
-  var userProvider = MyUserHiveProvider();
-  await userProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
+  var userProvider = UserHiveProvider();
+  await userProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -45,13 +49,16 @@ void main() async {
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     var profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(
           graphQlProvider,
-          userProvider,
+          myUserProvider,
           galleryItemProvider,
+          userRepository,
         ),
       ),
     );

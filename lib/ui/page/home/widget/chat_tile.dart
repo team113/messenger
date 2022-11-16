@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -71,7 +72,7 @@ class ChatTile extends StatelessWidget {
     Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ContextMenuRegion_${chat?.chat.value.id}'),
+      key: Key('ChatTile_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
       child: SizedBox(
@@ -103,13 +104,15 @@ class ChatTile extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: Text(
-                                chat?.title.value ?? ('dot'.l10n * 3),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5,
-                              ),
+                            Flexible(
+                              child: Obx(() {
+                                return Text(
+                                  chat?.title.value ?? ('dot'.l10n * 3),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
+                                );
+                              }),
                             ),
                             ...title,
                           ],

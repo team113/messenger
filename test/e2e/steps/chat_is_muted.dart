@@ -14,29 +14,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/routes.dart';
+import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [RouterState] to the provided [TestUser]'s page.
-final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
-  "I go to {user}'s page",
-  (TestUser user, context) async {
-    router.user(context.world.sessions[user.name]!.userId);
-    await context.world.appDriver.waitForAppToSettle();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+/// Mutes a [Chat] with the provided name.
+///
+/// Examples:
+/// - Given "Name" chat is muted.
+final StepDefinitionGeneric chatIsMuted = given1<String, CustomWorld>(
+  '{string} chat is muted',
+  (String name, context) async {
+    final provider = GraphQlProvider();
+    final AuthService authService = Get.find();
+    provider.token = authService.credentials.value!.session.token;
 
-/// Routes the [RouterState] to the previous page.
-final StepDefinitionGeneric returnToPreviousPage = then<CustomWorld>(
-  'I return to previous page',
-  (context) async {
-    router.pop();
-    await context.world.appDriver.waitForAppToSettle();
+    await provider.toggleChatMute(
+      context.world.groups[name]!,
+      Muting(duration: null),
+    );
+
+    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

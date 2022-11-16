@@ -37,6 +37,7 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 import 'package:mockito/annotations.dart';
@@ -177,8 +178,14 @@ void main() async {
       ),
     );
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
     await authService.init();
     Get.put(MyUserService(authService, myUserRepository));
 

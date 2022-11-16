@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -67,6 +68,8 @@ void main() async {
   await chatProvider.clear();
   var sessionProvider = Get.put(SessionDataHiveProvider(), permanent: true);
   await sessionProvider.init();
+  var draftProvider = Get.put(DraftHiveProvider(), permanent: true);
+  await draftProvider.init();
   var userProvider = Get.put(UserHiveProvider(), permanent: true);
   await userProvider.init();
   await userProvider.clear();
@@ -151,6 +154,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
@@ -214,6 +218,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
@@ -285,6 +290,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
@@ -350,6 +356,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
@@ -407,6 +414,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
@@ -478,6 +486,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
