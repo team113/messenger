@@ -118,8 +118,8 @@ class CallService extends DisposableService {
     }
 
     try {
-      RxChat? chat = await _chatService.get(chatId);
-      ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
+      final RxChat? chat = await _chatService.get(chatId);
+      final ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
 
       OngoingCall? call;
 
@@ -141,6 +141,7 @@ class CallService extends DisposableService {
           withScreen: withScreen,
         );
       }
+
       call?.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be

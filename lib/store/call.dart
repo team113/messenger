@@ -87,14 +87,10 @@ class CallRepository implements AbstractCallRepository {
       calls[chatId] = call;
 
   @override
-  void init() {
-    _subscribe(3);
-  }
+  void init() => _subscribe(3);
 
   @override
-  void dispose() {
-    _events?.cancel();
-  }
+  void dispose() => _events?.cancel();
 
   @override
   void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
@@ -156,7 +152,7 @@ class CallRepository implements AbstractCallRepository {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    Rx<OngoingCall> call;
+    final Rx<OngoingCall> call;
     final Rx<OngoingCall>? stored = calls[chatId];
 
     if (stored == null || stored.value.state.value == OngoingCallState.ended) {
