@@ -104,7 +104,7 @@ class ChatTile extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Expanded(
+                            Flexible(
                               child: Obx(() {
                                 return Text(
                                   chat?.title.value ?? ('dot'.l10n * 3),

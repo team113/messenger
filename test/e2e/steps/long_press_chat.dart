@@ -14,35 +14,26 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-import '../model_type_id.dart';
-import 'precise_date_time/precise_date_time.dart';
+import '../world/custom_world.dart';
 
-part 'mute_duration.g.dart';
+/// Long presses a [Chat] with the provided name.
+///
+/// Examples:
+/// - When I long press "Name" chat.
+final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
+  'I long press {string} chat',
+  (name, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+    final finder = context.world.appDriver.findBy(
+      'RecentChat_${context.world.groups[name]}',
+      FindType.key,
+    );
 
-/// Mute duration of a [Chat] or [MyUser].
-@HiveType(typeId: ModelTypeId.muteDuration)
-class MuteDuration {
-  /// Mute duration until an exact [PreciseDateTime].
-  ///
-  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
-  /// be considered as automatically unmuted.
-  @HiveField(0)
-  PreciseDateTime? until;
-
-  /// Forever mute duration.
-  @HiveField(1)
-  bool? forever;
-
-  @HiveField(2)
-  MuteDuration({
-    this.until,
-    this.forever,
-  });
-
-  factory MuteDuration.forever() => MuteDuration(forever: true);
-
-  factory MuteDuration.until(PreciseDateTime until) =>
-      MuteDuration(until: until);
-}
+    await context.world.appDriver.nativeDriver.longPress(finder);
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);
