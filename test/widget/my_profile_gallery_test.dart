@@ -26,6 +26,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/gallery_item.dart';
 import 'package:messenger/domain/model/native_file.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -40,6 +41,7 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -119,6 +121,8 @@ void main() async {
       'MyProfileView successfully adds and deletes gallery items, avatar and call cover',
       (WidgetTester tester) async {
     final StreamController<QueryResult> myUserEvents = StreamController();
+    when(graphQlProvider.getUser(const UserId('id')))
+        .thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
     when(graphQlProvider.myUserEvents(null)).thenAnswer((_) {
       myUserEvents.add(
         QueryResult.internal(
@@ -357,8 +361,14 @@ void main() async {
       ),
     );
 
-    AbstractMyUserRepository myUserRepository = Get.put(
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = Get.put(MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    ));
     await authService.init();
     MyUserService myUserService =
         Get.put(MyUserService(authService, myUserRepository));

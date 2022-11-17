@@ -184,10 +184,27 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      style:
-                                          const TextStyle(color: Colors.black),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            c.chat!.title.value,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                        if (c.chat?.chat.value.muted !=
+                                            null) ...[
+                                          const SizedBox(width: 5),
+                                          Icon(
+                                            Icons.volume_off,
+                                            color: Theme.of(context)
+                                                .primaryIconTheme
+                                                .color,
+                                            size: 17,
+                                          ),
+                                        ]
+                                      ],
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -1419,13 +1436,13 @@ class _ChatViewState extends State<ChatView>
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
-                        e.original.url,
+                        o.original.url,
                         o.filename,
                         size: o.original.size,
                       );
                     }
                     return GalleryItem.video(
-                      e.original.url,
+                      o.original.url,
                       o.filename,
                       size: o.original.size,
                     );

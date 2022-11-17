@@ -50,6 +50,8 @@ class RecentChatTile extends StatelessWidget {
     this.onHide,
     this.onDrop,
     this.onJoin,
+    this.onMute,
+    this.onUnmute,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -80,6 +82,12 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onJoin;
 
+  /// Callback, called when this [rxChat] mute action is triggered.
+  final void Function()? onMute;
+
+  /// Callback, called when this [rxChat] unmute action is triggered.
+  final void Function()? onUnmute;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -92,6 +100,17 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        title: [
+          if (chat.muted != null) ...[
+            const SizedBox(width: 5),
+            Icon(
+              Icons.volume_off,
+              size: 17,
+              color: Theme.of(context).primaryIconTheme.color,
+              key: Key('MuteIndicator_${chat.id}'),
+            ),
+          ]
+        ],
         subtitle: [
           const SizedBox(height: 5),
           ConstrainedBox(
@@ -155,6 +174,17 @@ class RecentChatTile extends StatelessWidget {
               label: 'btn_leave_chat'.l10n,
               onPressed: onLeave,
             ),
+          chat.muted == null
+              ? ContextMenuButton(
+                  key: const Key('MuteChatButton'),
+                  label: 'btn_mute_chat'.l10n,
+                  onPressed: onMute,
+                )
+              : ContextMenuButton(
+                  key: const Key('UnmuteChatButton'),
+                  label: 'btn_unmute_chat'.l10n,
+                  onPressed: onUnmute,
+                ),
         ],
         selected: selected,
         onTap: () => router.chat(chat.id),
@@ -180,7 +210,37 @@ class RecentChatTile extends StatelessWidget {
         .where((User user) => user.id != me)
         .map((User user) => user.name?.val ?? user.num.val);
 
-    if (typings.isNotEmpty) {
+    ChatMessage? draft = rxChat.draft.value;
+
+    if (draft != null && router.routes.last != '${Routes.chat}/${chat.id}') {
+      final StringBuffer desc = StringBuffer();
+
+      if (draft.text != null) {
+        desc.write(draft.text!.val);
+      }
+
+      if (draft.attachments.isNotEmpty) {
+        if (desc.isNotEmpty) desc.write('space'.l10n);
+        desc.write(
+          'label_attachments'.l10nfmt({'count': draft.attachments.length}),
+        );
+      }
+
+      if (draft.repliesTo.isNotEmpty) {
+        if (desc.isNotEmpty) desc.write('space'.l10n);
+        desc.write('label_replies'.l10nfmt({'count': draft.repliesTo.length}));
+      }
+
+      subtitle = [
+        Flexible(
+          child: Text(
+            '${'label_draft'.l10n}${'semicolon_space'.l10n}$desc',
+            key: const Key('Draft'),
+            maxLines: 2,
+          ),
+        ),
+      ];
+    } else if (typings.isNotEmpty) {
       if (!rxChat.chat.value.isGroup) {
         subtitle = [
           Row(

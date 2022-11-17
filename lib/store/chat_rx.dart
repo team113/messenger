@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -55,9 +56,11 @@ class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
+    this._draftLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
-        _local = ChatItemHiveProvider(hiveChat.value.id);
+        _local = ChatItemHiveProvider(hiveChat.value.id),
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
   @override
   final Rx<Chat> chat;
@@ -80,11 +83,17 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
+  @override
+  final Rx<ChatMessage?> draft;
+
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [RxChat.draft]s local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -97,6 +106,9 @@ class HiveRxChat extends RxChat {
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
+
+  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
+  Timer? _muteTimer;
 
   /// [ChatItemHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -197,6 +209,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
       messages.clear();
+      _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
@@ -214,6 +227,44 @@ class HiveRxChat extends RxChat {
   void subscribe() {
     if (!_remoteSubscriptionInitialized) {
       _initRemoteSubscription(id);
+    }
+  }
+
+  @override
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {
+    ChatMessage? draft = _draftLocal.get(id);
+
+    if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
+      if (draft != null) {
+        _draftLocal.remove(id);
+      }
+    } else {
+      final bool repliesEqual = const IterableEquality().equals(
+        (draft?.repliesTo ?? []).map((e) => e.id),
+        repliesTo.map((e) => e.id),
+      );
+
+      final bool attachmentsEqual = const IterableEquality().equals(
+        (draft?.attachments ?? []).map((e) => [e.id, e.runtimeType]),
+        attachments.map((e) => [e.id, e.runtimeType]),
+      );
+
+      if (draft?.text != text || !repliesEqual || !attachmentsEqual) {
+        draft = ChatMessage(
+          ChatItemId.local(),
+          id,
+          me ?? const UserId('dummy'),
+          PreciseDateTime.now(),
+          text: text,
+          repliesTo: repliesTo,
+          attachments: attachments,
+        );
+        _draftLocal.put(id, draft);
+      }
     }
   }
 
@@ -518,6 +569,20 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isGroup) {
       avatar.value = chat.value.avatar;
+    }
+
+    _muteTimer?.cancel();
+    if (chat.value.muted?.until != null) {
+      _muteTimer = Timer(
+        chat.value.muted!.until!.val.difference(DateTime.now()),
+        () {
+          final HiveChat? chat = _chatLocal.get(id);
+          if (chat != null) {
+            chat.value.muted = null;
+            _chatLocal.put(chat);
+          }
+        },
+      );
     }
 
     // TODO: Users list can be huge, so we should implement pagination and

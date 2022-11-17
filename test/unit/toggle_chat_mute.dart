@@ -19,10 +19,8 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
+import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
@@ -42,13 +40,13 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'chat_edit_message_test.mocks.dart';
+import 'toggle_chat_mute.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
   setUp(Get.reset);
 
-  Hive.init('./test/.temp_hive/chat_edit_message_unit');
+  Hive.init('./test/.temp_hive/toggle_chat_mute');
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -103,18 +101,18 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-  test('ChatService successfully edits a ChatMessage', () async {
+  test('ChatService successfully toggle chat mute', () async {
     var galleryItemProvider = GalleryItemHiveProvider();
     await galleryItemProvider.init();
     var sessionProvider = Get.put(SessionDataHiveProvider());
     await sessionProvider.init();
     var userProvider = Get.put(UserHiveProvider());
     await userProvider.init();
-    var chatProvider = Get.put(ChatHiveProvider());
-    await chatProvider.init();
-    var credentialsProvider = ChatCallCredentialsHiveProvider();
+    var chatHiveProvider = Get.put(ChatHiveProvider());
+    await chatHiveProvider.init();
+    var credentialsProvider = Get.put(ChatCallCredentialsHiveProvider());
     await credentialsProvider.init();
-    var draftProvider = DraftHiveProvider();
+    var draftProvider = Get.put(DraftHiveProvider());
     await draftProvider.init();
 
     AuthService authService = Get.put(
@@ -128,17 +126,15 @@ void main() async {
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
-    CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        credentialsProvider,
-      ),
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        chatProvider,
+        chatHiveProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -146,29 +142,23 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    when(graphQlProvider.editChatMessageText(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+    when(graphQlProvider.toggleChatMute(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      null,
     )).thenAnswer((_) => Future.value());
 
-    await chatService.editChatMessage(
-      ChatMessage(
-        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        PreciseDateTime.now(),
-      ),
-      const ChatMessageText('new text'),
+    await chatService.toggleChatMute(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      null,
     );
 
-    verify(graphQlProvider.editChatMessageText(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+    verify(graphQlProvider.toggleChatMute(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      null,
     ));
   });
 
-  test(
-      'ChatService throws a EditChatMessageException when editing a ChatMessage',
+  test('ChatService throws a ToggleChatMuteException when toggle chat mute',
       () async {
     var galleryItemProvider = GalleryItemHiveProvider();
     await galleryItemProvider.init();
@@ -176,11 +166,11 @@ void main() async {
     await sessionProvider.init();
     var userProvider = Get.put(UserHiveProvider());
     await userProvider.init();
-    var chatProvider = Get.put(ChatHiveProvider());
-    await chatProvider.init();
-    var credentialsProvider = ChatCallCredentialsHiveProvider();
+    var chatHiveProvider = Get.put(ChatHiveProvider());
+    await chatHiveProvider.init();
+    var credentialsProvider = Get.put(ChatCallCredentialsHiveProvider());
     await credentialsProvider.init();
-    var draftProvider = DraftHiveProvider();
+    var draftProvider = Get.put(DraftHiveProvider());
     await draftProvider.init();
 
     AuthService authService = Get.put(
@@ -194,17 +184,15 @@ void main() async {
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
-    CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        credentialsProvider,
-      ),
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        chatProvider,
+        chatHiveProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -212,30 +200,26 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    when(graphQlProvider.editChatMessageText(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
-    )).thenThrow(const EditChatMessageException(
-        EditChatMessageTextErrorCode.unknownChatItem));
+    when(graphQlProvider.toggleChatMute(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      null,
+    )).thenThrow(const ToggleChatMuteException(
+      ToggleChatMuteErrorCode.unknownChat,
+    ));
 
-    Get.put(chatProvider);
+    Get.put(chatHiveProvider);
 
     expect(
-      () async => await chatService.editChatMessage(
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          PreciseDateTime.now(),
-        ),
-        const ChatMessageText('new text'),
+      () async => await chatService.toggleChatMute(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        null,
       ),
-      throwsA(isA<EditChatMessageException>()),
+      throwsA(isA<ToggleChatMuteException>()),
     );
 
-    verify(graphQlProvider.editChatMessageText(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+    verify(graphQlProvider.toggleChatMute(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      null,
     ));
   });
 }

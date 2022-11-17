@@ -148,6 +148,7 @@ btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
+btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
 btn_participants = Participants
@@ -169,6 +170,7 @@ btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
+btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -230,6 +232,7 @@ err_size_too_big = File is too big. Maximum allowed size is 15 MiB
 err_stale_version = Provided version is too stale
 err_too_many_emails = Reached maximum allowed number of Email addresses
 err_too_many_phones = Reached maximum allowed number of phone number
+err_too_short = Mute duration cannot be shorter than one minute
 err_unauthorized = Authentication required
 err_uneditable_message = You can\'t edit this message
 err_unknown = Unknown error
@@ -377,6 +380,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_draft = Draft
 label_drop_here =
     Drop here
     to upload
@@ -432,6 +436,20 @@ label_media_output = Output
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_mute_for = { $days ->
+    [0] { $hours ->
+            [0] { $minutes ->
+                    [0] Forever
+                    [1] 1 minute
+                    *[other] {$minutes} minutes
+                }
+            [1] 1 hour
+            *[other] {$hours} hours
+        }
+    [1] 1 day
+    *[other] {$days} days
+}
+label_mute_chat_for = Mute chat for
 label_name = Name
 label_name_hint = Your publicly visible name
 label_new_password = New password
@@ -452,6 +470,7 @@ label_password = Password
 label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
+label_personalization = Personalization
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
 label_phones = Phones
@@ -465,7 +484,10 @@ label_recent = Recent
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
-label_personalization = Personalization
+label_replies = [{$count} { $count ->
+    [1] reply
+    *[other] replies
+    }]
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -513,4 +535,6 @@ label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
 plus = +
+semicolon_space = :{" "}
+space = {" "}
 space_vertical_space = {" "}|{" "}

@@ -32,6 +32,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -64,6 +65,8 @@ void main() async {
   await userProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -154,14 +157,14 @@ void main() async {
         credentialsProvider,
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        Get.find(),
-        callRepository,
-        userRepository,
-      ),
-    );
+    AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(ChatRepository(
+      graphQlProvider,
+      Get.find(),
+      callRepository,
+      draftProvider,
+      userRepository,
+    ));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.uploadAttachment(
@@ -212,6 +215,7 @@ void main() async {
         graphQlProvider,
         Get.find(),
         callRepository,
+        draftProvider,
         userRepository,
       ),
     );

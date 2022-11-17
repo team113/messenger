@@ -37,6 +37,7 @@ import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -83,6 +84,8 @@ void main() async {
   await credentialsProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -151,6 +154,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
       ),
     );
@@ -260,6 +264,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
       ),
     );
@@ -325,6 +330,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         callRepository,
+        draftProvider,
         userRepository,
       ),
     );

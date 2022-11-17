@@ -23,8 +23,7 @@ import 'package:universal_io/io.dart';
 import '/domain/model/user.dart';
 
 /// Base class for data providers backed by [Hive].
-abstract class HiveBaseProvider<T extends HiveObject>
-    extends DisposableInterface {
+abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// [Box] that contains all of the data.
   late Box<T> _box;
 
