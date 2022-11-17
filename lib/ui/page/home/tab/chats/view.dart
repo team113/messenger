@@ -50,13 +50,15 @@ class ChatsTabView extends StatelessWidget {
       void Function()? onTap,
     }) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         child: ContactTile(
           key: key,
           contact: contact,
           user: user,
           darken: 0,
           onTap: onTap,
+          height: 94,
+          avatarRadius: 30,
           subtitle: [
             const SizedBox(height: 5),
             Text(
@@ -188,14 +190,7 @@ class ChatsTabView extends StatelessWidget {
                   if (c.searching.value) {
                     child = WidgetButton(
                       key: const Key('CloseSearch'),
-                      onPressed: () {
-                        c.searching.value = false;
-                        c.searchController.searchStatus.value =
-                            RxStatus.empty();
-                        c.searchField.text = '';
-                        c.searchResult.value = null;
-                        c.elements.clear();
-                      },
+                      onPressed: () => c.changeSearchStatus(enable: false),
                       child: SvgLoader.asset(
                         'assets/icons/close_primary.svg',
                         height: 15,
@@ -229,82 +224,75 @@ class ChatsTabView extends StatelessWidget {
             if (c.chatsReady.value) {
               Widget? child;
 
-              if (c.searching.isTrue &&
-                  c.searchController.searchStatus.value.isSuccess &&
-                  (c.searchResult.value == null ||
-                      c.searchResult.value?.isEmpty == true)) {
-                child = Center(child: Text('label_nothing_found'.l10n));
-              } else if (c.searching.isTrue &&
-                  c.searchController.searchStatus.value.isLoading &&
-                  (c.searchResult.value == null ||
-                      c.searchResult.value?.isEmpty == true)) {
-                child = const Center(child: CircularProgressIndicator());
-              } else if (c.searching.isTrue &&
-                  c.searchResult.value?.isEmpty == false &&
-                  c.searchField.isEmpty.isFalse) {
-                child = ListView.builder(
-                  controller: ScrollController(),
-                  itemCount: c.elements.length,
-                  itemBuilder: (_, i) {
-                    ListElement element = c.elements[i];
-                    Widget child = const SizedBox();
+              if (c.searching.isTrue && c.searchField.isEmpty.isFalse) {
+                if (c.searchController.searchStatus.value.isLoading &&
+                    c.elements.isEmpty) {
+                  child = const Center(child: CircularProgressIndicator());
+                } else if (c.elements.isNotEmpty) {
+                  child = ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      ListElement element = c.elements[i];
+                      Widget child = const SizedBox();
 
-                    if (element is ChatElement) {
-                      final RxChat chat = element.chat;
-                      child = Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
-                        child: RecentChatTile(
-                          chat,
-                          key: Key('SearchChat_${chat.id}'),
-                          me: c.me,
-                          getUser: c.getUser,
-                          onJoin: () => c.joinCall(chat.id),
-                          onDrop: () => c.dropCall(chat.id),
-                          onLeave: () => c.leaveChat(chat.id),
-                          onHide: () => c.hideChat(chat.id),
-                          inCall: () => c.inCall(chat.id),
-                        ),
-                      );
-                    } else if (element is ContactElement) {
-                      child = tile(
-                        key: Key('SearchContact_${element.contact.id}'),
-                        contact: element.contact,
-                        onTap: () => c.openChat(contact: element.contact),
-                      );
-                    } else if (element is UserElement) {
-                      child = tile(
-                        key: Key('SearchUser_${element.user.id}'),
-                        user: element.user,
-                        onTap: () => c.openChat(user: element.user),
-                      );
-                    } else if (element is DividerElement) {
-                      child = Center(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                          width: double.infinity,
-                          child: Center(
-                            child: Text(
-                              element.category.name.capitalizeFirst!,
-                              style: style.systemMessageStyle.copyWith(
-                                color: Colors.black,
-                                fontSize: 15,
+                      if (element is ChatElement) {
+                        final RxChat chat = element.chat;
+                        child = Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: RecentChatTile(
+                            chat,
+                            key: Key('SearchChat_${chat.id}'),
+                            me: c.me,
+                            getUser: c.getUser,
+                            onJoin: () => c.joinCall(chat.id),
+                            onDrop: () => c.dropCall(chat.id),
+                            inCall: () => c.inCall(chat.id),
+                          ),
+                        );
+                      } else if (element is ContactElement) {
+                        child = tile(
+                          key: Key('SearchContact_${element.contact.id}'),
+                          contact: element.contact,
+                          onTap: () => c.openChat(contact: element.contact),
+                        );
+                      } else if (element is UserElement) {
+                        child = tile(
+                          key: Key('SearchUser_${element.user.id}'),
+                          user: element.user,
+                          onTap: () => c.openChat(user: element.user),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        top: i == 0 ? 3 : 0,
-                        bottom: i == c.elements.length - 1 ? 4 : 0,
-                      ),
-                      child: child,
-                    );
-                  },
-                );
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          top: i == 0 ? 3 : 0,
+                          bottom: i == c.elements.length - 1 ? 4 : 0,
+                        ),
+                        child: child,
+                      );
+                    },
+                  );
+                } else {
+                  child = Center(child: Text('label_nothing_found'.l10n));
+                }
               } else {
                 if (c.chats.isEmpty) {
                   child = Center(child: Text('label_no_chats'.l10n));

@@ -36,6 +36,8 @@ class ContactTile extends StatelessWidget {
     this.selected = false,
     this.subtitle = const [],
     this.darken = 0,
+    this.height = 76,
+    this.avatarRadius = 26,
   }) : super(key: key);
 
   /// [RxChatContact] to display.
@@ -62,12 +64,18 @@ class ContactTile extends StatelessWidget {
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
+  /// Height of this [ContactTile].
+  final double height;
+
+  /// Radius of [AvatarWidget] this [ContactTile].
+  final double avatarRadius;
+
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 76),
+      constraints: BoxConstraints(minHeight: height),
       decoration: BoxDecoration(
         borderRadius: style.cardRadius,
         border: style.cardBorder,
@@ -91,9 +99,9 @@ class ContactTile extends StatelessWidget {
               children: [
                 ...leading,
                 if (contact != null)
-                  AvatarWidget.fromRxContact(contact, radius: 26)
+                  AvatarWidget.fromRxContact(contact, radius: avatarRadius)
                 else
-                  AvatarWidget.fromRxUser(user, radius: 26),
+                  AvatarWidget.fromRxUser(user, radius: avatarRadius),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

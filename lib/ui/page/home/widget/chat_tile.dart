@@ -74,6 +74,7 @@ class ChatTile extends StatelessWidget {
     return ContextMenuRegion(
       key: Key('ChatTile_${chat?.chat.value.id}'),
       preventContextMenu: false,
+      enabled: actions.isEmpty ? false : true,
       actions: actions,
       child: SizedBox(
         height: height,

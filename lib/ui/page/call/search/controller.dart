@@ -60,9 +60,7 @@ class SearchController extends GetxController {
     required this.categories,
     this.chat,
     this.onResultsUpdated,
-    Rx<RxStatus>? status,
-  })  : searchStatus = status ?? Rx<RxStatus>(RxStatus.empty()),
-        assert(categories.isNotEmpty);
+  }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
   ///
@@ -88,7 +86,7 @@ class SearchController extends GetxController {
   ///   [searchResults] were already acquired.
   /// - `searchStatus.success`, meaning search is done and [searchResults] are
   ///   acquired.
-  late final Rx<RxStatus> searchStatus;
+  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
@@ -121,7 +119,7 @@ class SearchController extends GetxController {
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
   /// Callback, called when the selected items was changed.
-  final void Function(SearchViewResults result)? onResultsUpdated;
+  final void Function()? onResultsUpdated;
 
   /// Reactive list of the sorted [Chat]s.
   final RxList<RxChat> _sortedChats = RxList<RxChat>();
@@ -208,15 +206,7 @@ class SearchController extends GetxController {
       chats.stream,
       contacts.stream,
       users.stream,
-    ]).listen((_) {
-      onResultsUpdated?.call(
-        SearchViewResults(
-          chats.values.map((e) => e).toList(),
-          users.values.map((e) => e).toList(),
-          contacts.values.map((e) => e).toList(),
-        ),
-      );
-    });
+    ]).listen((_) => onResultsUpdated?.call());
 
     super.onInit();
   }

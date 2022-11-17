@@ -162,30 +162,36 @@ class RecentChatTile extends StatelessWidget {
             ],
           ),
         ],
-        actions: [
-          ContextMenuButton(
-            key: const Key('ButtonHideChat'),
-            label: 'btn_hide_chat'.l10n,
-            onPressed: onHide,
-          ),
-          if (chat.isGroup)
-            ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: onLeave,
-            ),
-          chat.muted == null
-              ? ContextMenuButton(
-                  key: const Key('MuteChatButton'),
-                  label: 'btn_mute_chat'.l10n,
-                  onPressed: onMute,
-                )
-              : ContextMenuButton(
-                  key: const Key('UnmuteChatButton'),
-                  label: 'btn_unmute_chat'.l10n,
-                  onPressed: onUnmute,
-                ),
-        ],
+        actions: (onHide == null &&
+                onLeave == null &&
+                onMute == null &&
+                onUnmute == null)
+            ? []
+            : [
+                if (onHide != null)
+                  ContextMenuButton(
+                    key: const Key('ButtonHideChat'),
+                    label: 'btn_hide_chat'.l10n,
+                    onPressed: onHide,
+                  ),
+                if (chat.isGroup && onLeave != null)
+                  ContextMenuButton(
+                    key: const Key('ButtonLeaveChat'),
+                    label: 'btn_leave_chat'.l10n,
+                    onPressed: onLeave,
+                  ),
+                chat.muted == null && onMute != null && onUnmute != null
+                    ? ContextMenuButton(
+                        key: const Key('MuteChatButton'),
+                        label: 'btn_mute_chat'.l10n,
+                        onPressed: onMute,
+                      )
+                    : ContextMenuButton(
+                        key: const Key('UnmuteChatButton'),
+                        label: 'btn_unmute_chat'.l10n,
+                        onPressed: onUnmute,
+                      ),
+              ],
         selected: selected,
         onTap: () => router.chat(chat.id),
       );

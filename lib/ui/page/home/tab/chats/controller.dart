@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -68,9 +69,6 @@ class ChatsTabController extends GetxController {
 
   /// [ChatContact]s service used by [searchController].
   final ContactService _contactService;
-
-  /// Results of search.
-  final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
 
   /// Controller of searching.
   late final SearchController searchController;
@@ -142,13 +140,11 @@ class ChatsTabController extends GetxController {
         SearchCategory.contacts,
         SearchCategory.users,
       ],
-      onResultsUpdated: (SearchViewResults? results) {
-        searchResult.value = results;
-        populate();
-      },
+      onResultsUpdated: populate,
     )..onInit();
 
     searchField.controller.addListener(_searchFieldListener);
+    searchField.focus.addListener(_searchFieldFocusListener);
 
     super.onInit();
   }
@@ -160,6 +156,7 @@ class ChatsTabController extends GetxController {
     }
     _chatsSubscription.cancel();
     searchField.controller.removeListener(_searchFieldListener);
+    searchField.focus.removeListener(_searchFieldFocusListener);
 
     super.onClose();
   }
@@ -266,24 +263,41 @@ class ChatsTabController extends GetxController {
   void populate() {
     elements.clear();
 
-    if (searchResult.value?.chats.isNotEmpty == true) {
+    if (searchController.chats.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.chats));
-      for (var c in searchResult.value!.chats) {
+      for (var c in searchController.chats.values) {
         elements.add(ChatElement(c));
       }
     }
 
-    if (searchResult.value?.contacts.isNotEmpty == true) {
+    if (searchController.contacts.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.contacts));
-      for (var c in searchResult.value!.contacts) {
-        elements.add(ContactElement(c));
+      for (var c in searchController.contacts.values) {
+        if (chats.none((e1) =>
+            e1.chat.value.isDialog &&
+            e1.chat.value.members
+                .any((e2) => e2.user.id == c.contact.value.id))) {
+          elements.add(ContactElement(c));
+        }
+      }
+      if (elements.whereType<ContactElement>().isEmpty) {
+        elements.removeWhere(
+            (e) => e == const DividerElement(SearchCategory.contacts));
       }
     }
 
-    if (searchResult.value?.users.isNotEmpty == true) {
+    if (searchController.users.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.users));
-      for (var c in searchResult.value!.users) {
-        elements.add(UserElement(c));
+      for (var c in searchController.users.values) {
+        if (chats.none((e1) =>
+            e1.chat.value.isDialog &&
+            e1.chat.value.members.any((e2) => e2.user.id == c.user.value.id))) {
+          elements.add(UserElement(c));
+        }
+      }
+      if (elements.whereType<UserElement>().isEmpty) {
+        elements.removeWhere(
+            (e) => e == const DividerElement(SearchCategory.users));
       }
     }
   }
@@ -299,6 +313,19 @@ class ChatsTabController extends GetxController {
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
+
+  void changeSearchStatus({required bool enable}) {
+    if (enable) {
+      searching.value = true;
+      searchField.focus.requestFocus();
+    } else {
+      searching.value = false;
+      searchController.searchStatus.value = RxStatus.empty();
+      searchField.text = '';
+      elements.clear();
+      populate();
+    }
+  }
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
@@ -319,6 +346,15 @@ class ChatsTabController extends GetxController {
   void _searchFieldListener() {
     if (searchController.query.value != searchField.text) {
       searchController.query.value = searchField.text;
+    }
+  }
+
+  /// Listener of [searchField.focus].
+  void _searchFieldFocusListener() {
+    if (searchField.focus.hasFocus == false) {
+      if (searchField.text.isEmpty) {
+        changeSearchStatus(enable: false);
+      }
     }
   }
 }
@@ -363,31 +399,31 @@ abstract class ListElement {
   const ListElement();
 }
 
-/// Chat of search results.
+/// [Chat] of search results.
 class ChatElement extends ListElement {
   const ChatElement(this.chat);
 
-  /// Chat that should be displayed as search result.
+  /// [Chat] that should be displayed as search result.
   final RxChat chat;
 }
 
-/// Contact of search results.
+/// [Contact] of search results.
 class ContactElement extends ListElement {
   const ContactElement(this.contact);
 
-  /// Contact that should be displayed as search result.
+  /// [Contact] that should be displayed as search result.
   final RxChatContact contact;
 }
 
-/// User of search results.
+/// [User] of search results.
 class UserElement extends ListElement {
   const UserElement(this.user);
 
-  /// User that should be displayed as search result.
+  /// [User] that should be displayed as search result.
   final RxUser user;
 }
 
-/// Divider of search results.
+/// [Divider] of search results.
 class DividerElement extends ListElement {
   const DividerElement(this.category);
 

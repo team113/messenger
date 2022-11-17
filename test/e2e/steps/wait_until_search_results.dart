@@ -64,20 +64,21 @@ final StepDefinitionGeneric untilUserInSearchResults =
 /// - Then I wait until text "Dummy" is absent
 /// - Then I wait until text "Dummy" is present
 final StepDefinitionGeneric untilChatInSearchResults =
-    then3<String, SearchChats, Existence, CustomWorld>(
+    then3<String, WhatToSearchInChats, Existence, CustomWorld>(
   'I wait until {string} {search_chats} in search results is {existence}',
-  (String name, SearchChats search, Existence existence, context) async {
+  (String name, WhatToSearchInChats search, Existence existence,
+      context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         String searchKey = '';
 
-        if (search == SearchChats.chat) {
+        if (search == WhatToSearchInChats.chat) {
           final ChatId chatId = context.world.groups[name]!;
 
           searchKey = 'SearchChat_$chatId';
-        } else if (search == SearchChats.contact) {
+        } else if (search == WhatToSearchInChats.contact) {
           ContactService contactService = Get.find<ContactService>();
 
           final ChatContactId contactId = contactService.contacts.values
