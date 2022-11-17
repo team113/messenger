@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -168,10 +169,14 @@ class _HomeViewState extends State<HomeView> {
                         // [AnimatedOpacity] boilerplate.
                         Widget tab({required Widget child, HomeTab? tab}) {
                           return Obx(() {
-                            return AnimatedOpacity(
+                            return AnimatedScale(
                               duration: 150.milliseconds,
-                              opacity: c.page.value == tab ? 1 : 0.6,
-                              child: child,
+                              scale: c.page.value == tab ? 1.2 : 1,
+                              child: AnimatedOpacity(
+                                duration: 150.milliseconds,
+                                opacity: c.page.value == tab ? 1 : 0.7,
+                                child: child,
+                              ),
                             );
                           });
                         }
@@ -218,7 +223,7 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                 actions: [
                                   ContextMenuButton(
-                                    label: 'Online',
+                                    label: 'btn_online'.l10n,
                                     onPressed: () =>
                                         c.setPresence(Presence.present),
                                     leading: const CircleAvatar(
@@ -227,7 +232,7 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                   ),
                                   ContextMenuButton(
-                                    label: 'Away',
+                                    label: 'btn_away'.l10n,
                                     onPressed: () =>
                                         c.setPresence(Presence.away),
                                     leading: const CircleAvatar(
@@ -236,7 +241,7 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                   ),
                                   ContextMenuButton(
-                                    label: 'Hidden',
+                                    label: 'btn_hidden'.l10n,
                                     onPressed: () =>
                                         c.setPresence(Presence.hidden),
                                     leading: const CircleAvatar(

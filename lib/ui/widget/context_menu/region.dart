@@ -79,9 +79,8 @@ class ContextMenuRegion extends StatelessWidget {
   /// Only meaningful, if [selector] is specified.
   final double width;
 
-  /// Margin to apply to a [Selector].
-  ///
-  /// Only meaningful, if [selector] is specified.
+  /// Margin to apply to a [Selector] on desktop or to [FloatingContextMenu] on
+  /// mobile.
   final EdgeInsets margin;
 
   @override
@@ -125,12 +124,12 @@ class ContextMenuRegion extends StatelessWidget {
     }
 
     if (selector != null) {
-      await Selector.show(
+      await Selector.show<ContextMenuButton>(
         context: context,
         items: actions,
         width: width,
         margin: margin,
-        buttonBuilder: (int i, ContextMenuButton b) {
+        buttonBuilder: (i, b) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -144,17 +143,14 @@ class ContextMenuRegion extends StatelessWidget {
             ],
           );
         },
-        itemBuilder: (ContextMenuButton b) {
+        itemBuilder: (b) {
           final TextStyle? thin = Theme.of(context)
               .textTheme
               .caption
               ?.copyWith(color: Colors.black);
           return Row(
             children: [
-              if (b.leading != null) ...[
-                b.leading!,
-                const SizedBox(width: 12),
-              ],
+              if (b.leading != null) ...[b.leading!, const SizedBox(width: 12)],
               Text(b.label, style: thin?.copyWith(fontSize: 15)),
               if (b.trailing != null) ...[
                 const SizedBox(width: 12),
@@ -163,47 +159,43 @@ class ContextMenuRegion extends StatelessWidget {
             ],
           );
         },
-        onSelected: (ContextMenuButton b) => b.onPressed?.call(),
+        onSelected: (b) => b.onPressed?.call(),
         buttonKey: selector,
         alignment: Alignment(-alignment.x, -alignment.y),
       );
+    } else {
+      await showDialog(
+        barrierColor: Colors.transparent,
+        context: context,
+        builder: (context) {
+          return LayoutBuilder(builder: (context, constraints) {
+            double qx = 1, qy = 1;
+            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+            Alignment alignment = Alignment(qx, qy);
 
-      return;
-    }
-
-    await showDialog(
-      barrierColor: Colors.transparent,
-      context: context,
-      builder: (context) {
-        return LayoutBuilder(builder: (context, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (d) => Navigator.of(context).pop(),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned(
-                  left: position.dx,
-                  top: position.dy,
-                  child: FractionalTranslation(
-                    translation: Offset(
-                      alignment.x > 0 ? 0 : -1,
-                      alignment.y > 0 ? 0 : -1,
+            return Listener(
+              onPointerUp: (d) => Navigator.of(context).pop(),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    left: position.dx,
+                    top: position.dy,
+                    child: FractionalTranslation(
+                      translation: Offset(
+                        alignment.x > 0 ? 0 : -1,
+                        alignment.y > 0 ? 0 : -1,
+                      ),
+                      child: ContextMenu(actions: actions),
                     ),
-                    child: ContextMenu(actions: actions),
-                  ),
-                )
-              ],
-            ),
-          );
-        });
-      },
-    );
-
-    return;
+                  )
+                ],
+              ),
+            );
+          });
+        },
+      );
+    }
   }
 }

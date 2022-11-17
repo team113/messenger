@@ -60,6 +60,9 @@ class HomeController extends GetxController {
   /// Indicates currently ongoing vertical scroll of a view.
   final Rx<Timer?> verticalScrollTimer = Rx(null);
 
+  /// [GlobalKey] of an [AvatarWidget] in the navigation bar.
+  ///
+  /// Used to position a status changing [Selector] properly.
   final GlobalKey profileKey = GlobalKey();
 
   /// Authentication service to determine auth status.
@@ -151,6 +154,7 @@ class HomeController extends GetxController {
   Future<void> setSideBarWidth() =>
       _settings.setSideBarWidth(sideBarWidth.value);
 
+  /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
       _myUser.updateUserPresence(presence);
 

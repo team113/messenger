@@ -93,7 +93,7 @@ class Selector<T> extends StatefulWidget {
     EdgeInsets margin = EdgeInsets.zero,
     T? initial,
   }) {
-    final bool isMobile = context.isMobile && PlatformUtils.isMobile;
+    final bool isMobile = context.isMobile;
 
     Widget builder(BuildContext context) {
       return Selector<T>(
@@ -287,6 +287,8 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns desktop design of this [Selector].
   Widget _desktop(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
       double? top, bottom;
@@ -378,8 +380,6 @@ class _SelectorState<T> extends State<Selector<T>> {
         );
       }
 
-      Style style = Theme.of(context).extension<Style>()!;
-
       return Stack(
         children: [
           Positioned(
@@ -401,10 +401,9 @@ class _SelectorState<T> extends State<Selector<T>> {
                   children: [
                     ClipRRect(
                       borderRadius: style.contextMenuRadius,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: widget.items.mapIndexed(button).toList(),
-                        ),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: widget.items.mapIndexed(button).toList(),
                       ),
                     ),
                     if (widget.items.length >= 8)
