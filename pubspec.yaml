@@ -37,7 +37,7 @@ dependencies:
   flutter_background_service_ios: ^2.1.0
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^10.0.0-dev.21
+  flutter_local_notifications: ^12.0.3+1
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^1.1.4
   flutter_web_plugins:
