@@ -263,12 +263,12 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.recoverUserPassword(
-        login: _recoveryLogin,
-        num: _recoveryNum,
-        email: _recoveryEmail,
-        phone: _recoveryPhone,
-      );
+      // await _auth.recoverUserPassword(
+      //   login: _recoveryLogin,
+      //   num: _recoveryNum,
+      //   email: _recoveryEmail,
+      //   phone: _recoveryPhone,
+      // );
 
       stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
@@ -304,13 +304,13 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.validateUserPasswordRecoveryCode(
-        login: _recoveryLogin,
-        num: _recoveryNum,
-        email: _recoveryEmail,
-        phone: _recoveryPhone,
-        code: ConfirmationCode(recoveryCode.text.toLowerCase()),
-      );
+      // await _auth.validateUserPasswordRecoveryCode(
+      //   login: _recoveryLogin,
+      //   num: _recoveryNum,
+      //   email: _recoveryEmail,
+      //   phone: _recoveryPhone,
+      //   code: ConfirmationCode(recoveryCode.text.toLowerCase()),
+      // );
 
       recoveryCode.editable.value = false;
       recoveryCode.status.value = RxStatus.success();

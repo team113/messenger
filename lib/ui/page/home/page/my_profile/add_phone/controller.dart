@@ -19,7 +19,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
+    show ConfirmUserEmailErrorCode, ConfirmUserPhoneErrorCode;
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
 
@@ -32,54 +32,54 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
+enum AddPhoneFlowStage {
   code,
 }
 
 /// Controller of a [ChatForwardView].
-class AddEmailController extends GetxController {
-  AddEmailController(this._myUserService, {this.initial, this.pop});
+class AddPhoneController extends GetxController {
+  AddPhoneController(this._myUserService, {this.initial, this.pop});
 
   final void Function()? pop;
-  final UserEmail? initial;
+  final UserPhone? initial;
 
-  late final TextFieldState email;
-  late final TextFieldState emailCode;
+  late final TextFieldState phone;
+  late final TextFieldState phoneCode;
 
   final RxBool resent = RxBool(false);
 
-  /// Timeout of a [resendEmail] action.
-  final RxInt resendEmailTimeout = RxInt(0);
+  /// Timeout of a [resendPhone] action.
+  final RxInt resendPhoneTimeout = RxInt(0);
 
-  final Rx<AddEmailFlowStage?> stage = Rx(null);
+  final Rx<AddPhoneFlowStage?> stage = Rx(null);
 
   final MyUserService _myUserService;
 
-  /// [Timer] to decrease [resendEmailTimeout].
-  Timer? _resendEmailTimer;
+  /// [Timer] to decrease [resendPhoneTimeout].
+  Timer? _resendPhoneTimer;
 
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
-    email = TextFieldState(
+    phone = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
         s.error.value = null;
         s.unsubmit();
       },
       onSubmitted: (s) async {
-        UserEmail? email;
+        UserPhone? phone;
         try {
-          email = UserEmail(s.text);
+          phone = UserPhone(s.text);
 
-          if (myUser.value!.emails.confirmed.contains(email) ||
-              myUser.value?.emails.unconfirmed == email) {
-            s.error.value = 'err_you_already_add_this_email'.l10n;
+          if (myUser.value!.phones.confirmed.contains(phone) ||
+              myUser.value?.phones.unconfirmed == phone) {
+            s.error.value = 'err_you_already_add_this_phone'.l10n;
           }
         } on FormatException {
-          s.error.value = 'err_incorrect_email'.l10n;
+          s.error.value = 'err_incorrect_phone'.l10n;
         }
 
         if (s.error.value == null) {
@@ -87,12 +87,12 @@ class AddEmailController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            await _myUserService.addUserEmail(email!);
-            _setResendEmailTimer(true);
-            stage.value = AddEmailFlowStage.code;
+            await _myUserService.addUserPhone(phone!);
+            _setResendPhoneTimer(true);
+            stage.value = AddPhoneFlowStage.code;
           } on FormatException {
-            s.error.value = 'err_incorrect_email'.l10n;
-          } on AddUserEmailException catch (e) {
+            s.error.value = 'err_incorrect_phone'.l10n;
+          } on AddUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
             s.error.value = 'err_data_transfer'.l10n;
@@ -106,7 +106,7 @@ class AddEmailController extends GetxController {
       },
     );
 
-    emailCode = TextFieldState(
+    phoneCode = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
         s.unsubmit();
@@ -120,12 +120,19 @@ class AddEmailController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+            // await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+            if (s.text == '1111') {
+              await Future.delayed(const Duration(seconds: 1));
+            } else {
+              throw const ConfirmUserPhoneException(
+                ConfirmUserPhoneErrorCode.wrongCode,
+              );
+            }
             pop?.call();
             s.clear();
           } on FormatException {
             s.error.value = 'err_wrong_recovery_code'.l10n;
-          } on ConfirmUserEmailException catch (e) {
+          } on ConfirmUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
             s.error.value = 'err_data_transfer'.l10n;
@@ -140,7 +147,7 @@ class AddEmailController extends GetxController {
     );
 
     if (initial != null) {
-      stage.value = AddEmailFlowStage.code;
+      stage.value = AddPhoneFlowStage.code;
     }
 
     super.onInit();
@@ -148,19 +155,19 @@ class AddEmailController extends GetxController {
 
   @override
   void onClose() {
-    _setResendEmailTimer(false);
+    _setResendPhoneTimer(false);
     super.onClose();
   }
 
   /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field to
   /// [MyUser.emails].
-  Future<void> resendEmail() async {
+  Future<void> resendPhone() async {
     try {
-      await _myUserService.resendEmail();
+      await _myUserService.resendPhone();
       resent.value = true;
-      _setResendEmailTimer(true);
-    } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
+      _setResendPhoneTimer(true);
+    } on ResendUserPhoneConfirmationException catch (e) {
+      phoneCode.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -168,24 +175,24 @@ class AddEmailController extends GetxController {
   }
 
   /// Starts or stops [resendEmailTimer] based on [enabled] value.
-  void _setResendEmailTimer([bool enabled = true]) {
+  void _setResendPhoneTimer([bool enabled = true]) {
     if (enabled) {
-      resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
+      resendPhoneTimeout.value = 30;
+      _resendPhoneTimer = Timer.periodic(
         const Duration(milliseconds: 1500),
         (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
+          resendPhoneTimeout.value--;
+          if (resendPhoneTimeout.value <= 0) {
+            resendPhoneTimeout.value = 0;
+            _resendPhoneTimer?.cancel();
+            _resendPhoneTimer = null;
           }
         },
       );
     } else {
-      resendEmailTimeout.value = 0;
-      _resendEmailTimer?.cancel();
-      _resendEmailTimer = null;
+      resendPhoneTimeout.value = 0;
+      _resendPhoneTimer?.cancel();
+      _resendPhoneTimer = null;
     }
   }
 }

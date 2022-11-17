@@ -44,7 +44,9 @@ import '/ui/page/home/widget/gallery.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
 import 'add_email/view.dart';
+import 'add_phone/view.dart';
 import 'controller.dart';
+import 'delete_email/view.dart';
 import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
 
@@ -847,7 +849,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                   style: TextStyle(color: Color(0xFF888888)),
                 ),
                 TextSpan(
-                  text: 'все.',
+                  text: 'никто.',
                   style: const TextStyle(color: Color(0xFF00A3FF)),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
@@ -879,6 +881,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                         ],
                         proceedLabel: 'Confirm',
                         withCancel: false,
+                        initial: 2,
                         variants: [
                           ConfirmDialogVariant(
                             onProceed: () {},
@@ -1081,7 +1084,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   ),
                 ),
                 WidgetButton(
-                  onPressed: () => c.deleteUserEmail(e),
+                  onPressed: () => DeleteEmailView.show(context, email: e),
                   child: Container(
                     margin: const EdgeInsets.only(right: 10),
                     width: 30,
@@ -1125,6 +1128,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                             ],
                             proceedLabel: 'Confirm',
                             withCancel: false,
+                            initial: 2,
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
@@ -1196,8 +1200,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 ),
               ),
               WidgetButton(
-                onPressed: () =>
-                    c.deleteUserEmail(c.myUser.value!.emails.unconfirmed!),
+                onPressed: () => DeleteEmailView.show(
+                  context,
+                  email: c.myUser.value!.emails.unconfirmed!,
+                ),
                 child: Container(
                   margin: const EdgeInsets.only(right: 10),
                   width: 30,
@@ -1226,12 +1232,78 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.add(const SizedBox(height: 10));
     }
 
+    if (c.myUser.value?.phones.unconfirmed != null) {
+      widgets.addAll([
+        Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: Theme.of(context)
+                .inputDecorationTheme
+                .copyWith(
+                  floatingLabelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
+          ),
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              WidgetButton(
+                behavior: HitTestBehavior.deferToChild,
+                onPressed: () {
+                  AddPhoneView.show(
+                    context,
+                    phone: c.myUser.value!.phones.unconfirmed!,
+                  );
+                },
+                child: IgnorePointer(
+                  child: ReactiveTextField(
+                    state: TextFieldState(
+                      text: c.myUser.value!.phones.unconfirmed!.val,
+                      editable: false,
+                    ),
+                    label: 'Верифицировать номер телефона',
+                    trailing: Transform.translate(
+                      offset: const Offset(0, -1),
+                      child: Transform.scale(
+                        scale: 1.15,
+                        child: SvgLoader.asset(
+                          'assets/icons/delete.svg',
+                          height: 14,
+                        ),
+                      ),
+                    ),
+                    style: const TextStyle(color: Color(0xFF888888)),
+                  ),
+                ),
+              ),
+              WidgetButton(
+                // onPressed: () => DeleteEmailView.show(
+                //   context,
+                //   email: c.myUser.value!.emails.unconfirmed!,
+                // ),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]);
+      widgets.add(const SizedBox(height: 10));
+    }
+
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
-        ReactiveTextField(
-          state:
-              TextFieldState(text: 'Добавить номер телефона', editable: false),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        WidgetButton(
+          onPressed: () => AddPhoneView.show(context),
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                  text: 'Добавить номер телефона', editable: false),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
+          ),
         ),
       );
       widgets.add(const SizedBox(height: 10));

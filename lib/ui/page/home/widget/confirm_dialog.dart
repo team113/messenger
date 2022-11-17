@@ -43,6 +43,7 @@ class ConfirmDialog extends StatefulWidget {
     this.description,
     required this.title,
     required this.variants,
+    this.initial = 0,
     this.proceedLabel,
     this.withCancel = true,
     this.additional = const [],
@@ -63,6 +64,8 @@ class ConfirmDialog extends StatefulWidget {
 
   final List<Widget> additional;
 
+  final int initial;
+
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
     BuildContext context, {
@@ -72,6 +75,7 @@ class ConfirmDialog extends StatefulWidget {
     String? proceedLabel,
     bool withCancel = true,
     List<Widget> additional = const [],
+    int initial = 0,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
@@ -92,6 +96,7 @@ class ConfirmDialog extends StatefulWidget {
         additional: additional,
         proceedLabel: proceedLabel,
         withCancel: withCancel,
+        initial: initial,
       ),
     );
   }
@@ -107,7 +112,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _variant = widget.variants.first;
+    _variant = widget.variants[widget.initial];
     super.initState();
   }
 

@@ -37,7 +37,20 @@ class IntroductionView extends StatelessWidget {
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const IntroductionView());
+    return ModalPopup.show(
+      context: context,
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      child: const IntroductionView(),
+    );
   }
 
   @override
@@ -95,15 +108,15 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('ChangePasswordButton'),
                   title: Text(
-                    'btn_save'.l10n,
+                    'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: c.setPassword,
-                  height: 50,
-                  leading: SvgLoader.asset(
-                    'assets/icons/save.svg',
-                    height: 25 * 0.7,
-                  ),
+                  // height: 50,
+                  // leading: SvgLoader.asset(
+                  //   'assets/icons/save.svg',
+                  //   height: 25 * 0.7,
+                  // ),
                   color: const Color(0xFF63B4FF),
                 ),
               ];
@@ -136,16 +149,16 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('CloseButton'),
-                        maxWidth: null,
-                        title: Text('btn_close'.l10n, style: thin),
-                        onPressed: Navigator.of(context).pop,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                    // Expanded(
+                    //   child: OutlinedRoundedButton(
+                    //     key: const Key('CloseButton'),
+                    //     maxWidth: null,
+                    //     title: Text('btn_close'.l10n, style: thin),
+                    //     onPressed: Navigator.of(context).pop,
+                    //     color: const Color(0xFFEEEEEE),
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 10),
                     Expanded(
                       child: OutlinedRoundedButton(
                         key: const Key('SetPasswordButton'),
@@ -182,27 +195,34 @@ class IntroductionView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                if (PlatformUtils.isMobile)
-                  SharableTextField(
-                    key: const Key('NumCopyable'),
-                    text: c.num.text,
-                    label: 'label_num'.l10n,
-                    share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                    trailing:
-                        SvgLoader.asset('assets/icons/share.svg', width: 18),
-                    style: thin,
-                  )
-                else
-                  CopyableTextField(
-                    key: const Key('NumCopyable'),
-                    state: c.num,
-                    label: 'label_num'.l10n,
-                    copy: c.myUser.value?.num.val,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: PlatformUtils.isMobile
+                      ? SharableTextField(
+                          key: const Key('NumCopyable'),
+                          text: c.num.text,
+                          label: 'label_num'.l10n,
+                          share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                          trailing: SvgLoader.asset('assets/icons/share.svg',
+                              width: 18),
+                          style: thin,
+                        )
+                      : CopyableTextField(
+                          key: const Key('NumCopyable'),
+                          state: c.num,
+                          label: 'label_num'.l10n,
+                          copy: c.myUser.value?.num.val,
+                          style: thin?.copyWith(fontSize: 18),
+                        ),
+                ),
                 const SizedBox(height: 25),
-                ...children,
-                const SizedBox(height: 12),
+                ...children.map((e) {
+                  return Padding(
+                    padding: ModalPopup.padding(context),
+                    child: e,
+                  );
+                }),
+                const SizedBox(height: 16),
               ],
             ),
           );

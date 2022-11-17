@@ -60,13 +60,13 @@ import 'controller.dart';
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
 /// Intended to be displayed with the [show] method.
-class AddEmailView extends StatelessWidget {
-  const AddEmailView({Key? key, this.email}) : super(key: key);
+class AddPhoneView extends StatelessWidget {
+  const AddPhoneView({Key? key, this.phone}) : super(key: key);
 
-  final UserEmail? email;
+  final UserPhone? phone;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
+  static Future<T?> show<T>(BuildContext context, {UserPhone? phone}) {
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -79,7 +79,7 @@ class AddEmailView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      child: AddEmailView(email: email),
+      child: AddPhoneView(phone: phone),
     );
   }
 
@@ -89,17 +89,17 @@ class AddEmailView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: AddEmailController(
+      init: AddPhoneController(
         Get.find(),
-        initial: email,
+        initial: phone,
         pop: Navigator.of(context).pop,
       ),
-      builder: (AddEmailController c) {
+      builder: (AddPhoneController c) {
         return Obx(() {
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case AddEmailFlowStage.code:
+            case AddPhoneFlowStage.code:
               children = [
                 Flexible(
                   child: Padding(
@@ -112,9 +112,9 @@ class AddEmailView extends StatelessWidget {
                           child: Obx(() {
                             return Text(
                               c.resent.value
-                                  ? 'label_add_email_confirmation_sent_again'
+                                  ? 'label_add_phone_confirmation_sent_again'
                                       .l10n
-                                  : 'label_add_email_confirmation_sent'.l10n,
+                                  : 'label_add_phone_confirmation_sent'.l10n,
                               style: thin?.copyWith(
                                 fontSize: 15,
                                 color: const Color(0xFF888888),
@@ -124,7 +124,7 @@ class AddEmailView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
-                          state: c.emailCode,
+                          state: c.phoneCode,
                           label: 'Код подтверждения',
                         ),
                         const SizedBox(height: 25),
@@ -136,17 +136,17 @@ class AddEmailView extends StatelessWidget {
                                   key: const Key('Resend'),
                                   maxWidth: null,
                                   title: Text(
-                                    c.resendEmailTimeout.value == 0
+                                    c.resendPhoneTimeout.value == 0
                                         ? 'Resend'.l10n
-                                        : 'Resend (${c.resendEmailTimeout.value})',
+                                        : 'Resend (${c.resendPhoneTimeout.value})',
                                     style: thin?.copyWith(
-                                      color: c.resendEmailTimeout.value == 0
+                                      color: c.resendPhoneTimeout.value == 0
                                           ? Colors.white
                                           : Colors.black,
                                     ),
                                   ),
-                                  onPressed: c.resendEmailTimeout.value == 0
-                                      ? c.resendEmail
+                                  onPressed: c.resendPhoneTimeout.value == 0
+                                      ? c.resendPhone
                                       : null,
                                   color: const Color(0xFF63B4FF),
                                 ),
@@ -159,14 +159,14 @@ class AddEmailView extends StatelessWidget {
                                   title: Text(
                                     'btn_proceed'.l10n,
                                     style: thin?.copyWith(
-                                      color: c.emailCode.isEmpty.value
+                                      color: c.phoneCode.isEmpty.value
                                           ? Colors.black
                                           : Colors.white,
                                     ),
                                   ),
-                                  onPressed: c.emailCode.isEmpty.value
+                                  onPressed: c.phoneCode.isEmpty.value
                                       ? null
-                                      : c.emailCode.submit,
+                                      : c.phoneCode.submit,
                                   color: const Color(0xFF63B4FF),
                                 ),
                               ),
@@ -191,7 +191,7 @@ class AddEmailView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            'label_add_email_description'.l10n,
+                            'label_add_phone_description'.l10n,
                             style: thin?.copyWith(
                               fontSize: 15,
                               color: const Color(0xFF888888),
@@ -200,9 +200,9 @@ class AddEmailView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
-                          state: c.email,
-                          label: 'E-mail',
-                          hint: 'example@gmail.com',
+                          state: c.phone,
+                          label: 'Phone number',
+                          hint: '+34 123 123 53 53',
                         ),
                         const SizedBox(height: 25),
                         Obx(() {
@@ -212,13 +212,13 @@ class AddEmailView extends StatelessWidget {
                             title: Text(
                               'btn_proceed'.l10n,
                               style: thin?.copyWith(
-                                color: c.email.isEmpty.value
+                                color: c.phone.isEmpty.value
                                     ? Colors.black
                                     : Colors.white,
                               ),
                             ),
                             onPressed:
-                                c.email.isEmpty.value ? null : c.email.submit,
+                                c.phone.isEmpty.value ? null : c.phone.submit,
                             color: const Color(0xFF63B4FF),
                           );
                         }),
@@ -240,7 +240,7 @@ class AddEmailView extends StatelessWidget {
                 ModalPopupHeader(
                   header: Center(
                     child: Text(
-                      'Add E-mail'.l10n,
+                      'Add phone number'.l10n,
                       style: thin?.copyWith(fontSize: 18),
                     ),
                   ),

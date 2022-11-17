@@ -32,8 +32,22 @@ class ConfirmLogoutView extends StatelessWidget {
   const ConfirmLogoutView({Key? key}) : super(key: key);
 
   /// Displays a [ConfirmLogoutView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) =>
-      ModalPopup.show(context: context, child: const ConfirmLogoutView());
+  static Future<T?> show<T>(BuildContext context) {
+    return ModalPopup.show(
+      context: context,
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      child: const ConfirmLogoutView(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,54 +65,65 @@ class ConfirmLogoutView extends StatelessWidget {
           switch (c.stage.value) {
             case ConfirmLogoutViewStage.password:
               children = [
-                Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'btn_set_password'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 18),
-                ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  style: thin,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ReactiveTextField(
+                    key: const Key('PasswordField'),
+                    state: c.password,
+                    label: 'label_password'.l10n,
+                    obscure: c.obscurePassword.value,
+                    style: thin,
+                    onSuffixPressed: c.obscurePassword.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgLoader.asset(
+                      'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                      width: 17.07,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                ReactiveTextField(
-                  key: const Key('RepeatPasswordField'),
-                  state: c.repeat,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeat.value,
-                  style: thin,
-                  onSuffixPressed: c.obscureRepeat.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: ReactiveTextField(
+                    key: const Key('RepeatPasswordField'),
+                    state: c.repeat,
+                    label: 'label_repeat_password'.l10n,
+                    obscure: c.obscureRepeat.value,
+                    style: thin,
+                    onSuffixPressed: c.obscureRepeat.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgLoader.asset(
+                      'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                      width: 17.07,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
-                OutlinedRoundedButton(
-                  key: const Key('ChangePasswordButton'),
-                  title: Text(
-                    'btn_save'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: OutlinedRoundedButton(
+                    key: const Key('ChangePasswordButton'),
+                    title: Text(
+                      'btn_proceed'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
+                    onPressed: c.setPassword,
+                    // height: 50,
+                    // leading: SvgLoader.asset(
+                    //   'assets/icons/save.svg',
+                    //   height: 25 * 0.7,
+                    // ),
+                    color: const Color(0xFF63B4FF),
                   ),
-                  onPressed: c.setPassword,
-                  height: 50,
-                  leading: SvgLoader.asset(
-                    'assets/icons/save.svg',
-                    height: 25 * 0.7,
-                  ),
-                  color: const Color(0xFF63B4FF),
                 ),
               ];
               break;
@@ -106,19 +131,24 @@ class ConfirmLogoutView extends StatelessWidget {
             case ConfirmLogoutViewStage.success:
               children = [
                 const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'label_password_set_successfully'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'label_password_set_successfully'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 25),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('CloseButton'),
-                    title: Text('btn_close'.l10n),
-                    onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFFEEEEEE),
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: OutlinedRoundedButton(
+                      key: const Key('CloseButton'),
+                      title: Text('btn_close'.l10n),
+                      onPressed: Navigator.of(context).pop,
+                      color: const Color(0xFFEEEEEE),
+                    ),
                   ),
                 ),
               ];
@@ -126,55 +156,63 @@ class ConfirmLogoutView extends StatelessWidget {
 
             default:
               children = [
-                Center(
-                  child: Text(
-                    'label_password_not_set'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          style: thin,
-                          text: 'label_account_access_will_be_lost'.l10n,
-                        ),
-                      ],
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'label_password_not_set'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
                     ),
                   ),
                 ),
-                const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('SetPasswordButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_set_password'.l10n,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () =>
-                            c.stage.value = ConfirmLogoutViewStage.password,
-                        color: const Color(0xFF63B4FF),
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            style: thin,
+                            text: 'label_account_access_will_be_lost'.l10n,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('LogoutConfirmedButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_logout'.l10n,
-                          style: const TextStyle(),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedRoundedButton(
+                          key: const Key('SetPasswordButton'),
+                          maxWidth: null,
+                          title: Text(
+                            'btn_set_password'.l10n,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () =>
+                              c.stage.value = ConfirmLogoutViewStage.password,
+                          color: const Color(0xFF63B4FF),
                         ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        color: const Color(0xFFEEEEEE),
                       ),
-                    )
-                  ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedRoundedButton(
+                          key: const Key('LogoutConfirmedButton'),
+                          maxWidth: null,
+                          title: Text(
+                            'btn_logout'.l10n,
+                            style: const TextStyle(),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          color: const Color(0xFFEEEEEE),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ];
               break;
@@ -187,9 +225,8 @@ class ConfirmLogoutView extends StatelessWidget {
               key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               shrinkWrap: true,
               children: [
-                const SizedBox(height: 12),
                 ...children,
-                const SizedBox(height: 25),
+                const SizedBox(height: 16),
               ],
             ),
           );
