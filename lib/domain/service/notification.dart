@@ -182,15 +182,7 @@ class NotificationService extends DisposableService {
           options: DefaultFirebaseOptions.currentPlatform);
 
       if (PlatformUtils.isWeb || PlatformUtils.isIOS) {
-        await FirebaseMessaging.instance.requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        );
+        await FirebaseMessaging.instance.requestPermission();
       }
 
       String? oldToken;
