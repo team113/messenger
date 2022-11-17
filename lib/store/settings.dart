@@ -118,6 +118,14 @@ class SettingsRepository extends DisposableInterface
   Future<void> setCallButtons(List<String> buttons) =>
       _settingsLocal.setCallButtons(buttons);
 
+  @override
+  Future<void> setShowCallHint(bool show) =>
+      _settingsLocal.setShowCallHint(show);
+
+  @override
+  Future<void> setShowCallMoreHint(bool show) =>
+      _settingsLocal.setShowCallMoreHint(show);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

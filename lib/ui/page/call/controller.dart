@@ -144,12 +144,6 @@ class CallController extends GetxController {
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
 
-  /// Indicator whether the hint is dismissed or not.
-  final RxBool isHintDismissed = RxBool(false);
-
-  /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
-
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
 
@@ -409,6 +403,14 @@ class CallController extends GetxController {
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
       _currentCall.value.caller?.num.val;
+
+  /// Indicator whether the hint is should be showed.
+  bool get showHint =>
+      _settingsRepository.applicationSettings.value?.showCallHint ?? true;
+
+  /// Indicator whether the more hint is should be showed.
+  bool get showMoreHint =>
+      _settingsRepository.applicationSettings.value?.showCallMoreHint ?? true;
 
   /// Returns actual size of the call view.
   Size get size {
@@ -929,6 +931,12 @@ class CallController extends GetxController {
 
     relocateSecondary();
   }
+
+  /// Dismisses the hint.
+  Future<void> dismissHint() => _settingsRepository.setShowCallHint(false);
+
+  /// Dismisses the more hint.
+  Future<void> dismissMoreHint() => _settingsRepository.setShowCallHint(false);
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();

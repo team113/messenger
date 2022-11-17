@@ -61,4 +61,10 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.callButtons] value.
   Future<void> setCallButtons(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.showCallHint] value.
+  Future<void> setShowCallHint(bool show);
+
+  /// Sets the [ApplicationSettings.showCallMoreHint] value.
+  Future<void> setShowCallMoreHint(bool show);
 }

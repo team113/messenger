@@ -358,7 +358,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                     c.relocateSecondary();
                                   },
                                   onDragStarted: (b) {
-                                    c.isMoreHintDismissed.value = true;
+                                    c.dismissMoreHint();
                                     c.draggedButton.value = b;
                                   },
                                   onDragEnded: (_) =>
@@ -454,7 +454,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         ),
                                         data: e,
                                         onDragStarted: () {
-                                          c.isMoreHintDismissed.value = true;
+                                          c.dismissMoreHint();
                                           c.draggedButton.value = e;
                                         },
                                         onDragCompleted: () =>
@@ -544,7 +544,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         Obx(() {
           return AnimatedSwitcher(
             duration: 150.milliseconds,
-            child: !c.isMoreHintDismissed.value && c.displayMore.value
+            child: c.showMoreHint && c.displayMore.value
                 ? Align(
                     alignment: Alignment.bottomCenter,
                     child: Column(
@@ -564,7 +564,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                           : CallController.titleHeight)),
                               child: HintWidget(
                                 text: 'label_hint_drag_n_drop_buttons'.l10n,
-                                onTap: () => c.isMoreHintDismissed.value = true,
+                                onTap: c.dismissMoreHint,
                               ),
                             ),
                           ),
@@ -773,7 +773,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
             return AnimatedSwitcher(
               duration: 150.milliseconds,
-              child: !c.isHintDismissed.value && mayDragVideo
+              child: c.showHint && mayDragVideo
                   ? Padding(
                       padding: EdgeInsets.only(
                         top: c.secondary.isNotEmpty &&
@@ -793,7 +793,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           width: 320,
                           child: HintWidget(
                             text: 'label_hint_drag_n_drop_video'.l10n,
-                            onTap: c.isHintDismissed.toggle,
+                            onTap: c.dismissHint,
                           ),
                         ),
                       ),
@@ -1218,7 +1218,7 @@ Widget _primaryView(CallController c) {
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
-            c.isHintDismissed.value = true;
+            c.dismissHint();
             c.primaryDrags.value = 1;
             c.keepUi(false);
           },
@@ -1751,7 +1751,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onLeave: (b) => c.secondaryTargets.value = 0,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;
-              c.isHintDismissed.value = true;
+              c.dismissHint();
               c.secondaryDrags.value = 1;
               c.displayMore.value = false;
               c.keepUi(false);

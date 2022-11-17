@@ -62,4 +62,15 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setCallButtons(List<String> buttons) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
+
+  /// Stores a new [show] value of [ApplicationSettings.showCallHint] to
+  /// [Hive].
+  Future<void> setShowCallHint(bool show) => putSafe(
+      0, (box.get(0) ?? ApplicationSettings())..showCallHint = show);
+
+  /// Stores a new [show] value of [ApplicationSettings.showCallMoreHint] to
+  /// [Hive].
+  Future<void> setShowCallMoreHint(bool show) => putSafe(
+      0, (box.get(0) ?? ApplicationSettings())..showCallMoreHint = show);
+
 }
