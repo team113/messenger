@@ -68,8 +68,6 @@ class CallService extends DisposableService {
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
-
-    _callsRepo.dispose();
   }
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].

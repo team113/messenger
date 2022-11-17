@@ -42,12 +42,6 @@ abstract class AbstractCallRepository {
   /// Replaces the value of [OngoingCall] identified by [chatId] to [call].
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
-  /// Initializes the repository.
-  void init();
-
-  /// Disposes the repository.
-  void dispose();
-
   /// Switches the [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
