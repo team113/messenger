@@ -72,17 +72,6 @@ class ChatsTabController extends GetxController {
   /// Results of search.
   final Rx<SearchViewResults?> searchResult = Rx<SearchViewResults?>(null);
 
-  /// Status of a search completion.
-  ///
-  /// May be:
-  /// - `searchStatus.empty`, meaning no search.
-  /// - `searchStatus.loading`, meaning search is in progress.
-  /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [searchResult] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [searchResult] are
-  ///   acquired.
-  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
-
   /// Controller of searching.
   late final SearchController searchController;
 
@@ -157,7 +146,6 @@ class ChatsTabController extends GetxController {
         searchResult.value = results;
         populate();
       },
-      status: searchStatus,
     )..onInit();
 
     searchField.controller.addListener(_searchFieldListener);

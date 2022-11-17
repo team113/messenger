@@ -35,7 +35,7 @@ import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
-import 'parameters/seach_chats.dart';
+import 'parameters/search_chats.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';

@@ -24,7 +24,7 @@ import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/contact.dart';
 
-import '../parameters/seach_chats.dart';
+import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 

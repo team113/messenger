@@ -16,7 +16,7 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [SearchChats]es available in an [SearchChatsParameter].
+/// [SearchChats] available in an [SearchChatsParameter].
 enum SearchChats { chat, contact }
 
 /// [SearchChatsParameter] representing an search type in chats searching.

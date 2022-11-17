@@ -155,7 +155,6 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(
       () => Theme(
         data: Theme.of(context).copyWith(
-          platform: TargetPlatform.macOS,
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
         ),
         child: Column(
@@ -251,7 +250,6 @@ class ReactiveTextField extends StatelessWidget {
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
                 errorStyle: const TextStyle(fontSize: 0),
-                errorText: state.error.value,
               ),
               obscureText: obscure,
               keyboardType: type,

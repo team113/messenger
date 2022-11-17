@@ -50,8 +50,8 @@ All user visible changes to this project will be documented in this file. This p
 [#193]: /../../pull/193
 [#196]: /../../issues/196
 [#198]: /../../pull/198
-[#196]: /../../issues/205
-[#198]: /../../pull/206
+[#205]: /../../issues/205
+[#206]: /../../pull/206
 
 
 

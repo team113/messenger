@@ -142,10 +142,7 @@ class ChatsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: Theme.of(context)
-                            .extension<Style>()!
-                            .boldBody
-                            .copyWith(fontSize: 17),
+                        style: style.boldBody.copyWith(fontSize: 17),
                       ),
                     ),
                   ),
@@ -193,7 +190,8 @@ class ChatsTabView extends StatelessWidget {
                       key: const Key('CloseSearch'),
                       onPressed: () {
                         c.searching.value = false;
-                        c.searchStatus.value = RxStatus.empty();
+                        c.searchController.searchStatus.value =
+                            RxStatus.empty();
                         c.searchField.text = '';
                         c.searchResult.value = null;
                         c.elements.clear();
@@ -232,12 +230,12 @@ class ChatsTabView extends StatelessWidget {
               Widget? child;
 
               if (c.searching.isTrue &&
-                  c.searchStatus.value.isSuccess &&
+                  c.searchController.searchStatus.value.isSuccess &&
                   (c.searchResult.value == null ||
                       c.searchResult.value?.isEmpty == true)) {
                 child = Center(child: Text('label_nothing_found'.l10n));
               } else if (c.searching.isTrue &&
-                  c.searchStatus.value.isLoading &&
+                  c.searchController.searchStatus.value.isLoading &&
                   (c.searchResult.value == null ||
                       c.searchResult.value?.isEmpty == true)) {
                 child = const Center(child: CircularProgressIndicator());
