@@ -86,9 +86,11 @@ class Themes {
                   .appBarTheme
                   .iconTheme
                   ?.copyWith(color: colors.primary),
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                systemNavigationBarColor: Colors.blue,
-                statusBarColor: Color(0xFFF8F8F8),
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                systemNavigationBarDividerColor: Colors.transparent,
+                systemNavigationBarIconBrightness: Brightness.dark,
+                systemNavigationBarColor: Colors.black.withOpacity(0.002),
               ),
               elevation: 0,
               centerTitle: true,

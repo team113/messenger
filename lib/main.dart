@@ -49,10 +49,24 @@ import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
+import 'package:flutter/services.dart';
+
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
+  //Now we use SystemChrome
+  // WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    //Lets make the Status Bar Transparent
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.black.withOpacity(0.002),
+    // systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
 
+    // //Lets make the status bar icon brightness to bright
+    // statusBarIconBrightness: Brightness.light,
+  ));
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
