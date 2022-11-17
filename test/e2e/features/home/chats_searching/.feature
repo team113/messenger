@@ -16,13 +16,12 @@
 
 Feature: Chats searching
 
-  Background: User has contact and dialog
+  Scenario: I found chat, user and contact
     Given I am Alice
     And users Bob and Charlie
     And I have "Example" group with Bob
     And I have contact Charlie
 
-  Scenario: I found group, user and contact
     When I tap `SearchButton` button
     And I fill `SearchField` field with "Example"
     Then I wait until "Example" chat in search results is present

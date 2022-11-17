@@ -16,12 +16,12 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [SearchChats] available in an [SearchChatsParameter].
+/// [WhatToSearchInChats] available in an [SearchInChatsParameter].
 enum WhatToSearchInChats { chat, contact }
 
 /// [SearchChatsParameter] representing an search type in chats searching.
-class SearchChatsParameter extends CustomParameter<WhatToSearchInChats> {
-  SearchChatsParameter()
+class SearchInChatsParameter extends CustomParameter<WhatToSearchInChats> {
+  SearchInChatsParameter()
       : super(
           'search_chats',
           RegExp(

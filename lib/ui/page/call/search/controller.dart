@@ -30,7 +30,6 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/ui/page/call/search/view.dart';
 import '/ui/widget/text_field.dart';
 import '/util/obs/obs.dart';
 
@@ -146,7 +145,7 @@ class SearchController extends GetxController {
   final ContactService _contactService;
 
   /// Subscription for [ChatService.chats] changes.
-  late final StreamSubscription _chatsSubscription;
+  StreamSubscription? _chatsSubscription;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -159,9 +158,13 @@ class SearchController extends GetxController {
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String? q) {
-      if (q == null || q.isEmpty) {
+      if (q == null || q.length < 2) {
         searchResults.value = null;
         searchStatus.value = RxStatus.empty();
+        users.clear();
+        contacts.clear();
+        chats.clear();
+        recent.clear();
       } else {
         searchStatus.value = RxStatus.loading();
       }
@@ -217,7 +220,7 @@ class SearchController extends GetxController {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
-    _chatsSubscription.cancel();
+    _chatsSubscription?.cancel();
     _searchStatusWorker = null;
     super.onClose();
   }
@@ -534,22 +537,4 @@ class SearchController extends GetxController {
 
     populate();
   }
-}
-
-/// Wrapped [SearchView] items.
-class SearchViewResults {
-  const SearchViewResults(this.chats, this.users, this.contacts);
-
-  /// Selected [Chat]s.
-  final List<RxChat> chats;
-
-  /// Selected [User]s.
-  final List<RxUser> users;
-
-  /// Selected [ChatContact]s.
-  final List<RxChatContact> contacts;
-
-  /// Indicates whether [chats], [users] and [contacts] are empty or not.
-  bool get isEmpty =>
-      chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
 }

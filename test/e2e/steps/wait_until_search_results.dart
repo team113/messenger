@@ -28,11 +28,11 @@ import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided text is present or absent.
+/// Waits until the provided [User] in chats searching is present or absent.
 ///
 /// Examples:
-/// - Then I wait until text "Dummy" is absent
-/// - Then I wait until text "Dummy" is present
+/// - Then I wait until Bob user in search results is absent
+/// - Then I wait until Bob user in search results is present
 final StepDefinitionGeneric untilUserInSearchResults =
     then2<TestUser, Existence, CustomWorld>(
   'I wait until {user} user in search results is {existence}',
@@ -45,12 +45,16 @@ final StepDefinitionGeneric untilUserInSearchResults =
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
-                context.world.appDriver
-                    .findBy('SearchUser_$userId', FindType.key),
+                context.world.appDriver.findBy(
+                  'SearchUser_$userId',
+                  FindType.key,
+                ),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver
-                    .findBy('SearchUser_$userId', FindType.key),
+                context.world.appDriver.findBy(
+                  'SearchUser_$userId',
+                  FindType.key,
+                ),
               );
       },
       timeout: const Duration(seconds: 30),
@@ -58,12 +62,15 @@ final StepDefinitionGeneric untilUserInSearchResults =
   },
 );
 
-/// Waits until the provided text is present or absent.
+/// Waits until the provided [Contact] or [Chat] in chats searching is present
+/// or absent.
 ///
 /// Examples:
-/// - Then I wait until text "Dummy" is absent
-/// - Then I wait until text "Dummy" is present
-final StepDefinitionGeneric untilChatInSearchResults =
+/// - Then I wait until "Example" chat in search results is absent
+/// - Then I wait until "Example" chat in search results is present
+/// - Then I wait until "Charlie" contact in search results is present
+/// - Then I wait until "Charlie" contact in search results is present
+final StepDefinitionGeneric untilContactOrChatInSearchResults =
     then3<String, WhatToSearchInChats, Existence, CustomWorld>(
   'I wait until {string} {search_chats} in search results is {existence}',
   (String name, WhatToSearchInChats search, Existence existence,

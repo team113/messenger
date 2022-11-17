@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -79,7 +80,7 @@ class ChatsTabController extends GetxController {
   /// Indicator whether searching mode is enabled or not.
   final RxBool searching = RxBool(false);
 
-  /// Elements of wrapped [SearchViewResults].
+  /// Elements of [searchController] items.
   final RxList<ListElement> elements = RxList([]);
 
   /// [AuthService] used to get [me] value.
@@ -259,7 +260,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Updates the [elements] according to the [searchResult].
+  /// Updates the [elements] according to the [searchController] search results.
   void populate() {
     elements.clear();
 
@@ -272,6 +273,7 @@ class ChatsTabController extends GetxController {
 
     if (searchController.contacts.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.contacts));
+
       for (var c in searchController.contacts.values) {
         if (chats.none((e1) =>
             e1.chat.value.isDialog &&
@@ -280,14 +282,17 @@ class ChatsTabController extends GetxController {
           elements.add(ContactElement(c));
         }
       }
+
       if (elements.whereType<ContactElement>().isEmpty) {
         elements.removeWhere(
-            (e) => e == const DividerElement(SearchCategory.contacts));
+          (e) => e == const DividerElement(SearchCategory.contacts),
+        );
       }
     }
 
     if (searchController.users.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.users));
+
       for (var c in searchController.users.values) {
         if (chats.none((e1) =>
             e1.chat.value.isDialog &&
@@ -295,9 +300,11 @@ class ChatsTabController extends GetxController {
           elements.add(UserElement(c));
         }
       }
+
       if (elements.whereType<UserElement>().isEmpty) {
         elements.removeWhere(
-            (e) => e == const DividerElement(SearchCategory.users));
+          (e) => e == const DividerElement(SearchCategory.users),
+        );
       }
     }
   }
@@ -314,7 +321,8 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  void changeSearchStatus({required bool enable}) {
+  /// Changes search status to enabled or not.
+  void enableSearching(bool enable) {
     if (enable) {
       searching.value = true;
       searchField.focus.requestFocus();
@@ -353,7 +361,7 @@ class ChatsTabController extends GetxController {
   void _searchFieldFocusListener() {
     if (searchField.focus.hasFocus == false) {
       if (searchField.text.isEmpty) {
-        changeSearchStatus(enable: false);
+        enableSearching(false);
       }
     }
   }
@@ -407,11 +415,11 @@ class ChatElement extends ListElement {
   final RxChat chat;
 }
 
-/// [Contact] of search results.
+/// [ChatContact] of search results.
 class ContactElement extends ListElement {
   const ContactElement(this.contact);
 
-  /// [Contact] that should be displayed as search result.
+  /// [ChatContact] that should be displayed as search result.
   final RxChatContact contact;
 }
 
