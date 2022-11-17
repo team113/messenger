@@ -151,7 +151,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   data: Theme.of(context).copyWith(
                     iconTheme: const IconThemeData(color: Colors.blue),
                   ),
-                  child: widget.leading!,
+                  child: widget.trailing!,
                 ),
               ],
             ],
