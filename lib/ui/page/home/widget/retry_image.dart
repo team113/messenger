@@ -173,7 +173,7 @@ class _RetryImageState extends State<RetryImage> {
   Future<void> _loadImage() async {
     _timer?.cancel();
     Response? data;
-    // print(widget.url);
+
     try {
       data = await PlatformUtils.dio.get(
         widget.url,

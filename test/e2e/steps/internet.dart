@@ -25,7 +25,7 @@ import 'package:messenger/util/platform_utils.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
-/// Turn off internet for specified time.
+/// Sets the provided delay to all [GraphQlProvider] requests.
 ///
 /// Examples:
 /// - I have Internet with delay of 1 second
