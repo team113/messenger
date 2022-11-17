@@ -254,12 +254,10 @@ class ChatsTabView extends StatelessWidget {
                     if (element is ChatElement) {
                       final RxChat chat = element.chat;
                       child = Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                        ),
+                        padding: const EdgeInsets.only(left: 10, right: 10),
                         child: RecentChatTile(
                           chat,
+                          key: Key('SearchChat_${chat.id}'),
                           me: c.me,
                           getUser: c.getUser,
                           onJoin: () => c.joinCall(chat.id),
@@ -267,20 +265,19 @@ class ChatsTabView extends StatelessWidget {
                           onLeave: () => c.leaveChat(chat.id),
                           onHide: () => c.hideChat(chat.id),
                           inCall: () => c.inCall(chat.id),
-                          key: Key('SearchChat_${chat.id}'),
                         ),
                       );
                     } else if (element is ContactElement) {
                       child = tile(
+                        key: Key('SearchContact_${element.contact.id}'),
                         contact: element.contact,
                         onTap: () => c.openChat(contact: element.contact),
-                        key: Key('SearchContact_${element.contact.id}'),
                       );
                     } else if (element is UserElement) {
                       child = tile(
+                        key: Key('SearchUser_${element.user.id}'),
                         user: element.user,
                         onTap: () => c.openChat(user: element.user),
-                        key: Key('SearchUser_${element.user.id}'),
                       );
                     } else if (element is DividerElement) {
                       child = Center(
@@ -360,9 +357,7 @@ class ChatsTabView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
-                  child: AnimationLimiter(
-                    child: child,
-                  ),
+                  child: AnimationLimiter(child: child),
                 ),
               );
             }

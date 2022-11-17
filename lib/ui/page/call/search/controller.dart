@@ -157,6 +157,7 @@ class SearchController extends GetxController {
   void onInit() {
     _sortedChats.addAll(_chatService.chats.values);
     _sortChats();
+
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String? q) {
