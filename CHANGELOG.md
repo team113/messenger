@@ -19,6 +19,8 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
+    - Home page:
+        - Quick status changing menu. ([#204], [#203])
 
 ### Changed
 
@@ -51,6 +53,8 @@ All user visible changes to this project will be documented in this file. This p
 [#196]: /../../issues/196
 [#198]: /../../pull/198
 [#200]: /../../issues/200
+[#203]: /../../issues/203
+[#204]: /../../pull/204
 [#210]: /../../pull/210
 
 
