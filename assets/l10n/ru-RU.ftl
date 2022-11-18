@@ -548,10 +548,10 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} непрочитанных сообщения
 }
 label_use_search = Используйте поиск, чтобы найти пользователя
-label_user_added_to_group_by_link = {$addedUser} присоеденился к групе по ссылке
-label_user_added_to_group_by_user = {$user} добавил {$addedUser}
-label_user_leave_group = {$removedUser} покинул групу
-label_user_removed_from_group = {$user} удалил {$removedUser}
+label_user_joined_group_by_link = {$user} присоединился к группе по ссылке
+label_user_added_user = {$author} добавил {$user}
+label_user_left_group = {$user} покинул группу
+label_user_removed_user = {$author} удалил {$user}
 label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок
