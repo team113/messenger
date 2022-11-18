@@ -34,6 +34,7 @@ class Video extends StatefulWidget {
     this.onController,
     this.isFullscreen,
     this.onError,
+    this.showInterfaceFor,
   }) : super(key: key);
 
   /// URL of the video to display.
@@ -53,6 +54,9 @@ class Video extends StatefulWidget {
 
   /// Callback, called on the [VideoPlayerController] initialization errors.
   final Future<void> Function()? onError;
+
+  /// [Duration] of initial interface showing.
+  final Duration? showInterfaceFor;
 
   @override
   State<Video> createState() => _VideoState();
@@ -160,6 +164,7 @@ class _VideoState extends State<Video> {
                 onClose: widget.onClose,
                 toggleFullscreen: widget.toggleFullscreen,
                 isFullscreen: widget.isFullscreen,
+                showInterfaceFor: widget.showInterfaceFor,
               ),
         routePageBuilder: (context, animation, _, provider) {
           return Theme(
