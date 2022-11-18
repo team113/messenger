@@ -39,10 +39,7 @@ import android.app.KeyguardManager
 
 class MainActivity: FlutterActivity() {
     private val UTILS_CHANNEL = "team113.flutter.dev/android_utils"
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
