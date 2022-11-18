@@ -525,6 +525,10 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} unread messages
 }
 label_use_search = Use search to find an user
+label_user_added_to_group_by_link = {$addedUser} joined the group by invite link
+label_user_added_to_group_by_user = {$user} added {$addedUser}
+label_user_leave_group = {$removedUser} leave the group
+label_user_removed_from_group = {$user} removed {$removedUser}
 label_users = Users
 label_video = Video
 label_video_call = Video call
@@ -534,6 +538,7 @@ label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_you_were_added_to_group_by_user = {$user} added you to the group
 plus = +
 semicolon_space = :{" "}
 space = {" "}
