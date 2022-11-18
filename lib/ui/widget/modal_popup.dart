@@ -36,7 +36,7 @@ abstract class ModalPopup {
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 
-    if (context.isMobile && PlatformUtils.isMobile) {
+    if (context.isNarrow) {
       return showModalBottomSheet(
         context: context,
         barrierColor: style.barrierColor,
