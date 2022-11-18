@@ -627,39 +627,41 @@ class ChatsTabView extends StatelessWidget {
                             c.query.value?.isEmpty != false) &&
                         !c.groupCreating.value) {
                       center = AnimationLimiter(
-                        child: ListView.builder(
-                          controller: ScrollController(),
-                          itemCount: c.chats.length,
-                          itemBuilder: (BuildContext context, int i) {
-                            RxChat chat = c.sortedChats[i];
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50.0,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      top: i == 0 ? 5 : 0,
-                                      left: 10,
-                                      right: 10,
-                                      bottom: i == c.chats.length - 1 ? 5 : 0,
-                                    ),
-                                    child: RecentChatTile(
-                                      chat,
-                                      me: c.me,
-                                      getUser: c.getUser,
-                                      onJoin: () => c.joinCall(chat.id),
-                                      onDrop: () => c.dropCall(chat.id),
-                                      onLeave: () => c.leaveChat(chat.id),
-                                      onHide: () => c.hideChat(chat.id),
-                                      inCall: () => c.inCall(chat.id),
+                        child: ContextMenuInterceptor(
+                          child: ListView.builder(
+                            controller: ScrollController(),
+                            itemCount: c.chats.length,
+                            itemBuilder: (BuildContext context, int i) {
+                              RxChat chat = c.sortedChats[i];
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50.0,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        top: i == 0 ? 5 : 0,
+                                        left: 10,
+                                        right: 10,
+                                        bottom: i == c.chats.length - 1 ? 5 : 0,
+                                      ),
+                                      child: RecentChatTile(
+                                        chat,
+                                        me: c.me,
+                                        getUser: c.getUser,
+                                        onJoin: () => c.joinCall(chat.id),
+                                        onDrop: () => c.dropCall(chat.id),
+                                        onLeave: () => c.leaveChat(chat.id),
+                                        onHide: () => c.hideChat(chat.id),
+                                        inCall: () => c.inCall(chat.id),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       );
                     }

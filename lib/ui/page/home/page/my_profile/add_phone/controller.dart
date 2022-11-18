@@ -72,7 +72,7 @@ class AddPhoneController extends GetxController {
       onSubmitted: (s) async {
         UserPhone? phone;
         try {
-          phone = UserPhone(s.text);
+          phone = UserPhone(s.text.replaceAll(' ', ''));
 
           if (myUser.value!.phones.confirmed.contains(phone) ||
               myUser.value?.phones.unconfirmed == phone) {
@@ -123,6 +123,10 @@ class AddPhoneController extends GetxController {
             // await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
             if (s.text == '1111') {
               await Future.delayed(const Duration(seconds: 1));
+              myUser.value?.phones.confirmed
+                  .add(UserPhone(phone.text.replaceAll(' ', '')));
+              // myUser.value?.phones.unconfirmed = null;
+              myUser.refresh();
             } else {
               throw const ConfirmUserPhoneException(
                 ConfirmUserPhoneErrorCode.wrongCode,

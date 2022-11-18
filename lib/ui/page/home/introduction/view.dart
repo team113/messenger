@@ -109,9 +109,15 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: thin?.copyWith(
+                      color: c.password.isEmpty.value || c.repeat.isEmpty.value
+                          ? Colors.black
+                          : Colors.white,
+                    ),
                   ),
-                  onPressed: c.setPassword,
+                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
+                      ? null
+                      : c.setPassword,
                   // height: 50,
                   // leading: SvgLoader.asset(
                   //   'assets/icons/save.svg',
@@ -187,6 +193,9 @@ class IntroductionView extends StatelessWidget {
               physics: const ClampingScrollPhysics(),
               children: [
                 ModalPopupHeader(
+                  onBack: c.stage.value == IntroductionViewStage.password
+                      ? () => c.stage.value = null
+                      : null,
                   header: Center(
                     child: Text(
                       'label_account_created'.l10n,

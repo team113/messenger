@@ -452,7 +452,7 @@ class _HomeViewState extends State<HomeView> {
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
-                  ContextMenuInterceptor(child: sideBar),
+                  sideBar,
                   Container(child: context.isNarrow ? navigation : null),
                 ] else ...[
                   const Scaffold(

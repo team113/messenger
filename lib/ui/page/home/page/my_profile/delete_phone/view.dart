@@ -101,7 +101,7 @@ class DeletePhoneView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Delete E-mail'.l10n,
+                    'Delete phone number'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),

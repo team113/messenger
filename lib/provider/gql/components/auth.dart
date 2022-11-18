@@ -312,7 +312,7 @@ abstract class AuthGraphQlMixin {
   ///
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] was used
   /// already.
-  Future<MyUserEventsVersionedMixin?> resetUserPassword(
+  Future<void> resetUserPassword(
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
@@ -333,7 +333,7 @@ abstract class AuthGraphQlMixin {
       code: code,
       newPassword: newPassword,
     );
-    final QueryResult result = await client.query(
+    await client.query(
       QueryOptions(
         operationName: 'ResetUserPassword',
         document: ResetUserPasswordMutation(variables: variables).document,
@@ -345,7 +345,5 @@ abstract class AuthGraphQlMixin {
               as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
           .code),
     );
-    return ResetUserPassword$Mutation.fromJson(result.data!).resetUserPassword
-        as MyUserEventsVersionedMixin?;
   }
 }

@@ -1024,8 +1024,12 @@ Widget _label(BuildContext context, String text) {
     padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
     child: Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        child: Text(text, style: style.systemMessageStyle),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Text(
+          text,
+          style: style.systemMessageStyle
+              .copyWith(color: Colors.black, fontSize: 18),
+        ),
       ),
     ),
   );
@@ -1224,10 +1228,118 @@ Widget _emails(MyProfileController c, BuildContext context) {
           onPressed: () => AddEmailView.show(context),
           child: IgnorePointer(
             child: ReactiveTextField(
-              state: TextFieldState(text: 'Добавить E-mail', editable: false),
+              state: TextFieldState(
+                  text: c.myUser.value?.emails.confirmed.isNotEmpty == true
+                      ? 'Добавить дополнительный E-mail'
+                      : 'Добавить E-mail',
+                  editable: false),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
+      widgets.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                WidgetButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: e.val));
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  },
+                  child: IgnorePointer(
+                    child: ReactiveTextField(
+                      state: TextFieldState(text: e.val, editable: false),
+                      label: 'Phone number',
+                      trailing: Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: Transform.scale(
+                          scale: 1.15,
+                          child: SvgLoader.asset(
+                            'assets/icons/delete.svg',
+                            height: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                WidgetButton(
+                  onPressed: () => DeletePhoneView.show(context, phone: e),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  children: [
+                    const TextSpan(
+                      text: 'Ваш номер телефона видят: ',
+                      style: TextStyle(color: Color(0xFF888888)),
+                    ),
+                    TextSpan(
+                      text: 'никто.',
+                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await ConfirmDialog.show(
+                            context,
+                            title: 'Phone'.l10n,
+                            additional: const [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Visible to:',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            proceedLabel: 'Confirm',
+                            withCancel: false,
+                            initial: 2,
+                            variants: [
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Все'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Мои контакты'.l10n),
+                              ),
+                              ConfirmDialogVariant(
+                                onProceed: () {},
+                                child: Text('Никто'.l10n),
+                              ),
+                            ],
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -1301,7 +1413,11 @@ Widget _emails(MyProfileController c, BuildContext context) {
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                  text: 'Добавить номер телефона', editable: false),
+                text: c.myUser.value?.phones.confirmed.isNotEmpty == true
+                    ? 'Добавить дополнительный телефон'
+                    : 'Добавить номер телефона',
+                editable: false,
+              ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),

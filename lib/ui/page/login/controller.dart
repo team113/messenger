@@ -70,6 +70,8 @@ class LoginController extends GetxController {
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
 
+  final RxBool recovered = RxBool(false);
+
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);
 
@@ -263,12 +265,12 @@ class LoginController extends GetxController {
     }
 
     try {
-      // await _auth.recoverUserPassword(
-      //   login: _recoveryLogin,
-      //   num: _recoveryNum,
-      //   email: _recoveryEmail,
-      //   phone: _recoveryPhone,
-      // );
+      await _auth.recoverUserPassword(
+        login: _recoveryLogin,
+        num: _recoveryNum,
+        email: _recoveryEmail,
+        phone: _recoveryPhone,
+      );
 
       stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
@@ -304,13 +306,13 @@ class LoginController extends GetxController {
     }
 
     try {
-      // await _auth.validateUserPasswordRecoveryCode(
-      //   login: _recoveryLogin,
-      //   num: _recoveryNum,
-      //   email: _recoveryEmail,
-      //   phone: _recoveryPhone,
-      //   code: ConfirmationCode(recoveryCode.text.toLowerCase()),
-      // );
+      await _auth.validateUserPasswordRecoveryCode(
+        login: _recoveryLogin,
+        num: _recoveryNum,
+        email: _recoveryEmail,
+        phone: _recoveryPhone,
+        code: ConfirmationCode(recoveryCode.text.toLowerCase()),
+      );
 
       recoveryCode.editable.value = false;
       recoveryCode.status.value = RxStatus.success();
@@ -385,7 +387,9 @@ class LoginController extends GetxController {
         newPassword: UserPassword(newPassword.text),
       );
 
-      stage.value = LoginViewStage.recoverySuccess;
+      // stage.value = LoginViewStage.recoverySuccess;
+      recovered.value = true;
+      stage.value = null;
     } on FormatException {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {

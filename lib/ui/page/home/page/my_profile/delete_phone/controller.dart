@@ -50,7 +50,12 @@ class DeletePhoneController extends GetxController {
   /// Deletes [email] address from [MyUser.emails].
   Future<void> deletePhone() async {
     try {
-      await _myUserService.deleteUserPhone(phone);
+      if (myUser.value?.phones.unconfirmed != null) {
+        await _myUserService.deleteUserPhone(phone);
+      } else {
+        myUser.value?.phones.confirmed.removeWhere((e) => e == phone);
+        myUser.refresh();
+      }
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

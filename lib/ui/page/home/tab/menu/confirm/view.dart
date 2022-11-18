@@ -66,6 +66,7 @@ class ConfirmLogoutView extends StatelessWidget {
             case ConfirmLogoutViewStage.password:
               children = [
                 ModalPopupHeader(
+                  onBack: () => c.stage.value = null,
                   header: Center(
                     child: Text(
                       'btn_set_password'.l10n,
@@ -114,9 +115,17 @@ class ConfirmLogoutView extends StatelessWidget {
                     key: const Key('ChangePasswordButton'),
                     title: Text(
                       'btn_proceed'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
+                      style: thin?.copyWith(
+                        color:
+                            c.password.isEmpty.value || c.repeat.isEmpty.value
+                                ? Colors.black
+                                : Colors.white,
+                      ),
                     ),
-                    onPressed: c.setPassword,
+                    onPressed:
+                        c.password.isEmpty.value || c.repeat.isEmpty.value
+                            ? null
+                            : c.setPassword,
                     // height: 50,
                     // leading: SvgLoader.asset(
                     //   'assets/icons/save.svg',

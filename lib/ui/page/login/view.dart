@@ -74,7 +74,9 @@ class LoginView extends StatelessWidget {
               maxWidth: null,
               title: Text(
                 title ?? '',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: onPressed == null ? Colors.black : Colors.white,
+                ),
               ),
               onPressed: onPressed,
               color: Theme.of(context).colorScheme.secondary,
@@ -114,6 +116,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recovery:
               children = [
                 ModalPopupHeader(
+                  onBack: () => c.stage.value = null,
                   header: Center(
                     child: Text(
                       'label_recover_account'.l10n,
@@ -145,17 +148,11 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Padding(
                   padding: ModalPopup.padding(context),
-                  child: spaced(
-                    secondaryButton(
-                      key: const Key('RecoveryBackButton'),
-                      title: 'btn_back'.l10n,
-                      onPressed: () => c.stage.value = null,
-                    ),
-                    primaryButton(
-                      key: const Key('RecoveryNextButton'),
-                      title: 'btn_next'.l10n,
-                      onPressed: c.recovery.submit,
-                    ),
+                  child: primaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed:
+                        c.recovery.isEmpty.value ? null : c.recovery.submit,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -165,6 +162,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryCode:
               children = [
                 ModalPopupHeader(
+                  onBack: () => c.stage.value = null,
                   header: Center(
                     child: Text(
                       'label_recover_account'.l10n,
@@ -196,17 +194,12 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Padding(
                   padding: ModalPopup.padding(context),
-                  child: spaced(
-                    secondaryButton(
-                      key: const Key('RecoveryCancelButton'),
-                      title: 'btn_cancel'.l10n,
-                      onPressed: () => c.stage.value = null,
-                    ),
-                    primaryButton(
-                      key: const Key('RecoveryNextButton'),
-                      title: 'btn_next'.l10n,
-                      onPressed: c.recoveryCode.submit,
-                    ),
+                  child: primaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed: c.recoveryCode.isEmpty.value
+                        ? null
+                        : c.recoveryCode.submit,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -216,6 +209,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryPassword:
               children = [
                 ModalPopupHeader(
+                  onBack: () => c.stage.value = null,
                   header: Center(
                     child: Text(
                       'label_recover_account'.l10n,
@@ -227,7 +221,8 @@ class LoginView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: Text(
-                    'label_set_new_password'.l10n,
+                    'Пожалуйста, введите новый пароль для Вашего аккаунта ниже.'
+                        .l10n,
                     style: theme.headline3?.copyWith(
                       fontSize: 15,
                       color: const Color(0xFF888888),
@@ -269,17 +264,13 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Padding(
                   padding: ModalPopup.padding(context),
-                  child: spaced(
-                    secondaryButton(
-                      key: const Key('RecoveryCancelButton'),
-                      title: 'btn_cancel'.l10n,
-                      onPressed: () => c.stage.value = null,
-                    ),
-                    primaryButton(
-                      key: const Key('RecoveryNextButton'),
-                      title: 'btn_next'.l10n,
-                      onPressed: c.resetUserPassword,
-                    ),
+                  child: primaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed: c.newPassword.isEmpty.value ||
+                            c.repeatPassword.isEmpty.value
+                        ? null
+                        : c.resetUserPassword,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -288,19 +279,36 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.recoverySuccess:
               children = [
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'label_password_set_successfully'.l10n,
-                    style: theme.headline3,
+                ModalPopupHeader(
+                  onBack: () => c.stage.value = null,
+                  header: Center(
+                    child: Text(
+                      'label_recover_account'.l10n,
+                      style: theme.headline3?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 32),
-                Center(
-                  child: primaryButton(
-                    key: const Key('RecoverySuccessButton'),
-                    title: 'btn_next'.l10n,
-                    onPressed: () => c.stage.value = null,
+                const SizedBox(height: 25 - 12),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Text(
+                    'Пароль к указанному аккаунту успешно изменён. Пожалуйста, войдите с новыми данными для входа.'
+                        .l10n,
+                    style: theme.headline3?.copyWith(
+                      fontSize: 15,
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: primaryButton(
+                      key: const Key('RecoverySuccessButton'),
+                      title: 'btn_proceed'.l10n,
+                      onPressed: () => c.stage.value = null,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 13)
@@ -318,6 +326,20 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25 - 12),
+                if (c.recovered.value)
+                  Padding(
+                    padding: ModalPopup.padding(context)
+                        .add(const EdgeInsets.symmetric(horizontal: 8)),
+                    child: Text(
+                      'Пароль к указанному аккаунту успешно изменён. Пожалуйста, войдите с новыми данными для входа.'
+                          .l10n,
+                      style: theme.headline3?.copyWith(
+                        fontSize: 15,
+                        color: const Color(0xFF888888),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 25),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: ReactiveTextField(
@@ -354,6 +376,7 @@ class LoginView extends StatelessWidget {
                             c.newPassword.clear();
                             c.repeatPassword.clear();
                             c.recovery.unchecked = c.login.text;
+                            c.recovered.value = false;
                             c.stage.value = LoginViewStage.recovery;
                           },
                           child: Text(
@@ -373,25 +396,6 @@ class LoginView extends StatelessWidget {
                     title: 'btn_login'.l10n,
                     onPressed: c.signIn,
                   ),
-                  // child: spaced(
-                  //   secondaryButton(
-                  //     key: const Key('RecoveryButton'),
-                  //     title: 'btn_forgot_password'.l10n,
-                  // onPressed: () {
-                  //   c.recovery.clear();
-                  //   c.recoveryCode.clear();
-                  //   c.newPassword.clear();
-                  //   c.repeatPassword.clear();
-                  //   c.recovery.unchecked = c.login.text;
-                  //   c.stage.value = LoginViewStage.recovery;
-                  // },
-                  //   ),
-                  //   primaryButton(
-                  //     key: const Key('LoginButton'),
-                  //     title: 'btn_login'.l10n,
-                  //     onPressed: c.signIn,
-                  //   ),
-                  // ),
                 ),
                 const SizedBox(height: 16),
               ];
