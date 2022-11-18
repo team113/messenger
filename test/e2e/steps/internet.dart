@@ -39,7 +39,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
     PlatformUtils.dio.interceptors.add(
-      _DelayedInterceptor(Duration(seconds: delay)),
+      DelayedInterceptor(Duration(seconds: delay)),
     );
   }),
 );
@@ -56,6 +56,9 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
   }),
 );
 
@@ -75,8 +78,8 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
 );
 
 /// [Interceptor] for [Dio] requests adding the provided [delay].
-class _DelayedInterceptor extends Interceptor {
-  _DelayedInterceptor(this.delay);
+class DelayedInterceptor extends Interceptor {
+  DelayedInterceptor(this.delay);
 
   /// [Duration] to delay the requests for.
   final Duration delay;
