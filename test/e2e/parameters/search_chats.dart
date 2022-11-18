@@ -23,7 +23,7 @@ enum WhatToSearchInChats { chat, contact }
 class SearchInChatsParameter extends CustomParameter<WhatToSearchInChats> {
   SearchInChatsParameter()
       : super(
-          'search_chats',
+          'search_in_chats',
           RegExp(
             '(${WhatToSearchInChats.values.map((e) => e.name).join('|')})',
             caseSensitive: false,

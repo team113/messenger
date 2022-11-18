@@ -331,7 +331,6 @@ class ChatsTabController extends GetxController {
       searchController.searchStatus.value = RxStatus.empty();
       searchField.text = '';
       elements.clear();
-      populate();
     }
   }
 
@@ -350,7 +349,7 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  /// Listener of [searchField].
+  /// Listener of [searchField.controller].
   void _searchFieldListener() {
     if (searchController.query.value != searchField.text) {
       searchController.query.value = searchField.text;

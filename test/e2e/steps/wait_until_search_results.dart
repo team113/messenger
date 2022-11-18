@@ -43,19 +43,14 @@ final StepDefinitionGeneric untilUserInSearchResults =
 
         final UserId userId = context.world.sessions[user.name]!.userId;
 
+        Finder finder = context.world.appDriver.findBy(
+          'SearchUser_$userId',
+          FindType.key,
+        );
+
         return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findBy(
-                  'SearchUser_$userId',
-                  FindType.key,
-                ),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findBy(
-                  'SearchUser_$userId',
-                  FindType.key,
-                ),
-              );
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
       },
       timeout: const Duration(seconds: 30),
     );
@@ -72,7 +67,7 @@ final StepDefinitionGeneric untilUserInSearchResults =
 /// - Then I wait until "Charlie" contact in search results is present
 final StepDefinitionGeneric untilContactOrChatInSearchResults =
     then3<String, WhatToSearchInChats, Existence, CustomWorld>(
-  'I wait until {string} {search_chats} in search results is {existence}',
+  'I wait until {string} {search_in_chats} in search results is {existence}',
   (String name, WhatToSearchInChats search, Existence existence,
       context) async {
     await context.world.appDriver.waitUntil(

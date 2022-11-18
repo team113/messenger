@@ -117,7 +117,7 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when the selected items was changed.
+  /// Callback, called when the search results was changed.
   final void Function()? onResultsUpdated;
 
   /// Reactive list of the sorted [Chat]s.
@@ -132,7 +132,7 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
-  /// Subscription to listen changes inside [chats], [users] and [contacts].
+  /// Subscription to listen changes of [chats], [users] and [contacts].
   StreamSubscription? _searchItems;
 
   /// [Chat]s service searching the [Chat]s.
