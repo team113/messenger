@@ -21,6 +21,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
@@ -796,6 +797,8 @@ class CallController extends GetxController {
           break;
       }
     });
+
+    HardwareKeyboard.instance.addHandler(_keyBoardHandler);
   }
 
   @override
@@ -813,6 +816,7 @@ class CallController extends GetxController {
     _durationSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
+    HardwareKeyboard.instance.removeHandler(_keyBoardHandler);
 
     secondaryEntry?.remove();
 
@@ -1860,6 +1864,14 @@ class CallController extends GetxController {
           participants.firstWhereOrNull((p) => p.audio.value == track);
       participant?.audio.value = null;
     }
+  }
+
+  /// Keyboard events handler.
+  bool _keyBoardHandler(KeyEvent event) {
+    if (event.logicalKey.keyLabel == 'Escape' && fullscreen.isTrue) {
+      toggleFullscreen();
+    }
+    return false;
   }
 }
 
