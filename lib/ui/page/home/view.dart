@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:messenger/ui/widget/menu_interceptor/menu_interceptor.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -451,7 +452,7 @@ class _HomeViewState extends State<HomeView> {
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
-                  sideBar,
+                  ContextMenuInterceptor(child: sideBar),
                   Container(child: context.isNarrow ? navigation : null),
                 ] else ...[
                   const Scaffold(
