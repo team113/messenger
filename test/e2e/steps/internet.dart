@@ -39,9 +39,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
     PlatformUtils.dio.interceptors.add(
-      AppInterceptors(
-        delay: Duration(seconds: delay),
-      ),
+      DelayedInterceptor(Duration(seconds: delay)),
     );
   }),
 );
@@ -76,12 +74,12 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   }),
 );
 
-/// [Interceptor] for [Dio] requests.
-class AppInterceptors extends Interceptor {
-  AppInterceptors({required this.delay});
+/// [Interceptor] for [Dio] requests adding the provided [delay].
+class DelayedInterceptor extends Interceptor {
+  DelayedInterceptor(this.delay);
 
-  /// Delay for requests.
-  Duration delay;
+  /// [Duration] to delay the requests for.
+  final Duration delay;
 
   @override
   void onRequest(

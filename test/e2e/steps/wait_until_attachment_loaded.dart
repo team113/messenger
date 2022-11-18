@@ -53,15 +53,17 @@ final StepDefinitionGeneric untilAttachmentLoaded =
           return false;
         }
 
-        return status == RetryImageStatus.loading
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(
-                    'RetryImageLoading${(attachment as ImageAttachment).big.url}'),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(
-                    'RetryImageLoaded${(attachment as ImageAttachment).big.url}'),
-              );
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findByDescendant(
+            context.world.appDriver.findByKeySkipOffstage(
+              'Image_${(attachment as ImageAttachment).big.url}',
+            ),
+            context.world.appDriver.findByKeySkipOffstage(
+              status == RetryImageStatus.loading ? 'Loading' : 'Loading',
+            ),
+            firstMatchOnly: true,
+          ),
+        );
       },
       pollInterval: const Duration(milliseconds: 1),
       timeout: const Duration(seconds: 60),

@@ -21,7 +21,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:gherkin/gherkin.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/mime.dart';
 
@@ -29,7 +28,7 @@ import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog with the provided file or image attachment.
+/// their [Chat]-dialog with the provided attachment.
 ///
 /// Examples:
 /// - Then Bob sends "test.txt" attachment to me
@@ -41,13 +40,12 @@ final StepDefinitionGeneric sendsAttachmentToMe =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
 
-    String? type = MimeResolver.lookup(filename);
-    MediaType? mediaType = type != null ? MediaType.parse(type) : null;
-    UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk response;
+    final String? type = MimeResolver.lookup(filename);
+    final MediaType? mime = type != null ? MediaType.parse(type) : null;
 
-    response = await provider.uploadAttachment(
+    final response = await provider.uploadAttachment(
       dio.MultipartFile.fromBytes(
-        mediaType?.type == 'image'
+        mime?.type == 'image'
             ? base64Decode(
                 '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
               )

@@ -45,7 +45,7 @@ class RetryImage extends StatefulWidget {
   /// URL of an image to display.
   final String url;
 
-  /// Callback, called when loading an image from the provided [url] failed with
+  /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
   final Future<void> Function()? onForbidden;
 
@@ -87,7 +87,7 @@ class _RetryImageState extends State<RetryImage> {
   static const Duration _maxBackoffPeriod = Duration(seconds: 32);
 
   /// Current period of exponential backoff image fetching.
-  Duration _backoffPeriod = const Duration(microseconds: 250);
+  Duration _backoffPeriod = _minBackoffPeriod;
 
   @override
   void initState() {
@@ -116,7 +116,7 @@ class _RetryImageState extends State<RetryImage> {
     if (_image != null) {
       Widget image = Image.memory(
         _image!,
-        key: Key('RetryImageLoaded${widget.url}'),
+        key: const Key('Loaded'),
         height: widget.height,
         width: widget.width,
         fit: widget.fit,
@@ -139,7 +139,7 @@ class _RetryImageState extends State<RetryImage> {
       child = image;
     } else {
       child = Container(
-        key: Key('RetryImageLoading${widget.url}'),
+        key: const Key('Loading'),
         height: widget.height,
         width: 200,
         alignment: Alignment.center,
@@ -162,6 +162,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     return AnimatedSwitcher(
+      key: Key('Image_${widget.url}'),
       duration: const Duration(milliseconds: 150),
       child: child,
     );

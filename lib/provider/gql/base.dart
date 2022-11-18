@@ -206,13 +206,12 @@ class GraphQlClient {
     void Function(int, int)? onSendProgress,
   }) =>
       _middleware(() async {
-        var client = PlatformUtils.dio;
-        var authorized = options ?? dio.Options();
+        final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
         authorized.headers!['Authorization'] = 'Bearer $token';
 
         try {
-          return await client.post<T>(
+          return await PlatformUtils.dio.post<T>(
             '${Config.url}:${Config.port}${Config.graphql}',
             data: data,
             options: authorized,
