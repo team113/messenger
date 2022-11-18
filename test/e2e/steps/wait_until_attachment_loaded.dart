@@ -27,7 +27,7 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../parameters/retry_image.dart';
 
-/// Waits until the specified image attachment is present or absent.
+/// Waits until the specified image attachment is loaded or is being loaded.
 ///
 /// Examples:
 /// - Then I wait until "test.jpg" attachment is loading

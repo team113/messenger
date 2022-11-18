@@ -17,7 +17,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:get/get.dart' hide Response;
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -39,7 +39,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
     PlatformUtils.dio.interceptors.add(
-      DelayedInterceptor(Duration(seconds: delay)),
+      _DelayedInterceptor(Duration(seconds: delay)),
     );
   }),
 );
@@ -75,8 +75,8 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
 );
 
 /// [Interceptor] for [Dio] requests adding the provided [delay].
-class DelayedInterceptor extends Interceptor {
-  DelayedInterceptor(this.delay);
+class _DelayedInterceptor extends Interceptor {
+  _DelayedInterceptor(this.delay);
 
   /// [Duration] to delay the requests for.
   final Duration delay;
