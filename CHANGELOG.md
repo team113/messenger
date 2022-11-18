@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
     - Home page:
-        - Quick status changing menu. ([#204])
+        - Quick status changing menu. ([#204], [#203])
 
 ### Changed
 
@@ -51,6 +51,7 @@ All user visible changes to this project will be documented in this file. This p
 [#193]: /../../pull/193
 [#196]: /../../issues/196
 [#198]: /../../pull/198
+[#203]: /../../issues/203
 [#204]: /../../pull/204
 
 
