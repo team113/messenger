@@ -15,7 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
+
+import '/themes.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -60,7 +61,10 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is read.
   final bool isRead;
 
+  /// Indicator whether status is sending.
   final bool isSending;
+
+  /// Indicator whether status is error.
   final bool isError;
 
   /// Position of a [swipeable] relatively to the [child].
@@ -110,7 +114,8 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Returns a [Row] of [swipeable] and a status.
   Widget _swipeableWithStatus(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
       maxLines: 1,

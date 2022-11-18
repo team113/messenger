@@ -972,6 +972,53 @@ abstract class ChatGraphQlMixin {
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
   }
 
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  ///
+  /// Muted [Chat] implies that its events don't produce sounds and
+  /// notifications on a client side. This, however, has nothing to do with a
+  /// server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleChatMute` doesn't correlate with
+  /// `Mutation.toggleMyUserMute`. Muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds, and so, unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds too.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatMuted] (if `until` argument is not `null`);
+  /// - [EventChatUnmuted] (if `until` argument is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already muted `until` the specified [DateTime] (or unmuted) for the
+  /// authenticated [MyUser].
+  Future<ChatEventsVersionedMixin?> toggleChatMute(
+    ChatId id,
+    Muting? mute,
+  ) async {
+    final variables = ToggleChatMuteArguments(id: id, mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleChatMute',
+        document: ToggleChatMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleChatMuteException(
+          (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
+                  as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+              .code),
+    );
+    return ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
+        as ChatEventsVersionedMixin?;
+  }
+
   /// Returns the [Attachment]s of a [ChatItem] identified by the provided [id].
   ///
   /// The authenticated [MyUser] should be a member of the [Chat] the provided

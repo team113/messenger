@@ -42,6 +42,7 @@ btn_add_participant_desc =
 btn_add_to_contacts = Add to contacts
 btn_allow = Allow
 btn_audio_call = Audio call
+btn_away = Away
 btn_back = Back
 btn_blacklist = Add to blacklist
 btn_call_answer_with_audio =
@@ -143,6 +144,7 @@ btn_forward = Forward
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
+btn_hidden = Hidden
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
@@ -150,8 +152,10 @@ btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
+btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
+btn_online = Online
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -171,6 +175,7 @@ btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
+btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -233,6 +238,7 @@ err_size_too_big = File is too big. Maximum allowed size is 15 MiB
 err_stale_version = Provided version is too stale
 err_too_many_emails = Reached maximum allowed number of Email addresses
 err_too_many_phones = Reached maximum allowed number of phone number
+err_too_short = Mute duration cannot be shorter than one minute
 err_unauthorized = Authentication required
 err_uneditable_message = You can\'t edit this message
 err_unknown = Unknown error
@@ -437,6 +443,20 @@ label_media_output = Output
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_mute_for = { $days ->
+    [0] { $hours ->
+            [0] { $minutes ->
+                    [0] Forever
+                    [1] 1 minute
+                    *[other] {$minutes} minutes
+                }
+            [1] 1 hour
+            *[other] {$hours} hours
+        }
+    [1] 1 day
+    *[other] {$days} days
+}
+label_mute_chat_for = Mute chat for
 label_name = Name
 label_name_hint = Your publicly visible name
 label_new_password = New password

@@ -330,8 +330,8 @@ class PlatformUtilsImpl {
 
 /// Determining whether a [BuildContext] is mobile or not.
 extension MobileExtensionOnContext on BuildContext {
-  /// Returns `true` if [PlatformUtils.isMobile] and [MediaQuery]'s shortest
-  /// side is less than `600p`.
+  /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
+  /// side is less than `600p`, or otherwise always returns `false`.
   bool get isMobile => PlatformUtils.isMobile
       ? MediaQuery.of(this).size.shortestSide < 600
       : false;

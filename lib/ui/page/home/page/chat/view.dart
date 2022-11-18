@@ -184,10 +184,27 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      c.chat!.title.value,
-                                      style:
-                                          const TextStyle(color: Colors.black),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            c.chat!.title.value,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                        if (c.chat?.chat.value.muted !=
+                                            null) ...[
+                                          const SizedBox(width: 5),
+                                          Icon(
+                                            Icons.volume_off,
+                                            color: Theme.of(context)
+                                                .primaryIconTheme
+                                                .color,
+                                            size: 17,
+                                          ),
+                                        ]
+                                      ],
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -530,7 +547,6 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
-            onJoinCall: c.joinCall,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {

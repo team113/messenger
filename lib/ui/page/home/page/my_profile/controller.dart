@@ -310,7 +310,7 @@ class MyProfileController extends GetxController {
       onSubmitted: (s) async {
         UserPhone? phone;
         try {
-          phone = UserPhone(s.text);
+          phone = UserPhone(s.text.replaceAll(' ', ''));
 
           if (_myUserService.myUser.value!.phones.confirmed.contains(phone) ||
               _myUserService.myUser.value?.phones.unconfirmed == phone) {

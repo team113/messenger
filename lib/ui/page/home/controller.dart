@@ -20,9 +20,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart' show Presence;
-import 'package:messenger/domain/model/user.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/settings.dart';
@@ -55,13 +54,16 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final Rx<int> unreadChatsCount = Rx<int>(0);
 
-  final GlobalKey profileKey = GlobalKey();
-
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
   ///
   /// Indicates currently ongoing vertical scroll of a view.
   final Rx<Timer?> verticalScrollTimer = Rx(null);
+
+  /// [GlobalKey] of an [AvatarWidget] in the navigation bar.
+  ///
+  /// Used to position a status changing [Selector] properly.
+  final GlobalKey profileKey = GlobalKey();
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
@@ -81,8 +83,6 @@ class HomeController extends GetxController {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
-
-  UserId? get me => _auth.userId;
 
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
@@ -154,6 +154,7 @@ class HomeController extends GetxController {
   Future<void> setSideBarWidth() =>
       _settings.setSideBarWidth(sideBarWidth.value);
 
+  /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
       _myUser.updateUserPresence(presence);
 

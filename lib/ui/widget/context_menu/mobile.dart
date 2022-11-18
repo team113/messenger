@@ -51,6 +51,7 @@ class FloatingContextMenu extends StatefulWidget {
   /// moving downwards.
   final bool moveDownwards;
 
+  /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
 
   @override
@@ -154,6 +155,7 @@ class _AnimatedMenu extends StatefulWidget {
   /// [child] or otherwise animate the [child] moving downwards.
   final bool showAbove;
 
+  /// Margin to apply to this [_AnimatedMenu].
   final EdgeInsets margin;
 
   @override
@@ -353,7 +355,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         borderRadius: style.contextMenuRadius,
         child: Container(
           decoration: BoxDecoration(
-            color: style.contextMenuBackgroundColor, //.withAlpha(0xAA),
+            color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,
           ),
           child: Column(

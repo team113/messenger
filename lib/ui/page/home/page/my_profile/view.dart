@@ -47,6 +47,7 @@ import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'controller.dart';
 import 'delete_email/view.dart';
+import 'delete_phone/view.dart';
 import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
 
@@ -1276,10 +1277,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 ),
               ),
               WidgetButton(
-                // onPressed: () => DeleteEmailView.show(
-                //   context,
-                //   email: c.myUser.value!.emails.unconfirmed!,
-                // ),
+                onPressed: () => DeletePhoneView.show(
+                  context,
+                  phone: c.myUser.value!.phones.unconfirmed!,
+                ),
                 child: Container(
                   margin: const EdgeInsets.only(right: 10),
                   width: 30,

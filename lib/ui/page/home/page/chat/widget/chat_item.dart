@@ -66,7 +66,6 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.getUser,
-    this.onJoinCall,
     this.animation,
     this.onHide,
     this.onDelete,
@@ -102,9 +101,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a delete action of this [ChatItem] is triggered.
   final void Function()? onDelete;
-
-  /// Callback, called when join call button is pressed.
-  final void Function()? onJoinCall;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
   final void Function()? onReply;
@@ -1354,7 +1350,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('CopyButton'),
                               label: 'btn_copy'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
                                 width: 14.82,
                                 height: 17,
@@ -1365,7 +1361,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: 'btn_reply'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
                                 width: 18.8,
                                 height: 16,
@@ -1376,7 +1372,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
                                 label: 'btn_forward'.l10n,
-                                leading: SvgLoader.asset(
+                                trailing: SvgLoader.asset(
                                   'assets/icons/forward.svg',
                                   width: 18.8,
                                   height: 16,
@@ -1398,7 +1394,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                leading: SvgLoader.asset(
+                                trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
                                   width: 17,
                                   height: 17,
@@ -1408,7 +1404,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: 'btn_delete'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,
@@ -1451,7 +1447,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Resend'),
                               label: 'btn_resend_message'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1461,7 +1457,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: 'btn_delete'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,

@@ -176,17 +176,19 @@ class CallWorker extends DisposableService {
 
               if (showNotification) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
+                  if (chat?.chat.value.muted == null) {
+                    String? title = chat?.title.value ??
+                        c.caller?.name?.val ??
+                        c.caller?.num.val;
 
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: chat?.avatar.value?.original.url,
-                    playSound: false,
-                  );
+                    _notificationService.show(
+                      title ?? 'label_incoming_call'.l10n,
+                      body: title == null ? null : 'label_incoming_call'.l10n,
+                      payload: '${Routes.chat}/${c.chatId}',
+                      icon: chat?.avatar.value?.original.url,
+                      playSound: false,
+                    );
+                  }
                 });
               }
             }

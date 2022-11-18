@@ -33,7 +33,7 @@ abstract class AbstractMyUserRepository {
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
   /// Callback [onPasswordUpdated] should be called when [myUser]'s password
   /// is updated.
-  Future<void> init({
+  void init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   });
