@@ -59,14 +59,22 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     //Lets make the Status Bar Transparent
     statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Colors.black.withOpacity(0.002),
+    systemNavigationBarColor: Colors.red,
     // systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarDividerColor: Colors.red,
+    systemNavigationBarIconBrightness: Brightness.light,
+
+    // statusBarColor: Colors.transparent,
+    // systemNavigationBarColor: Colors.transparent,
+    // systemNavigationBarDividerColor: Colors.transparent,
 
     // //Lets make the status bar icon brightness to bright
     // statusBarIconBrightness: Brightness.light,
   ));
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();

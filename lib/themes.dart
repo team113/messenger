@@ -38,6 +38,8 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            systemNavigationBarColor: Colors.red,
+            canvasColor: Colors.transparent,
             barrierColor: const Color(0xBB000000),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
@@ -309,6 +311,8 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageColor,
     required this.systemMessageStyle,
     required this.unreadMessageColor,
+    required Color canvasColor,
+    required MaterialColor systemNavigationBarColor,
   });
 
   /// [Color] of the modal background barrier color.
@@ -401,6 +405,8 @@ class Style extends ThemeExtension<Style> {
     Color? unreadMessageColor,
   }) {
     return Style(
+      systemNavigationBarColor: Colors.red,
+      canvasColor: Colors.transparent,
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBlur: cardBlur ?? this.cardBlur,
@@ -434,6 +440,8 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      systemNavigationBarColor: Colors.red,
+      canvasColor: Colors.transparent,
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
