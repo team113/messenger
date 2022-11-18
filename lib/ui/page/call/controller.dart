@@ -936,7 +936,8 @@ class CallController extends GetxController {
   Future<void> dismissHint() => _settingsRepository.setShowCallHint(false);
 
   /// Dismisses the more hint.
-  Future<void> dismissMoreHint() => _settingsRepository.setShowCallHint(false);
+  Future<void> dismissMoreHint() =>
+      _settingsRepository.setShowCallMoreHint(false);
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();

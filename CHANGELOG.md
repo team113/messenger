@@ -27,6 +27,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned chats tab. ([#142])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+        - Call hints dismissing persistence. ([#200], [#210])
 
 ### Fixed
 
@@ -49,6 +50,8 @@ All user visible changes to this project will be documented in this file. This p
 [#193]: /../../pull/193
 [#196]: /../../issues/196
 [#198]: /../../pull/198
+[#200]: /../../pull/200
+[#210]: /../../pull/210
 
 
 
