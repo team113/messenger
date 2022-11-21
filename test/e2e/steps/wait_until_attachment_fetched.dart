@@ -32,7 +32,7 @@ import '../parameters/fetch_status.dart';
 /// Examples:
 /// - Then I wait until "test.jpg" attachment is fetching
 /// - Then I wait until "test.jpg" attachment is fetched
-final StepDefinitionGeneric untilAttachmentLoaded =
+final StepDefinitionGeneric untilAttachmentFetched =
     then2<String, ImageFetchStatus, FlutterWorld>(
   'I wait until {string} attachment is {fetch_status}',
   (filename, status, context) async {
@@ -43,15 +43,11 @@ final StepDefinitionGeneric untilAttachmentLoaded =
       () async {
         final Attachment attachment;
 
-        try {
-          attachment = chat!.messages
-              .map((e) => e.value)
-              .whereType<ChatMessage>()
-              .expand((e) => e.attachments)
-              .firstWhere((a) => a.filename == filename);
-        } catch (e) {
-          return false;
-        }
+        attachment = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .expand((e) => e.attachments)
+            .firstWhere((a) => a.filename == filename);
 
         return context.world.appDriver.isPresent(
           context.world.appDriver.findByDescendant(
