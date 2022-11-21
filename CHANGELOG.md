@@ -37,8 +37,6 @@ All user visible changes to this project will be documented in this file. This p
         - Replies having reversed order in messages. ([#193], [#192])
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
-- macOS:
-    - Exiting from fullscreen call is correct. ([#213], [#207])
 
 [#63]: /../../issues/63
 [#102]: /../../issues/102
@@ -55,8 +53,6 @@ All user visible changes to this project will be documented in this file. This p
 [#198]: /../../pull/198
 [#203]: /../../issues/203
 [#204]: /../../pull/204
-[#207]: /../../issues/207
-[#213]: /../../pull/213
 
 
 

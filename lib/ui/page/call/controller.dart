@@ -493,6 +493,7 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
+    HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
     }
@@ -797,8 +798,6 @@ class CallController extends GetxController {
           break;
       }
     });
-
-    HardwareKeyboard.instance.addHandler(_keyBoardHandler);
   }
 
   @override
@@ -816,7 +815,6 @@ class CallController extends GetxController {
     _durationSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
-    HardwareKeyboard.instance.removeHandler(_keyBoardHandler);
 
     secondaryEntry?.remove();
 
@@ -824,6 +822,7 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
+    HardwareKeyboard.instance.removeHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -1866,11 +1865,17 @@ class CallController extends GetxController {
     }
   }
 
-  /// Keyboard events handler.
-  bool _keyBoardHandler(KeyEvent event) {
-    if (event.logicalKey.keyLabel == 'Escape' && fullscreen.isTrue) {
+  /// Invokes [toggleFullscreen], if not [fullscreen] already.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] handler, thus returns `true`,
+  /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
+  /// returns `false`.
+  bool _onKey(KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.escape && fullscreen.isTrue) {
       toggleFullscreen();
+      return true;
     }
+
     return false;
   }
 }
