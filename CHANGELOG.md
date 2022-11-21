@@ -17,6 +17,10 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
+    - Chats tab:
+        - Chat muting/unmuting. ([#172], [#63])
+    - Home page:
+        - Quick status changing menu. ([#204], [#203])
 
 ### Changed
 
@@ -31,12 +35,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
+        - Images sometimes not loading. ([#164], [#126])
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
+[#63]: /../../issues/63
 [#102]: /../../issues/102
+[#126]: /../../issues/126
 [#134]: /../../issues/134
 [#142]: /../../pull/142
+[#164]: /../../pull/164
+[#172]: /../../pull/172
 [#173]: /../../pull/173
 [#188]: /../../pull/188
 [#190]: /../../issues/190
@@ -45,6 +54,8 @@ All user visible changes to this project will be documented in this file. This p
 [#193]: /../../pull/193
 [#196]: /../../issues/196
 [#198]: /../../pull/198
+[#203]: /../../issues/203
+[#204]: /../../pull/204
 
 
 

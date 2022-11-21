@@ -130,20 +130,25 @@ class IntroductionView extends StatelessWidget {
 
             case IntroductionViewStage.success:
               children = [
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'label_password_set_successfully'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                // const SizedBox(height: 14),
+                Text(
+                  'label_password_set'.l10n,
+                  style: thin?.copyWith(
+                    fontSize: 15,
+                    color: const Color(0xFF888888),
                   ),
                 ),
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('CloseButton'),
-                    title: Text('btn_close'.l10n),
+                    maxWidth: null,
+                    title: Text(
+                      'btn_close'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
                     onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFFEEEEEE),
+                    color: const Color(0xFF63B4FF),
                   ),
                 ),
               ];

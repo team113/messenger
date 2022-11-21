@@ -19,15 +19,11 @@ import 'package:hive/hive.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
-part 'web.g.dart';
-
 /// [DateTime] considering the microseconds on any platform, including Web.
-@HiveType(typeId: ModelTypeId.preciseDateTimeWeb)
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(DateTime val, {this.microsecond = 0}) : super(val);
 
-  @HiveField(1)
   final int microsecond;
 
   /// Returns the number of microseconds since the "Unix epoch"
@@ -207,5 +203,21 @@ class PreciseDateTime extends NewType<DateTime>
     }
 
     return formattedString;
+  }
+}
+
+/// [Hive] adapter for a [PreciseDateTime].
+class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
+  @override
+  final typeId = ModelTypeId.preciseDateTime;
+
+  @override
+  PreciseDateTime read(BinaryReader reader) =>
+      PreciseDateTime(reader.read() as DateTime, microsecond: reader.readInt());
+
+  @override
+  void write(BinaryWriter writer, PreciseDateTime obj) {
+    writer.write(obj.val);
+    writer.writeInt(obj.microsecond);
   }
 }

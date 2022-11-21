@@ -45,6 +45,7 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'change_password/view.dart';
 import 'controller.dart';
 import 'delete_email/view.dart';
 import 'delete_phone/view.dart';
@@ -215,6 +216,13 @@ class MyProfileView extends StatelessWidget {
                       // const SizedBox(height: 10),
                       // _deleteAccount(c),
                       _emails(c, context),
+                      _password(context, c),
+                    ],
+                  ),
+                  block(
+                    children: [
+                      _label(context, 'Прямая ссылка на чат с Вами'),
+                      _link(context, c),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -627,6 +635,64 @@ Widget _num(MyProfileController c) => _padding(
 Widget _link(BuildContext context, MyProfileController c) {
   final TextStyle? thin =
       Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
+  return Obx(() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ReactiveTextField(
+          key: const Key('LinkField'),
+          state: c.link,
+          onSuffixPressed: c.link.isEmpty.value
+              ? null
+              : () {
+                  Clipboard.setData(
+                    ClipboardData(
+                      text:
+                          '${Config.origin}${Routes.chatDirectLink}/${c.myUser.value?.chatDirectLink!.slug.val}',
+                    ),
+                  );
+
+                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                },
+          trailing: c.link.isEmpty.value
+              ? null
+              : Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/copy.svg',
+                      height: 15,
+                    ),
+                  ),
+                ),
+          label: Config.origin,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+          child: RichText(
+            text: TextSpan(
+              style:
+                  const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+              children: [
+                const TextSpan(
+                  text: 'Чат создаётся автоматически. ',
+                  style: TextStyle(color: Color(0xFF888888)),
+                ),
+                TextSpan(
+                  text: 'Подробнее.',
+                  style: const TextStyle(color: Color(0xFF00A3FF)),
+                  recognizer: TapGestureRecognizer()..onTap = () async {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  });
 
   return _expanded(
     context,
@@ -1069,10 +1135,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               alignment: Alignment.centerRight,
               children: [
                 WidgetButton(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: e.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
-                  },
+                  // onPressed: () {
+                  //   Clipboard.setData(ClipboardData(text: e.val));
+                  //   MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  // },
                   child: IgnorePointer(
                     child: ReactiveTextField(
                       state: TextFieldState(text: e.val, editable: false),
@@ -1542,68 +1608,92 @@ Widget _emails(MyProfileController c, BuildContext context) {
 }
 
 /// Returns editable fields of [MyUser.password].
-Widget _password(BuildContext context, MyProfileController c) => Obx(
-      () => ExpandablePanel(
-        key: const Key('PasswordExpandable'),
-        header: ListTile(
-          leading: const Icon(Icons.password),
-          title: Text('label_password'.l10n),
-        ),
-        collapsed: Container(),
-        expanded: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              if (c.myUser.value!.hasPassword)
-                _dense(
-                  ReactiveTextField(
-                    key: const Key('CurrentPasswordField'),
-                    state: c.oldPassword,
-                    label: 'label_current_password'.l10n,
-                    obscure: true,
-                  ),
-                ),
-              _dense(
-                ReactiveTextField(
-                  key: const Key('NewPasswordField'),
-                  state: c.newPassword,
-                  label: 'label_new_password'.l10n,
-                  obscure: true,
-                ),
+Widget _password(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        WidgetButton(
+          onPressed: () => ChangePasswordView.show(context),
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: c.myUser.value?.hasPassword == true
+                    ? 'Изменить пароль'
+                    : 'Задать пароль',
+                editable: false,
               ),
-              _dense(
-                ReactiveTextField(
-                  key: const Key('RepeatPasswordField'),
-                  state: c.repeatPassword,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: true,
-                ),
-              ),
-              ListTile(
-                title: ElevatedButton(
-                  key: const Key('ChangePasswordButton'),
-                  onPressed: c.changePassword,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                    backgroundColor: context.theme.colorScheme.secondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: Text(
-                    'btn_change_password'.l10n,
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: context.theme.colorScheme.background,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
           ),
         ),
       ),
-    );
+      const SizedBox(height: 10),
+    ],
+  );
+
+  return Obx(
+    () => ExpandablePanel(
+      key: const Key('PasswordExpandable'),
+      header: ListTile(
+        leading: const Icon(Icons.password),
+        title: Text('label_password'.l10n),
+      ),
+      collapsed: Container(),
+      expanded: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            if (c.myUser.value!.hasPassword)
+              _dense(
+                ReactiveTextField(
+                  key: const Key('CurrentPasswordField'),
+                  state: c.oldPassword,
+                  label: 'label_current_password'.l10n,
+                  obscure: true,
+                ),
+              ),
+            _dense(
+              ReactiveTextField(
+                key: const Key('NewPasswordField'),
+                state: c.newPassword,
+                label: 'label_new_password'.l10n,
+                obscure: true,
+              ),
+            ),
+            _dense(
+              ReactiveTextField(
+                key: const Key('RepeatPasswordField'),
+                state: c.repeatPassword,
+                label: 'label_repeat_password'.l10n,
+                obscure: true,
+              ),
+            ),
+            ListTile(
+              title: ElevatedButton(
+                key: const Key('ChangePasswordButton'),
+                onPressed: c.changePassword,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  backgroundColor: context.theme.colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: Text(
+                  'btn_change_password'.l10n,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: context.theme.colorScheme.background,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
 /// Returns button to go to monolog chat.
 Widget _monolog(MyProfileController c) => ListTile(

@@ -221,8 +221,7 @@ class LoginView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: Text(
-                    'Пожалуйста, введите новый пароль для Вашего аккаунта ниже.'
-                        .l10n,
+                    'label_recovery_enter_new_password'.l10n,
                     style: theme.headline3?.copyWith(
                       fontSize: 15,
                       color: const Color(0xFF888888),
@@ -331,8 +330,7 @@ class LoginView extends StatelessWidget {
                     padding: ModalPopup.padding(context)
                         .add(const EdgeInsets.symmetric(horizontal: 8)),
                     child: Text(
-                      'Пароль к указанному аккаунту успешно изменён. Пожалуйста, войдите с новыми данными для входа.'
-                          .l10n,
+                      'label_password_changed'.l10n,
                       style: theme.headline3?.copyWith(
                         fontSize: 15,
                         color: const Color(0xFF888888),

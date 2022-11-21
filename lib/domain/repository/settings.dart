@@ -61,4 +61,10 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.callButtons] value.
   Future<void> setCallButtons(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.showDragAndDropVideosHint] value.
+  Future<void> setShowDragAndDropVideosHint(bool show);
+
+  /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
+  Future<void> setShowDragAndDropButtonsHint(bool show);
 }

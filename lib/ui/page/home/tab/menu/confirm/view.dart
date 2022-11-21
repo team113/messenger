@@ -139,11 +139,10 @@ class ConfirmLogoutView extends StatelessWidget {
 
             case ConfirmLogoutViewStage.success:
               children = [
-                const SizedBox(height: 14),
                 ModalPopupHeader(
                   header: Center(
                     child: Text(
-                      'label_password_set_successfully'.l10n,
+                      'btn_set_password'.l10n,
                       style: thin?.copyWith(fontSize: 18),
                     ),
                   ),
@@ -151,12 +150,27 @@ class ConfirmLogoutView extends StatelessWidget {
                 const SizedBox(height: 25 - 12),
                 Padding(
                   padding: ModalPopup.padding(context),
+                  child: Text(
+                    'label_password_set'.l10n,
+                    style: thin?.copyWith(
+                      fontSize: 15,
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Padding(
+                  padding: ModalPopup.padding(context),
                   child: Center(
                     child: OutlinedRoundedButton(
                       key: const Key('CloseButton'),
-                      title: Text('btn_close'.l10n),
+                      maxWidth: null,
+                      title: Text(
+                        'btn_close'.l10n,
+                        style: thin?.copyWith(color: Colors.white),
+                      ),
                       onPressed: Navigator.of(context).pop,
-                      color: const Color(0xFFEEEEEE),
+                      color: const Color(0xFF63B4FF),
                     ),
                   ),
                 ),

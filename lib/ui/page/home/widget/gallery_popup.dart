@@ -33,6 +33,7 @@ import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/widget_button.dart';
@@ -474,7 +475,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                           }
                         },
                       )
-                    : Image.network(e.link),
+                    : RetryImage(
+                        e.link,
+                        onForbidden: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      ),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
@@ -567,23 +576,13 @@ class _GalleryPopupState extends State<GalleryPopup>
                     },
                     child: PlatformUtils.isWeb
                         ? IgnorePointer(child: WebImage(e.link))
-                        : Image.network(
+                        : RetryImage(
                             e.link,
-                            errorBuilder: (_, __, ___) {
-                              return InitCallback(
-                                callback: () async {
-                                  await e.onError?.call();
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
-                                },
-                                child: const SizedBox(
-                                  height: 300,
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                              );
+                            onForbidden: () async {
+                              await e.onError?.call();
+                              if (mounted) {
+                                setState(() {});
+                              }
                             },
                           ),
                   ),
