@@ -1865,7 +1865,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Invokes [toggleFullscreen], if not [fullscreen] already.
+  /// Invokes [toggleFullscreen], if [fullscreen] is `true`.
   ///
   /// Intended to be used as a [HardwareKeyboard] handler, thus returns `true`,
   /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
