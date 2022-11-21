@@ -50,7 +50,7 @@ class DesktopControls extends StatefulWidget {
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// [Duration] of initial interface showing.
+  /// [Duration] to show initial user interface for.
   final Duration? showInterfaceFor;
 
   @override
@@ -321,7 +321,7 @@ class _DesktopControlsState extends State<DesktopControls>
         child: _controller.value.isPlaying
             ? Container()
             : AnimatedOpacity(
-                opacity: !_dragging && !_hideStuff ? 1.0 : 0.0,
+                opacity: !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Container(
                   width: 48,
@@ -523,8 +523,7 @@ class _DesktopControlsState extends State<DesktopControls>
     final isFinished = _latestValue.position >= _latestValue.duration;
 
     if (_controller.value.isPlaying) {
-      _hideStuff = false;
-      _hideTimer?.cancel();
+      _cancelAndRestartTimer();
       _controller.pause();
     } else {
       _cancelAndRestartTimer();

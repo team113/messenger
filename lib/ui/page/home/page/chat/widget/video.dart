@@ -55,7 +55,7 @@ class Video extends StatefulWidget {
   /// Callback, called on the [VideoPlayerController] initialization errors.
   final Future<void> Function()? onError;
 
-  /// [Duration] of initial interface showing.
+  /// [Duration] to show initial user interface for.
   final Duration? showInterfaceFor;
 
   @override
