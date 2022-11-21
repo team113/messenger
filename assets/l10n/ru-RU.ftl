@@ -264,6 +264,12 @@ err_you_already_has_unconfirmed_phone =
     У вас уже есть неподтвержденный телефон
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
+fcm_incoming_call = Входящий звонок
+fcm_user_added_user = {$author} добавил {$user}
+fcm_user_added_you_to_group  = {$user} добавил Вас в группу
+fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
+fcm_user_left_group = {$user} покинул группу
+fcm_user_removed_user = {$author} удалил {$user}
 label_a_of_b = {$a} из {$b}
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
@@ -547,11 +553,12 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
+fcm_user_added_user = {$author} добавил {$user}
+fcm_user_added_you_to_group  = {$user} добавил Вас в группу
+fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
+fcm_user_left_group = {$user} покинул группу
+fcm_user_removed_user = {$author} удалил {$user}
 label_use_search = Используйте поиск, чтобы найти пользователя
-label_user_joined_group_by_link = {$user} присоединился к группе по ссылке
-label_user_added_user = {$author} добавил {$user}
-label_user_left_group = {$user} покинул группу
-label_user_removed_user = {$author} удалил {$user}
 label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок
@@ -561,7 +568,6 @@ label_was_added = {$who} был(а) добавлен(а)
 label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
-label_you_were_added_to_group_by_user = {$user} добавил Вас в группу
 plus = +
 semicolon_space = :{" "}
 space = {" "}

@@ -22,7 +22,6 @@
 /.pub/
 /build/
 /doc/
-/android/app/google-services.json
 
 # GraphQL generation related
 /lib/**/*.g.dart
