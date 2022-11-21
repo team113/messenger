@@ -140,6 +140,8 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
+  final RxBool isDraggingNow = RxBool(false);
+
   /// Indicator whether any [ChatItem] is being dragged.
   ///
   /// Used to discard any horizontal gestures while this is `true`.
@@ -879,6 +881,10 @@ class ChatController extends GetxController {
         readChat(_lastSeenItem.value);
       }
     }
+    listController.position.addListener(() {
+      isDraggingNow.value = true;
+      Timer(Duration(seconds: 1), () => isDraggingNow.value = false);
+    });
   }
 
   /// Returns an [User] from [UserService] by the provided [id].

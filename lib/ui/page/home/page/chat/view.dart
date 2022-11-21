@@ -658,7 +658,7 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val);
+      return _timeLabel(element.id.at.val, c);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
     }
@@ -778,9 +778,16 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time) {
+  Widget _timeLabel(DateTime time, ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-
+    print(c.elements.values
+                .toList()[
+                    c.listController.sliverController.stickyIndex.value ?? 0]
+                .id
+                .at
+                .val ==
+            time &&
+        c.isDraggingNow.isTrue);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: SwipeableStatus(
@@ -793,14 +800,28 @@ class _ChatViewState extends State<ChatView>
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
         child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: style.systemMessageBorder,
-              color: style.systemMessageColor,
+          child: AnimatedOpacity(
+            opacity: c.elements.values
+                            .toList()[c.listController.sliverController
+                                    .stickyIndex.value ??
+                                0]
+                            .id
+                            .at
+                            .val ==
+                        time &&
+                    c.isDraggingNow.isTrue
+                ? 1
+                : 0,
+            duration: const Duration(milliseconds: 500),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
+              ),
+              child: Text(time.toRelative(), style: style.systemMessageStyle),
             ),
-            child: Text(time.toRelative(), style: style.systemMessageStyle),
           ),
         ),
       ),
