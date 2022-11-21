@@ -21,6 +21,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
@@ -492,6 +493,7 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
+    HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
     }
@@ -820,6 +822,7 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
+    HardwareKeyboard.instance.removeHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -1860,6 +1863,20 @@ class CallController extends GetxController {
           participants.firstWhereOrNull((p) => p.audio.value == track);
       participant?.audio.value = null;
     }
+  }
+
+  /// Invokes [toggleFullscreen], if [fullscreen] is `true`.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] handler, thus returns `true`,
+  /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
+  /// returns `false`.
+  bool _onKey(KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.escape && fullscreen.isTrue) {
+      toggleFullscreen();
+      return true;
+    }
+
+    return false;
   }
 }
 
