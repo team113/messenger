@@ -230,7 +230,7 @@ class SearchController extends GetxController {
     } else {
       selectedContacts.add(contact);
     }
-    onChangedCall();
+    _onChanged();
   }
 
   /// Selects or unselects the specified [user].
@@ -240,7 +240,7 @@ class SearchController extends GetxController {
     } else {
       selectedUsers.add(user);
     }
-    onChangedCall();
+    _onChanged();
   }
 
   /// Selects or unselects the specified [chat].
@@ -250,11 +250,11 @@ class SearchController extends GetxController {
     } else {
       selectedChats.add(chat);
     }
-    onChangedCall();
+    _onChanged();
   }
 
   /// Calls [onChanged] callback.
-  void onChangedCall() => onChanged?.call(
+  void _onChanged() => onChanged?.call(
         SearchViewResults(
           selectedChats,
           selectedUsers,

@@ -15,12 +15,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/ui/page/call/search/view.dart';
 
 import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Taps a chat with provided user inside `SearchView` widget.
+/// Taps a chat with provided user inside a [SearchView] widget.
 ///
 /// Examples:
 /// - When I tap chat with Bob

@@ -114,7 +114,7 @@ class SendMessageField extends StatelessWidget {
   /// Callback, called when a image picking from camera is triggered.
   final void Function()? onPickImageFromCamera;
 
-  /// Callback, called when need animate to some [ChatMessage].
+  /// Callback, animated to the [ChatMessage] with the provided [id].
   final Future<void> Function(
     ChatItemId id, {
     bool offsetBasedOnBottom,
