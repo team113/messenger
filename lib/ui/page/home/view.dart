@@ -21,10 +21,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -97,7 +101,7 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        if (!context.isMobile) {
+        if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
@@ -114,14 +118,14 @@ class _HomeViewState extends State<HomeView> {
         ///    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
-          opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
+          opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
               Obx(() {
                 double width = c.sideBarWidth.value;
                 return ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: context.isMobile ? context.width : width,
+                    maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
                     backgroundColor:
@@ -165,10 +169,14 @@ class _HomeViewState extends State<HomeView> {
                         // [AnimatedOpacity] boilerplate.
                         Widget tab({required Widget child, HomeTab? tab}) {
                           return Obx(() {
-                            return AnimatedOpacity(
+                            return AnimatedScale(
                               duration: 150.milliseconds,
-                              opacity: c.page.value == tab ? 1 : 0.6,
-                              child: child,
+                              scale: c.page.value == tab ? 1.2 : 1,
+                              child: AnimatedOpacity(
+                                duration: 150.milliseconds,
+                                opacity: c.page.value == tab ? 1 : 0.7,
+                                child: child,
+                              ),
                             );
                           });
                         }
@@ -202,13 +210,55 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             CustomNavigationBarItem(
                               key: const Key('MenuButton'),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 2),
-                                child: tab(
-                                  tab: HomeTab.menu,
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    radius: 15,
+                              child: ContextMenuRegion(
+                                alignment: Alignment.bottomRight,
+                                moveDownwards: false,
+                                selector: c.profileKey,
+                                width: 220,
+                                margin: PlatformUtils.isMobile
+                                    ? const EdgeInsets.only(bottom: 54)
+                                    : const EdgeInsets.only(
+                                        bottom: 17,
+                                        left: 26,
+                                      ),
+                                actions: [
+                                  ContextMenuButton(
+                                    label: 'btn_online'.l10n,
+                                    onPressed: () =>
+                                        c.setPresence(Presence.present),
+                                    leading: const CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  ),
+                                  ContextMenuButton(
+                                    label: 'btn_away'.l10n,
+                                    onPressed: () =>
+                                        c.setPresence(Presence.away),
+                                    leading: const CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  ),
+                                  ContextMenuButton(
+                                    label: 'btn_hidden'.l10n,
+                                    onPressed: () =>
+                                        c.setPresence(Presence.hidden),
+                                    leading: const CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                                child: Padding(
+                                  key: c.profileKey,
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: tab(
+                                    tab: HomeTab.menu,
+                                    child: AvatarWidget.fromMyUser(
+                                      c.myUser.value,
+                                      radius: 15,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -222,7 +272,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 );
               }),
-              if (!context.isMobile)
+              if (!context.isNarrow)
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -242,7 +292,7 @@ class _HomeViewState extends State<HomeView> {
         /// Nested navigation widget that displays [navigator] in an [Expanded]
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
-          ignoring: router.route == Routes.home && context.isMobile,
+          ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
             return Row(
               children: [
@@ -250,7 +300,7 @@ class _HomeViewState extends State<HomeView> {
                   double width = c.sideBarWidth.value;
                   return ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: context.isMobile ? 0 : width),
+                        BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
                     child: Container(),
                   );
                 }),
@@ -278,9 +328,9 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isMobile ? null : navigation),
+                  Container(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isMobile ? navigation : null),
+                  Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
@@ -337,7 +387,7 @@ class _HomeViewState extends State<HomeView> {
               const Positioned.fill(
                 child: ColoredBox(color: Color(0x0D000000)),
               ),
-              if (!context.isMobile) ...[
+              if (!context.isNarrow) ...[
                 Row(
                   children: [
                     ConditionalBackdropFilter(
@@ -346,7 +396,7 @@ class _HomeViewState extends State<HomeView> {
                         double width = c.sideBarWidth.value;
                         return ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: context.isMobile ? 0 : width,
+                            maxWidth: context.isNarrow ? 0 : width,
                           ),
                           child: const SizedBox.expand(),
                         );
