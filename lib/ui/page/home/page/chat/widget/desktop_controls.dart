@@ -321,7 +321,8 @@ class _DesktopControlsState extends State<DesktopControls>
         child: _controller.value.isPlaying
             ? Container()
             : AnimatedOpacity(
-                opacity: !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
+                opacity:
+                    !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Container(
                   width: 48,
