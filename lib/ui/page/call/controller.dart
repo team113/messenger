@@ -145,12 +145,6 @@ class CallController extends GetxController {
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
 
-  /// Indicator whether the hint is dismissed or not.
-  final RxBool isHintDismissed = RxBool(false);
-
-  /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
-
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
 
@@ -410,6 +404,28 @@ class CallController extends GetxController {
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
       _currentCall.value.caller?.num.val;
+
+  /// Indicates whether a drag and drop videos hint should be displayed.
+  bool get showDragAndDropVideosHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropVideosHint ??
+      true;
+
+  /// Sets the drag and drop videos hint indicator to the provided [value].
+  set showDragAndDropVideosHint(bool value) {
+    _settingsRepository.setShowDragAndDropVideosHint(value);
+  }
+
+  /// Indicates whether a drag and drop buttons hint should be displayed.
+  bool get showDragAndDropButtonsHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropButtonsHint ??
+      true;
+
+  /// Sets the drag and drop buttons hint indicator to the provided [value].
+  set showDragAndDropButtonsHint(bool value) {
+    _settingsRepository.setShowDragAndDropButtonsHint(value);
+  }
 
   /// Returns actual size of the call view.
   Size get size {
