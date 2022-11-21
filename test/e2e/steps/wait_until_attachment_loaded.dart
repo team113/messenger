@@ -25,16 +25,16 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
-import '../parameters/retry_image.dart';
+import '../parameters/fetch_status.dart';
 
-/// Waits until the specified image attachment is loaded or is being loaded.
+/// Waits until the specified image attachment is fetched or is being fetched.
 ///
 /// Examples:
-/// - Then I wait until "test.jpg" attachment is loading
-/// - Then I wait until "test.jpg" attachment is loaded
+/// - Then I wait until "test.jpg" attachment is fetching
+/// - Then I wait until "test.jpg" attachment is fetched
 final StepDefinitionGeneric untilAttachmentLoaded =
-    then2<String, RetryImageStatus, FlutterWorld>(
-  'I wait until {string} attachment is {retry_status}',
+    then2<String, ImageFetchStatus, FlutterWorld>(
+  'I wait until {string} attachment is {fetch_status}',
   (filename, status, context) async {
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
@@ -59,7 +59,7 @@ final StepDefinitionGeneric untilAttachmentLoaded =
               'Image_${(attachment as ImageAttachment).big.url}',
             ),
             context.world.appDriver.findByKeySkipOffstage(
-              status == RetryImageStatus.loading ? 'Loading' : 'Loading',
+              status == ImageFetchStatus.fetching ? 'Loading' : 'Loading',
             ),
             firstMatchOnly: true,
           ),

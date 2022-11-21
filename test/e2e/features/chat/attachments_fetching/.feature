@@ -8,5 +8,5 @@ Feature: Attachments refetching
     And I have Internet with delay of 4 seconds
 
     When I am in chat with Bob
-    Then I wait until "test.jpg" attachment is loading
-    And I wait until "test.jpg" attachment is loaded
+    Then I wait until "test.jpg" attachment is fetching
+    And I wait until "test.jpg" attachment is fetched

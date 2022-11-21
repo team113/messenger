@@ -32,10 +32,10 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
-import 'parameters/retry_image.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
@@ -144,9 +144,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        ImageFetchStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
-        RetryImageParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
