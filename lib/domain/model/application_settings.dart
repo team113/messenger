@@ -53,11 +53,13 @@ class ApplicationSettings extends HiveObject {
   @HiveField(4)
   List<String> callButtons;
 
-  /// Indicator whether participants dragging hint should be displayed in call.
+  /// Indicator whether a drag and drop videos hint should be displayed in an
+  /// [OngoingCall].
   @HiveField(5)
-  bool? showCallHint;
+  bool? showDragAndDropVideosHint;
 
-  /// Indicator whether buttons dragging hint should be displayed in call.
+  /// Indicator whether a drag and drop buttons hint should be displayed in an
+  /// [OngoingCall].
   @HiveField(6)
-  bool? showCallMoreHint;
+  bool? showDragAndDropButtonsHint;
 }

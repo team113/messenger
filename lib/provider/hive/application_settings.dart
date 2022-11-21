@@ -63,13 +63,18 @@ class ApplicationSettingsHiveProvider
   Future<void> setCallButtons(List<String> buttons) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
 
-  /// Stores a new [show] value of [ApplicationSettings.showCallHint] to
-  /// [Hive].
-  Future<void> setShowCallHint(bool show) =>
-      putSafe(0, (box.get(0) ?? ApplicationSettings())..showCallHint = show);
+  /// Stores a new [show] value of
+  /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
+  Future<void> setShowDragAndDropVideosHint(bool show) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..showDragAndDropVideosHint = show,
+      );
 
-  /// Stores a new [show] value of [ApplicationSettings.showCallMoreHint] to
-  /// [Hive].
-  Future<void> setShowCallMoreHint(bool show) => putSafe(
-      0, (box.get(0) ?? ApplicationSettings())..showCallMoreHint = show);
+  /// Stores a new [show] value of
+  /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
+  Future<void> setShowDragAndDropButtonsHint(bool show) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())
+          ..showDragAndDropButtonsHint = show,
+      );
 }

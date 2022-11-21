@@ -405,13 +405,27 @@ class CallController extends GetxController {
       _currentCall.value.caller?.name?.val ??
       _currentCall.value.caller?.num.val;
 
-  /// Indicator whether the hint is should be showed.
-  bool get showHint =>
-      _settingsRepository.applicationSettings.value?.showCallHint ?? true;
+  /// Indicates whether a drag and drop videos hint should be displayed.
+  bool get showDragAndDropVideosHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropVideosHint ??
+      true;
 
-  /// Indicator whether the more hint is should be showed.
-  bool get showMoreHint =>
-      _settingsRepository.applicationSettings.value?.showCallMoreHint ?? true;
+  /// Sets the drag and drop videos hint indicator to the provided [value].
+  set showDragAndDropVideosHint(bool value) {
+    _settingsRepository.setShowDragAndDropVideosHint(value);
+  }
+
+  /// Indicates whether a drag and drop buttons hint should be displayed.
+  bool get showDragAndDropButtonsHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropButtonsHint ??
+      true;
+
+  /// Sets the drag and drop buttons hint indicator to the provided [value].
+  set showDragAndDropButtonsHint(bool value) {
+    _settingsRepository.setShowDragAndDropButtonsHint(value);
+  }
 
   /// Returns actual size of the call view.
   Size get size {
@@ -934,13 +948,6 @@ class CallController extends GetxController {
 
     relocateSecondary();
   }
-
-  /// Dismisses the hint.
-  Future<void> dismissHint() => _settingsRepository.setShowCallHint(false);
-
-  /// Dismisses the more hint.
-  Future<void> dismissMoreHint() =>
-      _settingsRepository.setShowCallMoreHint(false);
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
