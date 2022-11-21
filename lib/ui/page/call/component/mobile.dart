@@ -798,7 +798,7 @@ Widget _primaryView(CallController c, BuildContext context) {
           allowDraggingLast: false,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
-            c.isHintDismissed.value = true;
+            c.showDragAndDropVideosHint = false;
             c.primaryDrags.value = 1;
             c.keepUi(false);
 
@@ -1031,7 +1031,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             useLongPress: true,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;
-              c.isHintDismissed.value = true;
+              c.showDragAndDropVideosHint = false;
               c.secondaryDrags.value = 1;
               c.keepUi(false);
             },
