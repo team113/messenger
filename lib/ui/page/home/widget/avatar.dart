@@ -411,6 +411,9 @@ class AvatarWidget extends StatelessWidget {
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
                   ),
                 )
               : null,
