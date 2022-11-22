@@ -475,7 +475,8 @@ class HiveRxChat extends RxChat {
           if (saved.value.id.val != item.value.id.val) {
             // If there's collision, then decrease timestamp with 1 millisecond
             // offset and save this item again.
-            // TODO: Waiting for fix replies sorting from backend.
+            // TODO: Sort forwards by their [DateTime] and their [ID]s (if the
+            //       posting [DateTime] is the same).
             item.value.at =
                 item.value.at.subtract(const Duration(milliseconds: 1));
             put(item);
