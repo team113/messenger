@@ -21,7 +21,7 @@ import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Taps a chat with provided user inside a [SearchView] widget.
+/// Taps a chat with the provided user inside a [SearchView] widget.
 ///
 /// Examples:
 /// - When I tap chat with Bob
