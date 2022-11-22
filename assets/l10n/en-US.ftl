@@ -538,6 +538,5 @@ label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
 plus = +
-semicolon_space = :{" "}
 space = {" "}
 space_vertical_space = {" "}|{" "}

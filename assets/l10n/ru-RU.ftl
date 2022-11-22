@@ -561,6 +561,5 @@ label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 plus = +
-semicolon_space = :{" "}
 space = {" "}
 space_vertical_space = {" "}|{" "}

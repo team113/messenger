@@ -19,9 +19,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
+import '/config.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -30,13 +32,16 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
@@ -219,24 +224,40 @@ class RecentChatTile extends StatelessWidget {
         desc.write(draft.text!.val);
       }
 
-      if (draft.attachments.isNotEmpty) {
-        if (desc.isNotEmpty) desc.write('space'.l10n);
-        desc.write(
-          'label_attachments'.l10nfmt({'count': draft.attachments.length}),
-        );
-      }
-
       if (draft.repliesTo.isNotEmpty) {
         if (desc.isNotEmpty) desc.write('space'.l10n);
         desc.write('label_replies'.l10nfmt({'count': draft.repliesTo.length}));
       }
 
+      final List<Widget> images = [];
+
+      if (draft.attachments.isNotEmpty) {
+        if (draft.text == null) {
+          images.addAll(
+            draft.attachments.map((e) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: _image(e),
+              );
+            }),
+          );
+        } else {
+          images.add(
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: _image(draft.attachments.first),
+            ),
+          );
+        }
+      }
+
       subtitle = [
+        Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
+        ...images,
         Flexible(
           child: Text(
-            '${'label_draft'.l10n}${'semicolon_space'.l10n}$desc',
+            desc.toString(),
             key: const Key('Draft'),
-            maxLines: 2,
           ),
         ),
       ];
@@ -307,37 +328,71 @@ class RecentChatTile extends StatelessWidget {
       } else if (item is ChatMessage) {
         final desc = StringBuffer();
 
-        if (!chat.isGroup && item.authorId == me) {
-          desc.write('${'label_you'.l10n}${'colon_space'.l10n}');
-        }
-
         if (item.text != null) {
           desc.write(item.text!.val);
-          if (item.attachments.isNotEmpty) {
-            desc.write(' ');
+        }
+
+        final List<Widget> images = [];
+
+        if (item.attachments.isNotEmpty) {
+          if (item.text == null) {
+            images.addAll(
+              item.attachments.map((e) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: _image(
+                    e,
+                    onError: () async {
+                      if (rxChat.chat.value.lastItem != null) {
+                        await rxChat
+                            .updateAttachments(rxChat.chat.value.lastItem!);
+                      }
+                    },
+                  ),
+                );
+              }),
+            );
+          } else {
+            images.add(
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: _image(
+                  item.attachments.first,
+                  onError: () async {
+                    if (rxChat.chat.value.lastItem != null) {
+                      await rxChat
+                          .updateAttachments(rxChat.chat.value.lastItem!);
+                    }
+                  },
+                ),
+              ),
+            );
           }
         }
 
-        if (item.attachments.isNotEmpty) {
-          desc.write(
-            'label_attachments'.l10nfmt({'count': item.attachments.length}),
-          );
-        }
-
         subtitle = [
-          if (chat.isGroup)
+          if (item.authorId == me)
+            Text('${'label_you'.l10n}${'colon_space'.l10n}')
+          else if (chat.isGroup)
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: FutureBuilder<RxUser?>(
                 future: getUser?.call(item.authorId),
-                builder: (_, snapshot) => snapshot.data != null
-                    ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
-                    : AvatarWidget.fromUser(
-                        chat.getUser(item!.authorId),
-                        radius: 10,
-                      ),
+                builder: (_, snapshot) {
+                  User? user;
+                  if (snapshot.data != null) {
+                    user = snapshot.data!.user.value;
+                    return Text(
+                        '${user.name ?? user.num}${'colon_space'.l10n}');
+                  } else {
+                    user = chat.getUser(item!.authorId);
+                    return Text(
+                        '${user?.name ?? user?.num ?? 'dot'.l10n * 3}${'colon_space'.l10n}');
+                  }
+                },
               ),
             ),
+          ...images,
           Flexible(child: Text(desc.toString())),
         ];
       } else if (item is ChatForward) {
@@ -400,6 +455,92 @@ class RecentChatTile extends StatelessWidget {
       maxLines: 2,
       child: Row(children: subtitle),
     );
+  }
+
+  /// Builds an [ImageAttachment] visual representation.
+  Widget _image(Attachment e, {Future<void> Function()? onError}) {
+    if (e is ImageAttachment) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: Image.network(
+            '${Config.files}${e.medium.relativeRef}',
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) {
+              return InitCallback(
+                callback: onError,
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    } else if (e is FileAttachment) {
+      if (e.isVideo) {
+        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: VideoThumbnail.url(
+                  url: e.original.url,
+                  key: key,
+                  height: 300,
+                  onError: onError,
+                ),
+              ),
+            ),
+          );
+        } else {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: Container(
+                color: Colors.grey,
+                child: const Icon(
+                  Icons.video_file,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          );
+        }
+      } else {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: SizedBox(
+            width: 30,
+            height: 30,
+            child: Container(
+              color: Colors.grey,
+              child: SvgLoader.asset(
+                'assets/icons/file.svg',
+                width: 30,
+                height: 30,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return const SizedBox();
   }
 
   /// Builds a [ChatItem.status] visual representation.
