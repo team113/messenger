@@ -143,6 +143,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Returns a visual representation of the provided media-[Attachment].
   static Widget mediaAttachment(
+    BuildContext context,
     Attachment e,
     List<Attachment> media, {
     GlobalKey? key,
@@ -266,7 +267,7 @@ class ChatItemWidget extends StatefulWidget {
                 }
 
                 GalleryPopup.show(
-                  context: router.context!,
+                  context: context,
                   gallery: GalleryPopup(
                     children: gallery,
                     initial: initial,
@@ -849,6 +850,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       opacity: _isRead || !_fromMe ? 1 : 0.55,
                       child: media.length == 1
                           ? ChatItemWidget.mediaAttachment(
+                              context,
                               media.first,
                               media,
                               filled: false,
@@ -864,6 +866,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 children: media
                                     .mapIndexed(
                                       (i, e) => ChatItemWidget.mediaAttachment(
+                                        context,
                                         e,
                                         media,
                                         key: _galleryKeys[i],
