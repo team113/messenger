@@ -252,7 +252,7 @@ class RecentChatTile extends StatelessWidget {
       }
 
       subtitle = [
-        Flexible(child: Text('${'label_draft'.l10n}${'colon_space'.l10n}')),
+        Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
         if (desc.isEmpty)
           Flexible(
             child: LayoutBuilder(builder: (_, constraints) {
