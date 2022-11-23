@@ -67,12 +67,10 @@ class SendMessageField extends StatelessWidget {
     this.animateTo,
     this.messageFieldKey,
     this.messageSendButtonKey,
+    this.getUser,
     this.me,
     required this.textFieldState,
   }) : super(key: key);
-
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService = Get.find();
 
   /// [Key] of message field.
   final Key? messageFieldKey;
@@ -113,6 +111,10 @@ class SendMessageField extends StatelessWidget {
 
   /// Callback, called when a image picking from camera is triggered.
   final void Function()? onPickImageFromCamera;
+
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
   final Future<void> Function(
@@ -987,7 +989,7 @@ class SendMessageField extends StatelessWidget {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: _userService.get(item.authorId),
+                  future: getUser?.call(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == me
                         ? Theme.of(context).colorScheme.secondary
@@ -1216,7 +1218,7 @@ class SendMessageField extends StatelessWidget {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: _userService.get(item.authorId),
+                  future: getUser?.call(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == me
                         ? const Color(0xFF63B4FF)
@@ -1240,7 +1242,7 @@ class SendMessageField extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           FutureBuilder<RxUser?>(
-                            future: _userService.get(item.authorId),
+                            future: getUser?.call(item.authorId),
                             builder: (context, snapshot) {
                               String? name;
                               if (snapshot.hasData) {

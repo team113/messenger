@@ -890,12 +890,14 @@ class _ChatViewState extends State<ChatView>
               },
               me: c.me,
               attachments: c.attachments,
+              getUser: c.getUser,
             )
           : SendMessageField(
               onSend: c.edit!.submit,
               animateTo: c.animateTo,
               editedMessage: c.editedMessage,
               textFieldState: c.edit!,
+              getUser: c.getUser,
               me: c.me,
             ),
     );

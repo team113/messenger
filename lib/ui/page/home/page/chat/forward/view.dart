@@ -195,6 +195,7 @@ class ChatForwardView extends StatelessWidget {
 
                             HapticFeedback.lightImpact();
                           },
+                          getUser: c.getUser,
                         ),
                       ),
                     ),

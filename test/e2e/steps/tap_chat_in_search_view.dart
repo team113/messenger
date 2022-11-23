@@ -30,9 +30,14 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
+      context.world.sessions.forEach((key, value) {
+        print('$key: ${value.dialog?.val}');
+      });
+      print('SearchViewChat_${context.world.sessions[user.name]!.dialog!.val}');
       final finder = context.world.appDriver.findByKeySkipOffstage(
         'SearchViewChat_${context.world.sessions[user.name]!.dialog!.val}',
       );
+      print(finder);
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);
