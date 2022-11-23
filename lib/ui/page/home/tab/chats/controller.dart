@@ -62,15 +62,6 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// [Chat]s service used to update the [chats].
-  final ChatService _chatService;
-
-  /// Calls service used to join the ongoing call in the [Chat].
-  final CallService _callService;
-
-  /// [ChatContact]s service used by [searchController].
-  final ContactService _contactService;
-
   /// Controller of searching.
   late final SearchController searchController;
 
@@ -82,6 +73,15 @@ class ChatsTabController extends GetxController {
 
   /// Elements of [searchController] items.
   final RxList<ListElement> elements = RxList([]);
+
+  /// [Chat]s service used to update the [chats].
+  final ChatService _chatService;
+
+  /// Calls service used to join the ongoing call in the [Chat].
+  final CallService _callService;
+
+  /// [ChatContact]s service used by the [searchController].
+  final ContactService _contactService;
 
   /// [AuthService] used to get [me] value.
   final AuthService _authService;

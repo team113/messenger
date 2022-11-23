@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
-        - Chats, contacts and users searching. ([#206], [#205])
+        - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
 

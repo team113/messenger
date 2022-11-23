@@ -90,10 +90,8 @@ final StepDefinitionGeneric untilContactOrChatInSearchResults =
           searchKey = 'SearchContact_$contactId';
         }
 
-        Finder finder = context.world.appDriver.findBy(
-          searchKey,
-          FindType.key,
-        );
+        final Finder finder =
+            context.world.appDriver.findBy(searchKey, FindType.key);
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(finder)

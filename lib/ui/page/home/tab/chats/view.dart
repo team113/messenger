@@ -41,7 +41,7 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     Widget tile({
       RxUser? user,
@@ -58,7 +58,7 @@ class ChatsTabView extends StatelessWidget {
           darken: 0,
           onTap: onTap,
           height: 94,
-          avatarRadius: 30,
+          radius: 30,
           subtitle: [
             const SizedBox(height: 5),
             Text(
@@ -219,7 +219,7 @@ class ChatsTabView extends StatelessWidget {
           ),
           body: Obx(() {
             if (c.chatsReady.value) {
-              Widget? child;
+              final Widget? child;
 
               if (c.searching.isTrue && c.searchField.isEmpty.isFalse) {
                 if (c.searchController.searchStatus.value.isLoading &&
@@ -230,7 +230,7 @@ class ChatsTabView extends StatelessWidget {
                     controller: ScrollController(),
                     itemCount: c.elements.length,
                     itemBuilder: (_, i) {
-                      ListElement element = c.elements[i];
+                      final ListElement element = c.elements[i];
                       Widget child = const SizedBox();
 
                       if (element is ChatElement) {
