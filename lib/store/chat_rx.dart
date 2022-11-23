@@ -1019,6 +1019,21 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.callMoved:
               // TODO: Implement EventChatCallMoved.
               break;
+
+            case ChatEventKind.favorited:
+              event as EventChatFavorited;
+              chatEntity.value.favoritePosition = event.position;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(null, null, null),
+              );
+              break;
+
+            case ChatEventKind.unfavorited:
+              chatEntity.value.favoritePosition = null;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(null, null, null),
+              );
+              break;
           }
         }
 

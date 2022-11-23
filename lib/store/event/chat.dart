@@ -40,6 +40,7 @@ enum ChatEventKind {
   directLinkDeleted,
   directLinkUpdated,
   directLinkUsageCountUpdated,
+  favorited,
   hidden,
   itemDeleted,
   itemHidden,
@@ -53,6 +54,7 @@ enum ChatEventKind {
   totalItemsCountUpdated,
   typingStarted,
   typingStopped,
+  unfavorited,
   unmuted,
   unreadItemsCountUpdated,
 }
@@ -525,4 +527,32 @@ class EventChatDirectLinkUpdated extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.directLinkUpdated;
+}
+
+/// Event of a [Chat] being added to the favorites list of the authenticated
+/// [MyUser].
+class EventChatFavorited extends ChatEvent {
+  const EventChatFavorited(ChatId chatId, this.position, this.at)
+      : super(chatId);
+
+  /// Position of the [Chat] in the favorites list.
+  final ChatFavoritePosition position;
+
+  /// DateTime when the [Chat] was favorited.
+  final PreciseDateTime at;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.favorited;
+}
+
+/// Event of a [Chat] being removed from the favorites list of the authenticated
+/// [MyUser].
+class EventChatUnfavorited extends ChatEvent {
+  const EventChatUnfavorited(ChatId chatId, this.at) : super(chatId);
+
+  /// DateTime when the [Chat] was unfavorited.
+  final PreciseDateTime at;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.unfavorited;
 }

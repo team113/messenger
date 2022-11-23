@@ -35,6 +35,7 @@ alert_popup_permissions_description =
 alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
+btn_add_chat_to_favorites = Добавить в избранное 
 btn_add_participant = Добавить участника
 btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
@@ -130,6 +131,7 @@ btn_create_group = Создать группу
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_avatar = Удалить аватар
+btn_delete_chat_from_favorites = Удалить из избранного
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов

@@ -35,6 +35,7 @@ alert_popup_permissions_description =
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
+btn_add_chat_to_favorites = Add to favorites 
 btn_add_participant = Add participant
 btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
@@ -130,6 +131,7 @@ btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_avatar = Delete avatar
+btn_delete_chat_from_favorites = Delete from favorites
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts

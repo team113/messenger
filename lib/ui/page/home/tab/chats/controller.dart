@@ -36,7 +36,12 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
+    show
+        FavoriteChatException,
+        HideChatException,
+        RemoveChatMemberException,
+        ToggleChatMuteException,
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
@@ -106,7 +111,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortChats();
           break;
       }
     });
@@ -200,6 +205,30 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Adds to favorites a [Chat] identified by the provided [id]
+  Future<void> addChatToFavorites(ChatId id) async {
+    try {
+      await _chatService.favoriteChat(id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes from favorites a [Chat] identified by the provided [id]
+  Future<void> deleteChatFromFavorites(ChatId id) async {
+    try {
+      await _chatService.unfavoriteChat(id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -221,6 +250,20 @@ class ChatsTabController extends GetxController {
       } else if (a.chat.value.ongoingCall == null &&
           b.chat.value.ongoingCall != null) {
         return 1;
+      }
+
+      if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition == null) {
+        return -1;
+      } else if (a.chat.value.favoritePosition == null &&
+          b.chat.value.favoritePosition != null) {
+        return 1;
+      } else if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition != null) {
+        return a.chat.value.favoritePosition!.val <
+                b.chat.value.favoritePosition!.val
+            ? -1
+            : 1;
       }
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);

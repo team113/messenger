@@ -48,6 +48,7 @@ import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/store/event/recent_chat.dart';
+import '/store/event/favorite_chats.dart' as favorite;
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -105,6 +106,11 @@ class ChatRepository implements AbstractChatRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
 
+  /// [_favoriteChatsEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamIterator? _favoriteChatsSubscription;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -143,6 +149,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initRemoteSubscription();
+    _initFavoriteChatsSubscription();
 
     _isReady.value = true;
   }
@@ -156,6 +163,7 @@ class ChatRepository implements AbstractChatRepository {
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _favoriteChatsSubscription?.cancel();
   }
 
   @override
@@ -897,6 +905,12 @@ class ChatRepository implements AbstractChatRepository {
         node.user.toModel(),
         node.at,
       );
+    } else if (e.$$typename == 'EventChatFavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
+      return EventChatFavorited(e.chatId, node.position, node.at);
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
+      return EventChatUnfavorited(e.chatId, node.at);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1070,6 +1084,186 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     return q.toData();
+  }
+
+  @override
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? favoritePosition =
+        chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition newFavoritePosition;
+
+    if (position == null) {
+      final List<HiveRxChat> sortFavoriteChats = _chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList()
+        ..sort(
+          (a, b) => a.chat.value.favoritePosition!.val
+              .compareTo(b.chat.value.favoritePosition!.val),
+        );
+      final double? bestFavoriteVal = sortFavoriteChats.isEmpty
+          ? null
+          : sortFavoriteChats.first.chat.value.favoritePosition!.val;
+      newFavoritePosition = ChatFavoritePosition(
+        bestFavoriteVal == null ? 9007199254740991 : bestFavoriteVal / 2,
+      );
+    } else {
+      newFavoritePosition = position;
+    }
+
+    chat?.chat.update((c) => c?.favoritePosition = newFavoritePosition);
+    chats.emit(MapChangeNotification.updated(null, null, null));
+
+    try {
+      await _graphQlProvider.favoriteChat(id, newFavoritePosition);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = favoritePosition);
+      chats.emit(MapChangeNotification.updated(null, null, null));
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChat(ChatId id) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? favoritePosition =
+        chat?.chat.value.favoritePosition;
+
+    chat?.chat.update((c) => c?.favoritePosition = null);
+    chats.emit(MapChangeNotification.updated(null, null, null));
+
+    try {
+      await _graphQlProvider.unfavoriteChat(id);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = favoritePosition);
+      chats.emit(MapChangeNotification.updated(null, null, null));
+      rethrow;
+    }
+  }
+
+  /// Initializes [_favoriteChatsEvents] subscription.
+  Future<void> _initFavoriteChatsSubscription() async {
+    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription =
+        StreamIterator(await _favoriteChatsEvents(null));
+    while (await _favoriteChatsSubscription!
+        .moveNext()
+        .onError<ResubscriptionRequiredException>((_, __) {
+      _initFavoriteChatsSubscription();
+      return false;
+    })) {
+      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
+    }
+  }
+
+  /// Handles [favorite.FavoriteChatsEvent] from the [_favoriteChatsEvents]
+  /// subscription.
+  Future<void> _favoriteChatsEvent(favorite.FavoriteChatsEvents event) async {
+    switch (event.kind) {
+      case favorite.FavoriteChatsEventsKind.initialized:
+        // No-op.
+        break;
+
+      case favorite.FavoriteChatsEventsKind.chatsList:
+        var node = event as favorite.FavoriteChatsEventsChatsList;
+        bool isNeedUpdate = false;
+        for (ChatData chatData in node.chatList) {
+          var chat = _chats[chatData.chat.value.id];
+          if (chat == null) {
+            _putEntry(chatData);
+          } else {
+            if (chat.chat.value.favoritePosition !=
+                chatData.chat.value.favoritePosition) {
+              chat.chat.update((c) =>
+                  c?.favoritePosition = chatData.chat.value.favoritePosition);
+            }
+            isNeedUpdate = true;
+          }
+        }
+        for (MapEntry<ChatId, HiveRxChat> item in _chats.entries) {
+          HiveRxChat c = _chats[item.key]!;
+          if (c.chat.value.favoritePosition != null &&
+              node.chatList.firstWhereOrNull((e) => e.chat.value.id == c.id) ==
+                  null) {
+            c.chat.update((val) => val?.favoritePosition = null);
+            isNeedUpdate = true;
+          }
+        }
+        if (isNeedUpdate) {
+          chats.emit(MapChangeNotification.updated(null, null, null));
+        }
+        break;
+
+      case favorite.FavoriteChatsEventsKind.event:
+        var versioned = (event as favorite.FavoriteChatsEventsEvent).event;
+        for (var event in versioned.events) {
+          switch (event.kind) {
+            case favorite.FavoriteChatsEventKind.favorited:
+              if (_chats[event.chatId] == null) {
+                get(event.chatId);
+              }
+              break;
+
+            case favorite.FavoriteChatsEventKind.unfavorited:
+              // No-op.
+              break;
+          }
+        }
+        break;
+    }
+  }
+
+  /// Subscribes to [favorite.FavoriteChatsEvent]s of all [chats].
+  Future<Stream<favorite.FavoriteChatsEvents>> _favoriteChatsEvents(
+          FavoriteChatsListVersion? ver) async =>
+      (await _graphQlProvider.favoriteChatsEvents(ver))
+          .asyncExpand((event) async* {
+        GraphQlProviderExceptions.fire(event);
+        var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
+            .favoriteChatsEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
+          yield const favorite.FavoriteChatsEventsInitialized();
+        } else if (events.$$typename == 'FavoriteChatsList') {
+          var chatsList = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
+          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          yield favorite.FavoriteChatsEventsChatsList(data);
+        } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
+          var mixin = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
+          yield favorite.FavoriteChatsEventsEvent(
+            favorite.FavoriteChatsEventsVersioned(
+              mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
+      });
+
+  /// Constructs a [favorite.FavoriteChatsEvent] from the
+  /// [FavoriteChatsEventsVersionedMixin$Events].
+  favorite.FavoriteChatsEvent _favoriteChatsVersionedEvent(
+      FavoriteChatsEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventChatFavorited') {
+      var node =
+          e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
+      return favorite.EventChatFavorited(
+        e.chatId,
+        node.at,
+        node.position,
+      );
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      var node =
+          e as FavoriteChatsEventsVersionedMixin$Events$EventChatUnfavorited;
+      return favorite.EventChatUnfavorited(
+        e.chatId,
+        node.at,
+      );
+    } else {
+      throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
+    }
   }
 }
 
