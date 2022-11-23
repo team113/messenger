@@ -252,14 +252,26 @@ class RecentChatTile extends StatelessWidget {
       }
 
       subtitle = [
-        Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
-        ...images,
-        Flexible(
-          child: Text(
-            desc.toString(),
-            key: const Key('Draft'),
+        Flexible(child: Text('${'label_draft'.l10n}${'colon_space'.l10n}')),
+        if (desc.isEmpty)
+          Flexible(
+            child: LayoutBuilder(builder: (_, constraints) {
+              return Row(
+                children: images
+                    .take((constraints.maxWidth / (30 + 4)).floor())
+                    .toList(),
+              );
+            }),
+          )
+        else
+          ...images,
+        if (desc.isNotEmpty)
+          Flexible(
+            child: Text(
+              desc.toString(),
+              key: const Key('Draft'),
+            ),
           ),
-        ),
       ];
     } else if (typings.isNotEmpty) {
       if (!rxChat.chat.value.isGroup) {
@@ -392,8 +404,19 @@ class RecentChatTile extends StatelessWidget {
                 },
               ),
             ),
-          ...images,
-          Flexible(child: Text(desc.toString())),
+          if (desc.isEmpty)
+            Flexible(
+              child: LayoutBuilder(builder: (_, constraints) {
+                return Row(
+                  children: images
+                      .take((constraints.maxWidth / (30 + 4)).floor())
+                      .toList(),
+                );
+              }),
+            )
+          else
+            ...images,
+          if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
         ];
       } else if (item is ChatForward) {
         subtitle = [
@@ -452,95 +475,117 @@ class RecentChatTile extends StatelessWidget {
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.subtitle2!,
       overflow: TextOverflow.ellipsis,
-      maxLines: 2,
       child: Row(children: subtitle),
     );
   }
 
   /// Builds an [ImageAttachment] visual representation.
   Widget _image(Attachment e, {Future<void> Function()? onError}) {
-    if (e is ImageAttachment) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: Image.network(
-            '${Config.files}${e.medium.relativeRef}',
+    Widget? content;
+
+    if (e is LocalAttachment) {
+      if (e.file.isImage && e.file.bytes != null) {
+        content = Image.memory(e.file.bytes!, fit: BoxFit.cover);
+      } else if (e.file.isVideo) {
+        if (PlatformUtils.isMobile ||
+            PlatformUtils.isWeb && e.file.bytes != null) {
+          content = FittedBox(
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) {
-              return InitCallback(
-                callback: onError,
-                child: const Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    } else if (e is FileAttachment) {
-      if (e.isVideo) {
-        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: SizedBox(
-              width: 30,
-              height: 30,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: VideoThumbnail.url(
-                  url: e.original.url,
-                  key: key,
-                  height: 300,
-                  onError: onError,
-                ),
-              ),
+            child: VideoThumbnail.bytes(
+              bytes: e.file.bytes!,
+              key: key,
+              height: 300,
             ),
           );
         } else {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: SizedBox(
-              width: 30,
-              height: 30,
-              child: Container(
-                color: Colors.grey,
-                child: const Icon(
-                  Icons.video_file,
-                  size: 18,
-                  color: Colors.white,
-                ),
-              ),
+          content = Container(
+            color: Colors.grey,
+            child: const Icon(
+              Icons.video_file,
+              size: 18,
+              color: Colors.white,
             ),
           );
         }
       } else {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: SizedBox(
+        content = Container(
+          color: Colors.grey,
+          child: SvgLoader.asset(
+            'assets/icons/file.svg',
             width: 30,
             height: 30,
-            child: Container(
-              color: Colors.grey,
-              child: SvgLoader.asset(
-                'assets/icons/file.svg',
-                width: 30,
-                height: 30,
-              ),
-            ),
           ),
         );
       }
     }
 
-    return const SizedBox();
+    if (e is ImageAttachment) {
+      content = Image.network(
+        '${Config.files}${e.medium.relativeRef}',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return InitCallback(
+            callback: onError,
+            child: const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    if (e is FileAttachment) {
+      if (e.isVideo) {
+        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          content = FittedBox(
+            fit: BoxFit.cover,
+            child: VideoThumbnail.url(
+              url: e.original.url,
+              key: key,
+              height: 300,
+              onError: onError,
+            ),
+          );
+        } else {
+          content = Container(
+            color: Colors.grey,
+            child: const Icon(
+              Icons.video_file,
+              size: 18,
+              color: Colors.white,
+            ),
+          );
+        }
+      } else {
+        content = Container(
+          color: Colors.grey,
+          child: SvgLoader.asset(
+            'assets/icons/file.svg',
+            width: 30,
+            height: 30,
+          ),
+        );
+      }
+    }
+
+    if(content != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: content,
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   /// Builds a [ChatItem.status] visual representation.
