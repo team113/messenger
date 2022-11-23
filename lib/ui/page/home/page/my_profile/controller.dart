@@ -21,11 +21,16 @@ import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/image_gallery_item.dart';
+import 'package:messenger/domain/model/ongoing_call.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/ui/page/home/tab/menu/confirm/view.dart';
+import 'package:messenger/util/obs/obs.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode, Presence;
@@ -50,6 +55,7 @@ class MyProfileController extends GetxController {
     this._myUserService,
     this._callService,
     this._authService,
+    this._settingsRepo,
   );
 
   /// Service responsible for [MyUser] management.
@@ -95,6 +101,15 @@ class MyProfileController extends GetxController {
   /// items on [MyUser] updates.
   CarouselController? galleryController;
 
+  /// [GlobalKey] of a button opening the [Language] selection.
+  final GlobalKey languageKey = GlobalKey();
+
+  final GlobalKey cameraKey = GlobalKey();
+  final GlobalKey microphoneKey = GlobalKey();
+  final GlobalKey outputKey = GlobalKey();
+
+  late final Rx<OngoingCall> _call;
+
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
 
@@ -136,6 +151,9 @@ class MyProfileController extends GetxController {
 
   final AuthService _authService;
   final CallService _callService;
+
+  /// Settings repository, used to update the [ApplicationSettings].
+  final AbstractSettingsRepository _settingsRepo;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -185,12 +203,30 @@ class MyProfileController extends GetxController {
       myUser.value?.gallery?[galleryIndex.value].id ==
       myUser.value?.avatar?.galleryItem?.id;
 
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
+
+  /// Returns the local [Track]s.
+  ObsList<Track>? get localTracks => _call.value.localTracks;
+
+  /// Returns a list of [MediaDeviceInfo] of all the available devices.
+  InputDevices get devices => _call.value.devices;
+
+  /// Returns ID of the currently used video device.
+  RxnString get camera => _call.value.videoDevice;
+
+  /// Returns ID of the currently used microphone device.
+  RxnString get mic => _call.value.audioDevice;
+
+  /// Returns ID of the currently used output device.
+  RxnString get output => _call.value.outputDevice;
+
   @override
   void onInit() {
     _worker = ever(
       _myUserService.myUser,
       (MyUser? v) {
-        if (!name.focus.hasFocus) {
+        if (!name.focus.hasFocus && !name.changed.value) {
           name.unchecked = v?.name?.val;
         }
         if (!bio.focus.hasFocus) {
@@ -199,10 +235,10 @@ class MyProfileController extends GetxController {
         if (!presence.focus.hasFocus) {
           presence.unchecked = v?.presence;
         }
-        if (!login.focus.hasFocus) {
+        if (!login.focus.hasFocus && !login.changed.value) {
           login.unchecked = v?.login?.val;
         }
-        if (!link.focus.hasFocus) {
+        if (!link.focus.hasFocus && !link.changed.value) {
           link.unchecked = v?.chatDirectLink?.slug.val;
         }
         if (_galleryLength != v?.gallery?.length) {
@@ -414,11 +450,18 @@ class MyProfileController extends GetxController {
     );
 
     link = TextFieldState(
-      text: myUser.value?.chatDirectLink?.slug.val,
+      text: myUser.value?.chatDirectLink?.slug.val ??
+          ChatDirectLinkSlug.generate(10).val,
+      approvable: true,
+      submitted: myUser.value?.chatDirectLink != null,
       onChanged: (s) {
         s.error.value = null;
-        s.status.value = RxStatus.empty();
-        s.unsubmit();
+
+        try {
+          ChatDirectLinkSlug(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
       },
       onSubmitted: (s) async {
         ChatDirectLinkSlug? slug;
@@ -438,10 +481,13 @@ class MyProfileController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            await _myUserService.createChatDirectLink(slug!);
+            // await _myUserService.createChatDirectLink(slug!);
+            await Future.delayed(const Duration(seconds: 1));
             s.status.value = RxStatus.success();
-            _linkTimer = Timer(const Duration(milliseconds: 1500),
-                () => s.status.value = RxStatus.empty());
+            _linkTimer = Timer(
+              const Duration(milliseconds: 1500),
+              () => s.status.value = RxStatus.empty(),
+            );
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
             s.error.value = e.toMessage();
@@ -459,6 +505,7 @@ class MyProfileController extends GetxController {
 
     login = TextFieldState(
       text: myUser.value?.login?.val,
+      approvable: true,
       onChanged: (s) async {
         s.error.value = null;
 
@@ -474,12 +521,37 @@ class MyProfileController extends GetxController {
           s.error.value = 'err_incorrect_login_input'.l10n;
         }
 
+        // if (s.error.value == null) {
+        //   _loginTimer?.cancel();
+        //   s.editable.value = false;
+        //   s.status.value = RxStatus.loading();
+        //   try {
+        //     await _myUserService.updateUserLogin(UserLogin(s.text));
+        //     s.status.value = RxStatus.success();
+        //     _loginTimer = Timer(
+        //       const Duration(milliseconds: 1500),
+        //       () => s.status.value = RxStatus.empty(),
+        //     );
+        //   } on UpdateUserLoginException catch (e) {
+        //     s.error.value = e.toMessage();
+        //     s.status.value = RxStatus.empty();
+        //   } catch (e) {
+        //     s.error.value = 'err_data_transfer'.l10n;
+        //     s.status.value = RxStatus.empty();
+        //     rethrow;
+        //   } finally {
+        //     s.editable.value = true;
+        //   }
+        // }
+      },
+      onSubmitted: (s) async {
         if (s.error.value == null) {
           _loginTimer?.cancel();
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.updateUserLogin(UserLogin(s.text));
+            // await Future.delayed(const Duration(seconds: 1));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),
@@ -600,6 +672,21 @@ class MyProfileController extends GetxController {
       },
     );
 
+    // TODO: This is a really bad hack. We should not create call here. Required
+    //       functionality should be decoupled from the OngoingCall or
+    //       reimplemented here.
+    _call = Rx<OngoingCall>(OngoingCall(
+      const ChatId('settings'),
+      const UserId(''),
+      state: OngoingCallState.local,
+      mediaSettings: _settingsRepo.mediaSettings.value,
+      withAudio: false,
+      withVideo: false,
+      withScreen: false,
+    ));
+
+    _call.value.init();
+
     super.onInit();
   }
 
@@ -608,7 +695,43 @@ class MyProfileController extends GetxController {
     _setResendEmailTimer(false);
     _setResendPhoneTimer(false);
     _worker?.dispose();
+    _call.value.dispose();
     super.onClose();
+  }
+
+  /// Sets device with [id] as a used by default [camera] device.
+  void setVideoDevice(String id) {
+    _call.value.setVideoDevice(id);
+    _settingsRepo.setVideoDevice(id);
+  }
+
+  /// Sets device with [id] as a used by default [mic] device.
+  void setAudioDevice(String id) {
+    _call.value.setAudioDevice(id);
+    _settingsRepo.setAudioDevice(id);
+  }
+
+  /// Sets device with [id] as a used by default [output] device.
+  void setOutputDevice(String id) {
+    _call.value.setOutputDevice(id);
+    _settingsRepo.setOutputDevice(id);
+  }
+
+  /// Removes the currently set [background].
+  Future<void> removeBackground() => _settingsRepo.setBackground(null);
+
+  /// Opens an image choose popup and sets the selected file as a [background].
+  Future<void> pickBackground() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true,
+      withReadStream: false,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      _settingsRepo.setBackground(result.files.first.bytes);
+    }
   }
 
   /// Determines whether the [logout] action may be invoked or not.

@@ -221,12 +221,13 @@ class ModalPopupHeader extends StatelessWidget {
           if (!context.isMobile)
             WidgetButton(
               onPressed: Navigator.of(context).pop,
-              child: const Padding(
-                padding: EdgeInsets.all(12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
                 child: Icon(
                   Icons.close,
                   size: 18,
-                  color: Color(0xBB818181),
+                  color: Theme.of(context).colorScheme.secondary,
+                  // color: Color(0xBB818181),
                 ),
               ),
             )

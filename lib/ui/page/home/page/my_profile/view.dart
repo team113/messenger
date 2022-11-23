@@ -16,20 +16,26 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
+import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/download/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/selector.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -83,7 +89,12 @@ class MyProfileView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -225,6 +236,26 @@ class MyProfileView extends StatelessWidget {
                       _link(context, c),
                     ],
                   ),
+                  block(children: [
+                    _label(context, 'Персонализация'),
+                    _personalization(context, c),
+                  ]),
+                  block(children: [
+                    _label(context, 'Язык'),
+                    _language(context, c),
+                  ]),
+                  block(children: [
+                    _label(context, 'Медиа'),
+                    _media(context, c),
+                  ]),
+                  block(children: [
+                    _label(context, 'Скачать приложение'),
+                    _downloads(context, c),
+                  ]),
+                  block(children: [
+                    _label(context, 'Опасная зона'),
+                    _deleteAccount(context, c),
+                  ]),
                   const SizedBox(height: 8),
                 ],
               );
@@ -355,7 +386,7 @@ class MyProfileView extends StatelessWidget {
                         _phones(c, context),
                         _emails(c, context),
                         _password(context, c),
-                        _deleteAccount(c),
+                        _deleteAccount(context, c),
                         ListTile(
                           leading: const Icon(Icons.settings),
                           title: Text('Settings'.l10n),
@@ -650,9 +681,16 @@ Widget _link(BuildContext context, MyProfileController c) {
                   Clipboard.setData(
                     ClipboardData(
                       text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.myUser.value?.chatDirectLink!.slug.val}',
+                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                     ),
                   );
+
+                  // Clipboard.setData(
+                  //   ClipboardData(
+                  //     text:
+                  //         '${Config.origin}${Routes.chatDirectLink}/${c.myUser.value?.chatDirectLink?.slug.val}',
+                  //   ),
+                  // );
 
                   MessagePopup.success('label_copied_to_clipboard'.l10n);
                 },
@@ -668,26 +706,41 @@ Widget _link(BuildContext context, MyProfileController c) {
                     ),
                   ),
                 ),
-          label: Config.origin,
+          label: '${Config.origin}/',
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: RichText(
-            text: TextSpan(
-              style:
-                  const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
-              children: [
-                const TextSpan(
-                  text: 'Чат создаётся автоматически. ',
-                  style: TextStyle(color: Color(0xFF888888)),
+          child: Row(
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.normal),
+                  children: [
+                    TextSpan(
+                      text: 'Переходов: 0',
+                      // style: TextStyle(color: Color(0xFF888888)),
+                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      recognizer: TapGestureRecognizer()..onTap = () async {},
+                    ),
+                  ],
                 ),
-                TextSpan(
-                  text: 'Подробнее.',
-                  style: const TextStyle(color: Color(0xFF00A3FF)),
-                  recognizer: TapGestureRecognizer()..onTap = () async {},
+              ),
+              const Spacer(),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.normal),
+                  children: [
+                    TextSpan(
+                      text: 'Подробнее',
+                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      recognizer: TapGestureRecognizer()..onTap = () async {},
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1704,12 +1757,269 @@ Widget _monolog(MyProfileController c) => ListTile(
     );
 
 /// Returns button to delete the account.
-Widget _deleteAccount(MyProfileController c) => ListTile(
-      key: const Key('DeleteAccountButton'),
-      leading: const Icon(Icons.delete, color: Colors.red),
-      title: Text(
-        'btn_delete_account'.l10n,
-        style: const TextStyle(color: Colors.red),
+Widget _deleteAccount(BuildContext context, MyProfileController c) {
+  return _dense(
+    WidgetButton(
+      onPressed: c.deleteAccount,
+      child: IgnorePointer(
+        child: ReactiveTextField(
+          state:
+              TextFieldState(text: 'btn_delete_account'.l10n, editable: false),
+          style: const TextStyle(color: Colors.red),
+          // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
       ),
-      onTap: c.deleteAccount,
-    );
+    ),
+  );
+
+  return ListTile(
+    key: const Key('DeleteAccountButton'),
+    leading: const Icon(Icons.delete, color: Colors.red),
+    title: Text(
+      'btn_delete_account'.l10n,
+      style: const TextStyle(color: Colors.red),
+    ),
+    onTap: c.deleteAccount,
+  );
+}
+
+Widget _personalization(BuildContext context, MyProfileController c) {
+  return _dense(
+    Column(
+      children: [
+        WidgetButton(
+          onPressed: c.pickBackground,
+          child: Obx(() {
+            return SizedBox(
+              width: double.infinity,
+              height: 120,
+              child: c.background.value == null
+                  ? Container(color: Colors.grey)
+                  : Image.memory(c.background.value!, fit: BoxFit.cover),
+            );
+          }),
+        ),
+        const SizedBox(height: 5),
+        Center(
+          child: WidgetButton(
+            onPressed: c.background.value == null ? null : c.removeBackground,
+            child: SizedBox(
+              height: 20,
+              child: c.background.value == null
+                  ? null
+                  : Text(
+                      'Delete',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _media(BuildContext context, MyProfileController c) {
+  Widget row(Widget left, Widget right, [bool useFlexible = false]) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        child: Row(
+          children: [
+            Expanded(flex: 9, child: left),
+            useFlexible
+                ? Flexible(flex: 31, child: right)
+                : Expanded(flex: 31, child: right),
+          ],
+        ),
+      );
+
+  Widget dropdown({
+    required MediaDeviceInfo? value,
+    required Iterable<MediaDeviceInfo> devices,
+    required ValueChanged<MediaDeviceInfo?> onChanged,
+  }) =>
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F0F0),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        height: 36,
+        child: DropdownButton<MediaDeviceInfo>(
+          value: value,
+          items: devices
+              .map<DropdownMenuItem<MediaDeviceInfo>>(
+                (MediaDeviceInfo e) =>
+                    DropdownMenuItem(value: e, child: Text(e.label())),
+              )
+              .toList(),
+          onChanged: onChanged,
+          borderRadius: BorderRadius.circular(18),
+          isExpanded: true,
+          icon: const Icon(
+            Icons.keyboard_arrow_down,
+            color: Colors.black,
+            size: 31,
+          ),
+          disabledHint: Text('label_media_no_device_available'.l10n),
+          style: context.textTheme.subtitle1?.copyWith(color: Colors.black),
+          underline: const SizedBox(),
+        ),
+      );
+
+  return _dense(
+    Column(
+      children: [
+        WidgetButton(
+          key: c.cameraKey,
+          onPressed: () async {},
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              label: 'label_media_camera'.l10n,
+              state: TextFieldState(
+                text: (c.devices.video().firstWhereOrNull(
+                                (e) => e.deviceId() == c.camera.value) ??
+                            c.devices.video().firstOrNull)
+                        ?.label() ??
+                    '',
+                editable: false,
+              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
+          ),
+        ),
+        const SizedBox(height: 25),
+        row(
+          Text('label_media_camera'.l10n),
+          dropdown(
+            value: c.devices
+                    .video()
+                    .firstWhereOrNull((e) => e.deviceId() == c.camera.value) ??
+                c.devices.video().firstOrNull,
+            devices: c.devices.video(),
+            onChanged: (d) => c.setVideoDevice(d!.deviceId()),
+          ),
+        ),
+        const SizedBox(height: 25),
+        StreamBuilder(
+          stream: c.localTracks?.changes,
+          builder: (context, snapshot) {
+            RtcVideoRenderer? local = c.localTracks
+                ?.firstWhereOrNull((t) =>
+                    t.source == MediaSourceKind.Device &&
+                    t.renderer.value is RtcVideoRenderer)
+                ?.renderer
+                .value as RtcVideoRenderer?;
+            return row(
+              Container(),
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 250,
+                    width: 370,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: local == null
+                        ? const Center(
+                            child: Icon(
+                              Icons.videocam_off,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          )
+                        : webrtc.VideoView(
+                            local.inner,
+                            objectFit: webrtc.VideoViewObjectFit.cover,
+                            mirror: true,
+                          ),
+                  ),
+                ),
+              ),
+              true,
+            );
+          },
+        ),
+        const SizedBox(height: 25),
+        row(
+          Text('label_media_microphone'.l10n),
+          dropdown(
+            value: c.devices
+                    .audio()
+                    .firstWhereOrNull((e) => e.deviceId() == c.mic.value) ??
+                c.devices.audio().firstOrNull,
+            devices: c.devices.audio(),
+            onChanged: (d) => c.setAudioDevice(d!.deviceId()),
+          ),
+        ),
+        const SizedBox(height: 25),
+        row(
+          Text('label_media_output'.l10n),
+          dropdown(
+            value: c.devices
+                    .output()
+                    .firstWhereOrNull((e) => e.deviceId() == c.output.value) ??
+                c.devices.output().firstOrNull,
+            devices: c.devices.output(),
+            onChanged: (d) => c.setOutputDevice(d!.deviceId()),
+          ),
+        ),
+        const SizedBox(height: 25),
+      ],
+    ),
+  );
+}
+
+Widget _downloads(BuildContext context, MyProfileController c) {
+  return _dense(const DownloadView(true));
+}
+
+Widget _language(BuildContext context, MyProfileController c) {
+  return _dense(
+    WidgetButton(
+      key: c.languageKey,
+      onPressed: () async {
+        final TextStyle? thin =
+            context.textTheme.caption?.copyWith(color: Colors.black);
+        await Selector.show<Language>(
+          context: context,
+          buttonKey: c.languageKey,
+          alignment: Alignment.bottomCenter,
+          items: L10n.languages,
+          initial: L10n.chosen.value!,
+          onSelected: (l) => L10n.set(l),
+          debounce: context.isMobile ? const Duration(milliseconds: 500) : null,
+          itemBuilder: (Language e) => Row(
+            key:
+                Key('Language_${e.locale.languageCode}${e.locale.countryCode}'),
+            children: [
+              Text(
+                e.name,
+                style: thin?.copyWith(fontSize: 15),
+              ),
+              const Spacer(),
+              Text(
+                e.locale.languageCode.toUpperCase(),
+                style: thin?.copyWith(fontSize: 15),
+              ),
+            ],
+          ),
+        );
+      },
+      child: IgnorePointer(
+        child: ReactiveTextField(
+          state: TextFieldState(
+              text:
+                  '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+              editable: false),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ),
+  );
+}

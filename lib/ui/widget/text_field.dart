@@ -21,6 +21,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '/util/platform_utils.dart';
 import 'animations.dart';
+import 'svg/svg.dart';
 
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
@@ -206,7 +207,8 @@ class ReactiveTextField extends StatelessWidget {
                     ? const BoxConstraints(maxWidth: 44)
                     : null,
                 suffixIcon: ElasticAnimatedSwitcher(
-                  child: (suffix != null ||
+                  child: (state.approvable ||
+                          suffix != null ||
                           trailing != null ||
                           !state.status.value.isEmpty)
                       ? Padding(
@@ -216,11 +218,15 @@ class ReactiveTextField extends StatelessWidget {
                             height: 24,
                             child: ElasticAnimatedSwitcher(
                               child: state.status.value.isLoading
-                                  ? const Icon(
-                                      Icons.query_builder_outlined,
-                                      size: 18,
-                                      key: ValueKey('Load'),
+                                  ? SvgLoader.asset(
+                                      'assets/icons/timer.svg',
+                                      height: 17,
                                     )
+                                  // ? const Icon(
+                                  //     Icons.query_builder_outlined,
+                                  //     size: 18,
+                                  //     key: ValueKey('Load'),
+                                  //   )
                                   : state.status.value.isSuccess
                                       ? const Icon(
                                           Icons.check,
@@ -237,27 +243,57 @@ class ReactiveTextField extends StatelessWidget {
                                               color: Colors.red,
                                               key: ValueKey('Error'),
                                             )
-                                          : IgnorePointer(
-                                              ignoring: onSuffixPressed == null,
-                                              child: IconButton(
-                                                padding: EdgeInsets.zero,
-                                                constraints:
-                                                    BoxConstraints.tight(
-                                                  const Size(24, 24),
+                                          : (state.approvable &&
+                                                  state.changed.value)
+                                              ? IconButton(
+                                                  padding: EdgeInsets.zero,
+                                                  constraints:
+                                                      BoxConstraints.tight(
+                                                    const Size(24, 24),
+                                                  ),
+                                                  key:
+                                                      const ValueKey('Approve'),
+                                                  onPressed: state.submit,
+                                                  icon: Transform.translate(
+                                                    offset: const Offset(0, -1),
+                                                    child: Transform.scale(
+                                                      scale: 1.15,
+                                                      child: SvgLoader.asset(
+                                                        'assets/icons/save.svg',
+                                                        height: 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // icon: Icon(
+                                                  //   Icons.save_outlined,
+                                                  //   color: Theme.of(context)
+                                                  //       .colorScheme
+                                                  //       .secondary,
+                                                  //   size: suffixSize,
+                                                  // ),
+                                                )
+                                              : IgnorePointer(
+                                                  ignoring:
+                                                      onSuffixPressed == null,
+                                                  child: IconButton(
+                                                    padding: EdgeInsets.zero,
+                                                    constraints:
+                                                        BoxConstraints.tight(
+                                                      const Size(24, 24),
+                                                    ),
+                                                    key: const ValueKey('Icon'),
+                                                    onPressed: onSuffixPressed,
+                                                    icon: suffix != null
+                                                        ? Icon(
+                                                            suffix,
+                                                            color: suffixColor,
+                                                            size: suffixSize,
+                                                          )
+                                                        : trailing == null
+                                                            ? Container()
+                                                            : trailing!,
+                                                  ),
                                                 ),
-                                                key: const ValueKey('Icon'),
-                                                onPressed: onSuffixPressed,
-                                                icon: suffix != null
-                                                    ? Icon(
-                                                        suffix,
-                                                        color: suffixColor,
-                                                        size: suffixSize,
-                                                      )
-                                                    : trailing == null
-                                                        ? Container()
-                                                        : trailing!,
-                                              ),
-                                            ),
                             ),
                           ),
                         )
@@ -336,6 +372,9 @@ abstract class ReactiveFieldState {
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
   FocusNode get focus;
 
+  RxBool get changed;
+  final bool approvable = false;
+
   /// Reactive error message.
   final RxnString error = RxnString();
 
@@ -354,7 +393,9 @@ class TextFieldState extends ReactiveFieldState {
     this.onSubmitted,
     RxStatus? status,
     FocusNode? focus,
+    this.approvable = false,
     bool editable = true,
+    bool submitted = true,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
@@ -362,7 +403,16 @@ class TextFieldState extends ReactiveFieldState {
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
 
+    if (submitted) {
+      _previousSubmit = text;
+    }
+
+    changed.value = _previousSubmit != text;
+
     if (onChanged != null) {
+      controller.addListener(() {
+        changed.value = controller.text != _previousSubmit;
+      });
       this.focus.addListener(
         () {
           if (controller.text != _previousText &&
@@ -392,6 +442,11 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [submit] was manually called.
   final Function(TextFieldState)? onSubmitted;
+
+  final bool approvable;
+
+  @override
+  final RxBool changed = RxBool(false);
 
   /// [TextEditingController] of this [TextFieldState].
   @override
@@ -427,6 +482,7 @@ class TextFieldState extends ReactiveFieldState {
     controller.text = value;
     _previousText = value;
     isEmpty.value = value.isEmpty;
+    changed.value = true;
     onChanged?.call(this);
   }
 
@@ -435,6 +491,7 @@ class TextFieldState extends ReactiveFieldState {
   set unchecked(String? value) {
     controller.text = value ?? '';
     _previousText = value ?? '';
+    changed.value = false;
     isEmpty.value = controller.text.isEmpty;
   }
 
@@ -453,12 +510,16 @@ class TextFieldState extends ReactiveFieldState {
         }
         _previousSubmit = controller.text;
         onSubmitted?.call(this);
+        changed.value = false;
       }
     }
   }
 
   /// Clears the last submitted value.
-  void unsubmit() => _previousSubmit = null;
+  void unsubmit() {
+    _previousSubmit = null;
+    changed.value = false;
+  }
 
   /// Clears the [TextEditingController]'s text without calling [onChanged].
   void clear() {
@@ -467,5 +528,6 @@ class TextFieldState extends ReactiveFieldState {
     error.value = null;
     _previousText = null;
     _previousSubmit = null;
+    changed.value = false;
   }
 }
