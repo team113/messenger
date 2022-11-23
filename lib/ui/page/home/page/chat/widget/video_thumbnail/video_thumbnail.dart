@@ -133,10 +133,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  IgnorePointer(
-                    child: AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller.value.size.width,
+                      height: _controller.value.size.height,
+                      child: IgnorePointer(child: VideoPlayer(_controller)),
                     ),
                   ),
                   ContextMenuInterceptor(child: const SizedBox()),

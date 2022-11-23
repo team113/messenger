@@ -323,6 +323,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: media.length == 1
                     ? ChatItemWidget.mediaAttachment(
+                        context,
                         media.first,
                         media,
                         key: _galleryKeys[item.id]?.firstOrNull,
@@ -338,6 +339,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
+                                  context,
                                   e,
                                   media,
                                   key: _galleryKeys[item.id]?[i],
@@ -616,6 +618,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: attachments.length == 1
                   ? ChatItemWidget.mediaAttachment(
+                      context,
                       attachments.first,
                       attachments,
                       key: _galleryKeys[item.id]?.lastOrNull,
@@ -631,6 +634,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
+                                context,
                                 e,
                                 attachments,
                                 key: _galleryKeys[item.id]?[i],
