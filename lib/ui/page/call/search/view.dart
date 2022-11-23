@@ -194,10 +194,12 @@ class SearchView extends StatelessWidget {
                             });
                           }
                         } else if (e is RxChatContact) {
-                          if (c.chats.values.none((e1) =>
-                              e1.chat.value.isDialog &&
-                              e1.chat.value.members.any(
-                                  (e2) => e2.user.id == e.user.value!.id))) {
+                          if (c.chats.values.none(
+                            (e1) =>
+                                e1.chat.value.isDialog &&
+                                e1.chat.value.members.any(
+                                    (e2) => e2.user.id == e.user.value!.id),
+                          )) {
                             child = Obx(() {
                               return tile(
                                 context: context,

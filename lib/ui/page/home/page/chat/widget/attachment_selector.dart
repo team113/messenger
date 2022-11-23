@@ -29,35 +29,31 @@ import '/util/platform_utils.dart';
 class AttachmentSourceSelector extends StatelessWidget {
   const AttachmentSourceSelector({
     Key? key,
-    this.onPickImageFromCamera,
-    this.onVideoImageFromCamera,
+    this.onTakePhoto,
+    this.onTakeVideo,
     this.onPickMedia,
     this.onPickFile,
   }) : super(key: key);
 
-  /// Callback, called when a pick image from camera action of this
-  /// [AttachmentSourceSelector] is triggered.
-  final void Function()? onPickImageFromCamera;
+  /// Callback, called when a take photo action is triggered.
+  final void Function()? onTakePhoto;
 
-  /// Callback, called when a pick video from camera action of this
-  /// [AttachmentSourceSelector] is triggered.
-  final void Function()? onVideoImageFromCamera;
+  /// Callback, called when a take video action is triggered.
+  final void Function()? onTakeVideo;
 
-  /// Callback, called when a pick media action of this
-  /// [AttachmentSourceSelector] is triggered.
+  /// Callback, called when a pick media action is triggered.
   final void Function()? onPickMedia;
 
-  /// Callback, called when a pick file action of this
-  /// [AttachmentSourceSelector] is triggered.
+  /// Callback, called when a pick file action is triggered.
   final void Function()? onPickFile;
 
   /// Displays an [AttachmentSourceSelector] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    Function()? onPickImageFromCamera,
-    Function()? onVideoImageFromCamera,
-    Function()? onPickMedia,
-    Function()? onPickFile,
+    void Function()? onTakePhoto,
+    void Function()? onTakeVideo,
+    void Function()? onPickMedia,
+    void Function()? onPickFile,
   }) {
     return ModalPopup.show(
       context: context,
@@ -65,8 +61,8 @@ class AttachmentSourceSelector extends StatelessWidget {
       mobilePadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
       desktopConstraints: const BoxConstraints(maxWidth: 400),
       child: AttachmentSourceSelector(
-        onPickImageFromCamera: onPickImageFromCamera,
-        onVideoImageFromCamera: onVideoImageFromCamera,
+        onTakePhoto: onTakePhoto,
+        onTakeVideo: onTakeVideo,
         onPickMedia: onPickMedia,
         onPickFile: onPickFile,
       ),
@@ -90,7 +86,7 @@ class AttachmentSourceSelector extends StatelessWidget {
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          textStyle: const TextStyle(fontSize: 15, color: Colors.black),
+          style: const TextStyle(fontSize: 15, color: Colors.black),
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,
@@ -105,7 +101,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       button(
         text:
             PlatformUtils.isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
-        onPressed: onPickImageFromCamera,
+        onPressed: onTakePhoto,
         child: SvgLoader.asset(
           'assets/icons/make_photo.svg',
           width: 60,
@@ -115,7 +111,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       if (PlatformUtils.isAndroid)
         button(
           text: 'label_video'.l10n,
-          onPressed: onVideoImageFromCamera,
+          onPressed: onTakeVideo,
           child: SvgLoader.asset(
             'assets/icons/video_on.svg',
             width: 60,

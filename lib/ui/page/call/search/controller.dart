@@ -331,9 +331,10 @@ class SearchController extends GetxController {
             controller.jumpTo(0);
           }
           break;
+
         case SearchCategory.recent:
           if (recent.isNotEmpty) {
-            double to = chats.length * (76 + 10);
+            final double to = chats.length * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
               controller.jumpTo(controller.position.maxScrollExtent);
             } else {
@@ -341,9 +342,10 @@ class SearchController extends GetxController {
             }
           }
           break;
+
         case SearchCategory.contacts:
           if (contacts.isNotEmpty) {
-            double to = (recent.length + chats.length) * (76 + 10);
+            final double to = (recent.length + chats.length) * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
               controller.jumpTo(controller.position.maxScrollExtent);
             } else {
@@ -351,9 +353,10 @@ class SearchController extends GetxController {
             }
           }
           break;
+
         case SearchCategory.users:
           if (users.isNotEmpty) {
-            double to =
+            final double to =
                 (recent.length + contacts.length + chats.length) * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
               controller.jumpTo(controller.position.maxScrollExtent);

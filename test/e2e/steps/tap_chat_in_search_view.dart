@@ -26,7 +26,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - When I tap chat with Bob
 final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
-  'I tap chat with {user}',
+  'I tap on chat with {user}',
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();

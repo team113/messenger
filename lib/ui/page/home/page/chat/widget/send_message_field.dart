@@ -138,7 +138,7 @@ class SendMessageField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     Widget sendButton() => WidgetButton(
           onPressed: onSend,
@@ -168,10 +168,7 @@ class SendMessageField extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
           boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-            ),
+            CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
           ],
         ),
         child: ConditionalBackdropFilter(
@@ -474,9 +471,9 @@ class SendMessageField extends StatelessWidget {
                         onPressed: () => AttachmentSourceSelector.show(
                           context,
                           onPickFile: onPickFile,
-                          onPickImageFromCamera: onPickImageFromCamera,
+                          onTakePhoto: onPickImageFromCamera,
                           onPickMedia: onPickMedia,
-                          onVideoImageFromCamera: onVideoImageFromCamera,
+                          onTakeVideo: onVideoImageFromCamera,
                         ),
                         child: SizedBox(
                           width: 56,
@@ -765,7 +762,7 @@ class SendMessageField extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
@@ -861,8 +858,8 @@ class SendMessageField extends StatelessWidget {
 
   /// Builds a visual representation of the provided [item] being replied.
   Widget repliedMessage(BuildContext context, ChatItem item) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == me;
+    final Style style = Theme.of(context).extension<Style>()!;
+    final bool fromMe = item.authorId == me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1088,10 +1085,7 @@ class SendMessageField extends StatelessWidget {
   }
 
   /// Builds a visual representation of a [SendMessageField.repliedMessages].
-  Widget buildForwardedMessage(
-    BuildContext context,
-    ChatItem item,
-  ) {
+  Widget buildForwardedMessage(BuildContext context, ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.authorId == me;
 

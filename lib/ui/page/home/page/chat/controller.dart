@@ -488,7 +488,7 @@ class ChatController extends GetxController {
             if (e.logicalKey == LogicalKeyboardKey.enter &&
                 e is RawKeyDownEvent) {
               if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-                int cursor;
+                final int cursor;
 
                 if (edit!.controller.selection.isCollapsed) {
                   cursor = edit!.controller.selection.base.offset;
@@ -501,7 +501,8 @@ class ChatController extends GetxController {
                 }
 
                 edit!.controller.selection = TextSelection.fromPosition(
-                    TextPosition(offset: cursor + 1));
+                  TextPosition(offset: cursor + 1),
+                );
               } else if (!e.isShiftPressed) {
                 edit!.submit();
                 return KeyEventResult.handled;
