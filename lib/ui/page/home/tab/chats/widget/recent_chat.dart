@@ -237,7 +237,7 @@ class RecentChatTile extends StatelessWidget {
             draft.attachments.map((e) {
               return Padding(
                 padding: const EdgeInsets.only(right: 2),
-                child: _image(e),
+                child: _attachment(e),
               );
             }),
           );
@@ -245,7 +245,7 @@ class RecentChatTile extends StatelessWidget {
           images.add(
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: _image(draft.attachments.first),
+              child: _attachment(draft.attachments.first),
             ),
           );
         }
@@ -352,7 +352,7 @@ class RecentChatTile extends StatelessWidget {
               item.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _image(
+                  child: _attachment(
                     e,
                     onError: () async {
                       if (rxChat.chat.value.lastItem != null) {
@@ -368,7 +368,7 @@ class RecentChatTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _image(
+                child: _attachment(
                   item.attachments.first,
                   onError: () async {
                     if (rxChat.chat.value.lastItem != null) {
@@ -479,8 +479,8 @@ class RecentChatTile extends StatelessWidget {
     );
   }
 
-  /// Builds an [ImageAttachment] visual representation.
-  Widget _image(Attachment e, {Future<void> Function()? onError}) {
+  /// Builds an [Attachment] visual representation.
+  Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
     Widget? content;
 
     if (e is LocalAttachment) {
@@ -574,7 +574,7 @@ class RecentChatTile extends StatelessWidget {
       }
     }
 
-    if(content != null) {
+    if (content != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(5),
         child: SizedBox(

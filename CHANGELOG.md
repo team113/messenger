@@ -19,6 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
+        - Image and video miniatures. ([#217], [#214])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
 
@@ -56,6 +57,8 @@ All user visible changes to this project will be documented in this file. This p
 [#203]: /../../issues/203
 [#204]: /../../pull/204
 [#212]: /../../pull/212
+[#214]: /../../issues/214
+[#217]: /../../pull/217
 
 
 
