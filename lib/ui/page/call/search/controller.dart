@@ -144,9 +144,6 @@ class SearchController extends GetxController {
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
-  /// Subscription for [ChatService.chats] changes.
-  late final StreamSubscription _chatsSubscription;
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -165,24 +162,6 @@ class SearchController extends GetxController {
       }
 
       populate();
-    });
-
-    _chatsSubscription = _chatService.chats.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          _sortedChats.add(event.value!);
-          _sortChats();
-          break;
-
-        case OperationKind.removed:
-          _sortedChats.removeWhere((e) => e.chat.value.id == event.key);
-          _sortChats();
-          break;
-
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
     });
 
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
@@ -210,7 +189,6 @@ class SearchController extends GetxController {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
-    _chatsSubscription.cancel();
     _searchStatusWorker = null;
     super.onClose();
   }
