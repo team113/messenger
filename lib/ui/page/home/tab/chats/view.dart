@@ -138,13 +138,15 @@ class ChatsTabView extends StatelessWidget {
                       offset: const Offset(0, 1),
                       child: ReactiveTextField(
                         key: const Key('SearchField'),
-                        state: c.searchField,
+                        state: c.searchController.search,
                         hint: 'label_search'.l10n,
                         maxLines: 1,
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         style: style.boldBody.copyWith(fontSize: 17),
+                        onChanged: () => c.searchController.query.value =
+                            c.searchController.search.text,
                       ),
                     ),
                   ),
@@ -221,7 +223,8 @@ class ChatsTabView extends StatelessWidget {
             if (c.chatsReady.value) {
               final Widget? child;
 
-              if (c.searching.isTrue && c.searchField.isEmpty.isFalse) {
+              if (c.searching.isTrue &&
+                  c.searchController.search.isEmpty.isFalse) {
                 if (c.searchController.searchStatus.value.isLoading &&
                     c.elements.isEmpty) {
                   child = const Center(child: CircularProgressIndicator());

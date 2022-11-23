@@ -16,18 +16,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [WhatToSearchInChats] available in an [SearchInChatsParameter].
-enum WhatToSearchInChats { chat, contact }
+/// [SearchCategory] available in an [SearchInChatsParameter].
+enum SearchCategory { chat, contact }
 
 /// [SearchChatsParameter] representing an search type in chats searching.
-class SearchInChatsParameter extends CustomParameter<WhatToSearchInChats> {
+class SearchInChatsParameter extends CustomParameter<SearchCategory> {
   SearchInChatsParameter()
       : super(
           'search_in_chats',
           RegExp(
-            '(${WhatToSearchInChats.values.map((e) => e.name).join('|')})',
+            '(${SearchCategory.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => WhatToSearchInChats.values.firstWhere((e) => e.name == c),
+          (c) => SearchCategory.values.firstWhere((e) => e.name == c),
         );
 }

@@ -175,17 +175,18 @@ class RecentChatTile extends StatelessWidget {
               label: 'btn_leave_chat'.l10n,
               onPressed: onLeave,
             ),
-          chat.muted == null && onMute != null && onUnmute != null
-              ? ContextMenuButton(
-                  key: const Key('MuteChatButton'),
-                  label: 'btn_mute_chat'.l10n,
-                  onPressed: onMute,
-                )
-              : ContextMenuButton(
-                  key: const Key('UnmuteChatButton'),
-                  label: 'btn_unmute_chat'.l10n,
-                  onPressed: onUnmute,
-                ),
+          if (chat.muted == null && onMute != null)
+            ContextMenuButton(
+              key: const Key('MuteChatButton'),
+              label: 'btn_mute_chat'.l10n,
+              onPressed: onMute,
+            ),
+          if (chat.muted != null && onUnmute != null)
+            ContextMenuButton(
+              key: const Key('UnmuteChatButton'),
+              label: 'btn_unmute_chat'.l10n,
+              onPressed: onUnmute,
+            ),
         ],
         selected: selected,
         onTap: () => router.chat(chat.id),

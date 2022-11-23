@@ -58,7 +58,6 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
-    this.onResultsUpdated,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -117,9 +116,6 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when the search results was changed.
-  final void Function()? onResultsUpdated;
-
   /// Reactive list of the sorted [Chat]s.
   final RxList<RxChat> _sortedChats = RxList<RxChat>();
 
@@ -131,9 +127,6 @@ class SearchController extends GetxController {
 
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
-
-  /// Subscription to listen changes of [chats], [users] and [contacts].
-  StreamSubscription? _searchItems;
 
   /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
@@ -205,18 +198,11 @@ class SearchController extends GetxController {
 
     populate();
 
-    _searchItems = StreamGroup.mergeBroadcast([
-      chats.stream,
-      contacts.stream,
-      users.stream,
-    ]).listen((_) => onResultsUpdated?.call());
-
     super.onInit();
   }
 
   @override
   void onClose() {
-    _searchItems?.cancel();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
