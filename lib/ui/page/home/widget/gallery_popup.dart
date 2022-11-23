@@ -288,9 +288,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     node.requestFocus();
 
-    Future.delayed(Duration.zero, () {
-      _displayControls();
-    });
+    Future.delayed(Duration.zero, _displayControls);
 
     super.initState();
   }
@@ -605,7 +603,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       ),
     );
 
-    List<Widget> widgets = [];
+    final List<Widget> widgets = [];
 
     if (widget.children.length > 1 && !PlatformUtils.isMobile) {
       widgets.addAll([
