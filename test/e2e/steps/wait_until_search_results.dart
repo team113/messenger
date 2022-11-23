@@ -30,19 +30,33 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I see user Bob in search results
-final StepDefinitionGeneric untilUserInSearchResults =
-    then1<TestUser, CustomWorld>(
-  'I see user {user} in search results',
-  (TestUser user, context) async {
+final StepDefinitionGeneric seeUserOrContactInSearchResults =
+    then2<SearchCategory, TestUser, CustomWorld>(
+  'I see {search_in_chats} {user} in search results',
+  (SearchCategory search, TestUser user, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final UserId userId = context.world.sessions[user.name]!.userId;
+        String searchKey = '';
+
+        if (search == SearchCategory.user) {
+          final UserId userId = context.world.sessions[user.name]!.userId;
+
+          searchKey = 'SearchUser_$userId';
+        } else if (search == SearchCategory.contact) {
+          ContactService contactService = Get.find<ContactService>();
+
+          final ChatContactId contactId = contactService.contacts.values
+              .firstWhere((e) => e.contact.value.name.val == user.name)
+              .id;
+
+          searchKey = 'SearchContact_$contactId';
+        }
 
         return context.world.appDriver.isPresent(
           context.world.appDriver.findBy(
-            'SearchUser_$userId',
+            searchKey,
             FindType.key,
           ),
         );
@@ -57,33 +71,18 @@ final StepDefinitionGeneric untilUserInSearchResults =
 /// Examples:
 /// - Then I see chat "Example" in search results
 /// - Then I see contact "Charlie" in search results
-final StepDefinitionGeneric untilContactOrChatInSearchResults =
-    then2<SearchCategory, String, CustomWorld>(
-  'I see {search_in_chats} {string} in search results',
-  (SearchCategory search, String name, context) async {
+final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
+  'I see chat {string} in search results',
+  (String name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        String searchKey = '';
-
-        if (search == SearchCategory.chat) {
-          final ChatId chatId = context.world.groups[name]!;
-
-          searchKey = 'SearchChat_$chatId';
-        } else if (search == SearchCategory.contact) {
-          ContactService contactService = Get.find<ContactService>();
-
-          final ChatContactId contactId = contactService.contacts.values
-              .firstWhere((e) => e.contact.value.name.val == name)
-              .id;
-
-          searchKey = 'SearchContact_$contactId';
-        }
+        final ChatId chatId = context.world.groups[name]!;
 
         return context.world.appDriver.isPresent(
           context.world.appDriver.findBy(
-            searchKey,
+            'SearchChat_$chatId',
             FindType.key,
           ),
         );

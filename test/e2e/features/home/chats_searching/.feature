@@ -30,4 +30,4 @@ Feature: Chats searching
     Then I see user Bob in search results
 
     When I fill `SearchField` field with "Charlie"
-    Then I see contact "Charlie" in search results
+    Then I see contact Charlie in search results
