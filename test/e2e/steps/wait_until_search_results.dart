@@ -15,8 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -28,47 +26,41 @@ import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided [User] in chats searching is present or absent.
+/// Waits until the provided [User] in chats searching is present.
 ///
 /// Examples:
-/// - Then I wait until Bob user in search results is absent
-/// - Then I wait until Bob user in search results is present
+/// - Then I see user Bob in search results
 final StepDefinitionGeneric untilUserInSearchResults =
-    then2<TestUser, Existence, CustomWorld>(
-  'I wait until {user} user in search results is {existence}',
-  (TestUser user, Existence existence, context) async {
+    then1<TestUser, CustomWorld>(
+  'I see user {user} in search results',
+  (TestUser user, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         final UserId userId = context.world.sessions[user.name]!.userId;
 
-        Finder finder = context.world.appDriver.findBy(
-          'SearchUser_$userId',
-          FindType.key,
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy(
+            'SearchUser_$userId',
+            FindType.key,
+          ),
         );
-
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
       },
       timeout: const Duration(seconds: 30),
     );
   },
 );
 
-/// Waits until the provided [Contact] or [Chat] in chats searching is present
-/// or absent.
+/// Waits until the provided [Contact] or [Chat] in chats searching is present.
 ///
 /// Examples:
-/// - Then I wait until "Example" chat in search results is absent
-/// - Then I wait until "Example" chat in search results is present
-/// - Then I wait until "Charlie" contact in search results is present
-/// - Then I wait until "Charlie" contact in search results is present
+/// - Then I see chat "Example" in search results
+/// - Then I see contact "Charlie" in search results
 final StepDefinitionGeneric untilContactOrChatInSearchResults =
-    then3<String, SearchCategory, Existence, CustomWorld>(
-  'I wait until {string} {search_in_chats} in search results is {existence}',
-  (String name, SearchCategory search, Existence existence, context) async {
+    then2<SearchCategory, String, CustomWorld>(
+  'I see {search_in_chats} {string} in search results',
+  (SearchCategory search, String name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
@@ -89,12 +81,12 @@ final StepDefinitionGeneric untilContactOrChatInSearchResults =
           searchKey = 'SearchContact_$contactId';
         }
 
-        final Finder finder =
-            context.world.appDriver.findBy(searchKey, FindType.key);
-
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy(
+            searchKey,
+            FindType.key,
+          ),
+        );
       },
       timeout: const Duration(seconds: 30),
     );

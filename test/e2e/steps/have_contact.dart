@@ -27,9 +27,9 @@ import '../world/custom_world.dart';
 /// Creates a [Contact] with the provided [User] for the authenticated [MyUser].
 ///
 /// Examples:
-/// - Given I have contact Bob.
-final StepDefinitionGeneric haveContact = given1<TestUser, CustomWorld>(
-  'I have contact {user}',
+/// - Given contact Bob.
+final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
+  'contact {user}',
   (TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();

@@ -19,15 +19,15 @@ Feature: Chats searching
   Scenario: Provided user, chat and contact can be found
     Given I am Alice
     And users Bob and Charlie
+    And contact Charlie
     And I have "Example" group with Bob
-    And I have contact Charlie
 
     When I tap `SearchButton` button
     And I fill `SearchField` field with "Example"
-    Then I wait until "Example" chat in search results is present
+    Then I see chat "Example" in search results
 
     When I fill `SearchField` field with "Bob"
-    Then I wait until Bob user in search results is present
+    Then I see user Bob in search results
 
     When I fill `SearchField` field with "Charlie"
-    Then I wait until "Charlie" contact in search results is present
+    Then I see contact "Charlie" in search results

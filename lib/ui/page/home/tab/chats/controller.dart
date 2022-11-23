@@ -43,7 +43,6 @@ import '/provider/gql/exceptions.dart'
     show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
@@ -64,7 +63,7 @@ class ChatsTabController extends GetxController {
   late final RxList<RxChat> chats;
 
   /// Controller of searching.
-  late final SearchController searchController;
+  SearchController? searchController;
 
   /// Indicator whether searching mode is enabled or not.
   final RxBool searching = RxBool(false);
@@ -92,7 +91,7 @@ class ChatsTabController extends GetxController {
 
   /// Subscription to listen changes of [searchController.chats],
   /// [searchController.users] and [searchController.contacts].
-  late final StreamSubscription _searchItemsChanges;
+  StreamSubscription? _searchResultsChanges;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -134,25 +133,6 @@ class ChatsTabController extends GetxController {
       }
     });
 
-    searchController = SearchController(
-      _chatService,
-      _userService,
-      _contactService,
-      categories: const [
-        SearchCategory.chats,
-        SearchCategory.contacts,
-        SearchCategory.users,
-      ],
-    )..onInit();
-
-    _searchItemsChanges = StreamGroup.mergeBroadcast([
-      searchController.chats.stream,
-      searchController.contacts.stream,
-      searchController.users.stream,
-    ]).listen((_) => populate());
-
-    searchController.search.focus.addListener(_searchFieldFocusListener);
-
     super.onInit();
   }
 
@@ -162,8 +142,9 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    _searchItemsChanges.cancel();
-    searchController.search.focus.removeListener(_searchFieldFocusListener);
+    _searchResultsChanges?.cancel();
+    searchController?.search.focus.removeListener(_searchFieldFocusListener);
+    searchController?.dispose();
 
     super.onClose();
   }
@@ -268,19 +249,20 @@ class ChatsTabController extends GetxController {
 
   /// Updates the [elements] according to the [searchController] search results.
   void populate() {
+    if (searchController == null) return;
     elements.clear();
 
-    if (searchController.chats.isNotEmpty) {
+    if (searchController!.chats.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.chats));
-      for (var c in searchController.chats.values) {
+      for (var c in searchController!.chats.values) {
         elements.add(ChatElement(c));
       }
     }
 
-    if (searchController.contacts.isNotEmpty) {
+    if (searchController!.contacts.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.contacts));
 
-      for (var c in searchController.contacts.values) {
+      for (var c in searchController!.contacts.values) {
         if (chats.none((e1) =>
             e1.chat.value.isDialog &&
             e1.chat.value.members
@@ -296,10 +278,10 @@ class ChatsTabController extends GetxController {
       }
     }
 
-    if (searchController.users.isNotEmpty) {
+    if (searchController!.users.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.users));
 
-      for (var c in searchController.users.values) {
+      for (var c in searchController!.users.values) {
         if (chats.none((e1) =>
             e1.chat.value.isDialog &&
             e1.chat.value.members.any((e2) => e2.user.id == c.user.value.id))) {
@@ -330,13 +312,35 @@ class ChatsTabController extends GetxController {
   /// Changes search status to enabled or not.
   void enableSearching(bool enable) {
     if (enable) {
+      searchController = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.chats,
+          SearchCategory.contacts,
+          SearchCategory.users,
+        ],
+      )..onInit();
+
+      _searchResultsChanges = StreamGroup.mergeBroadcast([
+        searchController!.chats.stream,
+        searchController!.contacts.stream,
+        searchController!.users.stream,
+      ]).listen((_) => populate());
+
+      searchController!.search.focus.addListener(_searchFieldFocusListener);
+
       searching.value = true;
-      searchController.search.focus.requestFocus();
+      searchController!.search.focus.requestFocus();
     } else {
       searching.value = false;
-      searchController.searchStatus.value = RxStatus.empty();
-      searchController.search.text = '';
       elements.clear();
+
+      _searchResultsChanges?.cancel();
+
+      searchController?.search.focus.removeListener(_searchFieldFocusListener);
+      searchController?.dispose();
     }
   }
 
@@ -357,10 +361,9 @@ class ChatsTabController extends GetxController {
 
   /// Listener of [searchField.focus].
   void _searchFieldFocusListener() {
-    if (searchController.search.focus.hasFocus == false) {
-      if (searchController.search.text.isEmpty) {
-        enableSearching(false);
-      }
+    if (searchController?.search.focus.hasFocus == false &&
+        searchController!.search.text.isEmpty) {
+      enableSearching(false);
     }
   }
 }
