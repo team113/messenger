@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -26,6 +28,9 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the stored [ApplicationSettings].
   Rx<ApplicationSettings?> get applicationSettings;
+
+  /// Returns the stored [Uint8List] of the background.
+  Rx<Uint8List?> get background;
 
   /// Clears the stored settings.
   Future<void> clearCache();
@@ -50,4 +55,16 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.sideBarWidth] value.
   Future<void> setSideBarWidth(double width);
+
+  /// Sets the [background] value.
+  Future<void> setBackground(Uint8List? bytes);
+
+  /// Sets the [ApplicationSettings.callButtons] value.
+  Future<void> setCallButtons(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.showDragAndDropVideosHint] value.
+  Future<void> setShowDragAndDropVideosHint(bool show);
+
+  /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
+  Future<void> setShowDragAndDropButtonsHint(bool show);
 }

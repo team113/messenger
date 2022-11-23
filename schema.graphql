@@ -161,23 +161,14 @@ element to the value of the `filename` field.
 [2]: https://mdn.io/Web/HTML/Element/A#attributes
 """
 interface Attachment {
-  """Uploaded file's name."""
+  """Uploaded `File`'s name."""
   filename: String!
 
   """Unique ID of this `Attachment`."""
   id: AttachmentId!
 
-  """
-  Path on a files storage to the original file representing this
-  `Attachment`.
-
-  Prepend it with a files storage URL to obtain a link to the original
-  file.
-  """
-  original: String!
-
-  """Uploaded file's size in bytes."""
-  size: Int!
+  """Original `File` representing this `Attachment`."""
+  original: File!
 }
 
 """Type of an `Attachment`'s ID."""
@@ -239,7 +230,7 @@ type BlacklistEdge {
   node: User!
 }
 
-"""Event of an `User` being added or removed to/from `MyUser.blacklist`."""
+"""Event of a `User` being added or removed to/from `MyUser.blacklist`."""
 interface BlacklistEvent {
   """`DateTime` when this `BlacklistEvent` happened."""
   at: DateTime!
@@ -292,11 +283,14 @@ type Chat {
   """`DateTime` when this `Chat` was created."""
   createdAt: DateTime!
 
-  """Current ongoing `ChatCall` of this `Chat`, if any."""
-  currentCall: ChatCall
-
   """`ChatDirectLink` to this `Chat`."""
   directLink: ChatDirectLink
+
+  """
+  Position of this `Chat` in the favorites list of the authenticated
+  `MyUser`.
+  """
+  favoritePosition: ChatFavoritePosition
 
   """Unique ID of this `Chat`."""
   id: ChatId!
@@ -304,17 +298,28 @@ type Chat {
   """Indicator whether this `Chat` is hidden by the authenticated `MyUser`."""
   isHidden: Boolean!
 
+  """`ChatItem` of this `Chat` by its ID."""
+  item(id: ChatItemId!): ChatItemsEdge
+
   """
   `ChatItem`s of this `Chat` ordered by their posting time.
 
-  It is allowed to specify both `first` and `last` at the same time
-  provided that `after` and `before` are equal.
-  In such cases the returned page will include the `ChatItem` pointed by
-  the cursor and the requested number of `ChatItem`s preceding and
-  following it.
+  ## Sorting
 
-  If it is desired to receive the `ChatItem` under the cursor without
-  querying in both directions one can specify `first` or `last` as `0`.
+  Returned `ChatItem`s are sorted primarily by their posting `DateTime`,
+  and secondary by their IDs (if the posting `DateTime` is the same), in
+  descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `ChatItem` pointed by the cursor and the
+  requested count of `ChatItem`s preceding and following it.
+
+  If it's desired to receive the `ChatItem`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
   """
   items(
     """
@@ -327,16 +332,16 @@ type Chat {
     """
     before: ChatItemsCursor
 
-    """
-    Indicator whether to filter out all the `ChatItem`s without attachments.
-    """
-    onlyAttachments: Boolean
-
     """Number of next `ChatItem`s to return."""
     first: Int
 
     """Number of prior `ChatItem`s to return."""
     last: Int
+
+    """
+    Indicator whether to filter out all the `ChatItem`s without attachments.
+    """
+    onlyAttachments: Boolean = false
   ): ChatItemsConnection!
 
   """Kind of this `Chat`."""
@@ -373,16 +378,40 @@ type Chat {
   """
   `ChatMember`s of this `Chat`.
 
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `ChatMember` pointed by the cursor and the
-  requested number of `ChatMember`s preceding and following it.
+  ## Sorting
 
-  If it's desired to receive the `ChatMember` pointed by the cursor
+  Returned `ChatMember`s are sorted primarily by their joining `DateTime`,
+  and secondary by their IDs (if the joining `DateTime` is the same), in
+  ascending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `ChatMember` pointed by the cursor and
+  the requested count of `ChatMember`s preceding and following it.
+
+  If it's desired to receive the `ChatMember`, pointed by the cursor,
   without querying in both directions, one can specify `first` or `last`
-  as `0`.
+  count as `0`.
   """
-  members(after: ChatMembersCursor, before: ChatMembersCursor, first: Int, last: Int): ChatMembersConnection!
+  members(
+    """
+    Cursor indicating the `ChatMembersEdge` position to return next `ChatMember`s after.
+    """
+    after: ChatMembersCursor
+
+    """
+    Cursor indicating the `ChatMembersEdge` position to return prior `ChatMember`s before.
+    """
+    before: ChatMembersCursor
+
+    """Number of next `ChatMember`s to return."""
+    first: Int
+
+    """Number of prior `ChatMember`s to return."""
+    last: Int
+  ): ChatMembersConnection!
 
   """
   Mute condition of this `Chat` for the authenticated `MyUser`.
@@ -403,6 +432,9 @@ type Chat {
   Only `Chat`-group can have a `name`.
   """
   name: ChatName
+
+  """Current ongoing `ChatCall` of this `Chat`, if any."""
+  ongoingCall: ChatCall
 
   """
   Count of `ChatItem`s visible to the authenticated `MyUser` in this
@@ -437,34 +469,51 @@ type Chat {
   ver: ChatVersion!
 }
 
-"""
-Avatar of a `Chat`.
-
-Specified as relative paths on a files storage. Prepend them with a files
-storage URL to obtain a link to the concrete image.
-"""
+"""Avatar of a `Chat`."""
 type ChatAvatar {
-  """Path to the `big` avatar image preview of `70px`x`70px` size."""
-  big: String!
+  """
+  `big` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `70px`x`70px`.
+  """
+  big: File!
 
-  """`CropArea` applied to the original image to create this `UserAvatar`."""
+  """`CropArea` applied to the original image to create this `ChatAvatar`."""
   crop: CropArea
 
-  """Path to the full-sized avatar image keeping the original sizes."""
-  full: String!
+  """Full `ChatAvatar`'s image `File`, keeping the `original` dimensions."""
+  full: File!
 
-  """Path to the `medium` avatar image preview of `46px`x`46px` size."""
-  medium: String!
+  """
+  `medium` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `46px`x`46px`.
+  """
+  medium: File!
 
-  """Path to the original file representing this avatar image."""
-  original: String!
+  """Original image `File` representing this `ChatAvatar`."""
+  original: File!
 
-  """Path to the `small` avatar image preview of `25px`x`25px` size."""
-  small: String!
+  """
+  `small` `ChatAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `25px`x`25px`.
+  """
+  small: File!
 }
 
 """Call in a `Chat`."""
 type ChatCall implements ChatItem {
+  """
+  Indicator whether this `ChatCall` is answered by the authenticated
+  `MyUser`.
+
+  Unanswered `ChatCall`s are considered incoming and should be present in
+  results of `Query.incomingChatCalls` and
+  `Subscription.incomingChatCallsEventsTop`. Although all 3 methods are
+  suitable for notifying about incoming calls, this field contains the
+  most recent and accurate information, as other methods may introduce
+  a delay.
+  """
+  answered: Boolean!
+
   """`DateTime` when this `ChatCall` was started."""
   at: DateTime!
 
@@ -516,6 +565,12 @@ type ChatCall implements ChatItem {
   `ChatCallMember`s of this `ChatCall`.
 
   New `ChatCallMember`s always join a `ChatCall` with a lowered hand.
+
+  ## Sorting
+
+  Returned `ChatCallMember`s are sorted primarily by their joining
+  `DateTime`, and secondary by their IDs (if the joining `DateTime` is the
+  same), in ascending order.
   """
   members: [ChatCallMember!]!
 
@@ -614,6 +669,9 @@ type ChatCallMember {
   """Indicator whether this `ChatCallMember` raised a hand."""
   handRaised: Boolean!
 
+  """`DateTime` when this `ChatCallMember` joined the `ChatCall`."""
+  joinedAt: DateTime!
+
   """`User` representing this `ChatCallMember`."""
   user: User!
 }
@@ -635,8 +693,8 @@ type ChatContact {
   emails: [ChatContactEmail!]!
 
   """
-  Position of this `ChatContact` in a favorites list of the authenticated
-  `MyUser`.
+  Position of this `ChatContact` in the favorites list of the
+  authenticated `MyUser`.
   """
   favoritePosition: ChatContactPosition
 
@@ -846,11 +904,6 @@ type ChatContactsList {
   """
   chatContacts(
     """
-    Indicator whether favorite `ChatContact`s should be excluded from the result.
-    """
-    noFavorite: Boolean = false
-
-    """
     Cursor indicating the `ChatContactsEdge` position to return next `ChatContact`s after.
     """
     after: ChatContactsCursor
@@ -865,6 +918,11 @@ type ChatContactsList {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
+
+    """
+    Indicator whether favorite `ChatContact`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
   ): ChatContactsConnection!
 
   """
@@ -947,6 +1005,15 @@ type ChatEventsVersioned {
   ver: ChatVersion!
 }
 
+"""
+Position of a `Chat` in `MyUser`'s favorites list.
+
+Its values are always considered to be finite positive [`Float` values][1].
+
+[1]: https://spec.graphql.org/June2018#sec-Float-Value
+"""
+scalar ChatFavoritePosition
+
 """Quote of a `ChatItem` forwarded to some `Chat`."""
 type ChatForward implements ChatItem {
   """`DateTime` when this `ChatForward` was posted."""
@@ -1010,10 +1077,12 @@ input ChatItemQuoteInput {
   """
   IDs of the `ChatItem`'s `Attachment`s to be forwarded.
 
-  If no `Attachment`s are provided, then `ChatForward` will only contain a
-  `ChatMessageText`.
+  - `null` means all the `ChatItem`'s `Attachment`s will be forwarded, if
+    any.
+  - `[]` (empty list) means no `Attachment`s, only the text will be
+    forwarded.
   """
-  attachments: [AttachmentId!]!
+  attachments: [AttachmentId!]
 
   """
   Indicator whether a forward should contain the full `ChatMessageText` of
@@ -1208,7 +1277,14 @@ type ChatMessage implements ChatItem {
   """`DateTime` when this `ChatMessage` was posted."""
   at: DateTime!
 
-  """`Attachment`s of this `ChatMessage`."""
+  """
+  `Attachment`s of this `ChatMessage`.
+
+  ## Sorting
+
+  Returned `Attachment`s are sorted in the same order as was provided to
+  the `Mutation.postChatMessage` by this `ChatMessage`'s author.
+  """
   attachments: [Attachment!]!
 
   """ID of the `User` who posted this `ChatMessage`."""
@@ -1223,8 +1299,8 @@ type ChatMessage implements ChatItem {
   """Unique ID of this `ChatMessage`."""
   id: ChatItemId!
 
-  """Quote of the `ChatItem` this `ChatMessage` replies to."""
-  repliesTo: ChatItemsEdge
+  """`ChatItem`s this `ChatMessage` replies to."""
+  repliesTo: [ChatItemsEdge!]!
 
   """Text of this `ChatMessage`."""
   text: ChatMessageText
@@ -2047,7 +2123,7 @@ type EventChatCallHandRaised implements ChatCallEvent {
   user: User!
 }
 
-"""Event of an `User` joined a `ChatCall`."""
+"""Event of a `User` joined a `ChatCall`."""
 type EventChatCallMemberJoined implements ChatCallEvent & ChatEvent {
   """`DateTime` when the `User` joined the `ChatCall`."""
   at: DateTime!
@@ -2061,11 +2137,14 @@ type EventChatCallMemberJoined implements ChatCallEvent & ChatEvent {
   """ID of the `Chat` the joined `ChatCall` belongs to."""
   chatId: ChatId!
 
+  """`ChatCallDeviceId` of the joined `User`."""
+  deviceId: ChatCallDeviceId!
+
   """`User` who joined the `ChatCall`."""
   user: User!
 }
 
-"""Event of an `User` leaving a `ChatCall`."""
+"""Event of a `User` leaving a `ChatCall`."""
 type EventChatCallMemberLeft implements ChatCallEvent & ChatEvent {
   """`DateTime` when the `User` left the `ChatCall`."""
   at: DateTime!
@@ -2079,7 +2158,36 @@ type EventChatCallMemberLeft implements ChatCallEvent & ChatEvent {
   """ID of the `Chat` the left `ChatCall` belongs to."""
   chatId: ChatId!
 
+  """`ChatCallDeviceId` of the `User` who left the `ChatCall`."""
+  deviceId: ChatCallDeviceId!
+
   """`User` who left the `ChatCall`."""
+  user: User!
+}
+
+"""Event of a `User` being redialed in a `ChatCall`."""
+type EventChatCallMemberRedialed implements ChatCallEvent & ChatEvent {
+  """`DateTime` when the `ChatMember` was redialed in the `ChatCall`."""
+  at: DateTime!
+
+  """
+  `User` representing the `ChatMember` who redialed the `User` in the
+  `ChatCall`.
+  """
+  byUser: User!
+
+  """`ChatCall` the `User` is redialed in."""
+  call: ChatCall!
+
+  """ID of the `ChatCall` the `User` is redialed in."""
+  callId: ChatItemId!
+
+  """ID of the `Chat` the `ChatCall` belongs to."""
+  chatId: ChatId!
+
+  """
+  `User` representing the `ChatMember` who was redialed in the `ChatCall`.
+  """
   user: User!
 }
 
@@ -2337,7 +2445,7 @@ type EventChatContactUnfavorited implements ChatContactEvent {
   contactId: ChatContactId!
 }
 
-"""Event of an `User` being added to the `ChatContact`."""
+"""Event of a `User` being added to the `ChatContact`."""
 type EventChatContactUserAdded implements ChatContactEvent {
   """`DateTime` when the `User` was added to the `ChatContact`."""
   at: DateTime!
@@ -2349,7 +2457,7 @@ type EventChatContactUserAdded implements ChatContactEvent {
   user: User!
 }
 
-"""Event of an `User` being removed from a `ChatContact`."""
+"""Event of a `User` being removed from a `ChatContact`."""
 type EventChatContactUserRemoved implements ChatContactEvent {
   """`DateTime` when the `User` was removed from the `ChatContact`."""
   at: DateTime!
@@ -2395,6 +2503,21 @@ type EventChatDirectLinkUsageCountUpdated implements ChatEvent {
 
   """New `Chat`'s `ChatDirectLink.usageCount`."""
   usageCount: Int!
+}
+
+"""
+Event of a `Chat` being added to the favorites list of the authenticated
+`MyUser`.
+"""
+type EventChatFavorited implements ChatEvent & FavoriteChatsEvent {
+  """`DateTime` when the `Chat` was favorited."""
+  at: DateTime!
+
+  """ID of the favorited `Chat`."""
+  chatId: ChatId!
+
+  """Position of the `Chat` in the favorites list."""
+  position: ChatFavoritePosition!
 }
 
 """Event of a `Chat` being hidden by the authenticated `MyUser`."""
@@ -2479,7 +2602,7 @@ type EventChatMuted implements ChatEvent {
   duration: MuteDuration!
 }
 
-"""Event of a `Chat` being read by an `User`."""
+"""Event of a `Chat` being read by a `User`."""
 type EventChatRead implements ChatEvent {
   """`DateTime` when the `Chat` was read by the `User`."""
   at: DateTime!
@@ -2538,6 +2661,18 @@ type EventChatTypingStopped implements ChatEvent {
 }
 
 """
+Event of a `Chat` being removed from the favorites list of the authenticated
+`MyUser`.
+"""
+type EventChatUnfavorited implements ChatEvent & FavoriteChatsEvent {
+  """`DateTime` when the `Chat` was unfavorited."""
+  at: DateTime!
+
+  """ID of the unfavorited `Chat`."""
+  chatId: ChatId!
+}
+
+"""
 Event of a `Chat` being unmuted by the authenticated `MyUser`.
 
 This event means that `MyUser` had manually unmuted the `Chat` before
@@ -2588,7 +2723,7 @@ type EventRecentChatsTopChatUpdated {
   chat: Chat!
 }
 
-"""Event of an `UserAvatar` being deleted."""
+"""Event of a `UserAvatar` being deleted."""
 type EventUserAvatarDeleted implements UserEvent {
   """`DateTime` when the `UserAvatar` was deleted."""
   at: DateTime!
@@ -2597,7 +2732,7 @@ type EventUserAvatarDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserAvatar` being updated."""
+"""Event of a `UserAvatar` being updated."""
 type EventUserAvatarUpdated implements UserEvent {
   """`DateTime` when the `UserAvatar` was updated."""
   at: DateTime!
@@ -2609,7 +2744,7 @@ type EventUserAvatarUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserBio` being deleted."""
+"""Event of a `UserBio` being deleted."""
 type EventUserBioDeleted implements UserEvent {
   """`DateTime` when the `UserBio` was deleted."""
   at: DateTime!
@@ -2618,7 +2753,7 @@ type EventUserBioDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserBio` being updated."""
+"""Event of a `UserBio` being updated."""
 type EventUserBioUpdated implements UserEvent {
   """`DateTime` when the `UserBio` was updated."""
   at: DateTime!
@@ -2630,7 +2765,7 @@ type EventUserBioUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserCallCover` being deleted."""
+"""Event of a `UserCallCover` being deleted."""
 type EventUserCallCoverDeleted implements UserEvent {
   """`DateTime` when the `UserCallCover` was deleted."""
   at: DateTime!
@@ -2639,7 +2774,7 @@ type EventUserCallCoverDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserCallCover` being updated."""
+"""Event of a `UserCallCover` being updated."""
 type EventUserCallCoverUpdated implements UserEvent {
   """`DateTime` when the `UserCallCover` was updated."""
   at: DateTime!
@@ -2651,7 +2786,7 @@ type EventUserCallCoverUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User` coming offline."""
+"""Event of a `User` coming offline."""
 type EventUserCameOffline implements UserEvent {
   """`DateTime` when the `User` was online the last time."""
   at: DateTime!
@@ -2660,13 +2795,13 @@ type EventUserCameOffline implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User` coming online."""
+"""Event of a `User` coming online."""
 type EventUserCameOnline implements UserEvent {
   """ID of the `User` who came online."""
   userId: UserId!
 }
 
-"""Event of an `User` being deleted."""
+"""Event of a `User` being deleted."""
 type EventUserDeleted implements UserEvent {
   """`DateTime` when the `User` was deleted."""
   at: DateTime!
@@ -2675,13 +2810,13 @@ type EventUserDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User`'s `ChatDirectLink` being deleted."""
+"""Event of a `User`'s `ChatDirectLink` being deleted."""
 type EventUserDirectLinkDeleted {
   """ID of the `User` whose `ChatDirectLink` was deleted."""
   userId: UserId!
 }
 
-"""Event of an `User`'s `ChatDirectLink` being updated."""
+"""Event of a `User`'s `ChatDirectLink` being updated."""
 type EventUserDirectLinkUpdated {
   """New `User`'s `ChatDirectLink`."""
   directLink: ChatDirectLink!
@@ -2690,7 +2825,7 @@ type EventUserDirectLinkUpdated {
   userId: UserId!
 }
 
-"""Event of an `User`'s email address being added."""
+"""Event of a `User`'s email address being added."""
 type EventUserEmailAdded {
   """`DateTime` when the `User`'s email address was added."""
   at: DateTime!
@@ -2702,7 +2837,7 @@ type EventUserEmailAdded {
   userId: UserId!
 }
 
-"""Event of an `User`'s email address being confirmed."""
+"""Event of a `User`'s email address being confirmed."""
 type EventUserEmailConfirmed {
   """`DateTime` when the `User`'s email address was confirmed."""
   at: DateTime!
@@ -2714,7 +2849,7 @@ type EventUserEmailConfirmed {
   userId: UserId!
 }
 
-"""Event of an `User`'s email address being deleted."""
+"""Event of a `User`'s email address being deleted."""
 type EventUserEmailDeleted {
   """`DateTime` when the `User`'s email address was deleted."""
   at: DateTime!
@@ -2726,7 +2861,7 @@ type EventUserEmailDeleted {
   userId: UserId!
 }
 
-"""Event of an `User`'s `GalleryItem` being added."""
+"""Event of a `User`'s `GalleryItem` being added."""
 type EventUserGalleryItemAdded implements UserEvent {
   """`DateTime` when the `GalleryItem` was added to the `User`'s gallery."""
   at: DateTime!
@@ -2740,7 +2875,7 @@ type EventUserGalleryItemAdded implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User`'s `GalleryItem` being deleted."""
+"""Event of a `User`'s `GalleryItem` being deleted."""
 type EventUserGalleryItemDeleted implements UserEvent {
   """
   `DateTime` when the `GalleryItem` was deleted from the `User`'s gallery.
@@ -2757,7 +2892,7 @@ type EventUserGalleryItemDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserLogin` being updated."""
+"""Event of a `UserLogin` being updated."""
 type EventUserLoginUpdated {
   """`DateTime` when the `UserLogin` was updated."""
   at: DateTime!
@@ -2769,7 +2904,7 @@ type EventUserLoginUpdated {
   userId: UserId!
 }
 
-"""Event of an `User` being muted."""
+"""Event of a `User` being muted."""
 type EventUserMuted {
   """Duration of the mute."""
   until: MuteDuration!
@@ -2778,7 +2913,7 @@ type EventUserMuted {
   userId: UserId!
 }
 
-"""Event of an `UserName` being deleted."""
+"""Event of a `UserName` being deleted."""
 type EventUserNameDeleted implements UserEvent {
   """`DateTime` when the `UserName` was deleted."""
   at: DateTime!
@@ -2787,7 +2922,7 @@ type EventUserNameDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserName` being updated."""
+"""Event of a `UserName` being updated."""
 type EventUserNameUpdated implements UserEvent {
   """`DateTime` when the `UserName` was updated."""
   at: DateTime!
@@ -2799,7 +2934,7 @@ type EventUserNameUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User`'s password being updated."""
+"""Event of a `User`'s password being updated."""
 type EventUserPasswordUpdated {
   """`DateTime` when the `User`'s password was updated."""
   at: DateTime!
@@ -2808,7 +2943,7 @@ type EventUserPasswordUpdated {
   userId: UserId!
 }
 
-"""Event of an `User`'s phone number being added."""
+"""Event of a `User`'s phone number being added."""
 type EventUserPhoneAdded {
   """`DateTime` when the `User`'s phone number was added."""
   at: DateTime!
@@ -2820,7 +2955,7 @@ type EventUserPhoneAdded {
   userId: UserId!
 }
 
-"""Event of an `User`'s phone number being confirmed."""
+"""Event of a `User`'s phone number being confirmed."""
 type EventUserPhoneConfirmed {
   """`DateTime` when the `User`'s phone number was confirmed."""
   at: DateTime!
@@ -2832,7 +2967,7 @@ type EventUserPhoneConfirmed {
   userId: UserId!
 }
 
-"""Event of an `User`'s phone number being deleted."""
+"""Event of a `User`'s phone number being deleted."""
 type EventUserPhoneDeleted {
   """`DateTime` when the `User`'s phone number was deleted."""
   at: DateTime!
@@ -2844,7 +2979,7 @@ type EventUserPhoneDeleted {
   userId: UserId!
 }
 
-"""Event of an `User`'s `Presence` being updated."""
+"""Event of a `User`'s `Presence` being updated."""
 type EventUserPresenceUpdated implements UserEvent {
   """`DateTime` when the `User`'s `Presence` was updated."""
   at: DateTime!
@@ -2856,7 +2991,7 @@ type EventUserPresenceUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserTextStatus` being deleted."""
+"""Event of a `UserTextStatus` being deleted."""
 type EventUserStatusDeleted implements UserEvent {
   """`DateTime` when the `UserTextStatus` was deleted."""
   at: DateTime!
@@ -2865,7 +3000,7 @@ type EventUserStatusDeleted implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `UserTextStatus` being updated."""
+"""Event of a `UserTextStatus` being updated."""
 type EventUserStatusUpdated implements UserEvent {
   """`DateTime` when the `UserTextStatus` was updated."""
   at: DateTime!
@@ -2877,13 +3012,13 @@ type EventUserStatusUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of an `User` being unmuted."""
+"""Event of a `User` being unmuted."""
 type EventUserUnmuted {
   """ID of the unmuted `User`."""
   userId: UserId!
 }
 
-"""Event of an `User`'s unread `Chat`s count being updated."""
+"""Event of a `User`'s unread `Chat`s count being updated."""
 type EventUserUnreadChatsCountUpdated {
   """New `User`'s unread `Chat`s count."""
   count: Int!
@@ -2977,25 +3112,226 @@ type FavoriteChatContactsEdge {
   node: ChatContact!
 }
 
+"""Error of performing `Mutation.favoriteChat`."""
+type FavoriteChatError {
+  """Code indicating why this error has happened."""
+  code: FavoriteChatErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.favoriteChat`."""
+enum FavoriteChatErrorCode {
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
+"""Result of performing `Mutation.favoriteChat`."""
+union FavoriteChatResult = ChatEventsVersioned | FavoriteChatError
+
+"""
+[Connection] with favorite `Chat`s.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type FavoriteChatsConnection {
+  """
+  List of favorite `Chat` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [FavoriteChatsEdge!]!
+
+  """
+  List of favorite `Chat`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [Chat!]!
+
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+
+  """
+  Version of this favorite `Chat`s list.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking list state's actuality.
+
+  Also, intended to be used in `Subscription.favoriteChatsEvents`.
+  """
+  ver: FavoriteChatsListVersion!
+}
+
+"""Cursor of favorite `Chat`s."""
+scalar FavoriteChatsCursor
+
+"""
+[Edge] with a favorite `Chat`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type FavoriteChatsEdge {
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: FavoriteChatsCursor!
+
+  """
+  `Chat` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: Chat!
+}
+
+"""Events happening in a `FavoriteChatsList`."""
+interface FavoriteChatsEvent {
+  """`DateTime` when this `FavoriteChatsEvent` happened."""
+  at: DateTime!
+
+  """ID of the `Chat` this `FavoriteChatsEvent` is happened in."""
+  chatId: ChatId!
+}
+
+"""Events indicating changes in a `Query.favoriteChats`."""
+union FavoriteChatsEvents = FavoriteChatsEventsVersioned | FavoriteChatsList | SubscriptionInitialized
+
+"""
+`FavoriteChatsEvent`s along with the corresponding
+`FavoriteChatsListVersion`.
+"""
+type FavoriteChatsEventsVersioned {
+  """`FavoriteChatsEvent`s themselves."""
+  events: [FavoriteChatsEvent!]!
+
+  """
+  Version of the `FavoriteChatsList`'s state updated by these
+  `FavoriteChatsEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: FavoriteChatsListVersion!
+}
+
+"""List of favorite `Chat`s."""
+type FavoriteChatsList {
+  """
+  Returns favorite `Chat`s of the authenticated `MyUser` ordered by the
+  custom order of `MyUser`'s favorites list (using `Chat.favoritePosition`
+  field).
+
+  Aliases `Query.favoriteChats`.
+  """
+  chats(
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return next `Chat`s after.
+    """
+    after: FavoriteChatsCursor
+
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return prior `Chat`s before.
+    """
+    before: FavoriteChatsCursor
+
+    """Number of next `Chat`s to return."""
+    first: Int
+
+    """Number of prior `Chat`s to return."""
+    last: Int
+  ): FavoriteChatsConnection!
+}
+
+"""Version of a favorite `Chat`s list."""
+scalar FavoriteChatsListVersion
+
+"""
+[Firebase Cloud Messaging][0] registration token.
+
+Its values are always considered to be non-empty, and meet the following
+requirements:
+- be maximum 512 bytes long.
+
+See [Firebase Cloud Messaging][0] documentation for how to generate
+`FcmRegistrationToken`s [for Flutter][1] and [for JavaScript][2].
+
+[0]: https://firebase.google.com/docs/cloud-messaging
+[1]: https://firebase.google.com/docs/cloud-messaging/flutter/client
+[2]: https://firebase.google.com/docs/cloud-messaging/js/client
+"""
+scalar FcmRegistrationToken
+
+"""File on a file storage."""
+type File {
+  """
+  [SHA-256] checksum of this `File`.
+
+  May be `null` in case this `File` is not ready on a file storage yet.
+  May be also computed on a client side, once this `File` is ready and
+  successfully downloaded from a file storage.
+
+  This checksum is especially useful if a client side requires to verify
+  the integrity and authenticity of this `File`, downloaded from a file
+  storage.
+
+  Also, this checksum may be useful as a key in a client side cache,
+  allowing to store `File`s in deduplicated manner.
+
+  [SHA-256]: https://en.wikipedia.org/wiki/SHA-2
+  """
+  checksum: String
+
+  """
+  [Relative reference][1] to this `File` on a file storage.
+
+  Prepend it with a file storage URL to obtain the full link to this
+  `File`.
+
+  If `404` HTTP status code is returned while trying to download this
+  `File` from a file storage, then the `File` is not ready yet. Back off,
+  and retry again later.
+
+  `403` HTTP status code, on the other hand, means that the link has been
+  expired and this [relative reference][1] should be re-fetched to rebuild
+  the link.
+
+  [1]: https://www.rfc-editor.org/rfc/rfc3986#section-4.2
+  """
+  relativeRef: String!
+
+  """
+  Size of this `File` (in bytes).
+
+  May be `null` in case this `File` is not ready on a file storage yet.
+  May be also computed on a client side, once this `File` is ready and
+  successfully downloaded from a file storage.
+  """
+  size: Int
+}
+
 """Plain file `Attachment`."""
 type FileAttachment implements Attachment {
-  """Uploaded file's name."""
+  """Uploaded `File`'s name."""
   filename: String!
 
   """Unique ID of this `FileAttachment`."""
   id: AttachmentId!
 
-  """
-  Path on a files storage to the original file representing this
-  `FileAttachment`.
-
-  Prepend it with a files storage URL to obtain a link to the original
-  file.
-  """
-  original: String!
-
-  """Uploaded file's size in bytes."""
-  size: Int!
+  """Original `File` representing this `FileAttachment`."""
+  original: File!
 }
 
 """Error of performing `Mutation.forwardChatItems`."""
@@ -3076,14 +3412,8 @@ interface GalleryItem {
   """Unique ID of this `GalleryItem`."""
   id: GalleryItemId!
 
-  """
-  Path on a files storage to the original file representing this
-  `GalleryItem`.
-
-  Prepend it with a files storage URL to obtain a link to the original
-  file.
-  """
-  original: String!
+  """Original `File` representing this `GalleryItem`."""
+  original: File!
 }
 
 """Type of a `GalleryItem`'s ID."""
@@ -3130,40 +3460,31 @@ union HideChatResult = ChatEventsVersioned | HideChatError
 """Image `Attachment`."""
 type ImageAttachment implements Attachment {
   """
-  Path on a files storage to a `big` `ImageAttachment`'s view of
-  `400px`x`400px` size.
+  `big` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `400px` of its maximum dimension (either width or height).
   """
-  big: String!
+  big: File!
 
-  """Uploaded file's name."""
+  """Uploaded `File`'s name."""
   filename: String!
 
   """Unique ID of this `ImageAttachment`."""
   id: AttachmentId!
 
   """
-  Path on a files storage to a `medium` `ImageAttachment`'s view of
-  `200px`x`200px` size.
+  `medium` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `200px` of its maximum dimension (either width or height).
   """
-  medium: String!
+  medium: File!
+
+  """Original `File` representing this `ImageAttachment`."""
+  original: File!
 
   """
-  Path on a files storage to the original file representing this
-  `ImageAttachment`.
-
-  Prepend it with a files storage URL to obtain a link to the original
-  file.
+  `small` `ImageAttachment`'s view image `File`, scaled proportionally to
+  `30px` of its maximum dimension (either width or height).
   """
-  original: String!
-
-  """Uploaded file's size in bytes."""
-  size: Int!
-
-  """
-  Path on a files storage to a `small` `ImageAttachment`'s view of
-  `30px`x`30px` size.
-  """
-  small: String!
+  small: File!
 }
 
 """Image `GalleryItem`."""
@@ -3174,17 +3495,14 @@ type ImageGalleryItem implements GalleryItem {
   """Unique ID of this `ImageGalleryItem`."""
   id: GalleryItemId!
 
-  """
-  Path on a files storage to the original file representing this
-  `ImageGalleryItem`.
-  """
-  original: String!
+  """Original `File` representing this `ImageGalleryItem`."""
+  original: File!
 
   """
-  Path on a files storage to a `square` `ImageGalleryItem`'s view of
-  `85px`x`85px` size.
+  `square` `ImageGalleryItem`'s view `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `85px`x`85px`.
   """
-  square: String!
+  square: File!
 }
 
 """
@@ -3248,7 +3566,15 @@ Initial top of `Query.incomingChatCalls` list emitted by
 `Subscription.incomingChatCallsTopEvents`.
 """
 type IncomingChatCallsTop {
-  """List of top incoming `ChatCall`s."""
+  """
+  List of top incoming `ChatCall`s.
+
+  ## Sorting
+
+  Returned `ChatCall`s are sorted primarily by their starting `DateTime`,
+  and secondary by their IDs (if the starting `DateTime` is the same), in
+  descending order.
+  """
   list: [ChatCall!]!
 }
 
@@ -3353,6 +3679,13 @@ type Mutation {
   """
   Adds the specified `User` to the specified `Chat`-group by authority of
   the authenticated `MyUser`.
+
+  In case the added `User` answered the ongoing `ChatCall` in the
+  `Chat`-group, left it and then got re-added to the `Chat`-group again,
+  while the same `ChatCall` is still going on, this `User` will be
+  redialed. `EventChatCallMemberRedialed` won't be returned by this
+  mutation, but instead may be received via `Subscription.chatEvents` or
+  `Subscription.chatCallEvents`.
 
   ## Authentication
 
@@ -3488,11 +3821,11 @@ type Mutation {
   is already cleared until the specified `ChatItem`.
   """
   clearChat(
-    """ID of the `ChatItem` to clear the `Chat` until (inclusively)."""
-    untilId: ChatItemId!
-
     """ID of the `Chat` to be cleared."""
     id: ChatId!
+
+    """ID of the `ChatItem` to clear the `Chat` until (inclusively)."""
+    untilId: ChatItemId!
   ): ClearChatResult
 
   """
@@ -3569,13 +3902,13 @@ type Mutation {
   Each time creates a new unique `ChatContact`.
   """
   createChatContact(
+    """Name to create the `ChatContact` with."""
+    name: UserName!
+
     """
     Optional `ChatContactRecord`s to create and attach to the created `ChatContact`.
     """
     records: [ChatContactRecord!] = []
-
-    """Name to create the `ChatContact` with."""
-    name: UserName!
   ): CreateChatContactResult!
 
   """
@@ -3735,9 +4068,6 @@ type Mutation {
   Each time creates a new `Session`.
   """
   createSession(
-    """Generate `RememberedSession` along with `Session` or not."""
-    remember: Boolean = false
-
     """Email address of `MyUser` to create `Session` for."""
     email: UserEmail
 
@@ -3752,6 +4082,9 @@ type Mutation {
 
     """Phone number of `MyUser` to create `Session` for."""
     phone: UserPhone
+
+    """Generate `RememberedSession` along with `Session` or not."""
+    remember: Boolean = false
   ): CreateSessionResult!
 
   """
@@ -3776,7 +4109,7 @@ type Mutation {
   """
   createUser(
     """
-    Generate a `RememberedSession` along with the created `Session` as well, or not.
+    Generae a `RememberedSession` along with the created `Session` as well, or not.
     """
     remember: Boolean = false
   ): CreateUserResult!
@@ -4101,6 +4434,35 @@ type Mutation {
   ): EditChatMessageTextResult
 
   """
+  Marks the specified `Chat` as favorited for the authenticated `MyUser`
+  and sets its position in the favorites list.
+
+  To move the `Chat` to a concrete position in a favorites list, provide
+  the average value of two other `Chat`s positions surrounding it.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatFavorited`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
+  is already favorited at the same position.
+  """
+  favoriteChat(
+    """ID of the `Chat` to mark as favorited."""
+    id: ChatId!
+
+    """Position of the `Chat` in a favorites list."""
+    pos: ChatFavoritePosition!
+  ): FavoriteChatResult
+
+  """
   Marks the specified `ChatContact` as favorited for the authenticated
   `MyUser` and sets its position in the favorites list.
 
@@ -4120,7 +4482,7 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `ChatContactEvent`) if the specified
-  `ChatContact` is already favorited.
+  `ChatContact` is already favorited at the same position.
   """
   favoriteChatContact(
     """ID of the `ChatContact` to mark as favorited."""
@@ -4140,6 +4502,12 @@ type Mutation {
   `ChatItem`s will be followed with a posted `ChatMessage` containing that
   text and/or attachments.
 
+  When re-forwarding a `ChatForward`, the `ChatItemQuoteInput` arguments
+  should be filled, as operation is performed on the inner `ChatMessage`.
+  This allows to re-forward only part of the existing `ChatForward`.
+  Re-forwarding a `ChatForward` is indistinguishable from just forwarding
+  its inner `ChatMessage` (`ChatItem` depth will still be just 1).
+
   The maximum number of forwarded `ChatItem`s at once is 100.
 
   ## Authentication
@@ -4156,24 +4524,24 @@ type Mutation {
   Each time posts a new `ChatForward`.
   """
   forwardChatItems(
-    """ID of the `Chat` to forward `ChatItem`s from."""
-    from: ChatId!
-
-    """ID of the `Chat` to forward `ChatItem`s into."""
-    to: ChatId!
-
     """
     Optional IDs of `Attachment`s to be attached to the `ChatMessage` posted along with the forwarded `ChatItem`s.
     """
     attachments: [AttachmentId!]
+
+    """ID of the `Chat` to forward `ChatItem`s from."""
+    from: ChatId!
+
+    """Quotes of the `ChatItem`s to be forwarded."""
+    items: [ChatItemQuoteInput!]!
 
     """
     Optional text to post a `ChatMessage` along with the forwarded `ChatItem`s.
     """
     text: ChatMessageText
 
-    """Quotes of the `ChatItem`s to be forwarded."""
-    items: [ChatItemQuoteInput!]!
+    """ID of the `Chat` to forward `ChatItem`s into."""
+    to: ChatId!
   ): ForwardChatItemsResult!
 
   """
@@ -4329,7 +4697,7 @@ type Mutation {
   this mutation.
 
   `repliesTo` argument should be specified if the posted `ChatMessage` is
-  going to be a reply to some other `ChatItem`.
+  going to be a reply to some other `ChatItem`s.
 
   ## Authentication
 
@@ -4346,20 +4714,20 @@ type Mutation {
   `ChatEvent`.
   """
   postChatMessage(
-    """ID of the `Chat` to post a new `ChatMessage` in."""
-    chatId: ChatId!
-
-    """
-    Optional ID of the `ChatItem` that the posted `ChatMessage` is replying to.
-    The replied `ChatItem` may belong to the current `Chat` only.
-    """
-    repliesTo: ChatItemId
-
     """
     Optional IDs of `Attachment`s to be attached to the posted `ChatMessage`. If
     not specified or empty then `text` argument must be specified.
     """
     attachments: [AttachmentId!]
+
+    """ID of the `Chat` to post a new `ChatMessage` in."""
+    chatId: ChatId!
+
+    """
+    IDs of the `ChatItem`s that the posted `ChatMessage` is replying to. The
+    replied `ChatItem`s may belong to the current `Chat` only.
+    """
+    repliesTo: [ChatItemId!]!
 
     """
     Optional text of the posted `ChatMessage`. If not specified then `attachments` argument must be specified and non-empty.
@@ -4399,11 +4767,11 @@ type Mutation {
   `ChatItem`.
   """
   readChat(
-    """ID of the `ChatItem` to read the `Chat` until (inclusively)."""
-    untilId: ChatItemId!
-
     """ID of the `Chat` to be read."""
     id: ChatId!
+
+    """ID of the `ChatItem` to read the `Chat` until (inclusively)."""
+    untilId: ChatItemId!
   ): ReadChatResult
 
   """
@@ -4445,6 +4813,68 @@ type Mutation {
     """Phone number of `MyUser`."""
     phone: UserPhone
   ): RecoverUserPasswordErrorCode
+
+  """
+  Redials a `User` who left or declined the ongoing `ChatCall` in the
+  specified `Chat`-group by the authenticated `MyUser`.
+
+  For using this mutation the authenticated `MyUser` must be a member of
+  the ongoing `ChatCall`.
+
+  Redialed `User` should see the `ChatCall.answered` indicator as `false`,
+  and the ongoing `ChatCall` appearing in his `Query.incomingChatCallsTop`
+  and `Subscription.incomingChatCallsTopEvents` again.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatCallMemberRedialed`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the redialed `User`
+  didn't decline or leave the `ChatCall` yet, or has been redialed
+  already.
+  """
+  redialChatCallMember(
+    """ID of the `Chat` where the `ChatCall` is going on."""
+    chatId: ChatId!
+
+    """ID of the `User` (being `ChatMember`) to be redialed."""
+    memberId: UserId!
+  ): RedialChatCallMemberResult
+
+  """
+  Registers a device (Android, iOS, or Web) for receiving notifications
+  via [Firebase Cloud Messaging][0].
+
+  See [Firebase Cloud Messaging][0] documentation for how to generate
+  `FcmRegistrationToken`s [for Flutter][1] and [for JavaScript][2].
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Always returns `null` on success.
+
+  ## Idempotent
+
+  Succeeds if the specified `token` is registered already.
+
+  [0]: https://firebase.google.com/docs/cloud-messaging
+  [1]: https://firebase.google.com/docs/cloud-messaging/flutter/client
+  [2]: https://firebase.google.com/docs/cloud-messaging/js/client
+  """
+  registerFcmDevice(
+    """Registration token of the device to register."""
+    token: FcmRegistrationToken!
+  ): RegisterFcmDeviceErrorCode
 
   """
   Removes the specified `User` from the specified `Chat`-group by
@@ -4610,25 +5040,25 @@ type Mutation {
   already.
   """
   resetUserPassword(
+    """
+    Recovery `ConfirmationCode` for `MyUser` identification and mutation authentication.
+    """
+    code: ConfirmationCode!
+
     """Email address of `MyUser`."""
     email: UserEmail
 
     """Login of `MyUser`."""
     login: UserLogin
 
-    """Number of `MyUser`."""
-    num: UserNum
-
     """Password to update `MyUser` with."""
     newPassword: UserPassword!
 
+    """Number of `MyUser`."""
+    num: UserNum
+
     """Phone number of `MyUser`."""
     phone: UserPhone
-
-    """
-    Recovery `ConfirmationCode` for `MyUser` identification and mutation authentication.
-    """
-    code: ConfirmationCode!
   ): ResetUserPasswordResult!
 
   """
@@ -4659,9 +5089,6 @@ type Mutation {
   Joins it if the authenticated `MyUser` is not a member yet.
   """
   startChatCall(
-    """Indicates whether the `ChatCall` is intended to start with video."""
-    withVideo: Boolean = false
-
     """ID of the `Chat` to start a `ChatCall` in."""
     chatId: ChatId!
 
@@ -4677,6 +5104,9 @@ type Mutation {
     device. Generate new credentials in any other case.
     """
     creds: ChatCallCredentials!
+
+    """Indicates whether the `ChatCall` is intended to start with video."""
+    withVideo: Boolean = false
   ): StartChatCallResult!
 
   """
@@ -4826,13 +5256,13 @@ type Mutation {
   [Medea]: https://github.com/instrumetisto/medea
   """
   transformDialogCallIntoGroupCall(
-    """ID of the `Chat`-dialog to move the ongoing `ChatCall` from."""
-    chatId: ChatId!
-
     """
     IDs of `User`s to create the new `Chat`-group with (in addition to the existing `Chat`-dialog members).
     """
     additionalMemberIds: [UserId!]!
+
+    """ID of the `Chat`-dialog to move the ongoing `ChatCall` from."""
+    chatId: ChatId!
 
     """Optional name to assign to the new `Chat`-group."""
     groupName: ChatName
@@ -4864,6 +5294,29 @@ type Mutation {
   ): UnblacklistUserResult
 
   """
+  Removes the specified `Chat` from the favorites list of the
+  authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatUnfavorited`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
+  is not in the favorites list already.
+  """
+  unfavoriteChat(
+    """ID of the `Chat` to remove from the favorites list."""
+    id: ChatId!
+  ): UnfavoriteChatResult
+
+  """
   Removes the specified `ChatContact` from the favorites list of the
   authenticated `MyUser`.
 
@@ -4879,12 +5332,35 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `ChatContactEvent`) if the specified
-  `ChatContact` is not in a favorites list already.
+  `ChatContact` is not in the favorites list already.
   """
   unfavoriteChatContact(
-    """ID of the `ChatContact` to remove from a favorites list."""
+    """ID of the `ChatContact` to remove from the favorites list."""
     id: ChatContactId!
   ): UnfavoriteChatContactResult
+
+  """
+  Unregisters a device (Android, iOS, or Web) from receiving notifications
+  via [Firebase Cloud Messaging][0].
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Always returns `true` on success.
+
+  ## Idempotent
+
+  Succeeds if the specified `token` is not registered already.
+
+  [0]: https://firebase.google.com/docs/cloud-messaging
+  """
+  unregisterFcmDevice(
+    """Registration token of the device to unregister."""
+    token: FcmRegistrationToken!
+  ): Boolean!
 
   """
   Updates the `Chat.avatar` field with the provided image, or resets it to
@@ -4911,6 +5387,16 @@ type Mutation {
   area.
   """
   updateChatAvatar(
+    """ID of the `Chat` to update `avatar` of."""
+    chatId: ChatId!
+
+    """
+    Optional area to crop the provided `file`.
+
+    Only makes sense if the `file` argument is specified.
+    """
+    crop: CropAreaInput
+
     """
     File to use as a `ChatAvatar`.
 
@@ -4926,16 +5412,6 @@ type Mutation {
     [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
     file: Upload
-
-    """ID of the `Chat` to update `avatar` of."""
-    chatId: ChatId!
-
-    """
-    Optional area to crop the provided `file`.
-
-    Only makes sense if the `file` argument is specified.
-    """
-    crop: CropAreaInput
   ): UpdateChatAvatarResult
 
   """
@@ -4986,18 +5462,18 @@ type Mutation {
   """
   updateUserAvatar(
     """
-    ID of the `GalleryItem` to be set as `avatar`.
-
-    If absent or is `null` then the `MyUser.avatar` field will be reset.
-    """
-    id: GalleryItemId
-
-    """
     Optional area to crop the provided `GalleryItem`.
 
     Only makes sense if `id` argument is specified.
     """
     crop: CropAreaInput
+
+    """
+    ID of the `GalleryItem` to be set as `avatar`.
+
+    If absent or is `null` then the `MyUser.avatar` field will be reset.
+    """
+    id: GalleryItemId
   ): UpdateUserAvatarResult
 
   """
@@ -5049,18 +5525,18 @@ type Mutation {
   """
   updateUserCallCover(
     """
-    ID of the `GalleryItem` to be set as `callCover`.
-
-    If absent or is `null` then the `MyUser.callCover` field will be reset.
-    """
-    id: GalleryItemId
-
-    """
     Optional area to crop the provided `GalleryItem`.
 
     Only makes sense if `id` argument is specified.
     """
     crop: CropAreaInput
+
+    """
+    ID of the `GalleryItem` to be set as `callCover`.
+
+    If absent or is `null` then the `MyUser.callCover` field will be reset.
+    """
+    id: GalleryItemId
   ): UpdateUserCallCoverResult
 
   """
@@ -5134,11 +5610,11 @@ type Mutation {
   one.
   """
   updateUserPassword(
-    """Current password of `MyUser` for mutation authentication (if exists)."""
-    old: UserPassword
-
     """Password to update `MyUser` with."""
     new: UserPassword!
+
+    """Current password of `MyUser` for mutation authentication (if exists)."""
+    old: UserPassword
   ): UpdateUserPasswordResult!
 
   """
@@ -5315,6 +5791,9 @@ type Mutation {
   `ConfirmationCode` can be validated unlimited number of times (for now).
   """
   validateUserPasswordRecoveryCode(
+    """Recovery `ConfirmationCode` to validate."""
+    code: ConfirmationCode!
+
     """Email address of `MyUser`."""
     email: UserEmail
 
@@ -5326,9 +5805,6 @@ type Mutation {
 
     """Phone number of `MyUser`."""
     phone: UserPhone
-
-    """Recovery `ConfirmationCode` to validate."""
-    code: ConfirmationCode!
   ): ValidateUserPasswordRecoveryErrorCode
 }
 
@@ -5398,16 +5874,24 @@ type MyUser {
   emails: UserEmails!
 
   """
-  `GalleryItem`s of this `MyUser` ordered by their adding time.
+  `GalleryItem`s of this `MyUser`.
 
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `GalleryItem` pointed by the cursor and the
-  requested number of `GalleryItem`s preceding and following it.
+  ## Sorting
 
-  If it's desired to receive the `GalleryItem` pointed by the cursor
+  Returned `GalleryItem`s are sorted primarily by their creation
+  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
+  the same), in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `GalleryItem` pointed by the cursor and
+  the requested count of `GalleryItem`s preceding and following it.
+
+  If it's desired to receive the `GalleryItem`, pointed by the cursor,
   without querying in both directions, one can specify `first` or `last`
-  as `0`.
+  count as `0`.
   """
   gallery(
     """
@@ -5667,6 +6151,13 @@ enum PostChatMessageErrorCode {
   NO_TEXT_AND_NO_ATTACHMENT
 
   """
+  List of replied `ChatItem`s should contain at most 100 elements.
+
+  Status code: 400 Bad Request.
+  """
+  WRONG_ITEMS_COUNT
+
+  """
   One of the specified `Attachment`s doesn't exist.
 
   Status code: 404 Not Found.
@@ -5724,17 +6215,26 @@ type Query {
   """
   Returns `User`s blacklisted by the authenticated `MyUser`.
 
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `User` pointed by the cursor and the requested
-  number of `User`s preceding and following it.
-
-  If it's desired to receive the `User` pointed by the cursor without
-  querying in both directions, one can specify `first` or `last` as `0`.
-
   ## Authentication
 
   Mandatory.
+
+  ## Sorting
+
+  Returned `User`s are sorted primarily by their blacklisting `DateTime`,
+  and secondary by their IDs (if the blacklisting `DateTime` is the same),
+  in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `User` pointed by the cursor and the
+  requested count of `User`s preceding and following it.
+
+  If it's desired to receive the `User`, pointed by the cursor, without
+  querying in both directions, one can specify `first` or `last` count as
+  `0`.
   """
   blacklist(
     """
@@ -5771,7 +6271,7 @@ type Query {
 
   """
   Returns address book of the authenticated `MyUser` ordered
-  alphabetically by `ChatContact` names.
+  alphabetically by `ChatContact.name`s.
 
   Use the `noFavorite` argument to exclude favorited `ChatContact`s from
   the returned result.
@@ -5780,23 +6280,24 @@ type Query {
 
   Mandatory.
 
+  ## Sorting
+
+  Returned `ChatContact`s are sorted primarily and alphabetically by their
+  `name`s, and secondary by their IDs (if the `name` is the same), in
+  ascending order.
+
   ## Pagination
 
-  It's allowed to specify both `first` and `last` at the same time,
+  It's allowed to specify both `first` and `last` counts at the same time,
   provided that `after` and `before` cursors are equal. In such case the
   returned page will include the `ChatContact` pointed by the cursor and
   the requested count of `ChatContact`s preceding and following it.
 
-  If it's desired to receive the `ChatContact` pointed by the cursor
+  If it's desired to receive the `ChatContact`, pointed by the cursor,
   without querying in both directions, one can specify `first` or `last`
   count as `0`.
   """
   chatContacts(
-    """
-    Indicator whether favorite `ChatContact`s should be excluded from the result.
-    """
-    noFavorite: Boolean = false
-
     """
     Cursor indicating the `ChatContactsEdge` position to return next `ChatContact`s after.
     """
@@ -5812,7 +6313,27 @@ type Query {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
+
+    """
+    Indicator whether favorite `ChatContact`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
   ): ChatContactsConnection!
+
+  """
+  Returns a `ChatItem` by its ID.
+
+  The authenticated `MyUser` should be a member of the `Chat` the provided
+  `ChatItem` belongs to, in order to view it.
+
+  ## Authentication
+
+  Mandatory.
+  """
+  chatItem(
+    """ID of the `ChatItem` to be returned."""
+    id: ChatItemId!
+  ): ChatItemsEdge
 
   """
   Indicates whether some `User` can be identified by the given `num`,
@@ -5887,14 +6408,19 @@ type Query {
 
   Mandatory.
 
+  ## Sorting
+
+  Returned `ChatContact`s are sorted in the order specified by the
+  authenticated `MyUser` in `Mutation.favoriteChatContact`.
+
   ## Pagination
 
-  It's allowed to specify both `first` and `last` at the same time,
+  It's allowed to specify both `first` and `last` counts at the same time,
   provided that `after` and `before` cursors are equal. In such case the
   returned page will include the `ChatContact` pointed by the cursor and
   the requested count of `ChatContact`s preceding and following it.
 
-  If it's desired to receive the `ChatContact` pointed by the cursor
+  If it's desired to receive the `ChatContact`, pointed by the cursor,
   without querying in both directions, one can specify `first` or `last`
   count as `0`.
   """
@@ -5917,10 +6443,57 @@ type Query {
   ): FavoriteChatContactsConnection!
 
   """
+  Returns favorite `Chat`s of the authenticated `MyUser` ordered by the
+  custom order of `MyUser`'s favorites list (using `Chat.favoritePosition`
+  field).
+
+  Use `Mutation.favoriteChat` to update the position of a `Chat` in
+  `MyUser`'s favorites list.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `Chat`s are sorted in the order specified by the authenticated
+  `MyUser` in `Mutation.favoriteChat`.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `Chat` pointed by the cursor and the
+  requested count of `Chat`s preceding and following it.
+
+  If it's desired to receive the `Chat`, pointed by the cursor, without
+  querying in both directions, one can specify `first` or `last` count as
+  `0`.
+  """
+  favoriteChats(
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return next `Chat`s after.
+    """
+    after: FavoriteChatsCursor
+
+    """
+    Cursor indicating the `FavoriteChatsEdge` position to return prior `Chat`s before.
+    """
+    before: FavoriteChatsCursor
+
+    """Number of next `Chat`s to return."""
+    first: Int
+
+    """Number of prior `Chat`s to return."""
+    last: Int
+  ): FavoriteChatsConnection!
+
+  """
   Returns a list of incoming `ChatCall`s of the authenticated `MyUser`.
 
   A `ChatCall` is considered incoming when:
-  - it's not yet answered or declined;
+  - it's not yet answered or declined (or the authenticated `MyUser` has
+    been redialed after it was answered or declined);
   - its `Chat` is not muted by the authenticated `MyUser`;
   - its initiator is not the authenticated `MyUser`.
 
@@ -5947,16 +6520,22 @@ type Query {
 
   Mandatory.
 
+  ## Sorting
+
+  Returned `ChatCall`s are sorted primarily by their starting `DateTime`,
+  and secondary by their IDs (if the starting `DateTime` is the same), in
+  descending order.
+
   ## Pagination
 
-  It's allowed to specify both `first` and `last` at the same time,
+  It's allowed to specify both `first` and `last` counts at the same time,
   provided that `after` and `before` cursors are equal. In such case the
   returned page will include the `ChatCall` pointed by the cursor and the
   requested count of `ChatCall`s preceding and following it.
 
-  If it's desired to receive the `ChatCall` pointed by the cursor without
-  querying in both directions, one can specify `first` or `last` count as
-  `0`.
+  If it's desired to receive the `ChatCall`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
   """
   incomingChatCalls(
     """
@@ -6028,19 +6607,31 @@ type Query {
 
   """
   Returns non-hidden `Chat`s of the authenticated `MyUser` ordered
-  descending by the last updating time.
+  descending by their last updating `DateTime`.
 
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `Chat` pointed by the cursor and the requested
-  number of `Chat`s preceding and following it.
-
-  If it's desired to receive the `Chat` pointed by the cursor without
-  querying in both directions, one can specify `first` or `last` as `0`.
+  Use the `noFavorite` argument to exclude favorited `Chat`s from the
+  returned result.
 
   ## Authentication
 
   Mandatory.
+
+  ## Sorting
+
+  Returned `Chat`s are sorted primarily by their last updating `DateTime`,
+  and secondary by their IDs (if the last updating `DateTime` is the
+  same), in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `Chat` pointed by the cursor and the
+  requested count of `Chat`s preceding and following it.
+
+  If it's desired to receive the `Chat`, pointed by the cursor, without
+  querying in both directions, one can specify `first` or `last` count as
+  `0`.
   """
   recentChats(
     """
@@ -6058,29 +6649,112 @@ type Query {
 
     """Number of prior `Chat`s to return."""
     last: Int
+
+    """Indicator whether favorite `Chat`s should be excluded from the result."""
+    noFavorite: Boolean = false
   ): RecentChatsConnection!
+
+  """
+  Searches `ChatContact`s by the given criteria.
+
+  Exactly one of `name`/`email`/`phone` arguments must be specified (be
+  non-`null`).
+
+  Searching by `email`/`phone` is exact.
+
+  Searching by `name` is fuzzy.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `ChatContact`s are sorted depending on the provided arguments:
+  - If one of the `email`/`phone` arguments is specified, then returned
+    `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
+    the same) in ascending order.
+  - If the `name` argument is specified, then returned `ChatContact`s are
+    sorted primarily by the [Levenshtein distance][0] of their `name`s,
+    and secondary by their IDs (if the [Levenshtein distance][0] is the
+    same), in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `ChatContact` pointed by the cursor and
+  the requested count of `ChatContact`s preceding and following it.
+
+  If it's desired to receive the `ChatContact`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  [0]: https://en.wikipedia.org/wiki/Levenshtein_distance
+  """
+  searchChatContacts(
+    """
+    Cursor indicating the `ChatContactsEdge` position to return next `ChatContactsEdge`s after.
+    """
+    after: ChatContactsCursor
+
+    """
+    Cursor indicating the `ChatContactsEdge` position to return prior `ChatContactsEdge`s before.
+    """
+    before: ChatContactsCursor
+
+    """`UserEmail` to search `ChatContact`s with."""
+    email: UserEmail
+
+    """Number of next `ChatContactsEdge`s to return."""
+    first: Int
+
+    """Number of prior `ChatContactsEdge`s to return."""
+    last: Int
+
+    """Part of `UserName` to search `ChatContact`s with."""
+    name: UserName
+
+    """`UserPhone` to search `ChatContact`s with."""
+    phone: UserPhone
+  ): ChatContactsConnection!
 
   """
   Searches `User`s by the given criteria.
 
-  Exactly one of `num`/`login`/`link`/`name` arguments must be specified
-  (be non-`null`).
+  Exactly one of `num`/`login`/`direct_link`/`name` arguments must be
+  specified (be non-`null`).
 
-  Searching by `num`/`login`/`link` is exact.
+  Searching by `num`/`login`/`direct_link` is exact.
 
   Searching by `name` is fuzzy.
-
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `User` pointed by the cursor and the requested
-  number of `User`s preceding and following it.
-
-  If it's desired to receive the `User` pointed by the cursor without
-  querying in both directions, one can specify `first` or `last` as `0`.
 
   ## Authentication
 
   Optional.
+
+  ## Sorting
+
+  Returned `User`s are sorted depending on the provided arguments:
+  - If one of the `num`/`login`/`direct_link` arguments is specified, then
+    an exact `User` is returned.
+  - If the `name` argument is specified, then returned `User`s are sorted
+    primarily by the [Levenshtein distance][0] of their `name`s, and
+    secondary by their IDs (if the [Levenshtein distance][0] is the same),
+    in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `User` pointed by the cursor and the
+  requested count of `User`s preceding and following it.
+
+  If it's desired to receive the `User`, pointed by the cursor, without
+  querying in both directions, one can specify `first` or `last` count as
+  `0`.
+
+  [0]: https://en.wikipedia.org/wiki/Levenshtein_distance
   """
   searchUsers(
     """
@@ -6097,6 +6771,9 @@ type Query {
     """
     before: UsersCursor
 
+    """`ChatDirectLinkSlug` to search owner of."""
+    directLink: ChatDirectLinkSlug
+
     """
     Number of next `UsersEdge`s to return.
 
@@ -6111,14 +6788,11 @@ type Query {
     """
     last: Int
 
-    """Part of `UserName` to fuzzy search `User` with."""
-    name: UserName
-
-    """`ChatDirectLinkSlug` to search owner of."""
-    directLink: ChatDirectLinkSlug
-
     """`UserLogin` to search `User`s with."""
     login: UserLogin
+
+    """Part of `UserName` to fuzzy search `User` with."""
+    name: UserName
 
     """`UserNum` to search `User`s with."""
     num: UserNum
@@ -6236,7 +6910,15 @@ Initial top of `Query.recentChats` list emitted by
 `Subscription.recentChatsTopEvents`.
 """
 type RecentChatsTop {
-  """List of top `Chat`s."""
+  """
+  List of top `Chat`s.
+
+  ## Sorting
+
+  Returned `Chat`s are sorted primarily by their last updating `DateTime`,
+  and secondary by their IDs (if the last updating `DateTime` is the
+  same), in descending order.
+  """
   list: [Chat!]!
 }
 
@@ -6265,6 +6947,70 @@ enum RecoverUserPasswordErrorCode {
   Status code: 404 Not Found.
   """
   UNKNOWN_USER
+}
+
+"""Error of performing `Mutation.redialChatCallMember`."""
+type RedialChatCallMemberError {
+  """Code indicating why this error has happened."""
+  code: RedialChatCallMemberErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.redialChatCallMember`."""
+enum RedialChatCallMemberErrorCode {
+  """
+  Authenticated `MyUser` doesn't participate in the ongoing `ChatCall`.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_CALL_MEMBER
+
+  """
+  Redialed `User` is not a member of this `Chat`.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_CHAT_MEMBER
+
+  """
+  There is no ongoing `ChatCall` in this `Chat` at the moment.
+
+  Status code: 404 Not Found.
+  """
+  NO_CALL
+
+  """
+  `Chat` is not a group.
+
+  Status code: 400 Bad Request.
+  """
+  NOT_GROUP
+
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
+"""Result of performing `Mutation.redialChatCallMember`."""
+union RedialChatCallMemberResult = ChatCallEventsVersioned | RedialChatCallMemberError
+
+"""Possible error codes of performing `Mutation.registerFcmDevice`."""
+enum RegisterFcmDeviceErrorCode {
+  """
+  Invalid `FcmRegistrationToken` provided.
+
+  Status code: 400 Bad Request.
+  """
+  INVALID_REGISTRATION_TOKEN
+
+  """
+  Unknown `FcmRegistrationToken` provided.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_REGISTRATION_TOKEN
 }
 
 """
@@ -6774,6 +7520,70 @@ type Subscription {
   ): ChatEvents!
 
   """
+  Subscribes to `FavoriteChatsEvent`s of all `Chat`s of the authenticated
+  `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Initialization
+
+  Once this subscription is initialized completely, it immediately emits
+  `SubscriptionInitialized`.
+
+  If nothing has been emitted for a long period of time after establishing
+  this subscription (while not being completed), it should be considered
+  as an unexpected server error. This fact can be used on a client side to
+  decide whether this subscription has been initialized successfully.
+
+  ## Result
+
+  If `ver` argument is not specified (or is `null`) an initial state of
+  the `FavoriteChatsList` will be emitted after `SubscriptionInitialized`
+  and before any other `FavoriteChatsEvent`s (and won't be emitted ever
+  again until this subscription completes). This allows to skip doing
+  `Query.favoriteChats` before establishing this subscription.
+
+  If the specified `ver` is not fresh (was queried quite a time ago), it
+  may become stale, so this subscription will return `STALE_VERSION` error
+  on initialization. In such case:
+  - either a fresh version should be obtained via `Query.favoriteChats`;
+  - or a re-subscription should be done without specifying a `ver`
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `FavoriteChatsList`).
+
+  ## Completion
+
+  Infinite.
+
+  Completes requiring a re-subscription when:
+  - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+  - An error occurs on the server (error is emitted).
+  - The server is shutting down or becoming unreachable (unexpectedly
+    completes after initialization).
+
+  ## Idempotency
+
+  It's possible that in rare scenarios this subscription could emit an
+  event which have already been applied to the state of some `Chat`, so a
+  client side is expected to handle all the events idempotently
+  considering the `Chat.ver`.
+  """
+  favoriteChatsEvents(
+    """
+    Version of a `FavoriteChatsList` to start returning `FavoriteChatsEvent`s from.
+
+    Get it from `Query.favoriteChats.ver`.
+
+    If omitted (or is `null`) then an initial state of the `FavoriteChatsList`
+    will be emitted after `SubscriptionInitialized` and before any other
+    `FavoriteChatsEvent`.
+    """
+    ver: FavoriteChatsListVersion
+  ): FavoriteChatsEvents!
+
+  """
   Subscribes to updates of top `count` items of `Query.incomingChatCalls`
   list.
 
@@ -6787,7 +7597,8 @@ type Subscription {
   finished or removed itself.
 
   Instead, use `Subscription.chatCallEvents` for being informed correctly
-  about `ChatCall` changes.
+  about `ChatCall` changes, and `Subscription.chatEvents` for being
+  informed correctly about new `ChatCall`s happening in a `Chat`.
 
   ## Authentication
 
@@ -7006,6 +7817,11 @@ type Subscription {
     Usually, you need just pass the count of `ChatConnection.nodes` returned by `Query.recentChats`.
     """
     count: Int!
+
+    """
+    Indicator whether updates regarding favorite `Chat`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
   ): RecentChatsTopEvents!
 
   """
@@ -7258,6 +8074,25 @@ enum UnfavoriteChatContactErrorCode {
 
 """Result of performing `Mutation.unfavoriteChatContact`."""
 union UnfavoriteChatContactResult = ChatContactEventsVersioned | UnfavoriteChatContactError
+
+"""Error of performing `Mutation.unfavoriteChat`."""
+type UnfavoriteChatError {
+  """Code indicating why this error has happened."""
+  code: UnfavoriteChatErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.unfavoriteChat`."""
+enum UnfavoriteChatErrorCode {
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
+"""Result of performing `Mutation.unfavoriteChat`."""
+union UnfavoriteChatResult = ChatEventsVersioned | UnfavoriteChatError
 
 """Error of performing `Mutation.updateChatAvatar`."""
 type UpdateChatAvatarError {
@@ -7580,7 +8415,7 @@ type User {
   """
   Avatar of this `User`.
 
-  `avatar` is an image helping to identify an `User` visually.
+  `avatar` is an image helping to identify a `User` visually.
   """
   avatar: UserAvatar
 
@@ -7590,7 +8425,7 @@ type User {
   """
   Call cover of this `User`.
 
-  `callCover` is an image helping to identify an `User` visually in
+  `callCover` is an image helping to identify a `User` visually in
   `ChatCall`s.
   """
   callCover: UserCallCover
@@ -7613,16 +8448,24 @@ type User {
   dialog: Chat
 
   """
-  `GalleryItem`s of this `User` ordered by their adding time.
+  `GalleryItem`s of this `User`.
 
-  It's allowed to specify both `first` and `last` at the same time,
-  provided that `after` and `before` are equal. In such case the returned
-  page will include the `GalleryItem` pointed by the cursor and the
-  requested number of `GalleryItem`s preceding and following it.
+  ## Sorting
 
-  If it's desired to receive the `GalleryItem` pointed by the cursor
+  Returned `GalleryItem`s are sorted primarily by their creation
+  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
+  the same), in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `GalleryItem` pointed by the cursor and
+  the requested count of `GalleryItem`s preceding and following it.
+
+  If it's desired to receive the `GalleryItem`, pointed by the cursor,
   without querying in both directions, one can specify `first` or `last`
-  as `0`.
+  count as `0`.
   """
   gallery(
     """
@@ -7720,37 +8563,48 @@ type User {
   ver: UserVersion!
 }
 
-"""
-Avatar of an `User`.
-
-Specified as relative paths on a files storage. Prepend them with a files
-storage URL to obtain a link to the concrete image.
-"""
+"""Avatar of a `User`."""
 type UserAvatar {
-  """Path to the `big` avatar image preview of `70px`x`70px` size."""
-  big: String!
+  """
+  `big` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `70px`x`70px`.
+  """
+  big: File!
 
   """`CropArea` applied to the `GalleryItem` to create this `UserAvatar`."""
   crop: CropArea
 
-  """Path to the full-sized avatar image keeping the original sizes."""
-  full: String!
+  """
+  Full-sized `UserAvatar`'s image `File`, keeping the `original`
+  dimensions.
+  """
+  full: File!
 
-  """ID of the `GalleryItem` this `UserAvatar` is created from."""
-  galleryItemId: GalleryItemId!
+  """
+  `GalleryItem` this `UserAvatar` was created from.
 
-  """Path to the `medium` avatar image preview of `46px`x`46px` size."""
-  medium: String!
+  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
+  """
+  galleryItem: GalleryItem
 
-  """Path to the original file representing this avatar image."""
-  original: String!
+  """
+  `medium` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `46px`x`46px`.
+  """
+  medium: File!
 
-  """Path to the `small` avatar image preview of `25px`x`25px` size."""
-  small: String!
+  """Original image `File` representing this `UserAvatar`."""
+  original: File!
+
+  """
+  `small` `UserAvatar`'s view image `File`, square-cropped to its minimum
+  dimension (either width or height), and scaled to `25px`x`25px`.
+  """
+  small: File!
 }
 
 """
-Type of an `User`'s bio.
+Type of a `User`'s bio.
 
 Its values are always considered to be non-empty, and meet the following
 requirements:
@@ -7758,38 +8612,46 @@ requirements:
 """
 scalar UserBio
 
-"""
-Call cover of an `User`.
-
-Specified as relative paths on a files storage. Prepend them with a files
-storage URL to obtain a link to the concrete image.
-"""
+"""Call cover of a `User`."""
 type UserCallCover {
   """
   `CropArea` applied to the `GalleryItem` to create this `UserCallCover`.
   """
   crop: CropArea
 
-  """Path to the full-sized avatar image keeping the original sizes."""
-  full: String!
-
-  """ID of the `GalleryItem` this `UserCallCover` is created from."""
-  galleryItemId: GalleryItemId!
-
-  """Path to the original file representing this call cover image."""
-  original: String!
-
-  """Path to the `square` call cover image preview of `300px`x`300px` size."""
-  square: String!
+  """
+  Full-sized `UserCallCover`'s image `File`, keeping the `original`
+  dimensions.
+  """
+  full: File!
 
   """
-  Path to the `vertical` call cover image preview of `675px`x`900px` size.
+  `GalleryItem` this `UserCallCover` was created from.
+
+  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
   """
-  vertical: String!
+  galleryItem: GalleryItem
+
+  """Original image `File` representing this `UserCallCover`."""
+  original: File!
+
+  """
+  `square` `UserCallCover`'s view image `File`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `300px`x`300px`.
+  """
+  square: File!
+
+  """
+  `vertical` `UserCallCover`'s view image `File`, rectangular-cropped to
+  its minimum dimension (either width or height), and proportionally
+  scaled to `675px`x`900px`.
+  """
+  vertical: File!
 }
 
 """
-Type of an `User`'s email address.
+Type of a `User`'s email address.
 
 Its values are always considered to be a valid email addresses.
 """
@@ -7819,7 +8681,7 @@ type UserEmails {
   unconfirmed: UserEmail
 }
 
-"""Events happening with an `User`."""
+"""Events happening with a `User`."""
 interface UserEvent {
   """ID of the `User` this `UserEvent` is related to."""
   userId: UserId!
@@ -7883,7 +8745,7 @@ type UserGalleryItemsConnection {
 scalar UserGalleryItemsCursor
 
 """
-[Edge] with an `User`'s `GalleryItem`.
+[Edge] with a `User`'s `GalleryItem`.
 
 [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
 """
@@ -7905,7 +8767,7 @@ type UserGalleryItemsEdge {
   node: GalleryItem!
 }
 
-"""Type of an `User`'s ID."""
+"""Type of a `User`'s ID."""
 scalar UserId
 
 """
@@ -7921,7 +8783,7 @@ requirements:
 scalar UserLogin
 
 """
-Type of an `User`'s name.
+Type of a `User`'s name.
 
 Its values are always considered to be non-empty, and meet the following
 requirements:
@@ -7932,7 +8794,7 @@ requirements:
 scalar UserName
 
 """
-Type of an `User`'s unique number.
+Type of a `User`'s unique number.
 
 Its values are always in range between `1_000_000_000_000_000` and
 `9_999_999_999_999_999` inclusively.
@@ -7969,7 +8831,7 @@ requirements:
 scalar UserPassword
 
 """
-Type of an `User`'s phone number.
+Type of a `User`'s phone number.
 
 Its values are always considered to be a valid phone number.
 """
@@ -8033,7 +8895,7 @@ type UsersConnection {
 scalar UsersCursor
 
 """
-[Edge] with an `User`.
+[Edge] with a `User`.
 
 [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
 """
@@ -8056,7 +8918,7 @@ type UsersEdge {
 }
 
 """
-Type of an `User`'s text status value.
+Type of a `User`'s text status value.
 
 Its values are always considered to be non-empty, and meet the following
 requirements:

@@ -27,11 +27,14 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -41,28 +44,58 @@ import '/util/web/web_utils.dart';
 /// [GalleryItem] is treated as a video if [isVideo] is `true`, or as an image
 /// otherwise.
 class GalleryItem {
-  const GalleryItem({
+  GalleryItem({
     required this.link,
     required this.name,
+    required this.size,
     this.isVideo = false,
+    this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: false);
+  factory GalleryItem.image(
+    String link,
+    String name, {
+    int? size,
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        size: size,
+        isVideo: false,
+        onError: onError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: true);
+  factory GalleryItem.video(
+    String link,
+    String name, {
+    int? size,
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        size: size,
+        isVideo: true,
+        onError: onError,
+      );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  final String link;
+  String link;
 
-  /// File name of this [GalleryItem].
+  /// Name of the file this [GalleryItem] represents.
   final String name;
+
+  /// Size in bytes of the file this [GalleryItem] represents.
+  final int? size;
+
+  /// Callback, called on the fetch errors of this [GalleryItem].
+  final Future<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -73,6 +106,7 @@ class GalleryPopup extends StatefulWidget {
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
+    this.onTrashPressed,
   }) : super(key: key);
 
   /// [List] of [GalleryItem]s to display in a gallery.
@@ -86,6 +120,10 @@ class GalleryPopup extends StatefulWidget {
 
   /// Callback, called when the displayed [GalleryItem] is changed.
   final void Function(int)? onPageChanged;
+
+  /// Callback, called when a remove action of a [GalleryItem] at the provided
+  /// index is triggered.
+  final void Function(int index)? onTrashPressed;
 
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
@@ -173,6 +211,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Indicator whether the close gallery button should be visible.
   bool _displayClose = false;
 
+  /// Indicator whether the fullscreen gallery button should be visible.
+  bool _displayFullscreen = false;
+
   /// [FocusNode] of the keyboard input.
   FocusNode node = FocusNode();
 
@@ -181,6 +222,19 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// [Timer] resetting [_ignorePageSnapping].
   Timer? _ignoreSnappingTimer;
+
+  /// [Timer] hiding the control buttons.
+  Timer? _resetControlsTimer;
+
+  /// Indicator whether all the control buttons should be visible.
+  bool _showControls = true;
+
+  /// Indicator whether this [GalleryPopup] hasn't been scrolled since it was
+  /// initially opened.
+  bool _isInitialPage = true;
+
+  /// Indicator whether the currently visible [GalleryItem] is zoomed.
+  bool _isZoomed = false;
 
   @override
   void initState() {
@@ -232,11 +286,9 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     });
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      _enterFullscreen();
-    }
-
     node.requestFocus();
+
+    Future.delayed(Duration.zero, _displayControls);
 
     super.initState();
   }
@@ -311,9 +363,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                                       _dismiss();
                                     }
                                   },
-                            onVerticalDragStart: _onVerticalDragStart,
-                            onVerticalDragUpdate: _onVerticalDragUpdate,
-                            onVerticalDragEnd: _onVerticalDragEnd,
+                            onVerticalDragStart:
+                                _isZoomed ? null : _onVerticalDragStart,
+                            onVerticalDragUpdate:
+                                _isZoomed ? null : _onVerticalDragUpdate,
+                            onVerticalDragEnd:
+                                _isZoomed ? null : _onVerticalDragEnd,
                             child: KeyboardListener(
                               autofocus: true,
                               focusNode: node,
@@ -341,24 +396,26 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              label: 'btn_save_to_gallery'.l10n,
-              onPressed: () => _saveToGallery(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_share'.l10n,
-              onPressed: () => _share(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_info'.l10n,
-              onPressed: () {},
-            ),
-          ],
-        ),
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => _saveToGallery(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => _share(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
+        moveDownwards: false,
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
+          scaleStateChangedCallback: (s) {
+            setState(() => _isZoomed = s.isScaleStateZooming);
+          },
           wantKeepAlive: false,
           builder: (BuildContext context, int index) {
             GalleryItem e = widget.children[index];
@@ -369,6 +426,20 @@ class _GalleryPopupState extends State<GalleryPopup>
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                },
               );
             }
 
@@ -379,6 +450,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: e.isVideo
                     ? Video(
                         e.link,
+                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
                         toggleFullscreen: () {
@@ -390,6 +462,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                             _videoControllers.remove(index);
                           } else {
                             _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
                           }
                         },
                       )
@@ -414,6 +492,8 @@ class _GalleryPopupState extends State<GalleryPopup>
           backgroundDecoration: const BoxDecoration(color: Colors.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
+            _isInitialPage = false;
+            _isZoomed = false;
             setState(() => _page = i);
             _bounds = _calculatePosition() ?? _bounds;
             widget.onPageChanged?.call(i);
@@ -425,62 +505,86 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
+        _isInitialPage = false;
         setState(() => _page = i);
         _bounds = _calculatePosition() ?? _bounds;
         widget.onPageChanged?.call(i);
       },
       pageSnapping: !_ignorePageSnapping,
       children: widget.children.mapIndexed((index, e) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              e.isVideo
-                  ? Video(
-                      e.link,
-                      onClose: _dismiss,
-                      isFullscreen: _isFullscreen,
-                      toggleFullscreen: () {
-                        node.requestFocus();
-                        _toggleFullscreen();
-                      },
-                      onController: (c) {
-                        if (c == null) {
-                          _videoControllers.remove(index);
-                        } else {
-                          _videoControllers[index] = c;
-                        }
-                      },
-                    )
-                  : ContextMenuRegion(
-                      enabled: !PlatformUtils.isWeb,
-                      menu: ContextMenu(
-                        actions: [
-                          ContextMenuButton(
-                            label: 'btn_download'.l10n,
-                            onPressed: () => _download(widget.children[_page]),
+        return ContextMenuRegion(
+          enabled: !PlatformUtils.isWeb,
+          actions: [
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () => _download(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: e.isVideo
+                ? Video(
+                    e.link,
+                    showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                    onClose: _dismiss,
+                    isFullscreen: _isFullscreen,
+                    toggleFullscreen: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    onController: (c) {
+                      if (c == null) {
+                        _videoControllers.remove(index);
+                      } else {
+                        _videoControllers[index] = c;
+                      }
+                    },
+                    onError: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                  )
+                : GestureDetector(
+                    onTap: () {
+                      if (_pageController.page == _page) {
+                        _dismiss();
+                      }
+                    },
+                    onDoubleTap: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    child: PlatformUtils.isWeb
+                        ? IgnorePointer(child: WebImage(e.link))
+                        : Image.network(
+                            e.link,
+                            errorBuilder: (_, __, ___) {
+                              return InitCallback(
+                                callback: () async {
+                                  await e.onError?.call();
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                },
+                                child: const SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          ContextMenuButton(
-                            label: 'btn_info'.l10n,
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                      child: GestureDetector(
-                        onTap: () {},
-                        onDoubleTap: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        child: PlatformUtils.isWeb
-                            ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
-                      ),
-                    ),
-            ],
+                  ),
           ),
         );
       }).toList(),
@@ -492,134 +596,246 @@ class _GalleryPopupState extends State<GalleryPopup>
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
-    List<Widget> widgets = [
-      Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 8, top: 8),
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 250),
-            opacity: _displayClose ? 1 : 0,
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: RoundFloatingButton(
-                color: const Color(0x66000000),
-                onPressed: _dismiss,
-                withBlur: true,
-                child: const Icon(
-                  Icons.close_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-            ),
-          ),
-        ),
+    final fade = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fading,
+        curve: const Interval(0, 0.5, curve: Curves.ease),
       ),
-      Align(
-        alignment: Alignment.topRight,
-        child: MouseRegion(
-          opaque: false,
-          onEnter: (d) => setState(() => _displayClose = true),
-          onExit: (d) => setState(() => _displayClose = false),
-          child: const SizedBox(width: 100, height: 100),
-        ),
-      ),
-    ];
+    );
+
+    final List<Widget> widgets = [];
 
     if (widget.children.length > 1 && !PlatformUtils.isMobile) {
       widgets.addAll([
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8),
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.centerLeft,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
-              opacity: _displayLeft ? 1 : 0,
-              child: RoundFloatingButton(
-                color: const Color(0x66000000),
-                onPressed: left
-                    ? () {
-                        node.requestFocus();
-                        _pageController.animateToPage(
-                          _page - 1,
-                          curve: Curves.linear,
-                          duration: const Duration(milliseconds: 200),
-                        );
-                      }
-                    : null,
-                withBlur: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 1),
-                  child: Icon(
-                    Icons.keyboard_arrow_left_rounded,
-                    color: left ? Colors.white : Colors.grey,
-                    size: 36,
+              opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 32, bottom: 32),
+                child: WidgetButton(
+                  onPressed: left
+                      ? () {
+                          node.requestFocus();
+                          _pageController.animateToPage(
+                            _page - 1,
+                            curve: Curves.linear,
+                            duration: const Duration(milliseconds: 200),
+                          );
+                        }
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    width: 60 + 16,
+                    height: double.infinity,
+                    child: Center(
+                      child: ConditionalBackdropFilter(
+                        borderRadius: BorderRadius.circular(60),
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: const Color(0x794E5A78),
+                            borderRadius: BorderRadius.circular(60),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
+                            child: Icon(
+                              Icons.keyboard_arrow_left_rounded,
+                              color: left ? Colors.white : Colors.grey,
+                              size: 36,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.centerRight,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
-              opacity: _displayRight ? 1 : 0,
-              child: RoundFloatingButton(
-                color: const Color(0x66000000),
-                onPressed: right
-                    ? () {
-                        node.requestFocus();
-                        _pageController.animateToPage(
-                          _page + 1,
-                          curve: Curves.linear,
-                          duration: const Duration(milliseconds: 200),
-                        );
-                      }
-                    : null,
-                withBlur: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 1),
-                  child: Icon(
-                    Icons.keyboard_arrow_right_rounded,
-                    color: right ? Colors.white : Colors.grey,
-                    size: 36,
+              opacity: (_displayRight && right) || _showControls ? 1 : 0,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 32, bottom: 32),
+                child: WidgetButton(
+                  onPressed: right
+                      ? () {
+                          node.requestFocus();
+                          _pageController.animateToPage(
+                            _page + 1,
+                            curve: Curves.linear,
+                            duration: const Duration(milliseconds: 200),
+                          );
+                        }
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    width: 60 + 16,
+                    height: double.infinity,
+                    child: Center(
+                      child: ConditionalBackdropFilter(
+                        borderRadius: BorderRadius.circular(60),
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: const Color(0x794E5A78),
+                            borderRadius: BorderRadius.circular(60),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 1),
+                            child: Icon(
+                              Icons.keyboard_arrow_right_rounded,
+                              color: right ? Colors.white : Colors.grey,
+                              size: 36,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8, top: 8),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayClose || _showControls) ? 1 : 0,
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: RoundFloatingButton(
+                    color: const Color(0x794E5A78),
+                    onPressed: _dismiss,
+                    withBlur: true,
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (widget.onTrashPressed == null)
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity: (_displayFullscreen || _showControls) ? 1 : 0,
+                  child: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: const Color(0x794E5A78),
+                      onPressed: _toggleFullscreen,
+                      withBlur: true,
+                      assetWidth: 22,
+                      asset: _isFullscreen.value
+                          ? 'fullscreen_exit_white'
+                          : 'fullscreen_enter_white',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         Align(
           alignment: Alignment.centerLeft,
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => setState(() => _displayLeft = true),
-            onExit: (d) => setState(() => _displayLeft = false),
-            child: SizedBox(
-              width: 100,
-              height: MediaQuery.of(context).size.height * 0.4,
-            ),
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayFullscreen = true),
+                onExit: (d) => setState(() => _displayFullscreen = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayLeft = true),
+                  onExit: (d) => setState(() => _displayLeft = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
           ),
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => setState(() => _displayRight = true),
-            onExit: (d) => setState(() => _displayRight = false),
-            child: SizedBox(
-              width: 100,
-              height: MediaQuery.of(context).size.height * 0.4,
-            ),
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayClose = true),
+                onExit: (d) => setState(() => _displayClose = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayRight = true),
+                  onExit: (d) => setState(() => _displayRight = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
           ),
         ),
       ]);
     }
+
+    widgets.addAll([
+      if (widget.onTrashPressed != null)
+        SafeArea(
+          child: FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: RoundFloatingButton(
+                    color: const Color(0x794E5A78),
+                    onPressed: () {
+                      widget.onTrashPressed?.call(_page);
+                      _dismiss();
+                    },
+                    withBlur: true,
+                    assetWidth: 27.21,
+                    asset: 'delete',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+    ]);
 
     return widgets;
   }
@@ -804,7 +1020,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      await PlatformUtils.download(item.link, item.name);
+      try {
+        await PlatformUtils.download(item.link, item.name, item.size);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.download(item.link, item.name, item.size);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_downloaded'.l10n
           : 'label_image_downloaded'.l10n);
@@ -816,7 +1042,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      await PlatformUtils.saveToGallery(item.link, item.name);
+      try {
+        await PlatformUtils.saveToGallery(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.saveToGallery(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_saved_to_gallery'.l10n
           : 'label_image_saved_to_gallery'.l10n);
@@ -828,10 +1064,31 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
-      await PlatformUtils.share(item.link, item.name);
+      try {
+        await PlatformUtils.share(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.share(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
+  }
+
+  /// Toggles the [_showControls] indicator and starts the [_resetControlsTimer]
+  /// resetting it.
+  void _displayControls() {
+    setState(() => _showControls = true);
+    _resetControlsTimer?.cancel();
+    _resetControlsTimer = Timer(3.seconds, () {
+      if (mounted) {
+        setState(() => _showControls = false);
+      }
+    });
   }
 }
 

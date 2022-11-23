@@ -49,7 +49,9 @@ class ChatForwardController extends GetxController {
     this._userService, {
     required this.from,
     required this.quotes,
-  });
+    this.text,
+    List<Attachment> attachments = const [],
+  }) : attachments = RxList(attachments);
 
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> chats;
@@ -60,6 +62,9 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
+  /// Initial [String] to put in the [send] field.
+  final String? text;
+
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
@@ -67,7 +72,7 @@ class ChatForwardController extends GetxController {
   late final TextFieldState send;
 
   /// [Attachment]s to attach to the [quotes].
-  final RxList<Attachment> attachments = RxList();
+  final RxList<Attachment> attachments;
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
@@ -84,6 +89,7 @@ class ChatForwardController extends GetxController {
     _sortChats();
 
     send = TextFieldState(
+      text: text,
       onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
@@ -175,14 +181,14 @@ class ChatForwardController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.currentCall != null &&
-          b.chat.value.currentCall == null) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
         return -1;
-      } else if (a.chat.value.currentCall == null &&
-          b.chat.value.currentCall != null) {
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
         return 1;
       }
 

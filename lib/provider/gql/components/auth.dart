@@ -39,7 +39,7 @@ abstract class AuthGraphQlMixin {
   /// None.
   Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
       UserEmail? email, UserPhone? phone) async {
-    var variables = CheckUserIdentifiableArguments(
+    final variables = CheckUserIdentifiableArguments(
       num: num,
       login: login,
       email: email,
@@ -73,7 +73,7 @@ abstract class AuthGraphQlMixin {
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
-    var variables = SignUpArguments(remember: remember);
+    final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(
       document: SignUpMutation(variables: variables).document,
       variables: variables.toJson(),
@@ -97,7 +97,7 @@ abstract class AuthGraphQlMixin {
   /// been deleted already.
   Future<void> deleteSession() async {
     if (token != null) {
-      var variables = DeleteSessionArguments(token: token!);
+      final variables = DeleteSessionArguments(token: token!);
       final QueryResult result = await client.query(QueryOptions(
         document: DeleteSessionMutation(variables: variables).document,
         variables: variables.toJson(),
@@ -129,7 +129,7 @@ abstract class AuthGraphQlMixin {
       UserEmail? email,
       UserPhone? phone,
       bool remember) async {
-    var variables = SignInArguments(
+    final variables = SignInArguments(
       password: password,
       login: login,
       num: num,
@@ -186,7 +186,7 @@ abstract class AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RememberToken].
   Future<RenewSession$Mutation> renewSession(RememberToken token) async {
-    var variables = RenewSessionArguments(token: token);
+    final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
         document: RenewSessionMutation(variables: variables).document,
@@ -230,7 +230,7 @@ abstract class AuthGraphQlMixin {
           'Exactly one of num/login/email/phone should be specified.');
     }
 
-    var variables = RecoverUserPasswordArguments(
+    final variables = RecoverUserPasswordArguments(
       num: num,
       login: login,
       email: email,
@@ -270,7 +270,7 @@ abstract class AuthGraphQlMixin {
           'Exactly one of num/login/email/phone should be specified.');
     }
 
-    var variables = ValidateUserPasswordRecoveryCodeArguments(
+    final variables = ValidateUserPasswordRecoveryCodeArguments(
       num: num,
       login: login,
       email: email,
@@ -325,7 +325,7 @@ abstract class AuthGraphQlMixin {
           'Exactly one of num/login/email/phone should be specified.');
     }
 
-    var variables = ResetUserPasswordArguments(
+    final variables = ResetUserPasswordArguments(
       num: num,
       login: login,
       email: email,

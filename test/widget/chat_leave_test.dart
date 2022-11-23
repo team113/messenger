@@ -26,6 +26,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/settings.dart';
@@ -36,9 +37,12 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -53,7 +57,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/view.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -86,7 +89,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]
@@ -137,12 +140,19 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
   var chatItemHiveProvider = ChatItemHiveProvider(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init(userId: const UserId('me'));
   await chatItemHiveProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -150,7 +160,7 @@ void main() async {
         home: Builder(
           builder: (BuildContext context) {
             router.context = context;
-            return Scaffold(body: ContextMenuOverlay(child: child));
+            return Scaffold(body: child);
           },
         ));
   }
@@ -274,22 +284,39 @@ void main() async {
     ));
 
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
 
-    Get.put(CallService(
-      authService,
-      settingsRepository,
-      Get.put(CallRepository(graphQlProvider, userRepository)),
-    ));
-
-    Get.put(
+    ChatService chatService = Get.put(
       ChatService(
         Get.put<AbstractChatRepository>(
-          ChatRepository(graphQlProvider, chatProvider, userRepository),
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+          ),
         ),
         authService,
       ),
     );
+
+    Get.put(CallService(
+      authService,
+      chatService,
+      settingsRepository,
+      Get.put(callRepository),
+    ));
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));

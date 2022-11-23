@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: ["main"]
-    tags: ["v*"]
+    tags: ["helm/**", "v*"]
   pull_request:
     branches: ["main"]
 
@@ -326,10 +326,11 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+          envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
+          envkey_COMPOSE_FCM_API_KEY: ${{ secrets.E2E_FCM_API_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_PROJECT_NAME: messenger
           fail_on_empty: true
 
@@ -505,8 +506,8 @@ jobs:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
       - name: Verify Git tag version matches `pubspec.yaml` version
-        run: >
-          test "${{ steps.semver.outputs.group1 }}"
+        run: |
+          test "${{ steps.semver.outputs.group1 }}" \
             == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
 
       - name: Parse CHANGELOG link

@@ -23,6 +23,8 @@ import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -84,7 +86,7 @@ abstract class AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   });
 
   /// Resends the specified [item].
@@ -159,6 +161,18 @@ abstract class AbstractChatRepository {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  });
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -166,8 +180,13 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
-  /// Reactive list of [ChatItem]s of a [chat].
-  RxList<Rx<ChatItem>> get messages;
+  /// Returns a [ChatId] of the [chat].
+  ChatId get id => chat.value.id;
+
+  // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
+  //       [PreciseDateTime] and [ChatItemId] as a key.
+  /// Observable list of [ChatItem]s of the [chat].
+  RxObsList<Rx<ChatItem>> get messages;
 
   /// Status of the [messages] fetching.
   ///
@@ -199,9 +218,27 @@ abstract class RxChat {
   /// Returns an actual [UserCallCover] of this [RxChat].
   UserCallCover? get callCover;
 
+  /// [ChatMessage] being a draft in this [chat].
+  Rx<ChatMessage?> get draft;
+
   /// Fetches the [messages] from the service.
-  Future<void> fetchMessages(ChatId chatId);
+  Future<void> fetchMessages();
+
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
-  Future<void> remove(ChatItemId id);
+  Future<void> remove(ChatItemId itemId);
+
+  /// Updates the [draft] with the provided [text], [attachments] and
+  /// [repliesTo].
+  ///
+  /// Resets it, if the specified fields are empty or `null`.
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  });
 }

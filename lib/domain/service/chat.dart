@@ -20,6 +20,8 @@ import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
@@ -94,28 +96,12 @@ class ChatService extends DisposableService {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) {
-    // Forward the [repliesTo] message to this [Chat], if [text] and
-    // [attachments] are not provided.
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
-        repliesTo != null) {
-      List<AttachmentId> attachments = [];
-      if (repliesTo is ChatMessage) {
-        attachments = repliesTo.attachments.map((a) => a.id).toList();
-      } else if (repliesTo is ChatForward) {
-        ChatItem nested = repliesTo.item;
-        if (nested is ChatMessage) {
-          attachments = nested.attachments.map((a) => a.id).toList();
-        }
-      }
-
-      return _chatRepository.forwardChatItems(
-        chatId,
-        chatId,
-        [ChatItemQuote(item: repliesTo, attachments: attachments)],
-      );
+        repliesTo.isNotEmpty) {
+      text ??= const ChatMessageText(' ');
     }
 
     if (text != null && text.val.length > ChatMessageText.maxLength) {
@@ -286,6 +272,24 @@ class ChatService extends DisposableService {
       attachments: attachments,
     );
   }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) =>
+      _chatRepository.updateChatAvatar(
+        id,
+        file: file,
+        onSendProgress: onSendProgress,
+      );
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) =>
+      _chatRepository.toggleChatMute(id, mute);
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

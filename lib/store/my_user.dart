@@ -20,7 +20,9 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
+import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
@@ -29,8 +31,9 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/user_call_cover.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
@@ -39,6 +42,7 @@ import '/provider/hive/my_user.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
+import 'user.dart';
 
 /// [MyUser] repository.
 class MyUserRepository implements AbstractMyUserRepository {
@@ -46,6 +50,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._graphQlProvider,
     this._myUserLocal,
     this._galleryItemLocal,
+    this._userRepo,
   );
 
   @override
@@ -59,6 +64,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
+
+  /// [User]s repository, used to put the fetched [MyUser] into it.
+  final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -78,10 +86,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final void Function() onPasswordUpdated;
 
   @override
-  Future<void> init({
+  void init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
-  }) async {
+  }) {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
@@ -170,6 +178,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
+    await file.ensureCorrectMediaType();
+
     dio.MultipartFile upload;
 
     if (file.stream != null) {
@@ -287,52 +297,74 @@ class MyUserRepository implements AbstractMyUserRepository {
     userEntity.ver = versioned.ver;
 
     for (var event in versioned.events) {
+      // Updates a [User] associated with this [MyUserEvent.userId].
+      void put(User Function(User u) convertor) {
+        _userRepo.get(event.userId).then((user) {
+          if (user != null) {
+            _userRepo.update(convertor(user.user.value));
+          }
+        });
+      }
+
       switch (event.kind) {
         case MyUserEventKind.nameUpdated:
           event as EventUserNameUpdated;
           userEntity.value.name = event.name;
+          put((u) => u..name = event.name);
           break;
 
         case MyUserEventKind.nameDeleted:
           event as EventUserNameDeleted;
           userEntity.value.name = null;
+          put((u) => u..name = null);
           break;
 
         case MyUserEventKind.bioUpdated:
           event as EventUserBioUpdated;
           userEntity.value.bio = event.bio;
+          put((u) => u..bio = event.bio);
           break;
 
         case MyUserEventKind.bioDeleted:
           event as EventUserBioDeleted;
           userEntity.value.bio = null;
+          put((u) => u..bio = null);
           break;
 
         case MyUserEventKind.avatarUpdated:
           event as EventUserAvatarUpdated;
           userEntity.value.avatar = event.avatar;
+          put((u) => u..avatar = event.avatar);
           break;
 
         case MyUserEventKind.avatarDeleted:
           event as EventUserAvatarDeleted;
           userEntity.value.avatar = null;
+          put((u) => u..avatar = null);
           break;
 
         case MyUserEventKind.callCoverUpdated:
           event as EventUserCallCoverUpdated;
           userEntity.value.callCover = event.callCover;
+          put((u) => u..callCover = event.callCover);
           break;
 
         case MyUserEventKind.callCoverDeleted:
           event as EventUserCallCoverDeleted;
           userEntity.value.callCover = null;
+          put((u) => u..callCover = null);
           break;
 
         case MyUserEventKind.galleryItemAdded:
           event as EventUserGalleryItemAdded;
           userEntity.value.gallery ??= [];
-          userEntity.value.gallery?.insert(0, event.galleryItem);
+          userEntity.value.gallery!.insert(0, event.galleryItem);
           _galleryItemLocal.put(event.galleryItem);
+          put((u) {
+            u.gallery ??= [];
+            u.gallery!.insert(0, event.galleryItem);
+            return u;
+          });
           break;
 
         case MyUserEventKind.galleryItemDeleted:
@@ -340,21 +372,26 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.gallery
               ?.removeWhere((e) => e.id == event.galleryItemId);
           _galleryItemLocal.remove(event.galleryItemId);
+          put((u) =>
+              u..gallery?.removeWhere((e) => e.id == event.galleryItemId));
           break;
 
         case MyUserEventKind.presenceUpdated:
           event as EventUserPresenceUpdated;
           userEntity.value.presence = event.presence;
+          put((u) => u..presence = event.presence);
           break;
 
         case MyUserEventKind.statusUpdated:
           event as EventUserStatusUpdated;
           userEntity.value.status = event.status;
+          put((u) => u..status = event.status);
           break;
 
         case MyUserEventKind.statusDeleted:
           event as EventUserStatusDeleted;
           userEntity.value.status = null;
+          put((u) => u..status = null);
           break;
 
         case MyUserEventKind.loginUpdated:
@@ -431,11 +468,15 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.cameOnline:
           event as EventUserCameOnline;
           userEntity.value.online = true;
+          put((u) => u..online = true);
           break;
 
         case MyUserEventKind.cameOffline:
           event as EventUserCameOffline;
           userEntity.value.online = false;
+          put((u) => u
+            ..online = false
+            ..lastSeenAt = PreciseDateTime.now());
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
@@ -506,12 +547,12 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserAvatarUpdated(
         node.userId,
         UserAvatar(
-            full: node.avatar.full,
-            original: node.avatar.original,
-            galleryItemId: node.avatar.galleryItemId,
-            big: node.avatar.big,
-            medium: node.avatar.medium,
-            small: node.avatar.small,
+            full: node.avatar.full.toModel(),
+            original: node.avatar.original.toModel(),
+            galleryItem: node.avatar.galleryItem?.toModel(),
+            big: node.avatar.big.toModel(),
+            medium: node.avatar.medium.toModel(),
+            small: node.avatar.small.toModel(),
             crop: node.avatar.crop != null
                 ? CropArea(
                     topLeft: CropPoint(
@@ -535,11 +576,11 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserCallCoverUpdated(
         node.userId,
         UserCallCover(
-            galleryItemId: node.callCover.galleryItemId,
-            full: node.callCover.full,
-            original: node.callCover.original,
-            vertical: node.callCover.vertical,
-            square: node.callCover.square,
+            galleryItem: node.callCover.galleryItem?.toModel(),
+            full: node.callCover.full.toModel(),
+            original: node.callCover.original.toModel(),
+            vertical: node.callCover.vertical.toModel(),
+            square: node.callCover.square.toModel(),
             crop: node.callCover.crop != null
                 ? CropArea(
                     topLeft: CropPoint(
@@ -561,17 +602,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      var image = node.galleryItem
-          as MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem$ImageGalleryItem;
-      return EventUserGalleryItemAdded(
-        node.userId,
-        ImageGalleryItem(
-          original: Original(image.original),
-          square: Square(image.square),
-          id: image.id,
-          addedAt: image.addedAt,
-        ),
-      );
+      return EventUserGalleryItemAdded(node.userId, node.galleryItem.toModel());
     } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
@@ -650,7 +681,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserUnmuted(node.userId);
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
-      return EventUserCameOffline(node.userId);
+      return EventUserCameOnline(node.userId);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

@@ -29,6 +29,22 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
+        ... on EventChatCallMemberRedialed {
+            callId
+            call {
+                __typename
+                ...ChatCall
+            }
+            user {
+                __typename
+                ...User
+            }
+            byUser {
+                __typename
+                ...User
+            }
+            at
+        }
         ... on EventChatCleared {
             at
         }

@@ -140,7 +140,7 @@ class UserSearchBar extends StatelessWidget {
   /// Returns a [ListTile] with the information of the provided [User].
   Widget _user(RxUser user, UserSearchBarController c) => ListTile(
         key: Key('FoundUser_${user.id}'),
-        leading: AvatarWidget.fromUser(user.user.value),
+        leading: AvatarWidget.fromRxUser(user),
         title: Text(user.user.value.name?.val ?? user.user.value.num.val),
         trailing: trailingIcon == null
             ? null

@@ -24,7 +24,10 @@ import 'package:messenger/domain/model/user.dart';
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
-  Map<String, CustomUser> sessions = {};
+  final Map<String, CustomUser> sessions = {};
+
+  /// [Map] of group [Chat]s identified by their names.
+  final Map<String, ChatId> groups = {};
 
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;

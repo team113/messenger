@@ -31,8 +31,13 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -40,6 +45,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
+import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
@@ -72,6 +78,14 @@ void main() async {
   await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -95,6 +109,7 @@ void main() async {
           'id': 'first',
           'chatId': 'chatId',
           'authorId': 'authorId',
+          'answered': false,
           'at': DateTime.now().toString(),
           'caller': _caller(),
           'withVideo': false,
@@ -102,6 +117,7 @@ void main() async {
             {
               'user': _caller(),
               'handRaised': false,
+              'joinedAt': DateTime.now().toString(),
             }
           ],
           'ver': '1',
@@ -119,12 +135,32 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(mediaSettingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService = Get.put(
-      CallService(authService, settingsRepository, callRepository),
+      CallService(authService, chatService, settingsRepository, callRepository),
     );
     callService.onReady();
 
@@ -141,6 +177,7 @@ void main() async {
             'id': 'first',
             'chatId': 'chatId',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -148,6 +185,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '1',
@@ -171,6 +209,7 @@ void main() async {
             'id': 'second',
             'chatId': 'chatId',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -178,6 +217,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '2',
@@ -196,6 +236,7 @@ void main() async {
 
   test('CallService registers and successfully answers the call', () async {
     final graphQlProvider = _FakeGraphQlProvider();
+    Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
@@ -204,12 +245,33 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(mediaSettingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
-    CallService callService =
-        Get.put(CallService(authService, settingsRepository, callRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    CallService callService = Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
     callService.onReady();
 
     await Future.delayed(Duration.zero);
@@ -247,14 +309,40 @@ void main() async {
     await authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(mediaSettingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
 
-    CallRepository callRepository =
-        Get.put(CallRepository(graphQlProvider, userRepository));
-    CallService callService =
-        Get.put(CallService(authService, settingsRepository, callRepository));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
+    ChatRepository chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    CallService callService = Get.put(
+      CallService(
+        authService,
+        chatService,
+        settingsRepository,
+        callRepository,
+      ),
+    );
     callService.onReady();
 
     await Future.delayed(Duration.zero);
@@ -269,6 +357,7 @@ void main() async {
             'id': 'id',
             'chatId': 'incoming',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -276,6 +365,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '1',
@@ -305,6 +395,7 @@ void main() async {
             'id': 'id',
             'chatId': 'incoming',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -312,6 +403,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '2',
@@ -376,6 +468,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
+  Future<Stream<QueryResult>> recentChatsTopEvents(int count) =>
+      Future.value(const Stream.empty());
+
+  @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
@@ -389,6 +485,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'id': 'id',
             'chatId': chatId.val,
             'authorId': 'me',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller('me'),
             'withVideo': false,
@@ -396,6 +493,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               {
                 'user': _caller('me'),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '$latestVersion',
@@ -422,6 +520,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 'id': 'id',
                 'chatId': chatId.val,
                 'authorId': 'me',
+                'answered': false,
                 'at': DateTime.now().toString(),
                 'caller': _caller('me'),
                 'withVideo': false,
@@ -429,6 +528,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   {
                     'user': _caller('me'),
                     'handRaised': false,
+                    'joinedAt': DateTime.now().toString(),
                   }
                 ],
                 'ver': '$latestVersion',
@@ -455,6 +555,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'id': 'id',
             'chatId': chatId.val,
             'authorId': 'me',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller('me'),
             'withVideo': false,
@@ -462,6 +563,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               {
                 'user': _caller('me'),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'finishReason': 'ChatCallFinishReason.DROPPED',
@@ -497,6 +599,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   'id': 'id',
                   'chatId': chatId.val,
                   'authorId': 'me',
+                  'answered': false,
                   'at': DateTime.now().toString(),
                   'caller': _caller('me'),
                   'withVideo': false,
@@ -504,6 +607,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                     {
                       'user': _caller('me'),
                       'handRaised': false,
+                      'joinedAt': DateTime.now().toString(),
                     }
                   ],
                   'ver': '$latestVersion',

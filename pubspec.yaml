@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.5
+version: 0.1.0-alpha.7
 publish_to: none
 
 environment:
@@ -33,8 +33,10 @@ dependencies:
   flutter_background_service: ^2.1.3
   flutter_background_service_android: ^2.0.3
   flutter_background_service_ios: ^2.1.0
-  flutter_list_view: ^1.1.12
+  flutter_list_view:
+    git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^10.0.0-dev.21
+  flutter_staggered_animations: ^1.1.1
   flutter_svg: ^1.1.4
   flutter_web_plugins:
     sdk: flutter
@@ -83,7 +85,6 @@ dependencies:
   uuid: ^3.0.6
   vibration: ^1.7.6
   video_player: ^2.4.7
-  visibility_detector: ^0.3.3
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.7

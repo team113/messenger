@@ -669,6 +669,8 @@ class PostChatMessageException
         return 'err_unknown_replying_chat_item'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case PostChatMessageErrorCode.wrongItemsCount:
+        return 'err_wrong_items_count'.l10n;
     }
   }
 }
@@ -1251,6 +1253,66 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unknownAttachment:
         return 'err_unknown_attachment'.l10n;
       case ForwardChatItemsErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.updateChatAvatar` described in the [code].
+class UpdateChatAvatarException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateChatAvatarException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateChatAvatarErrorCode code;
+
+  @override
+  String toString() => 'UpdateChatAvatarException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateChatAvatarErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+        return 'err_invalid_crop_coordinates'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropPoints:
+        return 'err_invalid_crop_points'.l10n;
+      case UpdateChatAvatarErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateChatAvatarErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.toggleChatMute` described in the [code].
+class ToggleChatMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleChatMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleChatMuteErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ToggleChatMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

@@ -14,9 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/cupertino.dart' show kCupertinoModalBarrierColor;
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
@@ -29,13 +29,21 @@ abstract class ModalPopup {
     required Widget child,
     BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
     BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
+    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
+    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
+    EdgeInsets desktopPadding = const EdgeInsets.all(10),
+    bool isDismissible = true,
   }) {
-    if (context.isMobile) {
+    Style style = Theme.of(context).extension<Style>()!;
+
+    if (context.isNarrow) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: style.barrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
+        isDismissible: isDismissible,
+        enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -48,22 +56,24 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    width: 60,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCCCCCC),
-                      borderRadius: BorderRadius.circular(12),
+                if (isDismissible) ...[
+                  Center(
+                    child: Container(
+                      width: 60,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCCCCCC),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
+                ],
                 Flexible(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                    padding: mobilePadding,
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 360),
+                      constraints: mobileConstraints,
                       child: child,
                     ),
                   ),
@@ -77,46 +87,62 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        builder: (context) => Stack(
-          children: [
-            Center(
-              child: Container(
-                constraints: modalConstraints,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
-                        InkResponse(
-                          onTap: Navigator.of(context).pop,
-                          radius: 11,
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Color(0xBB818181),
-                          ),
+        barrierColor: style.barrierColor,
+        barrierDismissible: isDismissible,
+        builder: (context) {
+          return Center(
+            child: Container(
+              constraints: modalConstraints,
+              width: modalConstraints.maxWidth,
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: desktopPadding,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: ConstrainedBox(
+                          constraints: desktopConstraints,
+                          child: child,
                         ),
-                        const SizedBox(width: 10),
-                      ],
+                      ),
+                    ],
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: desktopPadding.right == 0
+                            ? const EdgeInsets.only(right: 10)
+                            : EdgeInsets.zero,
+                        child: SizedBox(
+                          height: 16,
+                          child: isDismissible
+                              ? InkResponse(
+                                  onTap: Navigator.of(context).pop,
+                                  radius: 11,
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Color(0xBB818181),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
                     ),
-                    ConstrainedBox(
-                      constraints: desktopConstraints,
-                      child: Center(child: child),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       );
     }
   }

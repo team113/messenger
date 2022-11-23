@@ -20,6 +20,7 @@ import 'dart:collection';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -35,9 +36,10 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show RemoveChatMemberException, HideChatException;
+    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
 import '/routes.dart';
 import '/util/message_popup.dart';
+import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
 
 export 'view.dart';
@@ -166,17 +168,58 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Unmutes a [Chat] identified by the provided [id].
+  Future<void> unmuteChat(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat] identified by the provided [id].
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    try {
+      PreciseDateTime? until;
+      if (duration != null) {
+        until = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(
+        id,
+        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
+  /// [id].
+  bool inCall(ChatId id) =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
+
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.currentCall != null &&
-          b.chat.value.currentCall == null) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
         return -1;
-      } else if (a.chat.value.currentCall == null &&
-          b.chat.value.currentCall != null) {
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
         return 1;
       }
 
@@ -188,15 +231,15 @@ class ChatsTabController extends GetxController {
 /// Container of data used to sort a [Chat].
 class _ChatSortingData {
   /// Returns a [_ChatSortingData] capturing the provided [chat] changes to
-  /// invoke a [sort] on [Chat.updatedAt] or [Chat.currentCall] updates.
+  /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
   _ChatSortingData(Rx<Chat> chat, [void Function()? sort]) {
     updatedAt = chat.value.updatedAt;
-    hasCall = chat.value.currentCall != null;
+    hasCall = chat.value.ongoingCall != null;
 
     worker = ever(
       chat,
       (Chat chat) {
-        bool hasCall = chat.currentCall != null;
+        bool hasCall = chat.ongoingCall != null;
         if (chat.updatedAt != updatedAt || hasCall != hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
@@ -213,7 +256,7 @@ class _ChatSortingData {
   /// Previously captured [Chat.updatedAt] value.
   late PreciseDateTime updatedAt;
 
-  /// Previously captured indicator of [Chat.currentCall] being non-`null`.
+  /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool hasCall;
 
   /// Disposes this [_ChatSortingData].

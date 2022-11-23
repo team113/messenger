@@ -31,10 +31,13 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/user.dart';
@@ -56,6 +59,8 @@ void main() async {
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
   sessionProvider.setCredentials(
     Credentials(
       Session(
@@ -71,6 +76,10 @@ void main() async {
   );
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -90,7 +99,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -129,13 +138,24 @@ void main() async {
   );
   await authService.init();
 
-  var chatHiveProvider = ChatHiveProvider();
-  await chatHiveProvider.init();
-
   UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  CallRepository callRepository = Get.put(
+    CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    ),
+  );
   AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
+    ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      callRepository,
+      draftProvider,
+      userRepository,
+    ),
+  );
   ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
   test('ChatService successfully deletes chat message', () async {
@@ -143,7 +163,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.deleteChatItem(
       ChatMessage(
@@ -166,7 +186,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(const DeleteChatMessageException(
         DeleteChatMessageErrorCode.unknownChatItem));
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.deleteChatItem(ChatMessage(
@@ -189,7 +209,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -211,7 +231,7 @@ void main() async {
     )).thenThrow(
         const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.hideChatItem(ChatMessage(

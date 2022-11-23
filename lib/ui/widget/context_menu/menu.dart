@@ -14,13 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import 'overlay.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
@@ -31,45 +28,17 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Close this context menu if [actions] are empty.
-    if (actions.isEmpty) {
-      scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
-      return Container();
-    }
-
-    // Border radius is based on the [ContextMenuOverlay]'s alignment.
-    Alignment quadrant = ContextMenuOverlay.of(context).alignment;
-    BorderRadius borderRadius = BorderRadius.only(
-      topLeft: quadrant.x > 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      topRight: quadrant.x < 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomLeft: quadrant.x > 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomRight: quadrant.x < 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-    );
-
     List<Widget> widgets = [];
+
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: actions[i],
-        ),
-      );
+      widgets.add(actions[i]);
 
       // Adds a divider if required.
       if (i < actions.length - 1) {
         widgets.add(
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            color: const Color(0x99000000),
+            color: const Color(0x11000000),
             height: 1,
             width: double.infinity,
           ),
@@ -77,23 +46,28 @@ class ContextMenu extends StatelessWidget {
       }
     }
 
+    Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [CustomBoxShadow(blurRadius: 6, color: Color(0x20000000))],
+      width: 220,
+      margin: const EdgeInsets.only(left: 1, top: 1),
+      decoration: BoxDecoration(
+        color: style.contextMenuBackgroundColor,
+        borderRadius: style.contextMenuRadius,
+        boxShadow: const [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: Color(0x33000000),
+            blurStyle: BlurStyle.outer,
+          )
+        ],
       ),
       child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xE6FFFFFF),
-            borderRadius: borderRadius,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
-          ),
+        borderRadius: style.contextMenuRadius,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: widgets,
         ),
       ),
     );
@@ -106,6 +80,7 @@ class ContextMenuButton extends StatefulWidget {
     Key? key,
     required this.label,
     this.leading,
+    this.trailing,
     this.onPressed,
   }) : super(key: key);
 
@@ -114,6 +89,9 @@ class ContextMenuButton extends StatefulWidget {
 
   /// Optional leading widget, typically an [Icon].
   final Widget? leading;
+
+  /// Optional trailing widget.
+  final Widget? trailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -134,32 +112,48 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
       onTapUp: (_) {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
-        ContextMenuOverlay.of(context).hide();
       },
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           width: double.infinity,
+          height: 50,
           decoration: BoxDecoration(
-            color: isMouseOver ? const Color(0x22000000) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            color: isMouseOver
+                ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
+                : Colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.leading != null) ...[
-                widget.leading!,
-                const SizedBox(width: 10),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+                const SizedBox(width: 14),
               ],
-              Text(
-                widget.label,
-                style: context.theme.outlinedButtonTheme.style!.textStyle!
-                    .resolve({MaterialState.disabled})!.copyWith(
-                        color: Colors.black),
+              Expanded(
+                child: Text(
+                  widget.label,
+                  style: context.theme.outlinedButtonTheme.style!.textStyle!
+                      .resolve({MaterialState.disabled})!.copyWith(
+                          color: Colors.black),
+                ),
               ),
-              const Spacer(),
+              if (widget.trailing != null) ...[
+                const SizedBox(width: 14),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.trailing!,
+                ),
+              ],
             ],
           ),
         ),

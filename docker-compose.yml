@@ -10,10 +10,10 @@ services:
     image: ${COMPOSE_FRONTEND_IMAGE}:${COMPOSE_FRONTEND_TAG}
     build:
       context: .
+    depends_on: ["backend", "baza-server"]
     ports:
-      - "80:80"        # nginx http
+      - 80:80        # nginx http
     volumes:
-      - ./.cache/minio/data/files/:/var/www-files/files/:ro,z
       - ./assets/conf.toml:/var/www/conf.toml:ro,Z
       - ./build/web/:/var/www/public/:ro,Z
       - ./dev/mailhog/mailhog.conf:/etc/nginx/conf.d/mailhog.conf:ro,Z
@@ -21,68 +21,35 @@ services:
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
-    depends_on: ["cockroachdb"]
+    depends_on: ["baza-storage", "cockroachdb", "mailhog"]
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
-      CONF.MEDIA_SERVER.MEDEA.PORT: 8091
-      CONF.STORAGE.FILE.S3.HOST: minio
+      CONF.FCM.API_KEY: ${COMPOSE_FCM_API_KEY}
+      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
+      CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
+      CONF.STORAGE.FILE.S3.HOST: baza-storage
       CONF.SMTP.HOST: mailhog
     ports:
-      - "3478:3478"                  # coturn stun
-      - "8081:7777"                  # backend http
-      - "49066-49100:49166-49200"    # coturn turn
+      - 3478:3478                # backend medea stun
+      - 8081:7777                # backend http
+      - 8090:8090                # backend medea ws
+      - 49066-49100:49166-49200  # backend medea turn
     expose:
-      - 5766           # coturn cli
-      - 6379           # coturn-db redis
-      - 7878           # backend medea callback grpc
-      - 8090           # medea client-api ws
-      - 8091           # medea control-api grpc
-      - 9372           # backend metrics
-      - 10025          # backend healthz
+      - 9372   # backend metrics
+      - 10025  # backend healthz
     volumes:
       - ./dev/backend.toml:/config.toml:ro,Z
-  medea:
-    container_name: ${COMPOSE_PROJECT_NAME}-medea
-    image: ${COMPOSE_MEDEA}
-    depends_on: ["medea-coturn"]
-    environment:
-      MEDEA__CONF: /config.toml
-      MEDEA__LOG__LEVEL: DEBUG
-    volumes:
-      - ./dev/medea.toml:/config.toml:ro,Z
-    network_mode: service:backend
-  medea-coturn:
-    container_name: ${COMPOSE_PROJECT_NAME}-coturn
-    image: ghcr.io/coturn/coturn:4.5-alpine
-    depends_on: ["medea-coturn-db"]
-    command:
-      - --log-file=stdout
-      #- --Verbose
-    volumes:
-      - ./.cache/coturn/data/:/var/lib/coturn/:Z
-      - ./dev/coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro,Z
-    network_mode: service:backend
-  medea-coturn-db:
-    container_name: ${COMPOSE_PROJECT_NAME}-coturn-db
-    image: redis:alpine
-    command: ["redis-server", "/etc/redis.conf"]
-    volumes:
-      - ./dev/coturn/redis.conf:/etc/redis.conf:ro,Z
-    network_mode: service:backend
   cockroachdb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb
-    image: ${COMPOSE_COCKROACH}
-    command:
-      - start-single-node
-      - --insecure
-      - --log-dir=''
-      - --logtostderr=ERROR
+    image: ${COMPOSE_COCKROACHDB}
+    command: ["start-single-node", "--insecure", "--log-config-file=/logs.yaml"]
     ports:
-      - "8070:8080"    # cockroachdb admin ui http
-      - "8071:8081"    # cockroachdb pgweb ui http
-      - "26257:26257"  # cockroachdb sql
+      - 8070:8080    # cockroachdb admin ui http
+      - 8071:8081    # cockroachdb pgweb ui http
+      - 26257:26257  # cockroachdb sql
     volumes:
+      - ./dev/cockroachdb/logs.yaml:/logs.yaml:ro,Z
       - ./.cache/cockroachdb/data/:/cockroach/cockroach-data/:Z
   cockroachdb-pgweb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb-pgweb
@@ -92,21 +59,25 @@ services:
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb
-  minio:
-    container_name: ${COMPOSE_PROJECT_NAME}-minio
-    image: bitnami/minio:latest
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_DEFAULT_BUCKETS: files:download
-      MINIO_FORCE_NEW_KEYS: "yes"
-      MINIO_SKIP_CLIENT: "yes"
+  baza-storage:
+    container_name: ${COMPOSE_PROJECT_NAME}-baza-storage
+    image: ghcr.io/instrumentisto/baza:0.2
+    user: "1000"
     ports:
-      - "9000:9000"    # minio s3
-      - "9001:9001"    # minio auth
+      - 5656:5656  # baza http (read)
+      - 9294:9294  # baza s3 (write)
     volumes:
-      - ./.cache/minio/data/:/data/:z
-      - ./.cache/minio/certs/:/certs/CAs
+      - ./.cache/baza/data/:/var/lib/baza/:z
+  baza-server:
+    container_name: ${COMPOSE_PROJECT_NAME}-baza-server
+    image: ${COMPOSE_FILESERVER}
+    depends_on: ["baza-storage"]
+    environment:
+      NGINX_JWT_SECRET: baza
+    volumes:
+      - ./.cache/baza/data/:/var/lib/baza/:ro,z
+      - ./.cache/baza/cache/:/var/run/:Z
+    network_mode: service:baza-storage
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest
@@ -114,6 +85,7 @@ services:
       MH_HOSTNAME: mailhog.localhost
       MH_AUTH_FILE: /etc/auth.passwd  # robot:test
     ports:
-      - "1025:1025"    # mailhog smtp
+      - 1025:1025  # mailhog smtp
+      - 8082:8025  # mailhog http
     volumes:
       - ./dev/mailhog/auth.passwd:/etc/auth.passwd:ro,Z

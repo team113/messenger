@@ -30,11 +30,14 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/my_user.dart';
@@ -61,8 +64,12 @@ void main() async {
   var myUserProvider = Get.put(MyUserHiveProvider());
   await myUserProvider.init();
   await myUserProvider.clear();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -70,14 +77,6 @@ void main() async {
         {
           'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'name': 'null',
-          'avatar': {
-            'galleryItemId': 'galleryItemId',
-            'full': 'galleryItemId',
-            'big': 'galleryItemId',
-            'medium': 'galleryItemId',
-            'small': 'galleryItemId',
-            'original': 'galleryItemId',
-          },
           'members': {'nodes': []},
           'kind': 'GROUP',
           'isHidden': false,
@@ -92,7 +91,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]
@@ -140,8 +139,14 @@ void main() async {
   );
   await authService.init();
 
-  AbstractMyUserRepository myUserRepository =
-      MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+  UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  AbstractMyUserRepository myUserRepository = MyUserRepository(
+    graphQlProvider,
+    myUserProvider,
+    galleryItemProvider,
+    userRepository,
+  );
   MyUserService myUserService =
       Get.put(MyUserService(authService, myUserRepository));
 
@@ -207,8 +212,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.createChatDirectLink(
@@ -236,8 +255,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.deleteChatDirectLink(
@@ -261,14 +294,6 @@ void main() async {
           'chat': {
             'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
             'name': 'null',
-            'avatar': {
-              'galleryItemId': 'galleryItemId',
-              'full': 'galleryItemId',
-              'big': 'galleryItemId',
-              'medium': 'galleryItemId',
-              'small': 'galleryItemId',
-              'original': 'galleryItemId',
-            },
             'members': {'nodes': []},
             'kind': 'GROUP',
             'isHidden': false,
@@ -283,7 +308,7 @@ void main() async {
             'gallery': {'nodes': []},
             'unreadCount': 0,
             'totalCount': 0,
-            'currentCall': null,
+            'ongoingCall': null,
             'ver': '0'
           },
           'event': null
@@ -294,8 +319,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     Get.put(ChatService(chatRepository, authService));
 
     authService.useChatDirectLink(ChatDirectLinkSlug('link'));
@@ -320,8 +359,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
@@ -357,8 +410,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
@@ -385,8 +452,22 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    CallRepository callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
     Get.put(ChatService(chatRepository, authService));
 
     expect(

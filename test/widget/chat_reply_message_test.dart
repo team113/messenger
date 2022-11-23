@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,9 +38,12 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -53,7 +57,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -64,6 +67,22 @@ import 'chat_reply_message_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
+
+  var userData = {
+    'id': 'me',
+    'num': '1234567890123456',
+    'login': 'login',
+    'name': 'name',
+    'bio': 'bio',
+    'emails': {'confirmed': [], 'unconfirmed': null},
+    'phones': {'confirmed': [], 'unconfirmed': null},
+    'gallery': {'nodes': []},
+    'hasPassword': true,
+    'unreadChatsCount': 0,
+    'ver': '0',
+    'online': {'__typename': 'UserOnline'},
+    'presence': 'AWAY',
+  };
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -85,7 +104,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -97,6 +116,9 @@ void main() async {
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+
+  when(graphQlProvider.getUser(const UserId('me')))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
@@ -143,7 +165,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-05T15:40:57.010950+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'text message',
                   'editedAt': null,
                   'attachments': []
@@ -166,7 +188,7 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     text: const ChatMessageText('reply message'),
     attachments: anyNamed('attachments'),
-    repliesTo: null,
+    repliesTo: [],
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',
@@ -182,21 +204,24 @@ void main() async {
               'authorId': 'me',
               'at': '2022-01-27T11:34:37.191440+00:00',
               'ver': '1',
-              'repliesTo': {
-                'node': {
-                  '__typename': 'ChatMessage',
-                  'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
-                  'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': 'me',
-                  'at': '2022-01-05T15:40:57.010950+00:00',
-                  'ver': '1',
-                  'repliesTo': null,
-                  'text': 'text message',
-                  'editedAt': null,
-                  'attachments': []
+              'repliesTo': [
+                {
+                  'node': {
+                    '__typename': 'ChatMessage',
+                    'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
+                    'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                    'authorId': 'me',
+                    'at': '2022-01-05T15:40:57.010950+00:00',
+                    'ver': '1',
+                    'repliesTo': [],
+                    'text': 'text message',
+                    'editedAt': null,
+                    'attachments': []
+                  },
+                  'cursor':
+                      'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
                 },
-                'cursor': 'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-              },
+              ],
               'text': 'reply message',
               'editedAt': null,
               'attachments': []
@@ -264,8 +289,15 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -280,7 +312,7 @@ void main() async {
         home: Builder(
           builder: (BuildContext context) {
             router.context = context;
-            return Scaffold(body: ContextMenuOverlay(child: child));
+            return Scaffold(body: child);
           },
         ));
   }
@@ -298,26 +330,42 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
 
     Get.put(UserService(userRepository));
-    Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
 
     var message = find.text('text message', skipOffstage: false);
     expect(message, findsOneWidget);
@@ -326,6 +374,9 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('ReplyButton')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await gesture.moveTo(tester.getCenter(find.byKey(const Key('Reply_0'))));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('CancelReplyButton')));

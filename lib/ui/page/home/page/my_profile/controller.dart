@@ -168,7 +168,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.avatar].
   bool get isAvatar =>
       myUser.value?.gallery?[galleryIndex.value].id ==
-      myUser.value?.avatar?.galleryItemId;
+      myUser.value?.avatar?.galleryItem?.id;
 
   @override
   void onInit() {
@@ -873,9 +873,10 @@ class MyProfileController extends GetxController {
       if (files.isNotEmpty) {
         _addGalleryTimer?.cancel();
         addGalleryStatus.value = RxStatus.loading();
-        var futures = files
+        List<Future> futures = files
             .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e));
+            .map((e) => _myUserService.uploadGalleryItem(e))
+            .toList();
         await Future.wait(futures);
         addGalleryStatus.value = RxStatus.success();
       }

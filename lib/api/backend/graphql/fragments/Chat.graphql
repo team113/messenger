@@ -87,7 +87,7 @@ fragment Chat on Chat {
     }
     unreadCount
     totalCount
-    currentCall {
+    ongoingCall {
         __typename
         ...ChatCall
     }

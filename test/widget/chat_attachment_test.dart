@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -40,9 +42,12 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -56,17 +61,20 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_attachment_widget');
+  Config.files = 'test';
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -88,7 +96,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -142,7 +150,7 @@ void main() async {
       attachments: [
         const AttachmentId('0d72d245-8425-467a-9ebd-082d4f47850ca'),
       ],
-      repliesTo: null,
+      repliesTo: [],
     ),
   ).thenAnswer((_) {
     var event = {
@@ -159,14 +167,14 @@ void main() async {
               'authorId': 'me',
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
-              'repliesTo': null,
+              'repliesTo': [],
               'text': null,
               'editedAt': null,
               'attachments': [
                 {
                   '__typename': 'FileAttachment',
                   'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-                  'original': 'orig.aaf',
+                  'original': {'relativeRef': 'orig.aaf'},
                   'filename': 'test.txt',
                   'size': 2
                 }
@@ -208,7 +216,7 @@ void main() async {
           'attachment': {
             '__typename': 'FileAttachment',
             'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-            'original': 'orig.aaf',
+            'original': {'relativeRef': 'orig.aaf'},
             'filename': 'test.txt',
             'size': 2
           }
@@ -244,6 +252,9 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var userProvider = Get.put(UserHiveProvider());
   await userProvider.init();
   await userProvider.clear();
@@ -255,12 +266,16 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
   await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -269,7 +284,7 @@ void main() async {
         home: Builder(
           builder: (BuildContext context) {
             router.context = context;
-            return Scaffold(body: ContextMenuOverlay(child: child));
+            return Scaffold(body: child);
           },
         ));
   }
@@ -290,31 +305,46 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        callRepository,
+        draftProvider,
         userRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
 
     Get.put(UserService(userRepository));
-    Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    ChatController chatController =
+        Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -323,15 +353,22 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    AttachmentId id1 =
+        Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .attachments
+            .first
+            .value
+            .id;
+
     expect(find.byKey(const Key('Send')), findsOneWidget);
+
+    await gesture.moveTo(tester.getCenter(find.byKey(Key('Attachment_$id1'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
-
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -343,7 +380,12 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('test.txt', skipOffstage: false), findsOneWidget);
+    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
+        .attachments
+        .first
+        .id;
+
+    expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

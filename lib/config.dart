@@ -36,6 +36,9 @@ class Config {
   /// Backend's WebSocket URL.
   static late String ws;
 
+  /// File storage HTTP URL.
+  static late String files;
+
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
@@ -85,17 +88,21 @@ class Config {
         ? const int.fromEnvironment('SOCAPP_WS_PORT')
         : (document['server']?['ws']?['port'] ?? 80);
 
+    files = const bool.hasEnvironment('SOCAPP_FILES_URL')
+        ? const String.fromEnvironment('SOCAPP_FILES_URL')
+        : (document['files']?['url'] ?? 'http://localhost/files');
+
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
         : (document['sentry']?['dsn'] ?? '');
 
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        : (document['downloads']?['directory'] ?? 'messenger');
+        : (document['downloads']?['directory'] ?? '');
 
     origin = url;
 
-    /// Change default values to browser's location on web platform.
+    // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
           !const bool.hasEnvironment('SOCAPP_HTTP_URL')) {
@@ -119,6 +126,11 @@ class Config {
       }
     }
 
+    if (document['files']?['url'] == null &&
+        !const bool.hasEnvironment('SOCAPP_FILES_URL')) {
+      files = '$url/files';
+    }
+
     bool confRemote = const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
         ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
         : (document['conf']?['remote'] ?? true);
@@ -140,6 +152,7 @@ class Config {
             url = remote['server']?['http']?['url'] ?? url;
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
+            files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
             origin = url;

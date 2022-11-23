@@ -18,6 +18,7 @@ fragment ChatCall on ChatCall {
     id
     chatId
     authorId
+    answered
     at
     caller {
         __typename

@@ -36,8 +36,11 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -51,7 +54,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -102,8 +104,15 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -126,7 +135,7 @@ void main() async {
       home: Builder(
         builder: (BuildContext context) {
           router.context = context;
-          return Scaffold(body: ContextMenuOverlay(child: child));
+          return Scaffold(body: child);
         },
       ),
     );
@@ -215,15 +224,32 @@ void main() async {
     Get.put(ContactService(contactRepository));
 
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
 
+    CallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
-    Get.put(ChatService(chatRepository, authService));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    CallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
-    Get.put(CallService(authService, settingsRepository, callRepository));
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ContactsTabView()));
@@ -233,7 +259,7 @@ void main() async {
     await tester.longPress(find.byType(ContextMenuRegion));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.text('btn_change_contact_name'.l10n));
+    await tester.tap(find.text('btn_rename'.l10n));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(

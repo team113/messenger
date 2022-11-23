@@ -26,6 +26,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/gallery_item.dart';
 import 'package:messenger/domain/model/native_file.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -40,6 +41,7 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -52,6 +54,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/my_profile_gallery_widget');
   Config.url = 'http://testUrl.com';
+  Config.files = 'files';
   Config.port = 0;
 
   var userData = {
@@ -118,6 +121,8 @@ void main() async {
       'MyProfileView successfully adds and deletes gallery items, avatar and call cover',
       (WidgetTester tester) async {
     final StreamController<QueryResult> myUserEvents = StreamController();
+    when(graphQlProvider.getUser(const UserId('id')))
+        .thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
     when(graphQlProvider.myUserEvents(null)).thenAnswer((_) {
       myUserEvents.add(
         QueryResult.internal(
@@ -148,8 +153,8 @@ void main() async {
               'galleryItem': {
                 '__typename': 'ImageGalleryItem',
                 'id': 'testId',
-                'square': '/test.jpg',
-                'original': '/test.jpg',
+                'square': {'relativeRef': 'orig.jpg'},
+                'original': {'relativeRef': 'orig.jpg'},
                 'addedAt': DateTime.now().toString()
               },
               'at': DateTime.now().toString()
@@ -214,13 +219,19 @@ void main() async {
               'userId': 'id',
               'avatar': {
                 '__typename': 'UserAvatar',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                  'square': {'relativeRef': ''},
+                },
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'big': 'cc.big.jpg',
-                'medium': 'cc.medium.jpg',
-                'small': 'cc.small.jpg',
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'orig.jpg'},
+                'big': {'relativeRef': 'orig.jpg'},
+                'medium': {'relativeRef': 'orig.jpg'},
+                'small': {'relativeRef': 'orig.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -254,12 +265,18 @@ void main() async {
               'userId': 'id',
               'callCover': {
                 '__typename': 'UserCallCover',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                  'square': {'relativeRef': ''},
+                },
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'orig.jpg'},
+                'vertical': {'relativeRef': 'orig.jpg'},
+                'square': {'relativeRef': 'orig.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -344,8 +361,14 @@ void main() async {
       ),
     );
 
-    AbstractMyUserRepository myUserRepository = Get.put(
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = Get.put(MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    ));
     await authService.init();
     MyUserService myUserService =
         Get.put(MyUserService(authService, myUserRepository));
@@ -370,15 +393,19 @@ void main() async {
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await mockNetworkImagesFor(
         () async => await tester.pumpAndSettle(const Duration(seconds: 2)));
-    expect(myUserService.myUser.value?.avatar?.galleryItemId,
-        const GalleryItemId('testId'));
-    expect(myUserService.myUser.value?.callCover?.galleryItemId,
-        const GalleryItemId('testId'));
+    expect(
+      myUserService.myUser.value?.avatar?.galleryItem?.id,
+      const GalleryItemId('testId'),
+    );
+    expect(
+      myUserService.myUser.value?.callCover?.galleryItem?.id,
+      const GalleryItemId('testId'),
+    );
 
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(myUserService.myUser.value?.avatar?.galleryItemId, isNull);
-    expect(myUserService.myUser.value?.callCover?.galleryItemId, isNull);
+    expect(myUserService.myUser.value?.avatar?.galleryItem?.id, isNull);
+    expect(myUserService.myUser.value?.callCover?.galleryItem?.id, isNull);
 
     await tester.tap(find.byKey(const Key('DeleteGallery')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

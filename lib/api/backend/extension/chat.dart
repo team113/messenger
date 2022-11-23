@@ -20,7 +20,6 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat_item.dart';
@@ -28,6 +27,7 @@ import '/provider/hive/chat.dart';
 import '/store/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
+import 'file.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatMixin].
@@ -63,7 +63,7 @@ extension ChatConversion on ChatMixin {
         lastReadItem: lastReadItem?.toHive().first.value,
         unreadCount: unreadCount,
         totalCount: totalCount,
-        currentCall: currentCall?.toModel(),
+        ongoingCall: ongoingCall?.toModel(),
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
@@ -115,10 +115,8 @@ extension ChatCallConversion on ChatCallMixin {
 extension ChatMessageConversion on ChatMessageMixin {
   /// Constructs a new [HiveChatItem]s from this [ChatMessageMixin].
   List<HiveChatItem> toHive(ChatItemsCursor cursor) {
-    List<HiveChatItem>? items;
-    if (repliesTo != null) {
-      items = repliesTo!.toHive();
-    }
+    List<HiveChatItem> items =
+        repliesTo.map((e) => e.toHive()).expand((e) => e).toList();
 
     return [
       HiveChatMessage(
@@ -127,16 +125,16 @@ extension ChatMessageConversion on ChatMessageMixin {
           chatId,
           authorId,
           at,
-          repliesTo: items?.first.value,
+          repliesTo: items.map((e) => e.value).toList(),
           text: text,
           editedAt: editedAt,
           attachments: attachments.map((e) => e.toModel()).toList(),
         ),
         cursor,
         ver,
-        repliesTo?.cursor,
+        repliesTo.map((e) => e.cursor).toList(),
       ),
-      if (items != null) ...items,
+      ...items,
     ];
   }
 }
@@ -149,15 +147,19 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
         chatId,
         authorId,
         at,
-        repliesTo: null,
+        repliesTo: [],
         text: text,
         editedAt: editedAt,
         attachments: attachments.map((e) => e.toModel()).toList(),
       );
 
   /// Constructs a new [HiveChatMessage] from this [NestedChatMessageMixin].
-  HiveChatMessage toHive(ChatItemsCursor cursor) =>
-      HiveChatMessage(toModel(), cursor, ver, repliesTo?.cursor);
+  HiveChatMessage toHive(ChatItemsCursor cursor) => HiveChatMessage(
+        toModel(),
+        cursor,
+        ver,
+        repliesTo.map((e) => e.cursor).toList(),
+      );
 }
 
 /// Extension adding models construction from [ChatForwardMixin].
@@ -262,34 +264,15 @@ extension EventChatLastItemUpdatedConversion
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
-/// Constructs a new [HiveChatItem]s based on the [node] and [cursor].
-List<HiveChatItem> _chatItem(dynamic node, ChatItemsCursor cursor) {
-  if (node is ChatMemberInfoMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatCallMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatMessageMixin) {
-    return node.toHive(cursor);
-  } else if (node is NestedChatMessageMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatForwardMixin) {
-    return node.toHive(cursor);
-  } else if (node is NestedChatForwardMixin) {
-    return node.toHive(cursor);
-  }
-
-  throw UnimplementedError('$node is not implemented');
-}
-
 /// Extension adding models construction from [ChatAvatarMixin].
 extension ChatAvatarConversion on ChatAvatarMixin {
   /// Constructs a new [ChatAvatar] from this [ChatAvatarMixin].
   ChatAvatar toModel() => ChatAvatar(
-        medium: medium,
-        small: small,
-        original: original,
-        full: full,
-        big: big,
+        medium: medium.toModel(),
+        small: small.toModel(),
+        original: original.toModel(),
+        full: full.toModel(),
+        big: big.toModel(),
         crop: crop == null
             ? null
             : CropArea(
@@ -334,12 +317,11 @@ extension ImageAttachmentConversion on ImageAttachmentMixin {
   /// Constructs a new [ImageAttachment] from this [ImageAttachmentMixin].
   ImageAttachment toModel() => ImageAttachment(
         id: id,
-        original: Original(original),
+        original: original.toModel(),
         filename: filename,
-        size: size,
-        big: big,
-        medium: medium,
-        small: small,
+        big: big.toModel(),
+        medium: medium.toModel(),
+        small: small.toModel(),
       );
 }
 
@@ -348,10 +330,98 @@ extension FileAttachmentConversion on FileAttachmentMixin {
   /// Constructs a new [FileAttachment] from this [FileAttachmentMixin].
   FileAttachment toModel() => FileAttachment(
         id: id,
-        original: Original(original),
+        original: original.toModel(),
         filename: filename,
-        size: size,
       );
+}
+
+/// Extension adding models construction from a [GetAttachments$Query$ChatItem].
+extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
+  /// Constructs a new list of [Attachment]s from this
+  /// [GetAttachments$Query$ChatItem].
+  List<Attachment> toModel() {
+    final List<Attachment> attachments = [];
+
+    if (node.$$typename == 'ChatMessage') {
+      var message = node as GetAttachments$Query$ChatItem$Node$ChatMessage;
+      attachments.addAll(message.attachments.map((e) => e.toModel()));
+
+      if (message.repliesTo.isNotEmpty) {
+        for (var r in message.repliesTo) {
+          if (r.node.$$typename == 'ChatMessage') {
+            var replied = r.node
+                as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage;
+            attachments.addAll(replied.attachments.map((e) => e.toModel()));
+          }
+        }
+      }
+    } else if (node.$$typename == 'ChatForward') {
+      var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
+      if (message.item.node.$$typename == 'ChatMessage') {
+        var node = message.item.node
+            as GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage;
+        attachments.addAll(node.attachments.map((e) => e.toModel()));
+      }
+    }
+
+    return attachments;
+  }
+}
+
+/// Extension adding models construction from
+/// [GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments].
+extension GetAttachmentsChatMessageAttachmentConversion
+    on GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments {
+  /// Constructs a new [Attachment] from this
+  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments].
+extension GetAttachmentsChatForwardAttachmentConversion
+    on GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments {
+  /// Constructs a new [Attachment] from this
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
+extension GetAttachmentsChatMessageRepliesToAttachmentConversion
+    on GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments {
+  /// Constructs a new [Attachment] from this
+  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from [Muting].
+extension MutingToMuteDurationConversion on Muting {
+  /// Constructs a new [MuteDuration] from this [Muting].
+  MuteDuration toModel() {
+    if (duration == null) {
+      return MuteDuration.forever();
+    }
+
+    return MuteDuration.until(duration!);
+  }
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
+extension EventChatMuted$DurationConversion
+    on ChatEventsVersionedMixin$Events$EventChatMuted$Duration {
+  /// Constructs a new [MuteDuration] from this
+  /// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
+  MuteDuration toModel() {
+    if ($$typename == 'MuteForeverDuration') {
+      return MuteDuration.forever();
+    }
+
+    return MuteDuration.until((this
+            as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
+        .until);
+  }
 }
 
 /// Constructs a new [Attachment] based on the [node].
@@ -360,6 +430,25 @@ Attachment _attachment(dynamic node) {
     return node.toModel();
   } else if (node is FileAttachmentMixin) {
     return node.toModel();
+  }
+
+  throw UnimplementedError('$node is not implemented');
+}
+
+/// Constructs a new [HiveChatItem]s based on the [node] and [cursor].
+List<HiveChatItem> _chatItem(dynamic node, ChatItemsCursor cursor) {
+  if (node is ChatMemberInfoMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatCallMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatMessageMixin) {
+    return node.toHive(cursor);
+  } else if (node is NestedChatMessageMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatForwardMixin) {
+    return node.toHive(cursor);
+  } else if (node is NestedChatForwardMixin) {
+    return node.toHive(cursor);
   }
 
   throw UnimplementedError('$node is not implemented');

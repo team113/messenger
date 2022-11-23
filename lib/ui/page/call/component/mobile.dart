@@ -438,8 +438,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(withDescription(
-                  AddMemberCallButton(c).build(),
-                  Text('btn_add_participant_desc'.l10n),
+                  ParticipantsButton(c).build(),
+                  Text('btn_participants_desc'.l10n),
                 )),
                 padding(withDescription(
                   HandButton(c).build(),
@@ -707,7 +707,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         if (c.isGroup) {
           var actualMembers = c.members.keys.map((k) => k.userId).toSet();
           subtitle = 'label_a_of_b'.l10nfmt({
-            'a': '${actualMembers.length + 1}',
+            'a': '${actualMembers.length}',
             'b': '${c.chat.value?.members.length}',
           });
         }
@@ -798,7 +798,7 @@ Widget _primaryView(CallController c, BuildContext context) {
           allowDraggingLast: false,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
-            c.isHintDismissed.value = true;
+            c.showDragAndDropVideosHint = false;
             c.primaryDrags.value = 1;
             c.keepUi(false);
 
@@ -1031,7 +1031,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             useLongPress: true,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;
-              c.isHintDismissed.value = true;
+              c.showDragAndDropVideosHint = false;
               c.secondaryDrags.value = 1;
               c.keepUi(false);
             },

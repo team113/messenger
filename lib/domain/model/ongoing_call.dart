@@ -372,6 +372,7 @@ class OngoingCall {
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls?.remove(chatId.value);
+              calls?.removeCredentials(node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -412,6 +413,7 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
+                    calls?.removeCredentials(node.call.id);
                     calls?.remove(chatId.value);
                   }
                   break;
@@ -421,25 +423,57 @@ class OngoingCall {
                   if (me == node.user.id) {
                     calls?.remove(chatId.value);
                   }
+
+                  final CallMemberId id =
+                      CallMemberId(node.user.id, node.deviceId);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id);
+                  }
                   break;
 
                 case ChatCallEventKind.memberJoined:
-                  // TODO: Implement EventChatCallMemberJoined.
+                  var node = event as EventChatCallMemberJoined;
+
+                  final CallMemberId id =
+                      CallMemberId(node.user.id, node.deviceId);
+                  if (!members.containsKey(id)) {
+                    members[id] = CallMember(
+                      id,
+                      null,
+                      isHandRaised: call.value?.members
+                              .firstWhereOrNull((e) => e.user.id == id.userId)
+                              ?.handRaised ??
+                          false,
+                      isConnected: false,
+                    );
+                  }
+
                   break;
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
-                  for (var m in members.entries
+
+                  for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = false;
+                  }
+
+                  for (ChatCallMember m in (call.value?.members ?? [])
+                      .where((e) => e.user.id == node.user.id)) {
+                    m.handRaised = false;
                   }
                   break;
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  for (var m in members.entries
+                  for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = true;
+                  }
+
+                  for (ChatCallMember m in (call.value?.members ?? [])
+                      .where((e) => e.user.id == node.user.id)) {
+                    m.handRaised = true;
                   }
                   break;
 
@@ -455,7 +489,16 @@ class OngoingCall {
                   connected = false;
                   connect(calls, heartbeat);
 
-                  calls?.moveCall(node.chatId, node.newChatId);
+                  calls?.moveCall(
+                    chatId: node.chatId,
+                    newChatId: node.newChatId,
+                    callId: node.callId,
+                    newCallId: node.newCallId,
+                  );
+                  break;
+
+                case ChatCallEventKind.redialed:
+                  // TODO: Implement EventChatCallMemberRedialed.
                   break;
               }
             }
@@ -495,7 +538,7 @@ class OngoingCall {
   /// Leaves this [OngoingCall].
   ///
   /// Throws a [LeaveChatCallException].
-  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId!);
+  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId);
 
   /// Declines this [OngoingCall].
   ///
@@ -887,14 +930,22 @@ class OngoingCall {
 
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
-      members[id] = CallMember(
-        id,
-        conn,
-        isHandRaised: call.value?.members
-                .firstWhereOrNull((e) => e.user.id == id.userId)
-                ?.handRaised ??
-            false,
-      );
+      final CallMember? member = members[id];
+
+      if (member != null) {
+        member._connection = conn;
+        member.isConnected.value = true;
+      } else {
+        members[id] = CallMember(
+          id,
+          conn,
+          isHandRaised: call.value?.members
+                  .firstWhereOrNull((e) => e.user.id == id.userId)
+                  ?.handRaised ??
+              false,
+          isConnected: true,
+        );
+      }
 
       conn.onClose(() => members.remove(id));
       conn.onRemoteTrackAdded((track) async {
@@ -1137,6 +1188,8 @@ class OngoingCall {
   /// Re-initializes the [_room], if this [link] is different from the currently
   /// used [ChatCall.joinLink].
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
+    me.isConnected.value = false;
+
     Log.print('Joining the room...', 'CALL');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
       Log.print('Closing the previous one and connecting to the new', 'CALL');
@@ -1146,6 +1199,8 @@ class OngoingCall {
 
     await _room?.join('$link/$_me?token=$creds');
     Log.print('Room joined!', 'CALL');
+
+    me.isConnected.value = true;
   }
 
   /// Closes the [_room] and releases the associated resources.
@@ -1421,25 +1476,34 @@ class CallMember {
   CallMember(
     this.id,
     this._connection, {
-    bool? isHandRaised,
-  })  : isHandRaised = RxBool(isHandRaised ?? false),
+    bool isHandRaised = false,
+    bool isConnected = false,
+  })  : isHandRaised = RxBool(isHandRaised),
+        isConnected = RxBool(isConnected),
         owner = MediaOwnerKind.remote;
 
-  CallMember.me(this.id, {bool? isHandRaised})
-      : isHandRaised = RxBool(isHandRaised ?? false),
+  CallMember.me(
+    this.id, {
+    bool isHandRaised = false,
+    bool isConnected = false,
+  })  : isHandRaised = RxBool(isHandRaised),
+        isConnected = RxBool(isConnected),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
-  CallMemberId id;
+  final CallMemberId id;
 
   /// List of [Track]s of this [CallMember].
-  ObsList<Track> tracks = ObsList();
+  final ObsList<Track> tracks = ObsList();
 
   /// [MediaOwnerKind] of this [CallMember].
-  MediaOwnerKind owner;
+  final MediaOwnerKind owner;
 
   /// Indicator whether the hand of this [CallMember] is raised.
-  RxBool isHandRaised;
+  final RxBool isHandRaised;
+
+  /// Indicator whether this [CallMember] is connected to the media server.
+  final RxBool isConnected;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;

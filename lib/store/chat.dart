@@ -30,8 +30,10 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -42,7 +44,9 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
+import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
@@ -56,6 +60,8 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
+    this._callRepo,
+    this._draftLocal,
     this._userRepo, {
     this.me,
   });
@@ -73,6 +79,12 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
+  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
+  final AbstractCallRepository _callRepo;
+
+  /// [RxChat.draft] local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
+
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
@@ -84,6 +96,9 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [DraftHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _draftSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
   ///
@@ -104,7 +119,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, c);
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -112,6 +127,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initLocalSubscription();
+    _initDraftSubscription();
 
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
@@ -138,6 +154,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _localSubscription?.cancel();
+    _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
   }
 
@@ -179,7 +196,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) async {
     HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
     await rxChat?.postChatMessage(
@@ -205,7 +222,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<ChatItemId> repliesTo = const [],
   }) =>
       _graphQlProvider.postChatMessage(
         chatId,
@@ -278,12 +295,8 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     try {
-      var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
-      // Response is `null` if [MyUser] removed himself (left the chat).
-      if (response == null) {
-        _chatLocal.remove(chatId);
-      }
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));
@@ -373,6 +386,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatMessage(message.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -401,6 +418,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatForward(forward.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -426,6 +447,10 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChatItem(id);
+
+      if (item != null) {
+        chat?.remove(item.value.id, item.value.timestamp);
+      }
     } catch (_) {
       if (item != null) {
         chat?.messages.insertAfter(
@@ -487,7 +512,6 @@ class ChatRepository implements AbstractChatRepository {
       var model = response.attachment.toModel();
       attachment.id = model.id;
       attachment.filename = model.filename;
-      attachment.size = model.size;
       attachment.original = model.original;
       attachment.upload.value?.complete(model);
       attachment.status.value = SendingStatus.sent;
@@ -562,18 +586,92 @@ class ChatRepository implements AbstractChatRepository {
         attachments: attachments,
       );
 
+  @override
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    late dio.MultipartFile upload;
+
+    if (file != null) {
+      await file.ensureCorrectMediaType();
+
+      if (file.stream != null) {
+        upload = dio.MultipartFile(
+          file.stream!,
+          file.size,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.bytes != null) {
+        upload = dio.MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          file.path!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+    }
+
+    await _graphQlProvider.updateChatAvatar(
+      id,
+      file: file == null ? null : upload,
+      onSendProgress: onSendProgress,
+    );
+  }
+
+  @override
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
+    final HiveRxChat? chat = _chats[id];
+    final MuteDuration? muted = chat?.chat.value.muted;
+
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
+
+    chat?.chat.update((c) => c?.muted = muting?.toModel());
+
+    try {
+      await _graphQlProvider.toggleChatMute(id, muting);
+    } catch (e) {
+      chat?.chat.update((c) => c?.muted = muted);
+      rethrow;
+    }
+  }
+
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId chatItemId) async {
+  Future<List<HiveChatItem>> messages(ChatId id) async {
     const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(chatItemId, first: maxInt);
+    var query = await _graphQlProvider.chatItems(id, first: maxInt);
     return query.chat?.items.edges
             .map((e) => e.toHive())
             .expand((e) => e)
             .toList() ??
         [];
   }
+
+  /// Fetches the [Attachment]s of the provided [item].
+  Future<List<Attachment>> attachments(HiveChatItem item) async {
+    var response = await _graphQlProvider.attachments(item.value.id);
+    return response.chatItem?.toModel() ?? [];
+  }
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callRepo.removeCredentials(id);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(
@@ -650,7 +748,7 @@ class ChatRepository implements AbstractChatRepository {
       var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
       return EventChatMuted(
         e.chatId,
-        node.duration as MuteDuration,
+        node.duration.toModel(),
       );
     } else if (e.$$typename == 'EventChatAvatarDeleted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarDeleted;
@@ -733,6 +831,18 @@ class ChatRepository implements AbstractChatRepository {
         node.user.toModel(),
         node.at,
       );
+    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+      _userRepo.put(node.user.toHive());
+      return EventChatCallMemberRedialed(
+        e.chatId,
+        node.at,
+        node.callId,
+        node.call.toModel(),
+        node.user.toModel(),
+        node.byUser.toModel(),
+      );
     } else if (e.$$typename == 'EventChatDelivered') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
       return EventChatDelivered(
@@ -811,13 +921,31 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
+          HiveRxChat entry =
+              HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
         } else {
           chat.chat.value = event.value.value;
           chat.chat.refresh();
+        }
+      }
+    }
+  }
+
+  /// Initializes [DraftHiveProvider.boxEvents] subscription.
+  Future<void> _initDraftSubscription() async {
+    _draftSubscription = StreamIterator(_draftLocal.boxEvents);
+    while (await _draftSubscription!.moveNext()) {
+      BoxEvent event = _draftSubscription!.current;
+      if (event.deleted) {
+        _chats[ChatId(event.key)]?.draft.value = null;
+      } else {
+        HiveRxChat? chat = _chats[ChatId(event.key)];
+        if (chat != null) {
+          chat.draft.value = event.value;
+          chat.draft.refresh();
         }
       }
     }
@@ -919,7 +1047,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, data.chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();

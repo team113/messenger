@@ -18,7 +18,8 @@ import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
 import 'crop_area.dart';
-import 'gallery_item.dart';
+import 'file.dart';
+import 'image_gallery_item.dart';
 
 part 'avatar.g.dart';
 
@@ -36,25 +37,25 @@ abstract class Avatar {
     this.crop,
   );
 
-  /// Path to the [full]-sized avatar image keeping the original sizes.
+  /// Full-sized [UserAvatar]'s image [StorageFile], keeping the original sizes.
   @HiveField(0)
-  final String full;
+  final StorageFile full;
 
-  /// Path to the [big] avatar image preview of `70px`x`70px` size.
+  /// Big [UserAvatar]'s view image [StorageFile] of `70px`x`70px` size.
   @HiveField(1)
-  final String big;
+  final StorageFile big;
 
-  /// Path to the [medium] avatar image preview of `46px`x`46px` size.
+  /// Medium [UserAvatar]'s view image [StorageFile] of `46px`x`46px` size.
   @HiveField(2)
-  final String medium;
+  final StorageFile medium;
 
-  /// Path to the [small] avatar image preview of `25px`x`25px` size.
+  /// Small [UserAvatar]'s view image [StorageFile] of `25px`x`25px` size.
   @HiveField(3)
-  final String small;
+  final StorageFile small;
 
-  /// Path to the [original] file representing this avatar image.
+  /// Original image [StorageFile] representing this [UserAvatar].
   @HiveField(4)
-  final String original;
+  final StorageFile original;
 
   /// [CropArea] applied to this [Avatar].
   @HiveField(5)
@@ -65,29 +66,29 @@ abstract class Avatar {
 @HiveType(typeId: ModelTypeId.userAvatar)
 class UserAvatar extends Avatar {
   UserAvatar({
-    required this.galleryItemId,
-    required String full,
-    required String big,
-    required String medium,
-    required String small,
-    required String original,
+    this.galleryItem,
+    required StorageFile full,
+    required StorageFile big,
+    required StorageFile medium,
+    required StorageFile small,
+    required StorageFile original,
     CropArea? crop,
   }) : super(full, big, medium, small, original, crop);
 
-  /// ID of the `GalleryItem` this [UserAvatar] is created from.
+  /// [ImageGalleryItem] this [UserAvatar] was created from.
   @HiveField(6)
-  final GalleryItemId galleryItemId;
+  final ImageGalleryItem? galleryItem;
 }
 
 /// [Avatar] of a [Chat].
 @HiveType(typeId: ModelTypeId.chatAvatar)
 class ChatAvatar extends Avatar {
   ChatAvatar({
-    required String full,
-    required String big,
-    required String medium,
-    required String small,
-    required String original,
+    required StorageFile full,
+    required StorageFile big,
+    required StorageFile medium,
+    required StorageFile small,
+    required StorageFile original,
     CropArea? crop,
   }) : super(full, big, medium, small, original, crop);
 }

@@ -48,7 +48,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
       state: OngoingCallState.joining,
     );
 
-    final callRepository = CallRepository(provider, null);
+    final callRepository = CallRepository(provider, null, null);
 
     await callRepository.join(ongoingCall.obs);
     await ongoingCall.init();
@@ -100,7 +100,7 @@ final StepDefinitionGeneric userStartCall = when1<TestUser, CustomWorld>(
       state: OngoingCallState.joining,
     );
 
-    final CallRepository callRepository = CallRepository(provider, null);
+    final CallRepository callRepository = CallRepository(provider, null, null);
 
     await callRepository.start(ongoingCall.obs);
     await ongoingCall.init();

@@ -14,27 +14,26 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-import '../parameters/keys.dart';
+import '../world/custom_world.dart';
 
-/// Indicates whether the provided number of specific [Widget]s are visible.
+/// Long presses a [Chat] with the provided name.
 ///
 /// Examples:
-/// - Then I expect to see 1 `ChatMessage`
-final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
-  RegExp(r'I expect to see {int} {key}'),
-  (quantity, key, context) async {
+/// - When I long press "Name" chat.
+final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
+  'I long press {string} chat',
+  (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
+    final finder = context.world.appDriver.findBy(
+      'RecentChat_${context.world.groups[name]}',
+      FindType.key,
+    );
 
-    final finder = find.byKey(Key(key.name), skipOffstage: false);
-    await context.world.appDriver.scrollIntoView(finder.last);
+    await context.world.appDriver.nativeDriver.longPress(finder);
     await context.world.appDriver.waitForAppToSettle();
-
-    final finder2 = find.byKey(Key(key.name), skipOffstage: false);
-    context.expectMatch(finder2.evaluate().length, quantity);
   },
 );

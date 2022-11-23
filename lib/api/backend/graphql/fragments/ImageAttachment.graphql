@@ -16,10 +16,21 @@
 
 fragment ImageAttachment on ImageAttachment {
     id
-    original
+    original {
+        __typename
+        ...File
+    }
     filename
-    size
-    big
-    medium
-    small
+    big {
+        __typename
+        ...File
+    }
+    medium {
+        __typename
+        ...File
+    }
+    small {
+        __typename
+        ...File
+    }
 }

@@ -23,6 +23,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/settings.dart';
@@ -33,9 +34,12 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -50,7 +54,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/view.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -83,7 +86,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]
@@ -121,8 +124,15 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -135,7 +145,7 @@ void main() async {
       home: Builder(
         builder: (BuildContext context) {
           router.context = context;
-          return Scaffold(body: ContextMenuOverlay(child: child));
+          return Scaffold(body: child);
         },
       ),
     );
@@ -222,18 +232,32 @@ void main() async {
     );
 
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
-
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(graphQlProvider, chatProvider, userRepository),
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
     );
-    Get.put(ChatService(chatRepository, authService));
 
-    Get.put(CallService(
-      authService,
-      settingsRepository,
-      CallRepository(graphQlProvider, userRepository),
-    ));
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+    );
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+      ),
+    );
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+
+    Get.put(
+      CallService(authService, chatService, settingsRepository, callRepository),
+    );
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));

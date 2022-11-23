@@ -21,14 +21,12 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/config.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
-import 'image_gallery_item.dart';
+import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
 
@@ -40,25 +38,19 @@ abstract class Attachment extends HiveObject {
     this.id,
     this.original,
     this.filename,
-    this.size,
   );
 
   /// Unique ID of this [Attachment].
   @HiveField(0)
   AttachmentId id;
 
-  /// Path on a files storage to the original file representing this
-  /// [Attachment].
+  /// Original [StorageFile] representing this [Attachment].
   @HiveField(1)
-  Original original;
+  StorageFile original;
 
   /// Uploaded file's name.
   @HiveField(2)
   String filename;
-
-  /// Uploaded file's size in bytes.
-  @HiveField(3)
-  int size;
 }
 
 /// Image [Attachment].
@@ -66,28 +58,25 @@ abstract class Attachment extends HiveObject {
 class ImageAttachment extends Attachment {
   ImageAttachment({
     required AttachmentId id,
-    required Original original,
+    required StorageFile original,
     required String filename,
-    required int size,
     required this.big,
     required this.medium,
     required this.small,
-  }) : super(id, original, filename, size);
+  }) : super(id, original, filename);
 
-  /// Path on a files storage to a `big` [ImageAttachment]'s view of
-  /// `400px`x`400px` size.
+  /// Big [ImageAttachment]'s view image [StorageFile] of `400px`x`400px` size.
+  @HiveField(3)
+  StorageFile big;
+
+  /// Medium [ImageAttachment]'s view image [StorageFile] of `200px`x`200px`
+  /// size.
   @HiveField(4)
-  String big;
+  StorageFile medium;
 
-  /// Path on a files storage to a `medium` [ImageAttachment]'s view of
-  /// `200px`x`200px` size.
+  /// Small [ImageAttachment]'s view image [StorageFile] of `30px`x`30px` size.
   @HiveField(5)
-  String medium;
-
-  /// Path on a files storage to a `small` [ImageAttachment]'s view of
-  /// `30px`x`30px` size.
-  @HiveField(6)
-  String small;
+  StorageFile small;
 }
 
 /// Plain file [Attachment].
@@ -95,13 +84,12 @@ class ImageAttachment extends Attachment {
 class FileAttachment extends Attachment {
   FileAttachment({
     required AttachmentId id,
-    required Original original,
+    required StorageFile original,
     required String filename,
-    required int size,
-  }) : super(id, original, filename, size);
+  }) : super(id, original, filename);
 
   /// Path to the downloaded [FileAttachment] in the local filesystem.
-  @HiveField(4)
+  @HiveField(3)
   String? path;
 
   /// [DownloadStatus] of this [FileAttachment].
@@ -130,22 +118,19 @@ class FileAttachment extends Attachment {
 
     if (path != null) {
       File file = File(path!);
-      if (await file.exists() && await file.length() == size) {
+      if (await file.exists() && await file.length() == original.size) {
         downloadStatus.value = DownloadStatus.isFinished;
         return;
       }
     }
 
-    String downloads = await PlatformUtils.downloadsDirectory;
-    String name = p.basenameWithoutExtension(filename);
-    String ext = p.extension(filename);
-    File file = File('$downloads/$filename');
+    File? file = await PlatformUtils.fileExists(
+      filename,
+      size: original.size,
+      url: original.url,
+    );
 
-    for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-      file = File('$downloads/$name ($i)$ext');
-    }
-
-    if (await file.exists()) {
+    if (file != null) {
       downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
@@ -163,8 +148,9 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        '${Config.url}/files${original.val}',
+        original.url,
         filename,
+        original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );
@@ -179,6 +165,8 @@ class FileAttachment extends Attachment {
     } catch (_) {
       downloadStatus.value = DownloadStatus.notStarted;
       path = null;
+
+      rethrow;
     }
   }
 
@@ -187,7 +175,7 @@ class FileAttachment extends Attachment {
     if (path != null) {
       File file = File(path!);
 
-      if (await file.exists() && await file.length() == size) {
+      if (await file.exists() && await file.length() == original.size) {
         await OpenFile.open(path!);
         return;
       }
@@ -216,13 +204,12 @@ class LocalAttachment extends Attachment {
       : status = Rx(status),
         super(
           AttachmentId.local(),
-          const Original(''),
+          StorageFile(relativeRef: '', size: file.size),
           file.name,
-          file.size,
         );
 
   /// [NativeFile] representing this [LocalAttachment].
-  @HiveField(4)
+  @HiveField(3)
   NativeFile file;
 
   /// [SendingStatus] of this [LocalAttachment].
