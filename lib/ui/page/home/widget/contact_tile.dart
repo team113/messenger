@@ -62,7 +62,7 @@ class ContactTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
-  /// Optional subtitle [Widget]s.
+  /// Optional [Widget]s subtitle .
   final List<Widget> subtitle;
 
   /// Height of this [ContactTile].

@@ -26,10 +26,11 @@ import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided [User] in chats searching is present.
+/// Waits until the provided [User] or [Contact] in chats searching is present.
 ///
 /// Examples:
 /// - Then I see user Bob in search results
+/// - Then I see contact Charlie in search results
 final StepDefinitionGeneric seeUserOrContactInSearchResults =
     then2<SearchCategory, TestUser, CustomWorld>(
   'I see {search_in_chats} {user} in search results',
@@ -66,11 +67,10 @@ final StepDefinitionGeneric seeUserOrContactInSearchResults =
   },
 );
 
-/// Waits until the provided [Contact] or [Chat] in chats searching is present.
+/// Waits until the provided [Chat] in chats searching is present.
 ///
 /// Examples:
 /// - Then I see chat "Example" in search results
-/// - Then I see contact "Charlie" in search results
 final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
   'I see chat {string} in search results',
   (String name, context) async {

@@ -19,7 +19,7 @@ import 'package:gherkin/gherkin.dart';
 /// [SearchCategory] available in an [SearchInChatsParameter].
 enum SearchCategory { user, contact }
 
-/// [SearchChatsParameter] representing an search type in chats searching.
+/// [SearchInChatsParameter] representing an search type in chats searching.
 class SearchInChatsParameter extends CustomParameter<SearchCategory> {
   SearchInChatsParameter()
       : super(
