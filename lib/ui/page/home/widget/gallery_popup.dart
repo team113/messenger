@@ -211,7 +211,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Indicator whether the close gallery button should be visible.
   bool _displayClose = false;
 
-  /// Indicator whether the fullscreen gallery button should be visible
+  /// Indicator whether the fullscreen gallery button should be visible.
   bool _displayFullscreen = false;
 
   /// [FocusNode] of the keyboard input.
@@ -226,24 +226,15 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [Timer] hiding the control buttons.
   Timer? _resetControlsTimer;
 
-  /// Indicator whether the control buttons should be visible.
+  /// Indicator whether all the control buttons should be visible.
   bool _showControls = true;
 
-  /// Indicator whether currently opened gallery item is initial.
+  /// Indicator whether this [GalleryPopup] hasn't been scrolled since it was
+  /// initially opened.
   bool _isInitialPage = true;
 
-  /// Indicator whether current gallery item is zoomed.
+  /// Indicator whether the currently visible [GalleryItem] is zoomed.
   bool _isZoomed = false;
-
-  void _displayControls() {
-    setState(() => _showControls = true);
-    _resetControlsTimer?.cancel();
-    _resetControlsTimer = Timer(3.seconds, () {
-      if (mounted) {
-        setState(() => _showControls = false);
-      }
-    });
-  }
 
   @override
   void initState() {
@@ -607,7 +598,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
-    var fade = Tween(begin: 0.0, end: 1.0).animate(
+    final fade = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fading,
         curve: const Interval(0, 0.5, curve: Curves.ease),
@@ -810,9 +801,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                   opaque: false,
                   onEnter: (d) => setState(() => _displayRight = true),
                   onExit: (d) => setState(() => _displayRight = false),
-                  child: const SizedBox(
-                    width: 100,
-                  ),
+                  child: const SizedBox(width: 100),
                 ),
               ),
             ],
@@ -1090,6 +1079,18 @@ class _GalleryPopupState extends State<GalleryPopup>
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
+  }
+
+  /// Toggles the [_showControls] indicator and starts the [_resetControlsTimer]
+  /// resetting it.
+  void _displayControls() {
+    setState(() => _showControls = true);
+    _resetControlsTimer?.cancel();
+    _resetControlsTimer = Timer(3.seconds, () {
+      if (mounted) {
+        setState(() => _showControls = false);
+      }
+    });
   }
 }
 

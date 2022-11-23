@@ -138,9 +138,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                     child: SizedBox(
                       width: _controller.value.size.width,
                       height: _controller.value.size.height,
-                      child: IgnorePointer(
-                        child: VideoPlayer(_controller),
-                      ),
+                      child: IgnorePointer(child: VideoPlayer(_controller)),
                     ),
                   ),
                   ContextMenuInterceptor(child: const SizedBox()),

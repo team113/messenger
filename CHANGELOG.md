@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
-        - Redesigned gallery popup. ([#212], [#199])
+        - Redesigned gallery. ([#212], [#199])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
 

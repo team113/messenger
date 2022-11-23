@@ -50,7 +50,7 @@ class DesktopControls extends StatefulWidget {
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// [Duration] to show initial user interface for.
+  /// [Duration] to initially show an user interface for.
   final Duration? showInterfaceFor;
 
   @override
@@ -96,7 +96,7 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [Timer] for hiding the user interface after a timeout.
   Timer? _hideTimer;
 
-  /// [Timer] for showing the user interface after a timeout.
+  /// [Timer] for toggling the [_showInterface] after a timeout.
   Timer? _interfaceTimer;
 
   /// [Timer] for hiding user interface on [_initialize].
@@ -112,9 +112,7 @@ class _DesktopControlsState extends State<DesktopControls>
   void initState() {
     Future.delayed(
       Duration.zero,
-      () {
-        _startInterfaceTimer(widget.showInterfaceFor);
-      },
+      () => _startInterfaceTimer(widget.showInterfaceFor),
     );
     super.initState();
   }
