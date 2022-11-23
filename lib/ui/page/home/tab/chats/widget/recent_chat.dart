@@ -390,18 +390,12 @@ class RecentChatTile extends StatelessWidget {
               padding: const EdgeInsets.only(right: 5),
               child: FutureBuilder<RxUser?>(
                 future: getUser?.call(item.authorId),
-                builder: (_, snapshot) {
-                  User? user;
-                  if (snapshot.data != null) {
-                    user = snapshot.data!.user.value;
-                    return Text(
-                        '${user.name ?? user.num}${'colon_space'.l10n}');
-                  } else {
-                    user = chat.getUser(item!.authorId);
-                    return Text(
-                        '${user?.name ?? user?.num ?? 'dot'.l10n * 3}${'colon_space'.l10n}');
-                  }
-                },
+                builder: (_, snapshot) => snapshot.data != null
+                    ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                    : AvatarWidget.fromUser(
+                        chat.getUser(item!.authorId),
+                        radius: 10,
+                      ),
               ),
             ),
           if (desc.isEmpty)
