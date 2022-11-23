@@ -395,7 +395,7 @@ class SearchView extends StatelessWidget {
               ? const Color(0xFFD7ECFF).withOpacity(0.8)
               : style.cardColor.darken(0.05),
           child: InkWell(
-            key: Key('SearchViewChat_${chat.chat.value.id}'),
+            key: Key('Chat_${chat.chat.value.id}'),
             borderRadius: style.cardRadius,
             onTap: onTap,
             hoverColor: selected

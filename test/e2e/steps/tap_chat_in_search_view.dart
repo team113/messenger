@@ -24,20 +24,18 @@ import '../world/custom_world.dart';
 /// Taps a chat with the provided user inside a [SearchView] widget.
 ///
 /// Examples:
-/// - When I tap chat with Bob
+/// - When I tap on chat with Bob
 final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
   'I tap on chat with {user}',
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
-      context.world.sessions.forEach((key, value) {
-        print('$key: ${value.dialog?.val}');
-      });
-      print('SearchViewChat_${context.world.sessions[user.name]!.dialog!.val}');
-      final finder = context.world.appDriver.findByKeySkipOffstage(
-        'SearchViewChat_${context.world.sessions[user.name]!.dialog!.val}',
-      );
-      print(finder);
+
+      final finder = context.world.appDriver
+          .findByKeySkipOffstage(
+            'Chat_${context.world.sessions[user.name]!.dialog!.val}',
+          )
+          .last;
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);
