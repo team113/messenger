@@ -21,6 +21,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
@@ -143,12 +144,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
-
-  /// Indicator whether the hint is dismissed or not.
-  final RxBool isHintDismissed = RxBool(false);
-
-  /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
@@ -410,6 +405,28 @@ class CallController extends GetxController {
       _currentCall.value.caller?.name?.val ??
       _currentCall.value.caller?.num.val;
 
+  /// Indicates whether a drag and drop videos hint should be displayed.
+  bool get showDragAndDropVideosHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropVideosHint ??
+      true;
+
+  /// Sets the drag and drop videos hint indicator to the provided [value].
+  set showDragAndDropVideosHint(bool value) {
+    _settingsRepository.setShowDragAndDropVideosHint(value);
+  }
+
+  /// Indicates whether a drag and drop buttons hint should be displayed.
+  bool get showDragAndDropButtonsHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropButtonsHint ??
+      true;
+
+  /// Sets the drag and drop buttons hint indicator to the provided [value].
+  set showDragAndDropButtonsHint(bool value) {
+    _settingsRepository.setShowDragAndDropButtonsHint(value);
+  }
+
   /// Returns actual size of the call view.
   Size get size {
     if ((!fullscreen.value && minimized.value) || minimizing.value) {
@@ -492,6 +509,7 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
+    HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
     }
@@ -820,6 +838,7 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
+    HardwareKeyboard.instance.removeHandler(_onKey);
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -1860,6 +1879,20 @@ class CallController extends GetxController {
           participants.firstWhereOrNull((p) => p.audio.value == track);
       participant?.audio.value = null;
     }
+  }
+
+  /// Invokes [toggleFullscreen], if [fullscreen] is `true`.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] handler, thus returns `true`,
+  /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
+  /// returns `false`.
+  bool _onKey(KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.escape && fullscreen.isTrue) {
+      toggleFullscreen();
+      return true;
+    }
+
+    return false;
   }
 }
 

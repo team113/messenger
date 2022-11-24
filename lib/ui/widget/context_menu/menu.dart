@@ -80,6 +80,7 @@ class ContextMenuButton extends StatefulWidget {
     Key? key,
     required this.label,
     this.leading,
+    this.trailing,
     this.onPressed,
   }) : super(key: key);
 
@@ -88,6 +89,9 @@ class ContextMenuButton extends StatefulWidget {
 
   /// Optional leading widget, typically an [Icon].
   final Widget? leading;
+
+  /// Optional trailing widget.
+  final Widget? trailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -124,6 +128,15 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.leading != null) ...[
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+                const SizedBox(width: 14),
+              ],
               Expanded(
                 child: Text(
                   widget.label,
@@ -132,13 +145,13 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                           color: Colors.black),
                 ),
               ),
-              if (widget.leading != null) ...[
+              if (widget.trailing != null) ...[
                 const SizedBox(width: 14),
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme: const IconThemeData(color: Colors.blue),
                   ),
-                  child: widget.leading!,
+                  child: widget.trailing!,
                 ),
               ],
             ],

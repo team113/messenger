@@ -282,7 +282,7 @@ class ParticipantView extends StatelessWidget {
         ContextMenuButton(
           label: 'btn_remove'.l10n,
           onPressed: () => c.removeChatMember(user.id),
-          leading: SvgLoader.asset(
+          trailing: SvgLoader.asset(
             'assets/icons/delete_small.svg',
             width: 17.75,
             height: 17,

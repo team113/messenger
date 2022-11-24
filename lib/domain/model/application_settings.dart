@@ -52,4 +52,14 @@ class ApplicationSettings extends HiveObject {
   /// [CallButton]s placed in a [Dock] of an [OngoingCall].
   @HiveField(4)
   List<String> callButtons;
+
+  /// Indicator whether a drag and drop videos hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(5)
+  bool? showDragAndDropVideosHint;
+
+  /// Indicator whether a drag and drop buttons hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(6)
+  bool? showDragAndDropButtonsHint;
 }
