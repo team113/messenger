@@ -32,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Redesigned forwarding modal. ([#189], [#181])
+    - Chats tab:
+        - Redesigned attachments preview. ([#217], [#214])
 
 ### Fixed
 
@@ -60,6 +62,8 @@ All user visible changes to this project will be documented in this file. This p
 [#203]: /../../issues/203
 [#204]: /../../pull/204
 [#212]: /../../pull/212
+[#214]: /../../issues/214
+[#217]: /../../pull/217
 
 
 
