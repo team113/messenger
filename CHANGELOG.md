@@ -29,6 +29,10 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned chats tab. ([#142])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+    - Chat page:
+        - Redesigned gallery. ([#212], [#199])
+    - Chats tab:
+        - Redesigned attachments preview. ([#217], [#214])
     - Transparent system bar. ([#211], [#208])
 
 ### Fixed
@@ -52,10 +56,14 @@ All user visible changes to this project will be documented in this file. This p
 [#193]: /../../pull/193
 [#196]: /../../issues/196
 [#198]: /../../pull/198
+[#199]: /../../issues/199
 [#203]: /../../issues/203
 [#204]: /../../pull/204
 [#208]: /../../issues/208
 [#211]: /../../pull/211
+[#212]: /../../pull/212
+[#214]: /../../issues/214
+[#217]: /../../pull/217
 
 
 

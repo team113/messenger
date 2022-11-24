@@ -38,6 +38,7 @@ class DesktopControls extends StatefulWidget {
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
+    this.showInterfaceFor,
   }) : super(key: key);
 
   /// Callback, called when a close video action is fired.
@@ -48,6 +49,9 @@ class DesktopControls extends StatefulWidget {
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
+
+  /// [Duration] to initially show an user interface for.
+  final Duration? showInterfaceFor;
 
   @override
   State<StatefulWidget> createState() => _DesktopControlsState();
@@ -68,8 +72,11 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [ChewieController], previously assigned to the [_chewieController].
   ChewieController? _oldController;
 
-  /// Indicator whether user interface should be visible or not.
+  /// Indicator whether user interface should be hidden or not.
   bool _hideStuff = true;
+
+  /// Indicator whether user interface should be visible or not.
+  bool _showInterface = true;
 
   /// Indicator whether the bottom controls bar should be visible or not.
   bool _showBottomBar = false;
@@ -89,6 +96,9 @@ class _DesktopControlsState extends State<DesktopControls>
   /// [Timer] for hiding the user interface after a timeout.
   Timer? _hideTimer;
 
+  /// [Timer] for toggling the [_showInterface] after a timeout.
+  Timer? _interfaceTimer;
+
   /// [Timer] for hiding user interface on [_initialize].
   Timer? _initTimer;
 
@@ -97,6 +107,15 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
+
+  @override
+  void initState() {
+    Future.delayed(
+      Duration.zero,
+      () => _startInterfaceTimer(widget.showInterfaceFor),
+    );
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -231,7 +250,7 @@ class _DesktopControlsState extends State<DesktopControls>
     final iconColor = Theme.of(context).textTheme.button!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: _showBottomBar,
+      isOpen: _showBottomBar || _showInterface,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
@@ -300,7 +319,8 @@ class _DesktopControlsState extends State<DesktopControls>
         child: _controller.value.isPlaying
             ? Container()
             : AnimatedOpacity(
-                opacity: !_dragging && !_hideStuff ? 1.0 : 0.0,
+                opacity:
+                    !_dragging && !_hideStuff || _showInterface ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Container(
                   width: 48,
@@ -502,8 +522,7 @@ class _DesktopControlsState extends State<DesktopControls>
     final isFinished = _latestValue.position >= _latestValue.duration;
 
     if (_controller.value.isPlaying) {
-      _hideStuff = false;
-      _hideTimer?.cancel();
+      _cancelAndRestartTimer();
       _controller.pause();
     } else {
       _cancelAndRestartTimer();
@@ -530,9 +549,21 @@ class _DesktopControlsState extends State<DesktopControls>
     setState(() => _hideStuff = false);
   }
 
+  /// Starts the [_interfaceTimer].
+  void _startInterfaceTimer([Duration? duration]) {
+    setState(() => _showInterface = true);
+    _interfaceTimer?.cancel();
+    _interfaceTimer = Timer(duration ?? 1.seconds, () {
+      if (mounted) {
+        setState(() => _showInterface = false);
+      }
+    });
+  }
+
   /// Starts the [_hideTimer].
-  void _startHideTimer() {
-    _hideTimer = Timer(const Duration(seconds: 3), () {
+  void _startHideTimer([Duration? duration]) {
+    setState(() => _hideStuff = false);
+    _hideTimer = Timer(duration ?? 1.seconds, () {
       setState(() => _hideStuff = true);
     });
   }
@@ -541,5 +572,9 @@ class _DesktopControlsState extends State<DesktopControls>
   void _updateState() {
     if (!mounted) return;
     setState(() => _latestValue = _controller.value);
+
+    if (!_controller.value.isPlaying) {
+      _startInterfaceTimer(3.seconds);
+    }
   }
 }
