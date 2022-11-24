@@ -31,18 +31,6 @@ class Themes {
           onBackground: Colors.black,
         );
 
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.dark,
-        systemNavigationBarContrastEnforced: false,
-        systemStatusBarContrastEnforced: false,
-      ),
-    );
-
     return ThemeData.light().copyWith(
         extensions: [
           Style(
