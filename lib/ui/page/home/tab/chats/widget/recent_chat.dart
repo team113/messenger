@@ -114,7 +114,15 @@ class RecentChatTile extends StatelessWidget {
               color: Theme.of(context).primaryIconTheme.color,
               key: Key('MuteIndicator_${chat.id}'),
             ),
-          ]
+            const SizedBox(width: 5),
+          ],
+        ],
+        status: [
+          _status(context),
+          Text(
+            chat.updatedAt.val.toLocal().toShort(),
+            style: Theme.of(context).textTheme.subtitle2,
+          ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -124,47 +132,9 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
+                _counter(),
               ],
             ),
-          ),
-        ],
-        trailing: [
-          _callButtons(context),
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(height: 15),
-              if (chat.ongoingCall != null)
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 35),
-                      child: Text(
-                        DateTime.now()
-                            .difference(chat.ongoingCall!.at.val)
-                            .hhMmSs(),
-                        style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                      ),
-                    );
-                  },
-                )
-              else
-                Text(
-                  chat.updatedAt.val.toLocal().toShort(),
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _status(context),
-                  _counter(),
-                ],
-              ),
-            ],
           ),
         ],
         actions: [
@@ -201,6 +171,74 @@ class RecentChatTile extends StatelessWidget {
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context) {
     final Chat chat = rxChat.chat.value;
+
+    if (chat.ongoingCall != null) {
+      final Widget trailing = WidgetButton(
+        key: inCall?.call() == true
+            ? const Key('JoinCallButton')
+            : const Key('DropCallButton'),
+        onPressed: inCall?.call() == true ? onDrop : onJoin,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: inCall?.call() == true
+                ? Colors.red
+                : Theme.of(context).colorScheme.secondary,
+          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 8),
+                Icon(
+                  inCall?.call() == true ? Icons.call_end : Icons.call,
+                  size: 16,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                if (constraints.maxWidth > 110)
+                  Expanded(
+                    child: Text(
+                      inCall?.call() == true
+                          ? 'btn_call_end'.l10n
+                          : 'btn_join_call'.l10n,
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                PeriodicBuilder(
+                  period: const Duration(seconds: 1),
+                  builder: (_) {
+                    return Text(
+                      DateTime.now()
+                          .difference(chat.ongoingCall!.at.val)
+                          .hhMmSs(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(color: Colors.white),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+            );
+          }),
+        ),
+      );
+
+      return DefaultTextStyle(
+        style: Theme.of(context).textTheme.subtitle2!,
+        overflow: TextOverflow.ellipsis,
+        child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+      );
+    }
 
     final ChatItem? item;
     if (rxChat.messages.isNotEmpty) {
@@ -481,8 +519,9 @@ class RecentChatTile extends StatelessWidget {
       if (e.file.isImage && e.file.bytes != null) {
         content = Image.memory(e.file.bytes!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        if (PlatformUtils.isMobile ||
-            PlatformUtils.isWeb && e.file.bytes != null) {
+        // TODO: `video_player` being used doesn't support desktop platforms.
+        if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
+            e.file.bytes != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
@@ -524,9 +563,7 @@ class RecentChatTile extends StatelessWidget {
               child: SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 3),
               ),
             ),
           );
@@ -577,9 +614,9 @@ class RecentChatTile extends StatelessWidget {
           child: content,
         ),
       );
-    } else {
-      return const SizedBox();
     }
+
+    return const SizedBox();
   }
 
   /// Builds a [ChatItem.status] visual representation.
@@ -601,20 +638,23 @@ class RecentChatTile extends StatelessWidget {
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
 
-        return Icon(
-          isRead || isDelivered
-              ? Icons.done_all
-              : isSending
-                  ? Icons.access_alarm
-                  : isError
-                      ? Icons.error_outline
-                      : Icons.done,
-          color: isRead
-              ? Theme.of(context).colorScheme.secondary
-              : isError
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.primary,
-          size: 16,
+        return Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Icon(
+            isRead || isDelivered
+                ? Icons.done_all
+                : isSending
+                    ? Icons.access_alarm
+                    : isError
+                        ? Icons.error_outline
+                        : Icons.done,
+            color: isRead
+                ? Theme.of(context).colorScheme.secondary
+                : isError
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+            size: 16,
+          ),
         );
       }
 
@@ -655,69 +695,6 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
-  }
-
-  /// Returns a drop or join call button, if any [OngoingCall] is happening in
-  /// this [Chat].
-  Widget _callButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 5),
-      child: Obx(() {
-        final Chat chat = rxChat.chat.value;
-        final Widget trailing;
-
-        if (chat.ongoingCall != null) {
-          if (inCall?.call() == true) {
-            trailing = WidgetButton(
-              key: const Key('DropCallButton'),
-              onPressed: onDrop,
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/call_end.svg',
-                    width: 38,
-                    height: 38,
-                  ),
-                ),
-              ),
-            );
-          } else {
-            trailing = WidgetButton(
-              key: const Key('JoinCallButton'),
-              onPressed: onJoin,
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/audio_call_start.svg',
-                    width: 18,
-                    height: 18,
-                  ),
-                ),
-              ),
-            );
-          }
-        } else {
-          trailing = Container(key: const Key('NoCall'));
-        }
-
-        return AnimatedSwitcher(
-          duration: 300.milliseconds,
-          child: trailing,
-        );
-      }),
-    );
   }
 }
 

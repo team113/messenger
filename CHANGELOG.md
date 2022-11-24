@@ -19,7 +19,6 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
-        - Image and video miniatures. ([#217], [#214])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
 
@@ -28,9 +27,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
-        - Redesigned gallery. ([#212], [#199])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+    - Chat page:
+        - Redesigned gallery. ([#212], [#199])
+    - Chats tab:
+        - Redesigned attachments preview. ([#217], [#214])
 
 ### Fixed
 
