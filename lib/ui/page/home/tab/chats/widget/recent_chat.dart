@@ -19,9 +19,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
+import '/config.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -30,13 +32,16 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
@@ -109,7 +114,15 @@ class RecentChatTile extends StatelessWidget {
               color: Theme.of(context).primaryIconTheme.color,
               key: Key('MuteIndicator_${chat.id}'),
             ),
-          ]
+            const SizedBox(width: 5),
+          ],
+        ],
+        status: [
+          _status(context),
+          Text(
+            chat.updatedAt.val.toLocal().toShort(),
+            style: Theme.of(context).textTheme.subtitle2,
+          ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -119,47 +132,9 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
+                _counter(),
               ],
             ),
-          ),
-        ],
-        trailing: [
-          _callButtons(context),
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(height: 15),
-              if (chat.ongoingCall != null)
-                PeriodicBuilder(
-                  period: const Duration(seconds: 1),
-                  builder: (_) {
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 35),
-                      child: Text(
-                        DateTime.now()
-                            .difference(chat.ongoingCall!.at.val)
-                            .hhMmSs(),
-                        style: Theme.of(context).textTheme.subtitle2?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                      ),
-                    );
-                  },
-                )
-              else
-                Text(
-                  chat.updatedAt.val.toLocal().toShort(),
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _status(context),
-                  _counter(),
-                ],
-              ),
-            ],
           ),
         ],
         actions: [
@@ -199,6 +174,74 @@ class RecentChatTile extends StatelessWidget {
   Widget _subtitle(BuildContext context) {
     final Chat chat = rxChat.chat.value;
 
+    if (chat.ongoingCall != null) {
+      final Widget trailing = WidgetButton(
+        key: inCall?.call() == true
+            ? const Key('JoinCallButton')
+            : const Key('DropCallButton'),
+        onPressed: inCall?.call() == true ? onDrop : onJoin,
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: inCall?.call() == true
+                ? Colors.red
+                : Theme.of(context).colorScheme.secondary,
+          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 8),
+                Icon(
+                  inCall?.call() == true ? Icons.call_end : Icons.call,
+                  size: 16,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                if (constraints.maxWidth > 110)
+                  Expanded(
+                    child: Text(
+                      inCall?.call() == true
+                          ? 'btn_call_end'.l10n
+                          : 'btn_join_call'.l10n,
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                PeriodicBuilder(
+                  period: const Duration(seconds: 1),
+                  builder: (_) {
+                    return Text(
+                      DateTime.now()
+                          .difference(chat.ongoingCall!.at.val)
+                          .hhMmSs(),
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle2
+                          ?.copyWith(color: Colors.white),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+            );
+          }),
+        ),
+      );
+
+      return DefaultTextStyle(
+        style: Theme.of(context).textTheme.subtitle2!,
+        overflow: TextOverflow.ellipsis,
+        child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+      );
+    }
+
     final ChatItem? item;
     if (rxChat.messages.isNotEmpty) {
       item = rxChat.messages.last.value;
@@ -221,26 +264,54 @@ class RecentChatTile extends StatelessWidget {
         desc.write(draft.text!.val);
       }
 
-      if (draft.attachments.isNotEmpty) {
-        if (desc.isNotEmpty) desc.write('space'.l10n);
-        desc.write(
-          'label_attachments'.l10nfmt({'count': draft.attachments.length}),
-        );
-      }
-
       if (draft.repliesTo.isNotEmpty) {
         if (desc.isNotEmpty) desc.write('space'.l10n);
         desc.write('label_replies'.l10nfmt({'count': draft.repliesTo.length}));
       }
 
+      final List<Widget> images = [];
+
+      if (draft.attachments.isNotEmpty) {
+        if (draft.text == null) {
+          images.addAll(
+            draft.attachments.map((e) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 2),
+                child: _attachment(e),
+              );
+            }),
+          );
+        } else {
+          images.add(
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: _attachment(draft.attachments.first),
+            ),
+          );
+        }
+      }
+
       subtitle = [
-        Flexible(
-          child: Text(
-            '${'label_draft'.l10n}${'semicolon_space'.l10n}$desc',
-            key: const Key('Draft'),
-            maxLines: 2,
+        Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
+        if (desc.isEmpty)
+          Flexible(
+            child: LayoutBuilder(builder: (_, constraints) {
+              return Row(
+                children: images
+                    .take((constraints.maxWidth / (30 + 4)).floor())
+                    .toList(),
+              );
+            }),
+          )
+        else
+          ...images,
+        if (desc.isNotEmpty)
+          Flexible(
+            child: Text(
+              desc.toString(),
+              key: const Key('Draft'),
+            ),
           ),
-        ),
       ];
     } else if (typings.isNotEmpty) {
       if (!rxChat.chat.value.isGroup) {
@@ -309,25 +380,52 @@ class RecentChatTile extends StatelessWidget {
       } else if (item is ChatMessage) {
         final desc = StringBuffer();
 
-        if (!chat.isGroup && item.authorId == me) {
-          desc.write('${'label_you'.l10n}${'colon_space'.l10n}');
-        }
-
         if (item.text != null) {
           desc.write(item.text!.val);
-          if (item.attachments.isNotEmpty) {
-            desc.write(' ');
+        }
+
+        final List<Widget> images = [];
+
+        if (item.attachments.isNotEmpty) {
+          if (item.text == null) {
+            images.addAll(
+              item.attachments.map((e) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: _attachment(
+                    e,
+                    onError: () async {
+                      if (rxChat.chat.value.lastItem != null) {
+                        await rxChat
+                            .updateAttachments(rxChat.chat.value.lastItem!);
+                      }
+                    },
+                  ),
+                );
+              }),
+            );
+          } else {
+            images.add(
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: _attachment(
+                  item.attachments.first,
+                  onError: () async {
+                    if (rxChat.chat.value.lastItem != null) {
+                      await rxChat
+                          .updateAttachments(rxChat.chat.value.lastItem!);
+                    }
+                  },
+                ),
+              ),
+            );
           }
         }
 
-        if (item.attachments.isNotEmpty) {
-          desc.write(
-            'label_attachments'.l10nfmt({'count': item.attachments.length}),
-          );
-        }
-
         subtitle = [
-          if (chat.isGroup)
+          if (item.authorId == me)
+            Text('${'label_you'.l10n}${'colon_space'.l10n}')
+          else if (chat.isGroup)
             Padding(
               padding: const EdgeInsets.only(right: 5),
               child: FutureBuilder<RxUser?>(
@@ -340,7 +438,19 @@ class RecentChatTile extends StatelessWidget {
                       ),
               ),
             ),
-          Flexible(child: Text(desc.toString())),
+          if (desc.isEmpty)
+            Flexible(
+              child: LayoutBuilder(builder: (_, constraints) {
+                return Row(
+                  children: images
+                      .take((constraints.maxWidth / (30 + 4)).floor())
+                      .toList(),
+                );
+              }),
+            )
+          else
+            ...images,
+          if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
         ];
       } else if (item is ChatForward) {
         subtitle = [
@@ -399,9 +509,116 @@ class RecentChatTile extends StatelessWidget {
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.subtitle2!,
       overflow: TextOverflow.ellipsis,
-      maxLines: 2,
       child: Row(children: subtitle),
     );
+  }
+
+  /// Builds an [Attachment] visual representation.
+  Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
+    Widget? content;
+
+    if (e is LocalAttachment) {
+      if (e.file.isImage && e.file.bytes != null) {
+        content = Image.memory(e.file.bytes!, fit: BoxFit.cover);
+      } else if (e.file.isVideo) {
+        // TODO: `video_player` being used doesn't support desktop platforms.
+        if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
+            e.file.bytes != null) {
+          content = FittedBox(
+            fit: BoxFit.cover,
+            child: VideoThumbnail.bytes(
+              bytes: e.file.bytes!,
+              key: key,
+              height: 300,
+            ),
+          );
+        } else {
+          content = Container(
+            color: Colors.grey,
+            child: const Icon(
+              Icons.video_file,
+              size: 18,
+              color: Colors.white,
+            ),
+          );
+        }
+      } else {
+        content = Container(
+          color: Colors.grey,
+          child: SvgLoader.asset(
+            'assets/icons/file.svg',
+            width: 30,
+            height: 30,
+          ),
+        );
+      }
+    }
+
+    if (e is ImageAttachment) {
+      content = Image.network(
+        '${Config.files}${e.medium.relativeRef}',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return InitCallback(
+            callback: onError,
+            child: const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    if (e is FileAttachment) {
+      if (e.isVideo) {
+        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          content = FittedBox(
+            fit: BoxFit.cover,
+            child: VideoThumbnail.url(
+              url: e.original.url,
+              key: key,
+              height: 300,
+              onError: onError,
+            ),
+          );
+        } else {
+          content = Container(
+            color: Colors.grey,
+            child: const Icon(
+              Icons.video_file,
+              size: 18,
+              color: Colors.white,
+            ),
+          );
+        }
+      } else {
+        content = Container(
+          color: Colors.grey,
+          child: SvgLoader.asset(
+            'assets/icons/file.svg',
+            width: 30,
+            height: 30,
+          ),
+        );
+      }
+    }
+
+    if (content != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: content,
+        ),
+      );
+    }
+
+    return const SizedBox();
   }
 
   /// Builds a [ChatItem.status] visual representation.
@@ -423,20 +640,23 @@ class RecentChatTile extends StatelessWidget {
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
 
-        return Icon(
-          isRead || isDelivered
-              ? Icons.done_all
-              : isSending
-                  ? Icons.access_alarm
-                  : isError
-                      ? Icons.error_outline
-                      : Icons.done,
-          color: isRead
-              ? Theme.of(context).colorScheme.secondary
-              : isError
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.primary,
-          size: 16,
+        return Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Icon(
+            isRead || isDelivered
+                ? Icons.done_all
+                : isSending
+                    ? Icons.access_alarm
+                    : isError
+                        ? Icons.error_outline
+                        : Icons.done,
+            color: isRead
+                ? Theme.of(context).colorScheme.secondary
+                : isError
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+            size: 16,
+          ),
         );
       }
 
@@ -477,69 +697,6 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
-  }
-
-  /// Returns a drop or join call button, if any [OngoingCall] is happening in
-  /// this [Chat].
-  Widget _callButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 5),
-      child: Obx(() {
-        final Chat chat = rxChat.chat.value;
-        final Widget trailing;
-
-        if (chat.ongoingCall != null) {
-          if (inCall?.call() == true) {
-            trailing = WidgetButton(
-              key: const Key('DropCallButton'),
-              onPressed: onDrop,
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/call_end.svg',
-                    width: 38,
-                    height: 38,
-                  ),
-                ),
-              ),
-            );
-          } else {
-            trailing = WidgetButton(
-              key: const Key('JoinCallButton'),
-              onPressed: onJoin,
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/audio_call_start.svg',
-                    width: 18,
-                    height: 18,
-                  ),
-                ),
-              ),
-            );
-          }
-        } else {
-          trailing = Container(key: const Key('NoCall'));
-        }
-
-        return AnimatedSwitcher(
-          duration: 300.milliseconds,
-          child: trailing,
-        );
-      }),
-    );
   }
 }
 
