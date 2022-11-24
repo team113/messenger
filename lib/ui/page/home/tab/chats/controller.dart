@@ -20,32 +20,37 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/web/web_utils.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/call.dart'
     show
         CallAlreadyJoinedException,
         CallDoesNotExistException,
         CallIsInPopupException;
+import '/domain/repository/contact.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show CreateGroupChatException, HideChatException, RemoveChatMemberException;
+    show
+        CreateGroupChatException,
+        HideChatException,
+        RemoveChatMemberException,
+        ToggleChatMuteException;
 import '/routes.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -441,6 +446,38 @@ class ChatsTabController extends GetxController {
       rethrow;
     } finally {
       creatingStatus.value = RxStatus.empty();
+    }
+  }
+
+  /// Unmutes a [Chat] identified by the provided [id].
+  Future<void> unmuteChat(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat] identified by the provided [id].
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    try {
+      PreciseDateTime? until;
+      if (duration != null) {
+        until = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(
+        id,
+        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
