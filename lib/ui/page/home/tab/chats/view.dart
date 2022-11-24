@@ -73,7 +73,7 @@ class ChatsTabView extends StatelessWidget {
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
                     child: ListView.builder(
-                      controller: ScrollController(),
+                      controller: c.listController,
                       itemCount: c.chats.length,
                       itemBuilder: (_, i) {
                         final RxChat chat = c.chats[i];

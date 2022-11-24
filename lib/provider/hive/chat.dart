@@ -57,9 +57,9 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
-    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatItemIdAdapter());
     Hive.maybeRegisterAdapter(ChatItemVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatMemberAdapter());
     Hive.maybeRegisterAdapter(ChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
@@ -77,11 +77,13 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
+    Hive.maybeRegisterAdapter(LastReadItemAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
@@ -107,8 +109,9 @@ class HiveChat extends HiveObject {
     this.value,
     this.ver,
     this.lastItemCursor,
-    this.lastReadItemCursor,
-  );
+    this.lastReadItemCursor, {
+    this.cursor,
+  });
 
   /// Persisted [Chat] model.
   @HiveField(0)
@@ -128,4 +131,8 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value].
+  @HiveField(4)
+  RecentChatsCursor? cursor;
 }

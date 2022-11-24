@@ -89,6 +89,9 @@ abstract class AbstractChatRepository {
     List<ChatItem> repliesTo = const [],
   });
 
+  /// Fetches next chats.
+  Future<void> fetchNextChats();
+
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item);
 
@@ -223,6 +226,10 @@ abstract class RxChat {
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
+
+  Future<void> fetchMessagesAbove();
+
+  Future<void> fetchMessagesBelow();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

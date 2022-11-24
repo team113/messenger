@@ -18,6 +18,7 @@ import 'package:hive/hive.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model_type_id.dart';
+import '/util/new_type.dart';
 import 'version.dart';
 
 part 'chat.g.dart';
@@ -30,6 +31,6 @@ class ChatVersion extends Version {
 
 /// Cursor used for recent [Chat]s pagination.
 @HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends Version {
+class RecentChatsCursor extends NewType<String> {
   RecentChatsCursor(String val) : super(val);
 }

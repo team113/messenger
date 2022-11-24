@@ -51,8 +51,8 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
     Hive.maybeRegisterAdapter(ChatItemIdAdapter());
-    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatItemVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatMemberAdapter());
     Hive.maybeRegisterAdapter(ChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
@@ -63,6 +63,7 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(HiveChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
+    Hive.maybeRegisterAdapter(LastReadItemAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());

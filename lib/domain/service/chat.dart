@@ -127,6 +127,10 @@ class ChatService extends DisposableService {
     );
   }
 
+  Future<void> fetchNextChats() async {
+    await _chatRepository.fetchNextChats();
+  }
+
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
       _chatRepository.resendChatItem(item);

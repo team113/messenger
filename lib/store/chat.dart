@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -48,6 +49,7 @@ import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/store/event/recent_chat.dart';
+import '/store/model/chat_item.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -204,6 +206,50 @@ class ChatRepository implements AbstractChatRepository {
       attachments: attachments,
       repliesTo: repliesTo,
     );
+  }
+
+  /// Indicator whether more [chats] can be fetched.
+  bool _isMoreChats = false;
+
+  @override
+  Future<void> fetchNextChats() async {
+    var sorted = this
+        .chats
+        .values
+        .sorted(
+            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt));
+
+    if (this.chats.isEmpty || !_isMoreChats) {
+      return;
+    }
+
+    RecentChatsCursor? cursor = this
+        .chats
+        .values
+        .sorted(
+            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt))
+        .lastWhereOrNull((e) => e.cursor != null)
+        ?.cursor;
+
+    const maxInt = 20;
+    RecentChats$Query$RecentChats query =
+        (await _graphQlProvider.recentChats(first: maxInt, after: cursor))
+            .recentChats;
+
+    if(query.edges.length < maxInt) {
+      _isMoreChats = false;
+    }
+
+    HashMap<ChatId, ChatData> chats = HashMap();
+    for (var c in query.edges) {
+      ChatData data = _chat(c.node, cursor: c.cursor);
+      chats[data.chat.value.id] = data;
+    }
+
+    for (ChatData c in chats.values) {
+      _chats[c.chat.value.id]?.subscribe();
+      _putEntry(c);
+    }
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -649,12 +695,22 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  // TODO: Messages list can be huge, so we should implement pagination and
-  //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId id) async {
-    const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(id, first: maxInt);
+  Future<List<HiveChatItem>> messages(
+    ChatId id, {
+    int? first,
+    ChatItemsCursor? after,
+    int? last,
+    ChatItemsCursor? before,
+  }) async {
+    var query = await _graphQlProvider.chatItems(
+      id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
     return query.chat?.items.edges
             .map((e) => e.toHive())
             .expand((e) => e)
@@ -907,6 +963,9 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _putChat(HiveChat chat) async {
     var saved = _chatLocal.get(chat.value.id);
     if (saved == null || saved.ver < chat.ver) {
+      if (saved != null && chat.cursor == null) {
+        chat.cursor = saved.cursor;
+      }
       await _chatLocal.put(chat);
     }
   }
@@ -1023,8 +1082,6 @@ class ChatRepository implements AbstractChatRepository {
         }
       });
 
-  // TODO: Chat list can be huge, so we should implement pagination and
-  //       loading on demand.
   /// Fetches __all__ [HiveChat]s from the remote.
   Future<HashMap<ChatId, ChatData>> _recentChats() async {
     const maxInt = 120;
@@ -1032,8 +1089,8 @@ class ChatRepository implements AbstractChatRepository {
         (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
 
     HashMap<ChatId, ChatData> chats = HashMap();
-    for (var c in query.nodes) {
-      ChatData data = _chat(c);
+    for (var c in query.edges) {
+      ChatData data = _chat(c.node, cursor: c.cursor);
       chats[data.chat.value.id] = data;
     }
 
@@ -1053,23 +1110,16 @@ class ChatRepository implements AbstractChatRepository {
       entry.subscribe();
     }
 
-    for (var item in [
-      if (data.lastItem != null) ...data.lastItem!,
-      if (data.lastReadItem != null) ...data.lastReadItem!,
-    ]) {
-      entry.put(item);
-    }
-
     return entry;
   }
 
   /// Constructs a new [ChatData] from the given [ChatMixin] fragment.
-  ChatData _chat(ChatMixin q) {
+  ChatData _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toData();
+    return q.toData(cursor: cursor);
   }
 }
 

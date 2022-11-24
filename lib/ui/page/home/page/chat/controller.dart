@@ -359,7 +359,10 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     listController.addListener(_updateFabStates);
-    _fetchChat();
+    _ignorePositionChanges = true;
+    _fetchChat().whenComplete(() {
+      _ignorePositionChanges = false;
+    });
     _initAudio();
     super.onReady();
   }
@@ -1170,10 +1173,27 @@ class ChatController extends GetxController {
     );
   }
 
+  bool isFetchingMore = false;
+
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
   /// [FlutterListViewController.position] value.
-  void _updateFabStates() {
+  void _updateFabStates() async {
     if (listController.hasClients && !_ignorePositionChanges) {
+      if (!isFetchingMore &&
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height + 200) {
+        isFetchingMore = true;
+        chat?.fetchMessagesAbove().whenComplete(() => isFetchingMore = false);
+      }
+
+      if (!isFetchingMore &&
+          listController.position.pixels >
+              listController.position.maxScrollExtent -
+                  (MediaQuery.of(router.context!).size.height * 3 + 200)) {
+        isFetchingMore = true;
+        chat?.fetchMessagesBelow().whenComplete(() => isFetchingMore = false);
+      }
+
       if (listController.position.pixels <
           listController.position.maxScrollExtent -
               MediaQuery.of(router.context!).size.height * 2 +
@@ -1296,14 +1316,16 @@ class ChatController extends GetxController {
                 : listController.position.pixels,
           );
 
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            listController.sliverController.animateToIndex(
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            _ignorePositionChanges = true;
+            await listController.sliverController.animateToIndex(
               result.index,
               offset: 0,
               offsetBasedOnBottom: true,
               duration: 200.milliseconds,
               curve: Curves.ease,
             );
+            _ignorePositionChanges = false;
           });
         }
       } else {

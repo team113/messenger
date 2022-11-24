@@ -17,14 +17,15 @@
 import '../schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat.dart';
+import '/provider/hive/chat_item.dart';
 import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
 import 'file.dart';
@@ -60,27 +61,33 @@ extension ChatConversion on ChatMixin {
             lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
         lastDelivery: lastDelivery,
         lastItem: lastItem?.toHive().first.value,
-        lastReadItem: lastReadItem?.toHive().first.value,
+        lastReadItem: lastReadItem != null
+            ? LastReadItem(
+                lastReadItem!.toHive().first.value,
+                lastReadItem!.toHive().first.cursor,
+              )
+            : null,
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive() => HiveChat(
+  HiveChat toHive({RecentChatsCursor? cursor}) => HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
         lastReadItem?.cursor,
+        cursor: cursor,
       );
 
   /// Constructs a new [ChatData] from this [ChatMixin].
-  ChatData toData() {
+  ChatData toData({RecentChatsCursor? cursor}) {
     var lastItem = this.lastItem?.toHive();
     var lastReadItem = this.lastReadItem?.toHive();
 
     return ChatData(
-      toHive(),
+      toHive(cursor: cursor),
       lastItem,
       lastReadItem,
     );

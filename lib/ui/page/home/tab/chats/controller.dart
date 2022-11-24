@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -56,6 +57,9 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
+  /// [FlutterListViewController] of a messages [FlutterListView].
+  final ScrollController listController = ScrollController();
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -83,6 +87,7 @@ class ChatsTabController extends GetxController {
 
   @override
   void onInit() {
+    listController.addListener(_scrollListener);
     chats = RxList<RxChat>(_chatService.chats.values.toList());
     _sortChats();
 
@@ -120,6 +125,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    listController.removeListener(_scrollListener);
 
     super.onClose();
   }
@@ -225,6 +231,23 @@ class ChatsTabController extends GetxController {
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
+  }
+
+  bool isFetchingMore = false;
+
+  /// Uploads new [Chat]s based on the [ScrollController.position] value.
+  void _scrollListener() {
+    if (listController.hasClients) {
+      if (!isFetchingMore &&
+          listController.position.pixels <
+              MediaQuery
+                  .of(router.context!)
+                  .size
+                  .height + 200) {
+        isFetchingMore = true;
+        _chatService.fetchNextChats().whenComplete(() => isFetchingMore = false);
+      }
+    }
   }
 }
 
