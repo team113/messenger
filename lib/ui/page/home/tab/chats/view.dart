@@ -231,9 +231,13 @@ class ChatsTabView extends StatelessWidget {
                   c.searchController?.search.isEmpty.value == false) {
                 if (c.searchController!.searchStatus.value.isLoading &&
                     c.elements.isEmpty) {
-                  child = const Center(child: CircularProgressIndicator());
+                  child = const Center(
+                    key: Key('SearchLoading'),
+                    child: CircularProgressIndicator(),
+                  );
                 } else if (c.elements.isNotEmpty) {
                   child = ListView.builder(
+                    key: const Key('SearchListView'),
                     controller: ScrollController(),
                     itemCount: c.elements.length,
                     itemBuilder: (_, i) {
@@ -285,27 +289,6 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          top: i == 0 ? 3 : 0,
-                          bottom: i == c.elements.length - 1 ? 4 : 0,
-                        ),
-                        child: child,
-                      );
-                    },
-                  );
-                } else {
-                  child = Center(child: Text('label_nothing_found'.l10n));
-                }
-              } else {
-                if (c.chats.isEmpty) {
-                  child = Center(child: Text('label_no_chats'.l10n));
-                } else {
-                  child = ListView.builder(
-                    controller: ScrollController(),
-                    itemCount: c.chats.length,
-                    itemBuilder: (_, i) {
-                      final RxChat chat = c.chats[i];
                       return AnimationConfiguration.staggeredList(
                         position: i,
                         duration: const Duration(milliseconds: 375),
@@ -313,33 +296,72 @@ class ChatsTabView extends StatelessWidget {
                           horizontalOffset: 50,
                           child: FadeInAnimation(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: RecentChatTile(
-                                chat,
-                                key: Key('RecentChat_${chat.id}'),
-                                me: c.me,
-                                getUser: c.getUser,
-                                onJoin: () => c.joinCall(chat.id),
-                                onDrop: () => c.dropCall(chat.id),
-                                onLeave: () => c.leaveChat(chat.id),
-                                onHide: () => c.hideChat(chat.id),
-                                inCall: () => c.inCall(chat.id),
-                                onMute: () => MuteChatView.show(
-                                  context,
-                                  chatId: chat.id,
-                                  onMute: (duration) => c.muteChat(
-                                    chat.id,
-                                    duration: duration,
-                                  ),
-                                ),
-                                onUnmute: () => c.unmuteChat(chat.id),
+                              padding: EdgeInsets.only(
+                                top: i == 0 ? 3 : 0,
+                                bottom: i == c.elements.length - 1 ? 4 : 0,
                               ),
+                              child: child,
                             ),
                           ),
                         ),
                       );
                     },
+                  );
+                } else {
+                  child = Center(
+                    key: const Key('SearchNothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  );
+                }
+              } else {
+                if (c.chats.isEmpty) {
+                  child = Center(
+                    key: const Key('ChatsNothingFound'),
+                    child: Text('label_no_chats'.l10n),
+                  );
+                } else {
+                  child = AnimationLimiter(
+                    key: const Key('ChatsListView'),
+                    child: ListView.builder(
+                      controller: ScrollController(),
+                      itemCount: c.chats.length,
+                      itemBuilder: (_, i) {
+                        final RxChat chat = c.chats[i];
+                        return AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            horizontalOffset: 50,
+                            child: FadeInAnimation(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: RecentChatTile(
+                                  chat,
+                                  key: Key('RecentChat_${chat.id}'),
+                                  me: c.me,
+                                  getUser: c.getUser,
+                                  onJoin: () => c.joinCall(chat.id),
+                                  onDrop: () => c.dropCall(chat.id),
+                                  onLeave: () => c.leaveChat(chat.id),
+                                  onHide: () => c.hideChat(chat.id),
+                                  inCall: () => c.inCall(chat.id),
+                                  onMute: () => MuteChatView.show(
+                                    context,
+                                    chatId: chat.id,
+                                    onMute: (duration) => c.muteChat(
+                                      chat.id,
+                                      duration: duration,
+                                    ),
+                                  ),
+                                  onUnmute: () => c.unmuteChat(chat.id),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }
               }
@@ -347,7 +369,10 @@ class ChatsTabView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
-                  child: AnimationLimiter(child: child),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
+                  ),
                 ),
               );
             }
