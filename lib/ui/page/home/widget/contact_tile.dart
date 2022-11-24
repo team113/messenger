@@ -21,6 +21,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
@@ -77,25 +78,21 @@ class ContactTile extends StatelessWidget {
 
     return Container(
       constraints: BoxConstraints(minHeight: height),
-      decoration: BoxDecoration(
-        borderRadius: style.cardRadius,
-        border: style.cardBorder,
-        color: Colors.transparent,
-      ),
-      child: Material(
-        type: MaterialType.card,
-        borderRadius: style.cardRadius,
-        color: selected
-            ? const Color(0xFFD7ECFF).withOpacity(0.8)
-            : style.cardColor.darken(darken),
-        child: InkWell(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: InkWellWithHover(
+          selectedColor: style.cardSelectedColor,
+          unselectedColor: style.cardColor,
+          selected: selected,
+          hoveredBorder:
+              selected ? style.primaryBorder : style.cardHoveredBorder,
+          border: selected ? style.primaryBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
-          hoverColor: selected
-              ? const Color(0x00D7ECFF)
-              : const Color(0xFFD7ECFF).withOpacity(0.8),
+          unselectedHoverColor: style.cardHoveredColor,
+          selectedHoverColor: style.cardSelectedColor,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
             child: Row(
               children: [
                 ...leading,
