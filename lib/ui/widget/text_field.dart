@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/util/platform_utils.dart';
 import 'animations.dart';
@@ -203,87 +204,116 @@ class ReactiveTextField extends StatelessWidget {
                 filled: true,
                 // fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
-                suffixIconConstraints: suffix == null && trailing == null
-                    ? const BoxConstraints(maxWidth: 44)
-                    : null,
-                suffixIcon: ElasticAnimatedSwitcher(
-                  child: (state.approvable ||
-                          suffix != null ||
-                          trailing != null ||
-                          !state.status.value.isEmpty)
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: ElasticAnimatedSwitcher(
-                              child: state.status.value.isLoading
-                                  ? SvgLoader.asset(
-                                      'assets/icons/timer.svg',
-                                      height: 17,
-                                    )
-                                  // ? const Icon(
-                                  //     Icons.query_builder_outlined,
-                                  //     size: 18,
-                                  //     key: ValueKey('Load'),
-                                  //   )
-                                  : state.status.value.isSuccess
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 18,
-                                          color: Colors.green,
-                                          key: ValueKey('Success'),
-                                        )
-                                      : (state.error.value != null &&
-                                                  treatErrorAsStatus) ||
-                                              state.status.value.isError
-                                          ? const Icon(
-                                              Icons.error,
+                suffixIconConstraints: null,
+                // suffixIconConstraints: suffix == null && trailing == null
+                //     ? const BoxConstraints(maxWidth: 44)
+                //     : null,
+                suffixIcon: WidgetButton(
+                  onPressed: onSuffixPressed,
+                  child: ElasticAnimatedSwitcher(
+                    child: (state.approvable ||
+                            suffix != null ||
+                            trailing != null ||
+                            !state.status.value.isEmpty)
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: SizedBox(
+                              // width: 24,
+                              height: 24,
+                              child: ElasticAnimatedSwitcher(
+                                child: state.status.value.isLoading
+                                    ? SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/timer.svg',
+                                          height: 17,
+                                        ),
+                                      )
+                                    // ? const Icon(
+                                    //     Icons.query_builder_outlined,
+                                    //     size: 18,
+                                    //     key: ValueKey('Load'),
+                                    //   )
+                                    : state.status.value.isSuccess
+                                        ? const SizedBox(
+                                            key: ValueKey('Success'),
+                                            width: 24,
+                                            child: Icon(
+                                              Icons.check,
                                               size: 18,
-                                              color: Colors.red,
-                                              key: ValueKey('Error'),
-                                            )
-                                          : (state.approvable &&
-                                                  state.changed.value)
-                                              ? IconButton(
-                                                  padding: EdgeInsets.zero,
-                                                  constraints:
-                                                      BoxConstraints.tight(
-                                                    const Size(24, 24),
-                                                  ),
-                                                  key:
-                                                      const ValueKey('Approve'),
-                                                  onPressed: state.submit,
-                                                  icon: Transform.translate(
-                                                    offset: const Offset(0, -1),
-                                                    child: Transform.scale(
-                                                      scale: 1.15,
-                                                      child: SvgLoader.asset(
-                                                        'assets/icons/save.svg',
-                                                        height: 15,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  // icon: Icon(
-                                                  //   Icons.save_outlined,
-                                                  //   color: Theme.of(context)
-                                                  //       .colorScheme
-                                                  //       .secondary,
-                                                  //   size: suffixSize,
-                                                  // ),
-                                                )
-                                              : IgnorePointer(
-                                                  ignoring:
-                                                      onSuffixPressed == null,
-                                                  child: IconButton(
+                                              color: Colors.green,
+                                            ),
+                                          )
+                                        : (state.error.value != null &&
+                                                    treatErrorAsStatus) ||
+                                                state.status.value.isError
+                                            ? const SizedBox(
+                                                key: ValueKey('Error'),
+                                                width: 24,
+                                                child: Icon(
+                                                  Icons.error,
+                                                  size: 18,
+                                                  color: Colors.red,
+                                                ),
+                                              )
+                                            : (state.approvable &&
+                                                    state.changed.value)
+                                                ? IconButton(
                                                     padding: EdgeInsets.zero,
                                                     constraints:
                                                         BoxConstraints.tight(
-                                                      const Size(24, 24),
+                                                      const Size(76, 24),
                                                     ),
+                                                    key: const ValueKey(
+                                                        'Approve'),
+                                                    onPressed: state.submit,
+                                                    icon: UnconstrainedBox(
+                                                      child: Text(
+                                                        'Сохранить',
+                                                        style: TextStyle(
+                                                          fontSize: 11,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    // icon: Icon(
+                                                    //   Icons.check,
+                                                    //   // Icons.check,
+                                                    //   size: 18,
+                                                    // color: Theme.of(context)
+                                                    //     .colorScheme
+                                                    //     .secondary,
+                                                    //   // color: Colors.green,
+                                                    //   key: const Key('Success'),
+                                                    // )
+                                                    // icon: Transform.translate(
+                                                    //   offset: const Offset(0, -1),
+                                                    //   child: Transform.scale(
+                                                    //     scale: 1.15,
+                                                    //     child: SvgLoader.asset(
+                                                    //       'assets/icons/save.svg',
+                                                    //       height: 15,
+                                                    //     ),
+                                                    //   ),
+                                                    // ),
+                                                    // icon: Icon(
+                                                    //   Icons.save_outlined,
+                                                    //   color: Theme.of(context)
+                                                    //       .colorScheme
+                                                    //       .secondary,
+                                                    //   size: suffixSize,
+                                                    // ),
+                                                  )
+                                                : SizedBox(
                                                     key: const ValueKey('Icon'),
-                                                    onPressed: onSuffixPressed,
-                                                    icon: suffix != null
+                                                    width: 24,
+                                                    child: suffix != null
                                                         ? Icon(
                                                             suffix,
                                                             color: suffixColor,
@@ -293,11 +323,11 @@ class ReactiveTextField extends StatelessWidget {
                                                             ? Container()
                                                             : trailing!,
                                                   ),
-                                                ),
+                              ),
                             ),
-                          ),
-                        )
-                      : const SizedBox(width: 1),
+                          )
+                        : const SizedBox(width: 1),
+                  ),
                 ),
                 icon: icon == null
                     ? null

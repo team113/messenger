@@ -374,9 +374,9 @@ label_direct_chat_link_description =
     Users who came via a direct link to
     the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
-    - visit your profile,
-    - send you messages,
-    - make calls
+    - visit your profile;
+    - send you messages;
+    - call you.
 
     After the chat created by this link is deleted, your privacy
     settings are respected.

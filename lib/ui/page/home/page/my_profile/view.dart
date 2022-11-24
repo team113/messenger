@@ -30,6 +30,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/download/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
@@ -55,6 +56,8 @@ import 'change_password/view.dart';
 import 'controller.dart';
 import 'delete_email/view.dart';
 import 'delete_phone/view.dart';
+import 'language/view.dart';
+import 'link_details/view.dart';
 import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
 
@@ -237,7 +240,7 @@ class MyProfileView extends StatelessWidget {
                     ],
                   ),
                   block(children: [
-                    _label(context, 'Персонализация'),
+                    _label(context, 'Бэкграунд'),
                     _personalization(context, c),
                   ]),
                   block(children: [
@@ -607,6 +610,24 @@ Widget _name(MyProfileController c) {
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
       filled: true,
+      onSuffixPressed: c.login.text.isEmpty
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: c.name.text));
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            },
+      trailing: c.login.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/copy.svg',
+                  height: 15,
+                ),
+              ),
+            ),
     ),
   );
 }
@@ -715,31 +736,40 @@ Widget _link(BuildContext context, MyProfileController c) {
               RichText(
                 text: TextSpan(
                   style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.normal),
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                  ),
                   children: [
-                    TextSpan(
-                      text: 'Переходов: 0',
+                    const TextSpan(
+                      text: 'Переходов: 0. ',
                       // style: TextStyle(color: Color(0xFF888888)),
-                      style: const TextStyle(color: Color(0xFF00A3FF)),
-                      recognizer: TapGestureRecognizer()..onTap = () async {},
+                      style: TextStyle(color: Color(0xFF888888)),
                     ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.normal),
-                  children: [
                     TextSpan(
-                      text: 'Подробнее',
+                      text: 'Подробнее.',
                       style: const TextStyle(color: Color(0xFF00A3FF)),
-                      recognizer: TapGestureRecognizer()..onTap = () async {},
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          LinkDetailsView.show(context);
+                        },
                     ),
                   ],
                 ),
               ),
+              // const Spacer(),
+              // RichText(
+              //   text: TextSpan(
+              //     style: const TextStyle(
+              //         fontSize: 11, fontWeight: FontWeight.normal),
+              //     children: [
+              //       TextSpan(
+              //         text: 'Подробнее',
+              //         style: const TextStyle(color: Color(0xFF00A3FF)),
+              //         recognizer: TapGestureRecognizer()..onTap = () async {},
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -1784,39 +1814,132 @@ Widget _deleteAccount(BuildContext context, MyProfileController c) {
 }
 
 Widget _personalization(BuildContext context, MyProfileController c) {
+  final Style style = Theme.of(context).extension<Style>()!;
+
+  Widget message({
+    bool fromMe = true,
+    bool isRead = true,
+    String text = '123',
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      child: IntrinsicWidth(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            color: fromMe
+                ? isRead
+                    ? style.readMessageColor
+                    : style.unreadMessageColor
+                : style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+            border: fromMe
+                ? isRead
+                    ? style.secondaryBorder
+                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                : style.primaryBorder,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                child: Text(text, style: style.boldBody),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   return _dense(
     Column(
       children: [
         WidgetButton(
           onPressed: c.pickBackground,
-          child: Obx(() {
-            return SizedBox(
-              width: double.infinity,
-              height: 120,
-              child: c.background.value == null
-                  ? Container(color: Colors.grey)
-                  : Image.memory(c.background.value!, fit: BoxFit.cover),
-            );
-          }),
-        ),
-        const SizedBox(height: 5),
-        Center(
-          child: WidgetButton(
-            onPressed: c.background.value == null ? null : c.removeBackground,
-            child: SizedBox(
-              height: 20,
-              child: c.background.value == null
-                  ? null
-                  : Text(
-                      'Delete',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
-                      ),
-                    ),
+          child: Container(
+            decoration: BoxDecoration(
+              border: style.primaryBorder,
+              borderRadius: BorderRadius.circular(10),
             ),
+            child: Obx(() {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 120,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned.fill(
+                        child: c.background.value == null
+                            ? Container(
+                                // color: Colors.grey,
+                                child: SvgLoader.asset(
+                                  'assets/images/background_light.svg',
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Image.memory(
+                                c.background.value!,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: message(
+                                fromMe: false,
+                                text: 'Hello!',
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: message(
+                                fromMe: true,
+                                text: 'Yay, hello :)',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Align(
+                      //   alignment: Alignment.topLeft,
+                      //   child: Container(
+                      //     width: 50,
+                      //     height: double.infinity,
+                      //     color: Colors.white.withOpacity(0.4),
+                      //   ),
+                      // )
+                    ],
+                  ),
+                ),
+              );
+            }),
           ),
         ),
+        if (c.background.value != null) ...[
+          const SizedBox(height: 10),
+          Center(
+            child: WidgetButton(
+              onPressed: c.background.value == null ? null : c.removeBackground,
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     ),
   );
@@ -1984,39 +2107,41 @@ Widget _language(BuildContext context, MyProfileController c) {
     WidgetButton(
       key: c.languageKey,
       onPressed: () async {
-        final TextStyle? thin =
-            context.textTheme.caption?.copyWith(color: Colors.black);
-        await Selector.show<Language>(
-          context: context,
-          buttonKey: c.languageKey,
-          alignment: Alignment.bottomCenter,
-          items: L10n.languages,
-          initial: L10n.chosen.value!,
-          onSelected: (l) => L10n.set(l),
-          debounce: context.isMobile ? const Duration(milliseconds: 500) : null,
-          itemBuilder: (Language e) => Row(
-            key:
-                Key('Language_${e.locale.languageCode}${e.locale.countryCode}'),
-            children: [
-              Text(
-                e.name,
-                style: thin?.copyWith(fontSize: 15),
-              ),
-              const Spacer(),
-              Text(
-                e.locale.languageCode.toUpperCase(),
-                style: thin?.copyWith(fontSize: 15),
-              ),
-            ],
-          ),
-        );
+        await LanguageSelectionView.show(context);
+        // final TextStyle? thin =
+        //     context.textTheme.caption?.copyWith(color: Colors.black);
+        // await Selector.show<Language>(
+        //   context: context,
+        //   buttonKey: c.languageKey,
+        //   alignment: Alignment.bottomCenter,
+        //   items: L10n.languages,
+        //   initial: L10n.chosen.value!,
+        //   onSelected: (l) => L10n.set(l),
+        //   debounce: context.isMobile ? const Duration(milliseconds: 500) : null,
+        //   itemBuilder: (Language e) => Row(
+        //     key:
+        //         Key('Language_${e.locale.languageCode}${e.locale.countryCode}'),
+        //     children: [
+        //       Text(
+        //         e.name,
+        //         style: thin?.copyWith(fontSize: 15),
+        //       ),
+        //       const Spacer(),
+        //       Text(
+        //         e.locale.languageCode.toUpperCase(),
+        //         style: thin?.copyWith(fontSize: 15),
+        //       ),
+        //     ],
+        //   ),
+        // );
       },
       child: IgnorePointer(
         child: ReactiveTextField(
           state: TextFieldState(
-              text:
-                  '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
-              editable: false),
+            text:
+                '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            editable: false,
+          ),
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),

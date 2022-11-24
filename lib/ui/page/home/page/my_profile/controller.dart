@@ -264,7 +264,18 @@ class MyProfileController extends GetxController {
 
     name = TextFieldState(
       text: myUser.value?.name?.val,
+      approvable: true,
       onChanged: (s) async {
+        s.error.value = null;
+        try {
+          if (s.text.isNotEmpty) {
+            UserName(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
         s.error.value = null;
         try {
           if (s.text.isNotEmpty) {
@@ -281,9 +292,7 @@ class MyProfileController extends GetxController {
           try {
             await _myUserService
                 .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
-            s.status.value = RxStatus.success();
-            _nameTimer = Timer(const Duration(milliseconds: 1500),
-                () => s.status.value = RxStatus.empty());
+            s.status.value = RxStatus.empty();
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -483,11 +492,7 @@ class MyProfileController extends GetxController {
           try {
             // await _myUserService.createChatDirectLink(slug!);
             await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.success();
-            _linkTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
+            s.status.value = RxStatus.empty();
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
             s.error.value = e.toMessage();
@@ -1019,10 +1024,8 @@ class MyProfileController extends GetxController {
       try {
         await _myUserService.createChatDirectLink(slug);
         link.text = slug.val;
-        link.status.value = RxStatus.success();
+        link.status.value = RxStatus.empty();
         link.error.value = null;
-        _linkTimer = Timer(const Duration(milliseconds: 1500),
-            () => link.status.value = RxStatus.empty());
         generated = true;
       } on CreateChatDirectLinkException catch (e) {
         if (e.code != CreateChatDirectLinkErrorCode.occupied) {
@@ -1050,11 +1053,9 @@ class MyProfileController extends GetxController {
 
     try {
       await _myUserService.deleteChatDirectLink();
-      link.status.value = RxStatus.success();
+      link.status.value = RxStatus.empty();
       link.error.value = null;
       link.unchecked = '';
-      _linkTimer = Timer(const Duration(milliseconds: 1500),
-          () => link.status.value = RxStatus.empty());
     } on DeleteChatDirectLinkException catch (e) {
       link.status.value = RxStatus.empty();
       link.error.value = e.toMessage();

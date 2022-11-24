@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
 /// [AnimatedSwitcher] with an elastic [ScaleTransition] of its [child].
@@ -29,6 +30,15 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 900 + 450),
+      sizeDuration: const Duration(milliseconds: 900 + 450),
+      sizeCurve: Curves.elasticInOut,
+      fadeInCurve: Curves.elasticInOut,
+      fadeOutCurve: Curves.elasticInOut,
+      child: child,
+    );
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 900 + 450),
       switchInCurve: Curves.elasticInOut,
@@ -37,7 +47,37 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
         scale: animation,
         child: child,
       ),
-      child: child,
+      child: AnimatedSize(
+        key: child.key,
+        duration: const Duration(milliseconds: 100),
+        child: child,
+      ),
+    );
+  }
+}
+
+class AnimatedSizeWidget extends StatefulWidget {
+  const AnimatedSizeWidget({
+    Key? key,
+    required this.child,
+    required this.duration,
+  }) : super(key: key);
+
+  final Widget child;
+  final Duration duration;
+
+  @override
+  _AnimatedSizeWidgetState createState() => _AnimatedSizeWidgetState();
+}
+
+class _AnimatedSizeWidgetState extends State<AnimatedSizeWidget>
+    with TickerProviderStateMixin {
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      vsync: this,
+      duration: widget.duration,
+      child: widget.child,
+      curve: Curves.easeInOut,
     );
   }
 }
