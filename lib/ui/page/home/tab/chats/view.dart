@@ -168,9 +168,8 @@ class ChatsTabView extends StatelessWidget {
                     duration: 250.milliseconds,
                     child: WidgetButton(
                       key: const Key('SearchButton'),
-                      onPressed: c.searching.value
-                          ? null
-                          : () => c.enableSearching(true),
+                      onPressed:
+                          c.searching.value ? null : () => c.toggleSearch(true),
                       child: SvgLoader.asset(
                         'assets/icons/search.svg',
                         width: 17.77,
@@ -191,7 +190,7 @@ class ChatsTabView extends StatelessWidget {
                       key: const Key('CloseSearch'),
                       onPressed: () {
                         if (c.searchController?.query.isNotEmpty == true) {
-                          c.enableSearching(false);
+                          c.toggleSearch(false);
                         }
                       },
                       child: SvgLoader.asset(

@@ -144,7 +144,7 @@ class ChatsTabController extends GetxController {
     _chatsSubscription.cancel();
     _searchResultsChanges?.cancel();
     searchController?.search.focus.removeListener(_searchFieldFocusListener);
-    searchController?.dispose();
+    searchController?.onClose();
 
     super.onClose();
   }
@@ -308,8 +308,8 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Changes search status to enabled or not.
-  void enableSearching(bool enable) {
+  /// Enables/disables searching mode based on [enabled].
+  void toggleSearch(bool enable) {
     searching.value = enable;
     if (enable) {
       searchController = SearchController(
@@ -338,7 +338,7 @@ class ChatsTabController extends GetxController {
       _searchResultsChanges?.cancel();
 
       searchController?.search.focus.removeListener(_searchFieldFocusListener);
-      searchController?.dispose();
+      searchController?.onClose();
     }
   }
 
@@ -361,7 +361,7 @@ class ChatsTabController extends GetxController {
   void _searchFieldFocusListener() {
     if (searchController?.search.focus.hasFocus == false &&
         searchController?.search.text.isEmpty == true) {
-      enableSearching(false);
+      toggleSearch(false);
     }
   }
 }

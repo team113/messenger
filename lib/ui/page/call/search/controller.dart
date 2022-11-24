@@ -114,9 +114,6 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Reactive list of the sorted [Chat]s.
-  final RxList<RxChat> _sortedChats = RxList<RxChat>();
-
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
 
@@ -140,9 +137,6 @@ class SearchController extends GetxController {
 
   @override
   void onInit() {
-    _sortedChats.addAll(_chatService.chats.values);
-    _sortChats();
-
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String q) {
@@ -305,9 +299,22 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
+    List<RxChat> sortedChats = _chatService.chats.values.toList();
+    sortedChats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+    });
+
     if (categories.contains(SearchCategory.chats)) {
       chats.value = {
-        for (var c in _sortedChats.where((p) {
+        for (var c in sortedChats.where((p) {
           if (query.value.isNotEmpty) {
             if (p.title.toLowerCase().contains(query.value.toLowerCase())) {
               return true;
@@ -480,23 +487,5 @@ class SearchController extends GetxController {
         };
       }
     }
-  }
-
-  /// Sorts the [_sortedChats] by the [Chat.updatedAt] and [Chat.ongoingCall]
-  /// values.
-  void _sortChats() {
-    _sortedChats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-
-    populate();
   }
 }
