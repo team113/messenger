@@ -84,9 +84,8 @@ class ContactTile extends StatelessWidget {
           selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
-          hoveredBorder:
-              selected ? style.primaryBorder : style.cardHoveredBorder,
-          border: selected ? style.primaryBorder : style.cardBorder,
+          hoveredBorder: style.cardHoveredBorder,
+          border: style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
