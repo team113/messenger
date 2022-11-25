@@ -45,6 +45,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -286,42 +287,58 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    HiveChatItem? item;
-    if (messages.isNotEmpty) {
-      item = await get(messages.first.value.id,
-          timestamp: messages.first.value.timestamp);
+    ChatItemsCursor? cursor = chat.value.lastReadItem?.cursor;
+    // if (messages.isNotEmpty) {
+    //   item = await get(messages.first.value.id,
+    //       timestamp: messages.first.value.timestamp);
+    // }
+
+    if (chat.value.lastReadItem?.chatItem.id == null) {}
+
+    List<HiveChatItem> items;
+    if (cursor != null) {
+      items = await _chatRepository.messages(
+        chat.value.id,
+        after: cursor,
+        first: HiveRxChat.initialMessagesCount ~/ 2 - 1,
+        before: cursor,
+        last: HiveRxChat.initialMessagesCount ~/ 2 - 1,
+      );
+    } else {
+      items = await _chatRepository.messages(
+        chat.value.id,
+        last: HiveRxChat.initialMessagesCount,
+      );
     }
 
-    if(chat.value.lastReadItem?.chatItem.id == null) {
+    //return _guard.protect(() async {
+    print(items.length);
+    // for (HiveChatItem item in _local.messages) {
+    //   if (item.value.status.value == SendingStatus.sent) {
+    //     int i = items.indexWhere((e) => e.value.id == item.value.id);
+    //     if (i == -1) {
+    //       _local.remove(item.value.timestamp);
+    //     }
+    //   }
+    // }
 
-    }
-
-    List<HiveChatItem> items = await _chatRepository.messages(
-      chat.value.id,
-      before: item?.cursor,
-      last: HiveRxChat.initialMessagesCount,
-    );
-
-    return _guard.protect(() async {
-      for (HiveChatItem item in _local.messages) {
-        if (item.value.status.value == SendingStatus.sent) {
-          int i = items.indexWhere((e) => e.value.id == item.value.id);
-          if (i == -1) {
-            _local.remove(item.value.timestamp);
+    for (HiveChatItem item in items) {
+      if (item.value.chatId == id) {
+        put(item);
+        if(item.cursor.val == 'ImVmNDZmZTcxLWE5NDAtNDQ5YS04ZjQwLTlkMWU3MDAwOTVjOCI=') {
+          if(item.value is ChatMessage) {
+            print((item.value as ChatMessage).text);
           }
+          print(item.value.at);
+          print(item.cursor);
         }
+      } else {
+        _chatRepository.putChatItem(item);
       }
+    }
 
-      for (HiveChatItem item in items) {
-        if (item.value.chatId == id) {
-          put(item);
-        } else {
-          _chatRepository.putChatItem(item);
-        }
-      }
-
-      status.value = RxStatus.success();
-    });
+    status.value = RxStatus.success();
+    //});
   }
 
   bool _isMoreItemsAbove = true;
@@ -359,7 +376,6 @@ class HiveRxChat extends RxChat {
 
     print('fetchMoreMessages: ${items.length}');
 
-    return _guard.protect(() async {
       for (HiveChatItem item in items) {
         if (item.value.chatId == id) {
           put(item);
@@ -367,7 +383,6 @@ class HiveRxChat extends RxChat {
           _chatRepository.putChatItem(item);
         }
       }
-    });
   }
 
   bool _isMoreItemsBelow = true;
@@ -385,8 +400,10 @@ class HiveRxChat extends RxChat {
     //print('last: ${messages.sort((e1, e2) => e1.value.at.compareTo(e2.value.at))}');
     //print('last after sort: ${messages.last.value.id}');
 
-    HiveChatItem? item = await get(messages.last.value.id,
-        timestamp: messages.last.value.timestamp);
+    HiveChatItem? item = await get(
+      messages.last.value.id,
+      timestamp: messages.last.value.timestamp,
+    );
 
     if (item == null) {
       print('item == null');

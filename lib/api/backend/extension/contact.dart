@@ -19,6 +19,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/user.dart';
+import '/store/model/contact.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatContactMixin].
@@ -38,5 +39,6 @@ extension ChatContactConversion on ChatContactMixin {
   List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
-  HiveChatContact toHive() => HiveChatContact(toModel(), ver);
+  HiveChatContact toHive({ChatContactsCursor? cursor}) =>
+      HiveChatContact(toModel(), ver, cursor);
 }

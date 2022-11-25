@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -34,6 +35,7 @@ import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -53,6 +55,9 @@ class ContactsTabController extends GetxController {
 
   /// [ChatContactId] of a [ChatContact] to rename.
   final Rx<ChatContactId?> contactToChangeNameOf = Rx<ChatContactId?>(null);
+
+  /// [ScrollController] of a contacts [ListView].
+  final ScrollController listController = ScrollController();
 
   /// [Chat] repository used to create a dialog [Chat].
   final AbstractChatRepository _chatRepository;
@@ -82,6 +87,7 @@ class ContactsTabController extends GetxController {
 
   @override
   void onInit() {
+    listController.addListener(_scrollListener);
     contactName = TextFieldState(
       onChanged: (s) async {
         s.error.value = null;
@@ -150,6 +156,7 @@ class ContactsTabController extends GetxController {
     contacts.forEach((_, c) => c.user.value?.stopUpdates());
     _contactsSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
+    listController.removeListener(_scrollListener);
     super.onClose();
   }
 
@@ -219,5 +226,22 @@ class ContactsTabController extends GetxController {
           break;
       }
     });
+  }
+
+  bool isFetchingMore = false;
+
+  /// Uploads new [Chat]s based on the [ScrollController.position] value.
+  void _scrollListener() {
+    if (listController.hasClients) {
+      if (!isFetchingMore &&
+          listController.position.pixels <
+              MediaQuery
+                  .of(router.context!)
+                  .size
+                  .height + 200) {
+        isFetchingMore = true;
+        _contactService.fetchNextContacts().whenComplete(() => isFetchingMore = false);
+      }
+    }
   }
 }

@@ -791,14 +791,10 @@ class ChatController extends GetxController {
 
           _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
-            return (element is ChatMessageElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatMemberInfoElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatCallElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatForwardElement &&
-                    element.forwards.first.value.authorId != me);
+            return element is ChatMessageElement ||
+                element is ChatMemberInfoElement ||
+                element is ChatCallElement ||
+                element is ChatForwardElement;
           });
 
           if (_lastVisibleItem != null &&
@@ -1173,25 +1169,26 @@ class ChatController extends GetxController {
     );
   }
 
-  bool isFetchingMore = false;
+  /// Indicator whether an new page of [ChatItem]s is fetching.
+  bool _isFetchingMore = false;
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
   /// [FlutterListViewController.position] value.
   void _updateFabStates() async {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (!isFetchingMore &&
+      if (!_isFetchingMore &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        isFetchingMore = true;
-        chat?.fetchMessagesAbove().whenComplete(() => isFetchingMore = false);
+        _isFetchingMore = true;
+        chat?.fetchMessagesAbove().whenComplete(() => _isFetchingMore = false);
       }
 
-      if (!isFetchingMore &&
+      if (!_isFetchingMore &&
           listController.position.pixels >
               listController.position.maxScrollExtent -
                   (MediaQuery.of(router.context!).size.height * 3 + 200)) {
-        isFetchingMore = true;
-        chat?.fetchMessagesBelow().whenComplete(() => isFetchingMore = false);
+        _isFetchingMore = true;
+        chat?.fetchMessagesBelow().whenComplete(() => _isFetchingMore = false);
       }
 
       if (listController.position.pixels <

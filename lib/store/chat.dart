@@ -133,11 +133,6 @@ class ChatRepository implements AbstractChatRepository {
 
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
-    for (HiveChat c in _chatLocal.chats) {
-      if (!chats.containsKey(c.value.id)) {
-        _chatLocal.remove(c.value.id);
-      }
-    }
 
     for (ChatData c in chats.values) {
       _chats[c.chat.value.id]?.subscribe();
@@ -209,16 +204,10 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Indicator whether more [chats] can be fetched.
-  bool _isMoreChats = false;
+  bool _isMoreChats = true;
 
   @override
   Future<void> fetchNextChats() async {
-    var sorted = this
-        .chats
-        .values
-        .sorted(
-            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt));
-
     if (this.chats.isEmpty || !_isMoreChats) {
       return;
     }
@@ -247,7 +236,6 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     for (ChatData c in chats.values) {
-      _chats[c.chat.value.id]?.subscribe();
       _putEntry(c);
     }
   }
@@ -1082,7 +1070,7 @@ class ChatRepository implements AbstractChatRepository {
         }
       });
 
-  /// Fetches __all__ [HiveChat]s from the remote.
+  /// Fetches __first page__ of [HiveChat]s from the remote.
   Future<HashMap<ChatId, ChatData>> _recentChats() async {
     const maxInt = 120;
     RecentChats$Query$RecentChats query =

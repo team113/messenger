@@ -75,7 +75,7 @@ class ContactsTabView extends StatelessWidget {
                     ? Center(child: Text('label_no_contacts'.l10n))
                     : ContextMenuInterceptor(
                         child: ListView(
-                          controller: ScrollController(),
+                          controller: c.listController,
                           children: [
                             if (c.favorites.isNotEmpty) ...[
                               Padding(

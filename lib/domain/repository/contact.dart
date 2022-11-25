@@ -57,6 +57,9 @@ abstract class AbstractContactRepository {
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
+
+  /// Fetches next page of a [ChatContact]s.
+  Future<void> fetchNextContacts();
 }
 
 /// Unified reactive [ChatContact] entity.

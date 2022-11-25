@@ -57,7 +57,7 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// [FlutterListViewController] of a messages [FlutterListView].
+  /// [ScrollController] of a chats [ListView].
   final ScrollController listController = ScrollController();
 
   /// [Chat]s service used to update the [chats].
