@@ -229,6 +229,7 @@ class CallRepository extends DisposableService
           state: OngoingCallState.joining,
         ),
       );
+      calls[chatId] = ongoing;
     } else if (ongoing.value.state.value != OngoingCallState.active) {
       ongoing.value.state.value = OngoingCallState.joining;
       ongoing.value.setAudioEnabled(withAudio);
@@ -237,8 +238,6 @@ class CallRepository extends DisposableService
     } else {
       return null;
     }
-
-    calls[chatId] = ongoing;
 
     final response = await _graphQlProvider.joinChatCall(
       ongoing.value.chatId.value,

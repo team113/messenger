@@ -79,7 +79,7 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
-  /// [OngoingCall]s repository, used to notify about new calls.
+  /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
 
   /// [RxChat.draft] local [Hive] storage.
@@ -673,10 +673,11 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> removeCredentials(ChatItemId id) =>
       _callRepo.removeCredentials(id);
 
-  /// Adds the provided [ChatCall] to the [_callRepo].
+  /// Adds the provided [ChatCall] to the [AbstractCallRepository].
   void addCall(ChatCall call) => _callRepo.add(call);
 
-  /// Ends call in the [Chat] with the provided [ChatId].
+  /// Ends an [OngoingCall] happening in a [Chat] with the provided [chatId], if
+  /// any.
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
