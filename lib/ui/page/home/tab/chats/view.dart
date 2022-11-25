@@ -19,12 +19,9 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -34,6 +31,7 @@ import 'controller.dart';
 import 'create_group/controller.dart';
 import 'mute_chat_popup/view.dart';
 import 'widget/recent_chat.dart';
+import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -42,37 +40,6 @@ class ChatsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    Widget tile({
-      RxUser? user,
-      RxChatContact? contact,
-      Key? key,
-      void Function()? onTap,
-    }) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        child: ContactTile(
-          key: key,
-          contact: contact,
-          user: user,
-          darken: 0,
-          onTap: onTap,
-          height: 86,
-          radius: 30,
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-          subtitle: [
-            const SizedBox(height: 5),
-            Text(
-              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
-                RegExp(r'.{4}'),
-                (match) => '${match.group(0)} ',
-              )}',
-              style: const TextStyle(color: Color(0xFF888888)),
-            ),
-          ],
-        ),
-      );
-    }
 
     return GetBuilder(
       key: const Key('ChatsTab'),
@@ -259,15 +226,17 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         );
                       } else if (element is ContactElement) {
-                        child = tile(
+                        child = SearchUserTile(
                           key: Key('SearchContact_${element.contact.id}'),
                           contact: element.contact,
+                          chats: c.chats,
                           onTap: () => c.openChat(contact: element.contact),
                         );
                       } else if (element is UserElement) {
-                        child = tile(
+                        child = SearchUserTile(
                           key: Key('SearchUser_${element.user.id}'),
                           user: element.user,
+                          chats: c.chats,
                           onTap: () => c.openChat(user: element.user),
                         );
                       } else if (element is DividerElement) {

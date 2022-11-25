@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -253,6 +252,7 @@ class ChatsTabController extends GetxController {
 
     if (searchController?.chats.isNotEmpty == true) {
       elements.add(const DividerElement(SearchCategory.chats));
+
       for (var c in searchController!.chats.values) {
         elements.add(ChatElement(c));
       }
