@@ -87,7 +87,7 @@ class LanguageSelectionView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: LanguageSelectionController(Get.find()),
+      init: LanguageSelectionController(),
       builder: (LanguageSelectionController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -99,44 +99,71 @@ class LanguageSelectionView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Language'.l10n,
+                    'label_language'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
               ),
               const SizedBox(height: 25 - 12),
               Flexible(
-                child: ListView(
+                child: ListView.separated(
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
-                  children: L10n.languages.map(
-                    (e) {
-                      final bool selected = L10n.chosen.value == e;
+                  itemBuilder: (context, i) {
+                    final Language e = L10n.languages[i];
+                    // final bool selected = L10n.chosen.value == e;
 
-                      return Container(
-                        padding: const EdgeInsets.all(8.0),
-                        color: const Color(0xFFF0F0F0),
-                        height: 36,
+                    return Obx(() {
+                      final bool selected = c.selected.value == e;
+                      return SizedBox(
+                        height: 48,
                         child: Material(
+                          borderRadius: BorderRadius.circular(10),
+                          color: selected
+                              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                              : Colors.white.darken(0.05),
                           child: InkWell(
-                            onTap: () {
-                              L10n.set(e);
-                            },
+                            borderRadius: BorderRadius.circular(10),
+                            // onTap: () => L10n.set(e),
+                            onTap: () => c.selected.value = e,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  Text('${e.locale.languageCode}, ${e.name}'),
+                                  Text(
+                                    '${e.locale.languageCode.toUpperCase()}, ${e.name}',
+                                  ),
                                   const Spacer(),
-                                  if (selected) Icon(Icons.done_all),
+                                  AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: selected
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircleAvatar(
+                                              backgroundColor:
+                                                  Color(0xFF63B4FF),
+                                              radius: 12,
+                                              child: Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 12,
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(key: Key('0')),
+                                  ),
+                                  const SizedBox(width: 4),
                                 ],
                               ),
                             ),
                           ),
                         ),
                       );
-                    },
-                  ).toList(),
+                    });
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(height: 5),
+                  itemCount: L10n.languages.length,
                 ),
               ),
               const SizedBox(height: 25),
@@ -149,7 +176,13 @@ class LanguageSelectionView extends StatelessWidget {
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),
                   ),
-                  onPressed: Navigator.of(context).pop,
+                  onPressed: () {
+                    if (c.selected.value != L10n.chosen.value) {
+                      L10n.set(c.selected.value);
+                    }
+
+                    Navigator.of(context).pop();
+                  },
                   color: const Color(0xFF63B4FF),
                 ),
               ),

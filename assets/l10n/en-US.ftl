@@ -559,3 +559,7 @@ label_recovery_code_sent = The verification code has been sent to the verified E
 label_recovery_enter_new_password = Please enter the new password below.
 label_password_changed = Password has been changed.
 label_password_set = Password has been set.
+label_language = Language
+label_password_not_set_info = Для Вашего аккаунта не задан пароль. Как следствие:
+    - доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
+    - в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файла cookie.

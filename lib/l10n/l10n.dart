@@ -31,6 +31,7 @@ class L10n {
   /// First [Language] in the list is guaranteed to be English.
   static List<Language> languages = const [
     Language('English', Locale('en', 'US')),
+    Language('Español', Locale('es', 'ES')),
     Language('Русский', Locale('ru', 'RU')),
   ];
 

@@ -88,6 +88,7 @@ class ContextMenuButton extends StatefulWidget {
     this.leading,
     this.trailing,
     this.onPressed,
+    this.style,
   }) : super(key: key);
 
   /// Label of this [ContextMenuButton].
@@ -101,6 +102,8 @@ class ContextMenuButton extends StatefulWidget {
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
+
+  final TextStyle? style;
 
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
@@ -147,8 +150,9 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 child: Text(
                   widget.label,
                   style: context.theme.outlinedButtonTheme.style!.textStyle!
-                      .resolve({MaterialState.disabled})!.copyWith(
-                          color: Colors.black),
+                      .resolve({MaterialState.disabled})!
+                      .copyWith(color: Colors.black)
+                      .merge(widget.style),
                 ),
               ),
               if (widget.trailing != null) ...[

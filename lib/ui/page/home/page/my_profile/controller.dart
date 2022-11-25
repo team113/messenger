@@ -104,11 +104,10 @@ class MyProfileController extends GetxController {
   /// [GlobalKey] of a button opening the [Language] selection.
   final GlobalKey languageKey = GlobalKey();
 
-  final GlobalKey cameraKey = GlobalKey();
-  final GlobalKey microphoneKey = GlobalKey();
+  final GlobalKey micKey = GlobalKey();
   final GlobalKey outputKey = GlobalKey();
 
-  late final Rx<OngoingCall> _call;
+  late final Rx<OngoingCall> call;
 
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
@@ -207,19 +206,19 @@ class MyProfileController extends GetxController {
   Rx<Uint8List?> get background => _settingsRepo.background;
 
   /// Returns the local [Track]s.
-  ObsList<Track>? get localTracks => _call.value.localTracks;
+  ObsList<Track>? get localTracks => call.value.localTracks;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  InputDevices get devices => call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
+  RxnString get camera => call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  RxnString get mic => _call.value.audioDevice;
+  RxnString get mic => call.value.audioDevice;
 
   /// Returns ID of the currently used output device.
-  RxnString get output => _call.value.outputDevice;
+  RxnString get output => call.value.outputDevice;
 
   @override
   void onInit() {
@@ -680,7 +679,7 @@ class MyProfileController extends GetxController {
     // TODO: This is a really bad hack. We should not create call here. Required
     //       functionality should be decoupled from the OngoingCall or
     //       reimplemented here.
-    _call = Rx<OngoingCall>(OngoingCall(
+    call = Rx<OngoingCall>(OngoingCall(
       const ChatId('settings'),
       const UserId(''),
       state: OngoingCallState.local,
@@ -690,7 +689,7 @@ class MyProfileController extends GetxController {
       withScreen: false,
     ));
 
-    _call.value.init();
+    call.value.init();
 
     super.onInit();
   }
@@ -700,25 +699,25 @@ class MyProfileController extends GetxController {
     _setResendEmailTimer(false);
     _setResendPhoneTimer(false);
     _worker?.dispose();
-    _call.value.dispose();
+    call.value.dispose();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default [camera] device.
   void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
+    call.value.setVideoDevice(id);
     _settingsRepo.setVideoDevice(id);
   }
 
   /// Sets device with [id] as a used by default [mic] device.
   void setAudioDevice(String id) {
-    _call.value.setAudioDevice(id);
+    call.value.setAudioDevice(id);
     _settingsRepo.setAudioDevice(id);
   }
 
   /// Sets device with [id] as a used by default [output] device.
   void setOutputDevice(String id) {
-    _call.value.setOutputDevice(id);
+    call.value.setOutputDevice(id);
     _settingsRepo.setOutputDevice(id);
   }
 

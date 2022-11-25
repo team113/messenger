@@ -141,6 +141,22 @@ class ChangePasswordView extends StatelessWidget {
                       shrinkWrap: true,
                       children: [
                         Obx(() {
+                          if (c.myUser.value?.hasPassword != true) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 25),
+                              child: Text(
+                                'label_password_not_set_info'.l10n,
+                                style: thin?.copyWith(
+                                  fontSize: 15,
+                                  color: const Color(0xFF888888),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return const SizedBox();
+                        }),
+                        Obx(() {
                           if (c.myUser.value?.hasPassword == true) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),

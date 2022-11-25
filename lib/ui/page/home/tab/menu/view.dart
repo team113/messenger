@@ -231,9 +231,9 @@ class MenuTabView extends StatelessWidget {
                       Flexible(
                         child: WidgetButton(
                           onPressed: () async {
-                            await Selector.show(
-                              context: context,
-                              items: [
+                            await Selector.menu(
+                              context,
+                              actions: [
                                 ContextMenuButton(
                                   label: 'Online',
                                   onPressed: () =>
@@ -261,46 +261,6 @@ class MenuTabView extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                              width: 220,
-                              margin: const EdgeInsets.only(top: 13),
-                              buttonBuilder: (int i, ContextMenuButton b) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    b,
-                                    if (i < 3)
-                                      Container(
-                                        color: const Color(0x11000000),
-                                        height: 1,
-                                        width: double.infinity,
-                                      ),
-                                  ],
-                                );
-                              },
-                              itemBuilder: (ContextMenuButton b) {
-                                final TextStyle? thin = Theme.of(context)
-                                    .textTheme
-                                    .caption
-                                    ?.copyWith(color: Colors.black);
-                                return Row(
-                                  children: [
-                                    if (b.leading != null) ...[
-                                      b.leading!,
-                                      const SizedBox(width: 12),
-                                    ],
-                                    Text(b.label,
-                                        style: thin?.copyWith(fontSize: 15)),
-                                    if (b.trailing != null) ...[
-                                      const SizedBox(width: 12),
-                                      b.trailing!,
-                                    ],
-                                  ],
-                                );
-                              },
-                              onSelected: (ContextMenuButton b) =>
-                                  b.onPressed?.call(),
-                              buttonKey: c.profileKey,
-                              alignment: Alignment.bottomRight,
                             );
                           },
                           child: DefaultTextStyle.merge(

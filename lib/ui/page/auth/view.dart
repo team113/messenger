@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/download/view.dart';
+import 'package:messenger/ui/page/home/page/my_profile/language/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -141,28 +142,29 @@ class AuthView extends StatelessWidget {
             '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => Selector.show<Language>(
-            context: context,
-            buttonKey: c.languageKey,
-            initial: L10n.chosen.value!,
-            items: L10n.languages,
-            onSelected: (l) => L10n.set(l),
-            debounce:
-                context.isMobile ? const Duration(milliseconds: 500) : null,
-            itemBuilder: (Language e) => Row(
-              children: [
-                Text(
-                  e.name,
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-                const Spacer(),
-                Text(
-                  e.locale.languageCode.toUpperCase(),
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-              ],
-            ),
-          ),
+          onPressed: () => LanguageSelectionView.show(context),
+          // onPressed: () => Selector.show<Language>(
+          //   context: context,
+          //   buttonKey: c.languageKey,
+          //   initial: L10n.chosen.value!,
+          //   items: L10n.languages,
+          //   onSelected: (l) => L10n.set(l),
+          //   debounce:
+          //       context.isMobile ? const Duration(milliseconds: 500) : null,
+          //   itemBuilder: (Language e) => Row(
+          //     children: [
+          //       Text(
+          //         e.name,
+          //         style: thin?.copyWith(fontSize: 15),
+          //       ),
+          //       const Spacer(),
+          //       Text(
+          //         e.locale.languageCode.toUpperCase(),
+          //         style: thin?.copyWith(fontSize: 15),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         );
 
         // Footer part of the page.

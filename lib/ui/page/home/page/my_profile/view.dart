@@ -34,6 +34,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/selector.dart';
@@ -52,6 +53,7 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'camera_switch/view.dart';
 import 'change_password/view.dart';
 import 'controller.dart';
 import 'delete_email/view.dart';
@@ -1693,6 +1695,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
 /// Returns editable fields of [MyUser.password].
 Widget _password(BuildContext context, MyProfileController c) {
   return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       _dense(
         WidgetButton(
@@ -1705,11 +1708,44 @@ Widget _password(BuildContext context, MyProfileController c) {
                     : 'Задать пароль',
                 editable: false,
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              style: TextStyle(
+                color: c.myUser.value?.hasPassword != true
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.secondary,
+              ),
+              //      trailing: RotatedBox(
+              //   quarterTurns: 2,
+              //   child: Icon(
+              //     Icons.arrow_back_ios_rounded,
+              //     color: Theme.of(context).colorScheme.secondary,
+              //     size: 14,
+              //   ),
+              // ),
             ),
           ),
         ),
       ),
+      // if (c.myUser.value?.hasPassword != true)
+      //   Padding(
+      //     padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+      //     child: RichText(
+      //       text: TextSpan(
+      //         style:
+      //             const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+      //         children: [
+      //           const TextSpan(
+      //             text: 'Пароль не задан. ',
+      //             style: TextStyle(color: Colors.red),
+      //           ),
+      //           TextSpan(
+      //             text: 'Подробнее.',
+      //             style: const TextStyle(color: Color(0xFF00A3FF)),
+      //             recognizer: TapGestureRecognizer()..onTap = () async {},
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
       const SizedBox(height: 10),
     ],
   );
@@ -1946,6 +1982,166 @@ Widget _personalization(BuildContext context, MyProfileController c) {
 }
 
 Widget _media(BuildContext context, MyProfileController c) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _dense(
+        WidgetButton(
+          onPressed: () => CameraSwitchView.show(context, call: c.call),
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              label: 'label_media_camera'.l10n,
+              state: TextFieldState(
+                text: (c.devices.video().firstWhereOrNull(
+                                (e) => e.deviceId() == c.camera.value) ??
+                            c.devices.video().firstOrNull)
+                        ?.label() ??
+                    'label_media_no_device_available'.l10n,
+                editable: false,
+              ),
+              trailing: RotatedBox(
+                quarterTurns: 2,
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      _dense(
+        WidgetButton(
+          key: c.micKey,
+          onPressed: () async {
+            await Selector.menu(
+              context,
+              key: c.micKey,
+              width: 340,
+              alignment: Alignment.bottomLeft,
+              margin: const EdgeInsets.only(top: 30),
+              actions: c.devices.audio().mapIndexed((i, e) {
+                final bool selected = (c.mic.value == null && i == 0) ||
+                    c.mic.value == e.deviceId();
+
+                return ContextMenuButton(
+                  label: e.label(),
+                  onPressed: () => c.setAudioDevice(e.deviceId()),
+                  style: const TextStyle(fontSize: 15),
+                  trailing: AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: selected
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircleAvatar(
+                              backgroundColor: Color(0xFF63B4FF),
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(key: Key('0')),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              label: 'label_media_microphone'.l10n,
+              state: TextFieldState(
+                text: (c.devices.audio().firstWhereOrNull(
+                                (e) => e.deviceId() == c.mic.value) ??
+                            c.devices.audio().firstOrNull)
+                        ?.label() ??
+                    'label_media_no_device_available'.l10n,
+                editable: false,
+              ),
+              trailing: RotatedBox(
+                quarterTurns: 3,
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      _dense(
+        WidgetButton(
+          key: c.outputKey,
+          onPressed: () async {
+            await Selector.menu(
+              context,
+              key: c.outputKey,
+              width: 340,
+              alignment: Alignment.bottomLeft,
+              margin: const EdgeInsets.only(top: 30),
+              actions: c.devices.output().mapIndexed((i, e) {
+                final bool selected = (c.output.value == null && i == 0) ||
+                    c.output.value == e.deviceId();
+
+                return ContextMenuButton(
+                  label: e.label(),
+                  onPressed: () => c.setOutputDevice(e.deviceId()),
+                  style: const TextStyle(fontSize: 15),
+                  trailing: AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: selected
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircleAvatar(
+                              backgroundColor: Color(0xFF63B4FF),
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(key: Key('0')),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              label: 'label_media_output'.l10n,
+              state: TextFieldState(
+                text: (c.devices.output().firstWhereOrNull(
+                                (e) => e.deviceId() == c.output.value) ??
+                            c.devices.output().firstOrNull)
+                        ?.label() ??
+                    'label_media_no_device_available'.l10n,
+                editable: false,
+              ),
+              trailing: RotatedBox(
+                quarterTurns: 3,
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 14,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+
   Widget row(Widget left, Widget right, [bool useFlexible = false]) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18),
         child: Row(
@@ -1997,7 +2193,6 @@ Widget _media(BuildContext context, MyProfileController c) {
     Column(
       children: [
         WidgetButton(
-          key: c.cameraKey,
           onPressed: () async {},
           child: IgnorePointer(
             child: ReactiveTextField(
@@ -2106,35 +2301,7 @@ Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
     WidgetButton(
       key: c.languageKey,
-      onPressed: () async {
-        await LanguageSelectionView.show(context);
-        // final TextStyle? thin =
-        //     context.textTheme.caption?.copyWith(color: Colors.black);
-        // await Selector.show<Language>(
-        //   context: context,
-        //   buttonKey: c.languageKey,
-        //   alignment: Alignment.bottomCenter,
-        //   items: L10n.languages,
-        //   initial: L10n.chosen.value!,
-        //   onSelected: (l) => L10n.set(l),
-        //   debounce: context.isMobile ? const Duration(milliseconds: 500) : null,
-        //   itemBuilder: (Language e) => Row(
-        //     key:
-        //         Key('Language_${e.locale.languageCode}${e.locale.countryCode}'),
-        //     children: [
-        //       Text(
-        //         e.name,
-        //         style: thin?.copyWith(fontSize: 15),
-        //       ),
-        //       const Spacer(),
-        //       Text(
-        //         e.locale.languageCode.toUpperCase(),
-        //         style: thin?.copyWith(fontSize: 15),
-        //       ),
-        //     ],
-        //   ),
-        // );
-      },
+      onPressed: () async => await LanguageSelectionView.show(context),
       child: IgnorePointer(
         child: ReactiveTextField(
           state: TextFieldState(
@@ -2142,7 +2309,15 @@ Widget _language(BuildContext context, MyProfileController c) {
                 '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
             editable: false,
           ),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          trailing: RotatedBox(
+            quarterTurns: 2,
+            child: Icon(
+              Icons.arrow_back_ios_rounded,
+              color: Theme.of(context).colorScheme.secondary,
+              size: 14,
+            ),
+          ),
         ),
       ),
     ),
