@@ -180,13 +180,14 @@ class CallService extends DisposableService {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
-  }) =>
-      _callsRepo.addStoredCall(
-        stored,
-        withAudio: withAudio,
-        withVideo: withVideo,
-        withScreen: withScreen,
-      );
+  }) {
+    return _callsRepo.addStored(
+      stored,
+      withAudio: withAudio,
+      withVideo: withVideo,
+      withScreen: withScreen,
+    );
+  }
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {

@@ -140,6 +140,40 @@ class CallRepository extends DisposableService
   }
 
   @override
+  Rx<OngoingCall> addStored(
+    WebStoredCall stored, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  }) {
+    Rx<OngoingCall>? ongoing = calls[stored.chatId];
+
+    if (ongoing == null) {
+      ongoing = Rx(
+        OngoingCall(
+          stored.chatId,
+          me,
+          call: stored.call,
+          creds: stored.creds,
+          deviceId: stored.deviceId,
+          state: stored.state,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+          mediaSettings: media.value,
+        ),
+      );
+      calls[stored.chatId] = ongoing;
+    } else {
+      ongoing.value.call.value = ongoing.value.call.value ?? stored.call;
+      ongoing.value.creds = ongoing.value.creds ?? stored.creds;
+      ongoing.value.deviceId = ongoing.value.deviceId ?? stored.deviceId;
+    }
+
+    return ongoing;
+  }
+
+  @override
   void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
 
   @override
@@ -215,8 +249,7 @@ class CallRepository extends DisposableService
         ongoing.value.state.value == OngoingCallState.ended) {
       // If we're joining an already disposed call, then replace it.
       if (ongoing?.value.state.value == OngoingCallState.ended) {
-        var removed = remove(chatId);
-        removed?.value.dispose();
+        remove(chatId);
       }
 
       ChatCallCredentials? credentials;
@@ -273,40 +306,6 @@ class CallRepository extends DisposableService
   Future<void> decline(ChatId chatId) async {
     await _graphQlProvider.declineChatCall(chatId);
     calls.remove(chatId);
-  }
-
-  @override
-  Rx<OngoingCall> addStoredCall(
-    WebStoredCall stored, {
-    bool withAudio = true,
-    bool withVideo = true,
-    bool withScreen = false,
-  }) {
-    Rx<OngoingCall>? call = calls[stored.chatId];
-
-    if (call == null) {
-      call = Rx(
-        OngoingCall(
-          stored.chatId,
-          me,
-          call: stored.call,
-          creds: stored.creds,
-          deviceId: stored.deviceId,
-          state: stored.state,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-          mediaSettings: media.value,
-        ),
-      );
-      calls[stored.chatId] = call;
-    } else {
-      call.value.call.value = call.value.call.value ?? stored.call;
-      call.value.creds = call.value.creds ?? stored.creds;
-      call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-    }
-
-    return call;
   }
 
   @override
