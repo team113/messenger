@@ -31,7 +31,6 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/ui/page/call/search/view.dart';
 import '/ui/widget/text_field.dart';
-import '/util/obs/obs.dart';
 
 export 'view.dart';
 
@@ -58,13 +57,13 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
-    this.onChanged,
+    this.searchResults,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
   ///
   /// If specified, then the [RxChat.members] of this [chat] will be omitted
-  /// from the [searchResults].
+  /// from the [searchUsersResults].
   final RxChat? chat;
 
   /// Reactive list of the selected [ChatContact]s.
@@ -77,7 +76,7 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<RxList<RxUser>?> searchResults = Rx(null);
+  final Rx<RxList<RxUser>?> searchUsersResults = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -85,10 +84,13 @@ class SearchController extends GetxController {
   /// - `searchStatus.empty`, meaning no search.
   /// - `searchStatus.loading`, meaning search is in progress.
   /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [searchResults] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [searchResults] are
-  ///   acquired.
+  ///   [searchUsersResults] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [searchUsersResults]
+  /// are acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// Selected items in [SearchView] popup.
+  final Rx<SearchViewResults?>? searchResults;
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
@@ -120,12 +122,6 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when an item was selected or unselected.
-  final void Function(SearchViewResults results)? onChanged;
-
-  /// Reactive list of the sorted [Chat]s.
-  final RxList<RxChat> _sortedChats = RxList<RxChat>();
-
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
 
@@ -144,45 +140,22 @@ class SearchController extends GetxController {
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
-  /// Subscription for [ChatService.chats] changes.
-  late final StreamSubscription _chatsSubscription;
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    _sortedChats.addAll(_chatService.chats.values);
-    _sortChats();
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String? q) {
       if (q == null || q.isEmpty) {
-        searchResults.value = null;
+        searchUsersResults.value = null;
         searchStatus.value = RxStatus.empty();
       } else {
         searchStatus.value = RxStatus.loading();
       }
 
       populate();
-    });
-
-    _chatsSubscription = _chatService.chats.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          _sortedChats.add(event.value!);
-          _sortChats();
-          break;
-
-        case OperationKind.removed:
-          _sortedChats.removeWhere((e) => e.chat.value.id == event.key);
-          _sortChats();
-          break;
-
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
     });
 
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
@@ -210,7 +183,6 @@ class SearchController extends GetxController {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
-    _chatsSubscription.cancel();
     _searchStatusWorker = null;
     super.onClose();
   }
@@ -223,44 +195,36 @@ class SearchController extends GetxController {
     }.toList();
   }
 
-  /// Selects or unselects the specified [contact].
-  void selectContact(RxChatContact contact) {
-    if (selectedContacts.contains(contact)) {
-      selectedContacts.remove(contact);
-    } else {
-      selectedContacts.add(contact);
-    }
-    _onChanged();
-  }
+  /// Selects or unselects the specified [contact], [user] or [chat].
+  void select({RxChatContact? contact, RxUser? user, RxChat? chat}) {
+    if (contact == null && user == null && chat == null) return;
 
-  /// Selects or unselects the specified [user].
-  void selectUser(RxUser user) {
-    if (selectedUsers.contains(user)) {
-      selectedUsers.remove(user);
-    } else {
-      selectedUsers.add(user);
+    if (contact != null) {
+      if (selectedContacts.contains(contact)) {
+        selectedContacts.remove(contact);
+      } else {
+        selectedContacts.add(contact);
+      }
+    } else if (user != null) {
+      if (selectedUsers.contains(user)) {
+        selectedUsers.remove(user);
+      } else {
+        selectedUsers.add(user);
+      }
+    } else if (chat != null) {
+      if (selectedChats.contains(chat)) {
+        selectedChats.remove(chat);
+      } else {
+        selectedChats.add(chat);
+      }
     }
-    _onChanged();
-  }
 
-  /// Selects or unselects the specified [chat].
-  void selectChat(RxChat chat) {
-    if (selectedChats.contains(chat)) {
-      selectedChats.remove(chat);
-    } else {
-      selectedChats.add(chat);
-    }
-    _onChanged();
+    searchResults?.value = SearchViewResults(
+      selectedChats,
+      selectedUsers,
+      selectedContacts,
+    );
   }
-
-  /// Calls [onChanged] callback.
-  void _onChanged() => onChanged?.call(
-        SearchViewResults(
-          selectedChats,
-          selectedUsers,
-          selectedContacts,
-        ),
-      );
 
   /// Searches the [User]s based on the provided [query].
   ///
@@ -303,7 +267,7 @@ class SearchController extends GetxController {
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
-        searchResults.value = result.users;
+        searchUsersResults.value = result.users;
         searchStatus.value = result.status.value;
 
         _searchStatusWorker = ever(result.status, (RxStatus s) {
@@ -314,11 +278,11 @@ class SearchController extends GetxController {
         populate();
       } else {
         searchStatus.value = RxStatus.empty();
-        searchResults.value = null;
+        searchUsersResults.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      searchResults.value = null;
+      searchUsersResults.value = null;
     }
   }
 
@@ -383,9 +347,22 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
+    List<RxChat> sortedChats = _chatService.chats.values.toList();
+    sortedChats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+    });
+
     if (categories.contains(SearchCategory.chats)) {
       chats.value = {
-        for (var c in _sortedChats.where((p) {
+        for (var c in sortedChats.where((p) {
           if (query.value != null) {
             if (p.title.toLowerCase().contains(query.value!.toLowerCase())) {
               return true;
@@ -477,10 +454,14 @@ class SearchController extends GetxController {
       };
     }
 
+    contacts.removeWhere((k, v) => (chats.values.any((e1) =>
+        e1.chat.value.isDialog &&
+        e1.chat.value.members.any((e2) => e2.user.id == v.user.value?.id))));
+
     if (categories.contains(SearchCategory.users)) {
-      if (searchResults.value?.isNotEmpty == true) {
+      if (searchUsersResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
-          for (var u in searchResults.value!.where((e) {
+          for (var u in searchUsersResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id)) {
@@ -557,24 +538,10 @@ class SearchController extends GetxController {
           ...allUsers,
         };
       }
+      users.removeWhere((k, v) => (chats.values.any((e1) =>
+          e1.chat.value.isDialog &&
+          e1.chat.value.members.any((e2) => e2.user.id == v.user.value.id))));
     }
-  }
-
-  /// Sorts the [_sortedChats] by the [Chat.updatedAt] and [Chat.currentCall] values.
-  void _sortChats() {
-    _sortedChats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-
-    populate();
   }
 }
 

@@ -39,6 +39,7 @@ class SearchView extends StatelessWidget {
     required this.categories,
     required this.title,
     this.chat,
+    this.searchResults,
     this.selectable = true,
     this.enabled = true,
     this.submit,
@@ -69,6 +70,9 @@ class SearchView extends StatelessWidget {
   /// Only meaningful if [onSubmit] is non-`null`.
   final String? submit;
 
+  /// Selected items in [SearchView] popup.
+  final Rx<SearchViewResults?>? searchResults;
+
   /// Callback, called when a searched item is pressed.
   final void Function(dynamic)? onPressed;
 
@@ -95,7 +99,7 @@ class SearchView extends StatelessWidget {
         Get.find(),
         chat: chat,
         categories: categories,
-        onChanged: onChanged,
+        searchResults: searchResults,
       ),
       builder: (SearchController c) {
         return Container(
@@ -176,43 +180,31 @@ class SearchView extends StatelessWidget {
                         Widget child = Container();
 
                         if (e is RxUser) {
-                          if (c.chats.values.none((e1) =>
-                              e1.chat.value.isDialog &&
-                              e1.chat.value.members.any(
-                                  (e2) => e2.user.id == e.user.value.id))) {
-                            child = Obx(() {
-                              return tile(
-                                context: context,
-                                user: e,
-                                selected: c.selectedUsers.contains(e),
-                                onTap: selectable
-                                    ? () => c.selectUser(e)
-                                    : enabled
-                                        ? () => onPressed?.call(e)
-                                        : null,
-                              );
-                            });
-                          }
+                          child = Obx(() {
+                            return tile(
+                              context: context,
+                              user: e,
+                              selected: c.selectedUsers.contains(e),
+                              onTap: selectable
+                                  ? () => c.select(user: e)
+                                  : enabled
+                                      ? () => onPressed?.call(e)
+                                      : null,
+                            );
+                          });
                         } else if (e is RxChatContact) {
-                          if (c.chats.values.none(
-                            (e1) =>
-                                e1.chat.value.isDialog &&
-                                e1.chat.value.members.any(
-                                    (e2) => e2.user.id == e.user.value!.id),
-                          )) {
-                            child = Obx(() {
-                              return tile(
-                                context: context,
-                                contact: e,
-                                selected: c.selectedContacts.contains(e),
-                                onTap: selectable
-                                    ? () => c.selectContact(e)
-                                    : enabled
-                                        ? () => onPressed?.call(e)
-                                        : null,
-                              );
-                            });
-                          }
+                          child = Obx(() {
+                            return tile(
+                              context: context,
+                              contact: e,
+                              selected: c.selectedContacts.contains(e),
+                              onTap: selectable
+                                  ? () => c.select(contact: e)
+                                  : enabled
+                                      ? () => onPressed?.call(e)
+                                      : null,
+                            );
+                          });
                         } else if (e is RxChat) {
                           child = Obx(() {
                             return chatTile(
@@ -220,7 +212,7 @@ class SearchView extends StatelessWidget {
                               chat: e,
                               selected: c.selectedChats.contains(e),
                               onTap: selectable
-                                  ? () => c.selectChat(e)
+                                  ? () => c.select(chat: e)
                                   : enabled
                                       ? () => onPressed?.call(e)
                                       : null,
