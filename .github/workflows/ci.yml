@@ -128,7 +128,7 @@ jobs:
           - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
     runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                               && 'macos-latest')
+                                               && 'macos-12')
               || (matrix.platform == 'windows' && 'windows-latest')
               || (matrix.platform == 'linux'   && 'ubuntu-22.04')
               ||                                  'ubuntu-latest' }}

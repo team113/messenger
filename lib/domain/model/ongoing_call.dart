@@ -20,6 +20,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -303,10 +304,11 @@ class OngoingCall {
 
       try {
         _jason = Jason();
-      } catch (_) {
+      } catch (e) {
         // TODO: So the test would run. Jason currently only supports Web and
         //       Android, and unit tests run on a host machine.
         _jason = null;
+        MessagePopup.error(e);
         return;
       }
 
