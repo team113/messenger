@@ -146,6 +146,10 @@ void main() async {
       ),
     );
 
+    when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+      (_) => Future.value(const Stream.empty()),
+    );
+
     Get.put(chatHiveProvider);
 
     UserRepository userRepository = Get.put(

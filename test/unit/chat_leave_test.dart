@@ -111,6 +111,10 @@ void main() async {
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
     AuthService authService = Get.put(
       AuthService(

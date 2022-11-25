@@ -130,6 +130,10 @@ void main() async {
     before: null,
   )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   test('ChatService doesn\'t split message with $maxText symbols', () async {
     final ChatMessageText message = ChatMessageText('A' * maxText);
 

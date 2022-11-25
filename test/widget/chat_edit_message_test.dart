@@ -186,6 +186,10 @@ void main() async {
             .editChatMessageText as ChatEventsVersionedMixin?);
   });
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
