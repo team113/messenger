@@ -34,11 +34,10 @@ final StepDefinitionGeneric raiseHand =
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    if (handStatus == HandStatus.lower) {
-      await provider.toggleChatCallHand(customUser.chat!, false);
-    } else {
-      await provider.toggleChatCallHand(customUser.chat!, true);
-    }
+    await provider.toggleChatCallHand(
+      customUser.chat!,
+      handStatus == HandStatus.raise,
+    );
 
     provider.disconnect();
   },

@@ -38,7 +38,7 @@ Feature: Hand up/down in call tests
     Then I wait until Bob is present in call
 
     When Bob raises hand
-    Then I wait until Bob hand is raised
+    Then I wait until Bob's hand is raised
 
     When Bob lowers hand
-    Then I wait until Bob hand is lowered
+    Then I wait until Bob's hand is lowered

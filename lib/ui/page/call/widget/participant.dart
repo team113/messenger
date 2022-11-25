@@ -88,8 +88,8 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool hasVideo = participant.video.value?.renderer.value != null;
-      UserId? userId = participant.user.value?.id;
+      final bool hasVideo = participant.video.value?.renderer.value != null;
+      final UserId? userId = participant.user.value?.id;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {

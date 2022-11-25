@@ -23,7 +23,6 @@ library web_utils;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:html';
 import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
@@ -115,9 +114,6 @@ external bool _hasFocus();
 ///
 /// Does nothing on desktop or mobile.
 class WebUtils {
-  /// List of opened windows.
-  static final List<WindowBase> _windows = [];
-
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
@@ -399,7 +395,6 @@ class WebUtils {
       'call_${const Uuid().v4()}',
       'popup=1,width=$width,height=$height,left=$left,top=$top',
     );
-    _windows.add(window);
 
     try {
       return window.closed != true;
@@ -456,13 +451,6 @@ class WebUtils {
         html.window.localStorage.remove(k);
       }
     }
-
-    for (var w in _windows) {
-      if (w.closed != true) {
-        w.close();
-      }
-    }
-    _windows.clear();
   }
 
   /// Indicates whether the browser's storage contains a call identified by the

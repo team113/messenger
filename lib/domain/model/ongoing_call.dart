@@ -40,10 +40,6 @@ import 'user.dart';
 /// Reactive list of [MediaDeviceInfo]s.
 typedef InputDevices = RxList<MediaDeviceInfo>;
 
-/// Returns stream of [ChatCallEvent]s of an [OngoingCall].
-typedef Heartbeat = Future<Stream<ChatCallEvents>> Function(
-    ChatItemId, ChatCallDeviceId);
-
 /// Possible states of an [OngoingCall].
 enum OngoingCallState {
   /// Initialized locally, so a server is not yet aware of it.
@@ -341,7 +337,11 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  Future<void> connect(CallService? calls, [Heartbeat? heartbeat]) async {
+  Future<void> connect(
+    CallService? calls, [
+    Future<Stream<ChatCallEvents>> Function(ChatItemId, ChatCallDeviceId)?
+        heartbeat,
+  ]) async {
     assert(
       calls != null || heartbeat != null,
       'Al least one of calls and heartbeat must not be null',
@@ -420,7 +420,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
-                  if (me == node.user.id) {
+                  if (me.id.userId == node.user.id) {
                     calls?.remove(chatId.value);
                   }
 

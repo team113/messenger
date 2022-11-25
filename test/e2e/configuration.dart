@@ -31,8 +31,8 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
-import 'parameters/download_status.dart';
 import 'parameters/chat.dart';
+import 'parameters/download_status.dart';
 import 'parameters/enabled.dart';
 import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
@@ -53,8 +53,8 @@ import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
-import 'steps/popup.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/popup.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_draft.dart';
@@ -76,10 +76,9 @@ import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_message_status.dart';
-import 'steps/wait_until_popup_call.dart';
 import 'steps/wait_until_text.dart';
-import 'steps/wait_until_user_hand.dart';
 import 'steps/wait_until_text_within.dart';
+import 'steps/wait_until_user_hand.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -130,7 +129,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilMyUserHand,
-        untilPopupCall,
         untilTextExists,
         untilUserHand,
         untilUserInCallExists,
