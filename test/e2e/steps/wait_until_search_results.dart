@@ -26,7 +26,8 @@ import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided [User] or [Contact] in chats searching is present.
+/// Waits until the provided [User] or [Contact] in chats searching is
+/// displayed.
 ///
 /// Examples:
 /// - Then I see user Bob in search results
@@ -67,7 +68,7 @@ final StepDefinitionGeneric seeUserOrContactInSearchResults =
   },
 );
 
-/// Waits until the provided [Chat] in chats searching is present.
+/// Waits until the provided [Chat] in chats searching is displayed.
 ///
 /// Examples:
 /// - Then I see chat "Example" in search results

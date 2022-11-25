@@ -406,6 +406,10 @@ class SearchController extends GetxController {
       };
     }
 
+    contacts.removeWhere((k, v) => (chats.values.any((e1) =>
+        e1.chat.value.isDialog &&
+        e1.chat.value.members.any((e2) => e2.user.id == v.user.value?.id))));
+
     if (categories.contains(SearchCategory.users)) {
       if (searchResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
@@ -486,6 +490,10 @@ class SearchController extends GetxController {
           ...allUsers,
         };
       }
+
+      users.removeWhere((k, v) => (chats.values.any((e1) =>
+          e1.chat.value.isDialog &&
+          e1.chat.value.members.any((e2) => e2.user.id == v.user.value.id))));
     }
   }
 }

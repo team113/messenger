@@ -40,6 +40,7 @@ class ContactTile extends StatelessWidget {
     this.darken = 0,
     this.height = 76,
     this.radius = 26,
+    this.padding = const EdgeInsets.all(12),
   }) : super(key: key);
 
   /// [RxChatContact] to display.
@@ -72,63 +73,63 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  /// Padding of this [ContactTile].
+  final EdgeInsets padding;
+
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
       constraints: BoxConstraints(minHeight: height),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: InkWellWithHover(
-          selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-          unselectedColor: style.cardColor.darken(darken),
-          selected: selected,
-          hoveredBorder: style.cardHoveredBorder,
-          border: style.cardBorder,
-          borderRadius: style.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-          selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-            child: Row(
-              children: [
-                ...leading,
-                if (contact != null)
-                  AvatarWidget.fromRxContact(contact, radius: radius)
-                else
-                  AvatarWidget.fromRxUser(user, radius: radius),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
-                                  user?.user.value.name?.val ??
-                                  user?.user.value.num.val ??
-                                  'dot'.l10n * 3,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
+      child: InkWellWithHover(
+        selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        unselectedColor: style.cardColor.darken(darken),
+        selected: selected,
+        hoveredBorder: style.cardHoveredBorder,
+        border: style.cardBorder,
+        borderRadius: style.cardRadius,
+        onTap: onTap,
+        unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        child: Padding(
+          padding: padding,
+          child: Row(
+            children: [
+              ...leading,
+              if (contact != null)
+                AvatarWidget.fromRxContact(contact, radius: radius)
+              else
+                AvatarWidget.fromRxUser(user, radius: radius),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            contact?.contact.value.name.val ??
+                                contact?.user.value?.user.value.name?.val ??
+                                contact?.user.value?.user.value.num.val ??
+                                user?.user.value.name?.val ??
+                                user?.user.value.num.val ??
+                                'dot'.l10n * 3,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.headline5,
                           ),
-                        ],
-                      ),
-                      ...subtitle,
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    ...subtitle,
+                  ],
                 ),
-                ...trailing,
-              ],
-            ),
+              ),
+              ...trailing,
+            ],
           ),
         ),
       ),

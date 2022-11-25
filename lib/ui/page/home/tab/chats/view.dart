@@ -57,8 +57,9 @@ class ChatsTabView extends StatelessWidget {
           user: user,
           darken: 0,
           onTap: onTap,
-          height: 94,
+          height: 86,
           radius: 30,
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
           subtitle: [
             const SizedBox(height: 5),
             Text(

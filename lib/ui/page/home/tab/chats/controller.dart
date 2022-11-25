@@ -262,18 +262,7 @@ class ChatsTabController extends GetxController {
       elements.add(const DividerElement(SearchCategory.contacts));
 
       for (var c in searchController!.contacts.values) {
-        if (chats.none((e1) =>
-            e1.chat.value.isDialog &&
-            e1.chat.value.members
-                .any((e2) => e2.user.id == c.contact.value.id))) {
-          elements.add(ContactElement(c));
-        }
-      }
-
-      if (elements.whereType<ContactElement>().isEmpty) {
-        elements.removeWhere(
-          (e) => e == const DividerElement(SearchCategory.contacts),
-        );
+        elements.add(ContactElement(c));
       }
     }
 
@@ -281,17 +270,7 @@ class ChatsTabController extends GetxController {
       elements.add(const DividerElement(SearchCategory.users));
 
       for (var c in searchController!.users.values) {
-        if (chats.none((e1) =>
-            e1.chat.value.isDialog &&
-            e1.chat.value.members.any((e2) => e2.user.id == c.user.value.id))) {
-          elements.add(UserElement(c));
-        }
-      }
-
-      if (elements.whereType<UserElement>().isEmpty) {
-        elements.removeWhere(
-          (e) => e == const DividerElement(SearchCategory.users),
-        );
+        elements.add(UserElement(c));
       }
     }
   }
@@ -308,7 +287,7 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Enables/disables searching mode based on [enabled].
+  /// Enables/disables searching mode based on [enable].
   void toggleSearch(bool enable) {
     searching.value = enable;
     if (enable) {
