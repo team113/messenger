@@ -674,10 +674,10 @@ class ChatRepository implements AbstractChatRepository {
       _callRepo.removeCredentials(id);
 
   /// Adds the provided [ChatCall] to the [_callRepo].
-  void addCall(ChatCall chatCall) => _callRepo.addCall(chatCall);
+  void addCall(ChatCall call) => _callRepo.add(call);
 
   /// Ends call in the [Chat] with the provided [ChatId].
-  void endCall(ChatId chatId) => _callRepo.endCall(chatId);
+  void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(

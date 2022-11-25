@@ -26,7 +26,6 @@ import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/store/event/chat_call.dart';
-import '/store/event/incoming_chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
@@ -42,11 +41,15 @@ abstract class AbstractCallRepository {
   /// Replaces the value of [OngoingCall] identified by [chatId] to [call].
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
+  /// Adds the provided [ChatCall] to the [calls], if not already.
+  Rx<OngoingCall>? add(ChatCall call);
+
   /// Switches the [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
 
-  /// Removes the [OngoingCall] identified by [chatId] from the [calls] map.
+  /// Ends an [OngoingCall] happening in a [Chat] identified by the provided
+  /// [chatId].
   Rx<OngoingCall>? remove(ChatId chatId);
 
   /// Returns `true` if an [OngoingCall] identified by [chatId] exists in the
@@ -55,7 +58,7 @@ abstract class AbstractCallRepository {
 
   /// Starts a new [OngoingCall] in the specified [chatId] by the authenticated
   /// [MyUser].
-  Future<OngoingCall> start(
+  Future<Rx<OngoingCall>> start(
     ChatId chatId, {
     bool withAudio = true,
     bool withVideo = true,
@@ -64,7 +67,7 @@ abstract class AbstractCallRepository {
 
   /// Joins the current [OngoingCall] in the specified [chatId] by the
   /// authenticated [MyUser].
-  Future<OngoingCall?> join(
+  Future<Rx<OngoingCall>?> join(
     ChatId chatId,
     ChatItemId? callId, {
     bool withAudio = true,
@@ -115,25 +118,13 @@ abstract class AbstractCallRepository {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
 
-  /// Constructs an [OngoingCall] from the provided [stored] call and adds it to
-  /// the [calls].
+  /// Transforms the provided [WebStoredCall] to an [OngoingCall].
   Rx<OngoingCall> addStoredCall(
     WebStoredCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
   });
-
-  /// Adds the provided [ChatCall] to the [calls].
-  ///
-  /// Should be called when a new [ChatCall] added.
-  void addCall(ChatCall chatCall);
-
-  /// Removes the [OngoingCall] with the provided [ChatId] from the [calls] if
-  /// this [OngoingCall] is notification about started [ChatCall].
-  ///
-  /// Should be called when a [ChatCall] finished.
-  void endCall(ChatId chatId);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///
@@ -146,12 +137,6 @@ abstract class AbstractCallRepository {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   );
-
-  /// Returns the subscription of [IncomingChatCallsTopEvent]s.
-  ///
-  /// [count] determines the length of the list of incoming [ChatCall]s which
-  /// updates will be notified via events.
-  Future<Stream<IncomingChatCallsTopEvent>> events(int count);
 }
 
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists

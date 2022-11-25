@@ -87,13 +87,13 @@ class CallService extends DisposableService {
     }
 
     try {
-      OngoingCall call = await _callsRepo.start(
+      Rx<OngoingCall> call = await _callsRepo.start(
         chatId,
         withAudio: withAudio,
         withVideo: withVideo,
         withScreen: withScreen,
       );
-      call.connect(this);
+      call.value.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -119,7 +119,7 @@ class CallService extends DisposableService {
       final RxChat? chat = await _chatService.get(chatId);
       final ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
 
-      OngoingCall? call;
+      Rx<OngoingCall>? call;
 
       try {
         call = await _callsRepo.join(
@@ -140,7 +140,7 @@ class CallService extends DisposableService {
         );
       }
 
-      call?.connect(this);
+      call?.value.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.

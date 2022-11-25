@@ -101,22 +101,64 @@ class CallRepository extends DisposableService
   }
 
   @override
+  Rx<OngoingCall>? add(ChatCall call) {
+    Rx<OngoingCall>? ongoing = calls[call.chatId];
+
+    // If we're already in this call or call already exist, then ignore it.
+    if ((ongoing != null &&
+            ongoing.value.state.value != OngoingCallState.ended) ||
+        call.members.any((e) => e.user.id == me)) {
+      return ongoing;
+    }
+
+    if (ongoing == null) {
+      ongoing = Rx<OngoingCall>(
+        OngoingCall(
+          call.chatId,
+          me,
+          call: call,
+          withAudio: false,
+          withVideo: false,
+          withScreen: false,
+          mediaSettings: media.value,
+          creds: getCredentials(call.id),
+        ),
+      );
+      calls[call.chatId] = ongoing;
+    } else {
+      ongoing.value.call.value = call;
+    }
+
+    return ongoing;
+  }
+
+  @override
   void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
 
   @override
-  Rx<OngoingCall>? remove(ChatId chatId) => calls.remove(chatId);
+  Rx<OngoingCall>? remove(ChatId chatId) {
+    Rx<OngoingCall>? call = calls.remove(chatId);
+    call?.value.state.value = OngoingCallState.ended;
+    call?.value.dispose();
+
+    return call;
+  }
 
   @override
   bool contains(ChatId chatId) => calls.containsKey(chatId);
 
   @override
-  Future<OngoingCall> start(
+  Future<Rx<OngoingCall>> start(
     ChatId chatId, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    Rx<OngoingCall> call = Rx<OngoingCall>(
+    if (calls[chatId] != null) {
+      throw CallAlreadyExistsException();
+    }
+
+    final Rx<OngoingCall> call = Rx<OngoingCall>(
       OngoingCall(
         chatId,
         me,
@@ -149,23 +191,23 @@ class CallRepository extends DisposableService
     }
     calls[call.value.chatId.value]?.refresh();
 
-    return call.value;
+    return call;
   }
 
   @override
-  Future<OngoingCall?> join(
+  Future<Rx<OngoingCall>?> join(
     ChatId chatId,
     ChatItemId? callId, {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    final Rx<OngoingCall> call;
-    final Rx<OngoingCall>? stored = calls[chatId];
+    Rx<OngoingCall>? ongoing = calls[chatId];
 
-    if (stored == null || stored.value.state.value == OngoingCallState.ended) {
+    if (ongoing == null ||
+        ongoing.value.state.value == OngoingCallState.ended) {
       // If we're joining an already disposed call, then replace it.
-      if (stored?.value.state.value == OngoingCallState.ended) {
+      if (ongoing?.value.state.value == OngoingCallState.ended) {
         var removed = remove(chatId);
         removed?.value.dispose();
       }
@@ -175,7 +217,7 @@ class CallRepository extends DisposableService
         credentials = getCredentials(callId);
       }
 
-      call = Rx<OngoingCall>(
+      ongoing = Rx<OngoingCall>(
         OngoingCall(
           chatId,
           me,
@@ -187,33 +229,33 @@ class CallRepository extends DisposableService
           state: OngoingCallState.joining,
         ),
       );
-    } else if (stored.value.state.value != OngoingCallState.active) {
-      stored.value.state.value = OngoingCallState.joining;
-      stored.value.setAudioEnabled(withAudio);
-      stored.value.setVideoEnabled(withVideo);
-      stored.value.setScreenShareEnabled(withScreen);
-
-      call = stored;
+    } else if (ongoing.value.state.value != OngoingCallState.active) {
+      ongoing.value.state.value = OngoingCallState.joining;
+      ongoing.value.setAudioEnabled(withAudio);
+      ongoing.value.setVideoEnabled(withVideo);
+      ongoing.value.setScreenShareEnabled(withScreen);
     } else {
       return null;
     }
 
-    calls[chatId] = call;
+    calls[chatId] = ongoing;
 
-    var response = await _graphQlProvider.joinChatCall(
-        call.value.chatId.value, call.value.creds!);
+    final response = await _graphQlProvider.joinChatCall(
+      ongoing.value.chatId.value,
+      ongoing.value.creds!,
+    );
 
-    call.value.deviceId = response.deviceId;
+    ongoing.value.deviceId = response.deviceId;
 
-    var chatCall = _chatCall(response.event);
+    final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
-      call.value.call.value = chatCall;
+      ongoing.value.call.value = chatCall;
       transferCredentials(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
 
-    return call.value;
+    return ongoing;
   }
 
   @override
@@ -225,38 +267,6 @@ class CallRepository extends DisposableService
   Future<void> decline(ChatId chatId) async {
     await _graphQlProvider.declineChatCall(chatId);
     calls.remove(chatId);
-  }
-
-  @override
-  void addCall(ChatCall chatCall) {
-    final Rx<OngoingCall>? stored = calls[chatCall.chatId];
-
-    // If we're already in this call or call already exist, then ignore it.
-    if ((stored != null &&
-            stored.value.state.value != OngoingCallState.ended) ||
-        chatCall.members.any((e) => e.user.id == me)) {
-      return;
-    }
-
-    Rx<OngoingCall>? call = calls[chatCall.chatId];
-
-    if (call == null) {
-      Rx<OngoingCall> call = Rx<OngoingCall>(
-        OngoingCall(
-          chatCall.chatId,
-          me,
-          call: chatCall,
-          withAudio: false,
-          withVideo: false,
-          withScreen: false,
-          mediaSettings: media.value,
-          creds: getCredentials(chatCall.id),
-        ),
-      );
-      calls[chatCall.chatId] = call;
-    } else {
-      call.value.call.value = chatCall;
-    }
   }
 
   @override
@@ -291,13 +301,6 @@ class CallRepository extends DisposableService
     }
 
     return call;
-  }
-
-  @override
-  void endCall(ChatId chatId) {
-    var removed = remove(chatId);
-    removed?.value.state.value = OngoingCallState.ended;
-    removed?.value.dispose();
   }
 
   @override
@@ -388,8 +391,11 @@ class CallRepository extends DisposableService
     });
   }
 
-  @override
-  Future<Stream<IncomingChatCallsTopEvent>> events(int count) async =>
+  /// Returns the subscription of [IncomingChatCallsTopEvent]s.
+  ///
+  /// [count] determines the length of the list of incoming [ChatCall]s which
+  /// updates will be notified via events.
+  Future<Stream<IncomingChatCallsTopEvent>> _incomingEvents(int count) async =>
       (await _graphQlProvider.incomingCallsTopEvents(count))
           .asyncExpand((event) async* {
         GraphQlProviderExceptions.fire(event);
@@ -572,7 +578,7 @@ class CallRepository extends DisposableService
   /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
     _events?.cancel();
-    _events = (await events(count)).listen(
+    _events = (await _incomingEvents(count)).listen(
       (e) async {
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
@@ -581,27 +587,16 @@ class CallRepository extends DisposableService
 
           case IncomingChatCallsTopEventKind.list:
             e as IncomingChatCallsTop;
-            for (ChatCall c in e.list) {
-              addCall(c);
-            }
+            e.list.forEach(add);
             break;
 
           case IncomingChatCallsTopEventKind.added:
             e as EventIncomingChatCallsTopChatCallAdded;
-            addCall(e.call);
+            add(e.call);
             break;
 
           case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            Rx<OngoingCall>? call = calls[e.call.chatId];
-            // If call is not yet connected to the remote updates, then it's still just
-            // a notification and it should be removed.
-            if (call?.value.connected == false &&
-                call?.value.isActive == false) {
-              var removed = remove(e.call.chatId);
-              removed?.value.state.value = OngoingCallState.ended;
-              removed?.value.dispose();
-            }
+            // No-op.
             break;
         }
       },
