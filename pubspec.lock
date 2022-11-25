@@ -583,7 +583,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.49.1"
+    version: "1.48.1"
   flutter_staggered_animations:
     dependency: "direct main"
     description:
@@ -875,7 +875,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.5"
+    version: "0.6.4"
   json_annotation:
     dependency: transitive
     description:
@@ -970,21 +970,17 @@ packages:
   medea_flutter_webrtc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: ba21f0dd8d75b59a8ff93b4daf1b55bfc54e75f8
-      url: "https://github.com/instrumentisto/flutter-webrtc"
-    source: git
-    version: "0.8.0-dev"
+      name: medea_flutter_webrtc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.0-dev+rev.d8614c179b76c3bfd4eb225891d327f7dca79209"
   medea_jason:
     dependency: "direct main"
     description:
-      path: flutter
-      ref: HEAD
-      resolved-ref: "9c248ff90e969f5036c7f25804e0f87fbf51b505"
-      url: "https://github.com/instrumentisto/medea-jason"
-    source: git
-    version: "0.3.0-dev"
+      name: medea_jason
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0-dev+rev.0fbcc1953be1c9fb816f10687b46499cef1698f8"
   meta:
     dependency: transitive
     description:

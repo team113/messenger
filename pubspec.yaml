@@ -121,14 +121,8 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.6.0
-  medea_flutter_webrtc:
-    git:
-      url: https://github.com/instrumentisto/flutter-webrtc
-  medea_jason:
-    git:
-      url: https://github.com/instrumentisto/medea-jason
-      path: flutter
-  js: ^0.6.5
+  medea_flutter_webrtc: 0.8.0-dev+rev.d8614c179b76c3bfd4eb225891d327f7dca79209
+  medea_jason: 0.3.0-dev+rev.0fbcc1953be1c9fb816f10687b46499cef1698f8
 
 flutter:
   uses-material-design: true
