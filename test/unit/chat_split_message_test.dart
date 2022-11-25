@@ -156,6 +156,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
@@ -220,6 +221,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
@@ -292,6 +294,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
@@ -358,6 +361,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
@@ -416,6 +420,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
@@ -488,6 +493,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );

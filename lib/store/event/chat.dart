@@ -529,17 +529,22 @@ class EventChatDirectLinkUpdated extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.directLinkUpdated;
 }
 
+/// Events happening in the the favorite [Chat]s list.
+abstract class FavoriteChatsEvent extends ChatEvent {
+  const FavoriteChatsEvent(ChatId chatId, this.at) : super(chatId);
+
+  /// [PreciseDateTime] when this [FavoriteChatsEvent] happened.
+  final PreciseDateTime at;
+}
+
 /// Event of a [Chat] being added to the favorites list of the authenticated
 /// [MyUser].
-class EventChatFavorited extends ChatEvent {
-  const EventChatFavorited(ChatId chatId, this.position, this.at)
-      : super(chatId);
+class EventChatFavorited extends FavoriteChatsEvent {
+  const EventChatFavorited(ChatId chatId, PreciseDateTime at, this.position)
+      : super(chatId, at);
 
   /// Position of the [Chat] in the favorites list.
   final ChatFavoritePosition position;
-
-  /// DateTime when the [Chat] was favorited.
-  final PreciseDateTime at;
 
   @override
   ChatEventKind get kind => ChatEventKind.favorited;
@@ -547,11 +552,9 @@ class EventChatFavorited extends ChatEvent {
 
 /// Event of a [Chat] being removed from the favorites list of the authenticated
 /// [MyUser].
-class EventChatUnfavorited extends ChatEvent {
-  const EventChatUnfavorited(ChatId chatId, this.at) : super(chatId);
-
-  /// DateTime when the [Chat] was unfavorited.
-  final PreciseDateTime at;
+class EventChatUnfavorited extends FavoriteChatsEvent {
+  const EventChatUnfavorited(ChatId chatId, PreciseDateTime at)
+      : super(chatId, at);
 
   @override
   ChatEventKind get kind => ChatEventKind.unfavorited;

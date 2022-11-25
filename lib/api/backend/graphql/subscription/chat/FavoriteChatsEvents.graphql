@@ -26,10 +26,11 @@ subscription FavoriteChatsEvents($ver: FavoriteChatsListVersion) {
                     __typename
                     ...Chat
                 }
-            } 
+                ver
+            }
         }
         ... on FavoriteChatsEventsVersioned {
-            ...FavoriteChatsEventsVersioned 
+            ...FavoriteChatsEventsVersioned
         }
     }
 }

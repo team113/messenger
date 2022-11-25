@@ -201,6 +201,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     return Get.put(ChatService(chatRepository, authService));

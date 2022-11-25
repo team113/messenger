@@ -105,9 +105,9 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                   ),
                                   onUnmute: () => c.unmuteChat(chat.id),
-                                  onAddToFavorites: () =>
+                                  onFavorite: () =>
                                       c.addChatToFavorites(chat.id),
-                                  onDeleteFromFvorites: () =>
+                                  onUnfavorite: () =>
                                       c.deleteChatFromFavorites(chat.id),
                                 ),
                               ),

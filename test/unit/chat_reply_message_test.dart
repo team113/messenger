@@ -200,6 +200,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );
@@ -267,6 +268,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );

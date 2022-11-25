@@ -156,6 +156,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        provider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -266,6 +267,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        provider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -332,6 +334,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        provider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

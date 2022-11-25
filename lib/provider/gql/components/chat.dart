@@ -1212,7 +1212,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// If [ver] argument is not specified (or is `null`) an initial state of the
-  /// [FavoriteChatsList] will be emitted after `SubscriptionInitialized` and
+  /// favorite [Chat]s list will be emitted after `SubscriptionInitialized` and
   /// before any other [FavoriteChatsEvents] (and won't be emitted ever again
   /// until this subscription completes). This allows to skip doing
   /// `Query.favoriteChats` before establishing this subscription.
@@ -1223,7 +1223,7 @@ abstract class ChatGraphQlMixin {
   /// - either a fresh version should be obtained via `Query.favoriteChats`;
   /// - or a re-subscription should be done without specifying a [ver] argument
   /// (so the fresh [ver] may be obtained in the emitted initial state of the
-  /// [FavoriteChatsList]).
+  /// favorite [Chat]s list).
   ///
   /// ### Completion
   ///
@@ -1240,7 +1240,7 @@ abstract class ChatGraphQlMixin {
   /// It's possible that in rare scenarios this subscription could emit an event
   /// which have already been applied to the state of some [Chat], so a client
   /// side is expected to handle all the events idempotently considering the
-  /// [Chat.ver].
+  /// `Chat.ver`.
   Future<Stream<QueryResult>> favoriteChatsEvents(
       FavoriteChatsListVersion? ver) {
     final variables = FavoriteChatsEventsArguments(ver: ver);

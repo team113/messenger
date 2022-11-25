@@ -323,6 +323,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );

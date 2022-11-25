@@ -138,10 +138,13 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   }
 }
 
+/// Makes a cut of the corner of [InkWellWithHover] if the chat is a favorite
 class _Clipper extends CustomClipper<Path> {
-  final double borderRadiusValue;
-
   _Clipper(this.borderRadiusValue);
+
+  /// Corner cut value of the [InkWellWithHover] is the same as the
+  /// [BorderRadius] of [InkWellWithHover]
+  final double borderRadiusValue;
 
   @override
   Path getClip(Size size) {

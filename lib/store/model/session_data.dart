@@ -18,6 +18,7 @@ import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
 import '/domain/model/session.dart';
+import '/store/model/chat.dart';
 import '/util/new_type.dart';
 import 'contact.dart';
 
@@ -33,6 +34,10 @@ class SessionData extends HiveObject {
   /// Persisted [ChatContactsListVersion] data.
   @HiveField(1)
   ChatContactsListVersion? chatContactsListVersion;
+
+  /// Persisted [FavoriteChatsListVersion] data.
+  @HiveField(2)
+  FavoriteChatsListVersion? favoriteChatsListVersion;
 }
 
 /// Version of [Session]'s state.

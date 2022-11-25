@@ -15,8 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/chat.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/store/chat.dart';
+import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 
 /// Tag representing a [FavoriteChatsEvent] kind.
@@ -51,10 +51,13 @@ class FavoriteChatsEventsInitialized extends FavoriteChatsEvents {
 
 /// Initial state of the favorite [Chat]s list.
 class FavoriteChatsEventsChatsList extends FavoriteChatsEvents {
-  const FavoriteChatsEventsChatsList(this.chatList);
+  const FavoriteChatsEventsChatsList(this.chatList, this.ver);
 
   /// Initial state itself.
   final List<ChatData> chatList;
+
+  /// Version of the initial favorite [Chat]s list.
+  final FavoriteChatsListVersion ver;
 
   @override
   FavoriteChatsEventsKind get kind => FavoriteChatsEventsKind.chatsList;
@@ -77,45 +80,9 @@ class FavoriteChatsEventsVersioned {
   const FavoriteChatsEventsVersioned(this.events, this.ver);
 
   /// [FavoriteChatsEvent]s themselves.
-  final List<FavoriteChatsEvent> events;
+  final List<ChatEvent> events;
 
-  /// Version of the [FavoriteChatsEvent]'s state updated by these [FavoriteChatsEvent]s.
+  /// Version of the [FavoriteChatsEvent]'s state updated by these
+  /// [FavoriteChatsEvent]s.
   final FavoriteChatsListVersion ver;
-}
-
-/// Events happening in the the favorite [Chat]s list.
-abstract class FavoriteChatsEvent {
-  const FavoriteChatsEvent(this.chatId, this.at);
-
-  /// ID of the [Chat] this [FavoriteChatsEvent] is happened in.
-  final ChatId chatId;
-
-  /// [PreciseDateTime] when this [FavoriteChatsEvent] happened.
-  final PreciseDateTime at;
-
-  /// Returns [FavoriteChatsEventKind] of this [FavoriteChatsEvent].
-  FavoriteChatsEventKind get kind;
-}
-
-/// Event of a [Chat] being added to the favorites list of the authenticated
-/// [MyUser].
-class EventChatFavorited extends FavoriteChatsEvent {
-  const EventChatFavorited(ChatId chatId, PreciseDateTime at, this.position)
-      : super(chatId, at);
-
-  /// Position of the [Chat] in the favorites list.
-  final ChatFavoritePosition position;
-
-  @override
-  FavoriteChatsEventKind get kind => FavoriteChatsEventKind.favorited;
-}
-
-/// Event of a [Chat] being removed from the favorites list of the authenticated
-/// [MyUser].
-class EventChatUnfavorited extends FavoriteChatsEvent {
-  const EventChatUnfavorited(ChatId chatId, PreciseDateTime at)
-      : super(chatId, at);
-
-  @override
-  FavoriteChatsEventKind get kind => FavoriteChatsEventKind.unfavorited;
 }

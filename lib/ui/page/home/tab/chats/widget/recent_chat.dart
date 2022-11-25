@@ -52,8 +52,8 @@ class RecentChatTile extends StatelessWidget {
     this.onJoin,
     this.onMute,
     this.onUnmute,
-    this.onAddToFavorites,
-    this.onDeleteFromFvorites,
+    this.onFavorite,
+    this.onUnfavorite,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -91,11 +91,11 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onUnmute;
 
   /// Callback, called when this [rxChat] add to favorites action is triggered.
-  final void Function()? onAddToFavorites;
+  final void Function()? onFavorite;
 
   /// Callback, called when this [rxChat] remove from favorites action is
   /// triggered.
-  final void Function()? onDeleteFromFvorites;
+  final void Function()? onUnfavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -198,12 +198,12 @@ class RecentChatTile extends StatelessWidget {
               ? ContextMenuButton(
                   key: const Key('UnfavoriteChatButton'),
                   label: 'btn_delete_chat_from_favorites'.l10n,
-                  onPressed: onDeleteFromFvorites,
+                  onPressed: onUnfavorite,
                 )
               : ContextMenuButton(
                   key: const Key('FavoriteChatButton'),
                   label: 'btn_add_chat_to_favorites'.l10n,
-                  onPressed: onAddToFavorites,
+                  onPressed: onFavorite,
                 ),
         ],
         selected: selected,

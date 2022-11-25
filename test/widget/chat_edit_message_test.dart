@@ -273,6 +273,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractSettingsRepository settingsRepository = Get.put(

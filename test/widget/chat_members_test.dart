@@ -359,6 +359,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractContactRepository contactRepository = ContactRepository(

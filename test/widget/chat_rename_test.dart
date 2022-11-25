@@ -254,6 +254,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
 
