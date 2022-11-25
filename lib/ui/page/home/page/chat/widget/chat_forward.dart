@@ -323,6 +323,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: media.length == 1
                     ? ChatItemWidget.mediaAttachment(
+                        context,
                         media.first,
                         media,
                         key: _galleryKeys[item.id]?.firstOrNull,
@@ -338,6 +339,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           children: media
                               .mapIndexed(
                                 (i, e) => ChatItemWidget.mediaAttachment(
+                                  context,
                                   e,
                                   media,
                                   key: _galleryKeys[item.id]?[i],
@@ -616,6 +618,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: attachments.length == 1
                   ? ChatItemWidget.mediaAttachment(
+                      context,
                       attachments.first,
                       attachments,
                       key: _galleryKeys[item.id]?.lastOrNull,
@@ -631,6 +634,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         children: attachments
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
+                                context,
                                 e,
                                 attachments,
                                 key: _galleryKeys[item.id]?[i],
@@ -761,7 +765,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
                                 label: 'btn_copy'.l10n,
-                                leading: SvgLoader.asset(
+                                trailing: SvgLoader.asset(
                                   'assets/icons/copy_small.svg',
                                   width: 14.82,
                                   height: 17,
@@ -771,7 +775,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: 'btn_reply'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
                                 width: 18.8,
                                 height: 16,
@@ -781,7 +785,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             ContextMenuButton(
                               key: const Key('ForwardButton'),
                               label: 'btn_forward'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/forward.svg',
                                 width: 18.8,
                                 height: 16,
@@ -817,7 +821,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                leading: SvgLoader.asset(
+                                trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
                                   width: 17,
                                   height: 17,
@@ -826,7 +830,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ),
                             ContextMenuButton(
                               label: 'btn_delete'.l10n,
-                              leading: SvgLoader.asset(
+                              trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,

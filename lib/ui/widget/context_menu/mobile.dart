@@ -35,6 +35,7 @@ class FloatingContextMenu extends StatefulWidget {
     required this.actions,
     required this.child,
     this.moveDownwards = true,
+    this.margin = EdgeInsets.zero,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -49,6 +50,9 @@ class FloatingContextMenu extends StatefulWidget {
   /// Indicator whether this [FloatingContextMenu] should animate the [child]
   /// moving downwards.
   final bool moveDownwards;
+
+  /// Margin to apply to this [FloatingContextMenu].
+  final EdgeInsets margin;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -100,6 +104,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         alignment: widget.alignment,
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
+        margin: widget.margin,
         onClosed: () {
           _entry?.remove();
           _entry = null;
@@ -126,6 +131,7 @@ class _AnimatedMenu extends StatefulWidget {
     required this.actions,
     required this.alignment,
     required this.showAbove,
+    required this.margin,
     this.onClosed,
     Key? key,
   }) : super(key: key);
@@ -148,6 +154,9 @@ class _AnimatedMenu extends StatefulWidget {
   /// Indicator whether this [_AnimatedMenu] should be displayed above the
   /// [child] or otherwise animate the [child] moving downwards.
   final bool showAbove;
+
+  /// Margin to apply to this [_AnimatedMenu].
+  final EdgeInsets margin;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
@@ -294,9 +303,11 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     return Align(
       alignment: widget.alignment,
       child: Padding(
-        padding: EdgeInsets.only(
-          left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
-          right: widget.alignment == Alignment.bottomRight ? 10 : 0,
+        padding: widget.margin.add(
+          EdgeInsets.only(
+            left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
+            right: widget.alignment == Alignment.bottomRight ? 10 : 0,
+          ),
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 220),
@@ -342,18 +353,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       onPointerUp: (d) => _dismiss(),
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
-        child: ConditionalBackdropFilter(
-          condition: widget.showAbove,
-          child: Container(
-            decoration: BoxDecoration(
-              color: style.contextMenuBackgroundColor.withAlpha(0xAA),
-              borderRadius: style.contextMenuRadius,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: style.contextMenuBackgroundColor,
+            borderRadius: style.contextMenuRadius,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
           ),
         ),
       ),
