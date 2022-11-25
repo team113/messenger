@@ -58,18 +58,6 @@ class CallService extends DisposableService {
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
 
-  @override
-  void onClose() {
-    super.onClose();
-
-    for (Rx<OngoingCall> call
-        in List.from(_callsRepo.calls.values, growable: false)) {
-      Rx<OngoingCall>? removed = _callsRepo.remove(call.value.chatId.value);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
-    }
-  }
-
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(
     ChatId chatId, {
