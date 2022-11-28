@@ -21,66 +21,72 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/ui/page/call/search/controller.dart';
 
-import '../parameters/search_chats.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided [User] or [Contact] in chats searching is
-/// displayed.
+/// Waits until the provided [User] or [ChatContact] is found and displayed in
+/// the ongoing search results.
 ///
 /// Examples:
 /// - Then I see user Bob in search results
 /// - Then I see contact Charlie in search results
-final StepDefinitionGeneric seeUserOrContactInSearchResults =
+final StepDefinitionGeneric seeUserInSearchResults =
     then2<SearchCategory, TestUser, CustomWorld>(
-  'I see {search_in_chats} {user} in search results',
-  (SearchCategory search, TestUser user, context) async {
+  'I see {search_category} {user} in search results',
+  (SearchCategory category, TestUser user, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        String searchKey = '';
+        switch (category) {
+          case SearchCategory.contact:
+            final ContactService contactService = Get.find<ContactService>();
+            final ChatContactId id = contactService.contacts.values
+                .firstWhere((e) => e.contact.value.name.val == user.name)
+                .id;
+            return context.world.appDriver.isPresent(
+              context.world.appDriver.findBy(
+                'SearchContact_$id',
+                FindType.key,
+              ),
+            );
 
-        if (search == SearchCategory.user) {
-          final UserId userId = context.world.sessions[user.name]!.userId;
+          case SearchCategory.user:
+            final UserId userId = context.world.sessions[user.name]!.userId;
+            return context.world.appDriver.isPresent(
+              context.world.appDriver.findBy(
+                'SearchUser_$userId',
+                FindType.key,
+              ),
+            );
 
-          searchKey = 'SearchUser_$userId';
-        } else if (search == SearchCategory.contact) {
-          ContactService contactService = Get.find<ContactService>();
-
-          final ChatContactId contactId = contactService.contacts.values
-              .firstWhere((e) => e.contact.value.name.val == user.name)
-              .id;
-
-          searchKey = 'SearchContact_$contactId';
+          case SearchCategory.recent:
+          case SearchCategory.chat:
+            throw Exception('Chat or recent cannot be a TestUser.');
         }
-
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy(
-            searchKey,
-            FindType.key,
-          ),
-        );
       },
       timeout: const Duration(seconds: 30),
     );
   },
 );
 
-/// Waits until the provided [Chat] in chats searching is displayed.
+/// Waits until the provided [Chat] is found and displayed in the ongoing search
+/// results.
 ///
 /// Examples:
 /// - Then I see chat "Example" in search results
-final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
-  'I see chat {string} in search results',
-  (String name, context) async {
+/// - Then I see recent "Example" in search results
+final StepDefinitionGeneric seeChatInSearchResults =
+    then2<SearchCategory, String, CustomWorld>(
+  'I see {search_category} {string} in search results',
+  (SearchCategory category, String name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatId chatId = context.world.groups[name]!;
-
         return context.world.appDriver.isPresent(
           context.world.appDriver.findBy(
             'SearchChat_$chatId',

@@ -64,7 +64,7 @@ class ContactTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
-  /// Optional [Widget]s subtitle.
+  /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
   /// Height of this [ContactTile].
@@ -73,12 +73,12 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  /// Padding of this [ContactTile].
+  /// Padding to apply to this [ContactTile].
   final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
       constraints: BoxConstraints(minHeight: height),

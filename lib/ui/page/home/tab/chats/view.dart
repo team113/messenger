@@ -55,9 +55,9 @@ class ChatsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
             title: Obx(() {
-              Widget child;
+              final Widget child;
 
-              if (c.searching.value) {
+              if (c.search.value != null) {
                 child = Theme(
                   data: Theme.of(context).copyWith(
                     shadowColor: const Color(0x55000000),
@@ -106,15 +106,15 @@ class ChatsTabView extends StatelessWidget {
                       offset: const Offset(0, 1),
                       child: ReactiveTextField(
                         key: const Key('SearchField'),
-                        state: c.searchController!.search,
+                        state: c.search.value!.search,
                         hint: 'label_search'.l10n,
                         maxLines: 1,
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         style: style.boldBody.copyWith(fontSize: 17),
-                        onChanged: () => c.searchController?.query.value =
-                            c.searchController?.search.text ?? '',
+                        onChanged: () => c.search.value?.query.value =
+                            c.search.value?.search.text ?? '',
                       ),
                     ),
                   ),
@@ -123,10 +123,7 @@ class ChatsTabView extends StatelessWidget {
                 child = Text('label_chats'.l10n);
               }
 
-              return AnimatedSwitcher(
-                duration: 250.milliseconds,
-                child: child,
-              );
+              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
             }),
             leading: [
               Padding(
@@ -136,8 +133,7 @@ class ChatsTabView extends StatelessWidget {
                     duration: 250.milliseconds,
                     child: WidgetButton(
                       key: const Key('SearchButton'),
-                      onPressed:
-                          c.searching.value ? null : () => c.toggleSearch(true),
+                      onPressed: c.search.value != null ? null : c.toggleSearch,
                       child: SvgLoader.asset(
                         'assets/icons/search.svg',
                         width: 17.77,
@@ -151,13 +147,13 @@ class ChatsTabView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 12, right: 18),
                 child: Obx(() {
-                  Widget child;
+                  final Widget child;
 
-                  if (c.searching.value) {
+                  if (c.search.value != null) {
                     child = WidgetButton(
                       key: const Key('CloseSearch'),
                       onPressed: () {
-                        if (c.searchController?.query.isNotEmpty == true) {
+                        if (c.search.value?.query.isNotEmpty == true) {
                           c.toggleSearch(false);
                         }
                       },
@@ -194,22 +190,21 @@ class ChatsTabView extends StatelessWidget {
             if (c.chatsReady.value) {
               final Widget? child;
 
-              if (c.searching.isTrue &&
-                  c.searchController?.search.isEmpty.value == false) {
-                if (c.searchController!.searchStatus.value.isLoading &&
+              if (c.search.value?.search.isEmpty.value == false) {
+                if (c.search.value!.searchStatus.value.isLoading &&
                     c.elements.isEmpty) {
                   child = const Center(
-                    key: Key('SearchLoading'),
+                    key: Key('Loading'),
                     child: CircularProgressIndicator(),
                   );
                 } else if (c.elements.isNotEmpty) {
                   child = ListView.builder(
-                    key: const Key('SearchListView'),
+                    key: const Key('Search'),
                     controller: ScrollController(),
                     itemCount: c.elements.length,
                     itemBuilder: (_, i) {
                       final ListElement element = c.elements[i];
-                      Widget child = const SizedBox();
+                      final Widget child;
 
                       if (element is ChatElement) {
                         final RxChat chat = element.chat;
@@ -256,6 +251,8 @@ class ChatsTabView extends StatelessWidget {
                             ),
                           ),
                         );
+                      } else {
+                        child = const SizedBox();
                       }
 
                       return AnimationConfiguration.staggeredList(
@@ -278,19 +275,19 @@ class ChatsTabView extends StatelessWidget {
                   );
                 } else {
                   child = Center(
-                    key: const Key('SearchNothingFound'),
+                    key: const Key('NothingFound'),
                     child: Text('label_nothing_found'.l10n),
                   );
                 }
               } else {
                 if (c.chats.isEmpty) {
                   child = Center(
-                    key: const Key('ChatsNothingFound'),
+                    key: const Key('NoChats'),
                     child: Text('label_no_chats'.l10n),
                   );
                 } else {
                   child = AnimationLimiter(
-                    key: const Key('ChatsListView'),
+                    key: const Key('Chats'),
                     child: ListView.builder(
                       controller: ScrollController(),
                       itemCount: c.chats.length,

@@ -35,7 +35,7 @@ import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
-import 'parameters/search_chats.dart';
+import 'parameters/search_category.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
@@ -55,6 +55,7 @@ import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_draft.dart';
+import 'steps/see_search_results.dart';
 import 'steps/sees_as.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
@@ -69,7 +70,6 @@ import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message_status.dart';
-import 'steps/wait_until_search_results.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
 import 'steps/wait_until_widget.dart';
@@ -108,9 +108,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         seeChatAsMuted,
         seeChatInSearchResults,
-        seesAs,
         seeDraftInDialog,
-        seeUserOrContactInSearchResults,
+        seeUserInSearchResults,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
@@ -149,7 +149,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         DownloadStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
-        SearchInChatsParameter(),
+        SearchCategoryParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

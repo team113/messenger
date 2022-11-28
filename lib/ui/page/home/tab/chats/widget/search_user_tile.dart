@@ -29,13 +29,12 @@ import '/ui/page/home/widget/contact_tile.dart';
 /// [User] or [ChatContact] visual representation.
 class SearchUserTile extends StatelessWidget {
   const SearchUserTile({
-    Key? key,
+    super.key,
     this.user,
     this.contact,
     this.onTap,
     required this.chats,
-  })  : assert(user != null || contact != null),
-        super(key: key);
+  }) : assert(user != null || contact != null);
 
   /// [RxUser] this [SearchUserTile] is about.
   final RxUser? user;

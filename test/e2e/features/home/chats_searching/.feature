@@ -16,7 +16,7 @@
 
 Feature: Chats searching
 
-  Scenario: Provided user, chat and contact can be found
+  Scenario: User, chat and contact can be found
     Given I am Alice
     And users Bob and Charlie
     And contact Charlie

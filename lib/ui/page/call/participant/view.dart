@@ -98,8 +98,8 @@ class ParticipantView extends StatelessWidget {
                 return SearchView(
                   categories: const [
                     SearchCategory.recent,
-                    SearchCategory.contacts,
-                    SearchCategory.users,
+                    SearchCategory.contact,
+                    SearchCategory.user,
                   ],
                   title: 'label_add_participants'.l10n,
                   onBack: () =>

@@ -15,15 +15,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/ui/page/call/search/controller.dart';
 
-/// [SearchCategory] available in an [SearchInChatsParameter].
-enum SearchCategory { user, contact }
-
-/// [SearchInChatsParameter] representing an search type in chats searching.
-class SearchInChatsParameter extends CustomParameter<SearchCategory> {
-  SearchInChatsParameter()
+/// [CustomParameter] representing a [SearchCategory].
+class SearchCategoryParameter extends CustomParameter<SearchCategory> {
+  SearchCategoryParameter()
       : super(
-          'search_in_chats',
+          'search_category',
           RegExp(
             '(${SearchCategory.values.map((e) => e.name).join('|')})',
             caseSensitive: false,

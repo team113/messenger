@@ -24,7 +24,8 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Contact] with the provided [User] for the authenticated [MyUser].
+/// Creates a [ChatContact] with the provided [User] in the address book of the
+/// authenticated [MyUser].
 ///
 /// Examples:
 /// - Given contact Bob.

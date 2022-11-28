@@ -61,13 +61,10 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// Controller of searching.
-  SearchController? searchController;
+  /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
+  final Rx<SearchController?> search = Rx(null);
 
-  /// Indicator whether searching mode is enabled or not.
-  final RxBool searching = RxBool(false);
-
-  /// Elements of [searchController] items.
+  /// [ListElement] representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
   /// [Chat]s service used to update the [chats].
@@ -76,21 +73,21 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
-  /// [ChatContact]s service used by the [searchController].
-  final ContactService _contactService;
-
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [ContactService]s service used by a [SearchController].
+  final ContactService _contactService;
+
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
 
-  /// Subscription to listen changes of [searchController.chats],
-  /// [searchController.users] and [searchController.contacts].
-  StreamSubscription? _searchResultsChanges;
+  /// Subscription for [SearchController.chats], [SearchController.users] and
+  /// [SearchController.contacts] changes updating the [elements].
+  StreamSubscription? _searchSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -141,9 +138,10 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    _searchResultsChanges?.cancel();
-    searchController?.search.focus.removeListener(_searchFieldFocusListener);
-    searchController?.onClose();
+
+    _searchSubscription?.cancel();
+    search.value?.search.focus.removeListener(_searchFieldFocusListener);
+    search.value?.onClose();
 
     super.onClose();
   }
@@ -246,35 +244,6 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Updates the [elements] according to the [searchController] search results.
-  void populate() {
-    elements.clear();
-
-    if (searchController?.chats.isNotEmpty == true) {
-      elements.add(const DividerElement(SearchCategory.chats));
-
-      for (var c in searchController!.chats.values) {
-        elements.add(ChatElement(c));
-      }
-    }
-
-    if (searchController?.contacts.isNotEmpty == true) {
-      elements.add(const DividerElement(SearchCategory.contacts));
-
-      for (var c in searchController!.contacts.values) {
-        elements.add(ContactElement(c));
-      }
-    }
-
-    if (searchController?.users.isNotEmpty == true) {
-      elements.add(const DividerElement(SearchCategory.users));
-
-      for (var c in searchController!.users.values) {
-        elements.add(UserElement(c));
-      }
-    }
-  }
-
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -287,37 +256,58 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Enables/disables searching mode based on [enable].
-  void toggleSearch(bool enable) {
-    searching.value = enable;
+  /// Sets the [searching] mode to the provided [enable] value.
+  void toggleSearch([bool enable = true]) {
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_searchFieldFocusListener);
+    _searchSubscription?.cancel();
+
     if (enable) {
-      searchController = SearchController(
+      search.value = SearchController(
         _chatService,
         _userService,
         _contactService,
         categories: const [
-          SearchCategory.chats,
-          SearchCategory.contacts,
-          SearchCategory.users,
+          SearchCategory.chat,
+          SearchCategory.contact,
+          SearchCategory.user,
         ],
       )..onInit();
 
-      _searchResultsChanges = StreamGroup.mergeBroadcast([
-        searchController!.chats.stream,
-        searchController!.contacts.stream,
-        searchController!.users.stream,
-      ]).listen((_) => populate());
+      _searchSubscription = StreamGroup.merge([
+        search.value!.chats.stream,
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
 
-      searchController!.search.focus.addListener(_searchFieldFocusListener);
+        if (search.value?.chats.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxChat c in search.value!.chats.values) {
+            elements.add(ChatElement(c));
+          }
+        }
 
-      searchController!.search.focus.requestFocus();
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_searchFieldFocusListener);
+      search.value!.search.focus.requestFocus();
     } else {
+      search.value = null;
       elements.clear();
-
-      _searchResultsChanges?.cancel();
-
-      searchController?.search.focus.removeListener(_searchFieldFocusListener);
-      searchController?.onClose();
     }
   }
 
@@ -336,10 +326,10 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  /// Listener of [searchField.focus].
+  /// Listener of [SearchController.search] field focus.
   void _searchFieldFocusListener() {
-    if (searchController?.search.focus.hasFocus == false &&
-        searchController?.search.text.isEmpty == true) {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
     }
   }
