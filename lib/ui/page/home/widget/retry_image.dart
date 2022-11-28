@@ -16,8 +16,8 @@
 
 import 'dart:async';
 import 'dart:ui';
+import 'dart:collection';
 
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -206,7 +206,7 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data?.statusCode == 200) {
-        cache.add(_CachedImage(widget.url, data!.data));
+        cache.add(widget.url, data!.data);
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;
         if (mounted) {
@@ -228,41 +228,45 @@ class _RetryImageState extends State<RetryImage> {
   }
 }
 
-class _CachedImage {
-  _CachedImage(this.url, this.bytes) : size = bytes.lengthInBytes;
-
-  String url;
-
-  Uint8List bytes;
-
-  int size;
-}
-
+/// Cache for images of [RetryImage] widgets.
 class _RetryCache {
-  static const int _kDefaultSize = 1000;
-  static const int _kDefaultSizeBytes = 100 << 20; // 100 MiB
+  /// Maximum allowed length of [_cache].
+  static const int _cacheLength = 1000;
 
-  static final List<_CachedImage> _cache = [];
+  /// Maximum allowed size in bytes of [_cache].
+  static const int _cacheSize = 100 << 20; // 100 MiB
 
-  void add(_CachedImage image) {
-    if (_cache.contains(image)) return;
-    while (size >= _kDefaultSizeBytes) {
-      _cache.removeAt(0);
+  /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
+  ///
+  /// FIFO policy is used, meaning if [_cache] exceeds its [_cacheSize] or
+  /// [_cacheLength], then the first inserted element is removed.
+  static final LinkedHashMap<String, Uint8List> _cache =
+      LinkedHashMap<String, Uint8List>();
+
+  /// Adds image data to [_cache].
+  void add(String url, Uint8List bytes) {
+    if (_cache.containsKey(url)) return;
+
+    while (size >= _cacheSize) {
+      _cache.remove(_cache.keys.first);
     }
-    if (_cache.length >= _kDefaultSize) {
-      _cache.removeAt(0);
+
+    if (_cache.length >= _cacheLength) {
+      _cache.remove(_cache.keys.first);
     }
-    _cache.add(image);
+
+    _cache[url] = bytes;
   }
 
+  /// Returns total size of [_cache].
   int get size {
     int totalSize = 0;
-    for (var img in _cache) {
-      totalSize = totalSize + img.size;
-    }
+    _cache.forEach((key, value) {
+      totalSize = totalSize + value.lengthInBytes;
+    });
     return totalSize;
   }
 
-  Uint8List? getBytes(String url) =>
-      _cache.firstWhereOrNull((e) => e.url == url)?.bytes;
+  /// Returns an [Uint8List] if image is exists.
+  Uint8List? getBytes(String url) => _cache[url];
 }
