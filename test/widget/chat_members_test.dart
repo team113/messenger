@@ -139,6 +139,8 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
 
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
@@ -153,9 +155,9 @@ void main() async {
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
-  var settingsProvider = MediaSettingsHiveProvider();
-  await settingsProvider.init();
-  await settingsProvider.clear();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
+  await mediaSettingsProvider.clear();
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
@@ -345,12 +347,21 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
@@ -369,22 +380,8 @@ void main() async {
     );
 
     Get.put(ContactService(contactRepository));
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        settingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider,
-      ),
-    );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    Get.put(
-      CallService(
-        authService,
-        chatService,
-        settingsRepository,
-        callRepository,
-      ),
-    );
+    Get.put(CallService(authService, chatService, callRepository));
     Get.put(UserService(userRepository));
 
     await tester.pumpWidget(createWidgetForTesting(

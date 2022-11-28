@@ -31,6 +31,9 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   final StreamController<QueryResult> ongoingCallStream =
       StreamController<QueryResult>();
 
+  final StreamController<QueryResult> chatEventsStream =
+      StreamController<QueryResult>();
+
   @override
   void disconnect() {}
 
