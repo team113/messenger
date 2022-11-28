@@ -495,17 +495,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
     Future.delayed(
-        Duration.zero,
-        () => chatEventsStream.add(QueryResult.internal(
-              source: QueryResultSource.network,
-              data: {
-                'chatEvents': {
-                  '__typename': 'SubscriptionInitialized',
-                  'ok': true,
-                }
-              },
-              parserFn: (_) => null,
-            )));
+      Duration.zero,
+      () => chatEventsStream.add(QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'chatEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true,
+          }
+        },
+        parserFn: (_) => null,
+      )),
+    );
     return Future.value(chatEventsStream.stream);
   }
 
