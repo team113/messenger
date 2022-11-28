@@ -1047,6 +1047,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         image.medium.url,
                         onForbidden: widget.onAttachmentError,
                         fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
                       ),
               );
