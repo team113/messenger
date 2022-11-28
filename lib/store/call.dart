@@ -99,9 +99,7 @@ class CallRepository extends DisposableService
     _events?.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
-      Rx<OngoingCall>? removed = remove(call.value.chatId.value);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
+      remove(call.value.chatId.value);
     }
 
     super.onClose();
