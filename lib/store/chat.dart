@@ -49,13 +49,13 @@ import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
-import '/store/event/favorite_chats.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
+import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 
 /// Implementation of an [AbstractChatRepository].
@@ -98,7 +98,7 @@ class ChatRepository implements AbstractChatRepository {
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
-  /// [SessionDataHiveProvider] used to store [FavoriteChatsListVersion].
+  /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
   final SessionDataHiveProvider _sessionLocal;
 
   /// [ChatHiveProvider.boxEvents] subscription.
@@ -1095,35 +1095,37 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
     final HiveRxChat? chat = _chats[id];
-    final ChatFavoritePosition? favoritePosition =
-        chat?.chat.value.favoritePosition;
-    final ChatFavoritePosition newFavoritePosition;
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition newPosition;
 
     if (position == null) {
-      final List<HiveRxChat> sortFavoriteChats = _chats.values
+      final List<HiveRxChat> favorites = _chats.values
           .where((e) => e.chat.value.favoritePosition != null)
-          .toList()
-        ..sort(
-          (a, b) => a.chat.value.favoritePosition!.val
-              .compareTo(b.chat.value.favoritePosition!.val),
-        );
-      final double? bestFavoriteVal = sortFavoriteChats.isEmpty
+          .toList();
+
+      favorites.sort(
+        (a, b) => a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!),
+      );
+
+      final double? lowestFavorite = favorites.isEmpty
           ? null
-          : sortFavoriteChats.first.chat.value.favoritePosition!.val;
-      newFavoritePosition = ChatFavoritePosition(
-        bestFavoriteVal == null ? 9007199254740991 : bestFavoriteVal / 2,
+          : favorites.first.chat.value.favoritePosition!.val;
+
+      newPosition = ChatFavoritePosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
       );
     } else {
-      newFavoritePosition = position;
+      newPosition = position;
     }
 
-    chat?.chat.update((c) => c?.favoritePosition = newFavoritePosition);
+    chat?.chat.update((c) => c?.favoritePosition = newPosition);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
-      await _graphQlProvider.favoriteChat(id, newFavoritePosition);
+      await _graphQlProvider.favoriteChat(id, newPosition);
     } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = favoritePosition);
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
       rethrow;
     }
@@ -1132,8 +1134,7 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> unfavoriteChat(ChatId id) async {
     final HiveRxChat? chat = _chats[id];
-    final ChatFavoritePosition? favoritePosition =
-        chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
 
     chat?.chat.update((c) => c?.favoritePosition = null);
     chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
@@ -1141,7 +1142,7 @@ class ChatRepository implements AbstractChatRepository {
     try {
       await _graphQlProvider.unfavoriteChat(id);
     } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = favoritePosition);
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
       rethrow;
     }
@@ -1166,7 +1167,7 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  /// Handles [FavoriteChatsEvent] from the [_favoriteChatsEvents]
+  /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
   /// subscription.
   Future<void> _favoriteChatsEvent(FavoriteChatsEvents event) async {
     switch (event.kind) {
@@ -1178,11 +1179,12 @@ class ChatRepository implements AbstractChatRepository {
         var node = event as FavoriteChatsEventsChatsList;
         _sessionLocal.setFavoriteChatsListVersion(node.ver);
 
-        for (ChatData chatData in node.chatList) {
-          if (_chats[chatData.chat.value.id] == null) {
-            _putEntry(chatData);
+        for (ChatData data in node.chatList) {
+          if (_chats[data.chat.value.id] == null) {
+            _putEntry(data);
           }
         }
+
         for (MapEntry<ChatId, HiveRxChat> item in _chats.entries) {
           HiveRxChat c = _chats[item.key]!;
           if (c.chat.value.favoritePosition != null &&
@@ -1200,15 +1202,18 @@ class ChatRepository implements AbstractChatRepository {
           _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
 
           for (var event in versioned.events) {
-            switch (FavoriteChatsEventKind.values
-                .firstWhere((e) => e.name == event.kind.name)) {
-              case FavoriteChatsEventKind.favorited:
+            switch (event.kind) {
+              case ChatEventKind.favorited:
                 if (_chats[event.chatId] == null) {
                   get(event.chatId);
                 }
                 break;
 
-              case FavoriteChatsEventKind.unfavorited:
+              case ChatEventKind.unfavorited:
+                // No-op.
+                break;
+
+              default:
                 // No-op.
                 break;
             }
@@ -1218,7 +1223,7 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  /// Subscribes to [FavoriteChatsEvent]s of all [chats].
+  /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
   Future<Stream<FavoriteChatsEvents>> _favoriteChatsEvents(
           FavoriteChatsListVersion? ver) async =>
       (await _graphQlProvider.favoriteChatsEvents(ver))
@@ -1234,8 +1239,7 @@ class ChatRepository implements AbstractChatRepository {
           var chatsList = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
           var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
-          var ver = chatsList.chats.ver;
-          yield FavoriteChatsEventsChatsList(data, ver);
+          yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
         } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
           var mixin = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
@@ -1255,18 +1259,9 @@ class ChatRepository implements AbstractChatRepository {
     if (e.$$typename == 'EventChatFavorited') {
       var node =
           e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
-      return EventChatFavorited(
-        e.chatId,
-        node.at,
-        node.position,
-      );
+      return EventChatFavorited(e.chatId, e.at, node.position);
     } else if (e.$$typename == 'EventChatUnfavorited') {
-      var node =
-          e as FavoriteChatsEventsVersionedMixin$Events$EventChatUnfavorited;
-      return EventChatUnfavorited(
-        e.chatId,
-        node.at,
-      );
+      return EventChatUnfavorited(e.chatId, e.at);
     } else {
       throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
     }

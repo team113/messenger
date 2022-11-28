@@ -1121,7 +1121,7 @@ abstract class ChatGraphQlMixin {
   }
 
   /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
-  /// sets its position in the favorites list.
+  /// sets its [position] in the favorites list.
   ///
   /// To move the [Chat] to a concrete position in a favorites list, provide the
   /// average value of two other [Chat]s positions surrounding it.

@@ -265,8 +265,7 @@ class ChatName extends NewType<String> {
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
 }
 
-/// Position of this [Chat] in the favorites list
-/// of the authenticated [MyUser].
+/// Position of this [Chat] in the favorites list of the authenticated [MyUser].
 @HiveType(typeId: ModelTypeId.chatFavoritePosition)
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {

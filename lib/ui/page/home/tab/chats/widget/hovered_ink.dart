@@ -15,7 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
+
+import '/themes.dart';
 
 /// [InkWell] button decorated differently based on the [selected] indicator.
 ///
@@ -33,7 +34,7 @@ class InkWellWithHover extends StatefulWidget {
     this.hoveredBorder,
     this.borderRadius,
     this.onTap,
-    this.favorited = false,
+    this.folded = false,
     required this.child,
   }) : super(key: key);
 
@@ -64,8 +65,8 @@ class InkWellWithHover extends StatefulWidget {
   /// Callback, called when this [InkWellWithHover] is pressed.
   final void Function()? onTap;
 
-  /// Is the chat a favorite
-  final bool favorited;
+  /// Indicator whether this [InkWellWithHover] should have its corner folded.
+  final bool folded;
 
   /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
@@ -81,10 +82,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadiusValue = widget.borderRadius!.bottomLeft.y;
-
     return ClipPath(
-      clipper: widget.favorited ? _Clipper(borderRadiusValue) : null,
+      clipper:
+          widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
       child: DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: BoxDecoration(
@@ -109,10 +109,10 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
             child: Stack(
               children: [
                 widget.child,
-                if (widget.favorited)
+                if (widget.folded)
                   Container(
-                    width: borderRadiusValue,
-                    height: borderRadiusValue,
+                    width: widget.borderRadius?.topLeft.y ?? 10,
+                    height: widget.borderRadius?.topLeft.y ?? 10,
                     decoration: BoxDecoration(
                       color: hovered
                           ? widget.hoveredBorder!.top.color
@@ -138,13 +138,12 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   }
 }
 
-/// Makes a cut of the corner of [InkWellWithHover] if the chat is a favorite
+/// [CustomClipper] clipping a top-left corner.
 class _Clipper extends CustomClipper<Path> {
-  _Clipper(this.borderRadiusValue);
+  const _Clipper(this.radius);
 
-  /// Corner cut value of the [InkWellWithHover] is the same as the
-  /// [BorderRadius] of [InkWellWithHover]
-  final double borderRadiusValue;
+  /// Radius of the corner being clipped.
+  final double radius;
 
   @override
   Path getClip(Size size) {
@@ -152,8 +151,8 @@ class _Clipper extends CustomClipper<Path> {
       ..lineTo(size.width, 0)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
-      ..lineTo(0, borderRadiusValue)
-      ..lineTo(borderRadiusValue, 0);
+      ..lineTo(0, radius)
+      ..lineTo(radius, 0);
     return path;
   }
 

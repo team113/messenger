@@ -205,8 +205,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Adds to favorites a [Chat] identified by the provided [id]
-  Future<void> addChatToFavorites(ChatId id) async {
+  /// Marks the specified [Chat] identified by its [id] as favorited.
+  Future<void> favoriteChat(ChatId id) async {
     try {
       await _chatService.favoriteChat(id);
     } on FavoriteChatException catch (e) {
@@ -217,8 +217,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Removes from favorites a [Chat] identified by the provided [id]
-  Future<void> deleteChatFromFavorites(ChatId id) async {
+  /// Removes the specified [Chat] identified by its [id] from the favorites.
+  Future<void> unfavoriteChat(ChatId id) async {
     try {
       await _chatService.unfavoriteChat(id);
     } on UnfavoriteChatException catch (e) {

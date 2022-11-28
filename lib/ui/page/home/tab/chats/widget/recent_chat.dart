@@ -172,12 +172,12 @@ class RecentChatTile extends StatelessWidget {
           chat.favoritePosition != null
               ? ContextMenuButton(
                   key: const Key('UnfavoriteChatButton'),
-                  label: 'btn_delete_chat_from_favorites'.l10n,
+                  label: 'btn_delete_from_favorites'.l10n,
                   onPressed: onUnfavorite,
                 )
               : ContextMenuButton(
                   key: const Key('FavoriteChatButton'),
-                  label: 'btn_add_chat_to_favorites'.l10n,
+                  label: 'btn_add_to_favorites'.l10n,
                   onPressed: onFavorite,
                 ),
         ],

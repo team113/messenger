@@ -94,7 +94,7 @@ class ChatTile extends StatelessWidget {
             onTap: onTap,
             unselectedHoverColor: style.cardHoveredColor,
             selectedHoverColor: style.cardSelectedColor,
-            favorited: chat?.chat.value.favoritePosition != null,
+            folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(

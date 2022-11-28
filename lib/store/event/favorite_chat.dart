@@ -19,12 +19,6 @@ import '/store/chat.dart';
 import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 
-/// Tag representing a [FavoriteChatsEvent] kind.
-enum FavoriteChatsEventKind {
-  favorited,
-  unfavorited,
-}
-
 /// Tag representing a [FavoriteChatsEvents] kind.
 enum FavoriteChatsEventsKind {
   initialized,

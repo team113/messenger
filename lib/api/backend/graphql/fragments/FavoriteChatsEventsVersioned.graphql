@@ -17,14 +17,10 @@
 fragment FavoriteChatsEventsVersioned on FavoriteChatsEventsVersioned {
     events {
         __typename
+        chatId
+        at
         ... on EventChatFavorited {
-            chatId
             position
-            at
-        }
-         ... on EventChatUnfavorited {
-            chatId
-            at
         }
     }
     ver
