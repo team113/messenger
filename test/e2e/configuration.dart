@@ -32,13 +32,16 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/favorite_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
+import 'parameters/position_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
@@ -54,6 +57,8 @@ import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_draft.dart';
 import 'steps/sees_as.dart';
+import 'steps/sees_chat_first.dart';
+import 'steps/sees_favorite_chat.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -79,6 +84,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsFavorite,
         chatIsMuted,
         copyFromField,
         downloadFile,
@@ -104,6 +110,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         seeChatAsMuted,
         seesAs,
+        seeChatAsFavorite,
+        seeChatAsFirst,
         seeDraftInDialog,
         sendsAttachmentToMe,
         sendsMessageToMe,
@@ -141,8 +149,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        FavoriteStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
+        PositionStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

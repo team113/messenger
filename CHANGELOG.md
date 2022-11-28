@@ -59,9 +59,11 @@ All user visible changes to this project will be documented in this file. This p
 [#199]: /../../issues/199
 [#203]: /../../issues/203
 [#204]: /../../pull/204
+[#209]: /../../issues/209
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#217]: /../../pull/217
+[#218]: /../../pull/218
 
 
 

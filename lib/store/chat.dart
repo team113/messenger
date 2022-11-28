@@ -1178,20 +1178,9 @@ class ChatRepository implements AbstractChatRepository {
       case FavoriteChatsEventsKind.chatsList:
         var node = event as FavoriteChatsEventsChatsList;
         _sessionLocal.setFavoriteChatsListVersion(node.ver);
-
         for (ChatData data in node.chatList) {
           if (_chats[data.chat.value.id] == null) {
             _putEntry(data);
-          }
-        }
-
-        for (MapEntry<ChatId, HiveRxChat> item in _chats.entries) {
-          HiveRxChat c = _chats[item.key]!;
-          if (c.chat.value.favoritePosition != null &&
-              node.chatList.firstWhereOrNull((e) => e.chat.value.id == c.id) ==
-                  null) {
-            c.chat.update((val) => val?.favoritePosition = null);
-            chats.emit(MapChangeNotification.updated(c.id, c.id, c));
           }
         }
         break;
