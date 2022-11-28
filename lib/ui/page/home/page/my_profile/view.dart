@@ -42,6 +42,7 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
@@ -60,6 +61,8 @@ import 'delete_email/view.dart';
 import 'delete_phone/view.dart';
 import 'language/view.dart';
 import 'link_details/view.dart';
+import 'microphone_switch/view.dart';
+import 'output_switch/view.dart';
 import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
 
@@ -249,10 +252,11 @@ class MyProfileView extends StatelessWidget {
                     _label(context, 'Язык'),
                     _language(context, c),
                   ]),
-                  block(children: [
-                    _label(context, 'Медиа'),
-                    _media(context, c),
-                  ]),
+                  if (!PlatformUtils.isMobile)
+                    block(children: [
+                      _label(context, 'Медиа'),
+                      _media(context, c),
+                    ]),
                   block(children: [
                     _label(context, 'Скачать приложение'),
                     _downloads(context, c),
@@ -1999,14 +2003,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     'label_media_no_device_available'.l10n,
                 editable: false,
               ),
-              trailing: RotatedBox(
-                quarterTurns: 2,
-                child: Icon(
-                  Icons.arrow_back_ios_rounded,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 14,
-                ),
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
         ),
@@ -2014,44 +2011,45 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       _dense(
         WidgetButton(
-          key: c.micKey,
-          onPressed: () async {
-            await Selector.menu(
-              context,
-              key: c.micKey,
-              width: 340,
-              alignment: Alignment.bottomLeft,
-              margin: const EdgeInsets.only(top: 30),
-              actions: c.devices.audio().mapIndexed((i, e) {
-                final bool selected = (c.mic.value == null && i == 0) ||
-                    c.mic.value == e.deviceId();
+          onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
+          // key: c.micKey,
+          // onPressed: () async {
+          //   await Selector.menu(
+          //     context,
+          //     key: c.micKey,
+          //     width: 340,
+          //     alignment: Alignment.bottomLeft,
+          //     margin: const EdgeInsets.only(top: 30),
+          //     actions: c.devices.audio().mapIndexed((i, e) {
+          //       final bool selected = (c.mic.value == null && i == 0) ||
+          //           c.mic.value == e.deviceId();
 
-                return ContextMenuButton(
-                  label: e.label(),
-                  onPressed: () => c.setAudioDevice(e.deviceId()),
-                  style: const TextStyle(fontSize: 15),
-                  trailing: AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: selected
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
-                              radius: 12,
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          )
-                        : const SizedBox(key: Key('0')),
-                  ),
-                );
-              }).toList(),
-            );
-          },
+          //       return ContextMenuButton(
+          //         label: e.label(),
+          //         onPressed: () => c.setAudioDevice(e.deviceId()),
+          //         style: const TextStyle(fontSize: 15),
+          //         trailing: AnimatedSwitcher(
+          //           duration: 200.milliseconds,
+          //           child: selected
+          //               ? const SizedBox(
+          //                   width: 20,
+          //                   height: 20,
+          //                   child: CircleAvatar(
+          //                     backgroundColor: Color(0xFF63B4FF),
+          //                     radius: 12,
+          //                     child: Icon(
+          //                       Icons.check,
+          //                       color: Colors.white,
+          //                       size: 12,
+          //                     ),
+          //                   ),
+          //                 )
+          //               : const SizedBox(key: Key('0')),
+          //         ),
+          //       );
+          //     }).toList(),
+          //   );
+          // },
           child: IgnorePointer(
             child: ReactiveTextField(
               label: 'label_media_microphone'.l10n,
@@ -2063,14 +2061,15 @@ Widget _media(BuildContext context, MyProfileController c) {
                     'label_media_no_device_available'.l10n,
                 editable: false,
               ),
-              trailing: RotatedBox(
-                quarterTurns: 3,
-                child: Icon(
-                  Icons.arrow_back_ios_rounded,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 14,
-                ),
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              // trailing: RotatedBox(
+              //   quarterTurns: 3,
+              //   child: Icon(
+              //     Icons.arrow_back_ios_rounded,
+              //     color: Theme.of(context).colorScheme.secondary,
+              //     size: 14,
+              //   ),
+              // ),
             ),
           ),
         ),
@@ -2078,44 +2077,45 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       _dense(
         WidgetButton(
-          key: c.outputKey,
-          onPressed: () async {
-            await Selector.menu(
-              context,
-              key: c.outputKey,
-              width: 340,
-              alignment: Alignment.bottomLeft,
-              margin: const EdgeInsets.only(top: 30),
-              actions: c.devices.output().mapIndexed((i, e) {
-                final bool selected = (c.output.value == null && i == 0) ||
-                    c.output.value == e.deviceId();
+          onPressed: () => OutputSwitchView.show(context, call: c.call),
+          // key: c.outputKey,
+          // onPressed: () async {
+          //   await Selector.menu(
+          //     context,
+          //     key: c.outputKey,
+          //     width: 340,
+          //     alignment: Alignment.bottomLeft,
+          //     margin: const EdgeInsets.only(top: 30),
+          //     actions: c.devices.output().mapIndexed((i, e) {
+          //       final bool selected = (c.output.value == null && i == 0) ||
+          //           c.output.value == e.deviceId();
 
-                return ContextMenuButton(
-                  label: e.label(),
-                  onPressed: () => c.setOutputDevice(e.deviceId()),
-                  style: const TextStyle(fontSize: 15),
-                  trailing: AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: selected
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
-                              radius: 12,
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                            ),
-                          )
-                        : const SizedBox(key: Key('0')),
-                  ),
-                );
-              }).toList(),
-            );
-          },
+          //       return ContextMenuButton(
+          //         label: e.label(),
+          //         onPressed: () => c.setOutputDevice(e.deviceId()),
+          //         style: const TextStyle(fontSize: 15),
+          //         trailing: AnimatedSwitcher(
+          //           duration: 200.milliseconds,
+          //           child: selected
+          //               ? const SizedBox(
+          //                   width: 20,
+          //                   height: 20,
+          //                   child: CircleAvatar(
+          //                     backgroundColor: Color(0xFF63B4FF),
+          //                     radius: 12,
+          //                     child: Icon(
+          //                       Icons.check,
+          //                       color: Colors.white,
+          //                       size: 12,
+          //                     ),
+          //                   ),
+          //                 )
+          //               : const SizedBox(key: Key('0')),
+          //         ),
+          //       );
+          //     }).toList(),
+          //   );
+          // },
           child: IgnorePointer(
             child: ReactiveTextField(
               label: 'label_media_output'.l10n,
@@ -2127,14 +2127,15 @@ Widget _media(BuildContext context, MyProfileController c) {
                     'label_media_no_device_available'.l10n,
                 editable: false,
               ),
-              trailing: RotatedBox(
-                quarterTurns: 3,
-                child: Icon(
-                  Icons.arrow_back_ios_rounded,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 14,
-                ),
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              // trailing: RotatedBox(
+              //   quarterTurns: 3,
+              //   child: Icon(
+              //     Icons.arrow_back_ios_rounded,
+              //     color: Theme.of(context).colorScheme.secondary,
+              //     size: 14,
+              //   ),
+              // ),
             ),
           ),
         ),
@@ -2294,6 +2295,120 @@ Widget _media(BuildContext context, MyProfileController c) {
 }
 
 Widget _downloads(BuildContext context, MyProfileController c) {
+  Widget button({
+    String? asset,
+    double width = 1,
+    double height = 1,
+    String title = '...',
+    String? link,
+  }) {
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        WidgetButton(
+          onPressed: link == null
+              ? null
+              : () {
+                  WebUtils.download('${Config.origin}/artifacts/$link', link);
+                },
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              textAlign: TextAlign.center,
+              prefix: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Transform.scale(
+                  scale: 2,
+                  child: SvgLoader.asset(
+                    'assets/icons/$asset.svg',
+                    width: width / 2,
+                    height: height / 2,
+                  ),
+                ),
+              ),
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
+              state: TextFieldState(
+                text: '    $title',
+                editable: false,
+              ),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: () {
+            if (link != null) {
+              Clipboard.setData(
+                ClipboardData(text: '${Config.origin}/artifacts/$link'),
+              );
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.only(right: 10),
+            width: 30,
+            height: 30,
+          ),
+        ),
+      ],
+    );
+  }
+
+  return _dense(
+    Column(
+      children: [
+        button(
+          asset: 'windows',
+          width: 21.93,
+          height: 22,
+          title: 'Windows',
+          link: 'messenger-windows.zip',
+        ),
+        const SizedBox(height: 8),
+        button(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'macOS',
+          link: 'messenger-macos.zip',
+        ),
+        const SizedBox(height: 8),
+        button(
+          asset: 'linux',
+          width: 18.85,
+          height: 22,
+          title: 'Linux',
+          link: 'messenger-linux.zip',
+        ),
+        const SizedBox(height: 8),
+        button(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'iOS',
+        ),
+        const SizedBox(height: 8),
+        button(
+          asset: 'google',
+          width: 20.33,
+          height: 22.02,
+          title: 'Android',
+          link: 'messenger-android.aab',
+        ),
+      ],
+    ),
+  );
+
   return _dense(const DownloadView(true));
 }
 
@@ -2309,15 +2424,15 @@ Widget _language(BuildContext context, MyProfileController c) {
                 '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
             editable: false,
           ),
-          // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          trailing: RotatedBox(
-            quarterTurns: 2,
-            child: Icon(
-              Icons.arrow_back_ios_rounded,
-              color: Theme.of(context).colorScheme.secondary,
-              size: 14,
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          // trailing: RotatedBox(
+          //   quarterTurns: 2,
+          //   child: Icon(
+          //     Icons.arrow_back_ios_rounded,
+          //     color: Theme.of(context).colorScheme.secondary,
+          //     size: 14,
+          //   ),
+          // ),
         ),
       ),
     ),

@@ -980,7 +980,7 @@ packages:
       name: medea_jason
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0-dev+rev.4088f18a37da1e8c532b46b242db8dd2a0006484"
+    version: "0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3"
   meta:
     dependency: transitive
     description:

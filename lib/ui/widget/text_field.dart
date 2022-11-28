@@ -55,6 +55,7 @@ class ReactiveTextField extends StatelessWidget {
     this.prefixIcon,
     this.prefixIconColor,
     this.focusNode,
+    this.textAlign = TextAlign.start,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -142,6 +143,8 @@ class ReactiveTextField extends StatelessWidget {
 
   final FocusNode? focusNode;
 
+  final TextAlign textAlign;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -190,6 +193,7 @@ class ReactiveTextField extends StatelessWidget {
                 state.isEmpty.value = s.isEmpty;
                 onChanged?.call();
               },
+              textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
               readOnly: !enabled || !state.editable.value,

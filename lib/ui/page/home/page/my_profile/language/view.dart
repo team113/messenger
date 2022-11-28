@@ -116,7 +116,7 @@ class LanguageSelectionView extends StatelessWidget {
                     return Obx(() {
                       final bool selected = c.selected.value == e;
                       return SizedBox(
-                        height: 48,
+                        // height: 48,
                         child: Material(
                           borderRadius: BorderRadius.circular(10),
                           color: selected
@@ -127,11 +127,12 @@ class LanguageSelectionView extends StatelessWidget {
                             // onTap: () => L10n.set(e),
                             onTap: () => c.selected.value = e,
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(16.0),
                               child: Row(
                                 children: [
                                   Text(
                                     '${e.locale.languageCode.toUpperCase()}, ${e.name}',
+                                    style: const TextStyle(fontSize: 17),
                                   ),
                                   const Spacer(),
                                   AnimatedSwitcher(
@@ -153,7 +154,6 @@ class LanguageSelectionView extends StatelessWidget {
                                           )
                                         : const SizedBox(key: Key('0')),
                                   ),
-                                  const SizedBox(width: 4),
                                 ],
                               ),
                             ),
@@ -162,7 +162,7 @@ class LanguageSelectionView extends StatelessWidget {
                       );
                     });
                   },
-                  separatorBuilder: (_, __) => const SizedBox(height: 5),
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemCount: L10n.languages.length,
                 ),
               ),

@@ -85,9 +85,7 @@ class CallService extends DisposableService {
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
+      _callsRepo.remove(chatId);
       rethrow;
     }
   }
@@ -132,9 +130,7 @@ class CallService extends DisposableService {
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
+      _callsRepo.remove(chatId);
       rethrow;
     }
   }
@@ -189,14 +185,7 @@ class CallService extends DisposableService {
       );
 
   /// Removes an [OngoingCall] identified by the given [chatId].
-  void remove(ChatId chatId) {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
-    }
-  }
+  void remove(ChatId chatId) => _callsRepo.remove(chatId);
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
