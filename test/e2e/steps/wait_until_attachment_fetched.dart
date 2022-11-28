@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -41,13 +42,15 @@ final StepDefinitionGeneric untilAttachmentFetched =
 
     await context.world.appDriver.waitUntil(
       () async {
-        final Attachment attachment;
+        final Attachment? attachment;
 
         attachment = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .expand((e) => e.attachments)
-            .firstWhere((a) => a.filename == filename);
+            .firstWhereOrNull((a) => a.filename == filename);
+
+        if (attachment == null) return false;
 
         return context.world.appDriver.isPresent(
           context.world.appDriver.findByDescendant(

@@ -205,8 +205,8 @@ class _RetryImageState extends State<RetryImage> {
         }
       }
 
-      if (data?.data != null && data?.statusCode == 200) {
-        cache.add(widget.url, data!.data);
+      if (data?.data != null && data!.statusCode == 200) {
+        cache.add(widget.url, data.data);
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;
         if (mounted) {
