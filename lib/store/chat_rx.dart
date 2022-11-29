@@ -297,7 +297,6 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-
     ChatItemsCursor? cursor = chat.value.lastReadItem?.cursor;
 
     ChatItemsQuery itemsQuery;
@@ -386,7 +385,6 @@ class HiveRxChat extends RxChat {
       _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
     }
 
-
     return _guard.protect(() async {
       if (localMessages != null) {
         for (HiveChatItem item in localMessages) {
@@ -435,7 +433,6 @@ class HiveRxChat extends RxChat {
     if (itemsQuery.pageInfo != null) {
       _hasPreviousPage = itemsQuery.pageInfo!.hasNextPage;
     }
-
 
     return _guard.protect(() async {
       for (HiveChatItem item in itemsQuery.items) {

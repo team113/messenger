@@ -158,6 +158,7 @@ class ContactRepository implements AbstractContactRepository {
     if (this.contacts.isEmpty || !_hasNextPage) {
       return;
     }
+
     List<HiveChatContact>? localContacts;
     if (!_contactLocal.isEmpty &&
         _contactLocal.contacts.length > this.contacts.length) {
