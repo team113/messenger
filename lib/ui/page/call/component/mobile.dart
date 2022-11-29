@@ -20,6 +20,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -1238,7 +1239,8 @@ Widget chat(BuildContext context, CallController c) {
     Style style = Theme.of(context).extension<Style>()!;
     RxChat chat = c.chat.value!;
 
-    var actualMembers = chat.members.keys.toSet();
+    final Set<UserId> actualMembers =
+        c.members.keys.map((k) => k.userId).toSet();
 
     return ContextMenuRegion(
       key: Key('ContextMenuRegion_${chat.chat.value.id}'),
@@ -1308,7 +1310,7 @@ Widget chat(BuildContext context, CallController c) {
                             child: Row(
                               children: [
                                 Text(
-                                  '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                                  '${actualMembers.length} of ${c.chat.value?.members.length}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .subtitle2

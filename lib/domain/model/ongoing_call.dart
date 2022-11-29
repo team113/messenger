@@ -316,6 +316,7 @@ class OngoingCall {
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
+        print('_mediaManager?.onDeviceChange');
         await enumerateDevices();
         _pickOutputDevice();
       });

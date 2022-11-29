@@ -44,6 +44,15 @@ abstract class AbstractCallRepository {
   /// Adds the provided [ChatCall] to the [calls], if not already.
   Rx<OngoingCall>? add(ChatCall call);
 
+  /// Transforms the provided [WebStoredCall] to an [OngoingCall] and adds it,
+  /// if not already.
+  Rx<OngoingCall> addStored(
+    WebStoredCall stored, {
+    bool withAudio = true,
+    bool withVideo = true,
+    bool withScreen = false,
+  });
+
   /// Switches the [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
@@ -117,14 +126,6 @@ abstract class AbstractCallRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
-
-  /// Transforms the provided [WebStoredCall] to an [OngoingCall].
-  Rx<OngoingCall> addStoredCall(
-    WebStoredCall stored, {
-    bool withAudio = true,
-    bool withVideo = true,
-    bool withScreen = false,
-  });
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///

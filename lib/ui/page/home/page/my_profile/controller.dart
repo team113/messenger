@@ -31,6 +31,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/ui/page/home/tab/menu/confirm/view.dart';
 import 'package:messenger/util/obs/obs.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode, Presence;
@@ -676,20 +677,22 @@ class MyProfileController extends GetxController {
       },
     );
 
-    // TODO: This is a really bad hack. We should not create call here. Required
-    //       functionality should be decoupled from the OngoingCall or
-    //       reimplemented here.
-    call = Rx<OngoingCall>(OngoingCall(
-      const ChatId('settings'),
-      const UserId(''),
-      state: OngoingCallState.local,
-      mediaSettings: _settingsRepo.mediaSettings.value,
-      withAudio: false,
-      withVideo: false,
-      withScreen: false,
-    ));
+    if (!PlatformUtils.isMobile) {
+      // TODO: This is a really bad hack. We should not create call here. Required
+      //       functionality should be decoupled from the OngoingCall or
+      //       reimplemented here.
+      call = Rx<OngoingCall>(OngoingCall(
+        const ChatId('settings'),
+        const UserId(''),
+        state: OngoingCallState.local,
+        mediaSettings: _settingsRepo.mediaSettings.value,
+        withAudio: false,
+        withVideo: false,
+        withScreen: false,
+      ));
 
-    call.value.init();
+      call.value.init();
+    }
 
     super.onInit();
   }
