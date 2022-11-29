@@ -412,7 +412,11 @@ class SearchController extends GetxController {
             RxUser? user = e.user.value;
 
             if (chat?.members.containsKey(user?.id) != true &&
-                !recent.containsKey(user?.id)) {
+                !recent.containsKey(user?.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog &&
+                    e1.chat.value.members
+                        .any((e2) => e2.user.id == e.user.value?.id)))) {
               if (query.value != null) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -454,17 +458,17 @@ class SearchController extends GetxController {
       };
     }
 
-    contacts.removeWhere((k, v) => (chats.values.any((e1) =>
-        e1.chat.value.isDialog &&
-        e1.chat.value.members.any((e2) => e2.user.id == v.user.value?.id))));
-
     if (categories.contains(SearchCategory.users)) {
       if (searchUsersResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
           for (var u in searchUsersResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
-                !contacts.containsKey(e.id)) {
+                !contacts.containsKey(e.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog &&
+                    e1.chat.value.members
+                        .any((e2) => e2.user.id == e.user.value.id)))) {
               return true;
             }
 
@@ -538,9 +542,6 @@ class SearchController extends GetxController {
           ...allUsers,
         };
       }
-      users.removeWhere((k, v) => (chats.values.any((e1) =>
-          e1.chat.value.isDialog &&
-          e1.chat.value.members.any((e2) => e2.user.id == v.user.value.id))));
     }
   }
 }
@@ -559,6 +560,5 @@ class SearchViewResults {
   final List<RxChatContact> contacts;
 
   /// Indicates whether [chats], [users] and [contacts] are empty or not.
-  bool get isEmpty =>
-      chats.isEmpty && users.isEmpty && contacts.isEmpty ? true : false;
+  bool get isEmpty => chats.isEmpty && users.isEmpty && contacts.isEmpty;
 }

@@ -14,7 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -146,4 +148,10 @@ abstract class ModalPopup {
       );
     }
   }
+}
+
+/// Contains list of [DropTarget]s [Key]s.
+class DropTargetList {
+  /// List of [DropTarget]s [Key]s.
+  static final RxList<String> keys = RxList<String>([]);
 }

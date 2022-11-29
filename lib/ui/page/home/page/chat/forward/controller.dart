@@ -39,6 +39,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -140,8 +141,16 @@ class ChatForwardController extends GetxController {
   }
 
   @override
+  void onReady() {
+    DropTargetList.keys.add('ChatForwardView_$from');
+
+    super.onReady();
+  }
+
+  @override
   void onClose() {
     quotesChanges.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
 
     super.onClose();
   }

@@ -41,6 +41,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -131,7 +132,7 @@ class _ChatViewState extends State<ChatView>
           }
 
           return DropTarget(
-            enable: !c.isForwardPopupOpen.value,
+            enable: DropTargetList.keys.last == 'ChatView_${c.id}',
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -557,7 +558,6 @@ class _ChatViewState extends State<ChatView>
               await c.chat?.updateAttachments(e.value);
               await Future.delayed(Duration.zero);
             },
-            onForwardPopupToggle: (v) => c.isForwardPopupOpen.value = v,
           ),
         ),
       );
@@ -645,7 +645,6 @@ class _ChatViewState extends State<ChatView>
 
               await Future.delayed(Duration.zero);
             },
-            onForwardPopupToggle: (v) => c.isForwardPopupOpen.value = v,
           ),
         ),
       );

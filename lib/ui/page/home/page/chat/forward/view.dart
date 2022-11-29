@@ -104,107 +104,108 @@ class ChatForwardView extends StatelessWidget {
         pop: () => Navigator.of(context).pop(true),
       ),
       builder: (ChatForwardController c) {
-        return DropTarget(
-          onDragDone: (details) => c.dropFiles(details),
-          onDragEntered: (_) => c.isDraggingFiles.value = true,
-          onDragExited: (_) => c.isDraggingFiles.value = false,
-          child: Stack(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: SearchView(
-                          key: const Key('SearchView'),
-                          categories: const [
-                            SearchCategory.chats,
-                            SearchCategory.contacts,
-                            SearchCategory.users,
-                          ],
-                          title: 'label_forward_message'.l10n,
-                          onChanged: (SearchViewResults result) {
-                            c.searchResults.value = result;
-                          }),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          shadowColor: const Color(0x55000000),
-                          iconTheme: const IconThemeData(color: Colors.blue),
-                          inputDecorationTheme: InputDecorationTheme(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusColor: Colors.white,
-                            fillColor: Colors.white,
-                            hoverColor: Colors.transparent,
-                            filled: true,
-                            isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(
-                              15,
-                              PlatformUtils.isDesktop ? 30 : 23,
-                              15,
-                              0,
+        return Obx(() {
+          return DropTarget(
+            onDragDone: (details) => c.dropFiles(details),
+            onDragEntered: (_) => c.isDraggingFiles.value = true,
+            onDragExited: (_) => c.isDraggingFiles.value = false,
+            enable: DropTargetList.keys.last == 'ChatForwardView_$from',
+            child: Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: SearchView(
+                            key: const Key('SearchView'),
+                            categories: const [
+                              SearchCategory.chats,
+                              SearchCategory.contacts,
+                              SearchCategory.users,
+                            ],
+                            title: 'label_forward_message'.l10n,
+                            onChanged: (SearchViewResults result) {
+                              c.searchResults.value = result;
+                            }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            shadowColor: const Color(0x55000000),
+                            iconTheme: const IconThemeData(color: Colors.blue),
+                            inputDecorationTheme: InputDecorationTheme(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusColor: Colors.white,
+                              fillColor: Colors.white,
+                              hoverColor: Colors.transparent,
+                              filled: true,
+                              isDense: true,
+                              contentPadding: EdgeInsets.fromLTRB(
+                                15,
+                                PlatformUtils.isDesktop ? 30 : 23,
+                                15,
+                                0,
+                              ),
                             ),
                           ),
-                        ),
-                        child: SendMessageField(
-                          messageFieldKey: const Key('ForwardField'),
-                          messageSendButtonKey: const Key('SendForward'),
-                          quotes: c.quotes,
-                          textFieldState: c.send,
-                          attachments: c.attachments,
-                          me: c.me,
-                          onVideoImageFromCamera: c.pickVideoFromCamera,
-                          onPickMedia: c.pickMedia,
-                          onPickImageFromCamera: c.pickImageFromCamera,
-                          onPickFile: c.pickFile,
-                          onSend: c.forward,
-                          onReorder: (int old, int to) {
-                            if (old < to) {
-                              --to;
-                            }
+                          child: SendMessageField(
+                            messageFieldKey: const Key('ForwardField'),
+                            messageSendButtonKey: const Key('SendForward'),
+                            quotes: c.quotes,
+                            textFieldState: c.send,
+                            attachments: c.attachments,
+                            me: c.me,
+                            onVideoImageFromCamera: c.pickVideoFromCamera,
+                            onPickMedia: c.pickMedia,
+                            onPickImageFromCamera: c.pickImageFromCamera,
+                            onPickFile: c.pickFile,
+                            onSend: c.forward,
+                            onReorder: (int old, int to) {
+                              if (old < to) {
+                                --to;
+                              }
 
-                            final ChatItemQuote item = c.quotes.removeAt(old);
-                            c.quotes.insert(to, item);
+                              final ChatItemQuote item = c.quotes.removeAt(old);
+                              c.quotes.insert(to, item);
 
-                            HapticFeedback.lightImpact();
-                          },
-                          getUser: c.getUser,
+                              HapticFeedback.lightImpact();
+                            },
+                            getUser: c.getUser,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              IgnorePointer(
-                child: Obx(() {
-                  return AnimatedSwitcher(
+                IgnorePointer(
+                  child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(
@@ -235,12 +236,12 @@ class ChatForwardView extends StatelessWidget {
                             ),
                           )
                         : null,
-                  );
-                }),
-              ),
-            ],
-          ),
-        );
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
       },
     );
   }

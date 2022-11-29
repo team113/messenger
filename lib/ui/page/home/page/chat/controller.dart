@@ -57,6 +57,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -139,9 +140,6 @@ class ChatController extends GetxController {
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
-
-  /// Indicator whether forward popup is open.
-  final RxBool isForwardPopupOpen = RxBool(false);
 
   /// Indicator whether any [ChatItem] is being dragged.
   ///
@@ -361,6 +359,7 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
+    DropTargetList.keys.add('ChatView_$id');
     listController.addListener(_updateFabStates);
     _fetchChat();
     _initAudio();
@@ -369,6 +368,9 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DropTargetList.keys.remove('ChatView_$id');
+    });
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _messagesSubscription?.cancel();
