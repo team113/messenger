@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
+        - Disappear sticky date when no scrolling. ([#221], [#215])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
     - Home page:
@@ -60,7 +61,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#212]: /../../pull/212
 [#214]: /../../issues/214
+[#215]: /../../issues/215
 [#217]: /../../pull/217
+[#221]: /../../pull/221
 
 
 
