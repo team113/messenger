@@ -89,7 +89,14 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
+  /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
+
+  /// Indicator whether the [messages] has next page.
+  bool _hasNextPage = true;
+
+  /// Indicator whether the [messages] has previous page.
+  bool _hasPreviousPage = true;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -303,8 +310,8 @@ class HiveRxChat extends RxChat {
         last: _pageSize ~/ 2 - 1,
       );
       if (itemsQuery.pageInfo != null) {
-        _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
-        _isMoreItemsBelow = itemsQuery.pageInfo!.hasPreviousPage;
+        _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
+        _hasPreviousPage = itemsQuery.pageInfo!.hasPreviousPage;
       }
     } else {
       itemsQuery = await _chatRepository.messages(
@@ -312,9 +319,9 @@ class HiveRxChat extends RxChat {
         first: _pageSize,
       );
       if (itemsQuery.pageInfo != null) {
-        _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
+        _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
       }
-      _isMoreItemsBelow = false;
+      _hasPreviousPage = false;
     }
 
     return _guard.protect(() async {
@@ -340,11 +347,9 @@ class HiveRxChat extends RxChat {
     });
   }
 
-  bool _isMoreItemsAbove = true;
-
   @override
-  Future<void> fetchMessagesAbove() async {
-    if (messages.isEmpty || !_isMoreItemsAbove) {
+  Future<void> fetchNextPage() async {
+    if (messages.isEmpty || !_hasNextPage) {
       return;
     }
 
@@ -378,7 +383,7 @@ class HiveRxChat extends RxChat {
     );
 
     if (itemsQuery.pageInfo != null) {
-      _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
+      _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
     }
 
 
@@ -405,14 +410,11 @@ class HiveRxChat extends RxChat {
     });
   }
 
-  bool _isMoreItemsBelow = true;
-
   @override
-  Future<void> fetchMessagesBelow() async {
-    if (messages.isEmpty || !_isMoreItemsBelow) {
+  Future<void> fetchPreviousPage() async {
+    if (messages.isEmpty || !_hasPreviousPage) {
       return;
     }
-
 
     HiveChatItem? item = await get(
       messages.last.value.id,
@@ -431,7 +433,7 @@ class HiveRxChat extends RxChat {
     );
 
     if (itemsQuery.pageInfo != null) {
-      _isMoreItemsBelow = itemsQuery.pageInfo!.hasNextPage;
+      _hasPreviousPage = itemsQuery.pageInfo!.hasNextPage;
     }
 
 

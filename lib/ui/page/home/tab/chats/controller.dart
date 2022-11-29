@@ -72,6 +72,9 @@ class ChatsTabController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// Indicator whether a next page of [Chat]s is fetching.
+  bool _isFetchingMore = false;
+
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -233,18 +236,17 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  bool isFetchingMore = false;
-
-  /// Uploads new [Chat]s based on the [ScrollController.position] value.
+  /// Uploads next page of [Chat]s based on the [ScrollController.position]
+  /// value.
   void _scrollListener() {
     if (listController.hasClients) {
-      if (!isFetchingMore &&
+      if (!_isFetchingMore &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        isFetchingMore = true;
+        _isFetchingMore = true;
         _chatService
             .fetchNextChats()
-            .whenComplete(() => isFetchingMore = false);
+            .whenComplete(() => _isFetchingMore = false);
       }
     }
   }

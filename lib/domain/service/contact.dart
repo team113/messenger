@@ -68,5 +68,5 @@ class ContactService extends DisposableService {
       _contactRepository.changeContactName(id, name);
 
   /// Fetches next page of a [ChatContact]s.
-  Future<void> fetchNextContacts() => _contactRepository.fetchNextContacts();
+  Future<void> fetchNextContacts() => _contactRepository.fetchNextPage();
 }

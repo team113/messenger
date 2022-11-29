@@ -59,7 +59,7 @@ abstract class AbstractContactRepository {
   Future<void> changeContactName(ChatContactId id, UserName name);
 
   /// Fetches next page of a [ChatContact]s.
-  Future<void> fetchNextContacts();
+  Future<void> fetchNextPage();
 }
 
 /// Unified reactive [ChatContact] entity.

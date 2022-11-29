@@ -96,6 +96,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
 
+  /// Indicator whether next page of the [chats] is exist.
+  bool _hasNextPage = true;
+
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
@@ -213,12 +216,9 @@ class ChatRepository implements AbstractChatRepository {
     );
   }
 
-  /// Indicator whether more [chats] can be fetched.
-  bool _isMoreChats = true;
-
   @override
-  Future<void> fetchNextChats() async {
-    if (this.chats.isEmpty || !_isMoreChats) {
+  Future<void> fetchNextPage() async {
+    if (this.chats.isEmpty || !_hasNextPage) {
       return;
     }
 
@@ -248,7 +248,7 @@ class ChatRepository implements AbstractChatRepository {
         await _fetchChats(first: _pageSize, after: cursor);
 
     if (chats.length < _pageSize) {
-      _isMoreChats = false;
+      _hasNextPage = false;
     }
 
     if (localChats != null) {

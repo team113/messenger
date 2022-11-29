@@ -89,8 +89,8 @@ abstract class AbstractChatRepository {
     List<ChatItem> repliesTo = const [],
   });
 
-  /// Fetches next chats.
-  Future<void> fetchNextChats();
+  /// Fetches next page of a [Chat]s.
+  Future<void> fetchNextPage();
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item);
@@ -224,12 +224,14 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
-  /// Fetches the [messages] from the service.
+  /// Fetches initial page of the [messages] from the service.
   Future<void> fetchMessages();
 
-  Future<void> fetchMessagesAbove();
+  /// Fetches next page of the [messages] from the service.
+  Future<void> fetchNextPage();
 
-  Future<void> fetchMessagesBelow();
+  /// Fetches previous page of the [messages] from the service.
+  Future<void> fetchPreviousPage();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

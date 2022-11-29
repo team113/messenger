@@ -36,6 +36,7 @@ class HiveRxChatContact extends RxChatContact {
   @override
   final Rx<RxUser?> user = Rx(null);
 
+  /// Cursor of this [HiveRxChatContact].
   final ChatContactsCursor? cursor;
 
   /// [AbstractUserRepository] fetching and updating the [user].

@@ -68,6 +68,9 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
+  /// Indicator whether a next page of [ChatContact]s is fetching.
+  bool _isFetchingMore = false;
+
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
 
@@ -228,18 +231,17 @@ class ContactsTabController extends GetxController {
     });
   }
 
-  bool isFetchingMore = false;
-
-  /// Uploads new [Chat]s based on the [ScrollController.position] value.
+  /// Uploads next page of [ChatContact]s based on the
+  /// [ScrollController.position] value.
   void _scrollListener() {
     if (listController.hasClients) {
-      if (!isFetchingMore &&
+      if (!_isFetchingMore &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        isFetchingMore = true;
+        _isFetchingMore = true;
         _contactService
             .fetchNextContacts()
-            .whenComplete(() => isFetchingMore = false);
+            .whenComplete(() => _isFetchingMore = false);
       }
     }
   }

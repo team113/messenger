@@ -181,6 +181,9 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  /// Indicator whether a new page of [ChatItem]s is fetching.
+  bool _isFetchingMore = false;
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -216,7 +219,7 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
 
-  /// Indicator whether [_updateFabStates] should not be react on
+  /// Indicator whether [_scrollListener] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
@@ -358,7 +361,7 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
-    listController.addListener(_updateFabStates);
+    listController.addListener(_scrollListener);
     _ignorePositionChanges = true;
     _fetchChat().whenComplete(() {
       _ignorePositionChanges = false;
@@ -379,7 +382,7 @@ class ChatController extends GetxController {
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
-    listController.removeListener(_updateFabStates);
+    listController.removeListener(_scrollListener);
     listController.dispose();
 
     _audioPlayer?.dispose();
@@ -976,7 +979,7 @@ class ChatController extends GetxController {
         }
       } finally {
         _ignorePositionChanges = false;
-        _updateFabStates();
+        _scrollListener();
       }
     }
   }
@@ -1169,18 +1172,15 @@ class ChatController extends GetxController {
     );
   }
 
-  /// Indicator whether an new page of [ChatItem]s is fetching.
-  bool _isFetchingMore = false;
-
-  /// Updates the [canGoDown] and [canGoBack] indicators based on the
-  /// [FlutterListViewController.position] value.
-  void _updateFabStates() async {
+  /// Uploads pages of [ChatItem]s ans updates the [canGoDown] and [canGoBack]
+  /// indicators based on the [FlutterListViewController.position] value.
+  void _scrollListener() async {
     if (listController.hasClients && !_ignorePositionChanges) {
       if (!_isFetchingMore &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
         _isFetchingMore = true;
-        chat?.fetchMessagesAbove().whenComplete(() => _isFetchingMore = false);
+        chat?.fetchNextPage().whenComplete(() => _isFetchingMore = false);
       }
 
       if (!_isFetchingMore &&
@@ -1188,7 +1188,7 @@ class ChatController extends GetxController {
               listController.position.maxScrollExtent -
                   (MediaQuery.of(router.context!).size.height * 3 + 200)) {
         _isFetchingMore = true;
-        chat?.fetchMessagesBelow().whenComplete(() => _isFetchingMore = false);
+        chat?.fetchPreviousPage().whenComplete(() => _isFetchingMore = false);
       }
 
       if (listController.position.pixels <

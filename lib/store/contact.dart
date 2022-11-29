@@ -64,9 +64,6 @@ class ContactRepository implements AbstractContactRepository {
   @override
   final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
 
-  /// Size of the [ChatContacts]s page.
-  final int _pageSize = 12;
-
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -78,6 +75,12 @@ class ContactRepository implements AbstractContactRepository {
 
   /// [SessionDataHiveProvider] used to store [ChatContactsEventsCursor].
   final SessionDataHiveProvider _sessionLocal;
+
+  /// Size of the [ChatContacts]s page.
+  final int _pageSize = 12;
+
+  /// Indicator whether the [contacts] has next page.
+  bool _hasNextPage = true;
 
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -150,12 +153,9 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _graphQlProvider.changeContactName(id, name);
 
-  /// Indicator whether more [contacts] can be fetched.
-  bool _isMoreContacts = true;
-
   @override
-  Future<void> fetchNextContacts() async {
-    if (this.contacts.isEmpty || !_isMoreContacts) {
+  Future<void> fetchNextPage() async {
+    if (this.contacts.isEmpty || !_hasNextPage) {
       return;
     }
     List<HiveChatContact>? localContacts;
@@ -186,7 +186,7 @@ class ContactRepository implements AbstractContactRepository {
     print(contacts.length);
 
     if (contacts.length < _pageSize) {
-      _isMoreContacts = false;
+      _hasNextPage = false;
     }
 
     if (localContacts != null) {
@@ -405,7 +405,7 @@ class ContactRepository implements AbstractContactRepository {
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _chatContacts(first: _pageSize))[id];
+    var contact = (await _chatContacts(first: 120))[id];
     if (contact != null) {
       _putChatContact(contact);
     }
