@@ -235,12 +235,11 @@ class ContactsTabController extends GetxController {
     if (listController.hasClients) {
       if (!isFetchingMore &&
           listController.position.pixels <
-              MediaQuery
-                  .of(router.context!)
-                  .size
-                  .height + 200) {
+              MediaQuery.of(router.context!).size.height + 200) {
         isFetchingMore = true;
-        _contactService.fetchNextContacts().whenComplete(() => isFetchingMore = false);
+        _contactService
+            .fetchNextContacts()
+            .whenComplete(() => isFetchingMore = false);
       }
     }
   }

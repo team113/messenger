@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -63,6 +64,9 @@ class ContactRepository implements AbstractContactRepository {
   @override
   final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
 
+  /// Size of the [ChatContacts]s page.
+  final int _pageSize = 12;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -86,7 +90,9 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> init() async {
     if (!_contactLocal.isEmpty) {
-      for (HiveChatContact c in _contactLocal.contacts) {
+      for (HiveChatContact c in _contactLocal.contacts
+          .sortedBy((a) => a.value.name.val)
+          .take(_pageSize)) {
         HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
         if (c.value.favoritePosition == null) {
           contacts[c.value.id] = entry;
@@ -96,12 +102,25 @@ class ContactRepository implements AbstractContactRepository {
       }
 
       isReady.value = true;
-    } else {
-      isReady.value = _sessionLocal.getChatContactsListVersion() != null;
     }
 
     _initLocalSubscription();
     _initRemoteSubscription();
+
+    HashMap<ChatContactId, HiveChatContact> fetched =
+        await _chatContacts(first: _pageSize);
+
+    for (ChatContactId id in contacts.keys) {
+      if (!fetched.containsKey(id)) {
+        _contactLocal.remove(id);
+      }
+    }
+
+    for (HiveChatContact c in fetched.values) {
+      _putChatContact(c);
+    }
+
+    isReady.value = true;
   }
 
   @override
@@ -131,6 +150,58 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _graphQlProvider.changeContactName(id, name);
 
+  /// Indicator whether more [contacts] can be fetched.
+  bool _isMoreContacts = true;
+
+  @override
+  Future<void> fetchNextContacts() async {
+    if (this.contacts.isEmpty || !_isMoreContacts) {
+      return;
+    }
+    List<HiveChatContact>? localContacts;
+    if (!_contactLocal.isEmpty &&
+        _contactLocal.contacts.length > this.contacts.length) {
+      localContacts = _contactLocal.contacts
+          .sortedBy((a) => a.value.name.val)
+          .skip(this.contacts.length)
+          .take(_pageSize)
+          .toList();
+      for (HiveChatContact c in localContacts) {
+        final HiveRxChatContact entry = HiveRxChatContact(_userRepo, c);
+        this.contacts[c.value.id] = entry;
+        entry.init();
+      }
+    }
+
+    ChatContactsCursor? cursor = this
+        .contacts
+        .values
+        .sortedBy((a) => a.contact.value.name.val)
+        .lastWhereOrNull((e) => e.cursor != null)
+        ?.cursor;
+
+    HashMap<ChatContactId, HiveChatContact> contacts =
+        await _chatContacts(first: _pageSize, after: cursor);
+
+    print(contacts.length);
+
+    if (contacts.length < _pageSize) {
+      _isMoreContacts = false;
+    }
+
+    if (localContacts != null) {
+      for (HiveChatContact c in localContacts) {
+        if (!contacts.containsKey(c.value.id)) {
+          _contactLocal.remove(c.value.id);
+        }
+      }
+    }
+
+    for (HiveChatContact c in contacts.values) {
+      _putChatContact(c);
+    }
+  }
+
   /// Puts the provided [contact] to [Hive].
   Future<void> _putChatContact(HiveChatContact contact) async {
     var saved = _contactLocal.get(contact.value.id);
@@ -138,6 +209,9 @@ class ContactRepository implements AbstractContactRepository {
     if (saved == null ||
         saved.ver <= contact.ver ||
         contact.ver.internal == BigInt.zero) {
+      if (saved != null && contact.cursor == null) {
+        contact.cursor = saved.cursor;
+      }
       await _contactLocal.put(contact);
     }
   }
@@ -235,6 +309,7 @@ class ContactRepository implements AbstractContactRepository {
                     name: node.name,
                   ),
                   versioned.ver,
+                  null,
                 ),
               );
 
@@ -330,33 +405,39 @@ class ContactRepository implements AbstractContactRepository {
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _chatContacts())[id];
+    var contact = (await _chatContacts(first: _pageSize))[id];
     if (contact != null) {
       _putChatContact(contact);
     }
     return contact;
   }
 
-  // TODO: Contacts list can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ [HiveChatContact]s from the remote.
+  /// Fetches [HiveChatContact]s from the remote with pagination.
   ///
   /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
   /// [User.gallery] to the [GalleryItemHiveProvider].
-  Future<HashMap<ChatContactId, HiveChatContact>> _chatContacts() async {
-    const maxInt = 120;
-    Contacts$Query$ChatContacts query =
-        await _graphQlProvider.chatContacts(noFavorite: false, first: maxInt);
+  Future<HashMap<ChatContactId, HiveChatContact>> _chatContacts({
+    int? first,
+    ChatContactsCursor? after,
+    int? last,
+    ChatContactsCursor? before,
+  }) async {
+    Contacts$Query$ChatContacts query = await _graphQlProvider.chatContacts(
+        noFavorite: false,
+        first: first,
+        after: after,
+        last: last,
+        before: before);
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
-    for (var c in query.nodes) {
-      List<HiveUser> users = c.getHiveUsers();
+    for (var c in query.edges) {
+      List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
 
-      HiveChatContact contact = c.toHive();
+      HiveChatContact contact = c.node.toHive(cursor: c.cursor);
       contacts[contact.value.id] = contact;
     }
 

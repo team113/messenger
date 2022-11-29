@@ -48,6 +48,9 @@ query GetMessages(
                 }
                 cursor
             }
+            pageInfo {
+                ...PageInfo
+            }
         }
     }
 }

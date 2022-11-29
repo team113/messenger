@@ -240,12 +240,11 @@ class ChatsTabController extends GetxController {
     if (listController.hasClients) {
       if (!isFetchingMore &&
           listController.position.pixels <
-              MediaQuery
-                  .of(router.context!)
-                  .size
-                  .height + 200) {
+              MediaQuery.of(router.context!).size.height + 200) {
         isFetchingMore = true;
-        _chatService.fetchNextChats().whenComplete(() => isFetchingMore = false);
+        _chatService
+            .fetchNextChats()
+            .whenComplete(() => isFetchingMore = false);
       }
     }
   }

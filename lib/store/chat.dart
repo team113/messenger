@@ -75,6 +75,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [UserId] of the currently authenticated [MyUser].
   final UserId? me;
 
+  /// Size of the [Chat]s page.
+  final int _pageSize = 10;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -120,7 +123,9 @@ class ChatRepository implements AbstractChatRepository {
     this.onMemberRemoved = onMemberRemoved;
 
     if (!_chatLocal.isEmpty) {
-      for (HiveChat c in _chatLocal.chats) {
+      for (HiveChat c in _chatLocal.chats
+          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
+          .take(_pageSize)) {
         final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
@@ -131,8 +136,13 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    HashMap<ChatId, ChatData> chats = await _recentChats();
+    HashMap<ChatId, ChatData> chats = await _fetchChats(first: _pageSize);
 
+    for (ChatId id in _chats.keys) {
+      if (!chats.containsKey(id)) {
+        _chatLocal.remove(id);
+      }
+    }
 
     for (ChatData c in chats.values) {
       _chats[c.chat.value.id]?.subscribe();
@@ -212,6 +222,20 @@ class ChatRepository implements AbstractChatRepository {
       return;
     }
 
+    List<HiveChat>? localChats;
+    if (!_chatLocal.isEmpty && _chatLocal.chats.length > _chats.length) {
+      localChats = _chatLocal.chats
+          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
+          .skip(_chats.length)
+          .take(_pageSize)
+          .toList();
+      for (HiveChat c in localChats) {
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
+        _chats[c.value.id] = entry;
+        entry.init();
+      }
+    }
+
     RecentChatsCursor? cursor = this
         .chats
         .values
@@ -220,19 +244,19 @@ class ChatRepository implements AbstractChatRepository {
         .lastWhereOrNull((e) => e.cursor != null)
         ?.cursor;
 
-    const maxInt = 20;
-    RecentChats$Query$RecentChats query =
-        (await _graphQlProvider.recentChats(first: maxInt, after: cursor))
-            .recentChats;
+    HashMap<ChatId, ChatData> chats =
+        await _fetchChats(first: _pageSize, after: cursor);
 
-    if(query.edges.length < maxInt) {
+    if (chats.length < _pageSize) {
       _isMoreChats = false;
     }
 
-    HashMap<ChatId, ChatData> chats = HashMap();
-    for (var c in query.edges) {
-      ChatData data = _chat(c.node, cursor: c.cursor);
-      chats[data.chat.value.id] = data;
+    if (localChats != null) {
+      for (HiveChat c in localChats) {
+        if (!chats.containsKey(c.value.id)) {
+          _chatLocal.remove(c.value.id);
+        }
+      }
     }
 
     for (ChatData c in chats.values) {
@@ -683,8 +707,9 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(
+  /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
+  /// posting time with pagination.
+  Future<ChatItemsQuery> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -699,11 +724,16 @@ class ChatRepository implements AbstractChatRepository {
       before: before,
     );
 
-    return query.chat?.items.edges
-            .map((e) => e.toHive())
-            .expand((e) => e)
-            .toList() ??
-        [];
+    query.chat?.items.pageInfo;
+
+    return ChatItemsQuery(
+      query.chat?.items.edges
+              .map((e) => e.toHive())
+              .expand((e) => e)
+              .toList() ??
+          [],
+      query.chat?.items.pageInfo,
+    );
   }
 
   /// Fetches the [Attachment]s of the provided [item].
@@ -1070,11 +1100,20 @@ class ChatRepository implements AbstractChatRepository {
         }
       });
 
-  /// Fetches __first page__ of [HiveChat]s from the remote.
-  Future<HashMap<ChatId, ChatData>> _recentChats() async {
-    const maxInt = 120;
-    RecentChats$Query$RecentChats query =
-        (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
+  /// Fetches [HiveChat]s from the remote with pagination.
+  Future<HashMap<ChatId, ChatData>> _fetchChats({
+    int? first,
+    RecentChatsCursor? after,
+    int? last,
+    RecentChatsCursor? before,
+  }) async {
+    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    ))
+        .recentChats;
 
     HashMap<ChatId, ChatData> chats = HashMap();
     for (var c in query.edges) {
@@ -1124,4 +1163,15 @@ class ChatData {
   /// [HiveChatItem]s of a [Chat.lastReadItem] returned from the [Chat]
   /// fetching.
   final List<HiveChatItem>? lastReadItem;
+}
+
+/// Result of fetching a [ChatItem]s.
+class ChatItemsQuery {
+  const ChatItemsQuery(this.items, this.pageInfo);
+
+  /// [HiveChat] returned from the [Chat] fetching.
+  final List<HiveChatItem> items;
+
+  /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
+  final GetMessages$Query$Chat$Items$PageInfo? pageInfo;
 }

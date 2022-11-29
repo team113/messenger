@@ -133,6 +133,9 @@ class HiveRxChat extends RxChat {
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
 
+  /// Size of the [ChatItems]s page.
+  final int _pageSize = 20;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -162,8 +165,6 @@ class HiveRxChat extends RxChat {
     return callCover;
   }
 
-  static int initialMessagesCount = 120;
-
   /// Initializes this [HiveRxChat].
   Future<void> init() {
     if (status.value.isSuccess) {
@@ -179,11 +180,13 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       await _local.init(userId: me);
       if (!_local.isEmpty) {
-        Iterable<HiveChatItem> localMessages = _local.messages;
-        if (localMessages.length > HiveRxChat.initialMessagesCount) {
-          localMessages = localMessages.skip(
-            localMessages.length - HiveRxChat.initialMessagesCount,
-          );
+        Iterable<HiveChatItem> localMessages;
+        if (_local.messages.length > _pageSize ~/ 2) {
+          localMessages = _local.messages
+              .skip(_local.messages.length - _pageSize ~/ 2)
+              .take(_pageSize ~/ 2);
+        } else {
+          localMessages = _local.messages.take(_pageSize ~/ 2);
         }
         for (HiveChatItem i in localMessages) {
           messages.add(Rx<ChatItem>(i.value));
@@ -287,58 +290,54 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
+
     ChatItemsCursor? cursor = chat.value.lastReadItem?.cursor;
-    // if (messages.isNotEmpty) {
-    //   item = await get(messages.first.value.id,
-    //       timestamp: messages.first.value.timestamp);
-    // }
 
-    if (chat.value.lastReadItem?.chatItem.id == null) {}
-
-    List<HiveChatItem> items;
+    ChatItemsQuery itemsQuery;
     if (cursor != null) {
-      items = await _chatRepository.messages(
+      itemsQuery = await _chatRepository.messages(
         chat.value.id,
         after: cursor,
-        first: HiveRxChat.initialMessagesCount ~/ 2 - 1,
+        first: _pageSize ~/ 2 - 1,
         before: cursor,
-        last: HiveRxChat.initialMessagesCount ~/ 2 - 1,
+        last: _pageSize ~/ 2 - 1,
       );
-    } else {
-      items = await _chatRepository.messages(
-        chat.value.id,
-        last: HiveRxChat.initialMessagesCount,
-      );
-    }
-
-    //return _guard.protect(() async {
-    print(items.length);
-    // for (HiveChatItem item in _local.messages) {
-    //   if (item.value.status.value == SendingStatus.sent) {
-    //     int i = items.indexWhere((e) => e.value.id == item.value.id);
-    //     if (i == -1) {
-    //       _local.remove(item.value.timestamp);
-    //     }
-    //   }
-    // }
-
-    for (HiveChatItem item in items) {
-      if (item.value.chatId == id) {
-        put(item);
-        if(item.cursor.val == 'ImVmNDZmZTcxLWE5NDAtNDQ5YS04ZjQwLTlkMWU3MDAwOTVjOCI=') {
-          if(item.value is ChatMessage) {
-            print((item.value as ChatMessage).text);
-          }
-          print(item.value.at);
-          print(item.cursor);
-        }
-      } else {
-        _chatRepository.putChatItem(item);
+      if (itemsQuery.pageInfo != null) {
+        _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
+        _isMoreItemsBelow = itemsQuery.pageInfo!.hasPreviousPage;
       }
+    } else {
+      itemsQuery = await _chatRepository.messages(
+        chat.value.id,
+        first: _pageSize,
+      );
+      if (itemsQuery.pageInfo != null) {
+        _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
+      }
+      _isMoreItemsBelow = false;
     }
 
-    status.value = RxStatus.success();
-    //});
+    return _guard.protect(() async {
+      for (Rx<ChatItem> item in messages) {
+        if (item.value.status.value == SendingStatus.sent) {
+          int i =
+              itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
+          if (i == -1) {
+            _local.remove(item.value.timestamp);
+          }
+        }
+      }
+
+      for (HiveChatItem item in itemsQuery.items) {
+        if (item.value.chatId == id) {
+          put(item);
+        } else {
+          _chatRepository.putChatItem(item);
+        }
+      }
+
+      status.value = RxStatus.success();
+    });
   }
 
   bool _isMoreItemsAbove = true;
@@ -349,40 +348,61 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    //print('last: ${messages.last.value.id}');
-    print('last: ${messages.last.value.at}');
-    print('first: ${messages.first.value.at}');
-    // messages.sort((e1, e2) => e1.value.at.compareTo(e2.value.at));
-    //print('last: ${messages.sort((e1, e2) => e1.value.at.compareTo(e2.value.at))}');
-    //print('last after sort: ${messages.last.value.id}');
+    Iterable<HiveChatItem>? localMessages;
+    if (_local.messages.length > messages.length) {
+      localMessages = _local.messages
+          .toList()
+          .reversed
+          .skip(messages.length)
+          .take(_pageSize);
 
-    HiveChatItem? item = await get(messages.first.value.id,
-        timestamp: messages.first.value.timestamp);
+      for (HiveChatItem i in localMessages) {
+        messages.add(Rx<ChatItem>(i.value));
+      }
+    }
+
+    HiveChatItem? item = await get(
+      messages.first.value.id,
+      timestamp: messages.first.value.timestamp,
+    );
 
     if (item == null) {
       print('item == null');
       return;
     }
 
-    List<HiveChatItem> items = await _chatRepository.messages(
+    ChatItemsQuery itemsQuery = await _chatRepository.messages(
       chat.value.id,
       after: item.cursor,
-      first: HiveRxChat.initialMessagesCount,
+      first: _pageSize,
     );
 
-    if (items.length < HiveRxChat.initialMessagesCount) {
-      _isMoreItemsAbove = false;
+    if (itemsQuery.pageInfo != null) {
+      _isMoreItemsAbove = itemsQuery.pageInfo!.hasNextPage;
     }
 
-    print('fetchMoreMessages: ${items.length}');
 
-      for (HiveChatItem item in items) {
+    return _guard.protect(() async {
+      if (localMessages != null) {
+        for (HiveChatItem item in localMessages) {
+          if (item.value.status.value == SendingStatus.sent) {
+            int i =
+                itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
+            if (i == -1) {
+              _local.remove(item.value.timestamp);
+            }
+          }
+        }
+      }
+
+      for (HiveChatItem item in itemsQuery.items) {
         if (item.value.chatId == id) {
           put(item);
         } else {
           _chatRepository.putChatItem(item);
         }
       }
+    });
   }
 
   bool _isMoreItemsBelow = true;
@@ -393,12 +413,6 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    //print('last: ${messages.last.value.id}');
-    // print('last: ${messages.last.value.at}');
-    // print('first: ${messages.first.value.at}');
-    // messages.sort((e1, e2) => e1.value.at.compareTo(e2.value.at));
-    //print('last: ${messages.sort((e1, e2) => e1.value.at.compareTo(e2.value.at))}');
-    //print('last after sort: ${messages.last.value.id}');
 
     HiveChatItem? item = await get(
       messages.last.value.id,
@@ -410,22 +424,19 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    //print((item.value as ChatMessage).text);
-
-    List<HiveChatItem> items = await _chatRepository.messages(
+    ChatItemsQuery itemsQuery = await _chatRepository.messages(
       chat.value.id,
       before: item.cursor,
-      last: 10,
+      last: _pageSize,
     );
 
-    if (items.length < 10) {
-      _isMoreItemsBelow = false;
+    if (itemsQuery.pageInfo != null) {
+      _isMoreItemsBelow = itemsQuery.pageInfo!.hasNextPage;
     }
 
-    print('fetchMoreMessages: ${items.length}');
 
     return _guard.protect(() async {
-      for (HiveChatItem item in items) {
+      for (HiveChatItem item in itemsQuery.items) {
         if (item.value.chatId == id) {
           put(item);
         } else {
@@ -1167,16 +1178,18 @@ class HiveRxChat extends RxChat {
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
-    bool done = false;
-    for (var i = length - 1; i > -1 && !done; --i) {
+    if (!test(this[0])) {
+      insert(0, element);
+      return;
+    }
+
+    for (var i = length - 1; i > 0; --i) {
       if (test(this[i])) {
         insert(i + 1, element);
-        done = true;
+        return;
       }
     }
 
-    if (!done) {
-      insert(0, element);
-    }
+    insert(0, element);
   }
 }
