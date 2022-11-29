@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -51,6 +52,12 @@ class MicrophoneSwitchController extends GetxController {
 
   /// Returns ID of the currently used video device.
   RxnString get mic => _call.value.audioDevice;
+
+  @override
+  void onInit() {
+    Permission.microphone.request();
+    super.onInit();
+  }
 
   /// Sets device with [id] as a used by default [camera] device.
   Future<void> setAudioDevice(String id) async {

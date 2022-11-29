@@ -318,6 +318,8 @@ class OngoingCall {
       _mediaManager?.onDeviceChange(() async {
         print('_mediaManager?.onDeviceChange');
         await enumerateDevices();
+
+        // TODO: Pick microphone device?
         _pickOutputDevice();
       });
 
@@ -1285,6 +1287,8 @@ class OngoingCall {
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
+
+    await enumerateDevices();
   }
 
   /// Adds the provided [track] to the local tracks and initializes video
