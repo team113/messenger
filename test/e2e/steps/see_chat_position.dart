@@ -24,9 +24,9 @@ import '../world/custom_world.dart';
 
 /// Indicates whether [Chat] with the specified name is displayed at the
 /// specified [PositionStatus].
-final StepDefinitionGeneric seeChatAsFirst =
+final StepDefinitionGeneric seeChatAsPosition =
     then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat as {position} in the chat list',
+  'I see {string} chat as {position} in chats list',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {

@@ -16,7 +16,7 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// Status what position [Chat] with the provided name is in the [Chat]s list
+/// Position of an element in some [List].
 enum PositionStatus { first, last }
 
 /// [CustomParameter] representing a [PositionStatus].

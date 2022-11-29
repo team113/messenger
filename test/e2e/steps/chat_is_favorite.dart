@@ -22,7 +22,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 
 import '../world/custom_world.dart';
 
-/// Adds to favorites a [Chat] with the provided name.
+/// Adds a [Chat] with the provided name to the favorites.
 ///
 /// Examples:
 /// - Given "Name" chat is favorite.

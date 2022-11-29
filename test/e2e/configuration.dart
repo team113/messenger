@@ -55,10 +55,10 @@ import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/see_chat_position.dart';
 import 'steps/see_draft.dart';
+import 'steps/see_favorite_chat.dart';
 import 'steps/sees_as.dart';
-import 'steps/sees_chat_first.dart';
-import 'steps/sees_favorite_chat.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -108,11 +108,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
-        seeChatAsMuted,
-        seesAs,
         seeChatAsFavorite,
-        seeChatAsFirst,
+        seeChatAsMuted,
+        seeChatAsPosition,
         seeDraftInDialog,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,

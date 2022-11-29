@@ -26,7 +26,7 @@ enum FavoriteChatsEventsKind {
   event,
 }
 
-/// The favorite [Chat]s list event union
+/// Favorite [Chat]s list event union.
 abstract class FavoriteChatsEvents {
   const FavoriteChatsEvents();
 

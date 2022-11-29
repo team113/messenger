@@ -17,10 +17,11 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 
-/// Status of a [Chat.favoritePosition] field available in a [FavoriteStatusParameter].
+/// Status of a [Chat.favoritePosition] field available in a
+/// [FavoriteStatusParameter].
 enum FavoriteStatus { favorite, unfavorite }
 
-/// [CustomParameter] representing a [Chat.favoritePosition] status.
+/// [CustomParameter] representing a [FavoriteStatusParameter].
 class FavoriteStatusParameter extends CustomParameter<FavoriteStatus> {
   FavoriteStatusParameter()
       : super(

@@ -28,7 +28,7 @@ Feature: Chat adding to favorites and deleting from favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
-    And I see "Alice and Bob" chat as first in the chat list
+    And I see "Alice and Bob" chat as first in chats list
 
   Scenario: User deletes chat from favorites
     Given "Alice and Bob" chat is favorite
@@ -37,4 +37,4 @@ Feature: Chat adding to favorites and deleting from favorites
     When I long press "Alice and Bob" chat
     And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
-    And I see "Alice and Bob" chat as last in the chat list
+    And I see "Alice and Bob" chat as last in chats list

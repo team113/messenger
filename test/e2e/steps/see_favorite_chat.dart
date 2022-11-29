@@ -39,6 +39,7 @@ final StepDefinitionGeneric seeChatAsFavorite =
               context.world.appDriver
                   .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
             );
+
           case FavoriteStatus.unfavorite:
             return await context.world.appDriver.isAbsent(
               context.world.appDriver
