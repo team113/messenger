@@ -604,6 +604,7 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
+            print('LocalTrackState.enabling');
             if (members[_me]
                     ?.tracks
                     .where((t) =>
@@ -611,6 +612,7 @@ class OngoingCall {
                         t.source == MediaSourceKind.Device)
                     .isEmpty ??
                 false) {
+              print('enableAudio');
               await _room?.enableAudio();
             }
             await _room?.unmuteAudio();

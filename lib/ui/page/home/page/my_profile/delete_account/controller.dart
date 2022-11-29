@@ -16,16 +16,14 @@
 
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:messenger/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode;
 import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/repository/settings.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/util/obs/obs.dart';
+import 'package:messenger/routes.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -36,39 +34,29 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+enum AddEmailFlowStage {
+  code,
+}
+
 /// Controller of a [ChatForwardView].
-class OutputSwitchController extends GetxController {
-  OutputSwitchController(this._call, this._settingsRepository);
+class DeleteAccountController extends GetxController {
+  DeleteAccountController(this._authService, this._myUserService);
 
-  final Rx<OngoingCall> _call;
+  final AuthService _authService;
+  final MyUserService _myUserService;
 
-  final GlobalKey cameraKey = GlobalKey();
+  /// Returns current [MyUser] value.
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  final AbstractSettingsRepository _settingsRepository;
+  Future<void> deleteAccount() async {
+    try {
+      router.go(await _authService.logout());
+      router.tab = HomeTab.chats;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
-
-  /// Returns ID of the currently used video device.
-  RxnString get output => _call.value.outputDevice;
-
-  @override
-  void onInit() {
-    _call.value.setAudioEnabled(true);
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _call.value.setAudioEnabled(false);
-    super.onClose();
-  }
-
-  /// Sets device with [id] as a used by default [camera] device.
-  Future<void> setOutputDevice(String id) async {
-    await Future.wait([
-      _call.value.setOutputDevice(id),
-      _settingsRepository.setOutputDevice(id),
-    ]);
+      // await _myUserService.deleteMyUser();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 }

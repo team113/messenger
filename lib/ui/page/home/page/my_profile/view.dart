@@ -54,9 +54,11 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'change_password/view.dart';
 import 'controller.dart';
+import 'delete_account/view.dart';
 import 'delete_email/view.dart';
 import 'delete_phone/view.dart';
 import 'language/view.dart';
@@ -138,13 +140,18 @@ class MyProfileView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       // border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
-                    constraints: context.isNarrow
-                        ? null
-                        : const BoxConstraints(maxWidth: 400),
+                    // constraints: context.isNarrow
+                    //     ? null
+                    //     : const BoxConstraints(maxWidth: 400),
                     padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: children,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 340),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: children,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -248,15 +255,20 @@ class MyProfileView extends StatelessWidget {
                     _label(context, 'Бэкграунд'),
                     _personalization(context, c),
                   ]),
+
                   block(children: [
-                    _label(context, 'Язык'),
-                    _language(context, c),
+                    _label(context, 'Звонки'),
+                    _call(context, c),
                   ]),
                   if (!PlatformUtils.isMobile)
                     block(children: [
                       _label(context, 'Медиа'),
                       _media(context, c),
                     ]),
+                  block(children: [
+                    _label(context, 'Язык'),
+                    _language(context, c),
+                  ]),
                   block(children: [
                     _label(context, 'Скачать приложение'),
                     _downloads(context, c),
@@ -1830,12 +1842,19 @@ Widget _monolog(MyProfileController c) => ListTile(
 Widget _deleteAccount(BuildContext context, MyProfileController c) {
   return _dense(
     WidgetButton(
-      onPressed: c.deleteAccount,
+      onPressed: () => DeleteAccountView.show(context),
       child: IgnorePointer(
         child: ReactiveTextField(
           state:
               TextFieldState(text: 'btn_delete_account'.l10n, editable: false),
-          style: const TextStyle(color: Colors.red),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
           // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
@@ -1982,6 +2001,50 @@ Widget _personalization(BuildContext context, MyProfileController c) {
         ],
       ],
     ),
+  );
+}
+
+Widget _call(BuildContext context, MyProfileController c) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _dense(
+        WidgetButton(
+          onPressed: () => CallWindowSwitchView.show(context),
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: (c.settings.value?.enablePopups ?? true)
+                    ? 'Отображать звонки в отдельном окне.'
+                    : 'Отображать звонки в окне приложения.',
+              ),
+              maxLines: null,
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
+          ),
+        ),
+      ),
+      // _dense(
+      //   WidgetButton(
+      //     onPressed: () =>
+      //         c.setPopupsEnabled(!(c.settings.value?.enablePopups ?? true)),
+      //     child: IgnorePointer(
+      //       child: ReactiveTextField(
+      //         state: TextFieldState(
+      //           text: 'Отображать звонки в новых окнах'.l10n,
+      //         ),
+      //         maxLines: null,
+      //         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      //         trailingWidth: null,
+      //         trailing: Switch(
+      //           value: c.settings.value?.enablePopups ?? true,
+      //           onChanged: (_) {},
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+    ],
   );
 }
 
@@ -2402,7 +2465,15 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android',
+          title: 'Android (APK)',
+          link: 'messenger-android.apk',
+        ),
+        const SizedBox(height: 8),
+        button(
+          asset: 'google',
+          width: 20.33,
+          height: 22.02,
+          title: 'Android (App Bundle)',
           link: 'messenger-android.aab',
         ),
       ],

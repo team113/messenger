@@ -55,8 +55,14 @@ class MicrophoneSwitchController extends GetxController {
 
   @override
   void onInit() {
-    Permission.microphone.request();
+    _call.value.setAudioEnabled(true);
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _call.value.setAudioEnabled(false);
+    super.onClose();
   }
 
   /// Sets device with [id] as a used by default [camera] device.

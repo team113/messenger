@@ -42,6 +42,7 @@ class ReactiveTextField extends StatelessWidget {
     this.suffixColor,
     this.suffixSize,
     this.trailing,
+    this.trailingWidth = 24,
     this.type,
     this.padding,
     this.minLines,
@@ -88,6 +89,7 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+  final double? trailingWidth;
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
@@ -240,7 +242,7 @@ class ReactiveTextField extends StatelessWidget {
                                           )
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
-                                            width: 24,
+                                            width: trailingWidth,
                                             child: suffix != null
                                                 ? Icon(
                                                     suffix,

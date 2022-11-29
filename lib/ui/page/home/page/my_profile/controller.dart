@@ -23,6 +23,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/image_gallery_item.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
@@ -194,6 +195,9 @@ class MyProfileController extends GetxController {
 
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
 
   UserId? get me => _authService.userId;
 
@@ -705,6 +709,10 @@ class MyProfileController extends GetxController {
     call.value.dispose();
     super.onClose();
   }
+
+  /// Sets the [ApplicationSettings.enablePopups] value.
+  Future<void> setPopupsEnabled(bool enabled) =>
+      _settingsRepo.setPopupsEnabled(enabled);
 
   /// Sets device with [id] as a used by default [camera] device.
   void setVideoDevice(String id) {
