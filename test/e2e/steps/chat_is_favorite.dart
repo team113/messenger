@@ -17,26 +17,53 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/obs/rxmap.dart';
 
+import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
-/// Adds a [Chat] with the provided name to the favorites.
+/// Adds / removes a [Chat] with the provided name to / from the favorites
+/// depending on [FavoriteStatus].
 ///
 /// Examples:
 /// - Given "Name" chat is favorite.
-final StepDefinitionGeneric chatIsFavorite = given1<String, CustomWorld>(
-  '{string} chat is favorite',
-  (String name, context) async {
+final StepDefinitionGeneric chatIsFavorite =
+    given2<String, FavoriteStatus, CustomWorld>(
+  '{string} chat is {favorite}',
+  (String name, status, context) async {
+    final ChatId chatId = context.world.groups[name]!;
     final provider = GraphQlProvider();
     final AuthService authService = Get.find();
     provider.token = authService.credentials.value!.session.token;
 
-    await provider.favoriteChat(
-      context.world.groups[name]!,
-      const ChatFavoritePosition(10),
-    );
+    if (status == FavoriteStatus.favorite) {
+      final RxObsMap<ChatId, RxChat> chats = Get.find<ChatService>().chats;
+
+      final List<RxChat> favorites = chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList();
+
+      favorites.sort(
+        (a, b) => a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!),
+      );
+
+      final double? lowestFavorite = favorites.isEmpty
+          ? null
+          : favorites.first.chat.value.favoritePosition!.val;
+
+      final newPosition = ChatFavoritePosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+
+      await provider.favoriteChat(chatId, newPosition);
+    } else {
+      await provider.unfavoriteChat(chatId);
+    }
 
     provider.disconnect();
   },

@@ -14,21 +14,23 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat adding to favorites and deleting from favorites
+Feature: Favorite chats
 
   Background: User is in group chat with Bob and group chat with Charlie
     Given I am Alice
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
-    And I wait until text "Alice and Bob" is present
     And I have "Alice and Charlie" group with Charlie
-    And I wait until text "Alice and Charlie" is present
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
     And I see "Alice and Bob" chat as first in chats list
+    When I long press "Alice and Charlie" chat
+    And I tap `FavoriteChatButton` button
+    Then I see "Alice and Charlie" chat as favorite
+    And I see "Alice and Charlie" chat as first in chats list
 
   Scenario: User deletes chat from favorites
     Given "Alice and Bob" chat is favorite
