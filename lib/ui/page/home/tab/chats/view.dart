@@ -224,14 +224,12 @@ class ChatsTabView extends StatelessWidget {
                         child = SearchUserTile(
                           key: Key('SearchContact_${element.contact.id}'),
                           contact: element.contact,
-                          chats: c.chats,
                           onTap: () => c.openChat(contact: element.contact),
                         );
                       } else if (element is UserElement) {
                         child = SearchUserTile(
                           key: Key('SearchUser_${element.user.id}'),
                           user: element.user,
-                          chats: c.chats,
                           onTap: () => c.openChat(user: element.user),
                         );
                       } else if (element is DividerElement) {

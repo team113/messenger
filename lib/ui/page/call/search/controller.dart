@@ -299,21 +299,21 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
-    final List<RxChat> sorted = _chatService.chats.values.toList();
-
-    sorted.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-
     if (categories.contains(SearchCategory.chat)) {
+      final List<RxChat> sorted = _chatService.chats.values.toList();
+
+      sorted.sort((a, b) {
+        if (a.chat.value.ongoingCall != null &&
+            b.chat.value.ongoingCall == null) {
+          return -1;
+        } else if (a.chat.value.ongoingCall == null &&
+            b.chat.value.ongoingCall != null) {
+          return 1;
+        }
+
+        return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+      });
+
       chats.value = {
         for (var c in sorted.where((p) {
           if (query.value.isNotEmpty) {
@@ -365,7 +365,11 @@ class SearchController extends GetxController {
             RxUser? user = e.user.value;
 
             if (chat?.members.containsKey(user?.id) != true &&
-                !recent.containsKey(user?.id)) {
+                !recent.containsKey(user?.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog &&
+                    e1.chat.value.members
+                        .any((e2) => e2.user.id == e.user.value?.id)))) {
               if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -407,17 +411,17 @@ class SearchController extends GetxController {
       };
     }
 
-    contacts.removeWhere((k, v) => (chats.values.any((e1) =>
-        e1.chat.value.isDialog &&
-        e1.chat.value.members.any((e2) => e2.user.id == v.user.value?.id))));
-
     if (categories.contains(SearchCategory.user)) {
       if (searchResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
           for (var u in searchResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
-                !contacts.containsKey(e.id)) {
+                !contacts.containsKey(e.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog &&
+                    e1.chat.value.members
+                        .any((e2) => e2.user.id == e.user.value.id)))) {
               return true;
             }
 
@@ -491,10 +495,6 @@ class SearchController extends GetxController {
           ...allUsers,
         };
       }
-
-      users.removeWhere((k, v) => (chats.values.any((e1) =>
-          e1.chat.value.isDialog &&
-          e1.chat.value.members.any((e2) => e2.user.id == v.user.value.id))));
     }
   }
 }

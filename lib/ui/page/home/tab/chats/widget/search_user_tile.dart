@@ -18,8 +18,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -33,7 +33,6 @@ class SearchUserTile extends StatelessWidget {
     this.user,
     this.contact,
     this.onTap,
-    required this.chats,
   }) : assert(user != null || contact != null);
 
   /// [RxUser] this [SearchUserTile] is about.
@@ -45,25 +44,16 @@ class SearchUserTile extends StatelessWidget {
   /// Callback, called when [SearchUserTile] is pressed.
   final void Function()? onTap;
 
-  /// Reactive list of sorted [Chat]s.
-  final RxList<RxChat> chats;
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       bool selected = false;
-      UserId? userId = user?.id;
-      userId = userId ?? contact?.user.value?.id;
+      ChatId? chatId = user?.user.value.dialog?.id;
+      chatId = chatId ?? contact?.user.value?.user.value.dialog?.id;
 
-      RxChat? chat = chats.firstWhereOrNull(
-        (e) =>
-            e.chat.value.isDialog &&
-            e.chat.value.members.any((e2) => e2.user.id == userId),
-      );
-
-      if (chat != null &&
+      if (chatId != null &&
           router.routes.lastWhereOrNull(
-                  (e) => e.startsWith('${Routes.chat}/${chat.id}')) !=
+                  (e) => e.startsWith('${Routes.chat}/$chatId')) !=
               null) {
         selected = true;
       }

@@ -256,7 +256,7 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Sets the [searching] mode to the provided [enable] value.
+  /// Sets the [search] mode to the provided [enable] value.
   void toggleSearch([bool enable = true]) {
     search.value?.onClose();
     search.value?.search.focus.removeListener(_searchFieldFocusListener);
@@ -326,7 +326,8 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  /// Listener of [SearchController.search] field focus.
+  /// Disables the [search] mode based on [SearchController.search] field focus
+  /// and text value.
   void _searchFieldFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
