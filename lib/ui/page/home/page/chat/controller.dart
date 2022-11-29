@@ -178,6 +178,12 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
+  /// Reactive index of [listController.sliverController.stickyIndex].
+  RxnInt stickyIndex = RxnInt(null);
+
+  /// Indicator whether sticky item must be visible or not.
+  RxBool showSticky = RxBool(false);
+
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
@@ -228,6 +234,10 @@ class ChatController extends GetxController {
 
   /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
+
+  /// [Timer] for updating [stickyIndex] of a
+  /// [listController.sliverController.stickyIndex], if any.
+  Timer? _stickyTimer;
 
   /// [AudioPlayer] playing a sent message sound.
   AudioPlayer? _audioPlayer;
@@ -358,7 +368,7 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
-    listController.addListener(_updateFabStates);
+    listController.addListener(_listControllerListener);
     _fetchChat();
     _initAudio();
     super.onReady();
@@ -375,8 +385,9 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
+    _stickyTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
-    listController.removeListener(_updateFabStates);
+    listController.removeListener(_listControllerListener);
     listController.dispose();
 
     _audioPlayer?.dispose();
@@ -977,7 +988,7 @@ class ChatController extends GetxController {
         }
       } finally {
         _ignorePositionChanges = false;
-        _updateFabStates();
+        _listControllerListener();
       }
     }
   }
@@ -1171,9 +1182,23 @@ class ChatController extends GetxController {
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
-  /// [FlutterListViewController.position] value.
-  void _updateFabStates() {
+  /// [FlutterListViewController.position] value and sticky visibility.
+  void _listControllerListener() {
     if (listController.hasClients && !_ignorePositionChanges) {
+      showSticky.value = true;
+      _stickyTimer?.cancel();
+      stickyIndex.value = listController.sliverController.stickyIndex.value;
+      _stickyTimer = Timer(const Duration(seconds: 3), () {
+        if (stickyIndex.value != null) {
+          double? offset =
+              listController.sliverController.getItemOffset(stickyIndex.value!);
+          if (offset != null && listController.offset - offset < 35) {
+            showSticky.value = true;
+          } else {
+            showSticky.value = false;
+          }
+        }
+      });
       if (listController.position.pixels <
           listController.position.maxScrollExtent -
               MediaQuery.of(router.context!).size.height * 2 +
