@@ -808,8 +808,8 @@ class ChatController extends GetxController {
 
             // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
             // then set the [_lastSeenItem] to this item.
-            if (_lastSeenItem.value == null ||
-                element.id.at.isAfter(_lastSeenItem.value!.at)) {
+            if (!element.id.id.isLocal && (_lastSeenItem.value == null ||
+                element.id.at.isAfter(_lastSeenItem.value!.at))) {
               if (element is ChatMessageElement) {
                 _lastSeenItem.value = element.item.value;
               } else if (element is ChatMemberInfoElement) {

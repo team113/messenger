@@ -98,6 +98,10 @@ void main() async {
     }
   };
 
+  var chatContacts = {
+    'chatContacts': {'edges': [], 'ver': '0'}
+  };
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -106,6 +110,10 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+
+  when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+    (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+  );
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));

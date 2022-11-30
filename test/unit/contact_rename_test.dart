@@ -16,7 +16,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
@@ -62,21 +61,28 @@ void main() async {
     await contactProvider.clear();
   });
 
-  var chatContactsData = {
-    'nodes': [
-      {
-        '__typename': 'ChatContact',
-        'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-        'name': 'test',
-        'users': [],
-        'groups': [],
-        'emails': [],
-        'phones': [],
-        'favoritePosition': null,
-        'ver': '123456'
-      }
-    ],
+  var chatContact = {
+    '__typename': 'ChatContact',
+    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+    'name': 'test',
+    'users': [],
+    'groups': [],
+    'emails': [],
+    'phones': [],
+    'favoritePosition': null,
     'ver': '0'
+  };
+
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [
+        {
+          'node': chatContact,
+          'cursor': 'cursor',
+        }
+      ],
+      'ver': '0'
+    }
   };
 
   var updateChatContact = {
@@ -114,28 +120,12 @@ void main() async {
 
   test('ContactService successfully renames contact', () async {
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'chatContactsEvents': {
-              '__typename': 'ChatContactsList',
-              'chatContacts': chatContactsData,
-              'favoriteChatContacts': {'nodes': []},
-            }
-          },
-        )
-      ])),
+      (_) => Future.value(Stream.empty()),
     );
 
-    when(graphQlProvider.recentChats(
-      first: 120,
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
-        (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+    );
     when(graphQlProvider.keepOnline())
         .thenAnswer((_) => Future.value(const Stream.empty()));
 
@@ -169,25 +159,8 @@ void main() async {
   test('ContactService throws UpdateChatContactNameException on contact rename',
       () async {
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'chatContactsEvents': {
-              '__typename': 'ChatContactsList',
-              'chatContacts': chatContactsData,
-              'favoriteChatContacts': {'nodes': []},
-            }
-          },
-        )
-      ])),
+      (_) => Future.value(Stream.empty()),
     );
-
-    when(graphQlProvider.recentChats(
-            first: 120, after: null, last: null, before: null))
-        .thenAnswer(
-            (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
 
     when(
       graphQlProvider.changeContactName(

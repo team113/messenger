@@ -99,39 +99,46 @@ void main() async {
     }
   };
 
-  var chatContacts = {
-    'nodes': [
+  var chatContact = {
+    '__typename': 'ChatContact',
+    'id': '09a22e75-6a54-4a17-85df-5dffa4a10a1f',
+    'name': 'text2',
+    'users': [
       {
-        '__typename': 'ChatContact',
-        'id': '09a22e75-6a54-4a17-85df-5dffa4a10a1f',
+        'id': '08164fb1-ff60-49f6-8ff2-7fede51c3ae3',
+        'num': '1234567890123456',
         'name': 'text2',
-        'users': [
-          {
-            'id': '08164fb1-ff60-49f6-8ff2-7fede51c3ae3',
-            'num': '1234567890123456',
-            'name': 'text2',
-            'bio': 'text2',
-            'avatar': null,
-            'callCover': null,
-            'gallery': {'nodes': []},
-            'mutualContactsCount': 1,
-            'online': null,
-            'presence': 'text2',
-            'status': 'text2',
-            'isDeleted': false,
-            'dialog': null,
-            'isBlacklisted': {'blacklisted': false, 'ver': '0'},
-            'ver': '0',
-          }
-        ],
-        'groups': [],
-        'emails': [],
-        'phones': [],
-        'favoritePosition': null,
-        'ver': '0'
+        'bio': 'text2',
+        'avatar': null,
+        'callCover': null,
+        'gallery': {'nodes': []},
+        'mutualContactsCount': 1,
+        'online': null,
+        'presence': 'text2',
+        'status': 'text2',
+        'isDeleted': false,
+        'dialog': null,
+        'isBlacklisted': {'blacklisted': false, 'ver': '0'},
+        'ver': '0',
       }
     ],
-    'ver': '0',
+    'groups': [],
+    'emails': [],
+    'phones': [],
+    'favoritePosition': null,
+    'ver': '0'
+  };
+
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [
+        {
+          'node': chatContact,
+          'cursor': 'cursor',
+        }
+      ],
+      'ver': '0'
+    }
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -327,20 +334,12 @@ void main() async {
           as RemoveChatMember$Mutation$RemoveChatMember$ChatEventsVersioned);
     });
 
+    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+    );
+
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'chatContactsEvents': {
-              '__typename': 'ChatContactsList',
-              'chatContacts': chatContacts,
-              'favoriteChatContacts': {'nodes': []},
-            }
-          },
-        )
-      ])),
+      (_) => Future.value(const Stream.empty()),
     );
 
     AuthService authService =

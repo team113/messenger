@@ -68,32 +68,41 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_leave_widget');
 
+  var chatData = {
+    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+    'name': 'chatname',
+    'avatar': null,
+    'members': {'nodes': []},
+    'kind': 'GROUP',
+    'isHidden': false,
+    'muted': null,
+    'directLink': null,
+    'createdAt': '2021-12-15T15:11:18.316846+00:00',
+    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+    'lastReads': [],
+    'lastDelivery': '1970-01-01T00:00:00+00:00',
+    'lastItem': null,
+    'lastReadItem': null,
+    'gallery': {'nodes': []},
+    'unreadCount': 0,
+    'totalCount': 0,
+    'ongoingCall': null,
+    'ver': '0'
+  };
+
   var recentChats = {
     'recentChats': {
-      'nodes': [
+      'edges': [
         {
-          'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-          'name': 'chatname',
-          'avatar': null,
-          'members': {'nodes': []},
-          'kind': 'GROUP',
-          'isHidden': false,
-          'muted': null,
-          'directLink': null,
-          'createdAt': '2021-12-15T15:11:18.316846+00:00',
-          'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-          'lastReads': [],
-          'lastDelivery': '1970-01-01T00:00:00+00:00',
-          'lastItem': null,
-          'lastReadItem': null,
-          'gallery': {'nodes': []},
-          'unreadCount': 0,
-          'totalCount': 0,
-          'ongoingCall': null,
-          'ver': '0'
+          'node': chatData,
+          'cursor': 'cursor',
         }
       ]
     }
+  };
+
+  var chatContacts = {
+    'chatContacts': {'edges': [], 'ver': '0'}
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -117,6 +126,10 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+
+  when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+    (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+  );
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));

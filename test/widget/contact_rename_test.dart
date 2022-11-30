@@ -65,21 +65,28 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/contact_rename_widget');
 
-  var chatContacts = {
-    'nodes': [
-      {
-        '__typename': 'ChatContact',
-        'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-        'name': 'test',
-        'users': [],
-        'groups': [],
-        'emails': [],
-        'phones': [],
-        'favoritePosition': null,
-        'ver': '0'
-      }
-    ],
+  var chatContact = {
+    '__typename': 'ChatContact',
+    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+    'name': 'test',
+    'users': [],
+    'groups': [],
+    'emails': [],
+    'phones': [],
+    'favoritePosition': null,
     'ver': '0'
+  };
+
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [
+        {
+          'node': chatContact,
+          'cursor': 'cursor',
+        }
+      ],
+      'ver': '0'
+    }
   };
 
   var recentChats = {
@@ -147,21 +154,12 @@ void main() async {
         .thenAnswer((_) => Future.value(const Stream.empty()));
 
     final StreamController<QueryResult> contactEvents = StreamController();
-    when(graphQlProvider.contactsEvents(null)).thenAnswer((_) {
-      contactEvents.add(
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'chatContactsEvents': {
-              '__typename': 'ChatContactsList',
-              'chatContacts': chatContacts,
-              'favoriteChatContacts': {'nodes': []},
-            }
-          },
-        ),
-      );
 
+    when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+    );
+
+    when(graphQlProvider.contactsEvents(null)).thenAnswer((_) {
       return Future.value(contactEvents.stream);
     });
 
