@@ -178,10 +178,10 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Reactive index of [listController.sliverController.stickyIndex].
+  /// Reactive value of [listController.sliverController.stickyIndex].
   RxnInt stickyIndex = RxnInt(null);
 
-  /// Indicator whether sticky item must be visible or not.
+  /// Indicator whether sticky is displayed or not.
   RxBool showSticky = RxBool(false);
 
   /// Duration of a [Chat.ongoingCall].
@@ -235,8 +235,7 @@ class ChatController extends GetxController {
   /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
 
-  /// [Timer] for updating [stickyIndex] of a
-  /// [listController.sliverController.stickyIndex], if any.
+  /// [Timer] for updating [showSticky].
   Timer? _stickyTimer;
 
   /// [AudioPlayer] playing a sent message sound.
@@ -369,6 +368,7 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     listController.addListener(_listControllerListener);
+    listController.sliverController.stickyIndex.addListener(_updateSticky);
     _fetchChat();
     _initAudio();
     super.onReady();
@@ -385,9 +385,10 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
-    _stickyTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
+    _stickyTimer?.cancel();
     listController.removeListener(_listControllerListener);
+    listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
 
     _audioPlayer?.dispose();
@@ -1185,20 +1186,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value and sticky visibility.
   void _listControllerListener() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      showSticky.value = true;
-      _stickyTimer?.cancel();
-      stickyIndex.value = listController.sliverController.stickyIndex.value;
-      _stickyTimer = Timer(const Duration(seconds: 3), () {
-        if (stickyIndex.value != null) {
-          double? offset =
-              listController.sliverController.getItemOffset(stickyIndex.value!);
-          if (offset != null && listController.offset - offset < 35) {
-            showSticky.value = true;
-          } else {
-            showSticky.value = false;
-          }
-        }
-      });
+      _updateSticky();
       if (listController.position.pixels <
           listController.position.maxScrollExtent -
               MediaQuery.of(router.context!).size.height * 2 +
@@ -1212,6 +1200,24 @@ class ChatController extends GetxController {
         canGoBack.value = false;
       }
     }
+  }
+
+  /// Updates sticky information.
+  void _updateSticky() {
+    _stickyTimer?.cancel();
+    showSticky.value = true;
+    stickyIndex.value = listController.sliverController.stickyIndex.value;
+    _stickyTimer = Timer(const Duration(seconds: 2), () {
+      if (stickyIndex.value != null) {
+        double? offset =
+            listController.sliverController.getItemOffset(stickyIndex.value!);
+        if (offset != null && listController.offset - offset < 35) {
+          showSticky.value = true;
+        } else {
+          showSticky.value = false;
+        }
+      }
+    });
   }
 
   /// Initializes the [_audioPlayer].

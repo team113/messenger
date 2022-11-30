@@ -802,8 +802,10 @@ class _ChatViewState extends State<ChatView>
             duration: const Duration(milliseconds: 250),
             child: Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   border: style.systemMessageBorder,
