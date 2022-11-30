@@ -127,17 +127,11 @@ class _RetryImageState extends State<RetryImage> {
       );
 
       if (widget.filter != null) {
-        image = ImageFiltered(
-          imageFilter: widget.filter!,
-          child: image,
-        );
+        image = ImageFiltered(imageFilter: widget.filter!, child: image);
       }
 
       if (widget.borderRadius != null) {
-        image = ClipRRect(
-          borderRadius: widget.borderRadius!,
-          child: image,
-        );
+        image = ClipRRect(borderRadius: widget.borderRadius!, child: image);
       }
 
       child = image;
