@@ -177,6 +177,7 @@ class AvatarWidget extends StatelessWidget {
     bool useLayoutBuilder = true,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -190,6 +191,7 @@ class AvatarWidget extends StatelessWidget {
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -204,6 +206,7 @@ class AvatarWidget extends StatelessWidget {
     bool useLayoutBuilder = true,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -216,6 +219,7 @@ class AvatarWidget extends StatelessWidget {
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
     }
 
@@ -234,6 +238,7 @@ class AvatarWidget extends StatelessWidget {
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       ),
     );
   }

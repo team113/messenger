@@ -20,7 +20,6 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
@@ -212,6 +211,8 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Indicator whether the close gallery button should be visible.
   bool _displayClose = false;
+
+  /// Indicator whether the fullscreen gallery button should be visible.
   bool _displayFullscreen = false;
 
   /// [FocusNode] of the keyboard input.
@@ -223,21 +224,18 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [Timer] resetting [_ignorePageSnapping].
   Timer? _ignoreSnappingTimer;
 
+  /// [Timer] hiding the control buttons.
   Timer? _resetControlsTimer;
+
+  /// Indicator whether all the control buttons should be visible.
   bool _showControls = true;
 
-  bool _firstFrame = true;
-  int? _initialPage;
+  /// Indicator whether this [GalleryPopup] hasn't been scrolled since it was
+  /// initially opened.
+  bool _isInitialPage = true;
 
-  void _displayControls() {
-    setState(() => _showControls = true);
-    _resetControlsTimer?.cancel();
-    _resetControlsTimer = Timer(3.seconds, () {
-      if (mounted) {
-        setState(() => _showControls = false);
-      }
-    });
-  }
+  /// Indicator whether the currently visible [GalleryItem] is zoomed.
+  bool _isZoomed = false;
 
   @override
   void initState() {
@@ -269,7 +267,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     _bounds = _calculatePosition() ?? Rect.largest;
 
-    _initialPage = widget.initial;
     _page = widget.initial;
     _pageController = PageController(initialPage: _page);
 
@@ -292,12 +289,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     node.requestFocus();
 
-    Future.delayed(Duration.zero, () {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _firstFrame = false;
-      });
-      _displayControls();
-    });
+    Future.delayed(Duration.zero, _displayControls);
 
     super.initState();
   }
@@ -372,9 +364,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                                       _dismiss();
                                     }
                                   },
-                            onVerticalDragStart: _onVerticalDragStart,
-                            onVerticalDragUpdate: _onVerticalDragUpdate,
-                            onVerticalDragEnd: _onVerticalDragEnd,
+                            onVerticalDragStart:
+                                _isZoomed ? null : _onVerticalDragStart,
+                            onVerticalDragUpdate:
+                                _isZoomed ? null : _onVerticalDragUpdate,
+                            onVerticalDragEnd:
+                                _isZoomed ? null : _onVerticalDragEnd,
                             child: KeyboardListener(
                               autofocus: true,
                               focusNode: node,
@@ -419,6 +414,9 @@ class _GalleryPopupState extends State<GalleryPopup>
         moveDownwards: false,
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
+          scaleStateChangedCallback: (s) {
+            setState(() => _isZoomed = s.isScaleStateZooming);
+          },
           wantKeepAlive: false,
           builder: (BuildContext context, int index) {
             GalleryItem e = widget.children[index];
@@ -453,8 +451,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: e.isVideo
                     ? Video(
                         e.link,
-                        showInterfaceFor:
-                            _initialPage == index ? 3.seconds : null,
+                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
                         toggleFullscreen: () {
@@ -504,7 +501,8 @@ class _GalleryPopupState extends State<GalleryPopup>
           backgroundDecoration: const BoxDecoration(color: Colors.transparent),
           pageController: _pageController,
           onPageChanged: (i) {
-            _initialPage = null;
+            _isInitialPage = false;
+            _isZoomed = false;
             setState(() => _page = i);
             _bounds = _calculatePosition() ?? _bounds;
             widget.onPageChanged?.call(i);
@@ -519,7 +517,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       physics:
           PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
-        _initialPage = null;
+        _isInitialPage = false;
         setState(() => _page = i);
         _bounds = _calculatePosition() ?? _bounds;
         widget.onPageChanged?.call(i);
@@ -543,7 +541,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             child: e.isVideo
                 ? Video(
                     e.link,
-                    showInterfaceFor: _initialPage == index ? 3.seconds : null,
+                    showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
                     toggleFullscreen: () {
@@ -597,14 +595,14 @@ class _GalleryPopupState extends State<GalleryPopup>
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
-    var fade = Tween(begin: 0.0, end: 1.0).animate(
+    final fade = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fading,
         curve: const Interval(0, 0.5, curve: Curves.ease),
       ),
     );
 
-    List<Widget> widgets = [];
+    final List<Widget> widgets = [];
 
     if (widget.children.length > 1 && !PlatformUtils.isMobile) {
       widgets.addAll([
@@ -632,14 +630,6 @@ class _GalleryPopupState extends State<GalleryPopup>
                     padding: const EdgeInsets.only(left: 8, right: 8),
                     width: 60 + 16,
                     height: double.infinity,
-                    // decoration: const BoxDecoration(
-                    //   gradient: LinearGradient(
-                    //     colors: [
-                    //       Color(0x33FFFFFF),
-                    //       Color(0x00000000),
-                    //     ],
-                    //   ),
-                    // ),
                     child: Center(
                       child: ConditionalBackdropFilter(
                         borderRadius: BorderRadius.circular(60),
@@ -691,14 +681,6 @@ class _GalleryPopupState extends State<GalleryPopup>
                     padding: const EdgeInsets.only(left: 8, right: 8),
                     width: 60 + 16,
                     height: double.infinity,
-                    // decoration: const BoxDecoration(
-                    //   gradient: LinearGradient(
-                    //     colors: [
-                    //       Color(0x00000000),
-                    //       Color(0x33FFFFFF),
-                    //     ],
-                    //   ),
-                    // ),
                     child: Center(
                       child: ConditionalBackdropFilter(
                         borderRadius: BorderRadius.circular(60),
@@ -726,133 +708,132 @@ class _GalleryPopupState extends State<GalleryPopup>
             ),
           ),
         ),
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8, top: 8),
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayClose || _showControls) ? 1 : 0,
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: RoundFloatingButton(
+                    color: const Color(0x794E5A78),
+                    onPressed: _dismiss,
+                    withBlur: true,
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (widget.onTrashPressed == null)
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity: (_displayFullscreen || _showControls) ? 1 : 0,
+                  child: SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: const Color(0x794E5A78),
+                      onPressed: _toggleFullscreen,
+                      withBlur: true,
+                      assetWidth: 22,
+                      asset: _isFullscreen.value
+                          ? 'fullscreen_exit_white'
+                          : 'fullscreen_enter_white',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         Align(
           alignment: Alignment.centerLeft,
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => setState(() => _displayLeft = true),
-            onExit: (d) => setState(() => _displayLeft = false),
-            child: const SizedBox(
-              width: 100,
-              height: double.infinity,
-              // height: MediaQuery.of(context).size.height * 0.4,
-            ),
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayFullscreen = true),
+                onExit: (d) => setState(() => _displayFullscreen = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayLeft = true),
+                  onExit: (d) => setState(() => _displayLeft = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
           ),
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => setState(() => _displayRight = true),
-            onExit: (d) => setState(() => _displayRight = false),
-            child: const SizedBox(
-              width: 100,
-              height: double.infinity,
-            ),
+          child: Column(
+            children: [
+              MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayClose = true),
+                onExit: (d) => setState(() => _displayClose = false),
+                child: const SizedBox(width: 100, height: 100),
+              ),
+              Expanded(
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (d) => setState(() => _displayRight = true),
+                  onExit: (d) => setState(() => _displayRight = false),
+                  child: const SizedBox(width: 100),
+                ),
+              ),
+            ],
           ),
         ),
       ]);
     }
 
     widgets.addAll([
-      FadeTransition(
-        opacity: fade,
-        child: Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8, top: 8),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayClose || _showControls) ? 1 : 0,
-              child: SizedBox(
-                width: 60,
-                height: 60,
-                child: RoundFloatingButton(
-                  // color: const Color(0x66000000),
-                  color: const Color(0x794E5A78),
-                  onPressed: _dismiss,
-                  withBlur: true,
-                  child: const Icon(
-                    Icons.close_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      Align(
-        alignment: Alignment.topRight,
-        child: MouseRegion(
-          opaque: false,
-          onEnter: (d) => setState(() => _displayClose = true),
-          onExit: (d) => setState(() => _displayClose = false),
-          child: const SizedBox(width: 100, height: 100),
-        ),
-      ),
       if (widget.onTrashPressed != null)
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8),
-              child: SizedBox(
-                width: 60,
-                height: 60,
-                child: RoundFloatingButton(
-                  // color: const Color(0x66000000),
-                  color: const Color(0x794E5A78),
-                  onPressed: () {
-                    widget.onTrashPressed?.call(_page);
-                    _dismiss();
-                  },
-                  withBlur: true,
-                  assetWidth: 27.21,
-                  asset: 'delete',
-                ),
-              ),
-            ),
-          ),
-        )
-      else
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8, top: 8),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 250),
-                opacity: (_displayFullscreen || _showControls) ? 1 : 0,
+        SafeArea(
+          child: FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
                 child: SizedBox(
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
                     color: const Color(0x794E5A78),
-                    onPressed: _toggleFullscreen,
+                    onPressed: () {
+                      widget.onTrashPressed?.call(_page);
+                      _dismiss();
+                    },
                     withBlur: true,
-                    assetWidth: 22,
-                    asset: _isFullscreen.value
-                        ? 'fullscreen_exit2'
-                        : 'fullscreen_enter2',
+                    assetWidth: 27.21,
+                    asset: 'delete',
                   ),
                 ),
               ),
             ),
           ),
         ),
-      Align(
-        alignment: Alignment.topLeft,
-        child: MouseRegion(
-          opaque: false,
-          onEnter: (d) => setState(() => _displayFullscreen = true),
-          onExit: (d) => setState(() => _displayFullscreen = false),
-          child: const SizedBox(width: 100, height: 100),
-        ),
-      ),
     ]);
 
     return widgets;
@@ -1095,6 +1076,18 @@ class _GalleryPopupState extends State<GalleryPopup>
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
+  }
+
+  /// Toggles the [_showControls] indicator and starts the [_resetControlsTimer]
+  /// resetting it.
+  void _displayControls() {
+    setState(() => _showControls = true);
+    _resetControlsTimer?.cancel();
+    _resetControlsTimer = Timer(3.seconds, () {
+      if (mounted) {
+        setState(() => _showControls = false);
+      }
+    });
   }
 }
 

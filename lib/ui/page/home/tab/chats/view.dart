@@ -665,6 +665,10 @@ class ChatsTabView extends StatelessWidget {
                                           ),
                                         ),
                                         onUnmute: () => c.unmuteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
+                                        onUnfavorite: () =>
+                                            c.unfavoriteChat(chat.id),
                                       ),
                                     ),
                                   ),
@@ -801,6 +805,10 @@ class ChatsTabView extends StatelessWidget {
                                             onLeave: () => c.leaveChat(chat.id),
                                             onHide: () => c.hideChat(chat.id),
                                             inCall: () => c.inCall(chat.id),
+                                            onFavorite: () =>
+                                                c.favoriteChat(chat.id),
+                                            onUnfavorite: () =>
+                                                c.unfavoriteChat(chat.id),
                                           ),
                                         );
                                       }

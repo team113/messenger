@@ -127,17 +127,11 @@ class _RetryImageState extends State<RetryImage> {
       );
 
       if (widget.filter != null) {
-        image = ImageFiltered(
-          imageFilter: widget.filter!,
-          child: image,
-        );
+        image = ImageFiltered(imageFilter: widget.filter!, child: image);
       }
 
       if (widget.borderRadius != null) {
-        image = ClipRRect(
-          borderRadius: widget.borderRadius!,
-          child: image,
-        );
+        image = ClipRRect(borderRadius: widget.borderRadius!, child: image);
       }
 
       child = image;
@@ -193,7 +187,7 @@ class _RetryImageState extends State<RetryImage> {
           widget.url,
           onReceiveProgress: (received, total) {
             if (total != -1) {
-              _progress = received / total;
+              _progress = (received / total).clamp(0, 1);
               if (mounted) {
                 setState(() {});
               }

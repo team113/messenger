@@ -40,6 +40,7 @@ btn_add_participant_desc =
     Add
     participant
 btn_add_to_contacts = Add to contacts
+btn_add_to_favorites = Favorite
 btn_allow = Allow
 btn_audio_call = Audio call
 btn_away = Away
@@ -136,6 +137,7 @@ btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
+btn_delete_from_favorites = Unfavorite
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit

@@ -80,7 +80,7 @@ class ChatTile extends StatelessWidget {
     Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
-      key: Key('ContextMenuRegion_${chat?.chat.value.id}'),
+      key: Key('ChatTile_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
       child: SizedBox(
@@ -98,7 +98,11 @@ class ChatTile extends StatelessWidget {
             onTap: onTap,
             unselectedHoverColor: style.cardHoveredColor,
             selectedHoverColor: style.cardSelectedColor,
+            folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
+              key: chat?.chat.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                  : null,
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [

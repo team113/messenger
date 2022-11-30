@@ -19,10 +19,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/my_user/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -45,15 +48,140 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AuthService auth = Get.find();
-    if (auth.userId == id) {
-      return const MyUserView();
-    }
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
       builder: (UserController c) {
+        return Obx(() {
+          if (c.status.value.isLoading) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          } else if (!c.status.value.isSuccess) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: Text('No user found.')),
+            );
+          }
+
+          return Scaffold(
+            appBar: CustomAppBar(
+              title: Text(
+                c.user?.user.value.name?.val ??
+                    c.user?.user.value.num.val ??
+                    '...',
+              ),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: const [StyledBackButton()],
+              actions: [
+                WidgetButton(
+                  onPressed: c.openChat,
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 28),
+                WidgetButton(
+                  onPressed: () => c.call(true),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_video_call.svg',
+                    height: 17,
+                  ),
+                ),
+                const SizedBox(width: 28),
+                WidgetButton(
+                  onPressed: () => c.call(false),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_audio_call.svg',
+                    height: 19,
+                  ),
+                ),
+                // WidgetButton(
+                //   onPressed: () {},
+                //   child: const Icon(Icons.more_horiz),
+                //   // child: SvgLoader.asset(
+                //   //   'assets/icons/search.svg',
+                //   //   width: 17.77,
+                //   // ),
+                // ),
+              ],
+            ),
+            body: Obx(() {
+              Widget block({
+                List<Widget> children = const [],
+                EdgeInsets padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+              }) {
+                return Center(
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                    decoration: BoxDecoration(
+                      // color: Colors.white,
+                      border: style.primaryBorder,
+                      color: style.messageColor,
+                      borderRadius: BorderRadius.circular(15),
+                      // border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    constraints: context.isNarrow
+                        ? null
+                        : const BoxConstraints(maxWidth: 400),
+                    padding: padding,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: children,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView(
+                children: [
+                  const SizedBox(height: 8),
+                  block(
+                    children: [
+                      _label(context, 'Публичная информация'),
+                      AvatarWidget.fromRxUser(
+                        c.user,
+                        radius: 100,
+                        showBadge: false,
+                        quality: AvatarQuality.original,
+                      ),
+                      const SizedBox(height: 15),
+                      _name(c, context),
+                    ],
+                  ),
+                  // block(
+                  //   padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                  //   children: [_quick(c, context)],
+                  // ),
+                  block(
+                    children: [
+                      _label(context, 'Контактная информация'),
+                      _num(c, context),
+                      _emails(c, context),
+                    ],
+                  ),
+                  block(
+                    children: [
+                      _label(context, 'Действия'),
+                      _actions(c, context),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              );
+            }),
+          );
+        });
+
         return Obx(() {
           if (c.status.value.isSuccess) {
             return Scaffold(
@@ -178,6 +306,98 @@ class UserView extends StatelessWidget {
       },
     );
   }
+
+  Widget _label(BuildContext context, String text) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: style.systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Returns addable list of [MyUser.emails].
+  Widget _emails(UserController c, BuildContext context) {
+    final List<Widget> widgets = [];
+
+    for (UserEmail e in const [
+      UserEmail.unchecked('123@gmail.com'),
+      UserEmail.unchecked('test@mail.ru'),
+    ]) {
+      widgets.add(
+        WidgetButton(
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: e.val));
+            MessagePopup.success('label_copied_to_clipboard'.l10n);
+          },
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(text: e.val, editable: false),
+              label: 'E-mail',
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    for (UserPhone e in const [UserPhone.unchecked('+1264266326')]) {
+      widgets.add(
+        WidgetButton(
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: e.val));
+            MessagePopup.success('label_copied_to_clipboard'.l10n);
+          },
+          child: IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(text: e.val, editable: false),
+              label: 'Phone number',
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => _dense(e)).toList(),
+    );
+  }
+
+  /// Dense [Padding] wrapper.
+  Widget _dense(Widget child) =>
+      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
 
   SliverList _mobile(BuildContext context, UserController c) {
     Style style = Theme.of(context).extension<Style>()!;
@@ -419,31 +639,194 @@ class UserView extends StatelessWidget {
         ),
       );
 
-  /// Returns a [User.name] text widget with an [AvatarWidget].
-  Widget _name(UserController c, BuildContext context) => _padding(
-        Row(
-          key: const Key('UserName'),
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AvatarWidget.fromUser(c.user?.user.value, radius: 29),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SelectableText(
-                    '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-                    style: const TextStyle(fontSize: 24),
+  Widget _actions(UserController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _dense(
+          Obx(() {
+            return WidgetButton(
+              onPressed:
+                  c.inContacts.value ? c.removeFromContacts : c.addToContacts,
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: c.inContacts.value
+                        ? 'Удалить из контактов'
+                        : 'Добавить в контакты',
+                    editable: false,
                   ),
-                  _onlineStatus(c),
-                ],
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
               ),
-            )
-          ],
+            );
+          }),
         ),
-      );
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Заблокировать',
+                  editable: false,
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Пожаловаться',
+                  editable: false,
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _quick(UserController c, BuildContext context) {
+    return Column(
+      children: [
+        _dense(
+          WidgetButton(
+            onPressed: c.openChat,
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Написать сообщение',
+                  editable: false,
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Row(
+        children: [
+          Center(
+            child: WidgetButton(
+              onPressed: () => c.call(true),
+              child: SvgLoader.asset(
+                'assets/icons/chat_audio_call.svg',
+                height: 19,
+              ),
+              // child: SvgLoader.asset(
+              //   'assets/icons/user_audio.svg',
+              //   width: 27,
+              //   height: 27,
+              // ),
+            ),
+          ),
+          Center(
+            child: WidgetButton(
+              onPressed: () => c.call(false),
+              child: SvgLoader.asset(
+                'assets/icons/chat_video_call.svg',
+                height: 17,
+              ),
+              // child: SvgLoader.asset(
+              //   'assets/icons/user_video.svg',
+              //   width: 35.29,
+              //   height: 24,
+              // ),
+            ),
+          ),
+          Center(
+            child: WidgetButton(
+              onPressed: c.openChat,
+              child: SvgLoader.asset(
+                'assets/icons/user_chat.svg',
+                width: 25.41,
+                height: 26.97,
+              ),
+            ),
+          ),
+        ].map((e) => Expanded(child: e)).toList(),
+      ),
+    );
+  }
+
+  /// Returns a [User.name] text widget with an [AvatarWidget].
+  Widget _name(UserController c, BuildContext context) {
+    return _padding(
+      WidgetButton(
+        onPressed: c.user?.user.value.name == null
+            ? null
+            : () {
+                Clipboard.setData(
+                  ClipboardData(text: c.user?.user.value.name?.val),
+                );
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+        child: IgnorePointer(
+          child: ReactiveTextField(
+            key: const Key('NameField'),
+            state: TextFieldState(text: c.user?.user.value.name?.val),
+            label: 'label_name'.l10n,
+            filled: true,
+            trailing: c.user?.user.value.name == null
+                ? null
+                : Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/copy.svg',
+                        height: 15,
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+
+    // _padding(
+    //   Row(
+    //     key: const Key('UserName'),
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     mainAxisSize: MainAxisSize.min,
+    //     children: [
+    //       AvatarWidget.fromUser(c.user?.user.value, radius: 29),
+    //       const SizedBox(width: 20),
+    //       Expanded(
+    //         child: Column(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             SelectableText(
+    //               '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+    //               style: const TextStyle(fontSize: 24),
+    //             ),
+    //             _onlineStatus(c),
+    //           ],
+    //         ),
+    //       )
+    //     ],
+    //   ),
+    // );
+  }
 
   /// Returns an online status subtitle of the [User] this [UserView] is about.
   Widget _onlineStatus(UserController c) {
@@ -474,22 +857,60 @@ class UserView extends StatelessWidget {
       });
 
   /// Returns a [User.num] copyable field.
-  Widget _num(UserController c, BuildContext context) => ListTile(
-        key: const Key('UserNum'),
-        leading: _centered(const Icon(Icons.fingerprint)),
-        title: Text(
-          c.user!.user.value.num.val.replaceAllMapped(
-            RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
+  Widget _num(UserController c, BuildContext context) {
+    return _padding(
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CopyableTextField(
+            key: const Key('NumCopyable'),
+            state: TextFieldState(
+              text: c.user!.user.value.num.val.replaceAllMapped(
+                RegExp(r'.{4}'),
+                (match) => '${match.group(0)} ',
+              ),
+            ),
+            label: 'label_num'.l10n,
+            copy: c.user!.user.value.num.val,
           ),
-        ),
-        subtitle: Text(
-          'label_num'.l10n,
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-        trailing: _centered(const Icon(Icons.copy)),
-        onTap: () => _copy(c.user!.user.value.num.val),
-      );
+          // const SizedBox(height: 4),
+          // RichText(
+          //   text: const TextSpan(
+          //     style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
+          //     children: [
+          //       TextSpan(
+          //         text: 'Ваш логин публичен. Для изменения этой настройки... ',
+          //         style: TextStyle(color: Color(0xFF888888)),
+          //       ),
+          //       TextSpan(
+          //         text: 'Ещё',
+          //         style: TextStyle(color: Color(0xFF00A3FF)),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          const SizedBox(height: 15),
+        ],
+      ),
+    );
+
+    // ListTile(
+    //   key: const Key('UserNum'),
+    //   leading: _centered(const Icon(Icons.fingerprint)),
+    //   title: Text(
+    // c.user!.user.value.num.val.replaceAllMapped(
+    //   RegExp(r'.{4}'),
+    //   (match) => '${match.group(0)} ',
+    // ),
+    //   ),
+    //   subtitle: Text(
+    //     'label_num'.l10n,
+    //     style: const TextStyle(color: Color(0xFF888888)),
+    //   ),
+    //   trailing: _centered(const Icon(Icons.copy)),
+    //   onTap: () => _copy(c.user!.user.value.num.val),
+    // );
+  }
 
   /// Returns a [User.presence] text.
   Widget _presence(UserController c, BuildContext context) => ListTile(

@@ -140,18 +140,13 @@ class MyProfileView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       // border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
-                    // constraints: context.isNarrow
-                    //     ? null
-                    //     : const BoxConstraints(maxWidth: 400),
-                    padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 340),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: children,
-                        ),
-                      ),
+                    constraints: context.isNarrow
+                        ? null
+                        : const BoxConstraints(maxWidth: 400),
+                    padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: children,
                     ),
                   ),
                 );
@@ -233,7 +228,7 @@ class MyProfileView extends StatelessWidget {
                       _num(c),
                       // _link(context, c),
                       // const SizedBox(height: 20),
-                      const SizedBox(height: 10),
+
                       _login(c, context),
                       const SizedBox(height: 10),
                       // const SizedBox(height: 10),
@@ -697,6 +692,7 @@ Widget _num(MyProfileController c) => _padding(
           //     ],
           //   ),
           // ),
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -2465,16 +2461,8 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android (APK)',
+          title: 'Android',
           link: 'messenger-android.apk',
-        ),
-        const SizedBox(height: 8),
-        button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: 'Android (App Bundle)',
-          link: 'messenger-android.aab',
         ),
       ],
     ),

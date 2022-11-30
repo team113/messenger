@@ -1317,3 +1317,47 @@ class ToggleChatMuteException
     }
   }
 }
+
+/// Exception of `Mutation.favoriteChat` described in the [code].
+class FavoriteChatException with LocalizedExceptionMixin implements Exception {
+  const FavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChat` described in the [code].
+class UnfavoriteChatException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'UnfavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

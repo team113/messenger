@@ -45,6 +45,7 @@ btn_add_participant_desc =
     Добавить
     участника
 btn_add_to_contacts = Добавить в контакты
+btn_add_to_favorites = В избранные
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
 btn_away = Отошёл
@@ -141,6 +142,7 @@ btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
+btn_delete_from_favorites = Из избранных
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
