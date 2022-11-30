@@ -50,7 +50,9 @@ final StepDefinitionGeneric untilAttachmentFetched =
             .expand((e) => e.attachments)
             .firstWhereOrNull((a) => a.filename == filename);
 
-        if (attachment == null) return false;
+        if (attachment == null) {
+          return false;
+        }
 
         return context.world.appDriver.isPresent(
           context.world.appDriver.findByDescendant(
@@ -58,7 +60,7 @@ final StepDefinitionGeneric untilAttachmentFetched =
               'Image_${(attachment as ImageAttachment).big.url}',
             ),
             context.world.appDriver.findByKeySkipOffstage(
-              status == ImageFetchStatus.fetching ? 'Loading' : 'Loading',
+              status == ImageFetchStatus.fetching ? 'Loading' : 'Loaded',
             ),
             firstMatchOnly: true,
           ),

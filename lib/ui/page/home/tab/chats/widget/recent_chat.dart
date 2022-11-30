@@ -554,7 +554,7 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is ImageAttachment) {
       content = RetryImage(
-        '${Config.files}${e.medium.relativeRef}',
+        e.medium.url,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,

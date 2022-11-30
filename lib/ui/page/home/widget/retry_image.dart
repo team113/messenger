@@ -72,6 +72,9 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
+  /// Naive [_FIFOCache] caching the images.
+  static final _FIFOCache _cache = _FIFOCache();
+
   /// [Timer] retrying the image fetching.
   Timer? _timer;
 
@@ -174,11 +177,10 @@ class _RetryImageState extends State<RetryImage> {
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadImage() async {
     _timer?.cancel();
-    _RetryCache cache = _RetryCache();
 
-    Uint8List? cachedBytes = cache.getBytes(widget.url);
-    if (cachedBytes != null) {
-      _image = cachedBytes;
+    Uint8List? cached = _cache[widget.url];
+    if (cached != null) {
+      _image = cached;
       _backoffPeriod = _minBackoffPeriod;
       if (mounted) {
         setState(() {});
@@ -206,7 +208,7 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data!.statusCode == 200) {
-        cache.add(widget.url, data.data);
+        _cache[widget.url] = data.data;
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;
         if (mounted) {
@@ -228,45 +230,40 @@ class _RetryImageState extends State<RetryImage> {
   }
 }
 
-/// Cache for images of [RetryImage] widgets.
-class _RetryCache {
+/// Naive [LinkedHashMap]-based cache of [Uint8List]s.
+///
+/// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
+/// [_maxLength], then the first inserted element is removed.
+class _FIFOCache {
   /// Maximum allowed length of [_cache].
-  static const int _cacheLength = 1000;
+  static const int _maxLength = 1000;
 
   /// Maximum allowed size in bytes of [_cache].
-  static const int _cacheSize = 100 << 20; // 100 MiB
+  static const int _maxSize = 100 << 20; // 100 MiB
 
-  /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
-  ///
-  /// FIFO policy is used, meaning if [_cache] exceeds its [_cacheSize] or
-  /// [_cacheLength], then the first inserted element is removed.
+  /// [LinkedHashMap] maintaining [Uint8List]s itself.
   static final LinkedHashMap<String, Uint8List> _cache =
       LinkedHashMap<String, Uint8List>();
 
-  /// Adds image data to [_cache].
-  void add(String url, Uint8List bytes) {
-    if (_cache.containsKey(url)) return;
+  /// Returns the total size [_cache] occupies.
+  int get size =>
+      _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
 
-    while (size >= _cacheSize) {
-      _cache.remove(_cache.keys.first);
+  /// Puts the provided [bytes] to the cache.
+  void operator []=(String key, Uint8List bytes) {
+    if (!_cache.containsKey(key)) {
+      while (size >= _maxSize) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      if (_cache.length >= _maxLength) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      _cache[key] = bytes;
     }
-
-    if (_cache.length >= _cacheLength) {
-      _cache.remove(_cache.keys.first);
-    }
-
-    _cache[url] = bytes;
   }
 
-  /// Returns total size of [_cache].
-  int get size {
-    int totalSize = 0;
-    _cache.forEach((key, value) {
-      totalSize = totalSize + value.lengthInBytes;
-    });
-    return totalSize;
-  }
-
-  /// Returns an [Uint8List] if image is exists.
-  Uint8List? getBytes(String url) => _cache[url];
+  /// Returns the [Uint8List] of the provided [key], if any is cached.
+  Uint8List? operator [](String key) => _cache[key];
 }
