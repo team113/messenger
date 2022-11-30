@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/domain/model/image_gallery_item.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 import 'gallery_popup.dart';
 
@@ -108,20 +109,16 @@ class _CarouselGalleryState extends State<CarouselGallery> {
         alignment: Alignment.center,
         children: [
           widget.items?.isNotEmpty == true
-              ? ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: Container(
-                      key: ValueKey(widget.index),
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(
-                            widget.items![widget.index].original.url,
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+              ? AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  child: Container(
+                    key: ValueKey(widget.index),
+                    child: RetryImage(
+                      widget.items![widget.index].original.url,
+                      fit: BoxFit.cover,
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
                   ),
                 )
@@ -147,8 +144,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ]
                   : widget.items!
                       .map(
-                        (e) => Image.network(
+                        (e) => RetryImage(
                           e.original.url,
+                          height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),
                       )

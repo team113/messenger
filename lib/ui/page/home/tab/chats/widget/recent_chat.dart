@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -37,7 +36,7 @@ import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -555,21 +554,12 @@ class RecentChatTile extends StatelessWidget {
     }
 
     if (e is ImageAttachment) {
-      content = Image.network(
-        '${Config.files}${e.medium.relativeRef}',
+      content = RetryImage(
+        e.medium.url,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return InitCallback(
-            callback: onError,
-            child: const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-            ),
-          );
-        },
+        width: double.infinity,
+        height: double.infinity,
+        onForbidden: onError,
       );
     }
 
