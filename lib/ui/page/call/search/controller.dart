@@ -368,8 +368,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(user?.id) &&
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog &&
-                    e1.chat.value.members
-                        .any((e2) => e2.user.id == e.user.value?.id)))) {
+                    e1.members.containsKey(e.user.value?.id)))) {
               if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -419,9 +418,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
                 (chats.values.none((e1) =>
-                    e1.chat.value.isDialog &&
-                    e1.chat.value.members
-                        .any((e2) => e2.user.id == e.user.value.id)))) {
+                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               return true;
             }
 
