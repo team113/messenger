@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/retry_image.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -616,7 +617,7 @@ class SendMessageField extends StatelessWidget {
               }
             }
           } else {
-            child = Image.network(
+            child = RetryImage(
               e.original.url,
               fit: BoxFit.cover,
               width: size,

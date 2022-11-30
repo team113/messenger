@@ -25,7 +25,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/view.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -37,13 +36,11 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/widget/send_message_field/view.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
-import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -54,7 +51,6 @@ import 'forward/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
-import 'widget/send_message_field.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -136,7 +132,7 @@ class _ChatViewState extends State<ChatView>
           }
 
           return DropTarget(
-            enable: DropTargetList.keys.last == 'ChatView_${c.id}',
+            enable: DropTargetList.keys.lastOrNull == 'ChatView_${c.id}',
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -545,10 +541,10 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.repliedMessages.contains(e.value)) {
-                c.repliedMessages.remove(e.value);
+              if (c.sendController.repliedMessages.contains(e.value)) {
+                c.sendController.repliedMessages.remove(e.value);
               } else {
-                c.repliedMessages.insert(0, e.value);
+                c.sendController.repliedMessages.insert(0, e.value);
               }
             },
             onCopy: c.copyText,
@@ -607,23 +603,26 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards
-                      .any((e) => c.repliedMessages.contains(e.value)) ||
-                  c.repliedMessages.contains(element.note.value?.value)) {
+              if (element.forwards.any((e) =>
+                      c.sendController.repliedMessages.contains(e.value)) ||
+                  c.sendController.repliedMessages
+                      .contains(element.note.value?.value)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.repliedMessages.remove(e.value);
+                  c.sendController.repliedMessages.remove(e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.remove(element.note.value!.value);
+                  c.sendController.repliedMessages
+                      .remove(element.note.value!.value);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.repliedMessages.insert(0, e.value);
+                  c.sendController.repliedMessages.insert(0, e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.insert(0, element.note.value!.value);
+                  c.sendController.repliedMessages
+                      .insert(0, element.note.value!.value);
                 }
               }
             },
@@ -847,21 +846,50 @@ class _ChatViewState extends State<ChatView>
           ),
         ),
       ),
-      child: c.editedMessage.value == null
+      child: c.isEditingMessage.isFalse
           ? SendMessageFieldView(
-              controller: c.sendMessageController,
+              controller: c.sendController,
               textFieldState: c.send,
+              tag: 'SendField_${widget.id.val}',
+              onSend: () async {
+                if (c.sendController.forwarding.value) {
+                  if (c.sendController.repliedMessages.isNotEmpty) {
+                    bool? result = await ChatForwardView.show(
+                      context,
+                      c.id,
+                      c.sendController.repliedMessages
+                          .map((e) => ChatItemQuote(item: e))
+                          .toList(),
+                      text: c.send.text,
+                      attachments: c.sendController.attachments
+                          .map((e) => e.value)
+                          .toList(),
+                    );
+
+                    if (result == true) {
+                      c.sendController.repliedMessages.clear();
+                      c.sendController.forwarding.value = false;
+                      c.sendController.attachments.clear();
+                      c.send.clear();
+                    }
+                  }
+                } else {
+                  c.send.submit();
+                }
+              },
               onReorder: (int old, int to) {
                 if (old < to) {
                   --to;
                 }
 
-                final ChatItem item = c.repliedMessages.removeAt(old);
-                c.repliedMessages.insert(to, item);
+                final ChatItem item =
+                    c.sendController.repliedMessages.removeAt(old);
+                c.sendController.repliedMessages.insert(to, item);
 
                 HapticFeedback.lightImpact();
               },
               onChatItemTap: c.animateTo,
+              enabledForwarding: true,
             )
           // SendMessageField(
           //         onPickFile: c.pickFile,
@@ -910,13 +938,12 @@ class _ChatViewState extends State<ChatView>
           //         attachments: c.attachments,
           //         getUser: c.getUser,
           //       )
-          : SendMessageField(
-              onSend: c.edit!.submit,
-              animateTo: c.animateTo,
-              editedMessage: c.editedMessage,
+          : SendMessageFieldView(
+              controller: c.editController,
               textFieldState: c.edit!,
-              getUser: c.getUser,
-              me: c.me,
+              onSend: c.edit!.submit,
+              onChatItemTap: c.animateTo,
+              canAttachFile: false,
             ),
     );
   }

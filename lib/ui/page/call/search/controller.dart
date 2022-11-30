@@ -57,7 +57,7 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
-    this.searchResults,
+    this.onChanged,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -90,7 +90,7 @@ class SearchController extends GetxController {
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// Selected items in [SearchView] popup.
-  final Rx<SearchViewResults?>? searchResults;
+  final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
@@ -121,6 +121,9 @@ class SearchController extends GetxController {
 
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
+
+  /// Callback, called when an [SearchViewResults] was changed.
+  final void Function(SearchViewResults? results)? onChanged;
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -219,11 +222,12 @@ class SearchController extends GetxController {
       }
     }
 
-    searchResults?.value = SearchViewResults(
+    searchResults.value = SearchViewResults(
       selectedChats,
       selectedUsers,
       selectedContacts,
     );
+    onChanged?.call(searchResults.value);
   }
 
   /// Searches the [User]s based on the provided [query].
@@ -415,8 +419,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(user?.id) &&
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog &&
-                    e1.chat.value.members
-                        .any((e2) => e2.user.id == e.user.value?.id)))) {
+                    e1.members.containsKey(e.user.value?.id)))) {
               if (query.value != null) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -467,8 +470,7 @@ class SearchController extends GetxController {
                 !contacts.containsKey(e.id) &&
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog &&
-                    e1.chat.value.members
-                        .any((e2) => e2.user.id == e.user.value.id)))) {
+                    e1.members.containsKey(e.user.value.id)))) {
               return true;
             }
 

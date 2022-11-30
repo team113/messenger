@@ -26,8 +26,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/controller.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -57,6 +55,7 @@ import '/provider/gql/exceptions.dart'
         ReadChatException,
         UploadAttachmentException;
 import '/routes.dart';
+import '/ui/page/home/page/chat/widget/send_message_field/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
@@ -116,19 +115,14 @@ class ChatController extends GetxController {
   /// State of a send message field.
   late final TextFieldState send;
 
-  late final SendMessageFieldController sendMessageController;
-
-  /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> repliedMessages = RxList();
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding = RxBool(false);
+  late final SendMessageFieldController sendController;
+  late final SendMessageFieldController editController;
 
   /// State of an edit message field.
   TextFieldState? edit;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
+  final RxBool isEditingMessage = RxBool(false);
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -136,10 +130,6 @@ class ChatController extends GetxController {
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
-
-  /// [Attachment]s to be attached to a message.
-  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
-      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -291,26 +281,26 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
-    sendMessageController = SendMessageFieldController(
+    sendController = SendMessageFieldController(
       _chatService,
       _userService,
-      updateDraft: () {
-        print('updateDraft');
-        updateDraft();
-      },
+      updateDraft: updateDraft,
     );
+    editController = SendMessageFieldController(_chatService, _userService);
+
     send = TextFieldState(
       onChanged: (s) {},
       onSubmitted: (s) {
         if (s.text.isNotEmpty ||
-            attachments.isNotEmpty ||
-            repliedMessages.isNotEmpty) {
+            sendController.attachments.isNotEmpty ||
+            sendController.repliedMessages.isNotEmpty) {
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessages.reversed.toList(),
-                attachments: attachments.map((e) => e.value).toList(),
+                repliesTo: sendController.repliedMessages.reversed.toList(),
+                attachments:
+                    sendController.attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -319,8 +309,8 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          repliedMessages.clear();
-          attachments.clear();
+          sendController.repliedMessages.clear();
+          sendController.attachments.clear();
           s.clear();
           s.unsubmit();
 
@@ -460,7 +450,7 @@ class ChatController extends GetxController {
     }
 
     if (item is ChatMessage) {
-      editedMessage.value = item;
+      isEditingMessage.value = true;
       edit = TextFieldState(
         text: item.text?.val,
         onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
@@ -468,7 +458,7 @@ class ChatController extends GetxController {
             : s.status.value = RxStatus.empty(),
         onSubmitted: (s) async {
           if (s.text == item.text?.val) {
-            editedMessage.value = null;
+            isEditingMessage.value = false;
             edit = null;
           } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
             ChatMessageText? text;
@@ -478,7 +468,7 @@ class ChatController extends GetxController {
 
             try {
               await _chatService.editChatMessage(item, text);
-              editedMessage.value = null;
+              isEditingMessage.value = false;
               edit = null;
 
               _typingSubscription?.cancel();
@@ -537,17 +527,20 @@ class ChatController extends GetxController {
 
     // Only persist uploaded [Attachment]s on Web to minimize byte writing lags.
     if (PlatformUtils.isWeb) {
-      persisted = attachments.where(
+      persisted = sendController.attachments.where(
         (e) => e.value is ImageAttachment || e.value is FileAttachment,
       );
     } else {
-      persisted = List.from(attachments, growable: false);
+      persisted = List.from(sendController.attachments, growable: false);
     }
 
     chat?.setDraft(
       text: send.text.isEmpty ? null : ChatMessageText(send.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: List.from(repliedMessages, growable: false),
+      repliesTo: List.from(
+        sendController.repliedMessages,
+        growable: false,
+      ),
     );
   }
 
@@ -563,15 +556,17 @@ class ChatController extends GetxController {
       ChatMessage? draft = chat!.draft.value;
 
       send.text = draft?.text?.val ?? '';
-      repliedMessages.value = List.from(draft?.repliesTo ?? []);
+      sendController.repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
-        attachments.add(MapEntry(GlobalKey(), e));
+        sendController.attachments.add(MapEntry(GlobalKey(), e));
       }
 
       send.onChanged = (s) => updateDraft();
-      _repliesWorker ??= ever(repliedMessages, (_) => updateDraft());
-      _attachmentsWorker ??= ever(attachments, (_) => updateDraft());
+      _repliesWorker ??=
+          ever(sendController.repliedMessages, (_) => updateDraft());
+      _attachmentsWorker ??=
+          ever(sendController.attachments, (_) => updateDraft());
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -1027,47 +1022,10 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Opens a media choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
-
-  /// Opens the camera app and adds the captured image to the [attachments].
-  Future<void> pickImageFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? photo = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 90,
-    );
-
-    if (photo != null) {
-      _addXFileAttachment(photo);
-    }
-  }
-
-  /// Opens the camera app and adds the captured video to the [attachments].
-  Future<void> pickVideoFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? video = await ImagePicker().pickVideo(
-      source: ImageSource.camera,
-      maxDuration: const Duration(seconds: 15),
-    );
-
-    if (video != null) {
-      _addXFileAttachment(video);
-    }
-  }
-
-  /// Opens a file choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
-
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      sendMessageController.addPlatformAttachment(PlatformFile(
+      sendController.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),
@@ -1137,64 +1095,6 @@ class ChatController extends GetxController {
         await chat?.updateAttachments(item);
         await Future.delayed(Duration.zero);
         await attachment.download();
-      }
-    }
-  }
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  @visibleForTesting
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
-  }
-
-  /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
-  /// [attachments].
-  Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
-    await _addAttachment(nativeFile);
-  }
-
-  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
-  /// the [attachments] list.
-  ///
-  /// May be used to test a [file] upload since [FilePicker] can't be mocked.
-  Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < maxAttachmentSize) {
-      try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
-
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
-
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
-        if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
-          updateDraft();
-        }
-      } on UploadAttachmentException catch (e) {
-        MessagePopup.error(e);
-      } on ConnectionException {
-        // No-op.
-      }
-    } else {
-      MessagePopup.error('err_size_too_big'.l10n);
-    }
-  }
-
-  /// Opens a file choose popup of the specified [type] and adds the selected
-  /// files to the [attachments].
-  Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowMultiple: true,
-      withReadStream: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
       }
     }
   }

@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,11 +28,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
-import '/ui/page/home/page/chat/widget/send_message_field.dart';
-import '/ui/page/home/page/chat/widget/animated_fab.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animations.dart';
+import '/ui/page/home/page/chat/widget/send_message_field/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -113,7 +110,7 @@ class ChatForwardView extends StatelessWidget {
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
-            enable: DropTargetList.keys.last == 'ChatForwardView_$from',
+            enable: DropTargetList.keys.lastOrNull == 'ChatForwardView_$from',
             child: Stack(
               children: [
                 Container(
@@ -124,16 +121,15 @@ class ChatForwardView extends StatelessWidget {
                       const SizedBox(height: 16),
                       Expanded(
                         child: SearchView(
-                            key: const Key('SearchView'),
-                            categories: const [
-                              SearchCategory.chats,
-                              SearchCategory.contacts,
-                              SearchCategory.users,
-                            ],
-                            title: 'label_forward_message'.l10n,
-                            onChanged: (SearchViewResults result) {
-                              c.searchResults.value = result;
-                            }),
+                          key: const Key('SearchView'),
+                          categories: const [
+                            SearchCategory.chats,
+                            SearchCategory.contacts,
+                            SearchCategory.users,
+                          ],
+                          title: 'label_forward_message'.l10n,
+                          onChanged: (result) => c.searchResults.value = result,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -179,29 +175,24 @@ class ChatForwardView extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: SendMessageField(
+                          child: SendMessageFieldView(
                             messageFieldKey: const Key('ForwardField'),
                             messageSendButtonKey: const Key('SendForward'),
-                            quotes: c.quotes,
+                            controller: c.sendController,
                             textFieldState: c.send,
-                            attachments: c.attachments,
-                            me: c.me,
-                            onVideoImageFromCamera: c.pickVideoFromCamera,
-                            onPickMedia: c.pickMedia,
-                            onPickImageFromCamera: c.pickImageFromCamera,
-                            onPickFile: c.pickFile,
                             onSend: c.forward,
+                            tag: 'ChatForward',
                             onReorder: (int old, int to) {
                               if (old < to) {
                                 --to;
                               }
 
-                              final ChatItemQuote item = c.quotes.removeAt(old);
-                              c.quotes.insert(to, item);
+                              final ChatItemQuote item =
+                                  c.sendController.quotes.removeAt(old);
+                              c.sendController.quotes.insert(to, item);
 
                               HapticFeedback.lightImpact();
                             },
-                            getUser: c.getUser,
                           ),
                         ),
                       ),

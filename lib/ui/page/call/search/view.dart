@@ -38,7 +38,6 @@ class SearchView extends StatelessWidget {
     required this.categories,
     required this.title,
     this.chat,
-    this.searchResults,
     this.selectable = true,
     this.enabled = true,
     this.submit,
@@ -69,9 +68,6 @@ class SearchView extends StatelessWidget {
   /// Only meaningful if [onSubmit] is non-`null`.
   final String? submit;
 
-  /// Selected items in [SearchView] popup.
-  final Rx<SearchViewResults?>? searchResults;
-
   /// Callback, called when a searched item is pressed.
   final void Function(dynamic)? onPressed;
 
@@ -79,7 +75,7 @@ class SearchView extends StatelessWidget {
   final void Function(List<UserId> ids)? onSubmit;
 
   /// Callback, called when an item was selected or unselected.
-  final void Function(SearchViewResults results)? onChanged;
+  final void Function(SearchViewResults? results)? onChanged;
 
   /// Callback, called when the back button is pressed.
   ///
@@ -92,14 +88,8 @@ class SearchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: SearchController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        chat: chat,
-        categories: categories,
-        searchResults: searchResults,
-      ),
+      init: SearchController(Get.find(), Get.find(), Get.find(),
+          chat: chat, categories: categories, onChanged: onChanged),
       builder: (SearchController c) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2),

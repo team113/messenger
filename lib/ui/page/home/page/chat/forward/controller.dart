@@ -22,28 +22,23 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/controller.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/native_file.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -94,11 +89,16 @@ class ChatForwardController extends GetxController {
   /// [Worker] to react on the [quotes] updates.
   late final Worker quotesChanges;
 
+  late final SendMessageFieldController sendController;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
+    sendController = SendMessageFieldController(_chatService, _userService);
+    sendController.quotes.addAll(quotes);
+    sendController.attachments.addAll(attachments);
     quotesChanges = ever(quotes, (_) {
       if (quotes.isEmpty) pop?.call();
     });
@@ -150,7 +150,9 @@ class ChatForwardController extends GetxController {
   @override
   void onClose() {
     quotesChanges.dispose();
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DropTargetList.keys.remove('ChatForwardView_$from');
+    });
 
     super.onClose();
   }
@@ -164,7 +166,7 @@ class ChatForwardController extends GetxController {
     send.editable.value = false;
 
     try {
-      List<Future> uploads = attachments
+      List<Future> uploads = sendController.attachments
           .whereType<LocalAttachment>()
           .map((e) => e.upload.value?.future)
           .whereNotNull()
@@ -173,7 +175,7 @@ class ChatForwardController extends GetxController {
         await Future.wait(uploads);
       }
 
-      if (attachments.whereType<LocalAttachment>().isNotEmpty) {
+      if (sendController.attachments.whereType<LocalAttachment>().isNotEmpty) {
         throw const ConnectionException(ForwardChatItemsException(
           ForwardChatItemsErrorCode.unknownAttachment,
         ));
@@ -184,11 +186,11 @@ class ChatForwardController extends GetxController {
           return _chatService.forwardChatItems(
             from,
             e.chat.value.id,
-            quotes,
+            sendController.quotes,
             text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: attachments.isEmpty
+            attachments: sendController.attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.value.id).toList(),
+                : sendController.attachments.map((a) => a.value.id).toList(),
           );
         }),
         ...searchResults.value!.users.map((e) async {
@@ -197,11 +199,11 @@ class ChatForwardController extends GetxController {
           return _chatService.forwardChatItems(
             from,
             dialog.id,
-            quotes,
+            sendController.quotes,
             text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: attachments.isEmpty
+            attachments: sendController.attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.value.id).toList(),
+                : sendController.attachments.map((a) => a.value.id).toList(),
           );
         }),
         ...searchResults.value!.contacts.map((e) async {
@@ -212,11 +214,11 @@ class ChatForwardController extends GetxController {
           return _chatService.forwardChatItems(
             from,
             dialog.id,
-            quotes,
+            sendController.quotes,
             text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: attachments.isEmpty
+            attachments: sendController.attachments.isEmpty
                 ? null
-                : attachments.map((a) => a.value.id).toList(),
+                : sendController.attachments.map((a) => a.value.id).toList(),
           );
         })
       ];
@@ -236,107 +238,15 @@ class ChatForwardController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Opens a media choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
-
-  /// Opens the camera app and adds the captured image to the [attachments].
-  Future<void> pickImageFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? photo = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 90,
-    );
-
-    if (photo != null) {
-      _addXFileAttachment(photo);
-    }
-  }
-
-  /// Opens the camera app and adds the captured video to the [attachments].
-  Future<void> pickVideoFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? video = await ImagePicker().pickVideo(
-      source: ImageSource.camera,
-      maxDuration: const Duration(seconds: 15),
-    );
-
-    if (video != null) {
-      _addXFileAttachment(video);
-    }
-  }
-
-  /// Opens a file choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
-
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      addPlatformAttachment(PlatformFile(
+      sendController.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),
         readStream: file.openRead(),
       ));
-    }
-  }
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  @visibleForTesting
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
-  }
-
-  /// Opens a file choose popup of the specified [type] and adds the selected
-  /// files to the [attachments].
-  Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowMultiple: true,
-      withReadStream: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
-      }
-    }
-  }
-
-  /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
-  /// [attachments].
-  Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
-    await _addAttachment(nativeFile);
-  }
-
-  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
-  /// the [attachments] list.
-  Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < ChatController.maxAttachmentSize) {
-      try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
-
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
-
-        int index = attachments.indexWhere((e) => e.value == attachment);
-        if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
-        }
-      } on UploadAttachmentException catch (e) {
-        MessagePopup.error(e);
-      } on ConnectionException {
-        // No-op.
-      }
-    } else {
-      MessagePopup.error('err_size_too_big'.l10n);
     }
   }
 }

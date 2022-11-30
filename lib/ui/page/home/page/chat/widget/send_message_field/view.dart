@@ -26,9 +26,7 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -38,11 +36,11 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '../attachment_selector.dart';
 import '../video_thumbnail/video_thumbnail.dart';
@@ -59,6 +57,9 @@ class SendMessageFieldView extends StatelessWidget {
     this.messageSendButtonKey,
     this.updateDraft,
     this.enabledForwarding = false,
+    this.canAttachFile = true,
+    this.onSend,
+    this.tag,
     required this.textFieldState,
     required this.controller,
   }) : super(key: key);
@@ -77,11 +78,15 @@ class SendMessageFieldView extends StatelessWidget {
   final TextFieldState textFieldState;
 
   final bool enabledForwarding;
+  final bool canAttachFile;
   final SendMessageFieldController controller;
 
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
   // HERE OFFSET BASED ON BOTTOM
   final Future<void> Function(ChatItemId id)? onChatItemTap;
+
+  final void Function()? onSend;
+  final String? tag;
 
   /// Callback, called when user typing in message field.
   final void Function()? keepTyping;
@@ -93,7 +98,7 @@ class SendMessageFieldView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     Widget sendButton() => WidgetButton(
-          onPressed: textFieldState.submit,
+          onPressed: onSend?.call,
           child: SizedBox(
             width: 56,
             height: 56,
@@ -117,6 +122,8 @@ class SendMessageFieldView extends StatelessWidget {
     return GetBuilder<SendMessageFieldController>(
       key: messageFieldKey,
       init: controller,
+      global: false,
+      tag: tag,
       builder: (c) => SafeArea(
         child: Container(
           key: const Key('SendField'),
@@ -200,82 +207,84 @@ class SendMessageFieldView extends StatelessWidget {
                                           MediaQuery.of(context).size.height /
                                               3,
                                     ),
-                                    child: ReorderableListView(
-                                      shrinkWrap: true,
-                                      buildDefaultDragHandles:
-                                          PlatformUtils.isMobile,
-                                      onReorder: (int from, int to) {
-                                        onReorder?.call(from, to);
-                                      },
-                                      proxyDecorator: (child, i, animation) {
-                                        return AnimatedBuilder(
-                                          animation: animation,
-                                          builder: (
-                                            BuildContext context,
-                                            Widget? child,
-                                          ) {
-                                            final double t = Curves.easeInOut
-                                                .transform(animation.value);
-                                            final double elevation =
-                                                lerpDouble(0, 6, t)!;
-                                            final Color color = Color.lerp(
-                                              const Color(0x00000000),
-                                              const Color(0x33000000),
-                                              t,
-                                            )!;
+                                    child: Obx(() {
+                                      return ReorderableListView(
+                                        shrinkWrap: true,
+                                        buildDefaultDragHandles:
+                                            PlatformUtils.isMobile,
+                                        onReorder: (int from, int to) {
+                                          onReorder?.call(from, to);
+                                        },
+                                        proxyDecorator: (child, i, animation) {
+                                          return AnimatedBuilder(
+                                            animation: animation,
+                                            builder: (
+                                              BuildContext context,
+                                              Widget? child,
+                                            ) {
+                                              final double t = Curves.easeInOut
+                                                  .transform(animation.value);
+                                              final double elevation =
+                                                  lerpDouble(0, 6, t)!;
+                                              final Color color = Color.lerp(
+                                                const Color(0x00000000),
+                                                const Color(0x33000000),
+                                                t,
+                                              )!;
 
-                                            return InitCallback(
-                                              callback:
-                                                  HapticFeedback.selectionClick,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  boxShadow: [
-                                                    CustomBoxShadow(
-                                                      color: color,
-                                                      blurRadius: elevation,
-                                                    ),
-                                                  ],
+                                              return InitCallback(
+                                                callback: HapticFeedback
+                                                    .selectionClick,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      CustomBoxShadow(
+                                                        color: color,
+                                                        blurRadius: elevation,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: child,
                                                 ),
-                                                child: child,
-                                              ),
-                                            );
-                                          },
-                                          child: child,
-                                        );
-                                      },
-                                      reverse: true,
-                                      padding:
-                                          const EdgeInsets.fromLTRB(1, 0, 1, 0),
-                                      children: c.quotes.map((e) {
-                                        return ReorderableDragStartListener(
-                                          key: Key('Handle_${e.item.id}'),
-                                          enabled: !PlatformUtils.isMobile,
-                                          index: c.quotes.indexOf(e),
-                                          child: Dismissible(
-                                            key: Key('${e.item.id}'),
-                                            direction:
-                                                DismissDirection.horizontal,
-                                            onDismissed: (_) {
-                                              c.quotes.remove(e);
-                                              if (c.quotes.isEmpty) {
-                                                Navigator.of(context).pop();
-                                              }
+                                              );
                                             },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                              ),
-                                              child: buildForwardedMessage(
-                                                context,
-                                                e.item,
-                                                c,
+                                            child: child,
+                                          );
+                                        },
+                                        reverse: true,
+                                        padding: const EdgeInsets.fromLTRB(
+                                            1, 0, 1, 0),
+                                        children: c.quotes.map((e) {
+                                          return ReorderableDragStartListener(
+                                            key: Key('Handle_${e.item.id}'),
+                                            enabled: !PlatformUtils.isMobile,
+                                            index: c.quotes.indexOf(e),
+                                            child: Dismissible(
+                                              key: Key('${e.item.id}'),
+                                              direction:
+                                                  DismissDirection.horizontal,
+                                              onDismissed: (_) {
+                                                c.quotes.remove(e);
+                                                if (c.quotes.isEmpty) {
+                                                  Navigator.of(context).pop();
+                                                }
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 2,
+                                                ),
+                                                child: buildForwardedMessage(
+                                                  context,
+                                                  e.item,
+                                                  c,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
+                                          );
+                                        }).toList(),
+                                      );
+                                    }),
                                   ),
                                 if (c.repliedMessages.isNotEmpty)
                                   ConstrainedBox(
@@ -416,7 +425,7 @@ class SendMessageFieldView extends StatelessWidget {
                     children: [
                       if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
                         WidgetButton(
-                          onPressed: c.pickFile,
+                          onPressed: canAttachFile ? c.pickFile : null,
                           child: SizedBox(
                             width: 56,
                             height: 56,
@@ -434,13 +443,15 @@ class SendMessageFieldView extends StatelessWidget {
                         )
                       else
                         WidgetButton(
-                          onPressed: () => AttachmentSourceSelector.show(
-                            context,
-                            onPickFile: c.pickFile,
-                            onTakePhoto: c.pickImageFromCamera,
-                            onPickMedia: c.pickMedia,
-                            onTakeVideo: c.pickVideoFromCamera,
-                          ),
+                          onPressed: canAttachFile
+                              ? () => AttachmentSourceSelector.show(
+                                    context,
+                                    onPickFile: c.pickFile,
+                                    onTakePhoto: c.pickImageFromCamera,
+                                    onPickMedia: c.pickMedia,
+                                    onTakeVideo: c.pickVideoFromCamera,
+                                  )
+                              : null,
                           child: SizedBox(
                             width: 56,
                             height: 56,
@@ -488,7 +499,9 @@ class SendMessageFieldView extends StatelessWidget {
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value == true
                                       ? WidgetButton(
-                                          onPressed: textFieldState.submit,
+                                          onPressed: () {
+                                            onSend?.call();
+                                          },
                                           child: SizedBox(
                                             width: 56,
                                             height: 56,
@@ -587,7 +600,7 @@ class SendMessageFieldView extends StatelessWidget {
               }
             }
           } else {
-            child = Image.network(
+            child = RetryImage(
               e.original.url,
               fit: BoxFit.cover,
               width: size,
