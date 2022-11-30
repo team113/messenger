@@ -184,8 +184,6 @@ class ContactRepository implements AbstractContactRepository {
     HashMap<ChatContactId, HiveChatContact> contacts =
         await _chatContacts(first: _pageSize, after: cursor);
 
-    print(contacts.length);
-
     if (contacts.length < _pageSize) {
       _hasNextPage = false;
     }

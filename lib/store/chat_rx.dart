@@ -189,39 +189,21 @@ class HiveRxChat extends RxChat {
       if (!_local.isEmpty) {
         Iterable<HiveChatItem> localMessages;
         if (_local.messages.length > _pageSize ~/ 2) {
-          localMessages = _local.messages
-              .skip(_local.messages.length - _pageSize ~/ 2)
-              .take(_pageSize ~/ 2);
+          localMessages =
+              _local.messages.toList().reversed.take(_pageSize ~/ 2);
         } else {
-          localMessages = _local.messages.take(_pageSize ~/ 2);
+          localMessages = _local.messages;
         }
         for (HiveChatItem i in localMessages) {
-          messages.add(Rx<ChatItem>(i.value));
+          messages.insertAfter(
+            Rx<ChatItem>(i.value),
+            (e) => i.value.at.compareTo(e.value.at) == 1,
+          );
         }
       }
 
       _initLocalSubscription();
-
-      if (!PlatformUtils.isWeb) {
-        final List<Future> futures = [];
-
-        for (ChatItem item in messages.map((e) => e.value)) {
-          if (item is ChatMessage) {
-            futures.addAll(item.attachments
-                .whereType<FileAttachment>()
-                .map((e) => e.init()));
-          } else if (item is ChatForward) {
-            ChatItem nested = item.item;
-            if (nested is ChatMessage) {
-              futures.addAll(nested.attachments
-                  .whereType<FileAttachment>()
-                  .map((e) => e.init()));
-            }
-          }
-        }
-
-        await Future.wait(futures);
-      }
+      await _initAttachments(messages.map((e) => e.value));
 
       status.value = RxStatus.success();
     });
@@ -361,8 +343,13 @@ class HiveRxChat extends RxChat {
           .take(_pageSize);
 
       for (HiveChatItem i in localMessages) {
-        messages.add(Rx<ChatItem>(i.value));
+        messages.insertAfter(
+          Rx<ChatItem>(i.value),
+          (e) => i.value.at.compareTo(e.value.at) == 1,
+        );
       }
+
+      await _initAttachments(localMessages.map((e) => e.value));
     }
 
     HiveChatItem? item = await get(
@@ -371,7 +358,6 @@ class HiveRxChat extends RxChat {
     );
 
     if (item == null) {
-      print('item == null');
       return;
     }
 
@@ -420,7 +406,6 @@ class HiveRxChat extends RxChat {
     );
 
     if (item == null) {
-      print('item == null');
       return;
     }
 
@@ -805,6 +790,30 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Initializes [FileAttachment]s placed in the provided [items].
+  Future<void> _initAttachments(Iterable<ChatItem> items) async {
+    if (!PlatformUtils.isWeb) {
+      final List<Future> futures = [];
+
+      for (ChatItem item in items) {
+        if (item is ChatMessage) {
+          futures.addAll(item.attachments
+              .whereType<FileAttachment>()
+              .map((e) => e.init()));
+        } else if (item is ChatForward) {
+          ChatItem nested = item.item;
+          if (nested is ChatMessage) {
+            futures.addAll(nested.attachments
+                .whereType<FileAttachment>()
+                .map((e) => e.init()));
+          }
+        }
+      }
+
+      await Future.wait(futures);
+    }
+  }
+
   /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
@@ -1177,7 +1186,7 @@ class HiveRxChat extends RxChat {
 extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
-    if (!test(this[0])) {
+    if (isEmpty || !test(this[0])) {
       insert(0, element);
       return;
     }
