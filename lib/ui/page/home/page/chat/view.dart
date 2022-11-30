@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/view.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -844,38 +845,8 @@ class _ChatViewState extends State<ChatView>
         ),
       ),
       child: c.editedMessage.value == null
-          ? SendMessageField(
-              onPickFile: c.pickFile,
-              onPickImageFromCamera: c.pickImageFromCamera,
-              onPickMedia: c.pickMedia,
-              onVideoImageFromCamera: c.pickVideoFromCamera,
-              forwarding: c.forwarding,
-              repliedMessages: c.repliedMessages,
-              animateTo: c.animateTo,
-              onSend: () async {
-                if (c.forwarding.value) {
-                  if (c.repliedMessages.isNotEmpty) {
-                    bool? result = await ChatForwardView.show(
-                      context,
-                      c.id,
-                      c.repliedMessages
-                          .map((e) => ChatItemQuote(item: e))
-                          .toList(),
-                      text: c.send.text,
-                      attachments: c.attachments.map((e) => e.value).toList(),
-                    );
-
-                    if (result == true) {
-                      c.repliedMessages.clear();
-                      c.forwarding.value = false;
-                      c.attachments.clear();
-                      c.send.clear();
-                    }
-                  }
-                } else {
-                  c.send.submit();
-                }
-              },
+          ? SendMessageFieldView(
+              controller: c.sendMessageController,
               textFieldState: c.send,
               onReorder: (int old, int to) {
                 if (old < to) {
@@ -887,10 +858,55 @@ class _ChatViewState extends State<ChatView>
 
                 HapticFeedback.lightImpact();
               },
-              me: c.me,
-              attachments: c.attachments,
-              getUser: c.getUser,
+              onChatItemTap: c.animateTo,
             )
+          // SendMessageField(
+          //         onPickFile: c.pickFile,
+          //         onPickImageFromCamera: c.pickImageFromCamera,
+          //         onPickMedia: c.pickMedia,
+          //         onVideoImageFromCamera: c.pickVideoFromCamera,
+          //         forwarding: c.forwarding,
+          //         repliedMessages: c.repliedMessages,
+          //         animateTo: c.animateTo,
+          //         onSend: () async {
+          //           if (c.forwarding.value) {
+          //             if (c.repliedMessages.isNotEmpty) {
+          //               bool? result = await ChatForwardView.show(
+          //                 context,
+          //                 c.id,
+          //                 c.repliedMessages
+          //                     .map((e) => ChatItemQuote(item: e))
+          //                     .toList(),
+          //                 text: c.send.text,
+          //                 attachments: c.attachments.map((e) => e.value).toList(),
+          //               );
+          //
+          //               if (result == true) {
+          //                 c.repliedMessages.clear();
+          //                 c.forwarding.value = false;
+          //                 c.attachments.clear();
+          //                 c.send.clear();
+          //               }
+          //             }
+          //           } else {
+          //             c.send.submit();
+          //           }
+          //         },
+          //         textFieldState: c.send,
+          //         onReorder: (int old, int to) {
+          //           if (old < to) {
+          //             --to;
+          //           }
+          //
+          //           final ChatItem item = c.repliedMessages.removeAt(old);
+          //           c.repliedMessages.insert(to, item);
+          //
+          //           HapticFeedback.lightImpact();
+          //         },
+          //         me: c.me,
+          //         attachments: c.attachments,
+          //         getUser: c.getUser,
+          //       )
           : SendMessageField(
               onSend: c.edit!.submit,
               animateTo: c.animateTo,

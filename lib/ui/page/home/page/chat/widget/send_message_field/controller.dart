@@ -18,31 +18,25 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/chat_item_quote.dart';
-import 'package:messenger/domain/model/sending_status.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/util/obs/obs.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import '../../../../../../../domain/model/attachment.dart';
-import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
-import '/config.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
-import '/domain/service/auth.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -50,9 +44,9 @@ export 'view.dart';
 class SendMessageFieldController extends GetxController {
   SendMessageFieldController(
     this._chatService,
-    this._userService,
+    this._userService, {
     this.updateDraft,
-  );
+  });
 
   /// [Attachment]s to be attached to a message.
   final RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
@@ -148,7 +142,6 @@ class SendMessageFieldController extends GetxController {
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
-  @visibleForTesting
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);

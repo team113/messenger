@@ -27,6 +27,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/controller.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -114,6 +115,8 @@ class ChatController extends GetxController {
 
   /// State of a send message field.
   late final TextFieldState send;
+
+  late final SendMessageFieldController sendMessageController;
 
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem> repliedMessages = RxList();
@@ -288,6 +291,14 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    sendMessageController = SendMessageFieldController(
+      _chatService,
+      _userService,
+      updateDraft: () {
+        print('updateDraft');
+        updateDraft();
+      },
+    );
     send = TextFieldState(
       onChanged: (s) {},
       onSubmitted: (s) {
@@ -1056,7 +1067,7 @@ class ChatController extends GetxController {
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      addPlatformAttachment(PlatformFile(
+      sendMessageController.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),
