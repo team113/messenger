@@ -109,7 +109,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
             hoverColor: Colors.transparent,
             child: Stack(
               children: [
-                widget.child,
+                Center(child: widget.child),
                 if (widget.folded)
                   Container(
                     width: widget.borderRadius?.topLeft.y ?? 10,

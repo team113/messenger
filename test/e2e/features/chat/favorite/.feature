@@ -26,7 +26,7 @@ Feature: Favorite chats
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
-    And I see "Alice and Bob" chat as first in chats list
+    And I see "Alice and Bob" chat first in chats list
 
     When I long press "Alice and Charlie" chat
     And I tap `FavoriteChatButton` button
