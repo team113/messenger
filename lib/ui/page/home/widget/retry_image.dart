@@ -242,7 +242,7 @@ class _FIFOCache {
   static const int _maxSize = 100 << 20; // 100 MiB
 
   /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  static final LinkedHashMap<String, Uint8List> _cache =
+  final LinkedHashMap<String, Uint8List> _cache =
       LinkedHashMap<String, Uint8List>();
 
   /// Returns the total size [_cache] occupies.
