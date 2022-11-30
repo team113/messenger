@@ -117,7 +117,7 @@ class SearchController extends GetxController {
   final List<SearchCategory> categories;
 
   /// Reactive value of the [search] field passed to the [_search] method.
-  final RxnString query = RxnString();
+  final RxString query = RxString('');
 
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
@@ -368,8 +368,8 @@ class SearchController extends GetxController {
 
       chats.value = {
         for (var c in sorted.where((p) {
-          if (query.value != null && query.value!.isNotEmpty) {
-            if (p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+          if (query.value.isNotEmpty) {
+            if (p.title.toLowerCase().contains(query.value.toLowerCase())) {
               return true;
             }
             return false;
@@ -391,8 +391,8 @@ class SearchController extends GetxController {
 
                 if (user != null &&
                     chat?.members.containsKey(user.id) != true) {
-                  if (query.value != null) {
-                    if (user.user.value.name?.val.contains(query.value!) ==
+                  if (query.value.isNotEmpty) {
+                    if (user.user.value.name?.val.contains(query.value) ==
                         true) {
                       return user;
                     }
@@ -421,10 +421,10 @@ class SearchController extends GetxController {
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog &&
                     e1.members.containsKey(e.user.value?.id)))) {
-              if (query.value != null) {
+              if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
-                        .contains(query.value!.toLowerCase()) ==
+                        .contains(query.value.toLowerCase()) ==
                     true) {
                   return true;
                 }
@@ -443,10 +443,10 @@ class SearchController extends GetxController {
         for (var u in selectedContacts.where((e) {
           if (!recent.containsKey(e.id) &&
               !allContacts.containsKey(e.user.value!.id)) {
-            if (query.value != null) {
+            if (query.value.isNotEmpty) {
               if (e.contact.value.name.val
                       .toLowerCase()
-                      .contains(query.value!.toLowerCase()) ==
+                      .contains(query.value.toLowerCase()) ==
                   true) {
                 return true;
               }
@@ -487,7 +487,7 @@ class SearchController extends GetxController {
                     e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               if (e.user.value.name?.val
                       .toLowerCase()
-                      .contains(query.value!.toLowerCase()) ==
+                      .contains(query.value.toLowerCase()) ==
                   true) {
                 return true;
               }
@@ -511,10 +511,10 @@ class SearchController extends GetxController {
                   (chats.values.none((e1) =>
                       e1.chat.value.isDialog &&
                       e1.members.containsKey(e.id)))) {
-                if (query.value != null) {
+                if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
-                          .contains(query.value!.toLowerCase()) ==
+                          .contains(query.value.toLowerCase()) ==
                       true) {
                     return user;
                   }
@@ -535,10 +535,10 @@ class SearchController extends GetxController {
                 !allUsers.containsKey(e.id) &&
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
-              if (query.value != null) {
+              if (query.value.isNotEmpty) {
                 if (e.user.value.name?.val
                         .toLowerCase()
-                        .contains(query.value!.toLowerCase()) ==
+                        .contains(query.value.toLowerCase()) ==
                     true) {
                   return true;
                 }
