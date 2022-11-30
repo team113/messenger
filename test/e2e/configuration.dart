@@ -33,6 +33,7 @@ import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
 import 'parameters/favorite_status.dart';
+import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
@@ -69,6 +70,7 @@ import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_attachment.dart';
+import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message_status.dart';
@@ -121,6 +123,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapWidget,
         twoUsers,
         untilAttachmentExists,
+        untilAttachmentFetched,
         untilTextExists,
         untilTextExistsWithin,
         updateBio,
@@ -150,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
         FavoriteStatusParameter(),
+        ImageFetchStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
