@@ -36,7 +36,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/widget/send_message_field/view.dart';
+import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -847,10 +847,9 @@ class _ChatViewState extends State<ChatView>
         ),
       ),
       child: c.isEditingMessage.isFalse
-          ? SendMessageFieldView(
+          ? MessageFieldView(
               controller: c.sendController,
               textFieldState: c.send,
-              tag: 'SendField_${widget.id.val}',
               onSend: () async {
                 if (c.sendController.forwarding.value) {
                   if (c.sendController.repliedMessages.isNotEmpty) {
@@ -938,7 +937,7 @@ class _ChatViewState extends State<ChatView>
           //         attachments: c.attachments,
           //         getUser: c.getUser,
           //       )
-          : SendMessageFieldView(
+          : MessageFieldView(
               controller: c.editController,
               textFieldState: c.edit!,
               onSend: c.edit!.submit,

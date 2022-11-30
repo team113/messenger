@@ -55,7 +55,7 @@ import '/provider/gql/exceptions.dart'
         ReadChatException,
         UploadAttachmentException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/widget/send_message_field/controller.dart';
+import '/ui/page/home/page/chat/widget/message_field/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
@@ -115,8 +115,11 @@ class ChatController extends GetxController {
   /// State of a send message field.
   late final TextFieldState send;
 
-  late final SendMessageFieldController sendController;
-  late final SendMessageFieldController editController;
+  /// [MessageFieldController] controller of sending message.
+  late final MessageFieldController sendController;
+
+  /// [MessageFieldController] controller of editing message.
+  late final MessageFieldController editController;
 
   /// State of an edit message field.
   TextFieldState? edit;
@@ -281,12 +284,12 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
-    sendController = SendMessageFieldController(
+    sendController = MessageFieldController(
       _chatService,
       _userService,
       updateDraft: updateDraft,
     );
-    editController = SendMessageFieldController(_chatService, _userService);
+    editController = MessageFieldController(_chatService, _userService);
 
     send = TextFieldState(
       onChanged: (s) {},

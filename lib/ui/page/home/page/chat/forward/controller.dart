@@ -22,7 +22,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/send_message_field/controller.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
@@ -35,6 +34,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/page/chat/widget/message_field/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -89,14 +89,15 @@ class ChatForwardController extends GetxController {
   /// [Worker] to react on the [quotes] updates.
   late final Worker quotesChanges;
 
-  late final SendMessageFieldController sendController;
+  /// [MessageFieldController] controller.
+  late final MessageFieldController sendController;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    sendController = SendMessageFieldController(_chatService, _userService);
+    sendController = MessageFieldController(_chatService, _userService);
     sendController.quotes.addAll(quotes);
     sendController.attachments.addAll(attachments);
     quotesChanges = ever(quotes, (_) {

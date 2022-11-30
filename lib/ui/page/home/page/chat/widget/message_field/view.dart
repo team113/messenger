@@ -46,9 +46,9 @@ import '../attachment_selector.dart';
 import '../video_thumbnail/video_thumbnail.dart';
 import 'controller.dart';
 
-/// View of the [Routes.chatInfo] page.
-class SendMessageFieldView extends StatelessWidget {
-  const SendMessageFieldView({
+/// View of the [MessageFieldView] widget.
+class MessageFieldView extends StatelessWidget {
+  const MessageFieldView({
     Key? key,
     this.keepTyping,
     this.onReorder,
@@ -59,7 +59,6 @@ class SendMessageFieldView extends StatelessWidget {
     this.enabledForwarding = false,
     this.canAttachFile = true,
     this.onSend,
-    this.tag,
     required this.textFieldState,
     required this.controller,
   }) : super(key: key);
@@ -77,20 +76,26 @@ class SendMessageFieldView extends StatelessWidget {
   /// State of a send message field.
   final TextFieldState textFieldState;
 
+  /// Indicator whether forwarding message is enabled or not.
   final bool enabledForwarding;
+
+  /// Indicator whether can attach files to message or not.
   final bool canAttachFile;
-  final SendMessageFieldController controller;
+
+  /// [MessageFieldController] controller.
+  final MessageFieldController controller;
 
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
   // HERE OFFSET BASED ON BOTTOM
   final Future<void> Function(ChatItemId id)? onChatItemTap;
 
+  /// Callback, called when send message button was tapped.
   final void Function()? onSend;
-  final String? tag;
 
   /// Callback, called when user typing in message field.
   final void Function()? keepTyping;
 
+  /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
   @override
@@ -119,11 +124,9 @@ class SendMessageFieldView extends StatelessWidget {
           ),
         );
 
-    return GetBuilder<SendMessageFieldController>(
-      key: messageFieldKey,
+    return GetBuilder<MessageFieldController>(
       init: controller,
       global: false,
-      tag: tag,
       builder: (c) => SafeArea(
         child: Container(
           key: const Key('SendField'),
@@ -180,8 +183,12 @@ class SendMessageFieldView extends StatelessWidget {
                                               3,
                                     ),
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                                      padding: const EdgeInsets.fromLTRB(
+                                        4,
+                                        4,
+                                        4,
+                                        4,
+                                      ),
                                       child: Dismissible(
                                         key:
                                             Key('${c.editedMessage.value?.id}'),
@@ -253,7 +260,11 @@ class SendMessageFieldView extends StatelessWidget {
                                         },
                                         reverse: true,
                                         padding: const EdgeInsets.fromLTRB(
-                                            1, 0, 1, 0),
+                                          1,
+                                          0,
+                                          1,
+                                          0,
+                                        ),
                                         children: c.quotes.map((e) {
                                           return ReorderableDragStartListener(
                                             key: Key('Handle_${e.item.id}'),
@@ -542,7 +553,7 @@ class SendMessageFieldView extends StatelessWidget {
     BuildContext context,
     Attachment e,
     GlobalKey key,
-    SendMessageFieldController c,
+    MessageFieldController c,
   ) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
@@ -843,7 +854,10 @@ class SendMessageFieldView extends StatelessWidget {
 
   /// Builds a visual representation of the provided [item] being replied.
   Widget repliedMessage(
-      BuildContext context, ChatItem item, SendMessageFieldController c) {
+    BuildContext context,
+    ChatItem item,
+    MessageFieldController c,
+  ) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = item.authorId == c.me;
 
@@ -1074,7 +1088,7 @@ class SendMessageFieldView extends StatelessWidget {
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,
-    SendMessageFieldController c,
+    MessageFieldController c,
   ) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.authorId == c.me;
@@ -1314,10 +1328,7 @@ class SendMessageFieldView extends StatelessWidget {
   }
 
   /// Builds a visual representation of a [SendMessageField.editedMessage].
-  Widget buildEditedMessage(
-    BuildContext context,
-    SendMessageFieldController c,
-  ) {
+  Widget buildEditedMessage(BuildContext context, MessageFieldController c) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = c.editedMessage.value?.authorId == c.me;
 

@@ -351,23 +351,24 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
-    List<RxChat> sortedChats = _chatService.chats.values.toList();
-    sortedChats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-
     if (categories.contains(SearchCategory.chats)) {
+      final List<RxChat> sorted = _chatService.chats.values.toList();
+
+      sorted.sort((a, b) {
+        if (a.chat.value.ongoingCall != null &&
+            b.chat.value.ongoingCall == null) {
+          return -1;
+        } else if (a.chat.value.ongoingCall == null &&
+            b.chat.value.ongoingCall != null) {
+          return 1;
+        }
+
+        return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+      });
+
       chats.value = {
-        for (var c in sortedChats.where((p) {
-          if (query.value != null) {
+        for (var c in sorted.where((p) {
+          if (query.value != null && query.value!.isNotEmpty) {
             if (p.title.toLowerCase().contains(query.value!.toLowerCase())) {
               return true;
             }
@@ -469,8 +470,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
                 (chats.values.none((e1) =>
-                    e1.chat.value.isDialog &&
-                    e1.members.containsKey(e.user.value.id)))) {
+                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               return true;
             }
 
@@ -481,7 +481,10 @@ class SearchController extends GetxController {
 
         users.value = {
           for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+            if (!recent.containsKey(e.id) &&
+                !allUsers.containsKey(e.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               if (e.user.value.name?.val
                       .toLowerCase()
                       .contains(query.value!.toLowerCase()) ==
@@ -504,7 +507,10 @@ class SearchController extends GetxController {
 
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
-                  !contacts.containsKey(user?.id)) {
+                  !contacts.containsKey(user?.id) &&
+                  (chats.values.none((e1) =>
+                      e1.chat.value.isDialog &&
+                      e1.members.containsKey(e.id)))) {
                 if (query.value != null) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
@@ -525,7 +531,10 @@ class SearchController extends GetxController {
 
         users.value = {
           for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+            if (!recent.containsKey(e.id) &&
+                !allUsers.containsKey(e.id) &&
+                (chats.values.none((e1) =>
+                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               if (query.value != null) {
                 if (e.user.value.name?.val
                         .toLowerCase()

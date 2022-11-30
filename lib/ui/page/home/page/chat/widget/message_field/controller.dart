@@ -41,8 +41,8 @@ import '/util/platform_utils.dart';
 export 'view.dart';
 
 /// Controller of the [Routes.chatInfo] page.
-class SendMessageFieldController extends GetxController {
-  SendMessageFieldController(
+class MessageFieldController extends GetxController {
+  MessageFieldController(
     this._chatService,
     this._userService, {
     this.updateDraft,
@@ -79,6 +79,7 @@ class SendMessageFieldController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
+  /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
   /// Returns [MyUser]'s [UserId].

@@ -28,7 +28,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
-import '/ui/page/home/page/chat/widget/send_message_field/view.dart';
+import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -175,13 +175,12 @@ class ChatForwardView extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: SendMessageFieldView(
+                          child: MessageFieldView(
                             messageFieldKey: const Key('ForwardField'),
                             messageSendButtonKey: const Key('SendForward'),
                             controller: c.sendController,
                             textFieldState: c.send,
                             onSend: c.forward,
-                            tag: 'ChatForward',
                             onReorder: (int old, int to) {
                               if (old < to) {
                                 --to;

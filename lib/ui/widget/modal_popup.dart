@@ -150,8 +150,8 @@ abstract class ModalPopup {
   }
 }
 
-/// Contains list of [DropTarget]s [Key]s.
+/// Contains list of [DropTarget]s keys.
 class DropTargetList {
-  /// List of [DropTarget]s [Key]s.
+  /// List of [DropTarget]s keys.
   static final RxList<String> keys = RxList<String>([]);
 }
