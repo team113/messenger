@@ -35,6 +35,7 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/animated_fab.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -225,14 +226,16 @@ class ChatForwardView extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0XFFF0F2F6),
               borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.original.url)),
             ),
             width: 50,
             height: 50,
-            child:
-                image == null ? const Icon(Icons.attach_file, size: 16) : null,
+            child: image == null
+                ? const Icon(Icons.attach_file, size: 16)
+                : RetryImage(
+                    image.medium.url,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
           );
         }).toList();
       }
@@ -439,17 +442,11 @@ class ChatForwardView extends StatelessWidget {
                               width: 80,
                               height: 80,
                             )
-                  : Image.network(
+                  : RetryImage(
                       e.original.url,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
-                      errorBuilder: (_, __, ___) => const SizedBox(
-                        width: 80,
-                        height: 80,
-                        child:
-                            Center(child: Icon(Icons.error, color: Colors.red)),
-                      ),
                     ),
             )
           else
