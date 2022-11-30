@@ -28,6 +28,10 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/send_message_field.dart';
+import '/ui/page/home/page/chat/widget/animated_fab.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
 import '/util/platform_utils.dart';
 

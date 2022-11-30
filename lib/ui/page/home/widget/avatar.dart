@@ -31,6 +31,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/widget/retry_image.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -393,13 +394,6 @@ class AvatarWidget extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [gradient.lighten(), gradient],
             ),
-            image: avatar == null
-                ? null
-                : DecorationImage(
-                    image: NetworkImage(avatar!.original.url),
-                    fit: BoxFit.cover,
-                    isAntiAlias: true,
-                  ),
             shape: BoxShape.circle,
           ),
           child: avatar == null
@@ -416,7 +410,14 @@ class AvatarWidget extends StatelessWidget {
                     textScaleFactor: 1,
                   ),
                 )
-              : null,
+              : ClipOval(
+                  child: RetryImage(
+                    avatar!.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                  ),
+                ),
         ),
       );
     });
