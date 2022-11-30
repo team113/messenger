@@ -19,10 +19,7 @@ import 'package:hive/hive.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
-part 'non_web.g.dart';
-
 /// [DateTime] considering the microseconds on any platform, including Web.
-@HiveType(typeId: ModelTypeId.preciseDateTime)
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(DateTime val, {int microsecond = 0}) : super(val);
@@ -187,4 +184,20 @@ class PreciseDateTime extends NewType<DateTime>
   /// days of that month plus 11 days into the next month.
   static PreciseDateTime parse(String formattedString) =>
       PreciseDateTime(DateTime.parse(formattedString));
+}
+
+/// [Hive] adapter for a [PreciseDateTime].
+class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
+  @override
+  final typeId = ModelTypeId.preciseDateTime;
+
+  @override
+  PreciseDateTime read(BinaryReader reader) => PreciseDateTime(
+        DateTime.fromMicrosecondsSinceEpoch(reader.readInt()),
+      );
+
+  @override
+  void write(BinaryWriter writer, PreciseDateTime obj) {
+    writer.writeInt(obj.microsecondsSinceEpoch);
+  }
 }
