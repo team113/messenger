@@ -22,7 +22,7 @@ import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
 /// Indicates whether a [Chat] with the provided name is displayed with the
-/// specified [FavoriteStatus] or not.
+/// specified [FavoriteStatus].
 final StepDefinitionGeneric seeChatAsFavorite =
     then2<String, FavoriteStatus, CustomWorld>(
   'I see {string} chat as {favorite}',

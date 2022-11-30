@@ -110,7 +110,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         seeChatAsFavorite,
         seeChatAsMuted,
-        seeChatAsPosition,
+        seeChatPosition,
         seeDraftInDialog,
         seesAs,
         sendsAttachmentToMe,

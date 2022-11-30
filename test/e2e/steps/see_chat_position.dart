@@ -22,11 +22,11 @@ import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 import '../parameters/position_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether [Chat] with the specified name is displayed at the
+/// Indicates whether a [Chat] with the provided name is displayed at the
 /// specified [PositionStatus].
-final StepDefinitionGeneric seeChatAsPosition =
+final StepDefinitionGeneric seeChatPosition =
     then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat as {position} in chats list',
+  'I see {string} chat {position} in chats list',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {

@@ -21,13 +21,13 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/util/obs/rxmap.dart';
+import 'package:messenger/util/obs/obs.dart';
 
 import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
-/// Adds / removes a [Chat] with the provided name to / from the favorites
-/// depending on [FavoriteStatus].
+/// Adds or removes a [Chat] with the provided name to or from the favorites
+/// depending on the specified [FavoriteStatus].
 ///
 /// Examples:
 /// - Given "Name" chat is favorite.
@@ -52,15 +52,14 @@ final StepDefinitionGeneric chatIsFavorite =
             .compareTo(b.chat.value.favoritePosition!),
       );
 
-      final double? lowestFavorite = favorites.isEmpty
+      final double? lowest = favorites.isEmpty
           ? null
           : favorites.first.chat.value.favoritePosition!.val;
 
-      final newPosition = ChatFavoritePosition(
-        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
-      );
+      final position =
+          ChatFavoritePosition(lowest == null ? 9007199254740991 : lowest / 2);
 
-      await provider.favoriteChat(chatId, newPosition);
+      await provider.favoriteChat(chatId, position);
     } else {
       await provider.unfavoriteChat(chatId);
     }
