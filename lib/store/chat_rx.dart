@@ -1191,13 +1191,11 @@ extension ListInsertAfter<T> on List<T> {
       return;
     }
 
-    for (var i = length - 1; i > 0; --i) {
+    for (var i = length - 1; i > -1; --i) {
       if (test(this[i])) {
         insert(i + 1, element);
         return;
       }
     }
-
-    insert(0, element);
   }
 }
