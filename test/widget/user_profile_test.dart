@@ -67,7 +67,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
   var recentChats = {
-    'recentChats': {'nodes': []}
+    'recentChats': {'edges': []}
   };
 
   var userData = {
@@ -109,7 +109,7 @@ void main() async {
   };
 
   var chatContactsData = {
-    'chatContacts': {'nodes': [], 'ver': '0'}
+    'chatContacts': {'edges': [], 'ver': '0'}
   };
 
   var sessionProvider = SessionDataHiveProvider();

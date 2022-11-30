@@ -83,7 +83,7 @@ void main() async {
   };
 
   var recentChats = {
-    'recentChats': {'nodes': []}
+    'recentChats': {'edges': []}
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());

@@ -77,7 +77,7 @@ class ContactRepository implements AbstractContactRepository {
   final SessionDataHiveProvider _sessionLocal;
 
   /// Size of the [ChatContacts]s page.
-  final int _pageSize = 12;
+  final int _pageSize = 120;
 
   /// Indicator whether the [contacts] has next page.
   bool _hasNextPage = true;

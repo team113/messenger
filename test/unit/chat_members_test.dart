@@ -67,7 +67,7 @@ void main() async {
   await draftProvider.init();
 
   var recentChats = {
-    'recentChats': {'nodes': []}
+    'recentChats': {'edges': []}
   };
 
   var chatData = {

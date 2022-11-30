@@ -141,7 +141,7 @@ class HiveRxChat extends RxChat {
   final List<ChatItem> _pending = [];
 
   /// Size of the [ChatItems]s page.
-  final int _pageSize = 20;
+  final int _pageSize = 120;
 
   @override
   UserId? get me => _chatRepository.me;

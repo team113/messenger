@@ -76,7 +76,7 @@ class ChatRepository implements AbstractChatRepository {
   final UserId? me;
 
   /// Size of the [Chat]s page.
-  final int _pageSize = 10;
+  final int _pageSize = 120;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
