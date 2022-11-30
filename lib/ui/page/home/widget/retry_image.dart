@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:ui';
+import 'dart:collection';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -71,6 +72,9 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
+  /// Naive [_FIFOCache] caching the images.
+  static final _FIFOCache _cache = _FIFOCache();
+
   /// [Timer] retrying the image fetching.
   Timer? _timer;
 
@@ -173,44 +177,93 @@ class _RetryImageState extends State<RetryImage> {
   /// Retries itself using exponential backoff algorithm on a failure.
   Future<void> _loadImage() async {
     _timer?.cancel();
-    Response? data;
 
-    try {
-      data = await PlatformUtils.dio.get(
-        widget.url,
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-            _progress = received / total;
-            if (mounted) {
-              setState(() {});
-            }
-          }
-        },
-        options: Options(responseType: ResponseType.bytes),
-      );
-    } on DioError catch (e) {
-      if (e.response?.statusCode == 403) {
-        await widget.onForbidden?.call();
-      }
-    }
-
-    if (data?.data != null && data?.statusCode == 200) {
-      _image = data!.data;
+    Uint8List? cached = _cache[widget.url];
+    if (cached != null) {
+      _image = cached;
       _backoffPeriod = _minBackoffPeriod;
       if (mounted) {
         setState(() {});
       }
     } else {
-      _timer = Timer(
-        _backoffPeriod,
-        () {
-          if (_backoffPeriod < _maxBackoffPeriod) {
-            _backoffPeriod *= 2;
-          }
+      Response? data;
 
-          _loadImage();
-        },
-      );
+      try {
+        data = await PlatformUtils.dio.get(
+          widget.url,
+          onReceiveProgress: (received, total) {
+            if (total != -1) {
+              _progress = received / total;
+              if (mounted) {
+                setState(() {});
+              }
+            }
+          },
+          options: Options(responseType: ResponseType.bytes),
+        );
+      } on DioError catch (e) {
+        if (e.response?.statusCode == 403) {
+          await widget.onForbidden?.call();
+        }
+      }
+
+      if (data?.data != null && data!.statusCode == 200) {
+        _cache[widget.url] = data.data;
+        _image = data.data;
+        _backoffPeriod = _minBackoffPeriod;
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        _timer = Timer(
+          _backoffPeriod,
+          () {
+            if (_backoffPeriod < _maxBackoffPeriod) {
+              _backoffPeriod *= 2;
+            }
+
+            _loadImage();
+          },
+        );
+      }
     }
   }
+}
+
+/// Naive [LinkedHashMap]-based cache of [Uint8List]s.
+///
+/// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
+/// [_maxLength], then the first inserted element is removed.
+class _FIFOCache {
+  /// Maximum allowed length of [_cache].
+  static const int _maxLength = 1000;
+
+  /// Maximum allowed size in bytes of [_cache].
+  static const int _maxSize = 100 << 20; // 100 MiB
+
+  /// [LinkedHashMap] maintaining [Uint8List]s itself.
+  final LinkedHashMap<String, Uint8List> _cache =
+      LinkedHashMap<String, Uint8List>();
+
+  /// Returns the total size [_cache] occupies.
+  int get size =>
+      _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
+
+  /// Puts the provided [bytes] to the cache.
+  void operator []=(String key, Uint8List bytes) {
+    if (!_cache.containsKey(key)) {
+      while (size >= _maxSize) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      if (_cache.length >= _maxLength) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      _cache[key] = bytes;
+    }
+  }
+
+  /// Returns the [Uint8List] of the provided [key], if any is cached.
+  Uint8List? operator [](String key) => _cache[key];
 }

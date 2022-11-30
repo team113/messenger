@@ -255,11 +255,11 @@ class MyProfileView extends StatelessWidget {
                     _label(context, 'Бэкграунд'),
                     _personalization(context, c),
                   ]),
-
-                  block(children: [
-                    _label(context, 'Звонки'),
-                    _call(context, c),
-                  ]),
+                  if (!PlatformUtils.isMobile)
+                    block(children: [
+                      _label(context, 'Звонки'),
+                      _call(context, c),
+                    ]),
                   if (!PlatformUtils.isMobile)
                     block(children: [
                       _label(context, 'Медиа'),

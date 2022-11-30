@@ -18,8 +18,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/ui/page/home/widget/retry_image.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -553,21 +553,12 @@ class RecentChatTile extends StatelessWidget {
     }
 
     if (e is ImageAttachment) {
-      content = Image.network(
-        '${Config.files}${e.medium.relativeRef}',
+      content = RetryImage(
+        e.medium.url,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return InitCallback(
-            callback: onError,
-            child: const Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-            ),
-          );
-        },
+        width: double.infinity,
+        height: double.infinity,
+        onForbidden: onError,
       );
     }
 
