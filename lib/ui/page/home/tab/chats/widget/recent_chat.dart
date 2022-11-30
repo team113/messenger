@@ -147,6 +147,17 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
+          chat.favoritePosition != null
+              ? ContextMenuButton(
+                  key: const Key('UnfavoriteChatButton'),
+                  label: 'btn_delete_from_favorites'.l10n,
+                  onPressed: onUnfavorite,
+                )
+              : ContextMenuButton(
+                  key: const Key('FavoriteChatButton'),
+                  label: 'btn_add_to_favorites'.l10n,
+                  onPressed: onFavorite,
+                ),
           ContextMenuButton(
             key: const Key('ButtonHideChat'),
             label: 'btn_hide_chat'.l10n,
@@ -168,17 +179,6 @@ class RecentChatTile extends StatelessWidget {
                   key: const Key('UnmuteChatButton'),
                   label: 'btn_unmute_chat'.l10n,
                   onPressed: onUnmute,
-                ),
-          chat.favoritePosition != null
-              ? ContextMenuButton(
-                  key: const Key('UnfavoriteChatButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: onUnfavorite,
-                )
-              : ContextMenuButton(
-                  key: const Key('FavoriteChatButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: onFavorite,
                 ),
         ],
         selected: selected,

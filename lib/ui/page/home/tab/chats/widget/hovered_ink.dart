@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 
 /// [InkWell] button decorated differently based on the [selected] indicator.
 ///
@@ -115,8 +116,8 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                     height: widget.borderRadius?.topLeft.y ?? 10,
                     decoration: BoxDecoration(
                       color: hovered
-                          ? widget.hoveredBorder!.top.color
-                          : widget.border!.top.color,
+                          ? widget.hoveredBorder!.top.color.darken(0.1)
+                          : widget.border!.top.color.darken(0.1),
                       borderRadius: const BorderRadius.only(
                         bottomRight: Radius.circular(4),
                       ),
