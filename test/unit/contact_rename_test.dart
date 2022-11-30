@@ -120,7 +120,7 @@ void main() async {
 
   test('ContactService successfully renames contact', () async {
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.empty()),
+      (_) => Future.value(const Stream.empty()),
     );
 
     when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
@@ -159,7 +159,7 @@ void main() async {
   test('ContactService throws UpdateChatContactNameException on contact rename',
       () async {
     when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.empty()),
+      (_) => Future.value(const Stream.empty()),
     );
 
     when(
