@@ -48,6 +48,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -1383,7 +1384,7 @@ class _ChatViewState extends State<ChatView>
               }
             }
           } else {
-            child = Image.network(
+            child = RetryImage(
               e.original.url,
               fit: BoxFit.cover,
               width: size,
@@ -1648,9 +1649,6 @@ class _ChatViewState extends State<ChatView>
                   ? Colors.white.withOpacity(0.2)
                   : Colors.black.withOpacity(0.03),
               borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.small.url)),
             ),
             width: 30,
             height: 30,
@@ -1660,7 +1658,11 @@ class _ChatViewState extends State<ChatView>
                     color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                     size: 16,
                   )
-                : null,
+                : RetryImage(
+                    image.small.url,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
           );
         }).toList();
       }
@@ -1884,9 +1886,6 @@ class _ChatViewState extends State<ChatView>
                     ? Colors.white.withOpacity(0.2)
                     : Colors.black.withOpacity(0.03),
                 borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
               ),
               width: 30,
               height: 30,
@@ -1896,7 +1895,11 @@ class _ChatViewState extends State<ChatView>
                       color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                       size: 16,
                     )
-                  : null,
+                  : RetryImage(
+                      image.small.url,
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
             );
           }).toList();
         }
