@@ -178,7 +178,7 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Reactive value of [listController.sliverController.stickyIndex].
+  /// Reactive value of [listController] sticky index.
   RxnInt stickyIndex = RxnInt(null);
 
   /// Indicator whether sticky is displayed or not.
