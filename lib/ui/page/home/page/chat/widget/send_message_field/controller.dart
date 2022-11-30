@@ -21,7 +21,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/sending_status.dart';
+import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/util/obs/obs.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '../../../../../../../domain/model/attachment.dart';
@@ -45,13 +50,48 @@ export 'view.dart';
 class SendMessageFieldController extends GetxController {
   SendMessageFieldController(
     this._chatService,
+    this._userService,
+    this.updateDraft,
   );
+
+  /// [Attachment]s to be attached to a message.
+  final RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxObsList<MapEntry<GlobalKey, Attachment>>();
+
+  /// [ChatItem] being quoted to reply onto.
+  final RxList<ChatItem> repliedMessages = RxList<ChatItem>();
+
+  /// [ChatItemQuote]s to be forwarded.
+  final RxList<ChatItemQuote> quotes = RxList<ChatItemQuote>();
 
   /// [Chat]s service used to get [chat] value.
   final ChatService _chatService;
 
+  /// [ChatItem] being edited.
+  final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
+
+  /// [Attachment] being hovered.
+  final Rx<Attachment?> hoveredAttachment = Rx(null);
+
+  /// Replied [ChatItem] being hovered.
+  final Rx<ChatItem?> hoveredReply = Rx(null);
+
+  /// Indicator whether forwarding mode is enabled.
+  final RxBool forwarding = RxBool(false);
+
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
+
+  final void Function()? updateDraft;
+
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _chatService.me;
+
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
@@ -136,7 +176,7 @@ class SendMessageFieldController extends GetxController {
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
-          updateDraft();
+          updateDraft?.call();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

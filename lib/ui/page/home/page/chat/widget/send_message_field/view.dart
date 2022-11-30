@@ -50,25 +50,16 @@ import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
 class SendMessageFieldView extends StatelessWidget {
-  SendMessageFieldView({
+  const SendMessageFieldView({
     Key? key,
-    this.onPickImageFromCamera,
-    this.onVideoImageFromCamera,
-    this.onPickMedia,
-    this.onPickFile,
     this.keepTyping,
-    this.forwarding,
     this.onSend,
-    this.repliedMessages,
-    this.attachments,
     this.onReorder,
-    this.quotes,
-    this.editedMessage,
-    this.animateTo,
+    this.onChatItemTap,
     this.messageFieldKey,
     this.messageSendButtonKey,
-    this.getUser,
-    this.me,
+    this.updateDraft,
+    this.enabledForwarding = false,
     required this.textFieldState,
   }) : super(key: key);
 
@@ -78,65 +69,26 @@ class SendMessageFieldView extends StatelessWidget {
   /// [Key] of message send button.
   final Key? messageSendButtonKey;
 
-  /// [ChatItemQuote]s to be forwarded.
-  final RxList<ChatItemQuote>? quotes;
-
-  /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem>? repliedMessages;
-
   /// Callback, called when the [quotes] or the [repliedMessages] were
   /// reordered.
   final void Function(int old, int to)? onReorder;
 
-  /// [Attachment]s to be attached to a message.
-  final RxObsList<MapEntry<GlobalKey, Attachment>>? attachments;
-
   /// State of a send message field.
   final TextFieldState textFieldState;
 
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool? forwarding;
-
-  /// Users [UserId].
-  final UserId? me;
-
-  /// [ChatItem] being edited.
-  final Rx<ChatItem?>? editedMessage;
-
-  /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment = Rx(null);
-
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
-
-  /// Callback, called when a image picking from camera is triggered.
-  final void Function()? onPickImageFromCamera;
-
-  /// Callback, called when a [RxUser] identified by the provided [UserId] is
-  /// required.
-  final Future<RxUser?> Function(UserId userId)? getUser;
+  final bool enabledForwarding;
 
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
-  final Future<void> Function(
-    ChatItemId id, {
-    bool offsetBasedOnBottom,
-    double offset,
-  })? animateTo;
-
-  /// Callback, called when a video picking from camera is triggered.
-  final void Function()? onVideoImageFromCamera;
-
-  /// Callback, called when a media picking is triggered.
-  final void Function()? onPickMedia;
-
-  /// Callback, called when a file picking is triggered.
-  final void Function()? onPickFile;
+  // HERE OFFSET BASED ON BOTTOM
+  final Future<void> Function(ChatItemId id)? onChatItemTap;
 
   /// Callback, called when user typing in message field.
   final void Function()? keepTyping;
 
   /// Callback, called when message was send.
   final void Function()? onSend;
+
+  final void Function()? updateDraft;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +118,7 @@ class SendMessageFieldView extends StatelessWidget {
 
     return GetBuilder<SendMessageFieldController>(
       key: messageFieldKey,
-      init: SendMessageFieldController(Get.find()),
+      init: SendMessageFieldController(Get.find(), Get.find(), updateDraft),
       builder: (c) => Obx(
         () {
           return SafeArea(
@@ -190,8 +142,8 @@ class SendMessageFieldView extends StatelessWidget {
                   children: [
                     LayoutBuilder(builder: (context, constraints) {
                       bool grab = false;
-                      if (attachments != null) {
-                        grab = (125 + 2) * attachments!.length >
+                      if (c.attachments.isNotEmpty) {
+                        grab = (125 + 2) * c.attachments.length >
                             constraints.maxWidth - 16;
                       }
 
@@ -210,16 +162,14 @@ class SendMessageFieldView extends StatelessWidget {
                             child: Obx(() {
                               return Container(
                                 width: double.infinity,
-                                padding: (repliedMessages != null &&
-                                            repliedMessages!.isNotEmpty) ||
-                                        (attachments != null &&
-                                            attachments!.isNotEmpty)
+                                padding: c.repliedMessages.isNotEmpty ||
+                                        c.attachments.isNotEmpty
                                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                                     : EdgeInsets.zero,
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    if (editedMessage?.value != null)
+                                    if (c.editedMessage.value != null)
                                       ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxHeight: MediaQuery.of(context)
@@ -232,23 +182,25 @@ class SendMessageFieldView extends StatelessWidget {
                                               4, 4, 4, 4),
                                           child: Dismissible(
                                             key: Key(
-                                                '${editedMessage?.value?.id}'),
+                                                '${c.editedMessage.value?.id}'),
                                             direction:
                                                 DismissDirection.horizontal,
                                             onDismissed: (_) =>
-                                                editedMessage?.value = null,
+                                                c.editedMessage.value = null,
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                 vertical: 2,
                                               ),
-                                              child:
-                                                  buildEditedMessage(context),
+                                              child: buildEditedMessage(
+                                                context,
+                                                c,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    if (quotes != null && quotes!.isNotEmpty)
+                                    if (c.quotes.isNotEmpty)
                                       ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxHeight: MediaQuery.of(context)
@@ -304,18 +256,18 @@ class SendMessageFieldView extends StatelessWidget {
                                           reverse: true,
                                           padding: const EdgeInsets.fromLTRB(
                                               1, 0, 1, 0),
-                                          children: quotes!.map((e) {
+                                          children: c.quotes.map((e) {
                                             return ReorderableDragStartListener(
                                               key: Key('Handle_${e.item.id}'),
                                               enabled: !PlatformUtils.isMobile,
-                                              index: quotes!.indexOf(e),
+                                              index: c.quotes.indexOf(e),
                                               child: Dismissible(
                                                 key: Key('${e.item.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
                                                 onDismissed: (_) {
-                                                  quotes!.remove(e);
-                                                  if (quotes!.isEmpty) {
+                                                  c.quotes.remove(e);
+                                                  if (c.quotes.isEmpty) {
                                                     Navigator.of(context).pop();
                                                   }
                                                 },
@@ -327,6 +279,7 @@ class SendMessageFieldView extends StatelessWidget {
                                                   child: buildForwardedMessage(
                                                     context,
                                                     e.item,
+                                                    c,
                                                   ),
                                                 ),
                                               ),
@@ -334,8 +287,7 @@ class SendMessageFieldView extends StatelessWidget {
                                           }).toList(),
                                         ),
                                       ),
-                                    if (repliedMessages != null &&
-                                        repliedMessages!.isNotEmpty)
+                                    if (c.repliedMessages.isNotEmpty)
                                       ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxHeight: MediaQuery.of(context)
@@ -395,18 +347,18 @@ class SendMessageFieldView extends StatelessWidget {
                                             1,
                                             0,
                                           ),
-                                          children: repliedMessages!.map((e) {
+                                          children: c.repliedMessages.map((e) {
                                             return ReorderableDragStartListener(
                                               key: Key('Handle_${e.id}'),
                                               enabled: !PlatformUtils.isMobile,
                                               index:
-                                                  repliedMessages!.indexOf(e),
+                                                  c.repliedMessages.indexOf(e),
                                               child: Dismissible(
                                                 key: Key('${e.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
                                                 onDismissed: (_) {
-                                                  repliedMessages!.remove(e);
+                                                  c.repliedMessages.remove(e);
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets
@@ -414,15 +366,17 @@ class SendMessageFieldView extends StatelessWidget {
                                                     vertical: 2,
                                                   ),
                                                   child: repliedMessage(
-                                                      context, e),
+                                                    context,
+                                                    e,
+                                                    c,
+                                                  ),
                                                 ),
                                               ),
                                             );
                                           }).toList(),
                                         ),
                                       ),
-                                    if (attachments != null &&
-                                        attachments!.isNotEmpty) ...[
+                                    if (c.attachments.isNotEmpty) ...[
                                       const SizedBox(height: 4),
                                       Align(
                                         alignment: Alignment.centerLeft,
@@ -443,12 +397,13 @@ class SendMessageFieldView extends StatelessWidget {
                                                 mainAxisSize: MainAxisSize.max,
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.start,
-                                                children: attachments!
+                                                children: c.attachments
                                                     .map(
                                                       (e) => buildAttachment(
                                                         context,
                                                         e.value,
                                                         e.key,
+                                                        c,
                                                       ),
                                                     )
                                                     .toList(),
@@ -475,7 +430,7 @@ class SendMessageFieldView extends StatelessWidget {
                         children: [
                           if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
                             WidgetButton(
-                              onPressed: onPickFile,
+                              onPressed: c.pickFile,
                               child: SizedBox(
                                 width: 56,
                                 height: 56,
@@ -495,10 +450,10 @@ class SendMessageFieldView extends StatelessWidget {
                             WidgetButton(
                               onPressed: () => AttachmentSourceSelector.show(
                                 context,
-                                onPickFile: onPickFile,
-                                onTakePhoto: onPickImageFromCamera,
-                                onPickMedia: onPickMedia,
-                                onTakeVideo: onVideoImageFromCamera,
+                                onPickFile: c.pickFile,
+                                onTakePhoto: c.pickImageFromCamera,
+                                onPickMedia: c.pickMedia,
+                                onTakeVideo: c.pickVideoFromCamera,
                               ),
                               child: SizedBox(
                                 width: 56,
@@ -544,11 +499,11 @@ class SendMessageFieldView extends StatelessWidget {
                             ),
                           ),
                           GestureDetector(
-                            onLongPress: forwarding?.toggle,
-                            child: forwarding != null
+                            onLongPress: c.forwarding.toggle,
+                            child: enabledForwarding
                                 ? Obx(() => AnimatedSwitcher(
                                       duration: 300.milliseconds,
-                                      child: forwarding!.value == true
+                                      child: c.forwarding.value == true
                                           ? WidgetButton(
                                               onPressed: onSend,
                                               child: SizedBox(
@@ -589,7 +544,12 @@ class SendMessageFieldView extends StatelessWidget {
   }
 
   /// Returns a visual representation of the provided [Attachment].
-  Widget buildAttachment(BuildContext context, Attachment e, GlobalKey key) {
+  Widget buildAttachment(
+    BuildContext context,
+    Attachment e,
+    GlobalKey key,
+    SendMessageFieldController c,
+  ) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
     bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -671,7 +631,7 @@ class SendMessageFieldView extends StatelessWidget {
           }
         }
 
-        List<Attachment> attachmentsList = attachments!
+        List<Attachment> attachmentsList = c.attachments
             .where((e) {
               Attachment a = e.value;
               return a is ImageAttachment ||
@@ -684,16 +644,16 @@ class SendMessageFieldView extends StatelessWidget {
         return WidgetButton(
           key: key,
           onPressed: () {
-            int index = attachments!.indexOf(e);
+            int index = c.attachments.indexOf(e);
             if (index != -1) {
               GalleryPopup.show(
                 context: context,
                 gallery: GalleryPopup(
-                  initial: attachments!.indexOf(e),
+                  initial: c.attachments.indexOf(e),
                   initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachmentsList[i];
-                    attachments!.removeWhere((o) => o.value == a);
+                    c.attachments.removeWhere((o) => o.value == a);
                   },
                   children: attachmentsList.map((o) {
                     if (o is ImageAttachment ||
@@ -797,8 +757,8 @@ class SendMessageFieldView extends StatelessWidget {
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
-        onEnter: (_) => hoveredAttachment.value = e,
-        onExit: (_) => hoveredAttachment.value = null,
+        onEnter: (_) => c.hoveredAttachment.value = e,
+        onExit: (_) => c.hoveredAttachment.value = null,
         child: Container(
           width: size,
           height: size,
@@ -841,11 +801,11 @@ class SendMessageFieldView extends StatelessWidget {
                     child: Obx(() {
                       return AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        child: (hoveredAttachment.value == e ||
+                        child: (c.hoveredAttachment.value == e ||
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () => attachments!
+                                onTap: () => c.attachments
                                     .removeWhere((a) => a.value == e),
                                 child: Container(
                                   width: 15,
@@ -882,15 +842,16 @@ class SendMessageFieldView extends StatelessWidget {
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => attachments!.removeWhere((a) => a.value == e),
+      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: attachment(),
     );
   }
 
   /// Builds a visual representation of the provided [item] being replied.
-  Widget repliedMessage(BuildContext context, ChatItem item) {
+  Widget repliedMessage(
+      BuildContext context, ChatItem item, SendMessageFieldController c) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = item.authorId == me;
+    final bool fromMe = item.authorId == c.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -939,7 +900,7 @@ class SendMessageFieldView extends StatelessWidget {
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = me == item.authorId;
+      bool fromMe = c.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -955,7 +916,7 @@ class SendMessageFieldView extends StatelessWidget {
               .localizedString();
         }
       } else {
-        title = item.authorId == me
+        title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1005,8 +966,8 @@ class SendMessageFieldView extends StatelessWidget {
 
     return MouseRegion(
       opaque: false,
-      onEnter: (d) => hoveredReply.value = item,
-      onExit: (d) => hoveredReply.value = null,
+      onEnter: (d) => c.hoveredReply.value = item,
+      onExit: (d) => c.hoveredReply.value = null,
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
@@ -1018,16 +979,16 @@ class SendMessageFieldView extends StatelessWidget {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == me
+                    Color color = snapshot.data?.user.value.id == c.me
                         ? Theme.of(context).colorScheme.secondary
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
 
                     return Container(
-                      key: Key('Reply_${repliedMessages!.indexOf(item)}'),
+                      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(width: 2, color: color),
@@ -1081,11 +1042,11 @@ class SendMessageFieldView extends StatelessWidget {
             ),
             AnimatedSwitcher(
               duration: 200.milliseconds,
-              child: hoveredReply.value == item || PlatformUtils.isMobile
+              child: c.hoveredReply.value == item || PlatformUtils.isMobile
                   ? WidgetButton(
                       key: const Key('CancelReplyButton'),
                       onPressed: () {
-                        repliedMessages!.remove(item);
+                        c.repliedMessages.remove(item);
                       },
                       child: Container(
                         width: 15,
@@ -1116,9 +1077,13 @@ class SendMessageFieldView extends StatelessWidget {
   }
 
   /// Builds a visual representation of a [SendMessageField.repliedMessages].
-  Widget buildForwardedMessage(BuildContext context, ChatItem item) {
+  Widget buildForwardedMessage(
+    BuildContext context,
+    ChatItem item,
+    SendMessageFieldController c,
+  ) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == me;
+    bool fromMe = item.authorId == c.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1173,7 +1138,7 @@ class SendMessageFieldView extends StatelessWidget {
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = me == item.authorId;
+      bool fromMe = c.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -1186,7 +1151,7 @@ class SendMessageFieldView extends StatelessWidget {
             .difference(item.finishedAt!.val)
             .localizedString();
       } else {
-        title = item.authorId == me
+        title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -1234,8 +1199,8 @@ class SendMessageFieldView extends StatelessWidget {
 
     return MouseRegion(
       opaque: false,
-      onEnter: (d) => hoveredReply.value = item,
-      onExit: (d) => hoveredReply.value = null,
+      onEnter: (d) => c.hoveredReply.value = item,
+      onExit: (d) => c.hoveredReply.value = null,
       child: Container(
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
@@ -1247,9 +1212,9 @@ class SendMessageFieldView extends StatelessWidget {
           children: [
             Expanded(
               child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == me
+                    Color color = snapshot.data?.user.value.id == c.me
                         ? const Color(0xFF63B4FF)
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
@@ -1271,7 +1236,7 @@ class SendMessageFieldView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           FutureBuilder<RxUser?>(
-                            future: getUser?.call(item.authorId),
+                            future: c.getUser(item.authorId),
                             builder: (context, snapshot) {
                               String? name;
                               if (snapshot.hasData) {
@@ -1279,7 +1244,7 @@ class SendMessageFieldView extends StatelessWidget {
                                 if (snapshot.data?.user.value != null) {
                                   return Obx(() {
                                     Color color =
-                                        snapshot.data?.user.value.id == me
+                                        snapshot.data?.user.value.id == c.me
                                             ? const Color(0xFF63B4FF)
                                             : AvatarWidget.colors[snapshot
                                                     .data!.user.value.num.val
@@ -1320,11 +1285,11 @@ class SendMessageFieldView extends StatelessWidget {
             ),
             AnimatedSwitcher(
               duration: 200.milliseconds,
-              child: hoveredReply.value == item || PlatformUtils.isMobile
+              child: c.hoveredReply.value == item || PlatformUtils.isMobile
                   ? WidgetButton(
                       key: const Key('CancelReplyButton'),
                       onPressed: () {
-                        quotes!.removeWhere((e) => e.item == item);
+                        c.quotes.removeWhere((e) => e.item == item);
                       },
                       child: Container(
                         width: 15,
@@ -1355,16 +1320,19 @@ class SendMessageFieldView extends StatelessWidget {
   }
 
   /// Builds a visual representation of a [SendMessageField.editedMessage].
-  Widget buildEditedMessage(BuildContext context) {
+  Widget buildEditedMessage(
+    BuildContext context,
+    SendMessageFieldController c,
+  ) {
     final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = editedMessage?.value?.authorId == me;
+    final bool fromMe = c.editedMessage.value?.authorId == c.me;
 
-    if (editedMessage?.value != null) {
-      if (editedMessage?.value is ChatMessage) {
+    if (c.editedMessage.value != null) {
+      if (c.editedMessage.value is ChatMessage) {
         Widget? content;
         List<Widget> additional = [];
 
-        final ChatMessage item = editedMessage?.value as ChatMessage;
+        final ChatMessage item = c.editedMessage.value as ChatMessage;
 
         var desc = StringBuffer();
         if (item.text != null) {
@@ -1413,11 +1381,11 @@ class SendMessageFieldView extends StatelessWidget {
         }
 
         return WidgetButton(
-          onPressed: () => animateTo?.call(item.id, offsetBasedOnBottom: true),
+          onPressed: () => onChatItemTap?.call(item.id),
           child: MouseRegion(
             opaque: false,
-            onEnter: (d) => hoveredReply.value = item,
-            onExit: (d) => hoveredReply.value = null,
+            onEnter: (d) => c.hoveredReply.value = item,
+            onExit: (d) => c.hoveredReply.value = null,
             child: Container(
               margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
               decoration: BoxDecoration(
@@ -1480,11 +1448,11 @@ class SendMessageFieldView extends StatelessWidget {
                   Obx(() {
                     return AnimatedSwitcher(
                       duration: 200.milliseconds,
-                      child: hoveredReply.value == item ||
+                      child: c.hoveredReply.value == item ||
                               PlatformUtils.isMobile
                           ? WidgetButton(
                               key: const Key('CancelEditButton'),
-                              onPressed: () => editedMessage?.value = null,
+                              onPressed: () => c.editedMessage.value = null,
                               child: Container(
                                 width: 15,
                                 height: 15,
