@@ -468,8 +468,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
                 (chats.values.none((e1) =>
-                    e1.chat.value.isDialog &&
-                    e1.members.containsKey(e.user.value.id)))) {
+                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
               return true;
             }
 
