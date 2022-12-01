@@ -177,70 +177,108 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> deleteUserEmail(UserEmail email) async {
-    final List<UserEmail>? oldConfirmed =
-        myUser.value?.emails.confirmed.toList();
-    final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
-
     if (myUser.value?.emails.unconfirmed == email) {
-      myUser.update((u) => u?.emails.unconfirmed = null);
-    }
-    myUser.update((u) => u?.emails.confirmed.removeWhere((e) => e == email));
+      final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
 
-    try {
-      await _graphQlProvider.deleteUserEmail(email);
-    } catch (_) {
-      myUser.update(
-        (u) => u
-          ?..emails.confirmed = oldConfirmed!
-          ..emails.unconfirmed = oldUnconfirmed,
-      );
-      rethrow;
+      myUser.update((u) => u?.emails.unconfirmed = null);
+
+      try {
+        await _graphQlProvider.deleteUserEmail(email);
+      } catch (_) {
+        myUser.update((u) => u?.emails.unconfirmed = oldUnconfirmed);
+        rethrow;
+      }
+    } else {
+      final int? index = myUser.value?.emails.confirmed.indexOf(email);
+      final UserEmail? oldConfirmed =
+          index != null ? myUser.value!.emails.confirmed[index] : null;
+      myUser.update((u) => u?.emails.confirmed.removeAt(index!));
+
+      try {
+        await _graphQlProvider.deleteUserEmail(email);
+      } catch (_) {
+        final int? maxIndex = myUser.value != null
+            ? myUser.value!.emails.confirmed.length - 1
+            : null;
+
+        final int? newIndex = index != null && maxIndex != null
+            ? index > maxIndex
+                ? maxIndex + 1
+                : index
+            : null;
+
+        myUser.update(
+          (u) => u?.emails.confirmed.insert(newIndex!, oldConfirmed!),
+        );
+        rethrow;
+      }
     }
   }
 
   @override
   Future<void> deleteUserPhone(UserPhone phone) async {
-    final List<UserPhone>? oldConfirmed =
-        myUser.value?.phones.confirmed.toList();
-    final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
-
     if (myUser.value?.phones.unconfirmed == phone) {
-      myUser.update((u) => u?.phones.unconfirmed = null);
-    }
-    myUser.update((u) => u?.phones.confirmed.removeWhere((e) => e == phone));
+      final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
 
-    try {
-      await _graphQlProvider.deleteUserPhone(phone);
-    } catch (_) {
-      myUser.update(
-        (u) => u
-          ?..phones.confirmed = oldConfirmed!
-          ..phones.unconfirmed = oldUnconfirmed,
-      );
-      rethrow;
+      myUser.update((u) => u?.phones.unconfirmed = null);
+
+      try {
+        await _graphQlProvider.deleteUserPhone(phone);
+      } catch (_) {
+        myUser.update((u) => u?.phones.unconfirmed = oldUnconfirmed);
+        rethrow;
+      }
+    } else {
+      final int? index = myUser.value?.phones.confirmed.indexOf(phone);
+      final UserPhone? oldConfirmed =
+          index != null ? myUser.value!.phones.confirmed[index] : null;
+      myUser.update((u) => u?.phones.confirmed.removeAt(index!));
+
+      try {
+        await _graphQlProvider.deleteUserPhone(phone);
+      } catch (_) {
+        final int? maxIndex = myUser.value != null
+            ? myUser.value!.phones.confirmed.length - 1
+            : null;
+
+        final int? newIndex = index != null && maxIndex != null
+            ? index > maxIndex
+                ? maxIndex + 1
+                : index
+            : null;
+
+        myUser.update(
+          (u) => u?.phones.confirmed.insert(newIndex!, oldConfirmed!),
+        );
+        rethrow;
+      }
     }
   }
 
   @override
   Future<void> addUserEmail(UserEmail email) async {
+    final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
+
     myUser.update((u) => u?.emails.unconfirmed = email);
 
     try {
       await _graphQlProvider.addUserEmail(email);
     } catch (_) {
-      myUser.update((u) => u?.emails.unconfirmed = null);
+      myUser.update((u) => u?.emails.unconfirmed = oldUnconfirmed);
       rethrow;
     }
   }
 
   @override
   Future<void> addUserPhone(UserPhone phone) async {
+    final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
+
     myUser.update((u) => u?.phones.unconfirmed = phone);
 
     try {
       await _graphQlProvider.addUserPhone(phone);
     } catch (_) {
-      myUser.update((u) => u?.phones.unconfirmed = null);
+      myUser.update((u) => u?.phones.unconfirmed = oldUnconfirmed);
       rethrow;
     }
   }
