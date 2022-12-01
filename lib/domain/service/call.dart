@@ -137,7 +137,6 @@ class CallService extends DisposableService {
     ChatId chatId, {
     bool withAudio = true,
     bool withVideo = true,
-    bool withScreen = false,
   }) async {
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
@@ -167,7 +166,6 @@ class CallService extends DisposableService {
             me,
             withAudio: withAudio,
             withVideo: withVideo,
-            withScreen: withScreen,
             mediaSettings: media.value,
             creds: credentials ?? _callsRepo.generateCredentials(chatId),
             state: OngoingCallState.joining,
@@ -186,7 +184,6 @@ class CallService extends DisposableService {
         stored.value.state.value = OngoingCallState.joining;
         stored.value.setAudioEnabled(withAudio);
         stored.value.setVideoEnabled(withVideo);
-        stored.value.setScreenShareEnabled(withScreen);
         await _callsRepo.join(stored);
         stored.value.connect(this);
       }

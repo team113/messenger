@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
@@ -27,12 +28,13 @@ import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
+import '/ui/page/call/widget/screen_share_selector/view.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'chat.dart';
-import 'chat_item.dart';
 import 'chat_call.dart';
+import 'chat_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -537,34 +539,54 @@ class OngoingCall {
     CallService calls, {
     bool withAudio = true,
     bool withVideo = true,
-    bool withScreen = false,
   }) async =>
       await calls.join(
         chatId.value,
         withAudio: withAudio,
         withVideo: withVideo,
-        withScreen: withScreen,
       );
 
   /// Enables/disables local screen-sharing stream based on [enabled].
-  Future<void> setScreenShareEnabled(bool enabled) async {
+  Future<void> setScreenShareEnabled(
+    bool enabled,
+    BuildContext? context,
+  ) async {
     switch (screenShareState.value) {
       case LocalTrackState.disabled:
       case LocalTrackState.disabling:
         if (enabled) {
-          screenShareState.value = LocalTrackState.enabling;
-          try {
-            await _room?.enableVideo(MediaSourceKind.Display);
-            screenShareState.value = LocalTrackState.enabled;
-            if (!isActive || members.length <= 1) {
-              _updateTracks();
+          List<MediaDisplayInfo> displays =
+              await _mediaManager!.enumerateDisplays();
+
+          String? deviceId;
+          if (context != null) {
+
+            // ignore: use_build_context_synchronously
+            await ScreenShareSelector.show(
+              context,
+              chatId: chatId.value,
+              displays: displays,
+              onProceed: (display) {
+                deviceId = display.deviceId();
+              },
+            );
+          }
+
+          if (deviceId != null) {
+            screenShareState.value = LocalTrackState.enabling;
+            try {
+              await _room?.enableVideo(MediaSourceKind.Display);
+              screenShareState.value = LocalTrackState.enabled;
+              if (!isActive || members.length <= 1) {
+                _updateTracks();
+              }
+            } on MediaStateTransitionException catch (_) {
+              // No-op.
+            } catch (e) {
+              screenShareState.value = LocalTrackState.disabled;
+              _errors.add('enableScreenShare() call failed with $e');
+              rethrow;
             }
-          } on MediaStateTransitionException catch (_) {
-            // No-op.
-          } catch (e) {
-            screenShareState.value = LocalTrackState.disabled;
-            _errors.add('enableVideo() call failed with $e');
-            rethrow;
           }
         }
         break;
@@ -580,7 +602,7 @@ class OngoingCall {
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
-            _errors.add('disableVideo() call failed with $e');
+            _errors.add('disableScreenShare() call failed with $e');
             screenShareState.value = LocalTrackState.enabled;
             rethrow;
           }
@@ -681,9 +703,13 @@ class OngoingCall {
   }
 
   /// Toggles local screen-sharing stream on and off.
-  Future<void> toggleScreenShare() =>
-      setScreenShareEnabled(screenShareState.value != LocalTrackState.enabled &&
-          screenShareState.value != LocalTrackState.enabling);
+  Future<void> toggleScreenShare(BuildContext context) {
+    return setScreenShareEnabled(
+      screenShareState.value != LocalTrackState.enabled &&
+          screenShareState.value != LocalTrackState.enabling,
+      context,
+    );
+  }
 
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() =>
@@ -825,6 +851,7 @@ class OngoingCall {
     bool screen = true,
     String? audioDevice,
     String? videoDevice,
+    String? screenShareDevice,
     FacingMode? facingMode,
   }) {
     MediaStreamSettings settings = MediaStreamSettings();
@@ -843,7 +870,9 @@ class OngoingCall {
     }
 
     if (screen) {
-      settings.displayVideo(DisplayVideoTrackConstraints());
+      DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
+      if (screenShareDevice != null) constraints.deviceId(screenShareDevice);
+      settings.displayVideo(constraints);
     }
 
     return settings;
@@ -871,7 +900,7 @@ class OngoingCall {
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
               _errors.add('Failed to initiate screen capture: $e');
-              await setScreenShareEnabled(false);
+              await setScreenShareEnabled(false, null);
               break;
 
             default:
@@ -886,7 +915,7 @@ class OngoingCall {
               videoState.value = LocalTrackState.disabled;
               videoDevice.value = null;
 
-              await setScreenShareEnabled(false);
+              await setScreenShareEnabled(false, null);
               screenShareState.value = LocalTrackState.disabled;
               return;
           }

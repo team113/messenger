@@ -47,7 +47,7 @@ abstract class CallButton {
       other is CallButton && runtimeType == other.runtimeType;
 
   /// Builds the [Widget] representation of this [CallButton].
-  Widget build({bool hinted = true});
+  Widget build(BuildContext context, {bool hinted = true});
 
   /// Returns a styled [RoundFloatingButton] with the provided parameters.
   Widget _common({
@@ -82,7 +82,7 @@ class MoreButton extends CallButton {
   String get hint => 'btn_call_more'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return _common(
       asset: 'more',
       hinted: hinted,
@@ -103,7 +103,7 @@ class VideoButton extends CallButton {
   }
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool blur = false}) {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
@@ -129,7 +129,7 @@ class AudioButton extends CallButton {
   }
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool blur = false}) {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
@@ -155,14 +155,14 @@ class ScreenButton extends CallButton {
   }
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return Obx(() {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return _common(
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
-        onPressed: c.toggleScreenShare,
+        onPressed: () => c.toggleScreenShare(context),
       );
     });
   }
@@ -178,7 +178,7 @@ class HandButton extends CallButton {
       : 'btn_call_hand_up'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return Obx(() {
       return _common(
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
@@ -197,7 +197,7 @@ class SettingsButton extends CallButton {
   String get hint => 'btn_call_settings'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return _common(
       asset: 'settings_small',
       hinted: hinted,
@@ -214,7 +214,7 @@ class ParticipantsButton extends CallButton {
   String get hint => 'btn_participants'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return _common(
       asset: 'add_user_small',
       hinted: hinted,
@@ -233,7 +233,7 @@ class RemoteVideoButton extends CallButton {
       : 'btn_call_remote_video_on'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return Obx(() {
       return _common(
         asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
@@ -254,7 +254,7 @@ class RemoteAudioButton extends CallButton {
       : 'btn_call_remote_audio_on'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return Obx(() {
       return _common(
         asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
@@ -273,7 +273,7 @@ class AcceptAudioButton extends CallButton {
   String get hint => 'btn_call_answer_with_audio'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
     return _common(
       asset: 'audio_call_start',
       assetWidth: 29,
@@ -294,7 +294,7 @@ class AcceptVideoButton extends CallButton {
   String get hint => 'btn_call_answer_with_video'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
     return _common(
       asset: 'video_on',
       color: CallController.acceptColor,
@@ -314,7 +314,7 @@ class DeclineButton extends CallButton {
   String get hint => 'btn_call_decline'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
     return _common(
       asset: 'call_end',
       color: CallController.endColor,
@@ -334,7 +334,7 @@ class DropButton extends CallButton {
   String get hint => 'btn_call_end'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return _common(
       asset: 'call_end',
       color: CallController.endColor,
@@ -352,7 +352,7 @@ class CancelButton extends CallButton {
   String get hint => 'btn_call_cancel'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool blur = false}) {
     return _common(
       asset: 'call_end',
       color: CallController.endColor,
@@ -374,7 +374,7 @@ class EndCallButton extends CallButton {
   String get hint => 'btn_call_end'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build(BuildContext context, {bool hinted = true}) {
     return _common(
       asset: 'call_end',
       color: CallController.endColor,
@@ -392,7 +392,7 @@ class SpeakerButton extends CallButton {
   String get hint => 'btn_call_toggle_speaker'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool blur = false}) {
     return Obx(() {
       return _common(
         asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
@@ -412,7 +412,7 @@ class SwitchButton extends CallButton {
   String get hint => 'btn_call_switch_camera'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build(BuildContext context, {bool hinted = true, bool blur = false}) {
     return Obx(() {
       return _common(
         asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',

@@ -367,7 +367,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   padding(
                     c.videoState.value.isEnabled
                         ? withDescription(
-                            SwitchButton(c).build(),
+                            SwitchButton(c).build(context),
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
@@ -375,7 +375,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ),
                           )
                         : withDescription(
-                            SpeakerButton(c).build(),
+                            SpeakerButton(c).build(context),
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
@@ -385,7 +385,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 if (PlatformUtils.isDesktop)
                   padding(withDescription(
-                    ScreenButton(c).build(),
+                    ScreenButton(c).build(context),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -399,7 +399,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   )),
                 padding(withDescription(
-                  AudioButton(c).build(),
+                  AudioButton(c).build(context),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
@@ -412,7 +412,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 )),
                 padding(withDescription(
-                  VideoButton(c).build(),
+                  VideoButton(c).build(context),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
@@ -425,7 +425,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 )),
                 padding(withDescription(
-                  DropButton(c).build(),
+                  DropButton(c).build(context),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
@@ -438,11 +438,11 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(withDescription(
-                  ParticipantsButton(c).build(),
+                  ParticipantsButton(c).build(context),
                   Text('btn_participants_desc'.l10n),
                 )),
                 padding(withDescription(
-                  HandButton(c).build(),
+                  HandButton(c).build(context),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
@@ -452,13 +452,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 )),
                 padding(withDescription(
-                  RemoteAudioButton(c).build(),
+                  RemoteAudioButton(c).build(context),
                   Text(c.isRemoteAudioEnabled.value
                       ? 'btn_call_remote_audio_off_desc'.l10n
                       : 'btn_call_remote_audio_on_desc'.l10n),
                 )),
                 padding(withDescription(
-                  RemoteVideoButton(c).build(),
+                  RemoteVideoButton(c).build(context),
                   Text(c.isRemoteVideoEnabled.value
                       ? 'btn_call_remote_video_off_desc'.l10n
                       : 'btn_call_remote_video_on_desc'.l10n),
@@ -565,21 +565,25 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(blur: true)
+                                            ? SwitchButton(c)
+                                                .build(context, blur: true)
                                             : SpeakerButton(c)
-                                                .build(blur: true),
+                                                .build(context, blur: true),
                                       ),
-                                    padding(AudioButton(c).build(blur: true)),
-                                    padding(VideoButton(c).build(blur: true)),
-                                    padding(CancelButton(c).build(blur: true)),
+                                    padding(AudioButton(c)
+                                        .build(context, blur: true)),
+                                    padding(VideoButton(c)
+                                        .build(context, blur: true)),
+                                    padding(CancelButton(c)
+                                        .build(context, blur: true)),
                                   ]
                                 : [
                                     padding(AcceptAudioButton(c)
-                                        .build(expanded: true)),
+                                        .build(context, expanded: true)),
                                     padding(AcceptVideoButton(c)
-                                        .build(expanded: true)),
-                                    padding(
-                                        DeclineButton(c).build(expanded: true)),
+                                        .build(context, expanded: true)),
+                                    padding(DeclineButton(c)
+                                        .build(context, expanded: true)),
                                   ],
                           ),
                         ),

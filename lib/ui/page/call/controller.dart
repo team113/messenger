@@ -857,19 +857,17 @@ class CallController extends GetxController {
   void join({
     bool withAudio = true,
     bool withVideo = true,
-    bool withScreen = false,
   }) =>
       _currentCall.value.join(
         _calls,
         withAudio: withAudio,
         withVideo: withVideo,
-        withScreen: withScreen,
       );
 
   /// Toggles local screen-sharing stream on and off.
-  Future<void> toggleScreenShare() async {
+  Future<void> toggleScreenShare(BuildContext context) async {
     keepUi();
-    await _currentCall.value.toggleScreenShare();
+    await _currentCall.value.toggleScreenShare(context);
   }
 
   /// Toggles local audio stream on and off.
