@@ -124,7 +124,7 @@ class ChatController extends GetxController {
   /// State of an edit message field.
   TextFieldState? edit;
 
-  /// [ChatItem] being edited.
+  /// Indicator whether [ChatItem] message os editing or not
   final RxBool isEditingMessage = RxBool(false);
 
   /// Interval of a [ChatMessage] since its creation within which this
