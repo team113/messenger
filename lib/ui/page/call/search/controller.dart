@@ -464,13 +464,15 @@ class SearchController extends GetxController {
 
     if (categories.contains(SearchCategory.users)) {
       if (searchUsersResults.value?.isNotEmpty == true) {
+        print('searchUsersResults.value?.isNotEmpty');
         Map<UserId, RxUser> allUsers = {
           for (var u in searchUsersResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
                 (chats.values.none((e1) =>
-                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
+                    e1.chat.value.isDialog &&
+                    e1.members.containsKey(e.user.value.id)))) {
               return true;
             }
 
@@ -510,7 +512,7 @@ class SearchController extends GetxController {
                   !contacts.containsKey(user?.id) &&
                   (chats.values.none((e1) =>
                       e1.chat.value.isDialog &&
-                      e1.members.containsKey(e.id)))) {
+                      e1.members.containsKey(user?.id)))) {
                 if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
