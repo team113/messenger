@@ -91,5 +91,6 @@ fragment Chat on Chat {
         __typename
         ...ChatCall
     }
+    favoritePosition
     ver
 }

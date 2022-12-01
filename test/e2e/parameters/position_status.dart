@@ -14,28 +14,20 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:gherkin/gherkin.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
-import 'version.dart';
+/// Position of an element in some [List].
+enum PositionStatus { first, last }
 
-part 'chat.g.dart';
-
-/// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
-class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
-}
-
-/// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends Version {
-  RecentChatsCursor(String val) : super(val);
-}
-
-/// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
-class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
+/// [CustomParameter] representing a [PositionStatus].
+class PositionStatusParameter extends CustomParameter<PositionStatus> {
+  PositionStatusParameter()
+      : super(
+          'position',
+          RegExp(
+            '(${PositionStatus.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => PositionStatus.values.firstWhere((e) => e.name == c),
+        );
 }

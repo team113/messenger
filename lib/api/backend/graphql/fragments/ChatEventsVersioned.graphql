@@ -235,6 +235,13 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
+        ... on EventChatFavorited {
+            position
+            at
+        }
+        ... on EventChatUnfavorited {
+            at
+        }
     }
     ver
 }

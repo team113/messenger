@@ -14,28 +14,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
-import 'version.dart';
+/// Status of a [Chat.favoritePosition] field available in a
+/// [FavoriteStatusParameter].
+enum FavoriteStatus { favorite, unfavorite }
 
-part 'chat.g.dart';
-
-/// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
-class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
-}
-
-/// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
-class RecentChatsCursor extends Version {
-  RecentChatsCursor(String val) : super(val);
-}
-
-/// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
-class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
+/// [CustomParameter] representing a [FavoriteStatusParameter].
+class FavoriteStatusParameter extends CustomParameter<FavoriteStatus> {
+  FavoriteStatusParameter()
+      : super(
+          'favorite',
+          RegExp(
+            '(${FavoriteStatus.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => FavoriteStatus.values.firstWhere((e) => e.name == c),
+        );
 }

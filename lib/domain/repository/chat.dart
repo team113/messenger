@@ -173,6 +173,14 @@ abstract class AbstractChatRepository {
   /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
   /// Overrides an existing mute even if it's longer.
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute);
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its position in the favorites list.
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position);
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  Future<void> unfavoriteChat(ChatId id);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

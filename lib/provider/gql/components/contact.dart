@@ -182,7 +182,7 @@ abstract class ContactGraphQlMixin {
   /// Infinite.
   ///
   /// Completes requiring a re-subscription when:
-  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
