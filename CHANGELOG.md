@@ -17,7 +17,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
-        - Disappear sticky date when no scrolling. ([#221], [#215])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
     - Home page:
@@ -32,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Video resizing when dragged. ([#191], [#190])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
+        - Disappear sticky date when no scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
 
