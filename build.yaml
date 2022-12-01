@@ -87,6 +87,12 @@ targets:
                 name: ChatDirectLinkVersion
                 imports:
                   - "package:messenger/store/model/my_user.dart"
+            - graphql_type: ChatFavoritePosition
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
+              dart_type:
+                name: ChatFavoritePosition
+                imports:
+                  - "package:messenger/domain/model/chat.dart"      
             - graphql_type: ChatId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
               dart_type:
@@ -141,6 +147,12 @@ targets:
                 name: PreciseDateTime
                 imports:
                   - "package:messenger/domain/model/precise_date_time/precise_date_time.dart"
+            - graphql_type: FavoriteChatsListVersion
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
+              dart_type:
+                name: FavoriteChatsListVersion
+                imports:
+                 - "package:messenger/store/model/chat.dart"     
             - graphql_type: GalleryItemId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/gallery.dart"
               dart_type:

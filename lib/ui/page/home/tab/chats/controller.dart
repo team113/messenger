@@ -39,7 +39,12 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
+    show
+        FavoriteChatException,
+        HideChatException,
+        RemoveChatMemberException,
+        ToggleChatMuteException,
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
@@ -124,7 +129,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortChats();
           break;
       }
     });
@@ -244,6 +249,30 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Marks the specified [Chat] identified by its [id] as favorited.
+  Future<void> favoriteChat(ChatId id) async {
+    try {
+      await _chatService.favoriteChat(id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [Chat] identified by its [id] from the favorites.
+  Future<void> unfavoriteChat(ChatId id) async {
+    try {
+      await _chatService.unfavoriteChat(id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -320,6 +349,18 @@ class ChatsTabController extends GetxController {
       } else if (a.chat.value.ongoingCall == null &&
           b.chat.value.ongoingCall != null) {
         return 1;
+      }
+
+      if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition == null) {
+        return -1;
+      } else if (a.chat.value.favoritePosition == null &&
+          b.chat.value.favoritePosition != null) {
+        return 1;
+      } else if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition != null) {
+        return a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!);
       }
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);

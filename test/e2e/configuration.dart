@@ -32,15 +32,18 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
+import 'parameters/position_status.dart';
 import 'parameters/search_category.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
 import 'steps/contact.dart';
 import 'steps/download_file.dart';
@@ -55,7 +58,9 @@ import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/see_chat_position.dart';
 import 'steps/see_draft.dart';
+import 'steps/see_favorite_chat.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as.dart';
 import 'steps/sees_muted_chat.dart';
@@ -84,6 +89,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsFavorite,
         chatIsMuted,
         contact,
         copyFromField,
@@ -108,11 +114,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
+        seeChatAsFavorite,
         seeChatAsMuted,
         seeChatInSearchResults,
+        seeChatPosition,
         seeDraftInDialog,
-        seeUserInSearchResults,
         seesAs,
+        seeUserInSearchResults,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
@@ -150,9 +158,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
+        PositionStatusParameter(),
         SearchCategoryParameter(),
         SendingStatusParameter(),
         UsersParameter(),
