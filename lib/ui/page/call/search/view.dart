@@ -74,7 +74,7 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called when an [SearchViewResults] was changed.
+  /// Callback, called when selected items was changed.
   final void Function(SearchViewResults? results)? onChanged;
 
   /// Callback, called when the back button is pressed.

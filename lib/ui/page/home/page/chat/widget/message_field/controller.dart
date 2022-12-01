@@ -33,14 +33,13 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the [Routes.chatInfo] page.
+/// Controller of the [MessageFieldView] widget.
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
@@ -58,7 +57,7 @@ class MessageFieldController extends GetxController {
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote> quotes = RxList<ChatItemQuote>();
 
-  /// [Chat]s service used to get [chat] value.
+  /// [Chat]s service used to upload attachments.
   final ChatService _chatService;
 
   /// [ChatItem] being edited.

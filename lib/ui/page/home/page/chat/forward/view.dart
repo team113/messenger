@@ -50,10 +50,10 @@ class ChatForwardView extends StatelessWidget {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
-  /// Initial send field value.
+  /// Initial [String] to put in the send field.
   final String? text;
 
-  /// Initial attachments.
+  /// Initial [Attachment]s to attach to the provided [quotes].
   final RxList<MapEntry<GlobalKey, Attachment>>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
@@ -180,7 +180,7 @@ class ChatForwardView extends StatelessWidget {
                             messageSendButtonKey: const Key('SendForward'),
                             controller: c.sendController,
                             textFieldState: c.send,
-                            onSend: c.forward,
+                            onSend: c.send.submit,
                             onReorder: (int old, int to) {
                               if (old < to) {
                                 --to;

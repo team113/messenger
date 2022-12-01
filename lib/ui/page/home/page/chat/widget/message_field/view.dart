@@ -86,7 +86,6 @@ class MessageFieldView extends StatelessWidget {
   final MessageFieldController controller;
 
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
-  // HERE OFFSET BASED ON BOTTOM
   final Future<void> Function(ChatItemId id)? onChatItemTap;
 
   /// Callback, called when send message button was tapped.
@@ -506,7 +505,8 @@ class MessageFieldView extends StatelessWidget {
                       GestureDetector(
                         onLongPress: c.forwarding.toggle,
                         child: enabledForwarding
-                            ? Obx(() => AnimatedSwitcher(
+                            ? Obx(
+                                () => AnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value == true
                                       ? WidgetButton(
@@ -519,7 +519,8 @@ class MessageFieldView extends StatelessWidget {
                                             child: Center(
                                               child: AnimatedSwitcher(
                                                 duration: const Duration(
-                                                    milliseconds: 150),
+                                                  milliseconds: 150,
+                                                ),
                                                 child: SizedBox(
                                                   width: 26,
                                                   height: 22,
@@ -534,7 +535,8 @@ class MessageFieldView extends StatelessWidget {
                                           ),
                                         )
                                       : sendButton(),
-                                ))
+                                ),
+                              )
                             : sendButton(),
                       ),
                     ],

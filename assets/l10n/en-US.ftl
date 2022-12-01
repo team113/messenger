@@ -499,7 +499,6 @@ label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
 label_search_recent = Recent
 label_selected = Selected: {$count}
-label_send = Send
 label_send_message_hint = Message...
 label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error

@@ -61,7 +61,7 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
-  /// Initial [send] field value.
+  /// Initial [String] to put in the [send] field.
   final String? text;
 
   /// [ChatItemQuote]s to be forwarded.
@@ -107,7 +107,90 @@ class ChatForwardController extends GetxController {
     send = TextFieldState(
       text: text,
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (_) => forward(),
+      onSubmitted: (s) async {
+        if (searchResults.value?.isEmpty != false) {
+          return;
+        }
+        s.status.value = RxStatus.loading();
+        s.editable.value = false;
+
+        try {
+          List<Future> uploads = sendController.attachments
+              .whereType<LocalAttachment>()
+              .map((e) => e.upload.value?.future)
+              .whereNotNull()
+              .toList();
+          if (uploads.isNotEmpty) {
+            await Future.wait(uploads);
+          }
+
+          if (sendController.attachments
+              .whereType<LocalAttachment>()
+              .isNotEmpty) {
+            throw const ConnectionException(ForwardChatItemsException(
+              ForwardChatItemsErrorCode.unknownAttachment,
+            ));
+          }
+
+          List<Future<void>> futures = [
+            ...searchResults.value!.chats.map((e) async {
+              return _chatService.forwardChatItems(
+                from,
+                e.chat.value.id,
+                sendController.quotes,
+                text: send.text == '' ? null : ChatMessageText(send.text),
+                attachments: sendController.attachments.isEmpty
+                    ? null
+                    : sendController.attachments
+                        .map((a) => a.value.id)
+                        .toList(),
+              );
+            }),
+            ...searchResults.value!.users.map((e) async {
+              Chat? dialog = e.user.value.dialog;
+              dialog ??= (await _chatService.createDialogChat(e.id)).chat.value;
+              return _chatService.forwardChatItems(
+                from,
+                dialog.id,
+                sendController.quotes,
+                text: send.text == '' ? null : ChatMessageText(send.text),
+                attachments: sendController.attachments.isEmpty
+                    ? null
+                    : sendController.attachments
+                        .map((a) => a.value.id)
+                        .toList(),
+              );
+            }),
+            ...searchResults.value!.contacts.map((e) async {
+              Chat? dialog = e.user.value?.user.value.dialog;
+              dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
+                  .chat
+                  .value;
+              return _chatService.forwardChatItems(
+                from,
+                dialog.id,
+                sendController.quotes,
+                text: send.text == '' ? null : ChatMessageText(send.text),
+                attachments: sendController.attachments.isEmpty
+                    ? null
+                    : sendController.attachments
+                        .map((a) => a.value.id)
+                        .toList(),
+              );
+            })
+          ];
+
+          await Future.wait(futures);
+          pop?.call();
+        } on ForwardChatItemsException catch (e) {
+          MessagePopup.error(e);
+        } catch (e) {
+          MessagePopup.error(e);
+          rethrow;
+        } finally {
+          s.unsubmit();
+        }
+      },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&
@@ -156,84 +239,6 @@ class ChatForwardController extends GetxController {
     });
 
     super.onClose();
-  }
-
-  /// Forwards [ChatItem] to selected [Chat]s and [User]s.
-  Future<void> forward() async {
-    if (searchResults.value?.isEmpty != false) {
-      return;
-    }
-    send.status.value = RxStatus.loading();
-    send.editable.value = false;
-
-    try {
-      List<Future> uploads = sendController.attachments
-          .whereType<LocalAttachment>()
-          .map((e) => e.upload.value?.future)
-          .whereNotNull()
-          .toList();
-      if (uploads.isNotEmpty) {
-        await Future.wait(uploads);
-      }
-
-      if (sendController.attachments.whereType<LocalAttachment>().isNotEmpty) {
-        throw const ConnectionException(ForwardChatItemsException(
-          ForwardChatItemsErrorCode.unknownAttachment,
-        ));
-      }
-
-      List<Future<void>> futures = [
-        ...searchResults.value!.chats.map((e) async {
-          return _chatService.forwardChatItems(
-            from,
-            e.chat.value.id,
-            sendController.quotes,
-            text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: sendController.attachments.isEmpty
-                ? null
-                : sendController.attachments.map((a) => a.value.id).toList(),
-          );
-        }),
-        ...searchResults.value!.users.map((e) async {
-          Chat? dialog = e.user.value.dialog;
-          dialog ??= (await _chatService.createDialogChat(e.id)).chat.value;
-          return _chatService.forwardChatItems(
-            from,
-            dialog.id,
-            sendController.quotes,
-            text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: sendController.attachments.isEmpty
-                ? null
-                : sendController.attachments.map((a) => a.value.id).toList(),
-          );
-        }),
-        ...searchResults.value!.contacts.map((e) async {
-          Chat? dialog = e.user.value?.user.value.dialog;
-          dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
-              .chat
-              .value;
-          return _chatService.forwardChatItems(
-            from,
-            dialog.id,
-            sendController.quotes,
-            text: send.text == '' ? null : ChatMessageText(send.text),
-            attachments: sendController.attachments.isEmpty
-                ? null
-                : sendController.attachments.map((a) => a.value.id).toList(),
-          );
-        })
-      ];
-
-      await Future.wait(futures);
-      pop?.call();
-    } on ForwardChatItemsException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      send.unsubmit();
-    }
   }
 
   /// Returns an [User] from [UserService] by the provided [id].

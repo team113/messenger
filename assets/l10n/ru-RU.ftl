@@ -522,7 +522,6 @@ label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
 label_search_recent = Недавние
 label_selected = Выбрано: {$count}
-label_send = Отправить
 label_send_message_hint = Сообщение...
 label_service_connected = Сервис успешно подключен
 label_service_encountered_error = Сервис столкнулся с ошибкой

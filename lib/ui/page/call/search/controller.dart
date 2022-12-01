@@ -63,7 +63,7 @@ class SearchController extends GetxController {
   /// [RxChat] this controller is bound to, if any.
   ///
   /// If specified, then the [RxChat.members] of this [chat] will be omitted
-  /// from the [searchUsersResults].
+  /// from the [searchResults].
   final RxChat? chat;
 
   /// Reactive list of the selected [ChatContact]s.
@@ -76,7 +76,7 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<RxList<RxUser>?> searchUsersResults = Rx(null);
+  final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -84,13 +84,10 @@ class SearchController extends GetxController {
   /// - `searchStatus.empty`, meaning no search.
   /// - `searchStatus.loading`, meaning search is in progress.
   /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [searchUsersResults] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [searchUsersResults]
-  /// are acquired.
+  ///   [searchResults] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [searchResults] are
+  ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
-
-  /// Selected items in [SearchView] popup.
-  final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
@@ -122,7 +119,7 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when an [SearchViewResults] was changed.
+  /// Callback, called when selected items was changed.
   final void Function(SearchViewResults? results)? onChanged;
 
   /// Worker to react on [SearchResult.status] changes.
@@ -152,7 +149,7 @@ class SearchController extends GetxController {
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String? q) {
       if (q == null || q.isEmpty) {
-        searchUsersResults.value = null;
+        searchResults.value = null;
         searchStatus.value = RxStatus.empty();
       } else {
         searchStatus.value = RxStatus.loading();
@@ -222,12 +219,13 @@ class SearchController extends GetxController {
       }
     }
 
-    searchResults.value = SearchViewResults(
-      selectedChats,
-      selectedUsers,
-      selectedContacts,
+    onChanged?.call(
+      SearchViewResults(
+        selectedChats,
+        selectedUsers,
+        selectedContacts,
+      ),
     );
-    onChanged?.call(searchResults.value);
   }
 
   /// Searches the [User]s based on the provided [query].
@@ -271,7 +269,7 @@ class SearchController extends GetxController {
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
-        searchUsersResults.value = result.users;
+        searchResults.value = result.users;
         searchStatus.value = result.status.value;
 
         _searchStatusWorker = ever(result.status, (RxStatus s) {
@@ -282,11 +280,11 @@ class SearchController extends GetxController {
         populate();
       } else {
         searchStatus.value = RxStatus.empty();
-        searchUsersResults.value = null;
+        searchResults.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      searchUsersResults.value = null;
+      searchResults.value = null;
     }
   }
 
@@ -463,9 +461,9 @@ class SearchController extends GetxController {
     }
 
     if (categories.contains(SearchCategory.users)) {
-      if (searchUsersResults.value?.isNotEmpty == true) {
+      if (searchResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
-          for (var u in searchUsersResults.value!.where((e) {
+          for (var u in searchResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&

@@ -887,7 +887,7 @@ class _ChatViewState extends State<ChatView>
 
                 HapticFeedback.lightImpact();
               },
-              onChatItemTap: c.animateTo,
+              onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
               enabledForwarding: true,
             )
           // SendMessageField(
@@ -941,7 +941,7 @@ class _ChatViewState extends State<ChatView>
               controller: c.editController,
               textFieldState: c.edit!,
               onSend: c.edit!.submit,
-              onChatItemTap: c.animateTo,
+              onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
               canAttachFile: false,
             ),
     );
