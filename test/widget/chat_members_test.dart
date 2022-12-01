@@ -139,6 +139,9 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
@@ -359,6 +362,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractContactRepository contactRepository = ContactRepository(

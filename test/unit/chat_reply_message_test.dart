@@ -105,6 +105,10 @@ void main() async {
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
@@ -200,6 +204,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );
@@ -267,6 +272,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );

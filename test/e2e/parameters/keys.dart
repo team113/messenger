@@ -43,6 +43,7 @@ enum WidgetKey {
   DeleteAvatar,
   DeleteForAll,
   EmailsExpandable,
+  FavoriteChatButton,
   ForwardButton,
   ForwardField,
   HideForMe,
@@ -85,6 +86,7 @@ enum WidgetKey {
   SignInButton,
   StartButton,
   SuccessStage,
+  UnfavoriteChatButton,
   UnmuteChatButton,
   UsernameField,
 }
