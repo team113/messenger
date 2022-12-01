@@ -420,7 +420,7 @@ class SearchController extends GetxController {
                 !recent.containsKey(user?.id) &&
                 (chats.values.none((e1) =>
                     e1.chat.value.isDialog &&
-                    e1.members.containsKey(e.user.value?.id)))) {
+                    e1.members.containsKey(user?.id)))) {
               if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -464,7 +464,6 @@ class SearchController extends GetxController {
 
     if (categories.contains(SearchCategory.users)) {
       if (searchUsersResults.value?.isNotEmpty == true) {
-        print('searchUsersResults.value?.isNotEmpty');
         Map<UserId, RxUser> allUsers = {
           for (var u in searchUsersResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
@@ -483,10 +482,7 @@ class SearchController extends GetxController {
 
         users.value = {
           for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) &&
-                !allUsers.containsKey(e.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
+            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
               if (e.user.value.name?.val
                       .toLowerCase()
                       .contains(query.value.toLowerCase()) ==
@@ -533,10 +529,7 @@ class SearchController extends GetxController {
 
         users.value = {
           for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) &&
-                !allUsers.containsKey(e.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
+            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
               if (query.value.isNotEmpty) {
                 if (e.user.value.name?.val
                         .toLowerCase()
