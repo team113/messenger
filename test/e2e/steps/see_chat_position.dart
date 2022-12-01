@@ -24,6 +24,10 @@ import '../world/custom_world.dart';
 
 /// Indicates whether a [Chat] with the provided name is displayed at the
 /// specified [PositionStatus].
+///
+/// Examples:
+/// - Then I see "Example" chat first in chats list
+/// - Then I see "Example" chat last in chats list
 final StepDefinitionGeneric seeChatPosition =
     then2<String, PositionStatus, CustomWorld>(
   'I see {string} chat {position} in chats list',
@@ -38,6 +42,7 @@ final StepDefinitionGeneric seeChatPosition =
         switch (status) {
           case PositionStatus.first:
             return controller.chats.first.id == chatId;
+
           case PositionStatus.last:
             return controller.chats.last.id == chatId;
         }

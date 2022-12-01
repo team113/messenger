@@ -30,7 +30,7 @@ import '../world/custom_world.dart';
 /// depending on the specified [FavoriteStatus].
 ///
 /// Examples:
-/// - Given "Name" chat is favorite.
+/// - Given "Name" chat is favorite
 final StepDefinitionGeneric chatIsFavorite =
     given2<String, FavoriteStatus, CustomWorld>(
   '{string} chat is {favorite}',
