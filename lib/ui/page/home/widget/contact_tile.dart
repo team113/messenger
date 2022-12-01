@@ -40,7 +40,6 @@ class ContactTile extends StatelessWidget {
     this.darken = 0,
     this.height = 76,
     this.radius = 26,
-    this.padding = const EdgeInsets.all(12),
   }) : super(key: key);
 
   /// [RxChatContact] to display.
@@ -73,9 +72,6 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  /// Padding to apply to this [ContactTile].
-  final EdgeInsets padding;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -93,7 +89,7 @@ class ContactTile extends StatelessWidget {
         unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
         selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
         child: Padding(
-          padding: padding,
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               ...leading,

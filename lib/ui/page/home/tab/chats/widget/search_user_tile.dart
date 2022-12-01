@@ -69,7 +69,6 @@ class SearchUserTile extends StatelessWidget {
           height: 86,
           selected: selected,
           radius: 30,
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
           subtitle: [
             const SizedBox(height: 5),
             Text(
