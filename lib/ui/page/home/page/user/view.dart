@@ -38,6 +38,8 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
+import 'delete_email/view.dart';
+import 'delete_phone/view.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -69,10 +71,44 @@ class UserView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(
-              title: Text(
-                c.user?.user.value.name?.val ??
-                    c.user?.user.value.num.val ??
-                    '...',
+              title: Row(
+                children: [
+                  Center(child: AvatarWidget.fromRxUser(c.user, radius: 17)),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            c.user?.user.value.name?.val ??
+                                c.user?.user.value.num.val ??
+                                '...',
+                          ),
+                          // const SizedBox(height: 1),
+                          Obx(() {
+                            final subtitle = c.user?.user.value.getStatus();
+                            if (subtitle != null) {
+                              return Text(
+                                subtitle,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(color: Color(0xFF888888)),
+                              );
+                            }
+
+                            return Container();
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                ],
               ),
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
@@ -88,14 +124,16 @@ class UserView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 28),
-                WidgetButton(
-                  onPressed: () => c.call(true),
-                  child: SvgLoader.asset(
-                    'assets/icons/chat_video_call.svg',
-                    height: 17,
+                if (!context.isMobile) ...[
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(true),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_video_call.svg',
+                      height: 17,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(width: 28),
                 WidgetButton(
                   onPressed: () => c.call(false),
@@ -329,64 +367,132 @@ class UserView extends StatelessWidget {
   Widget _emails(UserController c, BuildContext context) {
     final List<Widget> widgets = [];
 
-    for (UserEmail e in const [
-      UserEmail.unchecked('123@gmail.com'),
-      UserEmail.unchecked('test@mail.ru'),
+    for (UserEmail e in [
+      const UserEmail.unchecked('123@gmail.com'),
+      const UserEmail.unchecked('test@mail.ru'),
+      ...c.emails,
     ]) {
       widgets.add(
-        WidgetButton(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: e.val));
-            MessagePopup.success('label_copied_to_clipboard'.l10n);
-          },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(text: e.val, editable: false),
-              label: 'E-mail',
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            WidgetButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: e.val));
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(text: e.val, editable: false),
+                  label: 'E-mail',
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset('assets/icons/delete.svg',
+                          height: 14),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            WidgetButton(
+              onPressed: () => DeleteEmailView.show(context, email: e),
+              child: Container(
+                margin: const EdgeInsets.only(right: 10),
+                width: 30,
+                height: 30,
+              ),
+            ),
+          ],
+        ),
+        // WidgetButton(
+        //   onPressed: () {
+        //     Clipboard.setData(ClipboardData(text: e.val));
+        //     MessagePopup.success('label_copied_to_clipboard'.l10n);
+        //   },
+        //   child: IgnorePointer(
+        //     child: ReactiveTextField(
+        //       state: TextFieldState(text: e.val, editable: false),
+        //       label: 'E-mail',
+        //       trailing: Transform.translate(
+        //         offset: const Offset(0, -1),
+        //         child: Transform.scale(
+        //           scale: 1.15,
+        //           child: SvgLoader.asset(
+        //             'assets/icons/copy.svg',
+        //             height: 15,
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
+      );
+      widgets.add(const SizedBox(height: 10));
+    }
+
+    widgets.add(
+      ReactiveTextField(
+        state: c.email,
+        label: 'Добавить E-mail',
+        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+    widgets.add(const SizedBox(height: 10));
+
+    for (UserPhone e in [
+      const UserPhone.unchecked('+1264266326'),
+      ...c.phones,
+    ]) {
+      widgets.add(
+        Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            WidgetButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: e.val));
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(text: e.val, editable: false),
+                  label: 'Phone number',
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/delete.svg',
+                        height: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            WidgetButton(
+              onPressed: () => DeletePhoneView.show(context, phone: e),
+              child: Container(
+                margin: const EdgeInsets.only(right: 10),
+                width: 30,
+                height: 30,
+              ),
+            ),
+          ],
         ),
       );
       widgets.add(const SizedBox(height: 10));
     }
 
-    for (UserPhone e in const [UserPhone.unchecked('+1264266326')]) {
-      widgets.add(
-        WidgetButton(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: e.val));
-            MessagePopup.success('label_copied_to_clipboard'.l10n);
-          },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(text: e.val, editable: false),
-              label: 'Phone number',
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      widgets.add(const SizedBox(height: 10));
-    }
+    widgets.add(
+      ReactiveTextField(
+        state: c.phone,
+        label: 'Добавить телефон',
+        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+    widgets.add(const SizedBox(height: 10));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -665,12 +771,34 @@ class UserView extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _dense(
+          Obx(() {
+            return WidgetButton(
+              onPressed: c.inFavorites.value
+                  ? c.removeFromFavorites
+                  : c.addToFavorites,
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: c.inFavorites.value
+                        ? 'Удалить из избранных'
+                        : 'Добавить в избранные',
+                    editable: false,
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 10),
+        _dense(
           WidgetButton(
-            onPressed: () {},
+            onPressed: c.blocked.toggle,
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
-                  text: 'Заблокировать',
+                  text: c.blocked.value ? 'Разблокировать' : 'Заблокировать',
                   editable: false,
                 ),
                 style:
@@ -770,8 +898,25 @@ class UserView extends StatelessWidget {
   /// Returns a [User.name] text widget with an [AvatarWidget].
   Widget _name(UserController c, BuildContext context) {
     return _padding(
-      WidgetButton(
-        onPressed: c.user?.user.value.name == null
+      ReactiveTextField(
+        key: const Key('NameField'),
+        state: c.name,
+        // state: TextFieldState(text: c.user?.user.value.name?.val),
+        label: 'label_name'.l10n,
+        filled: true,
+        trailing: c.user?.user.value.name == null
+            ? null
+            : Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
+        onSuffixPressed: c.user?.user.value.name == null
             ? null
             : () {
                 Clipboard.setData(
@@ -779,26 +924,6 @@ class UserView extends StatelessWidget {
                 );
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
-        child: IgnorePointer(
-          child: ReactiveTextField(
-            key: const Key('NameField'),
-            state: TextFieldState(text: c.user?.user.value.name?.val),
-            label: 'label_name'.l10n,
-            filled: true,
-            trailing: c.user?.user.value.name == null
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
-                    ),
-                  ),
-          ),
-        ),
       ),
     );
 

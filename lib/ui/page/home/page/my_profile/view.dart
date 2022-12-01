@@ -1232,10 +1232,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               alignment: Alignment.centerRight,
               children: [
                 WidgetButton(
-                  // onPressed: () {
-                  //   Clipboard.setData(ClipboardData(text: e.val));
-                  //   MessagePopup.success('label_copied_to_clipboard'.l10n);
-                  // },
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: e.val));
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  },
                   child: IgnorePointer(
                     child: ReactiveTextField(
                       state: TextFieldState(text: e.val, editable: false),

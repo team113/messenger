@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -65,10 +66,17 @@ class UserController extends GetxController {
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   late final RxBool inContacts;
+  late final RxBool inFavorites;
 
   /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
+
+  late final TextFieldState name;
+
+  late final TextFieldState email;
+
+  late final TextFieldState phone;
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -85,6 +93,11 @@ class UserController extends GetxController {
   /// [StreamSubscription] to [ContactService.contacts] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
+
+  final RxList<UserEmail> emails = RxList();
+  final RxList<UserPhone> phones = RxList();
+
+  final RxBool blocked = RxBool(false);
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -115,6 +128,124 @@ class UserController extends GetxController {
           break;
       }
     });
+
+    inFavorites = RxBool(_contactService.favorites.values
+        .any((e) => e.contact.value.users.every((m) => m.id == id)));
+
+    name = TextFieldState(
+      approvable: true,
+      onChanged: (s) async {
+        s.error.value = null;
+        try {
+          if (s.text.isNotEmpty) {
+            UserName(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        s.error.value = null;
+        try {
+          if (s.text.isNotEmpty) {
+            UserName(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await Future.delayed(1.seconds);
+            s.status.value = RxStatus.empty();
+          } catch (e) {
+            s.error.value = e.toString();
+            s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
+    email = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        if (s.text.isEmpty) {
+          s.clear();
+        }
+      },
+      onSubmitted: (s) async {
+        UserEmail? email;
+        try {
+          email = UserEmail(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await Future.delayed(1.seconds);
+            emails.add(email!);
+            s.clear();
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          } catch (e) {
+            MessagePopup.error(e);
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
+    );
+
+    phone = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        if (s.text.isEmpty) {
+          s.clear();
+        }
+      },
+      onSubmitted: (s) async {
+        UserPhone? phone;
+        try {
+          phone = UserPhone(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await Future.delayed(1.seconds);
+            phones.add(phone!);
+            s.clear();
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          } catch (e) {
+            MessagePopup.error(e);
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
+    );
 
     super.onInit();
   }
@@ -187,10 +318,20 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> addToFavorites() async {
+    inFavorites.value = true;
+  }
+
+  Future<void> removeFromFavorites() async {
+    inFavorites.value = false;
+  }
+
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
+
+      name.unchecked = user?.user.value.name?.val;
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {

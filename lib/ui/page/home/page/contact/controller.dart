@@ -15,15 +15,39 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/contact.dart';
 
+import '../../../../../domain/repository/contact.dart';
 import '/domain/model/contact.dart';
 
 export 'view.dart';
 
 /// Controller of the [Routes.contact] page.
 class ContactController extends GetxController {
-  ContactController(this.id);
+  ContactController(this.id, this._contactService);
 
   /// ID of a [ChatContact] this [ContactController] represents.
   final ChatContactId id;
+
+  final Rx<RxChatContact?> contact = Rx(null);
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  final ContactService _contactService;
+
+  @override
+  onInit() {
+    _fetchContact();
+    super.onInit();
+  }
+
+  void openChat() {}
+  void call([bool withVideo = false]) {}
+
+  void _fetchContact() async {
+    status.value = RxStatus.loading();
+    contact.value = _contactService.contacts[id];
+
+    status.value =
+        contact.value == null ? RxStatus.empty() : RxStatus.success();
+  }
 }

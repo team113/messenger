@@ -500,6 +500,7 @@ class TextFieldState extends ReactiveFieldState {
   set unchecked(String? value) {
     controller.text = value ?? '';
     _previousText = value ?? '';
+    _previousSubmit = value ?? '';
     changed.value = false;
     isEmpty.value = controller.text.isEmpty;
   }

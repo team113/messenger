@@ -75,6 +75,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
+    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -89,6 +90,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -103,6 +105,7 @@ class AvatarWidget extends StatelessWidget {
     bool showBadge = true,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -115,6 +118,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
     }
 
@@ -135,6 +139,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         onBadgeTap: onBadgeTap,
         onAvatarTap: onAvatarTap,
+        quality: quality,
       );
     });
   }
