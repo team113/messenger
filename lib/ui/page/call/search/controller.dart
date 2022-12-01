@@ -140,13 +140,9 @@ class SearchController extends GetxController {
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String q) {
-      if (q.length < 2) {
+      if (q.isNotEmpty) {
         searchResults.value = null;
         searchStatus.value = RxStatus.empty();
-        users.clear();
-        contacts.clear();
-        chats.clear();
-        recent.clear();
       } else {
         searchStatus.value = RxStatus.loading();
       }
