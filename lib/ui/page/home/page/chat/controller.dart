@@ -222,7 +222,7 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
 
-  /// Indicator whether [_updateFabStates] should not be react on
+  /// Indicator whether [_listControllerListener] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
@@ -1183,30 +1183,34 @@ class ChatController extends GetxController {
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
-  /// [FlutterListViewController.position] value and sticky visibility.
+  /// [FlutterListViewController.position] value and updates sticky visibility.
   void _listControllerListener() {
-    if (listController.hasClients && !_ignorePositionChanges) {
+    if (listController.hasClients) {
       _updateSticky();
-      if (listController.position.pixels <
-          listController.position.maxScrollExtent -
-              MediaQuery.of(router.context!).size.height * 2 +
-              200) {
-        canGoDown.value = true;
-      } else {
-        canGoDown.value = false;
-      }
 
-      if (canGoBack.isTrue) {
-        canGoBack.value = false;
+      if (!_ignorePositionChanges) {
+        if (listController.position.pixels <
+            listController.position.maxScrollExtent -
+                MediaQuery.of(router.context!).size.height * 2 +
+                200) {
+          canGoDown.value = true;
+        } else {
+          canGoDown.value = false;
+        }
+
+        if (canGoBack.isTrue) {
+          canGoBack.value = false;
+        }
       }
     }
   }
 
-  /// Updates sticky information.
+  /// Shows sticky date and restarts [_stickyTimer] that hides sticky.
   void _updateSticky() {
-    _stickyTimer?.cancel();
     showSticky.value = true;
     stickyIndex.value = listController.sliverController.stickyIndex.value;
+
+    _stickyTimer?.cancel();
     _stickyTimer = Timer(const Duration(seconds: 2), () {
       if (stickyIndex.value != null) {
         double? offset =

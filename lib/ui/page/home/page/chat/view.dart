@@ -795,11 +795,11 @@ class _ChatViewState extends State<ChatView>
         ),
         child: Obx(() {
           return AnimatedOpacity(
-            opacity: c.stickyIndex.value != i
-                ? 1
-                : c.showSticky.isTrue
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
                     ? 1
-                    : 0,
+                    : 0
+                : 1,
             duration: const Duration(milliseconds: 250),
             child: Center(
               child: Container(
