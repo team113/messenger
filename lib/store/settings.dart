@@ -126,6 +126,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setShowDragAndDropButtonsHint(bool show) =>
       _settingsLocal.setShowDragAndDropButtonsHint(show);
 
+  @override
+  Future<void> setSortContactsByName(bool value) =>
+      _settingsLocal.setSortContactsByName(value);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

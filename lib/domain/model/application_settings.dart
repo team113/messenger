@@ -28,6 +28,7 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
+    this.sortContactsByName = true,
     this.callButtons = const [],
   });
 
@@ -62,4 +63,8 @@ class ApplicationSettings extends HiveObject {
   /// [OngoingCall].
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
+
+  /// Indicator whether contacts should be sorted by name or not.
+  @HiveField(7)
+  bool sortContactsByName;
 }

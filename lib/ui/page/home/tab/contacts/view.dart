@@ -51,6 +51,7 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: AppBar(
@@ -62,6 +63,28 @@ class ContactsTabView extends StatelessWidget {
               height: 0.5,
             ),
           ),
+          actions: [
+            // IconButton(
+            //   onPressed: c.sortContact,
+            //   icon: const Icon(Icons.sort),
+            // ),
+            PopupMenuButton<bool>(
+              child: const Icon(Icons.sort),
+              onSelected: (bool item) {
+                c.changeSorting(item);
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<bool>>[
+                const PopupMenuItem<bool>(
+                  value: true,
+                  child: Text('Sort by name'),
+                ),
+                const PopupMenuItem<bool>(
+                  value: false,
+                  child: Text('Sort by online'),
+                ),
+              ],
+            )
+          ],
         ),
         body: Obx(
           () => UserSearchBar(
@@ -88,8 +111,7 @@ class ContactsTabView extends StatelessWidget {
                             ],
                             if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
                               ...divider,
-                            ...c.contacts.entries
-                                .map((e) => _contact(e.value, c))
+                            ...c.contacts.map((e) => _contact(e, c))
                           ],
                         ),
                       )
