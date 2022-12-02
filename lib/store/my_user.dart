@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
@@ -178,38 +179,30 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> deleteUserEmail(UserEmail email) async {
     if (myUser.value?.emails.unconfirmed == email) {
-      final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
+      final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
       myUser.update((u) => u?.emails.unconfirmed = null);
 
       try {
         await _graphQlProvider.deleteUserEmail(email);
       } catch (_) {
-        myUser.update((u) => u?.emails.unconfirmed = oldUnconfirmed);
+        myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
         rethrow;
       }
     } else {
-      final int? index = myUser.value?.emails.confirmed.indexOf(email);
-      final UserEmail? oldConfirmed =
-          index != null ? myUser.value!.emails.confirmed[index] : null;
-      myUser.update((u) => u?.emails.confirmed.removeAt(index!));
+      int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
+
+      if (i != -1) {
+        myUser.update((u) => u?.emails.confirmed.remove(email));
+      }
 
       try {
         await _graphQlProvider.deleteUserEmail(email);
       } catch (_) {
-        final int? maxIndex = myUser.value != null
-            ? myUser.value!.emails.confirmed.length - 1
-            : null;
-
-        final int? newIndex = index != null && maxIndex != null
-            ? index > maxIndex
-                ? maxIndex + 1
-                : index
-            : null;
-
-        myUser.update(
-          (u) => u?.emails.confirmed.insert(newIndex!, oldConfirmed!),
-        );
+        if (i != -1) {
+          i = min(i, myUser.value?.emails.confirmed.length ?? 0);
+          myUser.update((u) => myUser.value?.emails.confirmed.insert(i, email));
+        }
         rethrow;
       }
     }
@@ -218,38 +211,30 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> deleteUserPhone(UserPhone phone) async {
     if (myUser.value?.phones.unconfirmed == phone) {
-      final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
+      final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
       myUser.update((u) => u?.phones.unconfirmed = null);
 
       try {
         await _graphQlProvider.deleteUserPhone(phone);
       } catch (_) {
-        myUser.update((u) => u?.phones.unconfirmed = oldUnconfirmed);
+        myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
         rethrow;
       }
     } else {
-      final int? index = myUser.value?.phones.confirmed.indexOf(phone);
-      final UserPhone? oldConfirmed =
-          index != null ? myUser.value!.phones.confirmed[index] : null;
-      myUser.update((u) => u?.phones.confirmed.removeAt(index!));
+      int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
+
+      if (i != -1) {
+        myUser.update((u) => u?.phones.confirmed.remove(phone));
+      }
 
       try {
         await _graphQlProvider.deleteUserPhone(phone);
       } catch (_) {
-        final int? maxIndex = myUser.value != null
-            ? myUser.value!.phones.confirmed.length - 1
-            : null;
-
-        final int? newIndex = index != null && maxIndex != null
-            ? index > maxIndex
-                ? maxIndex + 1
-                : index
-            : null;
-
-        myUser.update(
-          (u) => u?.phones.confirmed.insert(newIndex!, oldConfirmed!),
-        );
+        if (i != -1) {
+          i = min(i, myUser.value?.phones.confirmed.length ?? 0);
+          myUser.update((u) => myUser.value?.phones.confirmed.insert(i, phone));
+        }
         rethrow;
       }
     }
@@ -257,52 +242,54 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> addUserEmail(UserEmail email) async {
-    final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
+    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
     myUser.update((u) => u?.emails.unconfirmed = email);
 
     try {
       await _graphQlProvider.addUserEmail(email);
     } catch (_) {
-      myUser.update((u) => u?.emails.unconfirmed = oldUnconfirmed);
+      myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
       rethrow;
     }
   }
 
   @override
   Future<void> addUserPhone(UserPhone phone) async {
-    final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
+    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
     myUser.update((u) => u?.phones.unconfirmed = phone);
 
     try {
       await _graphQlProvider.addUserPhone(phone);
     } catch (_) {
-      myUser.update((u) => u?.phones.unconfirmed = oldUnconfirmed);
+      myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
       rethrow;
     }
   }
 
   @override
   Future<void> confirmEmailCode(ConfirmationCode code) async {
-    final UserEmail? oldUnconfirmed = myUser.value?.emails.unconfirmed;
+    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
     myUser.update(
-      (u) => u
-        ?..emails.confirmed.addIf(
-              !u.emails.confirmed.contains(oldUnconfirmed),
-              oldUnconfirmed!,
-            )
-        ..emails.unconfirmed = null,
+      (u) {
+        u?.emails.confirmed.addIf(
+          !u.emails.confirmed.contains(unconfirmed),
+          unconfirmed!,
+        );
+        u?.emails.unconfirmed = null;
+      },
     );
 
     try {
       await _graphQlProvider.confirmEmailCode(code);
     } catch (_) {
       myUser.update(
-        (u) => u
-          ?..emails.confirmed.removeWhere((e) => e == oldUnconfirmed)
-          ..emails.unconfirmed = oldUnconfirmed,
+        (u) {
+          u?.emails.confirmed.removeWhere((e) => e == unconfirmed);
+          u?.emails.unconfirmed = unconfirmed;
+        },
       );
       rethrow;
     }
@@ -310,24 +297,26 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    final UserPhone? oldUnconfirmed = myUser.value?.phones.unconfirmed;
+    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
     myUser.update(
-      (u) => u
-        ?..phones.confirmed.addIf(
-              !u.phones.confirmed.contains(oldUnconfirmed),
-              oldUnconfirmed!,
-            )
-        ..emails.unconfirmed = null,
+      (u) {
+        u?.phones.confirmed.addIf(
+          !u.phones.confirmed.contains(unconfirmed),
+          unconfirmed!,
+        );
+        u?.emails.unconfirmed = null;
+      },
     );
 
     try {
       await _graphQlProvider.confirmPhoneCode(code);
     } catch (_) {
       myUser.update(
-        (u) => u
-          ?..phones.confirmed.removeWhere((e) => e == oldUnconfirmed)
-          ..phones.unconfirmed = oldUnconfirmed,
+        (u) {
+          u?.phones.confirmed.removeWhere((e) => e == unconfirmed);
+          u?.phones.unconfirmed = unconfirmed;
+        },
       );
       rethrow;
     }
@@ -341,28 +330,28 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    final ChatDirectLink? oldChatDirectLink = myUser.value?.chatDirectLink;
+    final ChatDirectLink? link = myUser.value?.chatDirectLink;
 
     myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
 
     try {
       await _graphQlProvider.createUserDirectLink(slug);
     } catch (_) {
-      myUser.update((u) => u?.chatDirectLink = oldChatDirectLink);
+      myUser.update((u) => u?.chatDirectLink = link);
       rethrow;
     }
   }
 
   @override
   Future<void> deleteChatDirectLink() async {
-    final ChatDirectLink? oldChatDirectLink = myUser.value?.chatDirectLink;
+    final ChatDirectLink? link = myUser.value?.chatDirectLink;
 
     myUser.update((u) => u?.chatDirectLink = null);
 
     try {
       await _graphQlProvider.deleteUserDirectLink();
     } catch (_) {
-      myUser.update((u) => u?.chatDirectLink = oldChatDirectLink);
+      myUser.update((u) => u?.chatDirectLink = link);
       rethrow;
     }
   }
@@ -409,14 +398,21 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> deleteGalleryItem(GalleryItemId id) async {
-    final List<ImageGalleryItem>? oldGalery = myUser.value?.gallery?.toList();
+    int i = myUser.value?.gallery?.indexWhere((e) => e.id == id) ?? -1;
+    ImageGalleryItem? item;
 
-    myUser.update((u) => u?.gallery?.removeWhere((e) => e.id == id));
+    if (i != -1) {
+      item = myUser.value?.gallery?.elementAt(i);
+      myUser.update((u) => u?.gallery?.remove(item));
+    }
 
     try {
       await _graphQlProvider.deleteUserGalleryItem(id);
     } catch (_) {
-      myUser.update((u) => u?.gallery = oldGalery);
+      if (item != null) {
+        i = min(i, myUser.value?.gallery?.length ?? 0);
+        myUser.update((u) => u?.gallery?.insert(i, item!));
+      }
       rethrow;
     }
   }
