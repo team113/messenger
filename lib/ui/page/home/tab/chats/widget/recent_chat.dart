@@ -411,12 +411,7 @@ class RecentChatTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 2),
                   child: _attachment(
                     e,
-                    onError: () async {
-                      if (rxChat.chat.value.lastItem != null) {
-                        await rxChat
-                            .updateAttachments(rxChat.chat.value.lastItem!);
-                      }
-                    },
+                    onError: () => rxChat.updateAttachments(item!),
                   ),
                 );
               }),
@@ -427,12 +422,7 @@ class RecentChatTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: _attachment(
                   item.attachments.first,
-                  onError: () async {
-                    if (rxChat.chat.value.lastItem != null) {
-                      await rxChat
-                          .updateAttachments(rxChat.chat.value.lastItem!);
-                    }
-                  },
+                  onError: () => rxChat.updateAttachments(item!),
                 ),
               ),
             );
