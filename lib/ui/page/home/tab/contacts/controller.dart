@@ -65,8 +65,8 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Settings repository, used to get and update the stored
-  /// [ApplicationSettings.sortContactsByName].
+  /// Settings repository, used to get the stored
+  /// [ApplicationSettings.sortContactsByName] and update it.
   final AbstractSettingsRepository _settings;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
@@ -158,14 +158,12 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    for (RxChatContact c in contacts) {
-      c.user.value?.stopUpdates();
-    }
-    for (Worker worker in _userOnlineWorkers.values) {
-      worker.dispose();
+    for (RxChatContact contact in contacts) {
+      contact.user.value?.stopUpdates();
     }
     _contactsSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
+    _userOnlineWorkers.forEach((_, v) => v.dispose());
     super.onClose();
   }
 
@@ -238,6 +236,15 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Starts listen updates of [RxChatContact.user].
+  _startUserListen(RxChatContact c) {
+    RxUser? rxUser = c.user.value;
+    if (_userOnlineWorkers[c.id] == null && rxUser?.user != null) {
+      _userOnlineWorkers[c.id] = ever(rxUser!.user, (_) => sortContacts());
+      sortContacts();
+    }
+  }
+
   /// Maintains an interest in updates of every [RxChatContact.user] in the
   /// [contacts] list.
   void _initUsersUpdates() {
@@ -249,19 +256,11 @@ class ContactsTabController extends GetxController {
           rxUser?.stopUpdates();
           rxUser = user?..listenUpdates();
         }
-        if (_userOnlineWorkers[c.id] == null && user?.user.value != null) {
-          _userOnlineWorkers[c.id] = ever(c.user.value!.user, (_) {
-            sortContacts();
-          });
-        }
-        sortContacts();
+
+        _startUserListen(c);
       });
-      if (_userOnlineWorkers[c.id] == null && rxUser?.user.value != null) {
-        _userOnlineWorkers[c.id] = ever(c.user.value!.user, (_) {
-          sortContacts();
-        });
-      }
-      sortContacts();
+
+      _startUserListen(c);
     }
 
     for (RxChatContact c in contacts) {

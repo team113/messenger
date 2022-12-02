@@ -35,6 +35,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned gallery. ([#212], [#199])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Contacts tab:
+        - Contacts sorting. ([#235], [#226])
 
 ### Fixed
 
@@ -70,6 +72,8 @@ All user visible changes to this project will be documented in this file. This p
 [#214]: /../../issues/214
 [#217]: /../../pull/217
 [#218]: /../../pull/218
+[#226]: /../../issues/226
+[#235]: /../../pull/235
 
 
 

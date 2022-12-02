@@ -67,7 +67,7 @@ class ContactsTabView extends StatelessWidget {
             PopupMenuButton<bool>(
               tooltip: '',
               onSelected: c.changeSorting,
-              itemBuilder: (BuildContext con) => <PopupMenuEntry<bool>>[
+              itemBuilder: (_) => <PopupMenuEntry<bool>>[
                 PopupMenuItem<bool>(
                   value: true,
                   child: Text('btn_sort_by_name'.l10n),
@@ -78,7 +78,7 @@ class ContactsTabView extends StatelessWidget {
                 ),
               ],
               icon: const Icon(Icons.sort),
-            )
+            ),
           ],
         ),
         body: Obx(
