@@ -754,14 +754,7 @@ class ChatsTabView extends StatelessWidget {
                                           onLeave: () => c.leaveChat(chat.id),
                                           onHide: () => c.hideChat(chat.id),
                                           inCall: () => c.inCall(chat.id),
-                                          onMute: () => MuteChatView.show(
-                                            context,
-                                            chatId: chat.id,
-                                            onMute: (duration) => c.muteChat(
-                                              chat.id,
-                                              duration: duration,
-                                            ),
-                                          ),
+                                          onMute: () => c.muteChat(chat.id),
                                           onUnmute: () => c.unmuteChat(chat.id),
                                           onFavorite: () =>
                                               c.favoriteChat(chat.id),
@@ -1052,14 +1045,7 @@ class ChatsTabView extends StatelessWidget {
                                       onLeave: () => c.leaveChat(chat.id),
                                       onHide: () => c.hideChat(chat.id),
                                       inCall: () => c.inCall(chat.id),
-                                      onMute: () => MuteChatView.show(
-                                        context,
-                                        chatId: chat.id,
-                                        onMute: (duration) => c.muteChat(
-                                          chat.id,
-                                          duration: duration,
-                                        ),
-                                      ),
+                                      onMute: () => c.muteChat(chat.id),
                                       onUnmute: () => c.unmuteChat(chat.id),
                                       onFavorite: () => c.favoriteChat(chat.id),
                                       onUnfavorite: () =>

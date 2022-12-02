@@ -197,13 +197,18 @@ class _ChatViewState extends State<ChatView>
                                         if (c.chat?.chat.value.muted !=
                                             null) ...[
                                           const SizedBox(width: 5),
-                                          Icon(
-                                            Icons.volume_off,
-                                            color: Theme.of(context)
-                                                .primaryIconTheme
-                                                .color,
-                                            size: 17,
+                                          SvgLoader.asset(
+                                            'assets/icons/muted.svg',
+                                            width: 19.99,
+                                            height: 15,
                                           ),
+                                          // Icon(
+                                          //   Icons.volume_off,
+                                          //   color: Theme.of(context)
+                                          //       .primaryIconTheme
+                                          //       .color,
+                                          //   size: 17,
+                                          // ),
                                         ]
                                       ],
                                     ),

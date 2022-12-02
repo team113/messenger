@@ -15,8 +15,20 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:expandable/expandable.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/tab/chats/mute_chat_popup/controller.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -37,64 +49,192 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    Widget block({
+      List<Widget> children = const [],
+      EdgeInsets padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    }) {
+      return Center(
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+          decoration: BoxDecoration(
+            // color: Colors.white,
+            border: style.primaryBorder,
+            color: style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+            // border: Border.all(color: const Color(0xFFE0E0E0)),
+          ),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          ),
+        ),
+      );
+    }
+
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
-      init: ChatInfoController(id, Get.find(), Get.find()),
+      init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
-      builder: (c) => Obx(() {
-        if (c.status.value.isSuccess) {
+      builder: (c) {
+        return Obx(() {
+          if (c.status.value.isLoading) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          } else if (!c.status.value.isSuccess) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
+            );
+          }
+
           return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: Text(c.chat!.title.value),
-            ),
-            body: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverList(
-                  delegate: SliverChildListDelegate.fixed(
-                    [
-                      Align(
-                        alignment: Alignment.center,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 450),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+            appBar: CustomAppBar(
+              title: Row(
+                children: [
+                  Center(
+                    child: AvatarWidget.fromRxChat(
+                      c.chat,
+                      radius: 17,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              const SizedBox(height: 10),
-                              _avatar(c),
-                              _name(c),
-                              _link(context, c),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+                              Flexible(
                                 child: Text(
-                                  'label_chat_members'.l10n,
-                                  style: const TextStyle(fontSize: 17),
+                                  c.chat!.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                               ),
-                              const Divider(),
-                              _members(c, context),
+                              if (c.chat?.chat.value.muted != null) ...[
+                                const SizedBox(width: 5),
+                                SvgLoader.asset(
+                                  'assets/icons/muted.svg',
+                                  width: 19.99,
+                                  height: 15,
+                                ),
+                                // Icon(
+                                //   Icons.volume_off,
+                                //   color:
+                                //       Theme.of(context).primaryIconTheme.color,
+                                //   size: 17,
+                                // ),
+                              ]
                             ],
                           ),
-                        ),
+                          _chatSubtitle(c, context),
+                        ],
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: const [StyledBackButton()],
+              actions: [
+                WidgetButton(
+                  onPressed: () => router.chat(id),
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
+                    ),
+                  ),
+                ),
+                if (!context.isMobile) ...[
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(true),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_video_call.svg',
+                      height: 17,
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 28),
+                WidgetButton(
+                  onPressed: () => c.call(false),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_audio_call.svg',
+                    height: 19,
                   ),
                 ),
               ],
             ),
+            body: ListView(
+              children: [
+                const SizedBox(height: 8),
+                block(
+                  children: [
+                    _label(context, 'Публичная информация'),
+                    _avatar(c, context),
+                    const SizedBox(height: 15),
+                    _name(c, context),
+                  ],
+                ),
+                block(
+                  children: [
+                    _label(context, 'Участники'),
+                    _members(c, context),
+                  ],
+                ),
+                block(
+                  children: [
+                    _label(context, 'Прямая ссылка'),
+                    _link(c, context),
+                  ],
+                ),
+                block(
+                  children: [
+                    _label(context, 'Действия'),
+                    _actions(c, context),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           );
-        } else if (c.status.value.isEmpty) {
-          return Scaffold(
-            body: Center(child: Text('label_no_chat_found'.l10n)),
-          );
-        } else {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-      }),
+        });
+      },
     );
+  }
+
+  /// Returns a header subtitle of the [Chat].
+  Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
+    final TextStyle? style = Theme.of(context).textTheme.caption;
+
+    return Obx(() {
+      final Rx<Chat> chat = c.chat!.chat;
+
+      if (chat.value.isGroup) {
+        final String? subtitle = chat.value.getSubtitle();
+        if (subtitle != null) {
+          return Text(subtitle, style: style);
+        }
+      }
+
+      return Container();
+    });
   }
 
   /// Basic [Padding] wrapper.
@@ -103,7 +243,67 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
-  Widget _avatar(ChatInfoController c) {
+  Widget _avatar(ChatInfoController c, BuildContext context) {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            WidgetButton(
+              onPressed: () async {
+                await c.pickAvatar();
+              },
+              child: AvatarWidget.fromRxChat(
+                c.chat,
+                radius: 100,
+                quality: AvatarQuality.original,
+              ),
+            ),
+            Positioned.fill(
+              child: Obx(() {
+                return AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: c.avatar.value.isLoading
+                      ? Container(
+                          width: 200,
+                          height: 200,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0x22000000),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                );
+              }),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Center(
+          child: WidgetButton(
+            onPressed:
+                c.chat?.chat.value.avatar == null ? null : c.deleteAvatar,
+            child: SizedBox(
+              height: 20,
+              child: c.chat?.chat.value.avatar == null
+                  ? null
+                  : Text(
+                      'Delete',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+        // const SizedBox(height: 10),
+      ],
+    );
+
     // Builds the manipulation buttons with [Chat.avatar] upload or removal
     // indication.
     Widget buttons() {
@@ -156,142 +356,443 @@ class ChatInfoView extends StatelessWidget {
   }
 
   /// Returns a [Chat.name] editable field.
-  Widget _name(ChatInfoController c) {
+  Widget _name(ChatInfoController c, BuildContext context) {
     return Obx(() {
       return _padding(
         ReactiveTextField(
           key: const Key('RenameChatField'),
-          state: c.chatName,
-          style: const TextStyle(fontSize: 20),
-          suffix: Icons.edit,
+          state: c.name,
           label: c.chat?.chat.value.name == null
               ? c.chat?.title.value
               : 'label_name'.l10n,
           hint: 'label_name_hint'.l10n,
+          onSuffixPressed: c.name.text.isEmpty
+              ? null
+              : () {
+                  Clipboard.setData(ClipboardData(text: c.name.text));
+                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                },
+          trailing: c.name.text.isEmpty
+              ? null
+              : Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/copy.svg',
+                      height: 15,
+                    ),
+                  ),
+                ),
         ),
       );
     });
   }
 
   /// Returns a [Chat.directLink] editable field.
-  Widget _link(BuildContext context, ChatInfoController c) => Obx(
-        () => ExpandablePanel(
-          key: const Key('ChatDirectLinkExpandable'),
-          header: ListTile(
-            leading: const Icon(Icons.link),
-            title: Text('label_direct_chat_link'.l10n),
+  Widget _link(ChatInfoController c, BuildContext context) {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ReactiveTextField(
+            key: const Key('LinkField'),
+            state: c.link,
+            onSuffixPressed: c.link.isEmpty.value
+                ? null
+                : () {
+                    Clipboard.setData(
+                      ClipboardData(
+                        text:
+                            '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
+                      ),
+                    );
+
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  },
+            trailing: c.link.isEmpty.value
+                ? null
+                : Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/copy.svg',
+                        height: 15,
+                      ),
+                    ),
+                  ),
+            label: '${Config.origin}/',
           ),
-          collapsed: Container(),
-          expanded: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+            child: Row(
               children: [
-                Text('label_direct_chat_link_in_chat_description'.l10n),
-                const SizedBox(height: 10),
-                _padding(
-                  ReactiveTextField(
-                    key: const Key('DirectChatLinkTextField'),
-                    enabled: true,
-                    state: c.link,
-                    prefixText: '${Config.origin}${Routes.chatDirectLink}/',
-                    label: 'label_direct_chat_link'.l10n,
-                    suffix: Icons.copy,
-                    onSuffixPressed: c.chat?.chat.value.directLink == null
-                        ? null
-                        : c.copyLink,
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'Переходов: 0. ',
+                        // style: TextStyle(color: Color(0xFF888888)),
+                        style: TextStyle(color: Color(0xFF888888)),
+                      ),
+                      TextSpan(
+                        text: 'Подробнее.',
+                        style: const TextStyle(color: Color(0xFF00A3FF)),
+                        recognizer: TapGestureRecognizer()..onTap = () {},
+                      ),
+                    ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Text(
-                      '${'label_transition_count'.l10n}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}',
-                    ),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (c.chat?.chat.value.directLink != null &&
-                              !c.link.isEmpty.value)
-                            Flexible(
-                              child: TextButton(
-                                key: const Key('RemoveChatDirectLink'),
-                                onPressed: !c.link.editable.value
-                                    ? null
-                                    : c.deleteLink,
-                                child: Text(
-                                  'btn_delete_direct_chat_link'.l10n,
-                                  style: context.textTheme.bodyText1!.copyWith(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
+              ],
+            ),
+          ),
+        ],
+      );
+
+      return ExpandablePanel(
+        key: const Key('ChatDirectLinkExpandable'),
+        header: ListTile(
+          leading: const Icon(Icons.link),
+          title: Text('label_direct_chat_link'.l10n),
+        ),
+        collapsed: Container(),
+        expanded: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('label_direct_chat_link_in_chat_description'.l10n),
+              const SizedBox(height: 10),
+              _padding(
+                ReactiveTextField(
+                  key: const Key('DirectChatLinkTextField'),
+                  enabled: true,
+                  state: c.link,
+                  prefixText: '${Config.origin}${Routes.chatDirectLink}/',
+                  label: 'label_direct_chat_link'.l10n,
+                  suffix: Icons.copy,
+                  onSuffixPressed:
+                      c.chat?.chat.value.directLink == null ? null : c.copyLink,
+                ),
+              ),
+              Row(
+                children: [
+                  Text(
+                    '${'label_transition_count'.l10n}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}',
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (c.chat?.chat.value.directLink != null &&
+                            !c.link.isEmpty.value)
                           Flexible(
                             child: TextButton(
-                              key: const Key('GenerateChatDirectLink'),
-                              onPressed: c.link.editable.value
-                                  ? c.link.isEmpty.value
-                                      ? c.generateLink
-                                      : c.link.submit
-                                  : null,
+                              key: const Key('RemoveChatDirectLink'),
+                              onPressed:
+                                  !c.link.editable.value ? null : c.deleteLink,
                               child: Text(
-                                c.link.isEmpty.value
-                                    ? 'btn_generate_direct_chat_link'.l10n
-                                    : 'btn_submit'.l10n,
+                                'btn_delete_direct_chat_link'.l10n,
                                 style: context.textTheme.bodyText1!.copyWith(
                                   color: Colors.grey,
                                   fontSize: 16,
                                 ),
                               ),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        Flexible(
+                          child: TextButton(
+                            key: const Key('GenerateChatDirectLink'),
+                            onPressed: c.link.editable.value
+                                ? c.link.isEmpty.value
+                                    ? c.generateLink
+                                    : c.link.submit
+                                : null,
+                            child: Text(
+                              c.link.isEmpty.value
+                                  ? 'btn_generate_direct_chat_link'.l10n
+                                  : 'btn_submit'.l10n,
+                              style: context.textTheme.bodyText1!.copyWith(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       );
+    });
+  }
+
+  Widget _label(BuildContext context, String text) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: style.systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
+          ),
+        ),
+      ),
+    );
+  }
 
   /// Returns a list of [Chat.members].
-  Widget _members(ChatInfoController c, BuildContext context) => Obx(
-        () => Column(
-          children: [
-            ...c.chat!.members.values.map(
-              (u) => ListTile(
-                title: Text(u.user.value.name?.val ?? u.user.value.num.val),
-                leading: AvatarWidget.fromRxUser(u),
-                trailing: IconButton(
-                  key: const Key('DeleteChatMember'),
-                  icon: Icon(u.id == c.me ? Icons.exit_to_app : Icons.delete),
-                  onPressed: c.membersOnRemoval.contains(u.id)
-                      ? null
-                      : () => c.removeChatMember(u.id),
-                ),
-                onTap: () => router.user(u.id, push: true),
-              ),
-            ),
-            ListTile(
-              key: const Key('AddMemberButton'),
-              title: Text('btn_add_participant'.l10n),
-              leading: CircleAvatar(
-                child: SvgLoader.asset(
-                  'assets/icons/add_user.svg',
-                  width: 26,
-                  height: 28,
-                ),
-              ),
-              onTap: () => showDialog(
-                context: context,
-                builder: (c) => AddChatMemberView(id),
-              ),
-            ),
-          ],
-        ),
+  Widget _members(ChatInfoController c, BuildContext context) {
+    return Obx(() {
+      final RxUser? me = c.chat!.members[c.me];
+      final List<RxUser> members = [];
+
+      for (var u in c.chat!.members.entries) {
+        if (u.key != c.me) {
+          members.add(u.value);
+        }
+      }
+
+      if (me != null) {
+        members.insert(0, me);
+      }
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...members.map((e) {
+            return ContactTile(
+              user: e,
+              darken: 0.05,
+              onTap: () => router.user(e.id, push: true),
+              trailing: [
+                if (e.id == c.me)
+                  WidgetButton(
+                    onPressed: () => c.removeChatMember(e.id),
+                    child: Text(
+                      'Leave',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 15,
+                      ),
+                    ),
+                  )
+                else
+                  WidgetButton(
+                    onPressed: () => c.removeChatMember(e.id),
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14 * 1.5,
+                    ),
+                  ),
+                const SizedBox(width: 6),
+              ],
+            );
+          }),
+        ],
       );
+
+      return Column(
+        children: [
+          ...c.chat!.members.values.map(
+            (u) => ListTile(
+              title: Text(u.user.value.name?.val ?? u.user.value.num.val),
+              leading: AvatarWidget.fromRxUser(u),
+              trailing: IconButton(
+                key: const Key('DeleteChatMember'),
+                icon: Icon(u.id == c.me ? Icons.exit_to_app : Icons.delete),
+                onPressed: c.membersOnRemoval.contains(u.id)
+                    ? null
+                    : () => c.removeChatMember(u.id),
+              ),
+              onTap: () => router.user(u.id, push: true),
+            ),
+          ),
+          ListTile(
+            key: const Key('AddMemberButton'),
+            title: Text('btn_add_participant'.l10n),
+            leading: CircleAvatar(
+              child: SvgLoader.asset(
+                'assets/icons/add_user.svg',
+                width: 26,
+                height: 28,
+              ),
+            ),
+            onTap: () => showDialog(
+              context: context,
+              builder: (c) => AddChatMemberView(id),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  /// Dense [Padding] wrapper.
+  Widget _dense(Widget child) =>
+      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+
+  Widget _actions(ChatInfoController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Добавить в избранные',
+                  editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          Obx(() {
+            final bool muted = c.chat?.chat.value.muted != null;
+
+            return WidgetButton(
+              onPressed: () => muted ? c.muteChat(id) : c.unmuteChat(id),
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: muted
+                        ? 'Отключить уведомления'
+                        : 'Включить уведомления',
+                    editable: false,
+                  ),
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: muted
+                          ? SvgLoader.asset(
+                              'assets/icons/btn_unmute.svg',
+                              width: 18.94,
+                              height: 15,
+                            )
+                          : SvgLoader.asset(
+                              'assets/icons/btn_mute.svg',
+                              width: 18.59,
+                              height: 15,
+                            ),
+                    ),
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Скрыть чат',
+                  editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Выйти из чата',
+                  editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Пожаловаться',
+                  editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

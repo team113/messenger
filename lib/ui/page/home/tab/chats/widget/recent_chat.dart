@@ -113,17 +113,23 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        title: [
-          if (chat.muted != null) ...[
-            const SizedBox(width: 5),
-            Icon(
-              Icons.volume_off,
-              size: 17,
-              color: Theme.of(context).primaryIconTheme.color,
-              key: Key('MuteIndicator_${chat.id}'),
-            ),
-            const SizedBox(width: 5),
-          ],
+        title: const [
+          // if (chat.muted != null) ...[
+          //   const SizedBox(width: 5),
+          //   SvgLoader.asset(
+          //     'assets/icons/muted.svg',
+          //     key: Key('MuteIndicator_${chat.id}'),
+          //     width: 18.02,
+          //     height: 13,
+          //   ),
+          //   // Icon(
+          //   //   Icons.volume_off,
+          //   //   size: 17,
+          //   //   color: Theme.of(context).primaryIconTheme.color,
+          //   //   key: Key('MuteIndicator_${chat.id}'),
+          //   // ),
+          //   const SizedBox(width: 5),
+          // ],
         ],
         status: [
           _status(context),
@@ -140,6 +146,22 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
+                if (chat.muted != null) ...[
+                  const SizedBox(width: 5),
+                  SvgLoader.asset(
+                    'assets/icons/muted.svg',
+                    key: Key('MuteIndicator_${chat.id}'),
+                    width: 19.99,
+                    height: 15,
+                  ),
+                  // Icon(
+                  //   Icons.volume_off,
+                  //   size: 17,
+                  //   color: Theme.of(context).primaryIconTheme.color,
+                  //   key: Key('MuteIndicator_${chat.id}'),
+                  // ),
+                  const SizedBox(width: 5),
+                ],
                 _counter(),
               ],
             ),
@@ -676,9 +698,9 @@ class RecentChatTile extends StatelessWidget {
           margin: const EdgeInsets.only(left: 4),
           width: 23,
           height: 23,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.red,
+            color: chat.muted == null ? Colors.green : const Color(0xFFC0C0C0),
           ),
           alignment: Alignment.center,
           child: Text(

@@ -224,7 +224,7 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
                     myUser: c.myUser.value,
-                    // darken: 0,
+                    darken: 0.05,
                     border: style.cardBorder,
                     selected: true,
                     trailing: const [
@@ -246,7 +246,7 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
                     myUser: c.myUser.value,
-                    // darken: 0,
+                    darken: 0.05,
                     border: style.cardBorder,
                     selected: false,
                     onTap: () {},

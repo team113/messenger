@@ -279,6 +279,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -287,6 +288,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     }
 
@@ -304,6 +306,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        quality: quality,
       );
     });
   }

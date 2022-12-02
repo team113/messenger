@@ -19,7 +19,10 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 
@@ -37,7 +40,8 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
+import '/provider/gql/exceptions.dart'
+    show ToggleChatMuteException, UpdateChatContactNameException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -47,7 +51,7 @@ export 'view.dart';
 /// Controller of the `HomeTab.contacts` tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
-    this._chatRepository,
+    this._chatService,
     this._contactService,
     this._userService,
     this._callService,
@@ -68,7 +72,7 @@ class ContactsTabController extends GetxController {
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [Chat] repository used to create a dialog [Chat].
-  final AbstractChatRepository _chatRepository;
+  final ChatService _chatService;
 
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
@@ -226,12 +230,47 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  Future<RxChat?> getChat(ChatId? id) async =>
+      id == null ? null : await _chatService.get(id);
+
+  /// Unmutes a [Chat] identified by the provided [id].
+  Future<void> unmuteChat(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat] identified by the provided [id].
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    try {
+      PreciseDateTime? until;
+      if (duration != null) {
+        until = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(
+        id,
+        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
   Future<void> _call(User user, bool withVideo) async {
     Chat? dialog = user.dialog;
-    dialog ??= (await _chatRepository.createDialogChat(user.id)).chat.value;
+    dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
     try {
       await _callService.call(dialog.id, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {

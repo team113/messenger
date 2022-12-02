@@ -26,6 +26,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
@@ -484,50 +485,101 @@ class ContactsTabView extends StatelessWidget {
   }) {
     bool favorite = c.allFavorites.values.contains(contact);
 
-    return Padding(
-      key: Key(contact.id.val),
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: ContactTile(
-        radius: enlarge ? 30 + 7 : 30,
-        // radius: enlarge ? 26 + 7 : 26,
-        contact: contact,
-        darken: 0,
-        folded: favorite,
-        onTap: contact.contact.value.users.isNotEmpty
-            // TODO: Open [Routes.contact] page when it's implemented.
-            ? () => router.user(contact.user.value!.id)
-            : null,
-        actions: [
-          if (favorite)
-            ContextMenuButton(
-              label: 'Unfavorite'.l10n,
-              onPressed: () => c.unfavorite(contact),
-            )
-          else
-            ContextMenuButton(
-              label: 'Favorite'.l10n,
-              onPressed: () => c.favorite(contact),
-            ),
-          ContextMenuButton(
-            label: 'btn_delete_from_contacts'.l10n,
-            onPressed: () => c.deleteFromContacts(contact.contact.value),
-          ),
-        ],
-        subtitle: [
-          const SizedBox(height: 5),
-          Obx(() {
-            final subtitle = contact.user.value?.user.value.getStatus();
-            if (subtitle != null) {
-              return Text(
-                subtitle,
-                style: const TextStyle(color: Color(0xFF888888)),
-              );
-            }
+    return FutureBuilder<RxChat?>(
+      future: c.getChat(contact.user.value!.user.value.dialog?.id),
+      builder: (context, snapshot) {
+        return Padding(
+          key: Key(contact.id.val),
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: ContactTile(
+            radius: enlarge ? 30 + 7 : 30,
+            // radius: enlarge ? 26 + 7 : 26,
+            contact: contact,
+            darken: 0,
+            folded: favorite,
+            onTap: contact.contact.value.users.isNotEmpty
+                // TODO: Open [Routes.contact] page when it's implemented.
+                ? () => router.user(contact.user.value!.id)
+                : null,
+            actions: [
+              if (favorite)
+                ContextMenuButton(
+                  label: 'Unfavorite'.l10n,
+                  onPressed: () => c.unfavorite(contact),
+                )
+              else
+                ContextMenuButton(
+                  label: 'Favorite'.l10n,
+                  onPressed: () => c.favorite(contact),
+                ),
+              if (contact.user.value?.user.value.dialog != null) ...[
+                if (snapshot.data?.chat.value.muted != null)
+                  ContextMenuButton(
+                    label: 'Mute'.l10n,
+                    onPressed: () =>
+                        c.muteChat(contact.user.value!.user.value.dialog!.id),
+                  )
+                else
+                  ContextMenuButton(
+                    label: 'Unmute'.l10n,
+                    onPressed: () =>
+                        c.unmuteChat(contact.user.value!.user.value.dialog!.id),
+                  ),
+              ],
+              ContextMenuButton(
+                label: 'btn_delete_from_contacts'.l10n,
+                onPressed: () => c.deleteFromContacts(contact.contact.value),
+              ),
+            ],
+            subtitle: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 5),
+                        Obx(() {
+                          final subtitle =
+                              contact.user.value?.user.value.getStatus();
+                          if (subtitle != null) {
+                            return Text(
+                              subtitle,
+                              style: const TextStyle(color: Color(0xFF888888)),
+                            );
+                          }
 
-            return Container();
-          }),
-        ],
-      ),
+                          return Container();
+                        }),
+                      ],
+                    ),
+                  ),
+                  if (contact.user.value?.user.value.dialog != null &&
+                      snapshot.data != null)
+                    Obx(() {
+                      if (snapshot.data!.chat.value.muted != null) {
+                        return Row(
+                          children: [
+                            const SizedBox(width: 5),
+                            SvgLoader.asset(
+                              'assets/icons/muted.svg',
+                              width: 19.99,
+                              height: 15,
+                            ),
+                            const SizedBox(width: 5),
+                          ],
+                        );
+                      }
+
+                      return const SizedBox();
+                    }),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

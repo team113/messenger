@@ -794,6 +794,22 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Отключить уведомления',
+                  editable: false,
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
             onPressed: c.blocked.toggle,
             child: IgnorePointer(
               child: ReactiveTextField(

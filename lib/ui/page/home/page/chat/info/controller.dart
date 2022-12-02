@@ -19,6 +19,9 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/service/call.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
 import '/config.dart';
@@ -42,6 +45,7 @@ class ChatInfoController extends GetxController {
     this.chatId,
     this._chatService,
     this._authService,
+    this._callService,
   );
 
   /// ID of the [Chat] this page is about.
@@ -67,16 +71,18 @@ class ChatInfoController extends GetxController {
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
 
+  final CallService _callService;
+
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
 
   /// [Chat.name] field state.
-  late final TextFieldState chatName;
+  late final TextFieldState name;
 
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
+  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
@@ -93,9 +99,13 @@ class ChatInfoController extends GetxController {
 
   @override
   void onInit() {
-    chatName = TextFieldState(
+    name = TextFieldState(
+      approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) async {
+      onChanged: (s) {
+        s.error.value = null;
+      },
+      onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
         _nameTimer?.cancel();
@@ -123,8 +133,10 @@ class ChatInfoController extends GetxController {
           try {
             await _chatService.renameChat(chat!.chat.value.id, name);
             s.status.value = RxStatus.success();
-            _nameTimer = Timer(const Duration(seconds: 1),
-                () => s.status.value = RxStatus.empty());
+            _nameTimer = Timer(
+              const Duration(seconds: 1),
+              () => s.status.value = RxStatus.empty(),
+            );
             s.unsubmit();
           } on RenameChatException catch (e) {
             s.status.value = RxStatus.empty();
@@ -141,11 +153,13 @@ class ChatInfoController extends GetxController {
     );
 
     link = TextFieldState(
+      approvable: true,
       editable: true,
+      text: chat?.chat.value.directLink?.slug.val ??
+          ChatDirectLinkSlug.generate(10).val,
+      submitted: chat?.chat.value.directLink != null,
       onChanged: (s) {
         s.error.value = null;
-        s.status.value = RxStatus.empty();
-        s.unsubmit();
       },
       onSubmitted: (s) async {
         ChatDirectLinkSlug? slug;
@@ -165,10 +179,14 @@ class ChatInfoController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            await _chatService.createChatDirectLink(chatId, slug!);
+            // await _chatService.createChatDirectLink(chatId, slug!);
+            await Future.delayed(const Duration(seconds: 1));
+
             s.status.value = RxStatus.success();
-            _linkTimer = Timer(const Duration(seconds: 1),
-                () => s.status.value = RxStatus.empty());
+            _linkTimer = Timer(
+              const Duration(seconds: 1),
+              () => s.status.value = RxStatus.empty(),
+            );
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
             s.error.value = e.toMessage();
@@ -255,6 +273,11 @@ class ChatInfoController extends GetxController {
     link.editable.value = true;
   }
 
+  // TODO: Handle [CallAlreadyExistsException].
+  /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
+  Future<void> call(bool withVideo) =>
+      _callService.call(chatId, withVideo: withVideo);
+
   /// Deletes the [Chat.directLink].
   Future<void> deleteLink() async {
     if (link.editable.isFalse) return;
@@ -338,6 +361,38 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Unmutes a [Chat] identified by the provided [id].
+  Future<void> unmuteChat(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat] identified by the provided [id].
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    try {
+      PreciseDateTime? until;
+      if (duration != null) {
+        until = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(
+        id,
+        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Fetches the [chat].
   void _fetchChat() async {
     status.value = RxStatus.loading();
@@ -345,14 +400,14 @@ class ChatInfoController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      chatName.unchecked = chat!.chat.value.name?.val;
+      name.unchecked = chat!.chat.value.name?.val;
       link.unchecked = chat!.chat.value.directLink?.slug.val;
 
       _worker = ever(
         chat!.chat,
         (Chat chat) {
-          if (!chatName.focus.hasFocus) {
-            chatName.unchecked = chat.name?.val;
+          if (!name.focus.hasFocus) {
+            name.unchecked = chat.name?.val;
           }
           if (!link.focus.hasFocus) {
             link.unchecked = chat.directLink?.slug.val;
