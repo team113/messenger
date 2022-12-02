@@ -570,20 +570,30 @@ Widget mobileCall(CallController c, BuildContext context) {
                                             : SpeakerButton(c)
                                                 .build(context, blur: true),
                                       ),
-                                    padding(AudioButton(c)
-                                        .build(context, blur: true)),
-                                    padding(VideoButton(c)
-                                        .build(context, blur: true)),
-                                    padding(CancelButton(c)
-                                        .build(context, blur: true)),
+                                    padding(
+                                      AudioButton(c).build(context, blur: true),
+                                    ),
+                                    padding(
+                                      VideoButton(c).build(context, blur: true),
+                                    ),
+                                    padding(
+                                      CancelButton(c)
+                                          .build(context, blur: true),
+                                    ),
                                   ]
                                 : [
-                                    padding(AcceptAudioButton(c)
-                                        .build(context, expanded: true)),
-                                    padding(AcceptVideoButton(c)
-                                        .build(context, expanded: true)),
-                                    padding(DeclineButton(c)
-                                        .build(context, expanded: true)),
+                                    padding(
+                                      AcceptAudioButton(c)
+                                          .build(context, expanded: true),
+                                    ),
+                                    padding(
+                                      AcceptVideoButton(c)
+                                          .build(context, expanded: true),
+                                    ),
+                                    padding(
+                                      DeclineButton(c)
+                                          .build(context, expanded: true),
+                                    ),
                                   ],
                           ),
                         ),

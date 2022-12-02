@@ -36,7 +36,7 @@ class ScreenShareSelector extends StatelessWidget {
     this.onProceed,
   }) : super(key: key);
 
-  /// ID of the [Chat] to mute.
+  /// ID of a [Chat] this [ScreenShareSelector] is bound to.
   final Rx<ChatId> chatId;
 
   /// Available [MediaDisplayInfo]s for screen sharing.

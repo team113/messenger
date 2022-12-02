@@ -850,7 +850,9 @@ class OngoingCall {
 
     if (screen) {
       DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
-      if (screenShareDevice != null) constraints.deviceId(screenShareDevice);
+      if (screenShareDevice != null) {
+        constraints.deviceId(screenShareDevice);
+      }
       settings.displayVideo(constraints);
     }
 

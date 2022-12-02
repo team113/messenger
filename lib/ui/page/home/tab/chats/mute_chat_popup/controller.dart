@@ -35,8 +35,8 @@ class MuteChatController extends GetxController {
   /// ID of the [Chat] to mute.
   final ChatId chatId;
 
-  /// Callback, called when a [MuteChatView] this controller is bound to should
-  /// be popped from the [Navigator].
+  /// Callback, called when a [MuteChatView] this controller should be popped
+  /// from the [Navigator].
   final void Function()? pop;
 
   /// Subscription for the [ChatService.chats] changes.

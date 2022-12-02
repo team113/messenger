@@ -20,14 +20,15 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/service/call.dart';
-import '/domain/service/chat.dart';
 import '/util/obs/obs.dart';
+import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of a [MuteChatView].
+/// Controller of a [ScreenShareSelector].
 class ScreenShareSelectorController extends GetxController {
   ScreenShareSelectorController(
     this._callService, {
@@ -36,31 +37,15 @@ class ScreenShareSelectorController extends GetxController {
     this.pop,
   });
 
-  /// ID of the [Chat] to mute.
+  /// ID of a [Chat] this [ScreenShareSelector] is bound to.
   final Rx<ChatId> chatId;
 
   /// Available [MediaDisplayInfo]s for screen sharing.
   final RxList<MediaDisplayInfo> displays;
 
-  /// Callback, called when a [MuteChatView] this controller is bound to should
-  /// be popped from the [Navigator].
+  /// Callback, called when a [MuteChatView] this controller should be popped
+  /// from the [Navigator].
   final void Function()? pop;
-
-  /// Subscription for the [ChatService.chats] changes.
-  late final StreamSubscription? _chatsSubscription;
-
-  /// Subscription for the [displays] updating the [renderers].
-  late final StreamSubscription? _displaysSubscription;
-
-  /// [ChatService] for [pop]ping the view when a [Chat] identified by the
-  /// [chatId] is removed.
-  final CallService _callService;
-
-  /// Handle to a media manager tracking all the connected devices.
-  late MediaManagerHandle mediaManager;
-
-  /// Client for communication with a media server.
-  late Jason _jason;
 
   /// Indicates whether this controller was initialized and [renderers] can be
   /// used.
@@ -69,6 +54,22 @@ class ScreenShareSelectorController extends GetxController {
   /// Renderers of the [displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
+
+  /// Subscription for the [CallService.calls] changes.
+  late final StreamSubscription? _chatsSubscription;
+
+  /// Subscription for the [displays] updating the [renderers].
+  late final StreamSubscription? _displaysSubscription;
+
+  /// [CallService] for [pop]ping the view when [ChatCall] in the [Chat]
+  /// identified by the [chatId] is removed.
+  final CallService _callService;
+
+  /// Handle to a media manager tracking all the connected devices.
+  late MediaManagerHandle _mediaManager;
+
+  /// Client for communication with a media server.
+  late Jason _jason;
 
   /// Stored [LocalMediaTrack]s to free in the [onClose].
   final List<LocalMediaTrack> _localTracks = [];
@@ -99,7 +100,7 @@ class ScreenShareSelectorController extends GetxController {
     });
 
     _jason = Jason();
-    mediaManager = _jason.mediaManager();
+    _mediaManager = _jason.mediaManager();
     _initRenderers();
 
     super.onInit();
@@ -109,7 +110,7 @@ class ScreenShareSelectorController extends GetxController {
   void onClose() {
     _chatsSubscription?.cancel();
     _displaysSubscription?.cancel();
-    mediaManager.free();
+    _mediaManager.free();
     _jason.free();
 
     for (RtcVideoRenderer t in renderers.values) {
@@ -125,7 +126,7 @@ class ScreenShareSelectorController extends GetxController {
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
   Future<void> initRenderer(MediaDisplayInfo display) async {
-    List<LocalMediaTrack> tracks = await mediaManager.initLocalTracks(
+    List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
       _mediaStreamSettings(display.deviceId()),
     );
     _localTracks.addAll(tracks);
