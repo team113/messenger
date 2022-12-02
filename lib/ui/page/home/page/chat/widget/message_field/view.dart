@@ -69,8 +69,8 @@ class MessageFieldView extends StatelessWidget {
   /// [Key] of message send button.
   final Key? messageSendButtonKey;
 
-  /// Callback, called when the [quotes] or the [repliedMessages] were
-  /// reordered.
+  /// Callback, called when the [controller.quotes] or the
+  /// [controller.repliedMessages] were reordered.
   final void Function(int old, int to)? onReorder;
 
   /// State of a send message field.
@@ -1086,7 +1086,7 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [SendMessageField.repliedMessages].
+  /// Builds a visual representation of a [controller.repliedMessages].
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,
@@ -1329,7 +1329,7 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [SendMessageField.editedMessage].
+  /// Builds a visual representation of a [controller.editedMessage].
   Widget buildEditedMessage(BuildContext context, MessageFieldController c) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = c.editedMessage.value?.authorId == c.me;

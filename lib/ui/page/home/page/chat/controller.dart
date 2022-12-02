@@ -522,8 +522,8 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Updates [RxChat.draft] with the current [send], [attachments] and
-  /// [repliedMessages] fields.
+  /// Updates [RxChat.draft] with the current [send],
+  /// [sendController.attachments] and [sendController.repliedMessages] fields.
   void updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
@@ -1025,7 +1025,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Adds the specified [details] files to the [attachments].
+  /// Adds the specified [details] files to the [sendController.attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
       sendController.addPlatformAttachment(PlatformFile(
