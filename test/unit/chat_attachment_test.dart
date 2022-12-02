@@ -146,6 +146,10 @@ void main() async {
       ),
     );
 
+    when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+      (_) => Future.value(const Stream.empty()),
+    );
+
     Get.put(chatHiveProvider);
 
     UserRepository userRepository = Get.put(
@@ -164,6 +168,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
+      sessionProvider,
     ));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
@@ -217,6 +222,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
