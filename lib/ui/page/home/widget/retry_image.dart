@@ -85,7 +85,7 @@ class _RetryImageState extends State<RetryImage> {
   double _progress = 0;
 
   /// Starting period of exponential backoff image fetching.
-  static const Duration _minBackoffPeriod = Duration(microseconds: 250);
+  static const Duration _minBackoffPeriod = Duration(microseconds: 500);
 
   /// Maximum possible period of exponential backoff image fetching.
   static const Duration _maxBackoffPeriod = Duration(seconds: 32);
@@ -152,7 +152,7 @@ class _RetryImageState extends State<RetryImage> {
           child: AspectRatio(
             aspectRatio: 1,
             child: CircularProgressIndicator(
-              value: _progress == 0 ? null : _progress,
+              value: _progress == 0 ? null : _progress.clamp(0, 1),
             ),
           ),
         ),
@@ -186,7 +186,7 @@ class _RetryImageState extends State<RetryImage> {
         data = await PlatformUtils.dio.get(
           widget.url,
           onReceiveProgress: (received, total) {
-            if (total != -1) {
+            if (total > 0) {
               _progress = received / total;
               if (mounted) {
                 setState(() {});
