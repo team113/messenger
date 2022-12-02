@@ -34,6 +34,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned gallery. ([#212], [#199])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+  - Media panel:
+      - Screen sharing display choosing. ([#228], [#222])
 
 ### Fixed
 
@@ -67,6 +69,8 @@ All user visible changes to this project will be documented in this file. This p
 [#214]: /../../issues/214
 [#217]: /../../pull/217
 [#218]: /../../pull/218
+[#222]: /../../issues/222
+[#228]: /../../pull/228
 
 
 
