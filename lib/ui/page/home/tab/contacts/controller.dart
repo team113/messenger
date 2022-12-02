@@ -65,12 +65,14 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
+  /// Settings repository, used to get and update the stored
+  /// [ApplicationSettings.sortContactsByName].
   final AbstractSettingsRepository _settings;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
 
-  /// [Worker]s to [RxChatContact.user] reacting on its changes.
+  /// [Worker]s to [RxUser.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userOnlineWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
@@ -194,7 +196,8 @@ class ContactsTabController extends GetxController {
     sortContacts();
   }
 
-  /// Sorts contacts by sorting type defined in [_settings].
+  /// Sorts contacts by sorting type defined in
+  /// [ApplicationSettings.sortContactsByName].
   void sortContacts() {
     contacts.sort((a, b) {
       if (_settings.applicationSettings.value?.sortContactsByName == false) {
@@ -266,7 +269,6 @@ class ContactsTabController extends GetxController {
     }
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
-      print(e.op);
       switch (e.op) {
         case OperationKind.added:
           contacts.add(e.value!);
