@@ -60,6 +60,12 @@ abstract class AbstractUserRepository {
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);
+
+  /// Blacklists the [User] with the provided [id].
+  Future<void> blacklistUser(UserId id);
+
+  /// Unblacklists the [User] with the provided [id].
+  Future<void> unblacklistUser(UserId id);
 }
 
 /// Unified reactive [User] entity.

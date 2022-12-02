@@ -128,6 +128,13 @@ class UserRepository implements AbstractUserRepository {
     });
   }
 
+  @override
+  Future<void> blacklistUser(UserId id) => _graphQlProvider.blacklistUser(id);
+
+  @override
+  Future<void> unblacklistUser(UserId id) =>
+      _graphQlProvider.unblacklistUser(id);
+
   /// Updates the locally stored [HiveUser] with the provided [user] value.
   void update(User user) {
     HiveUser? hiveUser = _userLocal.get(user.id);

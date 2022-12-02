@@ -882,6 +882,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

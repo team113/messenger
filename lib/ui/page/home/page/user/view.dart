@@ -261,7 +261,15 @@ class UserView extends StatelessWidget {
   Widget _blacklist(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.block)),
         title: Text('btn_blacklist'.l10n),
-        onTap: () => throw UnimplementedError(),
+        onTap: () {
+          if (c.user != null) {
+            if (c.user!.user.value.isBlacklisted) {
+              c.unblacklist();
+            } else {
+              c.blacklist();
+            }
+          }
+        },
       );
 
   /// Puts a [copy] of data into the clipboard and shows a snackbar.

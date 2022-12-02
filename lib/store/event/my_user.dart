@@ -21,11 +21,14 @@ import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/provider/hive/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
+  addedToBlacklist,
   avatarDeleted,
   avatarUpdated,
   bioDeleted,
@@ -50,6 +53,7 @@ enum MyUserEventKind {
   phoneConfirmed,
   phoneDeleted,
   presenceUpdated,
+  removedFromBlacklist,
   statusDeleted,
   statusUpdated,
   unmuted,
@@ -368,4 +372,34 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
+}
+
+/// Event of an [User] was added to the [MyUser]'s blacklist.
+class EventBlacklistRecordAdded extends MyUserEvent {
+  const EventBlacklistRecordAdded(UserId userId, this.user, this.at)
+      : super(userId);
+
+  /// [User] being added to the blacklist.
+  final HiveUser user;
+
+  /// [DateTime] when the [user] was added to the blacklist.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.addedToBlacklist;
+}
+
+/// Event of an [User] was removed from the [MyUser]'s blacklist.
+class EventBlacklistRecordRemoved extends MyUserEvent {
+  const EventBlacklistRecordRemoved(UserId userId, this.user, this.at)
+      : super(userId);
+
+  /// [User] being removed from the blacklist.
+  final HiveUser user;
+
+  /// [DateTime] when the [user] was removed from the blacklist.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.removedFromBlacklist;
 }
