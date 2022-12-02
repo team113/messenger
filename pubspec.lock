@@ -545,9 +545,11 @@ packages:
   flutter_list_view:
     dependency: "direct main"
     description:
-      name: flutter_list_view
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: b2e0bb6c15c524555413a3c4b1cc184ffb0fb231
+      url: "https://github.com/krida2000/flutter_list_view.git"
+    source: git
     version: "1.1.18"
   flutter_local_notifications:
     dependency: "direct main"
@@ -587,12 +589,10 @@ packages:
   flutter_staggered_animations:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "Flutter-3.0.0"
-      resolved-ref: "4ae28e698b2fd54cd7de8d63e16dd3cd7d98d14c"
-      url: "https://github.com/Tkko/flutter_staggered_animations"
-    source: git
-    version: "1.0.0"
+      name: flutter_staggered_animations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   flutter_svg:
     dependency: "direct main"
     description:

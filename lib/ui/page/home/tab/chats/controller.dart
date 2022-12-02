@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -32,8 +33,8 @@ import '/domain/repository/call.dart'
         CallAlreadyJoinedException,
         CallDoesNotExistException,
         CallIsInPopupException;
-import '/domain/repository/contact.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -51,17 +52,12 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
-
-enum SearchCategory {
-  chat,
-  user,
-  contact,
-}
 
 /// Controller of the [HomeTab.chats] tab .
 class ChatsTabController extends GetxController {
@@ -74,14 +70,23 @@ class ChatsTabController extends GetxController {
     this._myUserService,
   );
 
+  /// Reactive list of sorted [Chat]s.
+  late final RxList<RxChat> chats;
+
+  /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
+  final Rx<SearchController?> search = Rx(null);
+
+  /// [ListElement]s representing the [search] results visually.
+  final RxList<ListElement> elements = RxList([]);
+
   final RxBool groupCreating = RxBool(false);
 
   final RxBool searching = RxBool(false);
-  late final TextFieldState search;
+  late final TextFieldState search2;
 
-  final RxMap<ChatId, RxChat> chats = RxMap();
-  final RxMap<UserId, RxChatContact> contacts = RxMap();
-  final RxMap<UserId, RxUser> users = RxMap();
+  final RxMap<ChatId, RxChat> chats2 = RxMap();
+  final RxMap<UserId, RxChatContact> contacts2 = RxMap();
+  final RxMap<UserId, RxUser> users2 = RxMap();
 
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
   final RxList<RxChat> selectedChats = RxList();
@@ -92,8 +97,6 @@ class ChatsTabController extends GetxController {
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
-
-  final RxList<ListElement> elements = RxList([]);
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> sortedChats;
@@ -112,6 +115,7 @@ class ChatsTabController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
   final MyUserService _myUserService;
@@ -123,6 +127,10 @@ class ChatsTabController extends GetxController {
 
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
+
+  /// Subscription for [SearchController.chats], [SearchController.users] and
+  /// [SearchController.contacts] changes updating the [elements].
+  StreamSubscription? _searchSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -138,6 +146,8 @@ class ChatsTabController extends GetxController {
 
   @override
   void onInit() {
+    chats = RxList<RxChat>(_chatService.chats.values.toList());
+
     _searchWorker = ever(
       query,
       (String? q) {
@@ -145,7 +155,7 @@ class ChatsTabController extends GetxController {
           searchResults.value = null;
           searchStatus.value = RxStatus.empty();
           query.value = null;
-          search.clear();
+          search2.clear();
           populate();
         } else {
           searchStatus.value = RxStatus.loading();
@@ -154,16 +164,16 @@ class ChatsTabController extends GetxController {
       },
     );
 
-    search = TextFieldState(
+    search2 = TextFieldState(
       onChanged: (d) {
         query.value = d.text;
         if (d.text.isEmpty) {
           query.value = null;
           searchResults.value = null;
           searchStatus.value = RxStatus.empty();
-          users.clear();
-          contacts.clear();
-          chats.clear();
+          users2.clear();
+          contacts2.clear();
+          chats2.clear();
           populate();
         } else {
           searchStatus.value = RxStatus.loading();
@@ -172,23 +182,13 @@ class ChatsTabController extends GetxController {
       },
     );
 
-    search.focus.addListener(() {
-      if (search.focus.hasFocus == false) {
-        if (!groupCreating.value) {
-          if (search.text.isEmpty) {
-            searching.value = false;
-            query.value = null;
-            search.clear();
-            searchResults.value = null;
-            searchStatus.value = RxStatus.empty();
-            populate();
-          }
-        }
-      }
-    });
-
     sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
     _sortChats();
+
+    for (RxChat chat in chats) {
+      _sortingData[chat.chat.value.id] =
+          _ChatSortingData(chat.chat, _sortChats);
+    }
 
     _searchDebounce = debounce(query, (String? v) {
       if (v != null) {
@@ -204,21 +204,19 @@ class ChatsTabController extends GetxController {
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          sortedChats.add(event.value!);
+          chats.add(event.value!);
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
-          populate();
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          sortedChats.removeWhere((e) => e.chat.value.id == event.key);
-          populate();
+          chats.removeWhere((e) => e.chat.value.id == event.key);
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortChats();
           break;
       }
     });
@@ -226,9 +224,9 @@ class ChatsTabController extends GetxController {
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
       int? first = list.firstOrNull?.index;
       if (first != null) {
-        if (first >= chats.length + contacts.length) {
+        if (first >= chats2.length + contacts2.length) {
           selected.value = 2;
-        } else if (first >= chats.length) {
+        } else if (first >= chats2.length) {
           selected.value = 1;
         } else {
           selected.value = 0;
@@ -241,10 +239,38 @@ class ChatsTabController extends GetxController {
     super.onInit();
   }
 
-  dynamic getIndex(int i) {
-    return [...chats.values, ...contacts.values, ...users.values].elementAt(i);
+  @override
+  void onClose() {
+    for (var data in _sortingData.values) {
+      data.dispose();
+    }
+    _chatsSubscription.cancel();
+
+    _searchSubscription?.cancel();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    search.value?.onClose();
+
+    for (var data in _sortingData.values) {
+      data.dispose();
+    }
+    _chatsSubscription.cancel();
+
+    _searchWorker?.dispose();
+    _searchStatusWorker?.dispose();
+    _searchDebounce?.dispose();
+
+    super.onClose();
   }
 
+  dynamic getIndex(int i) {
+    return [...chats2.values, ...contacts2.values, ...users2.values]
+        .elementAt(i);
+  }
+
+  // TODO: No [Chat] should be created.
+  /// Opens a [Chat]-dialog with this [user].
+  ///
+  /// Creates a new one if it doesn't exist.
   Future<void> openChat({
     RxUser? user,
     RxChatContact? contact,
@@ -263,58 +289,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    for (var data in _sortingData.values) {
-      data.dispose();
-    }
-    _chatsSubscription.cancel();
-
-    _searchWorker?.dispose();
-    _searchStatusWorker?.dispose();
-    _searchDebounce?.dispose();
-
-    super.onClose();
-  }
-
   final RxInt selected = RxInt(0);
   final FlutterListViewController controller = FlutterListViewController();
-
-  void jumpTo(int i) {
-    if (i == 0) {
-      controller.jumpTo(0);
-    } else if (i == 1) {
-      double to = chats.length * (84 + 10);
-      if (to > controller.position.maxScrollExtent) {
-        controller.jumpTo(controller.position.maxScrollExtent);
-      } else {
-        controller.jumpTo(to);
-      }
-    } else if (i == 2) {
-      double to = (chats.length + contacts.length) * (84 + 10);
-      if (to > controller.position.maxScrollExtent) {
-        controller.jumpTo(controller.position.maxScrollExtent);
-      } else {
-        controller.jumpTo(to);
-      }
-    }
-  }
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
-  /// [id].
-  bool inCall(ChatId id) {
-    final Rx<OngoingCall>? call = _callService.calls[id];
-    if (call != null) {
-      return call.value.state.value == OngoingCallState.active ||
-          call.value.state.value == OngoingCallState.joining;
-    }
-
-    return WebUtils.containsCall(id);
-  }
-
-  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
-  Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.
@@ -391,7 +367,7 @@ class ChatsTabController extends GetxController {
       router.navigation.value = null;
     }
 
-    search.clear();
+    search2.clear();
     query.value = null;
     searchResults.value = null;
     searchStatus.value = RxStatus.empty();
@@ -436,7 +412,7 @@ class ChatsTabController extends GetxController {
 
       router.chatInfo(chat.chat.value.id);
 
-      search.clear();
+      search2.clear();
       query.value = null;
       searchResults.value = null;
       searchStatus.value = RxStatus.empty();
@@ -518,9 +494,80 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
+  /// [id].
+  bool inCall(ChatId id) {
+    final Rx<OngoingCall>? call = _callService.calls[id];
+    if (call != null) {
+      return call.value.state.value == OngoingCallState.active ||
+          call.value.state.value == OngoingCallState.joining;
+    }
+
+    return WebUtils.containsCall(id);
+  }
+
+  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
+
+  /// Enables and initializes or disables and disposes the [search].
+  void toggleSearch([bool enable = true]) {
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    _searchSubscription?.cancel();
+
+    if (enable) {
+      search.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.chat,
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _searchSubscription = StreamGroup.merge([
+        search.value!.chats.stream,
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        if (search.value?.chats.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxChat c in search.value!.chats.values) {
+            elements.add(ChatElement(c));
+          }
+        }
+
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
+      search.value!.search.focus.requestFocus();
+    } else {
+      search.value = null;
+      elements.clear();
+    }
+  }
+
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
-    sortedChats.sort((a, b) {
+    chats.sort((a, b) {
       if (a.chat.value.ongoingCall != null &&
           b.chat.value.ongoingCall == null) {
         return -1;
@@ -545,122 +592,70 @@ class ChatsTabController extends GetxController {
     });
   }
 
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      toggleSearch(false);
+    }
+  }
+
   void populate() {
-    if (groupCreating.value) {
-      chats.value = {
-        for (var u in _chatService.chats.values.where((e) {
-          if (e.chat.value.isDialog) {
-            if (query.value != null) {
-              if (e.title.value.contains(query.value!) == true) {
-                return true;
-              }
-            } else {
+    chats2.value = {
+      for (var u in _chatService.chats.values.where((e) {
+        if (e.chat.value.isDialog) {
+          if (query.value != null) {
+            if (e.title.value.contains(query.value!) == true) {
               return true;
             }
-          }
-
-          return false;
-        }))
-          u.chat.value.id: u,
-      };
-
-      contacts.value = {
-        for (var u in _contactService.contacts.values.where((e) {
-          if (e.user.value != null && e.contact.value.users.length == 1) {
-            if (query.value != null) {
-              if (e.contact.value.name.val.contains(query.value!) == true) {
-                if (chats.values.firstWhereOrNull(
-                        (c) => c.members.containsKey(e.user.value!.id)) ==
-                    null) {
-                  return true;
-                }
-              }
-            } else {
-              return true;
-            }
-          }
-
-          return false;
-        }))
-          u.user.value!.id: u,
-      };
-
-      if (searchResults.value?.isNotEmpty == true) {
-        users.value = {
-          for (var u in searchResults.value!.where((e) {
-            if (!contacts.containsKey(e.id)) {
-              if (chats.values
-                      .firstWhereOrNull((c) => c.members.containsKey(e.id)) ==
-                  null) {
-                return true;
-              }
-            }
-
-            return false;
-          }))
-            u.id: u,
-        };
-      } else {
-        users.value = {};
-      }
-    } else {
-      if (query.value?.isNotEmpty != true) {
-        chats.value = {
-          for (var c in sortedChats) c.chat.value.id: c,
-        };
-
-        users.clear();
-        contacts.clear();
-        return;
-      }
-
-      chats.value = {
-        for (var u in _chatService.chats.values.where((e) {
-          if (e.title.value.contains(query.value!) == true) {
+          } else {
             return true;
           }
+        }
 
-          return false;
-        }))
-          u.chat.value.id: u,
-      };
+        return false;
+      }))
+        u.chat.value.id: u,
+    };
 
-      contacts.value = {
-        for (var u in _contactService.contacts.values.where((e) {
-          if (e.user.value != null && e.contact.value.users.length == 1) {
+    contacts2.value = {
+      for (var u in _contactService.contacts.values.where((e) {
+        if (e.user.value != null && e.contact.value.users.length == 1) {
+          if (query.value != null) {
             if (e.contact.value.name.val.contains(query.value!) == true) {
-              if (chats.values.firstWhereOrNull((c) =>
-                      c.chat.value.isDialog &&
-                      c.members.containsKey(e.user.value!.id)) ==
+              if (chats2.values.firstWhereOrNull(
+                      (c) => c.members.containsKey(e.user.value!.id)) ==
                   null) {
                 return true;
               }
+            }
+          } else {
+            return true;
+          }
+        }
+
+        return false;
+      }))
+        u.user.value!.id: u,
+    };
+
+    if (searchResults.value?.isNotEmpty == true) {
+      users2.value = {
+        for (var u in searchResults.value!.where((e) {
+          if (!contacts2.containsKey(e.id)) {
+            if (chats2.values
+                    .firstWhereOrNull((c) => c.members.containsKey(e.id)) ==
+                null) {
+              return true;
             }
           }
 
           return false;
         }))
-          u.user.value!.id: u,
+          u.id: u,
       };
-
-      if (searchResults.value?.isNotEmpty == true) {
-        users.value = {
-          for (var u in searchResults.value!.where((e) {
-            if (!contacts.containsKey(e.id)) {
-              if (chats.values.firstWhereOrNull((c) =>
-                      c.chat.value.isDialog && c.members.containsKey(e.id)) ==
-                  null) {
-                return true;
-              }
-            }
-
-            return false;
-          }))
-            u.id: u,
-        };
-      } else {
-        users.value = {};
-      }
+    } else {
+      users2.value = {};
     }
 
     elements.clear();
@@ -669,29 +664,29 @@ class ChatsTabController extends GetxController {
       elements.add(const MyUserElement());
     }
 
-    if (chats.isNotEmpty) {
+    if (chats2.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.chat));
-      for (var c in chats.values) {
+      for (var c in chats2.values) {
         elements.add(ChatElement(c));
       }
     }
 
-    if (contacts.isNotEmpty) {
+    if (contacts2.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.contact));
-      for (var c in contacts.values) {
+      for (var c in contacts2.values) {
         elements.add(ContactElement(c));
       }
     }
 
-    if (users.isNotEmpty) {
+    if (users2.isNotEmpty) {
       elements.add(const DividerElement(SearchCategory.user));
-      for (var c in users.values) {
+      for (var c in users2.values) {
         elements.add(UserElement(c));
       }
     }
 
     print(
-      'populate ${query.value} (${elements.length}), recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
+      'populate ${query.value} (${elements.length}), recent: ${chats2.length}, contact: ${contacts2.length}, user: ${users2.length}',
     );
   }
 
@@ -775,34 +770,47 @@ class _ChatSortingData {
   /// Previously captured [Chat.updatedAt] value.
   late PreciseDateTime updatedAt;
 
-  /// Previously captured indicator of [Chat.currentCall] being non-`null`.
+  /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool hasCall;
 
   /// Disposes this [_ChatSortingData].
   void dispose() => worker.dispose();
 }
 
+/// Element to display in a [ListView].
 abstract class ListElement {
   const ListElement();
 }
 
+/// [ListElement] representing a [RxChat].
 class ChatElement extends ListElement {
   const ChatElement(this.chat);
+
+  /// [RxChat] itself.
   final RxChat chat;
 }
 
+/// [ListElement] representing a [RxChatContact].
 class ContactElement extends ListElement {
   const ContactElement(this.contact);
+
+  /// [RxChatContact] itself.
   final RxChatContact contact;
 }
 
+/// [ListElement] representing a [RxUser].
 class UserElement extends ListElement {
   const UserElement(this.user);
+
+  /// [RxUser] itself.
   final RxUser user;
 }
 
+/// [ListElement] representing a visual divider of the provided [category].
 class DividerElement extends ListElement {
   const DividerElement(this.category);
+
+  /// [SearchCategory] of this [DividerElement].
   final SearchCategory category;
 }
 

@@ -203,9 +203,6 @@ class _HomeViewState extends State<HomeView> {
 
                           Widget child = router.navigation.value ??
                               CustomNavigationBar(
-                                selectedColor: const Color(0xFF63B4FF),
-                                unselectedColor: const Color(0xFF88c6ff),
-                                size: 30,
                                 items: [
                                   // CustomNavigationBarItem(
                                   //   key: const Key('FinanceButton'),
@@ -222,7 +219,7 @@ class _HomeViewState extends State<HomeView> {
                                   // ),
                                   CustomNavigationBarItem(
                                     key: const Key('ContactsButton'),
-                                    leading: animated(
+                                    child: animated(
                                       tab: HomeTab.contacts,
                                       child: SvgLoader.asset(
                                         'assets/icons/contacts.svg',
@@ -250,7 +247,7 @@ class _HomeViewState extends State<HomeView> {
                                     badge: c.unreadChatsCount.value == 0
                                         ? null
                                         : '${c.unreadChatsCount.value}',
-                                    leading: animated(
+                                    child: animated(
                                       tab: HomeTab.chats,
                                       child: SvgLoader.asset(
                                         'assets/icons/chats.svg',
@@ -262,7 +259,7 @@ class _HomeViewState extends State<HomeView> {
                                   CustomNavigationBarItem(
                                     key: const Key('MenuButton'),
                                     // icon: FontAwesomeIcons.bars,
-                                    leading: ContextMenuRegion(
+                                    child: ContextMenuRegion(
                                       alignment: Alignment.bottomRight,
                                       moveDownwards: false,
                                       selector: c.profileKey,

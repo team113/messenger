@@ -40,14 +40,15 @@ class ContactTile extends StatelessWidget {
     this.trailing = const [],
     this.onTap,
     this.selected = false,
-    this.darken = 0.05,
+    this.subtitle = const [],
+    this.darken = 0,
+    this.height = 86,
+    this.radius = 30,
     this.actions,
     this.canDelete = false,
     this.onDelete,
     this.folded = false,
-    this.subtitle = const [],
     this.preventContextMenu = false,
-    this.radius = 30, //26,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     this.onBadgeTap,
     this.onAvatarTap,
@@ -55,26 +56,45 @@ class ContactTile extends StatelessWidget {
     this.border,
   }) : super(key: key);
 
-  final RxChatContact? contact;
-  final RxUser? user;
   final MyUser? myUser;
 
+  /// [RxChatContact] to display.
+  final RxChatContact? contact;
+
+  /// [RxUser] to display.
+  final RxUser? user;
+
+  /// Optional leading [Widget]s.
   final List<Widget> leading;
+
+  /// Optional trailing [Widget]s.
   final List<Widget> trailing;
 
   final bool canDelete;
   final void Function()? onDelete;
 
+  /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
+
+  /// Indicator whether this [ContactTile] is selected.
   final bool selected;
+
+  /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
+
   final bool folded;
 
   final bool preventContextMenu;
   final List<ContextMenuButton>? actions;
   final EdgeInsets margin;
 
+  /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
+
+  /// Height of this [ContactTile].
+  final double height;
+
+  /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
   final void Function()? onBadgeTap;

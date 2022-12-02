@@ -19,9 +19,9 @@ import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
@@ -29,10 +29,7 @@ class CustomNavigationBar extends StatelessWidget {
     Key? key,
     this.currentIndex = 0,
     this.items = const [],
-    this.size,
     this.onTap,
-    this.selectedColor = const Color(0xFF4193DC),
-    this.unselectedColor = const Color(0xA6818181),
   }) : super(key: key);
 
   /// Currently selected index of an item in the [items] list.
@@ -45,23 +42,12 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
-  /// Default size of [items] icons.
-  final double? size;
-
-  /// Selected item color.
-  final Color selectedColor;
-
-  /// Unselected item color.
-  final Color unselectedColor;
-
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool isMobile = false; //context.isMobile;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding:
-          isMobile ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: Container(
         decoration: BoxDecoration(
           boxShadow: const [
@@ -77,11 +63,6 @@ class CustomNavigationBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Container(
-            //   width: double.infinity,
-            //   color: const Color(0xFFE0E0E0),
-            //   height: 0.5,
-            // ),
             ConditionalBackdropFilter(
               condition: style.cardBlur > 0,
               borderRadius: style.cardRadius,
@@ -91,69 +72,45 @@ class CustomNavigationBar extends StatelessWidget {
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  // color: Theme.of(context)
-                  //     .appBarTheme
-                  //     .backgroundColor
-                  //     ?.withOpacity(0.8),
-                  // color: const Color(0x301D6AAE),
                   color: style.cardColor,
-                  borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+                  borderRadius: style.cardRadius,
                 ),
                 height: 56,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 9),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: items
-                        .mapIndexed(
-                          (i, e) => Expanded(
-                            key: e.key,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (e.icon != null || e.leading != null)
-                                  Badge(
-                                    badgeContent: e.badge == null
-                                        ? null
-                                        : Text(
-                                            e.badge!,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                    showBadge: e.badge != null,
-                                    child: InkResponse(
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      splashColor: Colors.transparent,
-                                      onTap: () => onTap?.call(i),
-                                      child: DefaultTextStyle(
-                                        style: TextStyle(
-                                          color: currentIndex == i
-                                              ? selectedColor
-                                              : unselectedColor,
+                    children: items.mapIndexed((i, b) {
+                      return Expanded(
+                        key: b.key,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (b.child != null)
+                              Badge(
+                                badgeContent: b.badge == null
+                                    ? null
+                                    : Text(
+                                        b.badge!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
                                           fontSize: 11,
                                         ),
-                                        child: e.leading ??
-                                            FaIcon(
-                                              e.icon,
-                                              color: e.color ??
-                                                  (currentIndex == i
-                                                      ? selectedColor
-                                                      : unselectedColor),
-                                              size: e.size ?? size,
-                                            ),
                                       ),
-                                    ),
-                                  ),
-                                if (e.label != null) Text(e.label!),
-                              ],
-                            ),
-                          ),
-                        )
-                        .toList(),
+                                showBadge: b.badge != null,
+                                child: InkResponse(
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  onTap: () => onTap?.call(i),
+                                  child: b.child!,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -169,33 +126,16 @@ class CustomNavigationBar extends StatelessWidget {
 class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
-    this.label,
-    this.icon,
-    this.size,
-    this.color,
     this.badge,
-    this.leading,
+    this.child,
   });
 
   /// Unique [Key] of this [CustomNavigationBarItem].
   final Key? key;
 
-  /// Label of this item.
-  final String? label;
-
-  /// Icon of this item.
-  final IconData? icon;
-
-  /// Size of an [icon].
-  ///
-  /// Overrides the [CustomNavigationBar.size] for this item.
-  final double? size;
-
-  /// Color of an [icon].
-  final Color? color;
-
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
 
-  final Widget? leading;
+  /// [Widget] to display.
+  final Widget? child;
 }

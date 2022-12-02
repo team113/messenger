@@ -78,11 +78,11 @@ class Themes {
               fontWeight: FontWeight.w300,
             ),
             messageColor: Colors.white,
-            secondaryBorder:
-                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
-            readMessageColor: const Color(0xFFD2E3F9),
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            readMessageColor: const Color(0xFFD2E3F9),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             sidebarColor: Colors.white.withOpacity(0.4),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
