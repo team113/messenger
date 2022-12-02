@@ -69,7 +69,7 @@ class ChatsTabController extends GetxController {
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
-  /// [ListElement] representing the [search] results visually.
+  /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
   /// [Chat]s service used to update the [chats].
@@ -84,7 +84,7 @@ class ChatsTabController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// [ContactService]s service used by a [SearchController].
+  /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
   /// Subscription for [ChatService.chats] changes.
@@ -145,7 +145,7 @@ class ChatsTabController extends GetxController {
     _chatsSubscription.cancel();
 
     _searchSubscription?.cancel();
-    search.value?.search.focus.removeListener(_searchFieldFocusListener);
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
     super.onClose();
@@ -285,10 +285,10 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Sets the [search] mode to the provided [enable] value.
+  /// Enables and initializes or disables and disposes the [search].
   void toggleSearch([bool enable = true]) {
     search.value?.onClose();
-    search.value?.search.focus.removeListener(_searchFieldFocusListener);
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     _searchSubscription?.cancel();
 
     if (enable) {
@@ -332,7 +332,7 @@ class ChatsTabController extends GetxController {
         }
       });
 
-      search.value!.search.focus.addListener(_searchFieldFocusListener);
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
       search.value!.search.focus.requestFocus();
     } else {
       search.value = null;
@@ -367,9 +367,8 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  /// Disables the [search] mode based on [SearchController.search] field focus
-  /// and text value.
-  void _searchFieldFocusListener() {
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
@@ -412,39 +411,39 @@ class _ChatSortingData {
   void dispose() => worker.dispose();
 }
 
-/// Element of search results.
+/// Element to display in a [ListView].
 abstract class ListElement {
   const ListElement();
 }
 
-/// [Chat] of search results.
+/// [ListElement] representing a [RxChat].
 class ChatElement extends ListElement {
   const ChatElement(this.chat);
 
-  /// [Chat] that should be displayed as search result.
+  /// [RxChat] itself.
   final RxChat chat;
 }
 
-/// [ChatContact] of search results.
+/// [ListElement] representing a [RxChatContact].
 class ContactElement extends ListElement {
   const ContactElement(this.contact);
 
-  /// [ChatContact] that should be displayed as search result.
+  /// [RxChatContact] itself.
   final RxChatContact contact;
 }
 
-/// [User] of search results.
+/// [ListElement] representing a [RxUser].
 class UserElement extends ListElement {
   const UserElement(this.user);
 
-  /// [User] that should be displayed as search result.
+  /// [RxUser] itself.
   final RxUser user;
 }
 
-/// [Divider] of search results.
+/// [ListElement] representing a visual divider of the provided [category].
 class DividerElement extends ListElement {
   const DividerElement(this.category);
 
-  /// Search category that should be displayed before search results.
+  /// [SearchCategory] of this [DividerElement].
   final SearchCategory category;
 }

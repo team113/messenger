@@ -210,8 +210,8 @@ class SearchController extends GetxController {
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
-  Future<void> _search(String? query) async {
-    if (!categories.contains(SearchCategory.user) || query == null) {
+  Future<void> _search(String query) async {
+    if (!categories.contains(SearchCategory.user) || query.isEmpty) {
       return;
     }
 
@@ -317,10 +317,7 @@ class SearchController extends GetxController {
       chats.value = {
         for (var c in sorted.where((p) {
           if (query.value.isNotEmpty) {
-            if (p.title.toLowerCase().contains(query.value.toLowerCase())) {
-              return true;
-            }
-            return false;
+            return p.title.toLowerCase().contains(query.value.toLowerCase());
           }
 
           return true;
@@ -366,9 +363,9 @@ class SearchController extends GetxController {
 
             if (chat?.members.containsKey(user?.id) != true &&
                 !recent.containsKey(user?.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog &&
-                    e1.members.containsKey(user?.id)))) {
+                (chats.values.none((c) =>
+                    c.chat.value.isDialog &&
+                    c.members.containsKey(user?.id)))) {
               if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -417,8 +414,8 @@ class SearchController extends GetxController {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
+                (chats.values.none((c) =>
+                    c.chat.value.isDialog && c.members.containsKey(e.id)))) {
               return true;
             }
 
@@ -453,9 +450,9 @@ class SearchController extends GetxController {
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id) &&
-                  (chats.values.none((e1) =>
-                      e1.chat.value.isDialog &&
-                      e1.members.containsKey(user?.id)))) {
+                  (chats.values.none((c) =>
+                      c.chat.value.isDialog &&
+                      c.members.containsKey(user?.id)))) {
                 if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()

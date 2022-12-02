@@ -38,8 +38,8 @@ class ContactTile extends StatelessWidget {
     this.selected = false,
     this.subtitle = const [],
     this.darken = 0,
-    this.height = 76,
-    this.radius = 26,
+    this.height = 86,
+    this.radius = 30,
   }) : super(key: key);
 
   /// [RxChatContact] to display.
@@ -79,15 +79,15 @@ class ContactTile extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(minHeight: height),
       child: InkWellWithHover(
-        selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-        unselectedColor: style.cardColor.darken(darken),
+        selectedColor: style.cardSelectedColor,
+        unselectedColor: style.cardColor,
         selected: selected,
-        hoveredBorder: style.cardHoveredBorder,
-        border: style.cardBorder,
+        hoveredBorder: selected ? style.primaryBorder : style.cardHoveredBorder,
+        border: selected ? style.primaryBorder : style.cardBorder,
         borderRadius: style.cardRadius,
         onTap: onTap,
-        unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-        selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        unselectedHoverColor: style.cardHoveredColor,
+        selectedHoverColor: style.cardSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
