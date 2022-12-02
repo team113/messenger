@@ -187,14 +187,15 @@ class ContactsTabController extends GetxController {
 
   /// Changes sorting mode.
   ///
-  /// If [sortByName] = true means sorting contacts by name ascending.
-  /// If [sortByName] = false means sorting contacts by their online descending.
+  /// If [sortByName] = true means sorting [contacts] by name ascending.
+  /// If [sortByName] = false means sorting [contacts] by their online
+  /// descending.
   void changeSorting(bool sortByName) async {
     await _settings.setSortContactsByName(sortByName);
     sortContacts();
   }
 
-  /// Sorts contacts by sorting type defined in
+  /// Sorts [contacts] by sorting type defined in
   /// [ApplicationSettings.sortContactsByName].
   void sortContacts() {
     contacts.sort((a, b) {
@@ -241,8 +242,8 @@ class ContactsTabController extends GetxController {
     RxUser? rxUser = c.user.value;
     if (_userOnlineWorkers[c.id] == null && rxUser?.user != null) {
       _userOnlineWorkers[c.id] = ever(rxUser!.user, (_) => sortContacts());
-      sortContacts();
     }
+    sortContacts();
   }
 
   /// Maintains an interest in updates of every [RxChatContact.user] in the
