@@ -137,28 +137,20 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> changeContactName(ChatContactId id, UserName name) async {
-    final HiveRxChatContact? chatContact = contacts[id];
-    final UserName? oldName = chatContact?.contact.value.name;
+    final HiveRxChatContact? contact = contacts[id];
+    final UserName? oldName = contact?.contact.value.name;
 
-    chatContact?.contact.update((c) => c?.name = name);
+    contact?.contact.update((c) => c?.name = name);
     contacts.emit(
-      MapChangeNotification.updated(
-        chatContact?.id,
-        chatContact?.id,
-        chatContact,
-      ),
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
     );
 
     try {
       await _graphQlProvider.changeContactName(id, name);
     } catch (_) {
-      chatContact?.contact.update((c) => c?.name = oldName!);
+      contact?.contact.update((c) => c?.name = oldName!);
       contacts.emit(
-        MapChangeNotification.updated(
-          chatContact?.id,
-          chatContact?.id,
-          chatContact,
-        ),
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
       );
       rethrow;
     }
