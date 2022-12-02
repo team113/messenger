@@ -159,6 +159,9 @@ class ContactsTabController extends GetxController {
     for (RxChatContact c in contacts) {
       c.user.value?.stopUpdates();
     }
+    for (Worker worker in _userOnlineWorkers.values) {
+      worker.dispose();
+    }
     _contactsSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
     super.onClose();
@@ -188,32 +191,29 @@ class ContactsTabController extends GetxController {
   }
 
   void sortContact() {
-    print('sortContact');
-    // contacts.clear();
-    // contacts.addAll(_contactService.contacts.values);
+    print(_userOnlineWorkers);
     if (_settings.applicationSettings.value?.sortContactsByName == true) {
-      print('sort by name');
       contacts.sort(
         (a, b) => a.contact.value.name.val.compareTo(b.contact.value.name.val),
       );
     } else if (_settings.applicationSettings.value?.sortContactsByName ==
         false) {
-      print('sort by online');
       contacts.sort(
         (a, b) {
           if (a.user.value?.user.value.online == true &&
-              b.user.value!.user.value.online == false) {
+              b.user.value?.user.value.online == false) {
             return -1;
           } else if (a.user.value?.user.value.online == false &&
-              b.user.value!.user.value.online == true) {
+              b.user.value?.user.value.online == true) {
             return 1;
-          } else if (a.user.value?.user.value.online ==
-              b.user.value!.user.value.online) {
-            return b.user.value!.user.value.lastSeenAt!.val
-                .compareTo(a.user.value!.user.value.lastSeenAt!.val);
           } else {
-            return b.user.value!.user.value.lastSeenAt!.val
-                .compareTo(a.user.value!.user.value.lastSeenAt!.val);
+            if (b.user.value?.user.value.lastSeenAt == null ||
+                a.user.value?.user.value.lastSeenAt == null) {
+              return 0;
+            } else {
+              return b.user.value!.user.value.lastSeenAt!.val
+                  .compareTo(a.user.value!.user.value.lastSeenAt!.val);
+            }
           }
         },
       );
@@ -248,11 +248,19 @@ class ContactsTabController extends GetxController {
           rxUser?.stopUpdates();
           rxUser = user?..listenUpdates();
         }
+        if (_userOnlineWorkers[c.id] == null && user?.user.value != null) {
+          _userOnlineWorkers[c.id] = ever(c.user.value!.user, (User? user) {
+            sortContact();
+          });
+        }
         sortContact();
       });
-      _userOnlineWorkers[c.id] = ever(c.user.value!.user, (User? user) {
-        sortContact();
-      });
+      if (_userOnlineWorkers[c.id] == null && rxUser?.user.value != null) {
+        _userOnlineWorkers[c.id] = ever(c.user.value!.user, (User? user) {
+          sortContact();
+        });
+      }
+      sortContact();
     }
 
     for (RxChatContact c in contacts) {
@@ -277,7 +285,6 @@ class ContactsTabController extends GetxController {
           contacts.add(e.value!);
           break;
       }
-      sortContact();
     });
   }
 }
