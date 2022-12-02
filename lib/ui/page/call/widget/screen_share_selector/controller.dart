@@ -37,10 +37,10 @@ class ScreenShareSelectorController extends GetxController {
   });
 
   /// ID of the [Chat] to mute.
-  final ChatId chatId;
+  final Rx<ChatId> chatId;
 
-  /// Possible [MediaDisplayInfo]s to share screen.
-  final List<MediaDisplayInfo> displays;
+  /// Available [MediaDisplayInfo]s for screen sharing.
+  final RxList<MediaDisplayInfo> displays;
 
   /// Callback, called when a [MuteChatView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -48,6 +48,9 @@ class ScreenShareSelectorController extends GetxController {
 
   /// Subscription for the [ChatService.chats] changes.
   late final StreamSubscription? _chatsSubscription;
+
+  /// Subscription for the [displays] updating the [renderers].
+  late final StreamSubscription? _displaysSubscription;
 
   /// [ChatService] for [pop]ping the view when a [Chat] identified by the
   /// [chatId] is removed.
@@ -64,8 +67,8 @@ class ScreenShareSelectorController extends GetxController {
   final RxBool isReady = RxBool(false);
 
   /// Renderers of the [displays].
-  final Map<MediaDisplayInfo, RtcVideoRenderer> renderers =
-      <MediaDisplayInfo, RtcVideoRenderer>{};
+  final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
+      RxMap<MediaDisplayInfo, RtcVideoRenderer>();
 
   /// Stored [LocalMediaTrack]s to free in the [onClose].
   final List<LocalMediaTrack> _localTracks = [];
@@ -75,7 +78,7 @@ class ScreenShareSelectorController extends GetxController {
     _chatsSubscription = _callService.calls.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
-          if (chatId == e.key) {
+          if (chatId.value == e.key) {
             pop?.call();
           }
           break;
@@ -84,6 +87,14 @@ class ScreenShareSelectorController extends GetxController {
         case OperationKind.updated:
           // No-op.
           break;
+      }
+    });
+
+    _displaysSubscription = displays.listen((e) {
+      for (var display in e) {
+        if (renderers[display] == null) {
+          initRenderer(display);
+        }
       }
     });
 
@@ -97,6 +108,7 @@ class ScreenShareSelectorController extends GetxController {
   @override
   void onClose() {
     _chatsSubscription?.cancel();
+    _displaysSubscription?.cancel();
     mediaManager.free();
     _jason.free();
 
@@ -111,34 +123,35 @@ class ScreenShareSelectorController extends GetxController {
     super.onClose();
   }
 
+  /// Initializes a [RtcVideoRenderer] for the provided [display].
+  Future<void> initRenderer(MediaDisplayInfo display) async {
+    List<LocalMediaTrack> tracks = await mediaManager.initLocalTracks(
+      _mediaStreamSettings(display.deviceId()),
+    );
+    _localTracks.addAll(tracks);
+
+    RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
+    await renderer.initialize();
+    renderer.srcObject = tracks.first.getTrack();
+
+    renderers[display] = renderer;
+  }
+
   /// Initializes the [renderers].
   Future<void> _initRenderers() async {
-    for (var e in displays) {
-      List<LocalMediaTrack> tracks = await mediaManager.initLocalTracks(
-        _mediaStreamSettings(screenShareDevice: e.deviceId()),
-      );
-      _localTracks.addAll(tracks);
-
-      RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
-      await renderer.initialize();
-      renderer.srcObject = tracks.first.getTrack();
-
-      renderers[e] = renderer;
-    }
+    await Future.wait(displays.map((e) => initRenderer(e)));
 
     isReady.value = true;
   }
 
   /// Returns [MediaStreamSettings] with enabled screen sharing.
-  MediaStreamSettings _mediaStreamSettings({
-    required String screenShareDevice,
-  }) {
+  MediaStreamSettings _mediaStreamSettings(String screenShareDevice) {
     MediaStreamSettings settings = MediaStreamSettings();
 
     DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
     constraints.deviceId(screenShareDevice);
-    constraints.idealFrameRate(10);
-    constraints.exactFrameRate(10);
+    constraints.idealFrameRate(5);
+    constraints.exactFrameRate(5);
 
     settings.displayVideo(constraints);
     return settings;

@@ -25,7 +25,7 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for muting a [Chat] identified by its [chatId].
+/// View for selecting display for screen sharing.
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareSelector extends StatelessWidget {
@@ -37,18 +37,19 @@ class ScreenShareSelector extends StatelessWidget {
   }) : super(key: key);
 
   /// ID of the [Chat] to mute.
-  final ChatId chatId;
+  final Rx<ChatId> chatId;
 
-  final List<MediaDisplayInfo> displays;
+  /// Available [MediaDisplayInfo]s for screen sharing.
+  final RxList<MediaDisplayInfo> displays;
 
-  /// Callback, called when a [Chat] mute action is triggered.
+  /// Callback, called when this [ScreenShareSelector] is submitted.
   final void Function(MediaDisplayInfo display)? onProceed;
 
   /// Displays a [ScreenShareSelector] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required ChatId chatId,
-    required List<MediaDisplayInfo> displays,
+    required Rx<ChatId> chatId,
+    required RxList<MediaDisplayInfo> displays,
     void Function(MediaDisplayInfo duration)? onProceed,
   }) {
     return ModalPopup.show(
@@ -77,7 +78,7 @@ class ScreenShareSelector extends StatelessWidget {
           }
 
           return ConfirmDialog(
-            title: 'label_mute_chat_for'.l10n,
+            title: 'label_start_screen_sharing'.l10n,
             variants: displays
                 .map(
                   (e) => ConfirmDialogVariant(
@@ -88,28 +89,20 @@ class ScreenShareSelector extends StatelessWidget {
                       children: [
                         Container(
                           constraints: const BoxConstraints(
-                              minWidth: 100, maxWidth: 200),
-                          child: SizedBox(
-                            width: 150,
-                            height: 100,
-                            child: RtcVideoView(
-                              c.renderers[e]!,
-                              source: MediaSourceKind.Display,
-                              mirror: false,
-                              fit: BoxFit.fitWidth,
-                              // borderRadius:
-                              //     borderRadius ?? BorderRadius.circular(10),
-                              // outline: outline,
-                              // onSizeDetermined: onSizeDetermined,
-                              enableContextMenu: false,
-                              respectAspectRatio: true,
-                              // offstageUntilDetermined: offstageUntilDetermined,
-                              framelessBuilder: () =>
-                                  Stack(children: const [Text('Preview')]),
-                            ),
+                            maxWidth: 200,
+                            maxHeight: 200,
                           ),
+                          child: c.renderers[e] != null
+                              ? RtcVideoView(
+                                  c.renderers[e]!,
+                                  source: MediaSourceKind.Display,
+                                  mirror: false,
+                                  fit: BoxFit.fitWidth,
+                                  enableContextMenu: false,
+                                  respectAspectRatio: true,
+                                )
+                              : const CircularProgressIndicator(),
                         ),
-                        if (e.title() != null) Text(e.title()!),
                       ],
                     ),
                   ),
@@ -121,127 +114,3 @@ class ScreenShareSelector extends StatelessWidget {
     );
   }
 }
-
-// /// Dialog confirming a specific action from the provided [variants].
-// ///
-// /// Intended to be displayed with the [show] method.
-// class ScreenShareSelector extends StatefulWidget {
-//   const ScreenShareSelector({
-//     Key? key,
-//     required this.displays,
-//   }) : super(key: key);
-//
-//   final List<MediaDisplayInfo> displays;
-//
-//   /// Displays a [ScreenShareSelector] wrapped in a [ModalPopup].
-//   static Future<ScreenShareSelector?> show(
-//     BuildContext context, {
-//     required List<MediaDisplayInfo> displays,
-//   }) {
-//     return ModalPopup.show<ScreenShareSelector?>(
-//       context: context,
-//       child: ScreenShareSelector(displays: displays),
-//     );
-//   }
-//
-//   @override
-//   State<ScreenShareSelector> createState() => _ScreenShareSelectorState();
-// }
-
-// /// State of a [ScreenShareSelector] keeping the selected [ConfirmDialogVariant].
-// class _ScreenShareSelectorState extends State<ScreenShareSelector> {
-//   /// Currently selected [ConfirmDialogVariant].
-//   late MediaDisplayInfo? _display;
-//
-//   @override
-//   void initState() {
-//     //_deviceId = widget.variants.first;
-//     super.initState();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final TextStyle? thin =
-//         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-//
-//     // Builds a button representing the provided [ConfirmDialogVariant].
-//     Widget button(MediaDisplayInfo variant) {
-//       Style style = Theme.of(context).extension<Style>()!;
-//       return Material(
-//         type: MaterialType.card,
-//         borderRadius: style.cardRadius,
-//         child: InkWell(
-//           onTap: () => setState(() => _display = variant),
-//           borderRadius: style.cardRadius,
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-//             child: Row(
-//               children: [
-//                 Expanded(
-//                   child: DefaultTextStyle.merge(
-//                     style: Theme.of(context)
-//                         .textTheme
-//                         .bodyText1
-//                         ?.copyWith(color: Colors.black, fontSize: 18),
-//                     child: Container(),
-//                   ),
-//                 ),
-//                 IgnorePointer(
-//                   child: Radio<MediaDisplayInfo>(
-//                     value: variant,
-//                     groupValue: _display,
-//                     onChanged: null,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       );
-//     }
-//
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       children: [
-//         Flexible(
-//           child: ListView.separated(
-//             physics: const ClampingScrollPhysics(),
-//             shrinkWrap: true,
-//             itemBuilder: (c, i) => button(widget.variants[i]),
-//             separatorBuilder: (c, i) => const SizedBox(height: 10),
-//             itemCount: widget.variants.length,
-//           ),
-//         ),
-//         Row(
-//           children: [
-//             Expanded(
-//               child: OutlinedRoundedButton(
-//                 key: const Key('Proceed'),
-//                 maxWidth: null,
-//                 title: Text(
-//                   'btn_proceed'.l10n,
-//                   style: thin?.copyWith(color: Colors.white),
-//                 ),
-//                 onPressed: () {
-//                   _variant.onProceed?.call();
-//                   Navigator.of(context).pop();
-//                 },
-//                 color: const Color(0xFF63B4FF),
-//               ),
-//             ),
-//             const SizedBox(width: 10),
-//             Expanded(
-//               child: OutlinedRoundedButton(
-//                 maxWidth: null,
-//                 title: Text('btn_cancel'.l10n, style: thin),
-//                 onPressed: Navigator.of(context).pop,
-//                 color: const Color(0xFFEEEEEE),
-//               ),
-//             )
-//           ],
-//         ),
-//         const SizedBox(height: 25),
-//       ],
-//     );
-//   }
-// }

@@ -515,6 +515,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone
+label_start_screen_sharing = Start screen sharing
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts

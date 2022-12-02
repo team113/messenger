@@ -273,7 +273,11 @@ class AcceptAudioButton extends CallButton {
   String get hint => 'btn_call_answer_with_audio'.l10n;
 
   @override
-  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
+  Widget build(
+    BuildContext context, {
+    bool hinted = true,
+    bool expanded = false,
+  }) {
     return _common(
       asset: 'audio_call_start',
       assetWidth: 29,
@@ -294,7 +298,11 @@ class AcceptVideoButton extends CallButton {
   String get hint => 'btn_call_answer_with_video'.l10n;
 
   @override
-  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
+  Widget build(
+    BuildContext context, {
+    bool hinted = true,
+    bool expanded = false,
+  }) {
     return _common(
       asset: 'video_on',
       color: CallController.acceptColor,
@@ -314,7 +322,11 @@ class DeclineButton extends CallButton {
   String get hint => 'btn_call_decline'.l10n;
 
   @override
-  Widget build(BuildContext context, {bool hinted = true, bool expanded = false}) {
+  Widget build(
+    BuildContext context, {
+    bool hinted = true,
+    bool expanded = false,
+  }) {
     return _common(
       asset: 'call_end',
       color: CallController.endColor,

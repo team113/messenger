@@ -48,6 +48,7 @@ import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'participant/view.dart';
 import 'settings/view.dart';
+import 'widget/screen_share_selector/view.dart';
 
 export 'view.dart';
 
@@ -368,7 +369,7 @@ class CallController extends GetxController {
   late final Worker _chatWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
-  ChatId get chatId => _currentCall.value.chatId.value;
+  Rx<ChatId> get chatId => _currentCall.value.chatId;
 
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
@@ -867,7 +868,31 @@ class CallController extends GetxController {
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare(BuildContext context) async {
     keepUi();
-    await _currentCall.value.toggleScreenShare(context);
+
+    LocalTrackState screenShareState =
+        _currentCall.value.screenShareState.value;
+    if (screenShareState == LocalTrackState.enabled ||
+        screenShareState == LocalTrackState.enabling) {
+      await _currentCall.value.setScreenShareEnabled(false);
+    } else {
+      if (_currentCall.value.displays.length > 1) {
+        String? deviceId;
+        await ScreenShareSelector.show(
+          context,
+          chatId: chatId,
+          displays: _currentCall.value.displays,
+          onProceed: (display) {
+            deviceId = display.deviceId();
+          },
+        );
+        if (deviceId != null) {
+          await _currentCall.value
+              .setScreenShareEnabled(true, deviceId: deviceId);
+        }
+      } else {
+        await _currentCall.value.setScreenShareEnabled(true);
+      }
+    }
   }
 
   /// Toggles local audio stream on and off.
