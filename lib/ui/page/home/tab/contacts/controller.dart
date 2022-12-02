@@ -89,7 +89,7 @@ class ContactsTabController extends GetxController {
   @override
   void onInit() {
     contacts.addAll(_contactService.contacts.values);
-    sortContact();
+    sortContacts();
 
     contactName = TextFieldState(
       onChanged: (s) async {
@@ -185,39 +185,37 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  void changeSorting(bool value) async {
-    await _settings.setSortContactsByName(value);
-    sortContact();
+  /// Changes sorting mode.
+  ///
+  /// If [sortByName] = true means sorting contacts by name ascending.
+  /// If [sortByName] = false means sorting contacts by their online descending.
+  void changeSorting(bool sortByName) async {
+    await _settings.setSortContactsByName(sortByName);
+    sortContacts();
   }
 
-  void sortContact() {
-    print(_userOnlineWorkers);
-    if (_settings.applicationSettings.value?.sortContactsByName == true) {
-      contacts.sort(
-        (a, b) => a.contact.value.name.val.compareTo(b.contact.value.name.val),
-      );
-    } else if (_settings.applicationSettings.value?.sortContactsByName ==
-        false) {
-      contacts.sort(
-        (a, b) {
-          if (a.user.value?.user.value.online == true &&
-              b.user.value?.user.value.online == false) {
-            return -1;
-          } else if (a.user.value?.user.value.online == false &&
-              b.user.value?.user.value.online == true) {
-            return 1;
+  /// Sorts contacts by sorting type defined in [_settings].
+  void sortContacts() {
+    contacts.sort((a, b) {
+      if (_settings.applicationSettings.value?.sortContactsByName == false) {
+        User? userA = a.user.value?.user.value;
+        User? userB = b.user.value?.user.value;
+
+        if (userA?.online == true && userB?.online == false) {
+          return -1;
+        } else if (userA?.online == false && userB?.online == true) {
+          return 1;
+        } else {
+          if (userB?.lastSeenAt == null || userA?.lastSeenAt == null) {
+            return 0;
           } else {
-            if (b.user.value?.user.value.lastSeenAt == null ||
-                a.user.value?.user.value.lastSeenAt == null) {
-              return 0;
-            } else {
-              return b.user.value!.user.value.lastSeenAt!.val
-                  .compareTo(a.user.value!.user.value.lastSeenAt!.val);
-            }
+            return userB!.lastSeenAt!.compareTo(userA!.lastSeenAt!);
           }
-        },
-      );
-    }
+        }
+      } else {
+        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
+      }
+    });
   }
 
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
@@ -249,18 +247,18 @@ class ContactsTabController extends GetxController {
           rxUser = user?..listenUpdates();
         }
         if (_userOnlineWorkers[c.id] == null && user?.user.value != null) {
-          _userOnlineWorkers[c.id] = ever(c.user.value!.user, (User? user) {
-            sortContact();
+          _userOnlineWorkers[c.id] = ever(c.user.value!.user, (_) {
+            sortContacts();
           });
         }
-        sortContact();
+        sortContacts();
       });
       if (_userOnlineWorkers[c.id] == null && rxUser?.user.value != null) {
-        _userOnlineWorkers[c.id] = ever(c.user.value!.user, (User? user) {
-          sortContact();
+        _userOnlineWorkers[c.id] = ever(c.user.value!.user, (_) {
+          sortContacts();
         });
       }
-      sortContact();
+      sortContacts();
     }
 
     for (RxChatContact c in contacts) {
@@ -268,6 +266,7 @@ class ContactsTabController extends GetxController {
     }
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
+      print(e.op);
       switch (e.op) {
         case OperationKind.added:
           contacts.add(e.value!);
@@ -277,14 +276,16 @@ class ContactsTabController extends GetxController {
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
           contacts.removeWhere((e2) => e2.id == e.value?.id);
+          _userOnlineWorkers[e.key]?.dispose();
+          _userOnlineWorkers.removeWhere((key, value) => key == e.key);
           _userWorkers.remove(e.key)?.dispose();
           break;
 
         case OperationKind.updated:
-          contacts.removeWhere((e2) => e2.id == e.value?.id);
-          contacts.add(e.value!);
+          // No-op.
           break;
       }
+      sortContacts();
     });
   }
 }

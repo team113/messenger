@@ -63,26 +63,21 @@ class ContactsTabView extends StatelessWidget {
               height: 0.5,
             ),
           ),
-          actions: [
-            // IconButton(
-            //   onPressed: c.sortContact,
-            //   icon: const Icon(Icons.sort),
-            // ),
+          actions: <Widget>[
             PopupMenuButton<bool>(
-              child: const Icon(Icons.sort),
-              onSelected: (bool item) {
-                c.changeSorting(item);
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<bool>>[
-                const PopupMenuItem<bool>(
+              tooltip: '',
+              onSelected: c.changeSorting,
+              itemBuilder: (BuildContext con) => <PopupMenuEntry<bool>>[
+                PopupMenuItem<bool>(
                   value: true,
-                  child: Text('Sort by name'),
+                  child: Text('btn_sort_by_name'.l10n),
                 ),
-                const PopupMenuItem<bool>(
+                PopupMenuItem<bool>(
                   value: false,
-                  child: Text('Sort by online'),
+                  child: Text('btn_sort_by_online'.l10n),
                 ),
               ],
+              icon: const Icon(Icons.sort),
             )
           ],
         ),
