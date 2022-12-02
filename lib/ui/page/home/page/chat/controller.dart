@@ -124,7 +124,7 @@ class ChatController extends GetxController {
   /// State of an edit message field.
   TextFieldState? edit;
 
-  /// Indicator whether [ChatItem] message os editing or not
+  /// Indicator whether [ChatItem] message is editing or not
   final RxBool isEditingMessage = RxBool(false);
 
   /// Interval of a [ChatMessage] since its creation within which this
@@ -523,7 +523,8 @@ class ChatController extends GetxController {
   }
 
   /// Updates [RxChat.draft] with the current [send],
-  /// [sendController.attachments] and [sendController.repliedMessages] fields.
+  /// [MessageFieldController.attachments] and
+  /// [MessageFieldController.repliedMessages] fields.
   void updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
@@ -1025,7 +1026,8 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Adds the specified [details] files to the [sendController.attachments].
+  /// Adds the specified [details] files to the
+  /// [MessageFieldController.attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
       sendController.addPlatformAttachment(PlatformFile(

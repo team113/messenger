@@ -100,6 +100,7 @@ class ChatForwardController extends GetxController {
     sendController = MessageFieldController(_chatService, _userService);
     sendController.quotes.addAll(quotes);
     sendController.attachments.addAll(attachments);
+
     quotesChanges = ever(quotes, (_) {
       if (quotes.isEmpty) pop?.call();
     });
@@ -138,7 +139,7 @@ class ChatForwardController extends GetxController {
                 from,
                 e.chat.value.id,
                 sendController.quotes,
-                text: send.text == '' ? null : ChatMessageText(send.text),
+                text: s.text == '' ? null : ChatMessageText(s.text),
                 attachments: sendController.attachments.isEmpty
                     ? null
                     : sendController.attachments
@@ -153,7 +154,7 @@ class ChatForwardController extends GetxController {
                 from,
                 dialog.id,
                 sendController.quotes,
-                text: send.text == '' ? null : ChatMessageText(send.text),
+                text: s.text == '' ? null : ChatMessageText(s.text),
                 attachments: sendController.attachments.isEmpty
                     ? null
                     : sendController.attachments
@@ -170,7 +171,7 @@ class ChatForwardController extends GetxController {
                 from,
                 dialog.id,
                 sendController.quotes,
-                text: send.text == '' ? null : ChatMessageText(send.text),
+                text: s.text == '' ? null : ChatMessageText(s.text),
                 attachments: sendController.attachments.isEmpty
                     ? null
                     : sendController.attachments

@@ -69,10 +69,6 @@ class MessageFieldView extends StatelessWidget {
   /// [Key] of message send button.
   final Key? messageSendButtonKey;
 
-  /// Callback, called when the [controller.quotes] or the
-  /// [controller.repliedMessages] were reordered.
-  final void Function(int old, int to)? onReorder;
-
   /// State of a send message field.
   final TextFieldState textFieldState;
 
@@ -96,6 +92,10 @@ class MessageFieldView extends StatelessWidget {
 
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
+
+  /// Callback, called when the [controller.quotes] or the
+  /// [controller.repliedMessages] were reordered.
+  final void Function(int old, int to)? onReorder;
 
   @override
   Widget build(BuildContext context) {
@@ -710,7 +710,7 @@ class MessageFieldView extends StatelessWidget {
       return Container(
         width: size,
         height: size,
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        padding: const EdgeInsets.all(10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -808,8 +808,8 @@ class MessageFieldView extends StatelessWidget {
                     child: Obx(() {
                       return AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        child: (c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile)
+                        child: c.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
                                 onTap: () => c.attachments
@@ -882,9 +882,6 @@ class MessageFieldView extends StatelessWidget {
                   ? Colors.white.withOpacity(0.2)
                   : Colors.black.withOpacity(0.03),
               borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.small.url)),
             ),
             width: 30,
             height: 30,
@@ -894,7 +891,13 @@ class MessageFieldView extends StatelessWidget {
                     color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                     size: 16,
                   )
-                : null,
+                : RetryImage(
+                    image.small.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
           );
         }).toList();
       }
@@ -1086,7 +1089,7 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [controller.repliedMessages].
+  /// Builds a visual representation of a [controller.quotes] message.
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,
@@ -1120,9 +1123,6 @@ class MessageFieldView extends StatelessWidget {
                   ? Colors.white.withOpacity(0.2)
                   : Colors.black.withOpacity(0.03),
               borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.original.url)),
             ),
             width: 30,
             height: 30,
@@ -1132,7 +1132,13 @@ class MessageFieldView extends StatelessWidget {
                     color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                     size: 16,
                   )
-                : null,
+                : RetryImage(
+                    image.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
           );
         }).toList();
       }
@@ -1271,7 +1277,7 @@ class MessageFieldView extends StatelessWidget {
                               }
 
                               return Text(
-                                name ?? '...',
+                                name ?? ('dot'.l10n * 3),
                                 style: style.boldBody
                                     .copyWith(color: const Color(0xFF63B4FF)),
                               );
@@ -1329,7 +1335,8 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [controller.editedMessage].
+  /// Builds a visual representation of a
+  /// [MessageFieldController.editedMessage].
   Widget buildEditedMessage(BuildContext context, MessageFieldController c) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = c.editedMessage.value?.authorId == c.me;
@@ -1361,9 +1368,6 @@ class MessageFieldView extends StatelessWidget {
                     ? Colors.white.withOpacity(0.2)
                     : Colors.black.withOpacity(0.03),
                 borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
               ),
               width: 30,
               height: 30,
@@ -1373,7 +1377,13 @@ class MessageFieldView extends StatelessWidget {
                       color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                       size: 16,
                     )
-                  : null,
+                  : RetryImage(
+                      image.small.url,
+                      fit: BoxFit.cover,
+                      height: double.infinity,
+                      width: double.infinity,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
             );
           }).toList();
         }

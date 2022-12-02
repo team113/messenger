@@ -1187,7 +1187,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     Text(
                       snapshot.data?.user.value.name?.val ??
                           snapshot.data?.user.value.num.val ??
-                          '...',
+                          ('dot'.l10n * 3),
                       style: style.boldBody.copyWith(color: color),
                     ),
                     if (content != null) ...[

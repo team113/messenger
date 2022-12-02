@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
@@ -98,7 +99,7 @@ class ContactTile extends StatelessWidget {
                         contact?.user.value?.user.value.num.val ??
                         user?.user.value.name?.val ??
                         user?.user.value.num.val ??
-                        '...',
+                        ('dot'.l10n * 3),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: Theme.of(context).textTheme.headline5,
