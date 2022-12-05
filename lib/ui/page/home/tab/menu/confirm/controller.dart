@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -49,6 +50,8 @@ class ConfirmLogoutController extends GetxController {
 
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
+
+  Rx<MyUser?> get myUser => _myUser.myUser;
 
   @override
   void onInit() {

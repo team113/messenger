@@ -19,9 +19,7 @@ alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
 alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
-alert_are_you_sure_want_to_log_out =
-    Вы действительно хотите выйти из аккаунта?
-    Ваши активные звонки будут завершены.
+alert_are_you_sure_want_to_log_out = Вы действительно хотите выйти из аккаунта?
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока

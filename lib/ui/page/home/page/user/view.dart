@@ -793,13 +793,105 @@ class UserView extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _dense(
+          Obx(() {
+            final bool muted = c.user?.user.value.dialog?.muted != null;
+
+            return WidgetButton(
+              onPressed: () => muted
+                  ? c.unmuteChat(c.user!.user.value.dialog!.id)
+                  : c.muteChat(c.user!.user.value.dialog!.id),
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: muted
+                        ? 'Включить уведомления'
+                        : 'Отключить уведомления',
+                    editable: false,
+                  ),
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: muted
+                          ? SvgLoader.asset(
+                              'assets/icons/btn_mute.svg',
+                              width: 18.68,
+                              height: 15,
+                            )
+                          : SvgLoader.asset(
+                              'assets/icons/btn_unmute.svg',
+                              width: 17.86,
+                              height: 15,
+                            ),
+                    ),
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+            );
+          }),
+        ),
+        // _dense(
+        //   WidgetButton(
+        //     onPressed: () {},
+        //     child: IgnorePointer(
+        //       child: ReactiveTextField(
+        //         state: TextFieldState(
+        //           text: 'Отключить уведомления',
+        //           editable: false,
+        //         ),
+        //         style:
+        //             TextStyle(color: Theme.of(context).colorScheme.secondary),
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        const SizedBox(height: 10),
+        _dense(
           WidgetButton(
             onPressed: () {},
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
-                  text: 'Отключить уведомления',
+                  text: 'Скрыть чат',
                   editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
+                ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _dense(
+          WidgetButton(
+            onPressed: () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: 'Очистить чат',
+                  editable: false,
+                ),
+                trailing: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Transform.scale(
+                    scale: 1.15,
+                    child: SvgLoader.asset(
+                      'assets/icons/delete.svg',
+                      height: 14,
+                    ),
+                  ),
                 ),
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.secondary),

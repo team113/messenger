@@ -22,6 +22,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -108,6 +109,8 @@ class MyProfileController extends GetxController {
 
   final GlobalKey micKey = GlobalKey();
   final GlobalKey outputKey = GlobalKey();
+
+  final FlutterListViewController listController = FlutterListViewController();
 
   late final Rx<OngoingCall> call;
 

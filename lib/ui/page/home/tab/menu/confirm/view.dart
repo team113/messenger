@@ -29,10 +29,16 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ConfirmLogoutView extends StatelessWidget {
-  const ConfirmLogoutView({Key? key}) : super(key: key);
+  const ConfirmLogoutView({Key? key, this.hasPassword = false})
+      : super(key: key);
+
+  final bool hasPassword;
 
   /// Displays a [ConfirmLogoutView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(
+    BuildContext context, {
+    bool hasPassword = false,
+  }) {
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -45,7 +51,7 @@ class ConfirmLogoutView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      child: const ConfirmLogoutView(),
+      child: ConfirmLogoutView(hasPassword: hasPassword),
     );
   }
 
@@ -178,66 +184,147 @@ class ConfirmLogoutView extends StatelessWidget {
               break;
 
             default:
-              children = [
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'label_password_not_set'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
+              if (hasPassword) {
+                children = [
+                  ModalPopupHeader(
+                    header: Center(
+                      child: Text(
+                        'btn_logout'.l10n,
+                        style: thin?.copyWith(fontSize: 18),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 25 - 12),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Center(
+                  const SizedBox(height: 25 - 12),
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: Center(
+                      child: RichText(
+                        text: TextSpan(
+                          style: thin?.copyWith(
+                            color: const Color(0xFF888888),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Вы действительно хотите выйти из аккаунта '
+                                  .l10n,
+                            ),
+                            TextSpan(
+                              style: const TextStyle(color: Colors.black),
+                              text: c.myUser.value?.name?.val ??
+                                  c.myUser.value?.num.val ??
+                                  '',
+                            ),
+                            TextSpan(text: '?'.l10n),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: OutlinedRoundedButton(
+                      maxWidth: null,
+                      title: Text(
+                        'btn_logout'.l10n,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      color: const Color(0xFF63B4FF),
+                    ),
+                  ),
+                ];
+              } else {
+                children = [
+                  ModalPopupHeader(
+                    header: Center(
+                      child: Text(
+                        'btn_logout'.l10n,
+                        style: thin?.copyWith(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25 - 12),
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: Center(
+                      child: RichText(
+                        text: TextSpan(
+                          style: thin?.copyWith(
+                            color: const Color(0xFF888888),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Вы действительно хотите выйти из аккаунта '
+                                  .l10n,
+                            ),
+                            TextSpan(
+                              style: const TextStyle(color: Colors.black),
+                              text: c.myUser.value?.name?.val ??
+                                  c.myUser.value?.num.val ??
+                                  '',
+                            ),
+                            TextSpan(text: '?'.l10n),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: ModalPopup.padding(context),
                     child: RichText(
                       text: TextSpan(
+                        style: thin?.copyWith(color: const Color(0xFF888888)),
                         children: [
                           TextSpan(
-                            style: thin,
-                            text: 'label_account_access_will_be_lost'.l10n,
+                            text:
+                                'Пароль не задан. Доступ к аккаунту будет утерян.'
+                                    .l10n,
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('SetPasswordButton'),
-                          maxWidth: null,
-                          title: Text(
-                            'btn_set_password'.l10n,
-                            style: const TextStyle(color: Colors.white),
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            key: const Key('SetPasswordButton'),
+                            maxWidth: null,
+                            title: Text(
+                              'btn_set_password'.l10n,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () =>
+                                c.stage.value = ConfirmLogoutViewStage.password,
+                            color: const Color(0xFF63B4FF),
                           ),
-                          onPressed: () =>
-                              c.stage.value = ConfirmLogoutViewStage.password,
-                          color: const Color(0xFF63B4FF),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('LogoutConfirmedButton'),
-                          maxWidth: null,
-                          title: Text(
-                            'btn_logout'.l10n,
-                            style: const TextStyle(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            key: const Key('LogoutConfirmedButton'),
+                            maxWidth: null,
+                            title: Text(
+                              'btn_logout'.l10n,
+                              style: const TextStyle(),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(true),
+                            color: const Color(0xFFEEEEEE),
                           ),
-                          onPressed: () => Navigator.of(context).pop(true),
-                          color: const Color(0xFFEEEEEE),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ];
+                ];
+              }
+
               break;
           }
 

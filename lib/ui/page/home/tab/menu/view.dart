@@ -16,6 +16,7 @@
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
 import 'package:messenger/themes.dart';
@@ -53,59 +54,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        Style style = Theme.of(context).extension<Style>()!;
-
-        Widget button({
-          Key? key,
-          Widget? leading,
-          required Widget title,
-          void Function()? onTap,
-        }) {
-          return Padding(
-            key: key,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: SizedBox(
-              height: 55,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: style.cardRadius,
-                  border: style.cardBorder,
-                  color: Colors.transparent,
-                ),
-                child: Material(
-                  type: MaterialType.card,
-                  borderRadius: style.cardRadius,
-                  color: style.cardColor,
-                  child: InkWell(
-                    borderRadius: style.cardRadius,
-                    onTap: onTap,
-                    hoverColor: const Color.fromARGB(255, 244, 249, 255),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                      child: Row(
-                        children: [
-                          if (leading != null) ...[
-                            const SizedBox(width: 12),
-                            leading,
-                            const SizedBox(width: 18),
-                          ],
-                          Expanded(
-                            child: DefaultTextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5!,
-                              child: title,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
+        final Style style = Theme.of(context).extension<Style>()!;
 
         Widget bigButton({
           Key? key,
@@ -360,226 +309,148 @@ class MenuTabView extends StatelessWidget {
             ],
             automaticallyImplyLeading: false,
           ),
-          body: ListView(
-            controller: ScrollController(),
-            children: [
-              if (false) //!context.isNarrow)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 4 + 3, 10, 0),
-                  height: 77,
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius,
-                    // boxShadow: const [
-                    //   CustomBoxShadow(
-                    //     blurRadius: 8,
-                    //     color: Color(0x22000000),
-                    //     blurStyle: BlurStyle.outer,
-                    //   ),
-                    // ],
-                  ),
-                  child: ContactTile(
-                    darken: 0,
-                    myUser: c.myUser.value,
-                    onTap: () => router.user(c.me!),
-                    showBadge: false,
-                    onAvatarTap: c.uploadAvatar,
-                    onBadgeTap: () => _displayPresence(context, c),
-                    radius: 26 + 6,
-                    subtitle: [
-                      WidgetButton(
-                        onPressed: () => _displayPresence(context, c),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            SizedBox(height: 5),
-                            Text(
-                              'Public',
-                              style: TextStyle(color: Color(0xFF888888)),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                    margin: EdgeInsets.zero,
-                  ),
-                ),
-              // if (!context.isNarrow)
-              //   ,
-              // const SizedBox(height: 8),
-              // button(
-              //   key: const Key('AddAccountButton'),
-              //   leading: const Icon(
-              //     Icons.manage_accounts,
-              //     color: Color(0xFF63B4FF),
-              //   ),
-              //   title: Text('Add account'.l10n),
-              //   onTap: () {},
-              // ),
+          body: FlutterListView(
+            delegate: FlutterListViewDelegate(
+              (context, i) {
+                final Widget child;
 
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.person,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Публичная информация'.l10n),
-                subtitle: Text('Аватар и имя'.l10n),
-                onTap: () => router.profile(push: context.isNarrow),
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.lock,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Параметры входа'.l10n),
-                subtitle: Text('Логин, e-mail, телефон, пароль'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.link,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Ссылка на чат'.l10n),
-                subtitle: Text('Прямая ссылка на чат с Вами'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.image,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Бэкграунд'.l10n),
-                subtitle: Text('Фон приложения'.l10n),
-                onTap: () {},
-              ),
+                switch (ProfileTab.values[i]) {
+                  case ProfileTab.public:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.person,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Публичная информация'.l10n),
+                      subtitle: Text('Аватар и имя'.l10n),
+                      onTap: () => router.profile(push: context.isNarrow),
+                    );
+                    break;
 
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.video_call,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Медиа'.l10n),
-                subtitle: Text('Аудио и видео устройства'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.call,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Звонки'.l10n),
-                subtitle: Text('Отображение звонков'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.language,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Язык'.l10n),
-                subtitle: Text(L10n.chosen.value?.name ?? 'Текущий язык'),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.download,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Скачать'.l10n),
-                subtitle: Text('Приложение'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                leading: const Icon(
-                  Icons.dangerous,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Опасная зона'.l10n),
-                subtitle: Text('Удалить аккаунт'.l10n),
-                onTap: () {},
-              ),
-              const SizedBox(height: 8),
-              bigButton(
-                title: Text('btn_logout'.l10n),
-                leading: const Icon(
-                  Icons.logout,
-                  color: Color(0xFF63B4FF),
-                ),
-                subtitle: Text('Завершить сессию'.l10n),
-                onTap: () async {
-                  if (await c.confirmLogout()) {
-                    router.go(await c.logout());
-                    router.tab = HomeTab.chats;
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+                  case ProfileTab.signing:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.lock,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Параметры входа'.l10n),
+                      subtitle: Text('Логин, e-mail, телефон, пароль'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.link:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.link,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Ссылка на чат'.l10n),
+                      subtitle: Text('Прямая ссылка на чат с Вами'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.background:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.image,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Бэкграунд'.l10n),
+                      subtitle: Text('Фон приложения'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.calls:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.call,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Звонки'.l10n),
+                      subtitle: Text('Отображение звонков'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.media:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.video_call,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Медиа'.l10n),
+                      subtitle: Text('Аудио и видео устройства'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.language:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.language,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Язык'.l10n),
+                      subtitle: Text(L10n.chosen.value?.name ?? 'Текущий язык'),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.download:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.download,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Скачать'.l10n),
+                      subtitle: Text('Приложение'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.danger:
+                    child = bigButton(
+                      leading: const Icon(
+                        Icons.dangerous,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      title: Text('Опасная зона'.l10n),
+                      subtitle: Text('Удалить аккаунт'.l10n),
+                      onTap: () {},
+                    );
+                    break;
+
+                  case ProfileTab.logout:
+                    child = bigButton(
+                      title: Text('btn_logout'.l10n),
+                      leading: const Icon(
+                        Icons.logout,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      subtitle: Text('Завершить сессию'.l10n),
+                      onTap: () async {
+                        if (await c.confirmLogout()) {
+                          router.go(await c.logout());
+                          router.tab = HomeTab.chats;
+                        }
+                      },
+                    );
+                    break;
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: child,
+                );
+              },
+              childCount: ProfileTab.values.length,
+            ),
           ),
         );
       },
-    );
-  }
-
-  void _displayPresence(BuildContext context, MenuTabController c) {
-    ModalPopup.show(
-      context: context,
-      child: Builder(
-        builder: (context) {
-          return ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                tileColor: const Color(0xFFEEEEEE),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                leading: const CircleAvatar(backgroundColor: Colors.green),
-                title: const Text('Online'),
-                onTap: () {
-                  c.setPresence(Presence.present);
-                  Navigator.of(context).pop();
-                },
-              ),
-              const SizedBox(height: 8),
-              ListTile(
-                tileColor: const Color(0xFFEEEEEE),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                leading: const CircleAvatar(backgroundColor: Colors.orange),
-                title: const Text('Away'),
-                onTap: () {
-                  c.setPresence(Presence.away);
-                  Navigator.of(context).pop();
-                },
-              ),
-              const SizedBox(height: 8),
-              ListTile(
-                tileColor: const Color(0xFFEEEEEE),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                leading: const CircleAvatar(backgroundColor: Colors.grey),
-                title: const Text('Hidden'),
-                onTap: () {
-                  c.setPresence(Presence.hidden);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 

@@ -19,9 +19,7 @@ alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
 alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
-alert_are_you_sure_want_to_log_out =
-    Are you sure you want to log out?
-    Your active calls will be ended.
+alert_are_you_sure_want_to_log_out = Are you sure you want to log out?
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls

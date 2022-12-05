@@ -272,6 +272,7 @@ class MyProfileView extends StatelessWidget {
                     _label(context, 'Опасная зона'),
                     _deleteAccount(context, c),
                   ]),
+
                   const SizedBox(height: 8),
                 ],
               );

@@ -99,7 +99,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         ),
                                       ),
                                 showBadge: b.badge != null,
-                                badgeColor: Colors.green,
+                                badgeColor: Colors.red,
                                 child: InkResponse(
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,

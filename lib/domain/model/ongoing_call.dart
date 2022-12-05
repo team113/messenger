@@ -317,10 +317,29 @@ class OngoingCall {
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
         print('_mediaManager?.onDeviceChange');
+
+        final List<MediaDeviceInfo> previous =
+            List.from(devices, growable: false);
+
         await enumerateDevices();
 
-        // TODO: Pick microphone device?
-        _pickOutputDevice();
+        final List<MediaDeviceInfo> added = [];
+        final List<MediaDeviceInfo> removed = [];
+
+        for (MediaDeviceInfo d in devices) {
+          if (previous.none((p) => p.deviceId() == d.deviceId())) {
+            added.add(d);
+          }
+        }
+
+        for (MediaDeviceInfo d in previous) {
+          if (devices.none((p) => p.deviceId() == d.deviceId())) {
+            removed.add(d);
+          }
+        }
+
+        _pickMicrophoneDevice(previous, added, removed);
+        _pickOutputDevice(previous, added, removed);
       });
 
       _initRoom();
@@ -1372,7 +1391,11 @@ class OngoingCall {
   /// The following priority is used:
   /// 1. bluetooth headset;
   /// 2. speakerphone.
-  void _pickOutputDevice() {
+  void _pickOutputDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
     if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
       var output = devices
               .output()
@@ -1385,6 +1408,38 @@ class OngoingCall {
       if (output != null && outputDevice.value != output) {
         setOutputDevice(output);
       }
+    } else {
+      return;
+
+      if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+          (outputDevice.value == null &&
+              removed.any((e) =>
+                  e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+        setOutputDevice(devices.output().first.deviceId());
+      }
+
+      if (added.output().isNotEmpty) {
+        setOutputDevice(added.output().first.deviceId());
+      }
+    }
+  }
+
+  void _pickMicrophoneDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    return;
+
+    if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+        (audioDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+      setAudioDevice(devices.audio().first.deviceId());
+    }
+
+    if (added.audio().isNotEmpty) {
+      setAudioDevice(added.audio().first.deviceId());
     }
   }
 }
@@ -1614,7 +1669,7 @@ class Track {
   }
 }
 
-extension DevicesList on InputDevices {
+extension DevicesList on List<MediaDeviceInfo> {
   /// Returns a new [Iterable] with [MediaDeviceInfo]s of
   /// [MediaDeviceKind.videoinput].
   Iterable<MediaDeviceInfo> video() {

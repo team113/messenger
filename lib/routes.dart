@@ -114,6 +114,19 @@ enum HomeTab {
   menu,
 }
 
+enum ProfileTab {
+  public,
+  signing,
+  link,
+  background,
+  calls,
+  media,
+  language,
+  download,
+  danger,
+  logout,
+}
+
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router
@@ -152,6 +165,8 @@ class RouterState extends ChangeNotifier {
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
+
+  final Rx<ProfileTab?> profileTab = Rx(null);
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
