@@ -45,6 +45,9 @@ class ScreenShareSelector extends StatelessWidget {
   /// Callback, called when this [ScreenShareSelector] is submitted.
   final void Function(MediaDisplayInfo display)? onProceed;
 
+  /// Size of the biggest side of a [RtcVideoView].
+  static const double videoSize = 200;
+
   /// Displays a [ScreenShareSelector] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
@@ -64,6 +67,11 @@ class ScreenShareSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget framelessBuilder = const SizedBox(
+      height: videoSize * (9 / 16),
+      child: Center(child: CircularProgressIndicator()),
+    );
+
     return GetBuilder(
       init: ScreenShareSelectorController(
         Get.find(),
@@ -73,10 +81,6 @@ class ScreenShareSelector extends StatelessWidget {
       ),
       builder: (ScreenShareSelectorController c) {
         return Obx(() {
-          if (c.isReady.isFalse) {
-            return const CircularProgressIndicator();
-          }
-
           return ConfirmDialog(
             title: 'label_start_screen_sharing'.l10n,
             variants: displays
@@ -89,19 +93,23 @@ class ScreenShareSelector extends StatelessWidget {
                       children: [
                         Container(
                           constraints: const BoxConstraints(
-                            maxWidth: 200,
-                            maxHeight: 200,
+                            maxWidth: videoSize,
+                            maxHeight: videoSize,
                           ),
-                          child: c.renderers[e] != null
-                              ? RtcVideoView(
-                                  c.renderers[e]!,
-                                  source: MediaSourceKind.Display,
-                                  mirror: false,
-                                  fit: BoxFit.fitWidth,
-                                  enableContextMenu: false,
-                                  respectAspectRatio: true,
-                                )
-                              : const CircularProgressIndicator(),
+                          child: AnimatedSize(
+                            duration: 200.milliseconds,
+                            child: c.renderers[e] != null
+                                ? RtcVideoView(
+                                    c.renderers[e]!,
+                                    source: MediaSourceKind.Display,
+                                    mirror: false,
+                                    fit: BoxFit.contain,
+                                    enableContextMenu: false,
+                                    respectAspectRatio: true,
+                                    framelessBuilder: () => framelessBuilder,
+                                  )
+                                : framelessBuilder,
+                          ),
                         ),
                       ],
                     ),

@@ -47,10 +47,6 @@ class ScreenShareSelectorController extends GetxController {
   /// from the [Navigator].
   final void Function()? pop;
 
-  /// Indicates whether this controller was initialized and [renderers] can be
-  /// used.
-  final RxBool isReady = RxBool(false);
-
   /// Renderers of the [displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
@@ -139,11 +135,7 @@ class ScreenShareSelectorController extends GetxController {
   }
 
   /// Initializes the [renderers].
-  Future<void> _initRenderers() async {
-    await Future.wait(displays.map((e) => initRenderer(e)));
-
-    isReady.value = true;
-  }
+  void _initRenderers() => displays.map((e) => initRenderer(e));
 
   /// Returns [MediaStreamSettings] with enabled screen sharing.
   MediaStreamSettings _mediaStreamSettings(String screenShareDevice) {

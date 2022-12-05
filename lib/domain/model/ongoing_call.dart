@@ -853,6 +853,8 @@ class OngoingCall {
       if (screenShareDevice != null) {
         constraints.deviceId(screenShareDevice);
       }
+      constraints.exactFrameRate(60);
+      constraints.idealFrameRate(60);
       settings.displayVideo(constraints);
     }
 
@@ -1050,6 +1052,7 @@ class OngoingCall {
     await _mediaSettingsGuard.protect(() async {
       // Populate [devices] with a list of available media input devices.
       if (videoDevice.value == null &&
+          screenShareDevice.value == null &&
           (audioDevice.value == null || audioDevice.value == 'default') &&
           (outputDevice.value == null || outputDevice.value == 'default')) {
         enumerateDevices();
@@ -1079,6 +1082,7 @@ class OngoingCall {
             screen: screenShareState.value == LocalTrackState.enabling,
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
+            screenShareDevice: screenShareDevice.value,
             facingMode: videoDevice.value == null ? FacingMode.User : null,
           ));
         } on LocalMediaInitException catch (e) {
@@ -1152,6 +1156,7 @@ class OngoingCall {
           _mediaStreamSettings(
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
+            screenShareDevice: screenShareDevice.value,
           ),
           false,
           true,
@@ -1224,7 +1229,9 @@ class OngoingCall {
     String? videoDevice,
     String? screenShareDevice,
   }) async {
-    if (audioDevice != null || videoDevice != null) {
+    if (audioDevice != null ||
+        videoDevice != null ||
+        screenShareDevice != null) {
       try {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
@@ -1266,6 +1273,7 @@ class OngoingCall {
         screen: screenShareState.value.isEnabled,
         audioDevice: audioDevice.value,
         videoDevice: videoDevice.value,
+        screenShareDevice: screenShareDevice.value,
       ),
     );
 
