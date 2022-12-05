@@ -697,12 +697,12 @@ class ChatInfoView extends StatelessWidget {
                       child: muted
                           ? SvgLoader.asset(
                               'assets/icons/btn_unmute.svg',
-                              width: 18.94,
+                              width: 16.86,
                               height: 15,
                             )
                           : SvgLoader.asset(
                               'assets/icons/btn_mute.svg',
-                              width: 18.59,
+                              width: 18.68,
                               height: 15,
                             ),
                     ),
@@ -747,7 +747,7 @@ class ChatInfoView extends StatelessWidget {
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
-                  text: 'Выйти из чата',
+                  text: 'Покинуть группу',
                   editable: false,
                 ),
                 trailing: Transform.translate(

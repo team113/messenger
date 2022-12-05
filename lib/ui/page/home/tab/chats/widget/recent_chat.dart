@@ -700,7 +700,7 @@ class RecentChatTile extends StatelessWidget {
           height: 23,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: chat.muted == null ? Colors.green : const Color(0xFFC0C0C0),
+            color: chat.muted == null ? Colors.red : const Color(0xFFC0C0C0),
           ),
           alignment: Alignment.center,
           child: Text(
