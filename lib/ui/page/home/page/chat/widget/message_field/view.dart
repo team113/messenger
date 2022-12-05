@@ -93,8 +93,8 @@ class MessageFieldView extends StatelessWidget {
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
-  /// Callback, called when the [controller.quotes] or the
-  /// [controller.repliedMessages] were reordered.
+  /// Callback, called when the [MessageFieldController.quotes] or the
+  /// [MessageFieldController.repliedMessages] were reordered.
   final void Function(int old, int to)? onReorder;
 
   @override

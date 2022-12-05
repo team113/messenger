@@ -315,7 +315,7 @@ class SearchController extends GetxController {
 
         case SearchCategory.contact:
           if (contacts.isNotEmpty) {
-            final double to = (recent.length + chats.length) * (76 + 10);
+            final double to = (chats.length + recent.length) * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
               controller.jumpTo(controller.position.maxScrollExtent);
             } else {
@@ -327,7 +327,7 @@ class SearchController extends GetxController {
         case SearchCategory.user:
           if (users.isNotEmpty) {
             final double to =
-                (recent.length + contacts.length + chats.length) * (76 + 10);
+                (chats.length + recent.length + contacts.length) * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
               controller.jumpTo(controller.position.maxScrollExtent);
             } else {

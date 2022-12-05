@@ -332,10 +332,12 @@ class SearchView extends StatelessWidget {
         darken: 0.05,
         height: 76,
         radius: 26,
-        selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        selectedColor: style.cardSelectedColor,
+        unselectedColor: style.cardColor.darken(0.05),
         selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
         unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-        unselectedColor: style.cardColor.darken(0.05),
+        border: style.cardBorder,
+        hoveredBorder: style.cardBorder,
         trailing: [
           if (selectable)
             SizedBox(

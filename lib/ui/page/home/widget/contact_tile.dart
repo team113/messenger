@@ -78,11 +78,22 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  /// Background color of unselected this [ContactTile].
   final Color? unselectedColor;
+
+  /// Background color of selected this [ContactTile].
   final Color? selectedColor;
+
+  /// Background hover color of selected this [ContactTile].
   final Color? selectedHoverColor;
+
+  /// Background hover color of unselected this [ContactTile].
   final Color? unselectedHoverColor;
+
+  /// [Border] of this [ContactTile].
   final Border? border;
+
+  /// Hovered [Border] of this [ContactTile].
   final Border? hoveredBorder;
 
   @override
