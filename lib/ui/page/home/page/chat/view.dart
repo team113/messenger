@@ -664,7 +664,7 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val);
+      return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
     }
@@ -784,7 +784,7 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time) {
+  Widget _timeLabel(DateTime time, ChatController c, int i) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
@@ -798,17 +798,34 @@ class _ChatViewState extends State<ChatView>
           padding: const EdgeInsets.only(right: 4),
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: style.systemMessageBorder,
-              color: style.systemMessageColor,
+        child: Obx(() {
+          return AnimatedOpacity(
+            key: Key('$i$time'),
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
+                    ? 1
+                    : 0
+                : 1,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(
+                  time.toRelative(),
+                  style: style.systemMessageStyle,
+                ),
+              ),
             ),
-            child: Text(time.toRelative(), style: style.systemMessageStyle),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
