@@ -739,10 +739,11 @@ class OngoingCall {
   /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [audioDevice].
-  Future<void> setAudioDevice(String deviceId) async {
+  Future<void> setAudioDevice(String deviceId, {bool force = false}) async {
     if ((audioDevice.value != null && deviceId != audioDevice.value) ||
         (audioDevice.value == null &&
-            _devices.audio().firstOrNull?.deviceId() != deviceId)) {
+            _devices.audio().firstOrNull?.deviceId() != deviceId) ||
+        force) {
       await _updateSettings(audioDevice: deviceId);
     }
   }
@@ -761,8 +762,8 @@ class OngoingCall {
   /// Sets device with [deviceId] as a currently used [outputDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [outputDevice].
-  Future<void> setOutputDevice(String deviceId) async {
-    if (deviceId != outputDevice.value) {
+  Future<void> setOutputDevice(String deviceId, {bool force = false}) async {
+    if (deviceId != outputDevice.value || force) {
       await _mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
     }
@@ -1409,17 +1410,21 @@ class OngoingCall {
         setOutputDevice(output);
       }
     } else {
-      return;
+      try {
+        if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+            (outputDevice.value == null &&
+                removed.any((e) =>
+                    e.deviceId() ==
+                    previous.output().firstOrNull?.deviceId()))) {
+          setOutputDevice(devices.output().first.deviceId());
+        }
 
-      if (removed.any((e) => e.deviceId() == outputDevice.value) ||
-          (outputDevice.value == null &&
-              removed.any((e) =>
-                  e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
-        setOutputDevice(devices.output().first.deviceId());
-      }
-
-      if (added.output().isNotEmpty) {
-        setOutputDevice(added.output().first.deviceId());
+        if (added.output().isNotEmpty) {
+          setOutputDevice(added.output().first.deviceId());
+        }
+      } catch (_) {
+        // No-op?
+        // NativeInvalidOutputAudioDeviceIdException
       }
     }
   }
@@ -1429,7 +1434,9 @@ class OngoingCall {
     List<MediaDeviceInfo> added = const [],
     List<MediaDeviceInfo> removed = const [],
   ]) {
-    return;
+    print('previous: ${previous.map((e) => e.label())}');
+    print('added: ${added.map((e) => e.label())}');
+    print('removed: ${removed.map((e) => e.label())}');
 
     if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
