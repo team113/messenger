@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite chats. ([#218], [#209])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - User page:
+        - Blacklist. ([#234], [#229])
 
 ### Changed
 
@@ -67,6 +69,8 @@ All user visible changes to this project will be documented in this file. This p
 [#214]: /../../issues/214
 [#217]: /../../pull/217
 [#218]: /../../pull/218
+[#229]: /../../issues/229
+[#234]: /../../pull/234
 
 
 
