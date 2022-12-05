@@ -178,10 +178,12 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Reactive value of [listController] sticky index.
+  /// Sticky element index of a [FlutterListView] currently being visible.
   RxnInt stickyIndex = RxnInt(null);
 
-  /// Indicator whether sticky is displayed or not.
+  /// Indicator whether sticky header should be visible or not.
+  ///
+  /// Used to hide it when no scrolling is happening.
   RxBool showSticky = RxBool(false);
 
   /// Duration of a [Chat.ongoingCall].
@@ -222,7 +224,7 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
 
-  /// Indicator whether [_listControllerListener] should not be react on
+  /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
@@ -235,7 +237,7 @@ class ChatController extends GetxController {
   /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
 
-  /// [Timer] for updating [showSticky].
+  /// [Timer] for resetting the [showSticky].
   Timer? _stickyTimer;
 
   /// [AudioPlayer] playing a sent message sound.
@@ -1182,30 +1184,37 @@ class ChatController extends GetxController {
     );
   }
 
-  /// Updates the [canGoDown] and [canGoBack] indicators based on the
-  /// [FlutterListViewController.position] value and updates sticky visibility.
+  /// Invokes [_updateSticky] and [_updateFabStates].
+  ///
+  /// Intended to be called as a listener of a [FlutterListViewController].
   void _listControllerListener() {
     if (listController.hasClients) {
       _updateSticky();
+      _updateFabStates();
+    }
+  }
 
-      if (!_ignorePositionChanges) {
-        if (listController.position.pixels <
-            listController.position.maxScrollExtent -
-                MediaQuery.of(router.context!).size.height * 2 +
-                200) {
-          canGoDown.value = true;
-        } else {
-          canGoDown.value = false;
-        }
+  /// Updates the [canGoDown] and [canGoBack] indicators based on the
+  /// [FlutterListViewController.position] value.
+  void _updateFabStates() {
+    if (listController.hasClients && !_ignorePositionChanges) {
+      if (listController.position.pixels <
+          listController.position.maxScrollExtent -
+              MediaQuery.of(router.context!).size.height * 2 +
+              200) {
+        canGoDown.value = true;
+      } else {
+        canGoDown.value = false;
+      }
 
-        if (canGoBack.isTrue) {
-          canGoBack.value = false;
-        }
+      if (canGoBack.isTrue) {
+        canGoBack.value = false;
       }
     }
   }
 
-  /// Shows sticky date and restarts [_stickyTimer] that hides sticky.
+  /// Updates the [showSticky] indicator and restarts a [_stickyTimer] resetting
+  /// it.
   void _updateSticky() {
     showSticky.value = true;
     stickyIndex.value = listController.sliverController.stickyIndex.value;
@@ -1213,13 +1222,10 @@ class ChatController extends GetxController {
     _stickyTimer?.cancel();
     _stickyTimer = Timer(const Duration(seconds: 2), () {
       if (stickyIndex.value != null) {
-        double? offset =
+        final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
-        if (offset != null && listController.offset - offset < 35) {
-          showSticky.value = true;
-        } else {
-          showSticky.value = false;
-        }
+        showSticky.value =
+            offset != null && listController.offset - offset < 35;
       }
     });
   }

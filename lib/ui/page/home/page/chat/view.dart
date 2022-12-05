@@ -783,7 +783,7 @@ class _ChatViewState extends State<ChatView>
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
         asStack: true,
@@ -795,6 +795,7 @@ class _ChatViewState extends State<ChatView>
         ),
         child: Obx(() {
           return AnimatedOpacity(
+            key: Key('$i$time'),
             opacity: c.stickyIndex.value == i
                 ? c.showSticky.isTrue
                     ? 1
