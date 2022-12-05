@@ -53,6 +53,9 @@ class ContactsTabController extends GetxController {
   /// [TextFieldState] of a [ChatContact.name].
   late TextFieldState contactName;
 
+  /// Returns current reactive [ChatContact]s list.
+  final RxList<RxChatContact> contacts = RxList<RxChatContact>();
+
   /// [ChatContactId] of a [ChatContact] to rename.
   final Rx<ChatContactId?> contactToChangeNameOf = Rx<ChatContactId?>(null);
 
@@ -77,9 +80,6 @@ class ContactsTabController extends GetxController {
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
-
-  /// Returns current reactive [ChatContact]s map.
-  RxList<RxChatContact> contacts = RxList<RxChatContact>();
 
   /// Returns the current reactive favorite [ChatContact]s map.
   RxMap<ChatContactId, RxChatContact> get favorites =>
@@ -140,7 +140,7 @@ class ContactsTabController extends GetxController {
         }
       },
       onSubmitted: (s) {
-        var contact = contacts.firstWhereOrNull(
+        RxChatContact? contact = contacts.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
@@ -185,13 +185,12 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Changes sorting mode.
+  /// Changes [contacts] sorting mode.
   ///
-  /// If [sortByName] = true means sorting [contacts] by name ascending.
-  /// If [sortByName] = false means sorting [contacts] by their online
-  /// descending.
-  void changeSorting(bool sortByName) async {
-    await _settings.setSortContactsByName(sortByName);
+  /// If [value] is `true` means sorting [contacts] by name ascending.
+  /// If [value] is `false` means sorting [contacts] by their online.
+  void sortByName(bool value) async {
+    await _settings.setSortContactsByName(value);
     sortContacts();
   }
 
@@ -273,21 +272,22 @@ class ContactsTabController extends GetxController {
         case OperationKind.added:
           contacts.add(e.value!);
           listen(e.value!);
+          sortContacts();
           break;
 
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
-          contacts.removeWhere((e2) => e2.id == e.value?.id);
+          contacts.removeWhere((e2) => e2.id == e.key);
           _userOnlineWorkers[e.key]?.dispose();
           _userOnlineWorkers.removeWhere((key, value) => key == e.key);
           _userWorkers.remove(e.key)?.dispose();
+          sortContacts();
           break;
 
         case OperationKind.updated:
           // No-op.
           break;
       }
-      sortContacts();
     });
   }
 }

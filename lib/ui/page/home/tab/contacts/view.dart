@@ -66,7 +66,7 @@ class ContactsTabView extends StatelessWidget {
           actions: <Widget>[
             PopupMenuButton<bool>(
               tooltip: '',
-              onSelected: c.changeSorting,
+              onSelected: c.sortByName,
               itemBuilder: (_) => <PopupMenuEntry<bool>>[
                 PopupMenuItem<bool>(
                   value: true,

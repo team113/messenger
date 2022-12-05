@@ -69,5 +69,5 @@ abstract class AbstractSettingsRepository {
   Future<void> setShowDragAndDropButtonsHint(bool show);
 
   /// Sets the [ApplicationSettings.sortContactsByName] value.
-  Future<void> setSortContactsByName(bool value);
+  Future<void> setSortContactsByName(bool enabled);
 }
