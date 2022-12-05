@@ -129,11 +129,44 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id) => _graphQlProvider.blacklistUser(id);
+  Future<void> blacklistUser(UserId id) async {
+    RxUser? user = _users[id];
+    bool? oldValue = user?.user.value.isBlacklisted;
+    if(user != null && !user.user.value.isBlacklisted) {
+      user.user.value.isBlacklisted = true;
+      user.user.refresh();
+    }
+
+    try {
+      await _graphQlProvider.blacklistUser(id);
+    } catch (_) {
+      if(user != null && user.user.value.isBlacklisted != oldValue) {
+        user.user.value.isBlacklisted = oldValue!;
+        user.user.refresh();
+      }
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> unblacklistUser(UserId id) =>
-      _graphQlProvider.unblacklistUser(id);
+  Future<void> unblacklistUser(UserId id) async {
+    RxUser? user = _users[id];
+    bool? oldValue = user?.user.value.isBlacklisted;
+    if(user != null && user.user.value.isBlacklisted) {
+      user.user.value.isBlacklisted = false;
+      user.user.refresh();
+    }
+
+    try {
+      await _graphQlProvider.unblacklistUser(id);
+    } catch (_) {
+      if(user != null && user.user.value.isBlacklisted != oldValue) {
+        user.user.value.isBlacklisted = oldValue!;
+        user.user.refresh();
+      }
+      rethrow;
+    }
+  }
 
   /// Updates the locally stored [HiveUser] with the provided [user] value.
   void update(User user) {
@@ -334,7 +367,11 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
       var node =
           e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
-      return EventBlacklistRecordRemoved(node.userId, node.at);
+      return EventBlacklistRecordRemoved(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }

@@ -1363,9 +1363,7 @@ class UnfavoriteChatException
 }
 
 /// Exception of `Mutation.blacklistUser` described in the [code].
-class BlacklistUserException
-    with LocalizedExceptionMixin
-    implements Exception {
+class BlacklistUserException with LocalizedExceptionMixin implements Exception {
   const BlacklistUserException(this.code);
 
   /// Reason of why the mutation has failed.

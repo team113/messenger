@@ -123,13 +123,7 @@ class BlacklistEventsVersioned extends UserEvents {
 
 /// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
 abstract class BlacklistEvent {
-  /// [BlacklistEventsKind] of this event.
-  BlacklistEventsKind get kind;
-}
-
-/// Event of a blacklist record being added.
-class EventBlacklistRecordAdded extends BlacklistEvent {
-  EventBlacklistRecordAdded(this.userId, this.user, this.at);
+  BlacklistEvent(this.userId, this.user, this.at);
 
   /// [UserId] of the [User] this [BlacklistEvent] is about.
   final UserId userId;
@@ -140,19 +134,23 @@ class EventBlacklistRecordAdded extends BlacklistEvent {
   /// [PreciseDateTime] when this [BlacklistEvent] happened.
   final PreciseDateTime at;
 
+  /// [BlacklistEventsKind] of this event.
+  BlacklistEventsKind get kind;
+}
+
+/// Event of a blacklist record being added.
+class EventBlacklistRecordAdded extends BlacklistEvent {
+  EventBlacklistRecordAdded(UserId userId, HiveUser user, PreciseDateTime at)
+      : super(userId, user, at);
+
   @override
   BlacklistEventsKind get kind => BlacklistEventsKind.recordAdded;
 }
 
 /// Event of a blacklist record being removed.
 class EventBlacklistRecordRemoved extends BlacklistEvent {
-  EventBlacklistRecordRemoved(this.userId, this.at);
-
-  /// [UserId] of the [User] this [BlacklistEvent] is about.
-  final UserId userId;
-
-  /// [PreciseDateTime] when this [BlacklistEvent] happened.
-  final PreciseDateTime at;
+  EventBlacklistRecordRemoved(UserId userId, HiveUser user, PreciseDateTime at)
+      : super(userId, user, at);
 
   @override
   BlacklistEventsKind get kind => BlacklistEventsKind.recordRemoved;

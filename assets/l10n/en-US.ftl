@@ -175,6 +175,7 @@ btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
+btn_unblacklist = Remove from blacklist
 btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message

@@ -175,6 +175,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
+btn_unblacklist = Удалить из черного списка
 btn_unmute_chat = Включить уведомления
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
