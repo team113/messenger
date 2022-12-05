@@ -23,6 +23,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -959,7 +960,7 @@ abstract class UserGraphQlMixin {
   /// Blacklists the specified [User] for the authenticated [MyUser].
   ///
   /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in Chat-dialogs).
+  /// [MyUser] directly (in [Chat]-dialogs).
   ///
   /// [MyUser]'s blacklist can be obtained via Query.blacklist.
   ///
@@ -995,7 +996,7 @@ abstract class UserGraphQlMixin {
   /// Blacklists the specified [User] for the authenticated [MyUser].
   ///
   /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in Chat-dialogs).
+  /// [MyUser] directly (in [Chat]-dialogs).
   ///
   /// [MyUser]'s blacklist can be obtained via Query.blacklist.
   ///
