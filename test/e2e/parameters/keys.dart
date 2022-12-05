@@ -79,6 +79,8 @@ enum WidgetKey {
   RecoveryField,
   RepeatPasswordField,
   Resend,
+  SearchButton,
+  SearchField,
   Send,
   SendForward,
   SetPasswordButton,

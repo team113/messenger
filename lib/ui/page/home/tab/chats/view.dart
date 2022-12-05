@@ -20,14 +20,18 @@ import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
 import 'mute_chat_popup/view.dart';
 import 'widget/recent_chat.dart';
+import 'widget/search_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -35,43 +39,253 @@ class ChatsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       builder: (ChatsTabController c) {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Text('label_chats'.l10n),
-            padding: const EdgeInsets.symmetric(horizontal: 21),
+            title: Obx(() {
+              final Widget child;
+
+              if (c.search.value != null) {
+                child = Theme(
+                  data: Theme.of(context).copyWith(
+                    shadowColor: const Color(0x55000000),
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                    inputDecorationTheme: InputDecorationTheme(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusColor: Colors.white,
+                      fillColor: Colors.white,
+                      hoverColor: Colors.transparent,
+                      filled: true,
+                      isDense: true,
+                      contentPadding: EdgeInsets.fromLTRB(
+                        15,
+                        PlatformUtils.isDesktop ? 30 : 23,
+                        15,
+                        0,
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: ReactiveTextField(
+                        key: const Key('SearchField'),
+                        state: c.search.value!.search,
+                        hint: 'label_search'.l10n,
+                        maxLines: 1,
+                        filled: false,
+                        dense: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        style: style.boldBody.copyWith(fontSize: 17),
+                        onChanged: () => c.search.value?.query.value =
+                            c.search.value?.search.text ?? '',
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                child = Text('label_chats'.l10n);
+              }
+
+              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+            }),
             leading: [
-              WidgetButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => const CreateGroupView(),
-                ),
-                child: SvgLoader.asset('assets/icons/group.svg', height: 18.44),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 12),
+                child: Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: WidgetButton(
+                      key: const Key('SearchButton'),
+                      onPressed: c.search.value != null ? null : c.toggleSearch,
+                      child: SvgLoader.asset(
+                        'assets/icons/search.svg',
+                        width: 17.77,
+                      ),
+                    ),
+                  );
+                }),
               ),
             ],
             actions: [
-              WidgetButton(
-                onPressed: () {
-                  // TODO: Implement search.
-                },
-                child: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
+              Padding(
+                padding: const EdgeInsets.only(left: 12, right: 18),
+                child: Obx(() {
+                  final Widget child;
+
+                  if (c.search.value != null) {
+                    child = WidgetButton(
+                      key: const Key('CloseSearch'),
+                      onPressed: () {
+                        if (c.search.value?.query.isNotEmpty == true) {
+                          c.toggleSearch(false);
+                        }
+                      },
+                      child: SvgLoader.asset(
+                        'assets/icons/close_primary.svg',
+                        height: 15,
+                      ),
+                    );
+                  } else {
+                    child = WidgetButton(
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (_) => const CreateGroupView(),
+                      ),
+                      child: SvgLoader.asset(
+                        'assets/icons/group.svg',
+                        height: 18.44,
+                      ),
+                    );
+                  }
+
+                  return SizedBox(
+                    width: 21.77,
+                    child: AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: child,
+                    ),
+                  );
+                }),
               ),
             ],
           ),
           body: Obx(() {
             if (c.chatsReady.value) {
-              if (c.chats.isEmpty) {
-                return Center(child: Text('label_no_chats'.l10n));
-              }
+              final Widget? child;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: ContextMenuInterceptor(
-                  child: AnimationLimiter(
+              if (c.search.value?.search.isEmpty.value == false) {
+                if (c.search.value!.searchStatus.value.isLoading &&
+                    c.elements.isEmpty) {
+                  child = const Center(
+                    key: Key('Loading'),
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (c.elements.isNotEmpty) {
+                  child = ListView.builder(
+                    key: const Key('Search'),
+                    controller: ScrollController(),
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      final ListElement element = c.elements[i];
+                      final Widget child;
+
+                      if (element is ChatElement) {
+                        final RxChat chat = element.chat;
+                        child = Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: RecentChatTile(
+                            chat,
+                            key: Key('SearchChat_${chat.id}'),
+                            me: c.me,
+                            getUser: c.getUser,
+                            onJoin: () => c.joinCall(chat.id),
+                            onDrop: () => c.dropCall(chat.id),
+                            inCall: () => c.inCall(chat.id),
+                          ),
+                        );
+                      } else if (element is ContactElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchContact_${element.contact.id}'),
+                          contact: element.contact,
+                          onTap: () => c.openChat(contact: element.contact),
+                        );
+                      } else if (element is UserElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchUser_${element.user.id}'),
+                          user: element.user,
+                          onTap: () => c.openChat(user: element.user),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: i == 0 ? 3 : 0,
+                                bottom: i == c.elements.length - 1 ? 4 : 0,
+                              ),
+                              child: child,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  child = Center(
+                    key: const Key('NothingFound'),
+                    child: Text('label_nothing_found'.l10n),
+                  );
+                }
+              } else {
+                if (c.chats.isEmpty) {
+                  child = Center(
+                    key: const Key('NoChats'),
+                    child: Text('label_no_chats'.l10n),
+                  );
+                } else {
+                  child = AnimationLimiter(
+                    key: const Key('Chats'),
                     child: ListView.builder(
                       controller: ScrollController(),
                       itemCount: c.chats.length,
@@ -114,6 +328,16 @@ class ChatsTabView extends StatelessWidget {
                         );
                       },
                     ),
+                  );
+                }
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: ContextMenuInterceptor(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               );
