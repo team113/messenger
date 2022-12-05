@@ -40,13 +40,13 @@ enum SearchCategory {
   recent,
 
   /// [ChatContact]s of the authenticated [MyUser].
-  contacts,
+  contact,
 
   /// Global [User]s.
-  users,
+  user,
 
   /// [Chat]s of the authenticated [MyUser].
-  chats,
+  chat,
 }
 
 /// Controller for searching the provided [categories].
@@ -92,13 +92,13 @@ class SearchController extends GetxController {
   /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
 
-  /// [RxChatContact]s found under the [SearchCategory.contacts] category.
+  /// [RxChatContact]s found under the [SearchCategory.contact] category.
   final RxMap<UserId, RxChatContact> contacts = RxMap();
 
-  /// [RxUser]s found under the [SearchCategory.users] category.
+  /// [RxUser]s found under the [SearchCategory.user] category.
   final RxMap<UserId, RxUser> users = RxMap();
 
-  /// [Chat]s found under the [SearchCategory.chats] category.
+  /// [Chat]s found under the [SearchCategory.chat] category.
   final RxMap<ChatId, RxChat> chats = RxMap();
 
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
@@ -147,10 +147,14 @@ class SearchController extends GetxController {
   void onInit() {
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
-    _searchWorker = ever(query, (String? q) {
-      if (q == null || q.isEmpty) {
+    _searchWorker = ever(query, (String q) {
+      if (q.length < 2) {
         searchResults.value = null;
         searchStatus.value = RxStatus.empty();
+        users.clear();
+        contacts.clear();
+        chats.clear();
+        recent.clear();
       } else {
         searchStatus.value = RxStatus.loading();
       }
@@ -162,9 +166,9 @@ class SearchController extends GetxController {
       int? first = list.firstOrNull?.index;
       if (first != null) {
         if (first >= recent.length + contacts.length + chats.length) {
-          category.value = SearchCategory.users;
+          category.value = SearchCategory.user;
         } else if (first >= recent.length + chats.length) {
-          category.value = SearchCategory.contacts;
+          category.value = SearchCategory.contact;
         } else if (first >= chats.length) {
           category.value = SearchCategory.recent;
         } else {
@@ -231,8 +235,8 @@ class SearchController extends GetxController {
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
-  Future<void> _search(String? query) async {
-    if (!categories.contains(SearchCategory.users) || query == null) {
+  Future<void> _search(String query) async {
+    if (!categories.contains(SearchCategory.user) || query.isEmpty) {
       return;
     }
 
@@ -292,7 +296,7 @@ class SearchController extends GetxController {
   void jumpTo(SearchCategory category) {
     if (controller.hasClients) {
       switch (category) {
-        case SearchCategory.chats:
+        case SearchCategory.chat:
           if (chats.isNotEmpty) {
             controller.jumpTo(0);
           }
@@ -309,7 +313,7 @@ class SearchController extends GetxController {
           }
           break;
 
-        case SearchCategory.contacts:
+        case SearchCategory.contact:
           if (contacts.isNotEmpty) {
             final double to = (recent.length + chats.length) * (76 + 10);
             if (to > controller.position.maxScrollExtent) {
@@ -320,7 +324,7 @@ class SearchController extends GetxController {
           }
           break;
 
-        case SearchCategory.users:
+        case SearchCategory.user:
           if (users.isNotEmpty) {
             final double to =
                 (recent.length + contacts.length + chats.length) * (76 + 10);
@@ -349,7 +353,7 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
-    if (categories.contains(SearchCategory.chats)) {
+    if (categories.contains(SearchCategory.chat)) {
       final List<RxChat> sorted = _chatService.chats.values.toList();
 
       sorted.sort((a, b) {
@@ -367,10 +371,7 @@ class SearchController extends GetxController {
       chats.value = {
         for (var c in sorted.where((p) {
           if (query.value.isNotEmpty) {
-            if (p.title.toLowerCase().contains(query.value.toLowerCase())) {
-              return true;
-            }
-            return false;
+            return p.title.toLowerCase().contains(query.value.toLowerCase());
           }
 
           return true;
@@ -408,7 +409,7 @@ class SearchController extends GetxController {
       };
     }
 
-    if (categories.contains(SearchCategory.contacts)) {
+    if (categories.contains(SearchCategory.contact)) {
       Map<UserId, RxChatContact> allContacts = {
         for (var u in _contactService.contacts.values.where((e) {
           if (e.contact.value.users.length == 1) {
@@ -416,9 +417,9 @@ class SearchController extends GetxController {
 
             if (chat?.members.containsKey(user?.id) != true &&
                 !recent.containsKey(user?.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog &&
-                    e1.members.containsKey(user?.id)))) {
+                (chats.values.none((c) =>
+                    c.chat.value.isDialog &&
+                    c.members.containsKey(user?.id)))) {
               if (query.value.isNotEmpty) {
                 if (e.contact.value.name.val
                         .toLowerCase()
@@ -460,15 +461,15 @@ class SearchController extends GetxController {
       };
     }
 
-    if (categories.contains(SearchCategory.users)) {
+    if (categories.contains(SearchCategory.user)) {
       if (searchResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
           for (var u in searchResults.value!.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
-                (chats.values.none((e1) =>
-                    e1.chat.value.isDialog && e1.members.containsKey(e.id)))) {
+                (chats.values.none((c) =>
+                    c.chat.value.isDialog && c.members.containsKey(e.id)))) {
               return true;
             }
 
@@ -503,9 +504,9 @@ class SearchController extends GetxController {
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id) &&
-                  (chats.values.none((e1) =>
-                      e1.chat.value.isDialog &&
-                      e1.members.containsKey(user?.id)))) {
+                  (chats.values.none((c) =>
+                      c.chat.value.isDialog &&
+                      c.members.containsKey(user?.id)))) {
                 if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
