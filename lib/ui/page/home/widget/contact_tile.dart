@@ -40,6 +40,12 @@ class ContactTile extends StatelessWidget {
     this.darken = 0,
     this.height = 86,
     this.radius = 30,
+    this.unselectedColor,
+    this.selectedColor,
+    this.selectedHoverColor,
+    this.unselectedHoverColor,
+    this.border,
+    this.hoveredBorder,
   }) : super(key: key);
 
   /// [RxChatContact] to display.
@@ -72,6 +78,13 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  final Color? unselectedColor;
+  final Color? selectedColor;
+  final Color? selectedHoverColor;
+  final Color? unselectedHoverColor;
+  final Border? border;
+  final Border? hoveredBorder;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -79,15 +92,16 @@ class ContactTile extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(minHeight: height),
       child: InkWellWithHover(
-        selectedColor: style.cardSelectedColor,
-        unselectedColor: style.cardColor,
+        selectedColor: selectedColor ?? style.cardSelectedColor,
+        unselectedColor: unselectedColor ?? style.cardColor,
         selected: selected,
-        hoveredBorder: selected ? style.primaryBorder : style.cardHoveredBorder,
-        border: selected ? style.primaryBorder : style.cardBorder,
+        hoveredBorder: hoveredBorder ??
+            (selected ? style.primaryBorder : style.cardHoveredBorder),
+        border: border ?? (selected ? style.primaryBorder : style.cardBorder),
         borderRadius: style.cardRadius,
         onTap: onTap,
-        unselectedHoverColor: style.cardHoveredColor,
-        selectedHoverColor: style.cardSelectedColor,
+        unselectedHoverColor: unselectedHoverColor ?? style.cardHoveredColor,
+        selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(

@@ -320,6 +320,8 @@ class SearchView extends StatelessWidget {
     void Function()? onTap,
     bool selected = false,
   }) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ContactTile(
@@ -328,6 +330,12 @@ class SearchView extends StatelessWidget {
         onTap: onTap,
         selected: selected,
         darken: 0.05,
+        height: 76,
+        radius: 26,
+        selectedColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        unselectedColor: style.cardColor.darken(0.05),
         trailing: [
           if (selectable)
             SizedBox(
@@ -378,9 +386,8 @@ class SearchView extends StatelessWidget {
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
-          color: selected
-              ? const Color(0xFFD7ECFF).withOpacity(0.8)
-              : style.cardColor.darken(0.05),
+          color:
+              selected ? style.cardSelectedColor : style.cardColor.darken(0.05),
           child: InkWell(
             key: Key('Chat_${chat.chat.value.id}'),
             borderRadius: style.cardRadius,

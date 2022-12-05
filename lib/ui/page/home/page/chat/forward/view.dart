@@ -123,9 +123,9 @@ class ChatForwardView extends StatelessWidget {
                         child: SearchView(
                           key: const Key('SearchView'),
                           categories: const [
-                            SearchCategory.chats,
-                            SearchCategory.contacts,
-                            SearchCategory.users,
+                            SearchCategory.chat,
+                            SearchCategory.contact,
+                            SearchCategory.user,
                           ],
                           title: 'label_forward_message'.l10n,
                           onChanged: (result) => c.searchResults.value = result,

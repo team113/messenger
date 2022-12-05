@@ -172,7 +172,7 @@ class SearchController extends GetxController {
         } else if (first >= chats.length) {
           category.value = SearchCategory.recent;
         } else {
-          category.value = SearchCategory.chats;
+          category.value = SearchCategory.chat;
         }
       }
     };
