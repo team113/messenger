@@ -17,7 +17,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
+import '../../widget/app_bar.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -54,30 +57,27 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
-        appBar: AppBar(
+        appBar: CustomAppBar(
           title: Text('label_contacts'.l10n),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.5),
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              height: 0.5,
-            ),
-          ),
           actions: <Widget>[
-            PopupMenuButton<bool>(
-              tooltip: '',
-              onSelected: c.sortByName,
-              itemBuilder: (_) => <PopupMenuEntry<bool>>[
-                PopupMenuItem<bool>(
-                  value: true,
-                  child: Text('btn_sort_by_name'.l10n),
-                ),
-                PopupMenuItem<bool>(
-                  value: false,
-                  child: Text('btn_sort_by_online'.l10n),
-                ),
-              ],
-              icon: const Icon(Icons.sort),
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
+              child: Obx(() {
+                return WidgetButton(
+                  onPressed: () => c.updateSortingType(!c.searchByName),
+                  child: SizedBox(
+                    width: 29.69,
+                    height: 21,
+                    child: SvgLoader.asset(
+                      c.searchByName == true
+                          ? 'assets/icons/sort_abc.svg'
+                          : 'assets/icons/sort_time.svg',
+                      width: 30,
+                      height: 21,
+                    ),
+                  ),
+                );
+              }),
             ),
           ],
         ),

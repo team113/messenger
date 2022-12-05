@@ -88,6 +88,10 @@ class ContactsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
+  /// Indicates whether [contacts] should be sorted by name or not.
+  bool get searchByName =>
+      _settings.applicationSettings.value!.sortContactsByName;
+
   @override
   void onInit() {
     contacts.addAll(_contactService.contacts.values);
@@ -189,7 +193,7 @@ class ContactsTabController extends GetxController {
   ///
   /// If [value] is `true` means sorting [contacts] by name ascending.
   /// If [value] is `false` means sorting [contacts] by their online.
-  void sortByName(bool value) async {
+  void updateSortingType(bool value) async {
     await _settings.setSortContactsByName(value);
     sortContacts();
   }
@@ -198,7 +202,9 @@ class ContactsTabController extends GetxController {
   /// [ApplicationSettings.sortContactsByName].
   void sortContacts() {
     contacts.sort((a, b) {
-      if (_settings.applicationSettings.value?.sortContactsByName == false) {
+      if (searchByName == true) {
+        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
+      } else {
         User? userA = a.user.value?.user.value;
         User? userB = b.user.value?.user.value;
 
@@ -213,8 +219,6 @@ class ContactsTabController extends GetxController {
             return userB!.lastSeenAt!.compareTo(userA!.lastSeenAt!);
           }
         }
-      } else {
-        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
       }
     });
   }
@@ -237,10 +241,14 @@ class ContactsTabController extends GetxController {
   }
 
   /// Starts listen updates of [RxChatContact.user].
-  _startUserListen(RxChatContact c) {
-    RxUser? rxUser = c.user.value;
-    if (_userOnlineWorkers[c.id] == null && rxUser?.user != null) {
-      _userOnlineWorkers[c.id] = ever(rxUser!.user, (_) => sortContacts());
+  void _startUserListen(RxChatContact c) {
+    Rx<User>? rxUser = c.user.value?.user;
+    if (_userOnlineWorkers[c.id] == null && rxUser != null) {
+      _userOnlineWorkers[c.id] = ever(rxUser, (_) {
+        if (searchByName == false) {
+          sortContacts();
+        }
+      });
     }
     sortContacts();
   }
