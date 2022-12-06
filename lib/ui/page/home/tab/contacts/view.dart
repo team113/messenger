@@ -62,20 +62,20 @@ class ContactsTabView extends StatelessWidget {
           actions: <Widget>[
             Padding(
               padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
-              child: Obx(() {
-                return WidgetButton(
-                  onPressed: () => c.updateSortingType(!c.searchByName),
-                  child: SizedBox(
-                    width: 29.69,
-                    height: 21,
-                    child: SvgLoader.asset(
-                      'assets/icons/sort_${c.searchByName ? 'abc' : 'time'}.svg',
+              child: WidgetButton(
+                onPressed: () => c.updateSortingType(!c.sortByName),
+                child: SizedBox(
+                  width: 29.69,
+                  height: 21,
+                  child: Obx(() {
+                    return SvgLoader.asset(
+                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                       width: 30,
                       height: 21,
-                    ),
-                  ),
-                );
-              }),
+                    );
+                  }),
+                ),
+              ),
             ),
           ],
           leading: [

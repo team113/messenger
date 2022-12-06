@@ -93,8 +93,8 @@ class ContactsTabController extends GetxController {
   RxBool get contactsReady => _contactService.isReady;
 
   /// Indicates whether [contacts] should be sorted by name or not.
-  bool get searchByName =>
-      _settings.applicationSettings.value!.sortContactsByName;
+  bool get sortByName =>
+      _settings.applicationSettings.value?.sortContactsByName ?? true;
 
   @override
   void onInit() {
@@ -206,7 +206,7 @@ class ContactsTabController extends GetxController {
   /// [ApplicationSettings.sortContactsByName].
   void sortContacts() {
     contacts.sort((a, b) {
-      if (searchByName == true) {
+      if (sortByName == true) {
         return a.contact.value.name.val.compareTo(b.contact.value.name.val);
       } else {
         User? userA = a.user.value?.user.value;
@@ -251,7 +251,7 @@ class ContactsTabController extends GetxController {
       _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
 
       _userOnlineWorkers[u.id] = ever(user, (User u) {
-        if (searchByName == false &&
+        if (sortByName == false &&
             (_usersMap[u.id]!.online != u.online ||
                 _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
           _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
