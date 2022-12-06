@@ -19,6 +19,8 @@ All user visible changes to this project will be documented in this file. This p
         - Drafts. ([#173], [#102])
     - Chats tab:
         - Chat muting/unmuting. ([#172], [#63])
+        - Favorite chats. ([#218], [#209])
+        - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
 
@@ -31,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
         - Video resizing when dragged. ([#191], [#190])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
+        - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
 
@@ -39,13 +42,16 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
+        - Images sometimes not loading. ([#164], [#126])
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#63]: /../../issues/63
 [#102]: /../../issues/102
+[#126]: /../../issues/126
 [#134]: /../../issues/134
 [#142]: /../../pull/142
+[#164]: /../../pull/164
 [#172]: /../../pull/172
 [#173]: /../../pull/173
 [#188]: /../../pull/188
@@ -58,9 +64,15 @@ All user visible changes to this project will be documented in this file. This p
 [#199]: /../../issues/199
 [#203]: /../../issues/203
 [#204]: /../../pull/204
+[#205]: /../../issues/205
+[#206]: /../../pull/206
+[#209]: /../../issues/209
 [#212]: /../../pull/212
 [#214]: /../../issues/214
+[#215]: /../../issues/215
 [#217]: /../../pull/217
+[#218]: /../../pull/218
+[#221]: /../../pull/221
 
 
 

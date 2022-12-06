@@ -194,6 +194,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
+      sessionProvider,
     );
 
     ChatService chatService = ChatService(chatRepository, authService);
@@ -283,6 +284,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
+      sessionProvider,
     );
 
     ChatService chatService = ChatService(chatRepository, authService);

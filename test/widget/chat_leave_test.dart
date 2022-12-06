@@ -119,6 +119,10 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+      
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
@@ -311,6 +315,7 @@ void main() async {
             callRepository,
             draftProvider,
             userRepository,
+            sessionProvider,
           ),
         ),
         authService,

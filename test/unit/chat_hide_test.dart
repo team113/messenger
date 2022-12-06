@@ -125,6 +125,10 @@ void main() async {
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   test('ChatService successfully hides a chat', () async {
     when(graphQlProvider.recentChats(
       first: 120,
@@ -177,6 +181,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -230,6 +235,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

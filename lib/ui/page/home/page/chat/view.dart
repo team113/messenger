@@ -48,6 +48,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -658,7 +659,7 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.id.at.val);
+      return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
     }
@@ -778,11 +779,11 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a centered [time] label.
-  Widget _timeLabel(DateTime time) {
+  Widget _timeLabel(DateTime time, ChatController c, int i) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
         asStack: true,
@@ -792,17 +793,34 @@ class _ChatViewState extends State<ChatView>
           padding: const EdgeInsets.only(right: 4),
           child: Text(DateFormat('dd.MM.yy').format(time)),
         ),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: style.systemMessageBorder,
-              color: style.systemMessageColor,
+        child: Obx(() {
+          return AnimatedOpacity(
+            key: Key('$i$time'),
+            opacity: c.stickyIndex.value == i
+                ? c.showSticky.isTrue
+                    ? 1
+                    : 0
+                : 1,
+            duration: const Duration(milliseconds: 250),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                ),
+                child: Text(
+                  time.toRelative(),
+                  style: style.systemMessageStyle,
+                ),
+              ),
             ),
-            child: Text(time.toRelative(), style: style.systemMessageStyle),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -1383,7 +1401,7 @@ class _ChatViewState extends State<ChatView>
               }
             }
           } else {
-            child = Image.network(
+            child = RetryImage(
               e.original.url,
               fit: BoxFit.cover,
               width: size,
@@ -1653,9 +1671,6 @@ class _ChatViewState extends State<ChatView>
                   ? Colors.white.withOpacity(0.2)
                   : Colors.black.withOpacity(0.03),
               borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(image: NetworkImage(image.small.url)),
             ),
             width: 30,
             height: 30,
@@ -1665,7 +1680,11 @@ class _ChatViewState extends State<ChatView>
                     color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                     size: 16,
                   )
-                : null,
+                : RetryImage(
+                    image.small.url,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
           );
         }).toList();
       }
@@ -1889,9 +1908,6 @@ class _ChatViewState extends State<ChatView>
                     ? Colors.white.withOpacity(0.2)
                     : Colors.black.withOpacity(0.03),
                 borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(image: NetworkImage(image.small.url)),
               ),
               width: 30,
               height: 30,
@@ -1901,7 +1917,11 @@ class _ChatViewState extends State<ChatView>
                       color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                       size: 16,
                     )
-                  : null,
+                  : RetryImage(
+                      image.small.url,
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
             );
           }).toList();
         }

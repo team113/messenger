@@ -33,3 +33,9 @@ class ChatVersion extends Version {
 class RecentChatsCursor extends Version {
   RecentChatsCursor(String val) : super(val);
 }
+
+/// Version of a favorite [Chat]s list.
+@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
+class FavoriteChatsListVersion extends Version {
+  FavoriteChatsListVersion(String val) : super(val);
+}

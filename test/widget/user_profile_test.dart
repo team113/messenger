@@ -115,6 +115,9 @@ void main() async {
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), sessionProvider);
   await authService.init();
@@ -363,6 +366,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
+      sessionProvider,
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 

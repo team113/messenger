@@ -303,4 +303,13 @@ class ChatService extends DisposableService {
       await _chatRepository.remove(id);
     }
   }
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its [position] in the favorites list.
+  Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) =>
+      _chatRepository.favoriteChat(id, position);
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
 }
