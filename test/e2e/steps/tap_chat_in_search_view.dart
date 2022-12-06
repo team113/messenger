@@ -33,7 +33,7 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
 
       final finder = context.world.appDriver
           .findByKeySkipOffstage(
-            'RecentChat_${context.world.sessions[user.name]!.dialog!.val}',
+            'Chat_${context.world.sessions[user.name]!.dialog!.val}',
           )
           .last;
 
