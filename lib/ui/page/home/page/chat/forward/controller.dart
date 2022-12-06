@@ -132,6 +132,10 @@ class ChatForwardController extends GetxController {
               ForwardChatItemsErrorCode.unknownAttachment,
             ));
           }
+          List<AttachmentId>? attachments = sendController.attachments.isEmpty
+              ? null
+              : sendController.attachments.map((a) => a.value.id).toList();
+          ChatMessageText? text = s.text == '' ? null : ChatMessageText(s.text);
 
           List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {
@@ -139,12 +143,8 @@ class ChatForwardController extends GetxController {
                 from,
                 e.chat.value.id,
                 sendController.quotes,
-                text: s.text == '' ? null : ChatMessageText(s.text),
-                attachments: sendController.attachments.isEmpty
-                    ? null
-                    : sendController.attachments
-                        .map((a) => a.value.id)
-                        .toList(),
+                text: text,
+                attachments: attachments,
               );
             }),
             ...searchResults.value!.users.map((e) async {
@@ -154,12 +154,8 @@ class ChatForwardController extends GetxController {
                 from,
                 dialog.id,
                 sendController.quotes,
-                text: s.text == '' ? null : ChatMessageText(s.text),
-                attachments: sendController.attachments.isEmpty
-                    ? null
-                    : sendController.attachments
-                        .map((a) => a.value.id)
-                        .toList(),
+                text: text,
+                attachments: attachments,
               );
             }),
             ...searchResults.value!.contacts.map((e) async {
@@ -171,12 +167,8 @@ class ChatForwardController extends GetxController {
                 from,
                 dialog.id,
                 sendController.quotes,
-                text: s.text == '' ? null : ChatMessageText(s.text),
-                attachments: sendController.attachments.isEmpty
-                    ? null
-                    : sendController.attachments
-                        .map((a) => a.value.id)
-                        .toList(),
+                text: text,
+                attachments: attachments,
               );
             })
           ];

@@ -1089,7 +1089,8 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a [controller.quotes] message.
+  /// Builds a visual representation of a [MessageFieldController.quotes]
+  /// message.
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,

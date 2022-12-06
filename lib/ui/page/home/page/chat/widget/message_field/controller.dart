@@ -57,9 +57,6 @@ class MessageFieldController extends GetxController {
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote> quotes = RxList<ChatItemQuote>();
 
-  /// [Chat]s service used to upload attachments.
-  final ChatService _chatService;
-
   /// [ChatItem] being edited.
   final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
 
@@ -72,14 +69,17 @@ class MessageFieldController extends GetxController {
   /// Indicator whether forwarding mode is enabled.
   final RxBool forwarding = RxBool(false);
 
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
+
+  /// [Chat]s service used to upload attachments.
+  final ChatService _chatService;
+
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
