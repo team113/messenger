@@ -599,7 +599,16 @@ class CallRepository extends DisposableService
             break;
 
           case IncomingChatCallsTopEventKind.removed:
-            // No-op.
+            e as EventIncomingChatCallsTopChatCallRemoved;
+            Rx<OngoingCall>? call = calls[e.call.chatId];
+            // If call is not yet connected to the remote updates, then it's
+            // still just a notification and it should be removed.
+            if (call?.value.connected == false &&
+                call?.value.isActive == false) {
+              var removed = remove(e.call.chatId);
+              removed?.value.state.value = OngoingCallState.ended;
+              removed?.value.dispose();
+            }
             break;
         }
       },
