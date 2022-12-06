@@ -52,12 +52,6 @@ class ContactsTabController extends GetxController {
     this._calls,
   );
 
-  /// [TextFieldState] of a [ChatContact.name].
-  late TextFieldState contactName;
-
-  /// [ChatContactId] of a [ChatContact] to rename.
-  final Rx<ChatContactId?> contactToChangeNameOf = Rx<ChatContactId?>(null);
-
   /// [Chat] repository used to create a dialog [Chat].
   final AbstractChatRepository _chatRepository;
 
@@ -91,64 +85,6 @@ class ContactsTabController extends GetxController {
     favorites =
         RxList<RxChatContact>(_contactService.favorites.values.toList());
     _sortFavorites();
-
-    contactName = TextFieldState(
-      onChanged: (s) async {
-        s.error.value = null;
-
-        RxChatContact? contact = contacts.values.firstWhereOrNull(
-                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
-            favorites.firstWhereOrNull(
-                (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (contact == null) return;
-
-        if (contact.contact.value.name.val == s.text) {
-          contactToChangeNameOf.value = null;
-          return;
-        }
-
-        UserName? name;
-
-        try {
-          name = UserName(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          try {
-            s.status.value = RxStatus.loading();
-            s.editable.value = false;
-
-            await _contactService.changeContactName(
-              contactToChangeNameOf.value!,
-              name!,
-            );
-
-            s.clear();
-            contactToChangeNameOf.value = null;
-          } on UpdateChatContactNameException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.error.value = e.toString();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-      onSubmitted: (s) {
-        var contact = contacts.values.firstWhereOrNull(
-                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
-            favorites.firstWhereOrNull(
-                (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (contact?.contact.value.name.val == s.text) {
-          contactToChangeNameOf.value = null;
-          return;
-        }
-      },
-    );
 
     _initUsersUpdates();
 

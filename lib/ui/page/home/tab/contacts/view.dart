@@ -140,16 +140,6 @@ class ContactsTabView extends StatelessWidget {
                   onPressed: () => c.favoriteContact(contact.contact.value.id),
                 ),
           ContextMenuButton(
-            label: 'btn_rename'.l10n,
-            onPressed: () {
-              c.contactToChangeNameOf.value = contact.contact.value.id;
-              c.contactName.clear();
-              c.contactName.unchecked = contact.contact.value.name.val;
-              SchedulerBinding.instance.addPostFrameCallback(
-                  (_) => c.contactName.focus.requestFocus());
-            },
-          ),
-          ContextMenuButton(
             label: 'btn_delete_from_contacts'.l10n,
             onPressed: () => c.deleteFromContacts(contact.contact.value),
           ),

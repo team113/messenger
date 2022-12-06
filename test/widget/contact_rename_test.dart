@@ -14,9 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -24,48 +21,48 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/settings.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/domain/service/call.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/store/auth.dart';
-import 'package:messenger/store/call.dart';
-import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'contact_rename_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateMocks([GraphQlProvider])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
-  Hive.init('./test/.temp_hive/contact_rename_widget');
+  Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  var chatContacts = {
+  var sessionData = Get.put(SessionDataHiveProvider());
+  await sessionData.init();
+  await sessionData.clear();
+  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
+  await galleryItemProvider.init();
+  var userHiveProvider = Get.put(UserHiveProvider());
+  await userHiveProvider.init();
+  var contactProvider = Get.put(ContactHiveProvider());
+  await contactProvider.init();
+  await contactProvider.clear();
+  var chatHiveProvider = Get.put(ChatHiveProvider());
+  await chatHiveProvider.init();
+  final graphQlProvider = Get.put(MockGraphQlProvider());
+  when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+
+  setUp(() async {
+    Get.reset();
+    await sessionData.clear();
+    await contactProvider.clear();
+  });
+
+  var chatContactsData = {
     'nodes': [
       {
         '__typename': 'ChatContact',
@@ -76,98 +73,61 @@ void main() async {
         'emails': [],
         'phones': [],
         'favoritePosition': null,
-        'ver': '0'
+        'ver': '123456'
       }
     ],
     'ver': '0'
   };
 
-  var recentChats = {
-    'recentChats': {'nodes': []}
+  var updateChatContact = {
+    'updateChatContactName': {
+      '__typename': 'ChatContactEventsVersioned',
+      'events': [
+        {
+          '__typename': 'EventChatContactNameUpdated',
+          'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+          'name': 'newname',
+          'at': DateTime.now().toString(),
+        }
+      ],
+      'ver': '1',
+      'listVer': '1',
+    }
   };
 
-  var sessionProvider = Get.put(SessionDataHiveProvider());
-  await sessionProvider.init();
-  await sessionProvider.clear();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.clear();
-  contactProvider.init();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
-  await chatProvider.clear();
-  var settingsProvider = MediaSettingsHiveProvider();
-  await settingsProvider.init();
-  await settingsProvider.clear();
-  var draftProvider = Get.put(DraftHiveProvider());
-  await draftProvider.init();
-  await draftProvider.clear();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  Future<ContactService> init(GraphQlProvider graphQlProvider) async {
+    UserRepository userRepo =
+        UserRepository(graphQlProvider, userHiveProvider, galleryItemProvider);
 
-  var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
-  when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  AuthService authService = Get.put(
-    AuthService(
-      Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
-      sessionProvider,
-    ),
-  );
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
-  );
-
-  await authService.init();
-
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
-  Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(
-      theme: Themes.light(),
-      home: Builder(
-        builder: (BuildContext context) {
-          router.context = context;
-          return Scaffold(body: child);
-        },
+    AbstractContactRepository contactRepository =
+        Get.put<AbstractContactRepository>(
+      ContactRepository(
+        graphQlProvider,
+        contactProvider,
+        userRepo,
+        sessionData,
       ),
     );
+
+    return Get.put(ContactService(contactRepository));
   }
 
-  testWidgets('ContactsTabView successfully changes contact name',
-      (WidgetTester tester) async {
-    when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
-
-    final StreamController<QueryResult> contactEvents = StreamController();
-    when(graphQlProvider.contactsEvents(null)).thenAnswer((_) {
-      contactEvents.add(
+  test('ContactService successfully renames contact', () async {
+    when(graphQlProvider.contactsEvents(null)).thenAnswer(
+      (_) => Future.value(Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
           data: {
             'chatContactsEvents': {
               '__typename': 'ChatContactsList',
-              'chatContacts': chatContacts,
+              'chatContacts': chatContactsData,
               'favoriteChatContacts': {'nodes': []},
             }
           },
-        ),
-      );
-
-      return Future.value(contactEvents.stream);
-    });
+        )
+      ])),
+    );
 
     when(graphQlProvider.recentChats(
       first: 120,
@@ -175,115 +135,85 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
-    );
-
-    when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
-        IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
-    when(graphQlProvider.incomingCallsTopEvents(3))
+        (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+    when(graphQlProvider.keepOnline())
         .thenAnswer((_) => Future.value(const Stream.empty()));
 
-    when(graphQlProvider.changeContactName(
+    when(
+      graphQlProvider.changeContactName(
+        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+        UserName('newname'),
+      ),
+    ).thenAnswer(
+      (_) => Future.value(UpdateChatContactName$Mutation.fromJson(
+                  updateChatContact)
+              .updateChatContactName
+          as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
+    );
+
+    ContactService contactService = await init(graphQlProvider);
+
+    await contactService.changeContactName(
       const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       UserName('newname'),
-    )).thenAnswer((_) {
-      var event = {
-        '__typename': 'ChatContactEventsVersioned',
-        'events': [
-          {
-            '__typename': 'EventChatContactNameUpdated',
-            'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-            'name': 'newname',
-            'at': DateTime.now().toString(),
-          }
-        ],
-        'ver': '1',
-        'listVer': '1',
-      };
+    );
 
-      contactEvents.add(QueryResult.internal(
-        data: {'chatContactsEvents': event},
-        parserFn: (_) => null,
-        source: null,
-      ));
-
-      return Future.value(UpdateChatContactName$Mutation.fromJson(
-              {'updateChatContactName': event}).updateChatContactName
-          as ChatContactEventsVersionedMixin?);
-    });
-
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    Get.put(UserService(userRepository));
-
-    AbstractContactRepository contactRepository =
-        Get.put<AbstractContactRepository>(
-      ContactRepository(
-        graphQlProvider,
-        contactProvider,
-        userRepository,
-        sessionProvider,
+    verify(
+      graphQlProvider.changeContactName(
+        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+        UserName('newname'),
       ),
     );
-    Get.put(ContactService(contactRepository));
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        settingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider,
-      ),
-    );
-
-    CallRepository callRepository = CallRepository(
-      graphQlProvider,
-      userRepository,
-      credentialsProvider,
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
-    );
-
-    await tester
-        .pumpWidget(createWidgetForTesting(child: const ContactsTabView()));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.text('test'), findsOneWidget);
-    await tester.longPress(find.byType(ContextMenuRegion));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    await tester.tap(find.text('btn_rename'.l10n));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    await tester.enterText(
-        find.byKey(const Key('NewContactNameInput')), 'newname');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-
-    await tester.tap(find.byKey(const Key('ContactsTab')));
-
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.text('newname'), findsOneWidget);
-
-    await Get.deleteAll(force: true);
-
-    verify(graphQlProvider.changeContactName(
-      const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-      UserName('newname'),
-    ));
   });
 
-  await contactProvider.clear();
+  test('ContactService throws UpdateChatContactNameException on contact rename',
+      () async {
+    when(graphQlProvider.contactsEvents(null)).thenAnswer(
+      (_) => Future.value(Stream.fromIterable([
+        QueryResult.internal(
+          parserFn: (_) => null,
+          source: null,
+          data: {
+            'chatContactsEvents': {
+              '__typename': 'ChatContactsList',
+              'chatContacts': chatContactsData,
+              'favoriteChatContacts': {'nodes': []},
+            }
+          },
+        )
+      ])),
+    );
+
+    when(graphQlProvider.recentChats(
+            first: 120, after: null, last: null, before: null))
+        .thenAnswer(
+            (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+
+    when(
+      graphQlProvider.changeContactName(
+        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+        UserName('newname'),
+      ),
+    ).thenThrow(
+      const UpdateChatContactNameException(
+          UpdateChatContactNameErrorCode.unknownChatContact),
+    );
+
+    ContactService contactService = await init(graphQlProvider);
+
+    expect(
+      () async => await contactService.changeContactName(
+        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+        UserName('newname'),
+      ),
+      throwsA(isA<UpdateChatContactNameException>()),
+    );
+
+    verify(
+      graphQlProvider.changeContactName(
+        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+        UserName('newname'),
+      ),
+    );
+  });
 }
