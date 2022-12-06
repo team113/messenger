@@ -142,11 +142,8 @@ class UserRepository implements AbstractUserRepository {
   /// value.
   void updateDialog(UserId userId, Chat dialog) {
     HiveUser? hiveUser = _userLocal.get(userId);
-    if (hiveUser != null) {
+    if (hiveUser != null && hiveUser.value.dialog == null) {
       hiveUser.value.dialog = dialog;
-      users[userId]?.dialog.value = dialog;
-      users[userId]?.user.value.dialog = dialog;
-
       put(hiveUser, ignoreVersion: true);
     }
   }
@@ -216,6 +213,8 @@ class UserRepository implements AbstractUserRepository {
         } else {
           user.user.value = event.value.value;
           user.user.refresh();
+          user.dialog.value = user.user.value.dialog;
+          user.dialog.refresh();
         }
       }
     }
