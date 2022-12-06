@@ -28,6 +28,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
+        RedialChatCallMemberException,
         RemoveChatMemberException,
         TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
@@ -182,6 +183,20 @@ class ParticipantController extends GetxController {
       rethrow;
     } finally {
       status.value = RxStatus.empty();
+    }
+  }
+
+  /// Redials a specified [User] who left or declined the ongoing [ChatCall].
+  Future<void> redialChatCallMember(UserId memberId) async {
+    try {
+      await _callService.redialChatCallMember(chatId.value, memberId);
+
+      MessagePopup.success('label_participant_redial_successfully'.l10n);
+    } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

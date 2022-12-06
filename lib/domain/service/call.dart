@@ -289,6 +289,15 @@ class CallService extends DisposableService {
     }
   }
 
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    Rx<OngoingCall>? call = _callsRepo[chatId];
+    if (call != null) {
+      await _callsRepo.redialChatCallMember(chatId, memberId);
+    }
+  }
+
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(

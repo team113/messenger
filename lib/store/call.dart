@@ -135,6 +135,10 @@ class CallRepository implements AbstractCallRepository {
       _graphQlProvider.toggleChatCallHand(chatId, raised);
 
   @override
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) =>
+      _graphQlProvider.redialChatCallMember(chatId, memberId);
+
+  @override
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
     List<UserId> additionalMemberIds,

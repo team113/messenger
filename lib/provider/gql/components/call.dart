@@ -408,6 +408,52 @@ abstract class CallGraphQlMixin {
         as ChatCallEventsVersionedMixin?);
   }
 
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  ///
+  /// For using this mutation the authenticated [MyUser] must be a member of the
+  /// ongoing [ChatCall].
+  ///
+  /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
+  /// and the ongoing [ChatCall] appearing in his [Query.incomingChatCallsTop]
+  /// and [Subscription.incomingChatCallsTopEvents] again.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [ChatCallEvent]s may be produced on success:
+  /// - [EventChatCallMemberRedialed].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the redialed [User]
+  /// didn't decline or leave the [ChatCall] yet, or has been redialed already.
+  Future<ChatCallEventsVersionedMixin?> redialChatCallMember(
+    ChatId chatId,
+    UserId memberId,
+  ) async {
+    final variables = RedialChatCallMemberArguments(
+      chatId: chatId,
+      memberId: memberId,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'RedialChatCallMember',
+        document: RedialChatCallMemberMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => RedialChatCallMemberException(
+          (RedialChatCallMember$Mutation.fromJson(data).redialChatCallMember
+                  as RedialChatCallMember$Mutation$RedialChatCallMember$RedialChatCallMemberError)
+              .code),
+    );
+    return (RedialChatCallMember$Mutation.fromJson(result.data!)
+        .redialChatCallMember as ChatCallEventsVersionedMixin?);
+  }
+
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   ///
