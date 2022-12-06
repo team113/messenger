@@ -186,7 +186,7 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Redials a specified [User] who left or declined the ongoing [ChatCall].
+  /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
   Future<void> redialChatCallMember(UserId memberId) async {
     try {
       await _callService.redialChatCallMember(chatId.value, memberId);
