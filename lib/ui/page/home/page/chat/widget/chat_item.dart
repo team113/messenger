@@ -1347,8 +1347,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: 'btn_copy'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
-                                width: 14.82,
-                                height: 17,
+                                height: 12,
                               ),
                               onPressed: () => widget.onCopy?.call(copyable!),
                             ),
@@ -1358,8 +1357,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: 'btn_reply'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
+                                height: 12,
                               ),
                               onPressed: widget.onReply,
                             ),
@@ -1369,8 +1367,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_forward'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/forward.svg',
-                                  width: 18.8,
-                                  height: 16,
+                                  height: 12,
                                 ),
                                 onPressed: () async {
                                   await ChatForwardView.show(
@@ -1391,8 +1388,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_edit'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
+                                  height: 12,
                                 ),
                                 onPressed: widget.onEdit,
                               ),
@@ -1401,8 +1397,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: 'btn_delete'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
+                                height: 12,
                               ),
                               onPressed: () async {
                                 bool deletable = _fromMe &&

@@ -571,9 +571,78 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            constraints: const BoxConstraints(minHeight: 76),
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              border: style.cardBorder,
+              color: Colors.transparent,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: style.cardRadius,
+              color: style.cardColor.darken(0.05),
+              child: InkWell(
+                borderRadius: style.cardRadius,
+                onTap: () {},
+                hoverColor: const Color.fromARGB(255, 244, 249, 255),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  child: Row(
+                    children: [
+                      const AvatarWidget(radius: 30),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Добавить в группу',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // const SizedBox(height: 6),
+          // _dense(
+          //   WidgetButton(
+          //     onPressed: () {},
+          //     child: IgnorePointer(
+          //       child: ReactiveTextField(
+          //         state: TextFieldState(
+          //           text: 'Добавить в группу',
+          //           editable: false,
+          //         ),
+          //         trailing: Transform.translate(
+          //           offset: const Offset(0, -1),
+          //           child: Transform.scale(
+          //             scale: 1.15,
+          //             child: SvgLoader.asset(
+          //               'assets/icons/delete.svg',
+          //               height: 14,
+          //             ),
+          //           ),
+          //         ),
+          //         style:
+          //             TextStyle(color: Theme.of(context).colorScheme.secondary),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 10),
           ...members.map((e) {
             return ContactTile(
               user: e,

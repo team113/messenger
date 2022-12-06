@@ -111,6 +111,7 @@ class MyProfileController extends GetxController {
   final GlobalKey outputKey = GlobalKey();
 
   final FlutterListViewController listController = FlutterListViewController();
+  int listInitIndex = 0;
 
   late final Rx<OngoingCall> call;
 
@@ -228,8 +229,33 @@ class MyProfileController extends GetxController {
   /// Returns ID of the currently used output device.
   RxnString get output => call.value.outputDevice;
 
+  Worker? _profileWorker;
+
   @override
   void onInit() {
+    listInitIndex = router.profileTab.value?.index ?? 0;
+
+    bool ignoreWorker = false;
+
+    _profileWorker = ever(
+      router.profileTab,
+      (ProfileTab? tab) {
+        if (ignoreWorker) {
+          ignoreWorker = false;
+        } else {
+          listController.sliverController.jumpToIndex(tab?.index ?? 0);
+        }
+      },
+    );
+
+    listController.sliverController.onPaintItemPositionsCallback =
+        (height, positions) {
+      if (positions.isNotEmpty) {
+        ignoreWorker = true;
+        router.profileTab.value = ProfileTab.values[positions.first.index];
+      }
+    };
+
     _worker = ever(
       _myUserService.myUser,
       (MyUser? v) {

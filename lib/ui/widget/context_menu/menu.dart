@@ -14,8 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 import '/themes.dart';
 
@@ -24,45 +28,53 @@ class ContextMenu extends StatelessWidget {
   const ContextMenu({
     Key? key,
     required this.actions,
-    this.width = 220,
+    this.width,
   }) : super(key: key);
 
   /// List of [ContextMenuButton]s to display in this [ContextMenu].
   final List<ContextMenuButton> actions;
 
-  final double width;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = [];
 
+    int length = 0;
+
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(actions[i]);
 
+      length = max(actions[i].label.length, length);
+
       // Adds a divider if required.
-      if (i < actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
-      }
+      // if (i < actions.length - 1) {
+      //   widgets.add(
+      //     const SizedBox(height: 8),
+      //     // Container(
+      //     //   color: const Color(0x11000000),
+      //     //   // color: const Color(0xFF202020),
+      //     //   height: 1,
+      //     //   width: double.infinity,
+      //     // ),
+      //   );
+      // }
     }
 
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
-      width: width,
+      // width: (length * 15),
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
+        // color: const Color(0xFF3A3A3A),
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
+        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
         boxShadow: const [
-          CustomBoxShadow(
-            blurRadius: 8,
+          BoxShadow(
+            blurRadius: 12,
             color: Color(0x33000000),
             blurStyle: BlurStyle.outer,
           )
@@ -70,10 +82,16 @@ class ContextMenu extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: widgets,
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 6),
+              ...widgets,
+              const SizedBox(height: 6),
+            ],
+          ),
         ),
       ),
     );
@@ -116,6 +134,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -126,46 +146,88 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          margin: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
           width: double.infinity,
-          height: 50,
+          // height: 26,
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
             color: isMouseOver
-                ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
+                // ? Colors.white.withOpacity(0.1)
+                // ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
+                ? Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.leading != null) ...[
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                  ),
-                  child: widget.leading!,
-                ),
-                const SizedBox(width: 14),
-              ],
-              Expanded(
-                child: Text(
-                  widget.label,
-                  style: context.theme.outlinedButtonTheme.style!.textStyle!
-                      .resolve({MaterialState.disabled})!
-                      .copyWith(color: Colors.black)
-                      .merge(widget.style),
-                ),
+              Text(
+                widget.label,
+                style: style.boldBody
+                    .copyWith(
+                      color: isMouseOver ? Colors.white : Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    )
+                    .merge(widget.style),
               ),
-              if (widget.trailing != null) ...[
-                const SizedBox(width: 14),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                  ),
-                  child: widget.trailing!,
-                ),
-              ],
+              // if (widget.trailing != null) ...[
+              //   const Spacer(),
+              //   const SizedBox(width: 14),
+              //   Theme(
+              //     data: Theme.of(context).copyWith(
+              //       iconTheme: const IconThemeData(color: Colors.blue),
+              //     ),
+              //     child: widget.trailing!,
+              //   ),
+              // ],
             ],
           ),
+          // child: Text(
+          //   widget.label,
+          //   style: style.boldBody
+          //       .copyWith(
+          //         color: isMouseOver ? Colors.white : Colors.black,
+          //         fontSize: 14,
+          //         fontWeight: FontWeight.w500,
+          //       )
+          //       .merge(widget.style),
+          // ),
+          // child: Row(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: [
+          //     // if (widget.leading != null) ...[
+          //     //   Theme(
+          //     //     data: Theme.of(context).copyWith(
+          //     //       iconTheme: const IconThemeData(color: Colors.blue),
+          //     //     ),
+          //     //     child: widget.leading!,
+          //     //   ),
+          //     //   const SizedBox(width: 14),
+          //     // ],
+          //     Expanded(
+          //       child: Text(
+          //         widget.label,
+          //         style: style.boldBody
+          //             .copyWith(
+          //               color: isMouseOver ? Colors.white : Colors.black,
+          //               fontSize: 14,
+          //               fontWeight: FontWeight.w500,
+          //             )
+          //             .merge(widget.style),
+          //       ),
+          //     ),
+          //   if (widget.trailing != null) ...[
+          //     const SizedBox(width: 14),
+          //     Theme(
+          //       data: Theme.of(context).copyWith(
+          //         iconTheme: const IconThemeData(color: Colors.blue),
+          //       ),
+          //       child: widget.trailing!,
+          //     ),
+          //   ],
+          // ],
+          // ),
         ),
       ),
     );
