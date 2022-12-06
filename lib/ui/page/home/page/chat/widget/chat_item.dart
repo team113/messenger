@@ -46,7 +46,7 @@ import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -200,20 +200,12 @@ class ChatItemWidget extends StatefulWidget {
     } else {
       attachment = KeyedSubtree(
         key: const Key('SentImage'),
-        child: Image.network(
+        child: RetryImage(
           (e as ImageAttachment).big.url,
           key: key,
           fit: BoxFit.cover,
           height: 300,
-          errorBuilder: (_, __, ___) {
-            return InitCallback(
-              callback: onError,
-              child: const SizedBox.square(
-                dimension: 300,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            );
-          },
+          onForbidden: onError,
         ),
       );
     }
@@ -1042,13 +1034,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? Colors.white.withOpacity(0.25)
                       : Colors.black.withOpacity(0.03),
                   borderRadius: BorderRadius.circular(10),
-                  image: image == null
-                      ? null
-                      : DecorationImage(
-                          image: NetworkImage(image.medium.url),
-                          onError: (_, __) => widget.onAttachmentError?.call(),
-                          fit: BoxFit.cover,
-                        ),
                 ),
                 width: 50,
                 height: 50,
@@ -1058,7 +1043,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
                         size: 28,
                       )
-                    : null,
+                    : RetryImage(
+                        image.medium.url,
+                        onForbidden: widget.onAttachmentError,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
               );
             })
             .take(3)

@@ -17,9 +17,11 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -29,6 +31,7 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -36,8 +39,14 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
+    show
+        FavoriteChatException,
+        HideChatException,
+        RemoveChatMemberException,
+        ToggleChatMuteException,
+        UnfavoriteChatException;
 import '/routes.dart';
+import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
@@ -51,10 +60,17 @@ class ChatsTabController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._contactService,
   );
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
+
+  /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
+  final Rx<SearchController?> search = Rx(null);
+
+  /// [ListElement]s representing the [search] results visually.
+  final RxList<ListElement> elements = RxList([]);
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -68,8 +84,15 @@ class ChatsTabController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [ChatContact]s service used by a [SearchController].
+  final ContactService _contactService;
+
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
+
+  /// Subscription for [SearchController.chats], [SearchController.users] and
+  /// [SearchController.contacts] changes updating the [elements].
+  StreamSubscription? _searchSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -106,7 +129,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortChats();
           break;
       }
     });
@@ -121,7 +144,33 @@ class ChatsTabController extends GetxController {
     }
     _chatsSubscription.cancel();
 
+    _searchSubscription?.cancel();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    search.value?.onClose();
+
     super.onClose();
+  }
+
+  // TODO: No [Chat] should be created.
+  /// Opens a [Chat]-dialog with this [user].
+  ///
+  /// Creates a new one if it doesn't exist.
+  Future<void> openChat({
+    RxUser? user,
+    RxChatContact? contact,
+    RxChat? chat,
+  }) async {
+    if (chat != null) {
+      router.chat(chat.chat.value.id);
+    } else {
+      user ??= contact?.user.value;
+
+      if (user != null) {
+        Chat? dialog = user.user.value.dialog;
+        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
+        router.chat(dialog.id);
+      }
+    }
   }
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
@@ -200,6 +249,30 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Marks the specified [Chat] identified by its [id] as favorited.
+  Future<void> favoriteChat(ChatId id) async {
+    try {
+      await _chatService.favoriteChat(id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [Chat] identified by its [id] from the favorites.
+  Future<void> unfavoriteChat(ChatId id) async {
+    try {
+      await _chatService.unfavoriteChat(id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -212,6 +285,61 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
+  /// Enables and initializes or disables and disposes the [search].
+  void toggleSearch([bool enable = true]) {
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    _searchSubscription?.cancel();
+
+    if (enable) {
+      search.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.chat,
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _searchSubscription = StreamGroup.merge([
+        search.value!.chats.stream,
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        if (search.value?.chats.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxChat c in search.value!.chats.values) {
+            elements.add(ChatElement(c));
+          }
+        }
+
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
+      search.value!.search.focus.requestFocus();
+    } else {
+      search.value = null;
+      elements.clear();
+    }
+  }
+
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
@@ -223,8 +351,28 @@ class ChatsTabController extends GetxController {
         return 1;
       }
 
+      if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition == null) {
+        return -1;
+      } else if (a.chat.value.favoritePosition == null &&
+          b.chat.value.favoritePosition != null) {
+        return 1;
+      } else if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition != null) {
+        return a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!);
+      }
+
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      toggleSearch(false);
+    }
   }
 }
 
@@ -261,4 +409,41 @@ class _ChatSortingData {
 
   /// Disposes this [_ChatSortingData].
   void dispose() => worker.dispose();
+}
+
+/// Element to display in a [ListView].
+abstract class ListElement {
+  const ListElement();
+}
+
+/// [ListElement] representing a [RxChat].
+class ChatElement extends ListElement {
+  const ChatElement(this.chat);
+
+  /// [RxChat] itself.
+  final RxChat chat;
+}
+
+/// [ListElement] representing a [RxChatContact].
+class ContactElement extends ListElement {
+  const ContactElement(this.contact);
+
+  /// [RxChatContact] itself.
+  final RxChatContact contact;
+}
+
+/// [ListElement] representing a [RxUser].
+class UserElement extends ListElement {
+  const UserElement(this.user);
+
+  /// [RxUser] itself.
+  final RxUser user;
+}
+
+/// [ListElement] representing a visual divider of the provided [category].
+class DividerElement extends ListElement {
+  const DividerElement(this.category);
+
+  /// [SearchCategory] of this [DividerElement].
+  final SearchCategory category;
 }

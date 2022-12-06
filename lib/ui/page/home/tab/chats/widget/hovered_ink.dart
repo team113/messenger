@@ -16,6 +16,9 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
+
 /// [InkWell] button decorated differently based on the [selected] indicator.
 ///
 /// Used to bypass [InkWell] incorrect behaviour when changing its
@@ -32,6 +35,7 @@ class InkWellWithHover extends StatefulWidget {
     this.hoveredBorder,
     this.borderRadius,
     this.onTap,
+    this.folded = false,
     required this.child,
   }) : super(key: key);
 
@@ -62,6 +66,9 @@ class InkWellWithHover extends StatefulWidget {
   /// Callback, called when this [InkWellWithHover] is pressed.
   final void Function()? onTap;
 
+  /// Indicator whether this [InkWellWithHover] should have its corner folded.
+  final bool folded;
+
   /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
 
@@ -76,30 +83,80 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      position: DecorationPosition.foreground,
-      decoration: BoxDecoration(
-        borderRadius: widget.borderRadius,
-        border: hovered ? widget.hoveredBorder : widget.border,
-      ),
-      child: Material(
-        type: MaterialType.card,
-        borderRadius: widget.borderRadius,
-        color: hovered
-            ? widget.selected
-                ? widget.selectedHoverColor
-                : widget.unselectedHoverColor
-            : widget.selected
-                ? widget.selectedColor
-                : widget.unselectedColor,
-        child: InkWell(
+    return ClipPath(
+      clipper:
+          widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: BoxDecoration(
           borderRadius: widget.borderRadius,
-          onTap: widget.onTap?.call,
-          onHover: (v) => setState(() => hovered = v),
-          hoverColor: Colors.transparent,
-          child: widget.child,
+          border: hovered ? widget.hoveredBorder : widget.border,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: widget.borderRadius,
+          color: hovered
+              ? widget.selected
+                  ? widget.selectedHoverColor
+                  : widget.unselectedHoverColor
+              : widget.selected
+                  ? widget.selectedColor
+                  : widget.unselectedColor,
+          child: InkWell(
+            borderRadius: widget.borderRadius,
+            onTap: widget.onTap?.call,
+            onHover: (v) => setState(() => hovered = v),
+            hoverColor: Colors.transparent,
+            child: Stack(
+              children: [
+                Center(child: widget.child),
+                if (widget.folded)
+                  Container(
+                    width: widget.borderRadius?.topLeft.y ?? 10,
+                    height: widget.borderRadius?.topLeft.y ?? 10,
+                    decoration: BoxDecoration(
+                      color: hovered
+                          ? widget.hoveredBorder!.top.color.darken(0.1)
+                          : widget.border!.top.color.darken(0.1),
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(4),
+                      ),
+                      boxShadow: const [
+                        CustomBoxShadow(
+                          color: Color(0xFFC0C0C0),
+                          blurStyle: BlurStyle.outer,
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+/// [CustomClipper] clipping a top-left corner.
+class _Clipper extends CustomClipper<Path> {
+  const _Clipper(this.radius);
+
+  /// Radius of the corner being clipped.
+  final double radius;
+
+  @override
+  Path getClip(Size size) {
+    final path = Path()
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..lineTo(0, radius)
+      ..lineTo(radius, 0);
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }

@@ -423,6 +423,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callRepository,
                   Get.find(),
                   userRepository,
+                  Get.find(),
                   me: me,
                 ),
               );
@@ -521,6 +522,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 callRepository,
                 Get.find(),
                 userRepository,
+                Get.find(),
                 me: me,
               ),
             );
