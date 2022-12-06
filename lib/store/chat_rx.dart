@@ -62,6 +62,7 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         cursor = hiveChat.cursor,
+        _lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
@@ -89,14 +90,17 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
+  @override
+  bool hasNextPage = true;
+
+  @override
+  bool hasPreviousPage = true;
+
   /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
 
-  /// Indicator whether the [messages] has next page.
-  bool _hasNextPage = true;
-
-  /// Indicator whether the [messages] has previous page.
-  bool _hasPreviousPage = true;
+  /// Cursor of the last read [ChatItem].
+  final ChatItemsCursor? _lastReadItemCursor;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -119,7 +123,7 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
-  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
+  /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
 
   /// [ChatItemHiveProvider.boxEvents] subscription.
@@ -141,7 +145,7 @@ class HiveRxChat extends RxChat {
   final List<ChatItem> _pending = [];
 
   /// Size of the [ChatItems]s page.
-  final int _pageSize = 120;
+  final int _pageSize = 20;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -279,20 +283,18 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    ChatItemsCursor? cursor = chat.value.lastReadItem?.cursor;
-
     ChatItemsQuery itemsQuery;
-    if (cursor != null) {
+    if (_lastReadItemCursor != null) {
       itemsQuery = await _chatRepository.messages(
         chat.value.id,
-        after: cursor,
+        after: _lastReadItemCursor,
         first: _pageSize ~/ 2 - 1,
-        before: cursor,
+        before: _lastReadItemCursor,
         last: _pageSize ~/ 2 - 1,
       );
       if (itemsQuery.pageInfo != null) {
-        _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
-        _hasPreviousPage = itemsQuery.pageInfo!.hasPreviousPage;
+        hasNextPage = itemsQuery.pageInfo!.hasNextPage;
+        hasPreviousPage = itemsQuery.pageInfo!.hasPreviousPage;
       }
     } else {
       itemsQuery = await _chatRepository.messages(
@@ -300,9 +302,9 @@ class HiveRxChat extends RxChat {
         first: _pageSize,
       );
       if (itemsQuery.pageInfo != null) {
-        _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
+        hasNextPage = itemsQuery.pageInfo!.hasNextPage;
       }
-      _hasPreviousPage = false;
+      hasPreviousPage = false;
     }
 
     return _guard.protect(() async {
@@ -311,14 +313,18 @@ class HiveRxChat extends RxChat {
           int i =
               itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
           if (i == -1) {
-            _local.remove(item.value.timestamp);
+            if (!item.value.at.isBefore(itemsQuery.items.last.value.at)) {
+              _local.remove(item.value.timestamp);
+            } else {
+              messages.remove(item);
+            }
           }
         }
       }
 
       for (HiveChatItem item in itemsQuery.items) {
         if (item.value.chatId == id) {
-          put(item);
+          put(item, ignoreVersion: true);
         } else {
           _chatRepository.putChatItem(item);
         }
@@ -329,8 +335,8 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> fetchNextPage() async {
-    if (messages.isEmpty || !_hasNextPage) {
+  FutureOr<void> fetchNextPage() async {
+    if (messages.isEmpty || !hasNextPage) {
       return;
     }
 
@@ -368,7 +374,7 @@ class HiveRxChat extends RxChat {
     );
 
     if (itemsQuery.pageInfo != null) {
-      _hasNextPage = itemsQuery.pageInfo!.hasNextPage;
+      hasNextPage = itemsQuery.pageInfo!.hasNextPage;
     }
 
     return _guard.protect(() async {
@@ -377,8 +383,13 @@ class HiveRxChat extends RxChat {
           if (item.value.status.value == SendingStatus.sent) {
             int i =
                 itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
-            if (i == -1) {
-              _local.remove(item.value.timestamp);
+            if (i == -1 &&
+                !item.value.at.isBefore(itemsQuery.items.last.value.at)) {
+              if (!item.value.at.isBefore(itemsQuery.items.last.value.at)) {
+                _local.remove(item.value.timestamp);
+              } else {
+                messages.removeWhere((e) => e.value.id == item.value.id);
+              }
             }
           }
         }
@@ -395,8 +406,8 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> fetchPreviousPage() async {
-    if (messages.isEmpty || !_hasPreviousPage) {
+  FutureOr<void> fetchPreviousPage() async {
+    if (messages.isEmpty || !hasPreviousPage) {
       return;
     }
 
@@ -416,7 +427,7 @@ class HiveRxChat extends RxChat {
     );
 
     if (itemsQuery.pageInfo != null) {
-      _hasPreviousPage = itemsQuery.pageInfo!.hasNextPage;
+      hasPreviousPage = itemsQuery.pageInfo!.hasNextPage;
     }
 
     return _guard.protect(() async {

@@ -61,12 +61,7 @@ extension ChatConversion on ChatMixin {
             lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
         lastDelivery: lastDelivery,
         lastItem: lastItem?.toHive().first.value,
-        lastReadItem: lastReadItem != null
-            ? LastReadItem(
-                lastReadItem!.toHive().first.value,
-                lastReadItem!.toHive().first.cursor,
-              )
-            : null,
+        lastReadItem: lastReadItem?.toHive().first.value,
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),

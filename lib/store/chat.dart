@@ -151,15 +151,15 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    HashMap<ChatId, ChatData> chats = await _fetchChats(first: _pageSize);
+    HashMap<ChatId, ChatData> fetched = await _fetchChats(first: _pageSize);
 
     for (ChatId id in _chats.keys) {
-      if (!chats.containsKey(id)) {
+      if (!fetched.containsKey(id)) {
         _chatLocal.remove(id);
       }
     }
 
-    for (ChatData c in chats.values) {
+    for (ChatData c in fetched.values) {
       _chats[c.chat.value.id]?.subscribe();
       _putEntry(c);
     }

@@ -189,7 +189,7 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
-  /// Indicator whether a new page of [ChatItem]s is fetching.
+  /// Indicator whether a new page of [RxChat.messages] is fetching.
   bool _isFetchingMore = false;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
@@ -233,6 +233,9 @@ class ChatController extends GetxController {
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
+
+  /// Currently displayed [FetchingElement] in the [elements] list.
+  FetchingElement? _fetchingElement;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
@@ -1194,6 +1197,7 @@ class ChatController extends GetxController {
     if (listController.hasClients) {
       _updateSticky();
       _updateFabStates();
+      _fetchNextMessages();
     }
   }
 
@@ -1201,21 +1205,6 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (!_isFetchingMore &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height + 200) {
-        _isFetchingMore = true;
-        chat?.fetchNextPage().whenComplete(() => _isFetchingMore = false);
-      }
-
-      if (!_isFetchingMore &&
-          listController.position.pixels >
-              listController.position.maxScrollExtent -
-                  (MediaQuery.of(router.context!).size.height * 3 + 200)) {
-        _isFetchingMore = true;
-        chat?.fetchPreviousPage().whenComplete(() => _isFetchingMore = false);
-      }
-
       if (listController.position.pixels <
           listController.position.maxScrollExtent -
               MediaQuery.of(router.context!).size.height * 2 +
@@ -1246,6 +1235,47 @@ class ChatController extends GetxController {
             offset != null && listController.offset - offset < 35;
       }
     });
+  }
+
+  /// Fetches next page of the [RxChat.messages] based on the
+  /// [FlutterListViewController.position] value.
+  void _fetchNextMessages() async {
+    if (listController.hasClients &&
+        !_ignorePositionChanges &&
+        !_isFetchingMore) {
+      if (chat?.hasNextPage == true &&
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height * 2 + 200) {
+        _isFetchingMore = true;
+
+        _fetchingElement = FetchingElement.top();
+        elements[_fetchingElement!.id] = _fetchingElement!;
+
+        await chat?.fetchNextPage();
+
+        elements.remove(_fetchingElement!.id);
+        _fetchingElement = null;
+
+        _isFetchingMore = false;
+      }
+
+      if (chat?.hasPreviousPage == true &&
+          listController.position.pixels >
+              listController.position.maxScrollExtent -
+                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+        _isFetchingMore = true;
+
+        _fetchingElement = FetchingElement.bottom();
+        elements[_fetchingElement!.id] = _fetchingElement!;
+
+        await chat?.fetchPreviousPage();
+
+        elements.remove(_fetchingElement!.id);
+        _fetchingElement = null;
+
+        _isFetchingMore = false;
+      }
+    }
   }
 
   /// Initializes the [_audioPlayer].
@@ -1474,6 +1504,25 @@ class DateTimeElement extends ListElement {
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('1')));
+}
+
+/// [ListElement] representing a fetching indicator.
+class FetchingElement extends ListElement {
+  FetchingElement.bottom()
+      : super(
+          ListElementId(
+            PreciseDateTime.now().add(1.days),
+            const ChatItemId('0'),
+          ),
+        );
+
+  FetchingElement.top()
+      : super(
+          ListElementId(
+            PreciseDateTime.fromMillisecondsSinceEpoch(0),
+            const ChatItemId('0'),
+          ),
+        );
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.

@@ -662,6 +662,8 @@ class _ChatViewState extends State<ChatView>
       return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
+    } else if(element is FetchingElement) {
+      return _fetchingIndicator(context);
     }
 
     return const SizedBox();
@@ -2073,6 +2075,25 @@ class _ChatViewState extends State<ChatView>
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
         ),
+      ),
+    );
+  }
+
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _fetchingIndicator(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }

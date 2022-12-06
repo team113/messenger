@@ -20,7 +20,6 @@ import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;
-import '/store/model/chat_item.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat_call.dart';
@@ -136,7 +135,7 @@ class Chat extends HiveObject {
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
   @HiveField(13)
-  LastReadItem? lastReadItem;
+  ChatItem? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
   @HiveField(14)
@@ -238,20 +237,6 @@ class LastChatRead {
   /// [PreciseDateTime] when the [Chat] was read last time.
   @HiveField(1)
   PreciseDateTime at;
-}
-
-/// Last [ChatItem] read by the authenticated [MyUser] in chat.
-@HiveType(typeId: ModelTypeId.lastReadItem)
-class LastReadItem {
-  LastReadItem(this.chatItem, this.cursor);
-
-  /// [ChatItem] of this [LastReadItem].
-  @HiveField(0)
-  ChatItem chatItem;
-
-  /// [ChatItemsCursor] of the [chatItem].
-  @HiveField(1)
-  ChatItemsCursor cursor;
 }
 
 /// Unique ID of a [Chat].

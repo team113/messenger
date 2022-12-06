@@ -232,14 +232,20 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
+  /// Returns indicator whether the [messages] has next page.
+  bool get hasNextPage;
+
+  /// Returns indicator whether the [messages] has previous page.
+  bool get hasPreviousPage;
+
   /// Fetches initial page of the [messages] from the service.
   Future<void> fetchMessages();
 
   /// Fetches next page of the [messages] from the service.
-  Future<void> fetchNextPage();
+  FutureOr<void> fetchNextPage();
 
   /// Fetches previous page of the [messages] from the service.
-  Future<void> fetchPreviousPage();
+  FutureOr<void> fetchPreviousPage();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

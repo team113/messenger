@@ -79,7 +79,6 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
-    Hive.maybeRegisterAdapter(LastReadItemAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
