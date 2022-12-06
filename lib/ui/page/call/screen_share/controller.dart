@@ -28,9 +28,9 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of a [ScreenShareSelector].
-class ScreenShareSelectorController extends GetxController {
-  ScreenShareSelectorController(
+/// Controller of a [ScreenShareView].
+class ScreenShareController extends GetxController {
+  ScreenShareController(
     this._callService, {
     required this.chatId,
     required this.displays,
@@ -125,9 +125,10 @@ class ScreenShareSelectorController extends GetxController {
     List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
       _mediaStreamSettings(display.deviceId()),
     );
+
     _localTracks.addAll(tracks);
 
-    RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
+    final RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
     await renderer.initialize();
     renderer.srcObject = tracks.first.getTrack();
 

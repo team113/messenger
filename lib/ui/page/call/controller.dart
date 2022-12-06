@@ -47,8 +47,8 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'participant/view.dart';
+import 'screen_share/view.dart';
 import 'settings/view.dart';
-import 'widget/screen_share_selector/view.dart';
 
 export 'view.dart';
 
@@ -869,15 +869,14 @@ class CallController extends GetxController {
   Future<void> toggleScreenShare(BuildContext context) async {
     keepUi();
 
-    LocalTrackState screenShareState =
-        _currentCall.value.screenShareState.value;
-    if (screenShareState == LocalTrackState.enabled ||
-        screenShareState == LocalTrackState.enabling) {
+    final LocalTrackState state = _currentCall.value.screenShareState.value;
+
+    if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
         String? deviceId;
-        await ScreenShareSelector.show(
+        await ScreenShareView.show(
           context,
           chatId: chatId,
           displays: _currentCall.value.displays,

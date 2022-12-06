@@ -28,27 +28,27 @@ import 'controller.dart';
 /// View for selecting display for screen sharing.
 ///
 /// Intended to be displayed with the [show] method.
-class ScreenShareSelector extends StatelessWidget {
-  const ScreenShareSelector({
+class ScreenShareView extends StatelessWidget {
+  const ScreenShareView({
     Key? key,
     required this.chatId,
     required this.displays,
     this.onProceed,
   }) : super(key: key);
 
-  /// ID of a [Chat] this [ScreenShareSelector] is bound to.
+  /// ID of a [Chat] this [ScreenShareView] is bound to.
   final Rx<ChatId> chatId;
 
   /// Available [MediaDisplayInfo]s for screen sharing.
   final RxList<MediaDisplayInfo> displays;
 
-  /// Callback, called when this [ScreenShareSelector] is submitted.
+  /// Callback, called when this [ScreenShareView] is submitted.
   final void Function(MediaDisplayInfo display)? onProceed;
 
   /// Size of the biggest side of a [RtcVideoView].
   static const double videoSize = 200;
 
-  /// Displays a [ScreenShareSelector] wrapped in a [ModalPopup].
+  /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<ChatId> chatId,
@@ -57,7 +57,7 @@ class ScreenShareSelector extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
-      child: ScreenShareSelector(
+      child: ScreenShareView(
         chatId: chatId,
         displays: displays,
         onProceed: onProceed,
@@ -73,13 +73,13 @@ class ScreenShareSelector extends StatelessWidget {
     );
 
     return GetBuilder(
-      init: ScreenShareSelectorController(
+      init: ScreenShareController(
         Get.find(),
         chatId: chatId,
         displays: displays,
         pop: Navigator.of(context).pop,
       ),
-      builder: (ScreenShareSelectorController c) {
+      builder: (ScreenShareController c) {
         return Obx(() {
           return ConfirmDialog(
             title: 'label_start_screen_sharing'.l10n,
