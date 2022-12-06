@@ -43,7 +43,7 @@ btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
 btn_away = Отошёл
 btn_back = Назад
-btn_blacklist = Добавить в черный список
+btn_blacklist = Заблокировать
 btn_call_answer_with_audio =
     Ответить
     только аудио
@@ -175,7 +175,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
-btn_unblacklist = Удалить из черного списка
+btn_unblacklist = Разблокировать
 btn_unmute_chat = Включить уведомления
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение

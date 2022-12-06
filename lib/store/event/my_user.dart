@@ -28,11 +28,12 @@ import '/provider/hive/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
-  addedToBlacklist,
   avatarDeleted,
   avatarUpdated,
   bioDeleted,
   bioUpdated,
+  blacklistRecordAdded,
+  blacklistRecordRemoved,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -53,7 +54,6 @@ enum MyUserEventKind {
   phoneConfirmed,
   phoneDeleted,
   presenceUpdated,
-  removedFromBlacklist,
   statusDeleted,
   statusUpdated,
   unmuted,
@@ -374,32 +374,29 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
 }
 
-/// Event of an [User] was added to the [MyUser]'s blacklist.
-class EventBlacklistRecordAdded extends MyUserEvent {
-  const EventBlacklistRecordAdded(UserId userId, this.user, this.at)
-      : super(userId);
+/// Event of a [User] being added or removed to/from blacklist of the [MyUser].
+abstract class BlacklistEvent extends MyUserEvent {
+  const BlacklistEvent(super.userId, this.user, this.at);
 
-  /// [User] being added to the blacklist.
+  /// [User] this [BlacklistEvent] is about.
   final HiveUser user;
 
-  /// [DateTime] when the [user] was added to the blacklist.
+  /// [PreciseDateTime] when this [BlacklistEvent] happened.
   final PreciseDateTime at;
+}
+
+/// Event of an [User] was added to the [MyUser]'s blacklist.
+class EventBlacklistRecordAdded extends BlacklistEvent {
+  const EventBlacklistRecordAdded(super.userId, super.user, super.at);
 
   @override
-  MyUserEventKind get kind => MyUserEventKind.addedToBlacklist;
+  MyUserEventKind get kind => MyUserEventKind.blacklistRecordAdded;
 }
 
 /// Event of an [User] was removed from the [MyUser]'s blacklist.
-class EventBlacklistRecordRemoved extends MyUserEvent {
-  const EventBlacklistRecordRemoved(UserId userId, this.user, this.at)
-      : super(userId);
-
-  /// [User] being removed from the blacklist.
-  final HiveUser user;
-
-  /// [DateTime] when the [user] was removed from the blacklist.
-  final PreciseDateTime at;
+class EventBlacklistRecordRemoved extends BlacklistEvent {
+  const EventBlacklistRecordRemoved(super.userId, super.user, super.at);
 
   @override
-  MyUserEventKind get kind => MyUserEventKind.removedFromBlacklist;
+  MyUserEventKind get kind => MyUserEventKind.blacklistRecordRemoved;
 }

@@ -187,15 +187,11 @@ class UserController extends GetxController {
     }
   }
 
-  /// Blacklists the [user].
-  Future<void> blacklist() async {
-    _userService.blacklistUser(id);
-  }
+  /// Blacklists the [user] for the authenticated [MyUser].
+  Future<void> blacklist() => _userService.blacklistUser(id);
 
-  /// Unblacklists the [user].
-  Future<void> unblacklist() async {
-    _userService.unblacklistUser(id);
-  }
+  /// Removes the [user] from the blacklist of the authenticated [MyUser].
+  Future<void> unblacklist() => _userService.unblacklistUser(id);
 
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {

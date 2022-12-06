@@ -24,7 +24,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Quick status changing menu. ([#204], [#203])
     - User page:
-        - Blacklist. ([#234], [#229])
+        - Blacklisting. ([#234], [#229])
 
 ### Changed
 

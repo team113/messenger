@@ -699,12 +699,12 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.chatDirectLink = event.directLink;
           break;
 
-        case MyUserEventKind.addedToBlacklist:
-          // No-op.
+        case MyUserEventKind.blacklistRecordAdded:
+          // TODO: Handle this case.
           break;
 
-        case MyUserEventKind.removedFromBlacklist:
-          // No-op.
+        case MyUserEventKind.blacklistRecordRemoved:
+          // TODO: Handle this case.
           break;
       }
     }

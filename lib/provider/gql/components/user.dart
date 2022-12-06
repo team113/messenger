@@ -28,7 +28,6 @@ import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
-import '/store/event/user.dart' show BlacklistEvent;
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 
@@ -962,7 +961,7 @@ abstract class UserGraphQlMixin {
   /// Blacklisted [User]s are not able to communicate with the authenticated
   /// [MyUser] directly (in [Chat]-dialogs).
   ///
-  /// [MyUser]'s blacklist can be obtained via Query.blacklist.
+  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
   ///
   /// ### Authentication
   ///
@@ -993,12 +992,10 @@ abstract class UserGraphQlMixin {
         as BlacklistEventsVersionedMixin?;
   }
 
-  /// Blacklists the specified [User] for the authenticated [MyUser].
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
   ///
-  /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in [Chat]-dialogs).
-  ///
-  /// [MyUser]'s blacklist can be obtained via Query.blacklist.
+  /// Reverses the action of [blacklistUser].
   ///
   /// ### Authentication
   ///
@@ -1007,12 +1004,12 @@ abstract class UserGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordAdded].
+  /// - [EventBlacklistRecordRemoved].
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is blacklisted by the authenticated [MyUser] already.
+  /// [User] is not blacklisted by the authenticated [MyUser] already.
   Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
     final variables = UnblacklistUserArguments(id: id);
     final QueryResult result = await client.mutate(

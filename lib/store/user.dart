@@ -34,6 +34,8 @@ import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
+import 'event/my_user.dart'
+    show BlacklistEvent, EventBlacklistRecordAdded, EventBlacklistRecordRemoved;
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository implements AbstractUserRepository {
@@ -130,8 +132,9 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> blacklistUser(UserId id) async {
-    RxUser? user = _users[id];
-    bool? oldValue = user?.user.value.isBlacklisted;
+    final RxUser? user = _users[id];
+    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+
     if (user != null && !user.user.value.isBlacklisted) {
       user.user.value.isBlacklisted = true;
       user.user.refresh();
@@ -140,8 +143,8 @@ class UserRepository implements AbstractUserRepository {
     try {
       await _graphQlProvider.blacklistUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != oldValue) {
-        user.user.value.isBlacklisted = oldValue!;
+      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
+        user.user.value.isBlacklisted = isBlacklisted!;
         user.user.refresh();
       }
       rethrow;
@@ -150,8 +153,9 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> unblacklistUser(UserId id) async {
-    RxUser? user = _users[id];
-    bool? oldValue = user?.user.value.isBlacklisted;
+    final RxUser? user = _users[id];
+    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+
     if (user != null && user.user.value.isBlacklisted) {
       user.user.value.isBlacklisted = false;
       user.user.refresh();
@@ -160,8 +164,8 @@ class UserRepository implements AbstractUserRepository {
     try {
       await _graphQlProvider.unblacklistUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != oldValue) {
-        user.user.value.isBlacklisted = oldValue!;
+      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
+        user.user.value.isBlacklisted = isBlacklisted!;
         user.user.refresh();
       }
       rethrow;
@@ -357,20 +361,16 @@ class UserRepository implements AbstractUserRepository {
   /// [BlacklistEventsVersionedMixin$Events].
   BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventBlacklistRecordAdded') {
-      var node =
-          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
       return EventBlacklistRecordAdded(
-        node.userId,
-        node.user.toHive(),
-        node.at,
+        e.userId,
+        e.user.toHive(),
+        e.at,
       );
     } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
-      var node =
-          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
       return EventBlacklistRecordRemoved(
-        node.userId,
-        node.user.toHive(),
-        node.at,
+        e.userId,
+        e.user.toHive(),
+        e.at,
       );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');

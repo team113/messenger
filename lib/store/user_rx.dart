@@ -201,7 +201,7 @@ class HiveRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          await _userLocal.put(event.user);
+          _userLocal.put(event.user);
         }
         break;
 
