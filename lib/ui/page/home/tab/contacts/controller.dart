@@ -246,14 +246,11 @@ class ContactsTabController extends GetxController {
 
   /// Starts listen updates of [User].
   void _startUserListen(Rx<User> user) {
-    if (_userOnlineWorkers[user.value.id] == null &&
-        _usersMap[user.value.id] == null) {
-      _usersMap[user.value.id] = _OnlineData(
-        user.value.online,
-        user.value.lastSeenAt,
-      );
+    User u = user.value;
+    if (_userOnlineWorkers[u.id] == null && _usersMap[u.id] == null) {
+      _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
 
-      _userOnlineWorkers[user.value.id] = ever(user, (User u) {
+      _userOnlineWorkers[u.id] = ever(user, (User u) {
         if (searchByName == false &&
             (_usersMap[u.id]!.online != u.online ||
                 _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
