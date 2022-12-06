@@ -40,6 +40,7 @@ extension UserConversion on UserMixin {
         lastSeenAt: online?.$$typename == 'UserOffline'
             ? (online as UserMixin$Online$UserOffline).lastSeenAt
             : null,
+        dialog: dialog == null ? null : Chat(dialog!.id),
         presenceIndex: presence.index,
         status: status,
         isDeleted: isDeleted,

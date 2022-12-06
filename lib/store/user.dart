@@ -23,6 +23,7 @@ import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -133,6 +134,19 @@ class UserRepository implements AbstractUserRepository {
     HiveUser? hiveUser = _userLocal.get(user.id);
     if (hiveUser != null) {
       hiveUser.value = user;
+      put(hiveUser, ignoreVersion: true);
+    }
+  }
+
+  /// Updates the locally stored [User]s dialog with the provided [dialog]
+  /// value.
+  void updateDialog(UserId userId, Chat dialog) {
+    HiveUser? hiveUser = _userLocal.get(userId);
+    if (hiveUser != null) {
+      hiveUser.value.dialog = dialog;
+      users[userId]?.dialog.value = dialog;
+      users[userId]?.user.value.dialog = dialog;
+
       put(hiveUser, ignoreVersion: true);
     }
   }

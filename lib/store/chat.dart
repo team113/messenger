@@ -17,7 +17,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -132,8 +131,13 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        final HiveRxChat entry =
-            HiveRxChat(this, _chatLocal, _draftLocal, _userRepo, c);
+        final HiveRxChat entry = HiveRxChat(
+          this,
+          _chatLocal,
+          _draftLocal,
+          _userRepo,
+          c,
+        );
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -943,8 +947,13 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry =
-              HiveRxChat(this, _chatLocal, _draftLocal, _userRepo, event.value);
+          HiveRxChat entry = HiveRxChat(
+            this,
+            _chatLocal,
+            _draftLocal,
+            _userRepo,
+            event.value,
+          );
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
