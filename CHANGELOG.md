@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Contacts tab:
+        - Favorite contacts. ([#237], [#223])
 
 ### Changed
 
@@ -73,6 +75,8 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
+[#223]: /../../issues/223
+[#237]: /../../pull/237
 
 
 
