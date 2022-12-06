@@ -334,10 +334,12 @@ extension _SearchCategoryL10n on SearchCategory {
     switch (this) {
       case SearchCategory.recent:
         return 'label_recent'.l10n;
-      case SearchCategory.contacts:
+      case SearchCategory.contact:
         return 'label_contacts'.l10n;
-      case SearchCategory.users:
+      case SearchCategory.user:
         return 'label_users'.l10n;
+      case SearchCategory.chat:
+        return 'label_chats'.l10n;
     }
   }
 }

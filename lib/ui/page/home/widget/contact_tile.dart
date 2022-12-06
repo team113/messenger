@@ -105,7 +105,7 @@ class ContactTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
       key: contact != null || user != null
