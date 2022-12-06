@@ -17,19 +17,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
-import '../../widget/app_bar.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -69,9 +69,7 @@ class ContactsTabView extends StatelessWidget {
                     width: 29.69,
                     height: 21,
                     child: SvgLoader.asset(
-                      c.searchByName == true
-                          ? 'assets/icons/sort_abc.svg'
-                          : 'assets/icons/sort_time.svg',
+                      'assets/icons/sort_${c.searchByName ? 'abc' : 'time'}.svg',
                       width: 30,
                       height: 21,
                     ),

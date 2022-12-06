@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -75,8 +76,11 @@ class ContactsTabController extends GetxController {
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
 
+  /// Stored [User]s [_OnlineData].
+  final Map<UserId, _OnlineData> _usersMap = {};
+
   /// [Worker]s to [RxUser.user] reacting on its changes.
-  final Map<ChatContactId, Worker> _userOnlineWorkers = {};
+  final Map<UserId, Worker> _userOnlineWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
@@ -240,17 +244,25 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Starts listen updates of [RxChatContact.user].
-  void _startUserListen(RxChatContact c) {
-    Rx<User>? rxUser = c.user.value?.user;
-    if (_userOnlineWorkers[c.id] == null && rxUser != null) {
-      _userOnlineWorkers[c.id] = ever(rxUser, (_) {
-        if (searchByName == false) {
+  /// Starts listen updates of [User].
+  void _startUserListen(Rx<User> user) {
+    if (_userOnlineWorkers[user.value.id] == null &&
+        _usersMap[user.value.id] == null) {
+      _usersMap[user.value.id] = _OnlineData(
+        user.value.online,
+        user.value.lastSeenAt,
+      );
+
+      _userOnlineWorkers[user.value.id] = ever(user, (User u) {
+        if (searchByName == false &&
+            (_usersMap[u.id]!.online != u.online ||
+                _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
+          _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
+
           sortContacts();
         }
       });
     }
-    sortContacts();
   }
 
   /// Maintains an interest in updates of every [RxChatContact.user] in the
@@ -265,10 +277,10 @@ class ContactsTabController extends GetxController {
           rxUser = user?..listenUpdates();
         }
 
-        _startUserListen(c);
+        if (user != null) _startUserListen(user.user);
       });
 
-      _startUserListen(c);
+      if (c.user.value != null) _startUserListen(c.user.value!.user);
     }
 
     for (RxChatContact c in contacts) {
@@ -280,22 +292,33 @@ class ContactsTabController extends GetxController {
         case OperationKind.added:
           contacts.add(e.value!);
           listen(e.value!);
-          sortContacts();
           break;
 
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
-          contacts.removeWhere((e2) => e2.id == e.key);
-          _userOnlineWorkers[e.key]?.dispose();
-          _userOnlineWorkers.removeWhere((key, value) => key == e.key);
+          contacts.removeWhere((c) => c.id == e.key);
+          _usersMap.remove(e.key);
+          _userOnlineWorkers.remove(e.key)?.dispose();
           _userWorkers.remove(e.key)?.dispose();
-          sortContacts();
           break;
 
         case OperationKind.updated:
           // No-op.
           break;
       }
+
+      sortContacts();
     });
   }
+}
+
+/// Wrapped [User]s online state data.
+class _OnlineData {
+  _OnlineData(this.online, this.lastSeenAt);
+
+  /// Online state of [User].
+  bool online;
+
+  /// [PreciseDateTime] when [User] was seen online last time.
+  PreciseDateTime? lastSeenAt;
 }
