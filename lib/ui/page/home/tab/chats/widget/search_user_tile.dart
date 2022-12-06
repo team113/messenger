@@ -48,8 +48,8 @@ class SearchUserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final ChatId? chatId = user?.user.value.dialog?.id ??
-          contact?.user.value?.user.value.dialog?.id;
+      final ChatId? chatId =
+          user?.dialog.value?.id ?? contact?.user.value?.dialog.value?.id;
 
       final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith('${Routes.chat}/$chatId')) !=

@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
@@ -33,10 +34,14 @@ class HiveRxUser extends RxUser {
     this._userRepository,
     this._userLocal,
     HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+  )   : user = Rx<User>(hiveUser.value),
+        dialog = Rx<Chat?>(hiveUser.value.dialog);
 
   @override
   final Rx<User> user;
+
+  @override
+  final Rx<Chat?> dialog;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;

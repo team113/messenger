@@ -19,8 +19,10 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/store/user.dart';
 import 'package:mutex/mutex.dart';
 
+import '../provider/hive/user.dart';
 import '/api/backend/schema.dart'
     show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
 import '/domain/model/attachment.dart';
@@ -57,6 +59,7 @@ class HiveRxChat extends RxChat {
     this._chatRepository,
     this._chatLocal,
     this._draftLocal,
+    this._userRepository,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
@@ -94,6 +97,9 @@ class HiveRxChat extends RxChat {
 
   /// [RxChat.draft]s local [Hive] storage.
   final DraftHiveProvider _draftLocal;
+
+  /// [RxChat.draft]s local [Hive] storage.
+  final UserRepository _userRepository;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -569,6 +575,17 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isGroup) {
       avatar.value = chat.value.avatar;
+    } else if (chat.value.isDialog) {
+      UserId? responderId =
+          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
+      if (responderId != null) {
+        if (_userRepository.users[responderId]?.dialog.value == null) {
+          _userRepository.users[responderId]?.dialog.value = chat.value;
+        }
+        if (_userRepository.users[responderId]?.user.value.dialog == null) {
+          _userRepository.users[responderId]?.user.value.dialog = chat.value;
+        }
+      }
     }
 
     _muteTimer?.cancel();
