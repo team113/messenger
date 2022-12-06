@@ -267,12 +267,15 @@ err_you_already_has_unconfirmed_phone =
     У вас уже есть неподтвержденный телефон
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
+fcm_file = [Файл]
+fcm_image = [Изображение]
 fcm_incoming_call = Входящий звонок
 fcm_user_added_user = {$author} добавил {$user}
 fcm_user_added_you_to_group  = {$user} добавил Вас в группу
 fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
 fcm_user_left_group = {$user} покинул группу
 fcm_user_removed_user = {$author} удалил {$user}
+fcm_video = [Видео]
 label_a_of_b = {$a} из {$b}
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
