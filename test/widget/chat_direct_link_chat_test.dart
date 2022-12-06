@@ -111,6 +111,11 @@ void main() async {
   await sessionProvider.clear();
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
   await authService.init();
@@ -278,6 +283,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractContactRepository contactRepository = ContactRepository(

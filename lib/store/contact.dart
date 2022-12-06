@@ -146,12 +146,37 @@ class ContactRepository implements AbstractContactRepository {
       );
 
   @override
-  Future<void> deleteContact(ChatContactId id) =>
-      _graphQlProvider.deleteChatContact(id);
+  Future<void> deleteContact(ChatContactId id) async {
+    final HiveRxChatContact? oldChatContact = contacts.remove(id);
+
+    try {
+      await _graphQlProvider.deleteChatContact(id);
+    } catch (_) {
+      contacts.addIf(oldChatContact != null, id, oldChatContact!);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> changeContactName(ChatContactId id, UserName name) =>
-      _graphQlProvider.changeContactName(id, name);
+  Future<void> changeContactName(ChatContactId id, UserName name) async {
+    final HiveRxChatContact? contact = contacts[id];
+    final UserName? oldName = contact?.contact.value.name;
+
+    contact?.contact.update((c) => c?.name = name);
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
+
+    try {
+      await _graphQlProvider.changeContactName(id, name);
+    } catch (_) {
+      contact?.contact.update((c) => c?.name = oldName!);
+      contacts.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+      rethrow;
+    }
+  }
 
   @override
   Future<void> fetchNextPage() async {

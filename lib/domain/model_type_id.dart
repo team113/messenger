@@ -101,5 +101,6 @@ class ModelTypeId {
   static const hiveBackground = 79;
   static const storageFile = 80;
   static const chatCallCredentials = 81;
-  static const lastReadItem = 82;
+  static const chatFavoritePosition = 82;
+  static const favoriteChatsListVersion = 83;
 }

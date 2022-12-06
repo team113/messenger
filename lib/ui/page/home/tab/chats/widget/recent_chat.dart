@@ -56,6 +56,8 @@ class RecentChatTile extends StatelessWidget {
     this.onJoin,
     this.onMute,
     this.onUnmute,
+    this.onFavorite,
+    this.onUnfavorite,
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -91,6 +93,13 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when this [rxChat] unmute action is triggered.
   final void Function()? onUnmute;
+
+  /// Callback, called when this [rxChat] add to favorites action is triggered.
+  final void Function()? onFavorite;
+
+  /// Callback, called when this [rxChat] remove from favorites action is
+  /// triggered.
+  final void Function()? onUnfavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -137,28 +146,42 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
-          ContextMenuButton(
-            key: const Key('ButtonHideChat'),
-            label: 'btn_hide_chat'.l10n,
-            onPressed: onHide,
-          ),
-          if (chat.isGroup)
+          if (chat.favoritePosition != null && onUnfavorite != null)
+            ContextMenuButton(
+              key: const Key('UnfavoriteChatButton'),
+              label: 'btn_delete_from_favorites'.l10n,
+              onPressed: onUnfavorite,
+            ),
+          if (chat.favoritePosition == null && onFavorite != null)
+            ContextMenuButton(
+              key: const Key('FavoriteChatButton'),
+              label: 'btn_add_to_favorites'.l10n,
+              onPressed: onFavorite,
+            ),
+          if (onHide != null)
+            ContextMenuButton(
+              key: const Key('ButtonHideChat'),
+              label: 'btn_hide_chat'.l10n,
+              onPressed: onHide,
+            ),
+          if (chat.isGroup && onLeave != null)
             ContextMenuButton(
               key: const Key('ButtonLeaveChat'),
               label: 'btn_leave_chat'.l10n,
               onPressed: onLeave,
             ),
-          chat.muted == null
-              ? ContextMenuButton(
-                  key: const Key('MuteChatButton'),
-                  label: 'btn_mute_chat'.l10n,
-                  onPressed: onMute,
-                )
-              : ContextMenuButton(
-                  key: const Key('UnmuteChatButton'),
-                  label: 'btn_unmute_chat'.l10n,
-                  onPressed: onUnmute,
-                ),
+          if (chat.muted == null && onMute != null)
+            ContextMenuButton(
+              key: const Key('MuteChatButton'),
+              label: 'btn_mute_chat'.l10n,
+              onPressed: onMute,
+            ),
+          if (chat.muted != null && onUnmute != null)
+            ContextMenuButton(
+              key: const Key('UnmuteChatButton'),
+              label: 'btn_unmute_chat'.l10n,
+              onPressed: onUnmute,
+            ),
         ],
         selected: selected,
         onTap: () => router.chat(chat.id),
@@ -391,12 +414,7 @@ class RecentChatTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 2),
                   child: _attachment(
                     e,
-                    onError: () async {
-                      if (rxChat.chat.value.lastItem != null) {
-                        await rxChat
-                            .updateAttachments(rxChat.chat.value.lastItem!);
-                      }
-                    },
+                    onError: () => rxChat.updateAttachments(item!),
                   ),
                 );
               }),
@@ -407,12 +425,7 @@ class RecentChatTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: _attachment(
                   item.attachments.first,
-                  onError: () async {
-                    if (rxChat.chat.value.lastItem != null) {
-                      await rxChat
-                          .updateAttachments(rxChat.chat.value.lastItem!);
-                    }
-                  },
+                  onError: () => rxChat.updateAttachments(item!),
                 ),
               ),
             );

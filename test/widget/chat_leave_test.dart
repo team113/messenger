@@ -126,6 +126,9 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
     (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
@@ -318,6 +321,7 @@ void main() async {
             callRepository,
             draftProvider,
             userRepository,
+            sessionProvider,
           ),
         ),
         authService,

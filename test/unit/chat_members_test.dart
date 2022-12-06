@@ -175,6 +175,10 @@ void main() async {
   when(graphQlProvider.keepOnline())
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
     Get.put(graphQlProvider);
     AuthService authService = Get.put(
@@ -201,6 +205,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     return Get.put(ChatService(chatRepository, authService));

@@ -178,6 +178,14 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
+  /// Sticky element index of a [FlutterListView] currently being visible.
+  final RxnInt stickyIndex = RxnInt(null);
+
+  /// Indicator whether sticky header should be visible or not.
+  ///
+  /// Used to hide it when no scrolling is happening.
+  final RxBool showSticky = RxBool(false);
+
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
@@ -231,6 +239,9 @@ class ChatController extends GetxController {
 
   /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
+
+  /// [Timer] for resetting the [showSticky].
+  Timer? _stickyTimer;
 
   /// [AudioPlayer] playing a sent message sound.
   AudioPlayer? _audioPlayer;
@@ -361,7 +372,8 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
-    listController.addListener(_scrollListener);
+    listController.addListener(_listControllerListener);
+    listController.sliverController.stickyIndex.addListener(_updateSticky);
     _ignorePositionChanges = true;
     _fetchChat().whenComplete(() {
       _ignorePositionChanges = false;
@@ -382,7 +394,9 @@ class ChatController extends GetxController {
     _typingTimer?.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
-    listController.removeListener(_scrollListener);
+    _stickyTimer?.cancel();
+    listController.removeListener(_listControllerListener);
+    listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
 
     _audioPlayer?.dispose();
@@ -980,7 +994,7 @@ class ChatController extends GetxController {
         }
       } finally {
         _ignorePositionChanges = false;
-        _scrollListener();
+        _listControllerListener();
       }
     }
   }
@@ -1173,9 +1187,19 @@ class ChatController extends GetxController {
     );
   }
 
-  /// Uploads pages of [ChatItem]s ans updates the [canGoDown] and [canGoBack]
-  /// indicators based on the [FlutterListViewController.position] value.
-  void _scrollListener() async {
+  /// Invokes [_updateSticky] and [_updateFabStates].
+  ///
+  /// Intended to be called as a listener of a [FlutterListViewController].
+  void _listControllerListener() {
+    if (listController.hasClients) {
+      _updateSticky();
+      _updateFabStates();
+    }
+  }
+
+  /// Updates the [canGoDown] and [canGoBack] indicators based on the
+  /// [FlutterListViewController.position] value.
+  void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
       if (!_isFetchingMore &&
           listController.position.pixels <
@@ -1205,6 +1229,23 @@ class ChatController extends GetxController {
         canGoBack.value = false;
       }
     }
+  }
+
+  /// Updates the [showSticky] indicator and restarts a [_stickyTimer] resetting
+  /// it.
+  void _updateSticky() {
+    showSticky.value = true;
+    stickyIndex.value = listController.sliverController.stickyIndex.value;
+
+    _stickyTimer?.cancel();
+    _stickyTimer = Timer(const Duration(seconds: 2), () {
+      if (stickyIndex.value != null) {
+        final double? offset =
+            listController.sliverController.getItemOffset(stickyIndex.value!);
+        showSticky.value =
+            offset != null && listController.offset - offset < 35;
+      }
+    });
   }
 
   /// Initializes the [_audioPlayer].

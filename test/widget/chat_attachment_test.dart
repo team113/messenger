@@ -246,6 +246,9 @@ void main() async {
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
@@ -341,6 +344,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );

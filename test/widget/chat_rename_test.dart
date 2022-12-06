@@ -98,6 +98,10 @@ void main() async {
   var sessionProvider = Get.put(SessionDataHiveProvider());
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), SessionDataHiveProvider());
   await authService.init();
@@ -259,6 +263,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
 

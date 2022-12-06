@@ -42,12 +42,14 @@ import '/provider/gql/exceptions.dart'
         ConnectionException,
         GraphQlProviderExceptions,
         ResubscriptionRequiredException,
+        StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
+import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/user.dart';
@@ -55,6 +57,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
+import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 
 /// Implementation of an [AbstractChatRepository].
@@ -64,7 +67,8 @@ class ChatRepository implements AbstractChatRepository {
     this._chatLocal,
     this._callRepo,
     this._draftLocal,
-    this._userRepo, {
+    this._userRepo,
+    this._sessionLocal, {
     this.me,
   });
 
@@ -102,6 +106,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
+  /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
+  final SessionDataHiveProvider _sessionLocal;
+
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
@@ -112,6 +119,11 @@ class ChatRepository implements AbstractChatRepository {
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
+
+  /// [_favoriteChatsEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamIterator? _favoriteChatsSubscription;
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -153,6 +165,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initRemoteSubscription();
+    _initFavoriteChatsSubscription();
 
     _isReady.value = true;
   }
@@ -166,6 +179,7 @@ class ChatRepository implements AbstractChatRepository {
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _favoriteChatsSubscription?.cancel();
   }
 
   @override
@@ -971,6 +985,12 @@ class ChatRepository implements AbstractChatRepository {
         node.user.toModel(),
         node.at,
       );
+    } else if (e.$$typename == 'EventChatFavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
+      return EventChatFavorited(e.chatId, node.at, node.position);
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
+      return EventChatUnfavorited(e.chatId, node.at);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1147,6 +1167,170 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     return q.toData(cursor: cursor);
+  }
+
+  @override
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition newPosition;
+
+    if (position == null) {
+      final List<HiveRxChat> favorites = _chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList();
+
+      favorites.sort(
+        (a, b) => a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!),
+      );
+
+      final double? lowestFavorite = favorites.isEmpty
+          ? null
+          : favorites.first.chat.value.favoritePosition!.val;
+
+      newPosition = ChatFavoritePosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    chat?.chat.update((c) => c?.favoritePosition = newPosition);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.favoriteChat(id, newPosition);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChat(ChatId id) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+
+    chat?.chat.update((c) => c?.favoritePosition = null);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.unfavoriteChat(id);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  /// Initializes [_favoriteChatsEvents] subscription.
+  Future<void> _initFavoriteChatsSubscription({bool noVersion = false}) async {
+    var ver = noVersion ? null : _sessionLocal.getFavoriteChatsListVersion();
+    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription =
+        StreamIterator(await _favoriteChatsEvents(ver));
+    while (await _favoriteChatsSubscription!
+        .moveNext()
+        .onError<ResubscriptionRequiredException>((_, __) {
+      _initFavoriteChatsSubscription();
+      return false;
+    }).onError<StaleVersionException>((_, __) {
+      _initFavoriteChatsSubscription(noVersion: true);
+      return false;
+    })) {
+      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
+    }
+  }
+
+  /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
+  /// subscription.
+  Future<void> _favoriteChatsEvent(FavoriteChatsEvents event) async {
+    switch (event.kind) {
+      case FavoriteChatsEventsKind.initialized:
+        // No-op.
+        break;
+
+      case FavoriteChatsEventsKind.chatsList:
+        var node = event as FavoriteChatsEventsChatsList;
+        _sessionLocal.setFavoriteChatsListVersion(node.ver);
+        for (ChatData data in node.chatList) {
+          if (_chats[data.chat.value.id] == null) {
+            _putEntry(data);
+          }
+        }
+        break;
+
+      case FavoriteChatsEventsKind.event:
+        var versioned = (event as FavoriteChatsEventsEvent).event;
+        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
+          _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
+
+          for (var event in versioned.events) {
+            switch (event.kind) {
+              case ChatEventKind.favorited:
+                if (_chats[event.chatId] == null) {
+                  get(event.chatId);
+                }
+                break;
+
+              case ChatEventKind.unfavorited:
+                // No-op.
+                break;
+
+              default:
+                // No-op.
+                break;
+            }
+          }
+          break;
+        }
+    }
+  }
+
+  /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
+  Future<Stream<FavoriteChatsEvents>> _favoriteChatsEvents(
+          FavoriteChatsListVersion? ver) async =>
+      (await _graphQlProvider.favoriteChatsEvents(ver))
+          .asyncExpand((event) async* {
+        GraphQlProviderExceptions.fire(event);
+        var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
+            .favoriteChatsEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
+          yield const FavoriteChatsEventsInitialized();
+        } else if (events.$$typename == 'FavoriteChatsList') {
+          var chatsList = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
+          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+        } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
+          var mixin = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
+          yield FavoriteChatsEventsEvent(
+            FavoriteChatsEventsVersioned(
+              mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
+      });
+
+  /// Constructs a [ChatEvents] from the
+  /// [FavoriteChatsEventsVersionedMixin$Events].
+  ChatEvent _favoriteChatsVersionedEvent(
+      FavoriteChatsEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventChatFavorited') {
+      var node =
+          e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
+      return EventChatFavorited(e.chatId, e.at, node.position);
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      return EventChatUnfavorited(e.chatId, e.at);
+    } else {
+      throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
+    }
   }
 }
 

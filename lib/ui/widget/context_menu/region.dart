@@ -85,7 +85,7 @@ class ContextMenuRegion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (enabled) {
+    if (enabled && actions.isNotEmpty) {
       return ContextMenuInterceptor(
         enabled: preventContextMenu,
         child: Listener(
