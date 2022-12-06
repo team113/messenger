@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -34,11 +33,7 @@ import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        UpdateChatContactNameException,
-        FavoriteChatContactException,
-        UnfavoriteChatContactException;
-import '/ui/widget/text_field.dart';
+    show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
