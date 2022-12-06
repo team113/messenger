@@ -44,21 +44,26 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
+import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
+import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/see_chat_position.dart';
+import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
+import 'steps/see_favorite_contact.dart';
 import 'steps/sees_as.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
@@ -88,6 +93,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
         fillField,
@@ -97,10 +103,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
+        haveTwoContacts,
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
         longPressChat,
+        longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
@@ -113,6 +121,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatPosition,
+        seeContactAsFavorite,
+        seeContactPosition,
         seeDraftInDialog,
         seesAs,
         sendsAttachmentToMe,

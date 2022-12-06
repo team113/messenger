@@ -33,7 +33,11 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
+import '/provider/gql/exceptions.dart'
+    show
+        UpdateChatContactNameException,
+        FavoriteChatContactException,
+        UnfavoriteChatContactException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -69,26 +73,32 @@ class ContactsTabController extends GetxController {
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
+  /// [StreamSubscription]s to the [favorites] updates.
+  StreamSubscription? _favoritesSubscription;
+
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
-  /// Returns the current reactive favorite [ChatContact]s map.
-  RxMap<ChatContactId, RxChatContact> get favorites =>
-      _contactService.favorites;
+  /// Reactive list of sorted [ChatContact]s.
+  late final RxList<RxChatContact> favorites;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
   @override
   void onInit() {
+    favorites =
+        RxList<RxChatContact>(_contactService.favorites.values.toList());
+    _sortFavorites();
+
     contactName = TextFieldState(
       onChanged: (s) async {
         s.error.value = null;
 
         RxChatContact? contact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
-            favorites.values.firstWhereOrNull(
+            favorites.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
         if (contact == null) return;
 
@@ -131,7 +141,7 @@ class ContactsTabController extends GetxController {
       onSubmitted: (s) {
         var contact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
-            favorites.values.firstWhereOrNull(
+            favorites.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
         if (contact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
@@ -149,6 +159,7 @@ class ContactsTabController extends GetxController {
   void onClose() {
     contacts.forEach((_, c) => c.user.value?.stopUpdates());
     _contactsSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
     super.onClose();
   }
@@ -215,9 +226,65 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          // no-op
           break;
       }
     });
+
+    for (var c in favorites) {
+      listen(c);
+    }
+    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          favorites.add(e.value!);
+          _sortFavorites();
+          listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          _userWorkers.remove(e.key)?.dispose();
+          favorites.removeWhere((c) => c.contact.value.id == e.key);
+          break;
+
+        case OperationKind.updated:
+          _sortFavorites();
+          break;
+      }
+    });
+  }
+
+  /// Marks the specified [ChatContact] identified by its [id] as favorited.
+  Future<void> favoriteContact(ChatContactId id) async {
+    try {
+      await _contactService.favoriteChatContact(id);
+    } on FavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [ChatContact] identified by its [id] from the
+  /// favorites.
+  Future<void> unfavoriteContact(ChatContactId id) async {
+    try {
+      await _contactService.unfavoriteChatContact(id);
+    } on UnfavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Sorts the [favorites] by the [ChatContact.favoritePosition]
+  void _sortFavorites() {
+    favorites.sort(
+      (a, b) => a.contact.value.favoritePosition!
+          .compareTo(b.contact.value.favoritePosition!),
+    );
   }
 }

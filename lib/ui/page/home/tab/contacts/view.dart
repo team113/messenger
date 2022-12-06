@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -21,12 +22,11 @@ import 'package:get/get.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -83,13 +83,12 @@ class ContactsTabView extends StatelessWidget {
                                     const EdgeInsets.fromLTRB(12, 8, 12, 8),
                                 child: Text('label_favorite_contacts'.l10n),
                               ),
-                              ...c.favorites.entries
-                                  .map((e) => _contact(e.value, c))
+                              ...c.favorites.map((e) => _contact(context, e, c))
                             ],
                             if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
                               ...divider,
                             ...c.contacts.entries
-                                .map((e) => _contact(e.value, c))
+                                .map((e) => _contact(context, e.value, c))
                           ],
                         ),
                       )
@@ -101,10 +100,45 @@ class ContactsTabView extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(RxChatContact contact, ContactsTabController c) =>
-      ContextMenuRegion(
-        preventContextMenu: false,
+  Widget _contact(
+    BuildContext context,
+    RxChatContact contact,
+    ContactsTabController c, {
+    bool enlarge = false,
+  }) {
+    bool favorite = c.favorites.contains(contact);
+
+    final bool selected = router.routes
+            .lastWhereOrNull((e) => e.startsWith(Routes.user))
+            ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
+        true;
+
+    return Padding(
+      key: Key('Contact_${contact.id}'),
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: ContactTile(
+        radius: enlarge ? 30 + 7 : 30,
+        contact: contact,
+        darken: 0,
+        folded: favorite,
+        selected: selected,
+        onTap: contact.contact.value.users.isNotEmpty
+            // TODO: Open [Routes.contact] page when it's implemented.
+            ? () => router.user(contact.user.value!.id)
+            : null,
         actions: [
+          favorite
+              ? ContextMenuButton(
+                  key: const Key('UnfavoriteContactButton'),
+                  label: 'btn_delete_from_favorites'.l10n,
+                  onPressed: () =>
+                      c.unfavoriteContact(contact.contact.value.id),
+                )
+              : ContextMenuButton(
+                  key: const Key('FavoriteContactButton'),
+                  label: 'btn_add_to_favorites'.l10n,
+                  onPressed: () => c.favoriteContact(contact.contact.value.id),
+                ),
           ContextMenuButton(
             label: 'btn_rename'.l10n,
             onPressed: () {
@@ -120,53 +154,33 @@ class ContactsTabView extends StatelessWidget {
             onPressed: () => c.deleteFromContacts(contact.contact.value),
           ),
         ],
-        child: c.contactToChangeNameOf.value == contact.contact.value.id
-            ? Container(
-                key: Key(contact.contact.value.id.val),
-                padding: const EdgeInsets.all(3),
-                child: Row(
+        subtitle: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      key: const Key('CancelSaveNewContactName'),
-                      onPressed: () => c.contactToChangeNameOf.value = null,
-                      icon: const Icon(Icons.close),
-                    ),
-                    Expanded(
-                      child: ReactiveTextField(
-                        dense: true,
-                        key: const Key('NewContactNameInput'),
-                        state: c.contactName,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
+                    const SizedBox(height: 5),
+                    Obx(() {
+                      final subtitle =
+                          contact.user.value?.user.value.getStatus();
+                      if (subtitle != null) {
+                        return Text(
+                          subtitle,
+                          style: const TextStyle(color: Color(0xFF888888)),
+                        );
+                      }
+                      return Container();
+                    }),
                   ],
                 ),
-              )
-            : ListTile(
-                key: Key(contact.contact.value.id.val),
-                leading: AvatarWidget.fromRxContact(contact),
-                title: Text(contact.contact.value.name.val),
-                trailing: contact.contact.value.users.isNotEmpty
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () => c.startAudioCall(
-                                contact.contact.value.users.first),
-                            icon: const Icon(Icons.call),
-                          ),
-                          IconButton(
-                            onPressed: () => c.startVideoCall(
-                                contact.contact.value.users.first),
-                            icon: const Icon(Icons.video_call),
-                          )
-                        ],
-                      )
-                    : null,
-                onTap: contact.contact.value.users.isNotEmpty
-                    // TODO: Open [Routes.contact] page when it's implemented.
-                    ? () => router.user(contact.contact.value.users.first.id)
-                    : null,
               ),
-      );
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

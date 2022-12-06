@@ -61,7 +61,7 @@ class ContactRepository implements AbstractContactRepository {
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
-  final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
+  final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -320,7 +320,6 @@ class ContactRepository implements AbstractContactRepository {
             }
 
             contactEntity.save();
-            break;
           }
         }
     }
@@ -472,6 +471,82 @@ class ContactRepository implements AbstractContactRepository {
       );
     } else {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
+    }
+  }
+
+  @override
+  Future<void> favoriteChatContact(
+    ChatContactId id,
+    ChatContactPosition? position,
+  ) async {
+    final bool isChangeInContacts = contacts[id] != null;
+    final HiveRxChatContact? contact =
+        isChangeInContacts ? contacts[id] : favorites[id];
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+    final ChatContactPosition newPosition;
+
+    if (position == null) {
+      final sortFavorites = favorites.values.toList()
+        ..sort(
+          (a, b) => a.contact.value.favoritePosition!
+              .compareTo(b.contact.value.favoritePosition!),
+        );
+
+      final double? lowestFavorite = sortFavorites.isEmpty
+          ? null
+          : sortFavorites.first.contact.value.favoritePosition!.val;
+
+      newPosition = ChatContactPosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    contact?.contact.update((c) => c?.favoritePosition = newPosition);
+    if (isChangeInContacts) {
+      contacts.remove(id);
+      favorites.addIf(contact != null, id, contact!);
+    } else {
+      favorites.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+    }
+
+    try {
+      await _graphQlProvider.favoriteChatContact(id, newPosition);
+    } catch (e) {
+      contact?.contact.update((c) => c?.favoritePosition = oldPosition);
+      if (isChangeInContacts) {
+        favorites.remove(id);
+        contacts.addIf(contact != null, id, contact!);
+      } else {
+        favorites.emit(
+          MapChangeNotification.updated(contact?.id, contact?.id, contact),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChatContact(ChatContactId id) async {
+    final HiveRxChatContact? contact = favorites[id];
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+
+    contact?.contact.update((c) => c?.favoritePosition = null);
+    favorites.remove(id);
+    contacts.addIf(contact != null, id, contact!);
+
+    try {
+      await _graphQlProvider.unfavoriteChatContact(id);
+    } catch (e) {
+      contact.contact.update((c) => c?.favoritePosition = oldPosition);
+      contacts.remove(id);
+      favorites[id] = contact;
+      rethrow;
     }
   }
 }
