@@ -43,8 +43,8 @@ class ScreenShareSelectorController extends GetxController {
   /// Available [MediaDisplayInfo]s for screen sharing.
   final RxList<MediaDisplayInfo> displays;
 
-  /// Callback, called when a [MuteChatView] this controller should be popped
-  /// from the [Navigator].
+  /// Callback, called when a [ScreenShareSelector] this controller is bound to
+  /// should be popped from the [Navigator].
   final void Function()? pop;
 
   /// Renderers of the [displays].
@@ -135,7 +135,11 @@ class ScreenShareSelectorController extends GetxController {
   }
 
   /// Initializes the [renderers].
-  void _initRenderers() => displays.map((e) => initRenderer(e));
+  void _initRenderers() {
+    for (var e in displays) {
+      initRenderer(e);
+    }
+  }
 
   /// Returns [MediaStreamSettings] with enabled screen sharing.
   MediaStreamSettings _mediaStreamSettings(String screenShareDevice) {

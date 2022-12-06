@@ -885,6 +885,7 @@ class CallController extends GetxController {
             deviceId = display.deviceId();
           },
         );
+
         if (deviceId != null) {
           await _currentCall.value
               .setScreenShareEnabled(true, deviceId: deviceId);

@@ -259,7 +259,7 @@ class OngoingCall {
   final InputDevices _devices = RxList<MediaDeviceInfo>([]);
 
   /// List of [MediaDisplayInfo] of all the available displays.
-  final RxList<MediaDisplayInfo> displays = RxList<MediaDisplayInfo>([]);
+  final RxList<MediaDisplayInfo> _displays = RxList<MediaDisplayInfo>([]);
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
@@ -295,6 +295,9 @@ class OngoingCall {
 
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices get devices => RxList.unmodifiable(_devices);
+
+  /// List of [MediaDisplayInfo] of all the available displays.
+  RxList<MediaDisplayInfo> get displays => RxList.unmodifiable(_displays);
 
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive => (state.value == OngoingCallState.active ||
@@ -706,7 +709,7 @@ class OngoingCall {
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
 
-      displays.value = await _mediaManager!.enumerateDisplays();
+      _displays.value = await _mediaManager!.enumerateDisplays();
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
       rethrow;
@@ -822,8 +825,9 @@ class OngoingCall {
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   ///
-  /// Optionally, [audioDevice] and [videoDevice] set the devices and
-  /// [facingMode] sets the ideal [FacingMode] of the local video stream.
+  /// Optionally, [audioDevice], [videoDevice] and [screenShareDevice] set the
+  /// devices and [facingMode] sets the ideal [FacingMode] of the local video
+  /// stream.
   MediaStreamSettings _mediaStreamSettings({
     bool audio = true,
     bool video = true,
@@ -1339,8 +1343,8 @@ class OngoingCall {
     });
   }
 
-  /// Ensures the [audioDevice], [videoDevice] and [outputDevice] are present in
-  /// the [devices] list.
+  /// Ensures the [audioDevice], [videoDevice], [screenShareDevice], and
+  /// [outputDevice] are present in the [devices] list.
   ///
   /// If the device is not found, then sets it to `null`.
   void _ensureCorrectDevices() {
@@ -1355,7 +1359,7 @@ class OngoingCall {
     }
 
     if (screenShareDevice.value != null &&
-        _devices.video().none((d) => d.deviceId() == screenShareDevice.value)) {
+        _displays.none((d) => d.deviceId() == screenShareDevice.value)) {
       screenShareDevice.value = null;
     }
 
