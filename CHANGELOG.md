@@ -37,7 +37,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
     - Contacts tab:
-        - Contacts sorting. ([#235], [#226])
+        - Alphabetical and last seen at sorting. ([#235], [#226])
 
 ### Fixed
 

@@ -48,7 +48,7 @@ class ContactsTabController extends GetxController {
     this._chatRepository,
     this._contactService,
     this._calls,
-    this._settings,
+    this._settingsRepository,
   );
 
   /// [TextFieldState] of a [ChatContact.name].
@@ -71,16 +71,16 @@ class ContactsTabController extends GetxController {
 
   /// Settings repository, used to get the stored
   /// [ApplicationSettings.sortContactsByName] and update it.
-  final AbstractSettingsRepository _settings;
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
-  final Map<ChatContactId, Worker> _userWorkers = {};
+  final Map<ChatContactId, Worker> _rxUserWorkers = {};
+
+  /// [Worker]s to [RxUser.user] reacting on its changes.
+  final Map<UserId, Worker> _userWorkers = {};
 
   /// Stored [User]s [_OnlineData].
   final Map<UserId, _OnlineData> _usersMap = {};
-
-  /// [Worker]s to [RxUser.user] reacting on its changes.
-  final Map<UserId, Worker> _userOnlineWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
@@ -92,9 +92,10 @@ class ContactsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
-  /// Indicates whether [contacts] should be sorted by name or not.
+  /// Indicates whether [contacts] should be sorted by their names or otherwise
+  /// by their [User.lastSeenAt] dates.
   bool get sortByName =>
-      _settings.applicationSettings.value?.sortContactsByName ?? true;
+      _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
   @override
   void onInit() {
@@ -169,9 +170,10 @@ class ContactsTabController extends GetxController {
     for (RxChatContact contact in contacts) {
       contact.user.value?.stopUpdates();
     }
+
     _contactsSubscription?.cancel();
+    _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
-    _userOnlineWorkers.forEach((_, v) => v.dispose());
     super.onClose();
   }
 
@@ -193,17 +195,14 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Changes [contacts] sorting mode.
-  ///
-  /// If [value] is `true` means sorting [contacts] by name ascending.
-  /// If [value] is `false` means sorting [contacts] by their online.
-  void updateSortingType(bool value) async {
-    await _settings.setSortContactsByName(value);
+  /// Toggles the [sortByName] sorting the [contacts].
+  void toggleSorting() {
+    _settingsRepository.setSortContactsByName(!sortByName);
     sortContacts();
   }
 
-  /// Sorts [contacts] by sorting type defined in
-  /// [ApplicationSettings.sortContactsByName].
+  /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
+  /// the [sortByName] indicator.
   void sortContacts() {
     contacts.sort((a, b) {
       if (sortByName == true) {
@@ -246,11 +245,12 @@ class ContactsTabController extends GetxController {
 
   /// Starts listen updates of [User].
   void _startUserListen(Rx<User> user) {
-    User u = user.value;
-    if (_userOnlineWorkers[u.id] == null && _usersMap[u.id] == null) {
+    final User u = user.value;
+
+    if (_userWorkers[u.id] == null && _usersMap[u.id] == null) {
       _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
 
-      _userOnlineWorkers[u.id] = ever(user, (User u) {
+      _userWorkers[u.id] = ever(user, (User u) {
         if (sortByName == false &&
             (_usersMap[u.id]!.online != u.online ||
                 _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
@@ -268,21 +268,23 @@ class ContactsTabController extends GetxController {
     /// States an interest in updates of the specified [RxChatContact.user].
     void listen(RxChatContact c) {
       RxUser? rxUser = c.user.value?..listenUpdates();
-      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+      _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
         if (rxUser?.id != user?.id) {
           rxUser?.stopUpdates();
           rxUser = user?..listenUpdates();
         }
 
-        if (user != null) _startUserListen(user.user);
+        if (user != null) {
+          _startUserListen(user.user);
+        }
       });
 
-      if (c.user.value != null) _startUserListen(c.user.value!.user);
+      if (c.user.value != null) {
+        _startUserListen(c.user.value!.user);
+      }
     }
 
-    for (RxChatContact c in contacts) {
-      listen(c);
-    }
+    contacts.forEach(listen);
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
@@ -295,8 +297,8 @@ class ContactsTabController extends GetxController {
           e.value?.user.value?.stopUpdates();
           contacts.removeWhere((c) => c.id == e.key);
           _usersMap.remove(e.key);
-          _userOnlineWorkers.remove(e.key)?.dispose();
           _userWorkers.remove(e.key)?.dispose();
+          _rxUserWorkers.remove(e.key)?.dispose();
           break;
 
         case OperationKind.updated:
@@ -311,11 +313,11 @@ class ContactsTabController extends GetxController {
 
 /// Wrapped [User]s online state data.
 class _OnlineData {
-  _OnlineData(this.online, this.lastSeenAt);
+  const _OnlineData(this.online, this.lastSeenAt);
 
   /// Online state of [User].
-  bool online;
+  final bool online;
 
   /// [PreciseDateTime] when [User] was seen online last time.
-  PreciseDateTime? lastSeenAt;
+  final PreciseDateTime? lastSeenAt;
 }

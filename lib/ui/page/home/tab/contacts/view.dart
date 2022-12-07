@@ -59,11 +59,11 @@ class ContactsTabView extends StatelessWidget {
       builder: (ContactsTabController c) => Scaffold(
         appBar: CustomAppBar(
           title: Text('label_contacts'.l10n),
-          actions: <Widget>[
+          actions: [
             Padding(
               padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
               child: WidgetButton(
-                onPressed: () => c.updateSortingType(!c.sortByName),
+                onPressed: c.toggleSorting,
                 child: SizedBox(
                   width: 29.69,
                   height: 21,

@@ -64,7 +64,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
 
-  /// Indicator whether contacts should be sorted by name or not.
+  /// Indicator whether [ChatContact]s should be sorted by their names.
   @HiveField(7)
   bool sortContactsByName;
 }
