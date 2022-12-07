@@ -84,6 +84,8 @@ class Routes {
   static const settingsMedia = '/settings/media';
   static const user = '/user';
 
+  static const profile = '/profile';
+
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
 
@@ -93,6 +95,20 @@ class Routes {
 
 /// List of [Routes.home] page tabs.
 enum HomeTab { contacts, chats, menu }
+
+/// List of [Routes.profile] page sections.
+enum ProfileTab {
+  public,
+  signing,
+  link,
+  background,
+  calls,
+  media,
+  language,
+  download,
+  danger,
+  logout,
+}
 
 /// Application's router state.
 ///
@@ -130,6 +146,9 @@ class RouterState extends ChangeNotifier {
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
+
+  /// Current [Routes.profile] section.
+  final Rx<ProfileTab?> profileTab = Rx(null);
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
@@ -591,6 +610,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
         _state.route == Routes.personalization ||
+        _state.route == Routes.profile ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -660,6 +680,9 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.personalization] page.
   void personalization() => go(Routes.personalization);
+
+  void profile({bool push = false}) =>
+      push ? this.push(Routes.profile) : go(Routes.profile);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

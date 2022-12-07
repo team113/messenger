@@ -32,6 +32,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/widget_button.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -49,6 +50,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
+    this.onAvatarTap,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -123,9 +125,11 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    bool showBadge = true,
+    void Function()? onAvatarTap,
   }) =>
       AvatarWidget(
-        isOnline: myUser?.online == true,
+        isOnline: showBadge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.val,
@@ -134,6 +138,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onAvatarTap: onAvatarTap,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -301,6 +306,9 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
+  /// Callback called when this [AvatarWidget] is tapped.
+  final void Function()? onAvatarTap;
+
   /// Avatar color swatches.
   static const List<Color> colors = [
     Colors.purple,
@@ -381,43 +389,46 @@ class AvatarWidget extends StatelessWidget {
           end: -badgeSize / 5,
         ),
         elevation: 0,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
+        child: WidgetButton(
+          onPressed: onAvatarTap,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: minHeight,
+              minWidth: minWidth,
+              maxWidth: maxWidth,
+              maxHeight: maxHeight,
             ),
-            shape: BoxShape.circle,
-          ),
-          child: avatar == null
-              ? Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [gradient.lighten(), gradient],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: avatar == null
+                ? Center(
+                    child: Text(
+                      (title ?? '??').initials(),
+                      style: Theme.of(context).textTheme.headline4?.copyWith(
+                            fontSize: 15 * (maxWidth / 40.0),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
 
-                    // Disable the accessibility size settings for this [Text].
-                    textScaleFactor: 1,
+                      // Disable the accessibility size settings for this [Text].
+                      textScaleFactor: 1,
+                    ),
+                  )
+                : ClipOval(
+                    child: RetryImage(
+                      avatar!.original.url,
+                      fit: BoxFit.cover,
+                      height: double.infinity,
+                      width: double.infinity,
+                    ),
                   ),
-                )
-              : ClipOval(
-                  child: RetryImage(
-                    avatar!.original.url,
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                  ),
-                ),
+          ),
         ),
       );
     });

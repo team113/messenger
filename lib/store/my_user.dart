@@ -357,7 +357,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
