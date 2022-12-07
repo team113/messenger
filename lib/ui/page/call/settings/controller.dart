@@ -40,13 +40,13 @@ class CallSettingsController extends GetxController {
   InputDevices get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get videoDevice => _call.value.videoDevice;
+  RxnString get camera => _call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  RxnString get audioDevice => _call.value.audioDevice;
+  RxnString get mic => _call.value.audioDevice;
 
   /// Returns ID of the currently used output device.
-  RxnString get outputDevice => _call.value.outputDevice;
+  RxnString get output => _call.value.outputDevice;
 
   /// Callback to pop the [CallSettingsView].
   void Function() onPop;

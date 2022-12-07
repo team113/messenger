@@ -1119,19 +1119,20 @@ class CallController extends GetxController {
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
   Future<dynamic> openSettings(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (_) => CallSettingsView(
-        _currentCall,
-        lmbValue: handleLmb.value,
-        onLmbChanged: (b) {
-          lmbTimeout = 7;
-          handleLmb.value = b ?? false;
-        },
-        panelValue: panelUp.value,
-        onPanelChanged: (b) => panelUp.value = b ?? false,
-      ),
-    );
+    return CallSettingsView.show(context, call: _currentCall);
+    // return showDialog(
+    //   context: context,
+    //   builder: (_) => CallSettingsView(
+    //     _currentCall,
+    //     lmbValue: handleLmb.value,
+    //     onLmbChanged: (b) {
+    //       lmbTimeout = 7;
+    //       handleLmb.value = b ?? false;
+    //     },
+    //     panelValue: panelUp.value,
+    //     onPanelChanged: (b) => panelUp.value = b ?? false,
+    //   ),
+    // );
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].

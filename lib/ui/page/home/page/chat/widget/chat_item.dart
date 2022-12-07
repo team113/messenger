@@ -54,6 +54,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -1227,6 +1228,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     bool isSent = item.status.value == SendingStatus.sent;
 
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      for (LastChatRead m in widget.chat.value?.lastReads ?? []) {
+        if (m.at == widget.item.value.at && m.memberId != widget.me) {
+          final User? user = widget.chat.value?.members
+              .firstWhereOrNull((e) => e.user.id == m.memberId)
+              ?.user;
+          avatars.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: AvatarWidget.fromUser(user, radius: 10),
+            ),
+          );
+        }
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       asStack: !_fromMe,
@@ -1470,7 +1489,53 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        child: child,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: _fromMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.end,
+                          mainAxisAlignment: _fromMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: [
+                            child,
+                            Transform.translate(
+                              offset: const Offset(-12, -4),
+                              child: WidgetButton(
+                                onPressed: () => ChatItemReadsView.show(
+                                  context,
+                                  item: widget.item,
+                                  chat: widget.chat,
+                                  getUser: widget.getUser,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: avatars,
+                                ),
+                              ),
+                            ),
+                            // if (avatars.isNotEmpty)
+                            //   Positioned.fill(
+                            //     child: Align(
+                            //       alignment: Alignment.bottomRight,
+                            //       child: Transform.translate(
+                            //         offset: const Offset(-6, 16),
+                            //         child: WidgetButton(
+                            //           onPressed: () => ChatItemReadsView.show(
+                            //             context,
+                            //             item: widget.item,
+                            //             chat: widget.chat,
+                            //           ),
+                            //           child: Row(
+                            //             mainAxisSize: MainAxisSize.min,
+                            //             children: avatars,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   )
+                          ],
+                        ),
                       ),
                     ),
                   );

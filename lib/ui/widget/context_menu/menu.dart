@@ -183,51 +183,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               // ],
             ],
           ),
-          // child: Text(
-          //   widget.label,
-          //   style: style.boldBody
-          //       .copyWith(
-          //         color: isMouseOver ? Colors.white : Colors.black,
-          //         fontSize: 14,
-          //         fontWeight: FontWeight.w500,
-          //       )
-          //       .merge(widget.style),
-          // ),
-          // child: Row(
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     // if (widget.leading != null) ...[
-          //     //   Theme(
-          //     //     data: Theme.of(context).copyWith(
-          //     //       iconTheme: const IconThemeData(color: Colors.blue),
-          //     //     ),
-          //     //     child: widget.leading!,
-          //     //   ),
-          //     //   const SizedBox(width: 14),
-          //     // ],
-          //     Expanded(
-          //       child: Text(
-          //         widget.label,
-          //         style: style.boldBody
-          //             .copyWith(
-          //               color: isMouseOver ? Colors.white : Colors.black,
-          //               fontSize: 14,
-          //               fontWeight: FontWeight.w500,
-          //             )
-          //             .merge(widget.style),
-          //       ),
-          //     ),
-          //   if (widget.trailing != null) ...[
-          //     const SizedBox(width: 14),
-          //     Theme(
-          //       data: Theme.of(context).copyWith(
-          //         iconTheme: const IconThemeData(color: Colors.blue),
-          //       ),
-          //       child: widget.trailing!,
-          //     ),
-          //   ],
-          // ],
-          // ),
         ),
       ),
     );

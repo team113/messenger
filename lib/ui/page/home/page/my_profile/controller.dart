@@ -251,8 +251,11 @@ class MyProfileController extends GetxController {
     listController.sliverController.onPaintItemPositionsCallback =
         (height, positions) {
       if (positions.isNotEmpty) {
-        ignoreWorker = true;
-        router.profileTab.value = ProfileTab.values[positions.first.index];
+        final ProfileTab tab = ProfileTab.values[positions.first.index];
+        if (router.profileTab.value != tab) {
+          ignoreWorker = true;
+          router.profileTab.value = tab;
+        }
       }
     };
 

@@ -85,9 +85,6 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
@@ -258,7 +255,7 @@ class MyProfileView extends StatelessWidget {
 
                       case ProfileTab.media:
                         if (!PlatformUtils.isMobile) {
-                          block(
+                          return block(
                             children: [
                               _label(context, 'Медиа'),
                               _media(context, c),

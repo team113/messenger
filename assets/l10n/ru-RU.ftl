@@ -497,6 +497,7 @@ label_offline = Офлайн
 label_online = Онлайн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participant_redial_successfully = Участник перенабран
 label_participants = Участники
 label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль

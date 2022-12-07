@@ -112,11 +112,6 @@ class CameraSwitchView extends StatelessWidget {
                                     width: 48.54,
                                     height: 42,
                                   ),
-                                  // child: Icon(
-                                  //   Icons.videocam_off,
-                                  //   color: Colors.white,
-                                  //   size: 40,
-                                  // ),
                                 )
                               : webrtc.VideoView(
                                   local.inner,
