@@ -31,7 +31,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/settings.dart';
-import '/domain/service/disposable_service.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
@@ -43,7 +42,7 @@ import 'event/chat_call.dart';
 import 'event/incoming_chat_call.dart';
 
 /// Implementation of an [AbstractCallRepository].
-class CallRepository extends DisposableService
+class CallRepository extends DisposableInterface
     implements AbstractCallRepository {
   CallRepository(
     this._graphQlProvider,
@@ -600,14 +599,12 @@ class CallRepository extends DisposableService
 
           case IncomingChatCallsTopEventKind.removed:
             e as EventIncomingChatCallsTopChatCallRemoved;
-            Rx<OngoingCall>? call = calls[e.call.chatId];
+            final Rx<OngoingCall>? call = calls[e.call.chatId];
             // If call is not yet connected to the remote updates, then it's
             // still just a notification and it should be removed.
             if (call?.value.connected == false &&
                 call?.value.isActive == false) {
-              var removed = remove(e.call.chatId);
-              removed?.value.state.value = OngoingCallState.ended;
-              removed?.value.dispose();
+              remove(e.call.chatId);
             }
             break;
         }
