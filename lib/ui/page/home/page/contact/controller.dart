@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
@@ -26,7 +25,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart'
-    show ToggleChatMuteException;
+    show DeleteChatContactRecordException, ToggleChatMuteException;
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -85,6 +84,7 @@ class ContactController extends GetxController {
         .any((e) => e.contact.value.users.every((m) => m.id == id)));
 
     name = TextFieldState(
+      text: contact.contact.value.name.val,
       approvable: true,
       onChanged: (s) async {
         s.error.value = null;
@@ -132,6 +132,7 @@ class ContactController extends GetxController {
         }
       },
       onSubmitted: (s) async {
+        if (s.status.value == RxStatus.loading()) return;
         UserEmail? email;
         try {
           email = UserEmail(s.text);
@@ -139,13 +140,14 @@ class ContactController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
-        if (s.error.value == null) {
+        if (s.error.value == null ||
+            contact.contact.value.emails.contains(email)) {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
           try {
-            await Future.delayed(1.seconds);
-            emails.add(email!);
+            await _contactService.createChatContactRecord(id, email: email);
+
             s.clear();
           } on FormatException {
             s.error.value = 'err_incorrect_input'.l10n;
@@ -170,6 +172,7 @@ class ContactController extends GetxController {
         }
       },
       onSubmitted: (s) async {
+        if (s.status.value == RxStatus.loading()) return;
         UserPhone? phone;
         try {
           phone = UserPhone(s.text);
@@ -177,13 +180,14 @@ class ContactController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
-        if (s.error.value == null) {
+        if (s.error.value == null ||
+            !contact.contact.value.phones.contains(phone)) {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
           try {
-            await Future.delayed(1.seconds);
-            phones.add(phone!);
+            await _contactService.createChatContactRecord(id, phone: phone);
+
             s.clear();
           } on FormatException {
             s.error.value = 'err_incorrect_input'.l10n;
@@ -238,6 +242,30 @@ class ContactController extends GetxController {
 
   Future<void> removeFromFavorites() async {
     inFavorites.value = false;
+  }
+
+  Future<void> removePhone(UserPhone phone) async {
+    try {
+      await _contactService.deleteChatContactRecord(id, phone: phone);
+    } on DeleteChatContactRecordException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  Future<void> removeEmail(UserEmail email) async {
+    try {
+      await _contactService.deleteChatContactRecord(id, email: email);
+    } on DeleteChatContactRecordException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Unmutes a [Chat] identified by the provided [id].

@@ -19,6 +19,8 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
+import 'package:messenger/ui/page/home/page/user/delete_email/view.dart';
+import 'package:messenger/ui/page/home/page/user/delete_phone/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -219,11 +221,7 @@ class ContactView extends StatelessWidget {
   Widget _emails(ContactController c, BuildContext context) {
     final List<Widget> widgets = [];
 
-    for (UserEmail e in [
-      const UserEmail.unchecked('123@gmail.com'),
-      const UserEmail.unchecked('test@mail.ru'),
-      ...c.emails,
-    ]) {
+    for (UserEmail e in c.contact.contact.value.emails) {
       widgets.add(
         Stack(
           alignment: Alignment.centerRight,
@@ -249,8 +247,11 @@ class ContactView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => null,
-              // DeleteEmailView.show(context, email: e),
+              onPressed: () => DeleteEmailView.show(
+                context,
+                email: e,
+                onSubmit: () => c.removeEmail(e),
+              ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
                 width: 30,
@@ -272,10 +273,7 @@ class ContactView extends StatelessWidget {
     );
     widgets.add(const SizedBox(height: 10));
 
-    for (UserPhone e in [
-      const UserPhone.unchecked('+1264266326'),
-      ...c.phones,
-    ]) {
+    for (UserPhone e in c.contact.contact.value.phones) {
       widgets.add(
         Stack(
           alignment: Alignment.centerRight,
@@ -303,8 +301,11 @@ class ContactView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => null,
-              // DeletePhoneView.show(context, phone: e),
+              onPressed: () => DeletePhoneView.show(
+                context,
+                phone: e,
+                onSubmit: () => c.removePhone(e),
+              ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
                 width: 30,

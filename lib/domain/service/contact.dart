@@ -16,6 +16,7 @@
 
 import 'package:get/get.dart';
 
+import '../model/chat.dart';
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
@@ -66,4 +67,38 @@ class ContactService extends DisposableService {
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _contactRepository.changeContactName(id, name);
+
+  /// Updates `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  Future<void> createChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  }) =>
+      _contactRepository.createChatContactRecord(
+        id,
+        user: user,
+        group: group,
+        email: email,
+        phone: phone,
+      );
+
+  /// Updates `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  Future<void> deleteChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  }) =>
+      _contactRepository.deleteChatContactRecord(
+        id,
+        user: user,
+        group: group,
+        email: email,
+        phone: phone,
+      );
 }

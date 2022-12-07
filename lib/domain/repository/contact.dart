@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../model/chat.dart';
 import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
@@ -57,6 +58,26 @@ abstract class AbstractContactRepository {
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
+
+  /// Updates `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  Future<void> createChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  });
+
+  /// Updates `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  Future<void> deleteChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 }
 
 /// Unified reactive [ChatContact] entity.

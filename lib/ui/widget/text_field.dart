@@ -417,6 +417,7 @@ class TextFieldState extends ReactiveFieldState {
   /// - [submit] was manually called.
   final Function(TextFieldState)? onSubmitted;
 
+  @override
   final bool approvable;
 
   @override

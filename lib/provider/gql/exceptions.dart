@@ -719,6 +719,60 @@ class UpdateChatContactNameException
   }
 }
 
+/// Exception of `Mutation.updateChatContactName` described in the [code].
+class CreateChatContactRecordException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const CreateChatContactRecordException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final CreateChatContactRecordErrorCode code;
+
+  @override
+  String toString() => 'CreateChatContactRecordException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case CreateChatContactRecordErrorCode.unknownChatContact:
+        return 'err_unknown_contact'.l10n;
+      case CreateChatContactRecordErrorCode.tooMany:
+        return 'err_unknown'.l10n;
+      case CreateChatContactRecordErrorCode.unknownChat:
+        return 'err_unknown'.l10n;
+      case CreateChatContactRecordErrorCode.notGroup:
+        return 'err_unknown'.l10n;
+      case CreateChatContactRecordErrorCode.unknownUser:
+        return 'err_unknown'.l10n;
+      case CreateChatContactRecordErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.updateChatContactName` described in the [code].
+class DeleteChatContactRecordException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const DeleteChatContactRecordException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final DeleteChatContactRecordErrorCode code;
+
+  @override
+  String toString() => 'DeleteChatContactRecordException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case DeleteChatContactRecordErrorCode.unknownChatContact:
+        return 'err_unknown_contact'.l10n;
+      case DeleteChatContactRecordErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.addUserEmail` described in the [code].
 class AddUserEmailException with LocalizedExceptionMixin implements Exception {
   const AddUserEmailException(this.code);

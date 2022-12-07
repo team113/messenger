@@ -238,4 +238,78 @@ abstract class ContactGraphQlMixin {
     return UpdateChatContactName$Mutation.fromJson(result.data!)
         .updateChatContactName as ChatContactEventsVersionedMixin;
   }
+
+  /// Updates the `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatContactEvent] may be produced on success:
+  /// - [EventChatContactNameUpdated].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
+  /// [ChatContact] has such name already.
+  Future<ChatContactEventsVersionedMixin?> createChatContactRecord(
+      ChatContactId id, ChatContactRecord record) async {
+    CreateChatContactRecordArguments variables =
+        CreateChatContactRecordArguments(id: id, record: record);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'CreateChatContactRecord',
+        document:
+            CreateChatContactRecordMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => CreateChatContactRecordException(
+          (CreateChatContactRecord$Mutation.fromJson(data)
+                      .createChatContactRecord
+                  as CreateChatContactRecord$Mutation$CreateChatContactRecord$CreateChatContactRecordError)
+              .code),
+    );
+    return CreateChatContactRecord$Mutation.fromJson(result.data!)
+        .createChatContactRecord as ChatContactEventsVersionedMixin?;
+  }
+
+  /// Updates the `name` of the specified [ChatContact] in the authenticated
+  /// [MyUser]'s address book.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatContactEvent] may be produced on success:
+  /// - [EventChatContactNameUpdated].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
+  /// [ChatContact] has such name already.
+  Future<ChatContactEventsVersionedMixin?> deleteChatContactRecord(
+      ChatContactId id, ChatContactRecord record) async {
+    DeleteChatContactRecordArguments variables =
+        DeleteChatContactRecordArguments(id: id, record: record);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'DeleteChatContactRecord',
+        document:
+            DeleteChatContactRecordMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => DeleteChatContactRecordException(
+          (DeleteChatContactRecord$Mutation.fromJson(data)
+                      .deleteChatContactRecord
+                  as DeleteChatContactRecord$Mutation$DeleteChatContactRecord$DeleteChatContactRecordError)
+              .code),
+    );
+    return DeleteChatContactRecord$Mutation.fromJson(result.data!)
+        .deleteChatContactRecord as ChatContactEventsVersionedMixin?;
+  }
 }

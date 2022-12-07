@@ -156,6 +156,52 @@ class ContactRepository implements AbstractContactRepository {
     }
   }
 
+  @override
+  Future<void> createChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
+    try {
+      await _graphQlProvider.createChatContactRecord(
+        id,
+        ChatContactRecord(
+          groupId: group?.id,
+          userId: user?.id,
+          email: email,
+          phone: phone,
+        ),
+      );
+    } catch (_) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteChatContactRecord(
+    ChatContactId id, {
+    User? user,
+    Chat? group,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
+    try {
+      await _graphQlProvider.deleteChatContactRecord(
+        id,
+        ChatContactRecord(
+          groupId: group?.id,
+          userId: user?.id,
+          email: email,
+          phone: phone,
+        ),
+      );
+    } catch (_) {
+      rethrow;
+    }
+  }
+
   /// Puts the provided [contact] to [Hive].
   Future<void> _putChatContact(HiveChatContact contact) async {
     var saved = _contactLocal.get(contact.value.id);
@@ -184,6 +230,7 @@ class ContactRepository implements AbstractContactRepository {
                 HiveRxChatContact(_userRepo, event.value)..init();
           } else {
             contact.contact.value = event.value.value;
+            contact.contact.refresh();
           }
         } else {
           contacts.remove(ChatContactId(event.key));
@@ -284,12 +331,16 @@ class ContactRepository implements AbstractContactRepository {
             switch (node.kind) {
               case ChatContactEventKind.emailAdded:
                 node as EventChatContactEmailAdded;
-                contactEntity.value.emails.add(node.email);
+                if (!contactEntity.value.emails.contains(node.email)) {
+                  contactEntity.value.emails.add(node.email);
+                }
                 break;
 
               case ChatContactEventKind.emailRemoved:
                 node as EventChatContactEmailRemoved;
-                contactEntity.value.emails.remove(node.email);
+                if (contactEntity.value.emails.contains(node.email)) {
+                  contactEntity.value.emails.remove(node.email);
+                }
                 break;
 
               case ChatContactEventKind.favorited:
@@ -315,12 +366,16 @@ class ContactRepository implements AbstractContactRepository {
 
               case ChatContactEventKind.phoneAdded:
                 node as EventChatContactPhoneAdded;
-                contactEntity.value.phones.add(node.phone);
+                if (!contactEntity.value.phones.contains(node.phone)) {
+                  contactEntity.value.phones.add(node.phone);
+                }
                 break;
 
               case ChatContactEventKind.phoneRemoved:
                 node as EventChatContactPhoneRemoved;
-                contactEntity.value.phones.remove(node.phone);
+                if (contactEntity.value.phones.contains(node.phone)) {
+                  contactEntity.value.phones.remove(node.phone);
+                }
                 break;
 
               case ChatContactEventKind.unfavorited:
