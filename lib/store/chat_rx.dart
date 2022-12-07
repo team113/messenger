@@ -44,7 +44,6 @@ import '/provider/gql/exceptions.dart'
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
-import '/store/user.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -58,7 +57,6 @@ class HiveRxChat extends RxChat {
     this._chatRepository,
     this._chatLocal,
     this._draftLocal,
-    this._userRepository,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
@@ -96,9 +94,6 @@ class HiveRxChat extends RxChat {
 
   /// [RxChat.draft]s local [Hive] storage.
   final DraftHiveProvider _draftLocal;
-
-  /// [RxUser]s local [Hive] storage.
-  final UserRepository _userRepository;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -578,7 +573,7 @@ class HiveRxChat extends RxChat {
       UserId? responderId =
           chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
       if (responderId != null) {
-        _userRepository.updateDialog(responderId, chat.value);
+        _chatRepository.updateDialog(responderId, chat.value);
       }
     }
 

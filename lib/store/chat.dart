@@ -131,13 +131,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        final HiveRxChat entry = HiveRxChat(
-          this,
-          _chatLocal,
-          _draftLocal,
-          _userRepo,
-          c,
-        );
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -669,6 +663,13 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
+  /// Updates [User.dialog] with provided [chat].
+  void updateDialog(UserId userId, Chat chat) {
+    if (_userRepo.users[userId]?.dialog.value?.id != chat.id) {
+      _userRepo.updateDialog(userId, chat);
+    }
+  }
+
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
@@ -947,13 +948,8 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(
-            this,
-            _chatLocal,
-            _draftLocal,
-            _userRepo,
-            event.value,
-          );
+          HiveRxChat entry =
+              HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
@@ -1078,7 +1074,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, _userRepo, data.chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();
