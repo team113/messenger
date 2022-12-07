@@ -690,8 +690,8 @@ class ChatRepository implements AbstractChatRepository {
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
   void addCall(ChatCall call) => _callRepo.add(call);
 
-  /// Ends an [OngoingCall] happening in a [Chat] with the provided [chatId], if
-  /// any.
+  /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
+  /// [chatId], if any.
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].

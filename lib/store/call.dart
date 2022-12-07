@@ -67,17 +67,17 @@ class CallRepository extends DisposableInterface
   /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
   final ChatCallCredentialsHiveProvider _credentialsProvider;
 
-  /// Settings repository, used to get the stored [MediaSettings].
+  /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
 
   /// Temporary [ChatCallCredentials] of the [Chat]s containing just started
   /// [OngoingCall]s.
   final Map<ChatId, ChatCallCredentials> _credentials = {};
 
-  /// Subscription to [IncomingChatCallsTopEvent]s list.
+  /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
 
-  /// Returns the current [MediaSettings] value.
+  /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   @override
@@ -108,7 +108,7 @@ class CallRepository extends DisposableInterface
   Rx<OngoingCall>? add(ChatCall call) {
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
-    // If we're already in this call or call already exist, then ignore it.
+    // If we're already in this call or call already exists, then ignore it.
     if ((ongoing != null &&
             ongoing.value.state.value != OngoingCallState.ended) ||
         call.members.any((e) => e.user.id == me)) {
@@ -397,7 +397,7 @@ class CallRepository extends DisposableInterface
     });
   }
 
-  /// Returns the subscription of [IncomingChatCallsTopEvent]s.
+  /// Returns a [Stream] of [IncomingChatCallsTopEvent]s.
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
@@ -581,7 +581,7 @@ class CallRepository extends DisposableInterface
     return null;
   }
 
-  /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
+  /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
     _events?.cancel();
     _events = (await _incomingEvents(count)).listen(
@@ -604,8 +604,8 @@ class CallRepository extends DisposableInterface
           case IncomingChatCallsTopEventKind.removed:
             e as EventIncomingChatCallsTopChatCallRemoved;
             final Rx<OngoingCall>? call = calls[e.call.chatId];
-            // If call is not yet connected to the remote updates, then it's
-            // still just a notification and it should be removed.
+            // If call is not yet connected to remote updates, then it's still
+            // just a notification and it should be removed.
             if (call?.value.connected == false &&
                 call?.value.isActive == false) {
               remove(e.call.chatId);
