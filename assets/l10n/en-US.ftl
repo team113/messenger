@@ -469,6 +469,7 @@ label_offline = Offline
 label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participant_redial_successfully = Participant redialed
 label_participants = Participants
 label_participants_added_successfully = Participants successfully added
 label_password = Password

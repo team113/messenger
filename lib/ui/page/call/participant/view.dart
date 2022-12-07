@@ -309,9 +309,7 @@ class ParticipantView extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
-                    onTap: () {
-                      // TODO: Redial the provided [user].
-                    },
+                    onTap: () => c.redialChatCallMember(user.id),
                     borderRadius: BorderRadius.circular(60),
                     child: SizedBox(
                       width: 30,
