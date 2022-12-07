@@ -415,8 +415,8 @@ abstract class CallGraphQlMixin {
   /// ongoing [ChatCall].
   ///
   /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
-  /// and the ongoing [ChatCall] appearing in his `Query.incomingChatCallsTop`
-  /// and `Subscription.incomingChatCallsTopEvents` again.
+  /// and the ongoing [ChatCall] appearing in his [incomingCallsTopEvents]
+  /// again.
   ///
   /// ### Authentication
   ///

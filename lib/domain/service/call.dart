@@ -211,9 +211,11 @@ class CallService extends DisposableService {
 
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
-      _callsRepo.remove(chatId);
+    } else {
+      await _callsRepo.decline(chatId);
     }
 
+    _callsRepo.remove(chatId);
     WebUtils.removeCall(chatId);
   }
 
@@ -292,8 +294,7 @@ class CallService extends DisposableService {
   /// Redials a [User] who left or declined the ongoing [ChatCall] in the
   /// specified [Chat]-group by the authenticated [MyUser].
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
+    if (_callsRepo.contains(chatId)) {
       await _callsRepo.redialChatCallMember(chatId, memberId);
     }
   }

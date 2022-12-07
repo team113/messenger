@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Media panel:
+        - Participants redialing. ([#241], [#233])
 
 ### Changed
 
@@ -36,8 +38,6 @@ All user visible changes to this project will be documented in this file. This p
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
-    - Call participants popup:
-        - Call members redialing. ([#241], [#233])
 
 ### Fixed
 
