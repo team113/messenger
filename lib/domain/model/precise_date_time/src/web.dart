@@ -160,9 +160,14 @@ class PreciseDateTime extends NewType<DateTime>
   /// print(newYearsDay); // 2022-01-01 10:00:00.000Z
   /// ```
   static PreciseDateTime fromMillisecondsSinceEpoch(
-          int millisecondsSinceEpoch) =>
+    int millisecondsSinceEpoch, {
+    bool isUtc = false,
+  }) =>
       PreciseDateTime(
-        DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch),
+        DateTime.fromMillisecondsSinceEpoch(
+          millisecondsSinceEpoch,
+          isUtc: isUtc,
+        ),
       );
 
   /// Returns this [PreciseDateTime] value in the UTC time zone.
