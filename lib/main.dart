@@ -57,11 +57,12 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      // systemNavigationBarIconBrightness: Brightness.dark,
-      // statusBarIconBrightness: Brightness.dark,
-      // statusBarBrightness: Brightness.dark,
-      // systemStatusBarContrastEnforced: false,
+      systemNavigationBarColor: Colors.white.withOpacity(0),
+      systemNavigationBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarContrastEnforced: false,
     ),
   );
   // Initializes and runs the [App].
