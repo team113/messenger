@@ -1025,6 +1025,7 @@ class ChatRepository implements AbstractChatRepository {
           entry.subscribe();
         } else {
           chat.chat.value = event.value.value;
+          chat.lastReadItemCursor = event.value.lastReadItemCursor;
           chat.chat.refresh();
         }
       }

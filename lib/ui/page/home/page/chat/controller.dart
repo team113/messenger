@@ -780,7 +780,8 @@ class ChatController extends GetxController {
         (_) {
           if (atBottom &&
               status.value.isSuccess &&
-              !status.value.isLoadingMore) {
+              !status.value.isLoadingMore &&
+              !_isFetchingMore) {
             Future.delayed(
               Duration.zero,
               () => SchedulerBinding.instance.addPostFrameCallback(
@@ -1251,12 +1252,15 @@ class ChatController extends GetxController {
         _fetchingElement = FetchingElement.top();
         elements[_fetchingElement!.id] = _fetchingElement!;
 
-        await chat?.fetchNextPage();
+        await chat?.fetchNextPage(
+          () {
+            elements.remove(_fetchingElement!.id);
+            _fetchingElement = null;
+          },
+        );
 
-        elements.remove(_fetchingElement!.id);
-        _fetchingElement = null;
-
-        _isFetchingMore = false;
+        // Wait for fetched messages to be added to the [elements].
+        await Future.delayed(1.milliseconds, () => _isFetchingMore = false);
       }
 
       if (chat?.hasPreviousPage == true &&
@@ -1268,12 +1272,15 @@ class ChatController extends GetxController {
         _fetchingElement = FetchingElement.bottom();
         elements[_fetchingElement!.id] = _fetchingElement!;
 
-        await chat?.fetchPreviousPage();
+        await chat?.fetchPreviousPage(
+          () {
+            elements.remove(_fetchingElement!.id);
+            _fetchingElement = null;
+          },
+        );
 
-        elements.remove(_fetchingElement!.id);
-        _fetchingElement = null;
-
-        _isFetchingMore = false;
+        // Wait for fetched messages to be added to the [elements].
+        await Future.delayed(1.milliseconds, () => _isFetchingMore = false);
       }
     }
   }

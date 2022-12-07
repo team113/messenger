@@ -390,7 +390,7 @@ class ChatsTabController extends GetxController {
       }
     }
   }
-  
+
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&

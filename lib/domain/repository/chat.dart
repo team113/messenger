@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:get/get.dart';
 
@@ -242,10 +243,10 @@ abstract class RxChat {
   Future<void> fetchMessages();
 
   /// Fetches next page of the [messages] from the service.
-  FutureOr<void> fetchNextPage();
+  FutureOr<void> fetchNextPage(VoidCallback onMessagesAdded);
 
   /// Fetches previous page of the [messages] from the service.
-  FutureOr<void> fetchPreviousPage();
+  FutureOr<void> fetchPreviousPage(VoidCallback onMessagesAdded);
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

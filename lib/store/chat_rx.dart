@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -62,7 +63,7 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         cursor = hiveChat.cursor,
-        _lastReadItemCursor = hiveChat.lastReadItemCursor,
+        lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
@@ -99,8 +100,8 @@ class HiveRxChat extends RxChat {
   /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
 
-  /// Cursor of the last read [ChatItem].
-  final ChatItemsCursor? _lastReadItemCursor;
+  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
+  ChatItemsCursor? lastReadItemCursor;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -145,7 +146,7 @@ class HiveRxChat extends RxChat {
   final List<ChatItem> _pending = [];
 
   /// Size of the [ChatItems]s page.
-  final int _pageSize = 20;
+  final int _pageSize = 120;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -193,8 +194,7 @@ class HiveRxChat extends RxChat {
       if (!_local.isEmpty) {
         Iterable<HiveChatItem> localMessages;
         if (_local.messages.length > _pageSize ~/ 2) {
-          localMessages =
-              _local.messages.toList().reversed.take(_pageSize ~/ 2);
+          localMessages = _local.takeLast(_pageSize ~/ 2);
         } else {
           localMessages = _local.messages;
         }
@@ -284,14 +284,15 @@ class HiveRxChat extends RxChat {
     }
 
     ChatItemsQuery itemsQuery;
-    if (_lastReadItemCursor != null) {
+    if (lastReadItemCursor != null) {
       itemsQuery = await _chatRepository.messages(
         chat.value.id,
-        after: _lastReadItemCursor,
+        after: lastReadItemCursor,
         first: _pageSize ~/ 2 - 1,
-        before: _lastReadItemCursor,
+        before: lastReadItemCursor,
         last: _pageSize ~/ 2 - 1,
       );
+
       if (itemsQuery.pageInfo != null) {
         hasNextPage = itemsQuery.pageInfo!.hasNextPage;
         hasPreviousPage = itemsQuery.pageInfo!.hasPreviousPage;
@@ -308,6 +309,7 @@ class HiveRxChat extends RxChat {
     }
 
     return _guard.protect(() async {
+      List<Rx<ChatItem>> removed = <Rx<ChatItem>>[];
       for (Rx<ChatItem> item in messages) {
         if (item.value.status.value == SendingStatus.sent) {
           int i =
@@ -316,15 +318,19 @@ class HiveRxChat extends RxChat {
             if (!item.value.at.isBefore(itemsQuery.items.last.value.at)) {
               _local.remove(item.value.timestamp);
             } else {
-              messages.remove(item);
+              removed.add(item);
             }
           }
         }
       }
 
+      for (Rx<ChatItem> item in removed) {
+        messages.remove(item);
+      }
+
       for (HiveChatItem item in itemsQuery.items) {
         if (item.value.chatId == id) {
-          put(item, ignoreVersion: true);
+          put(item);
         } else {
           _chatRepository.putChatItem(item);
         }
@@ -335,18 +341,17 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  FutureOr<void> fetchNextPage() async {
+  FutureOr<void> fetchNextPage(VoidCallback onMessagesAdded) async {
     if (messages.isEmpty || !hasNextPage) {
       return;
     }
 
+    ChatItem firstMessage = messages.first.value;
+
     Iterable<HiveChatItem>? localMessages;
     if (_local.messages.length > messages.length) {
-      localMessages = _local.messages
-          .toList()
-          .reversed
-          .skip(messages.length)
-          .take(_pageSize);
+      localMessages =
+          _local.takeBefore(messages.first.value.timestamp, _pageSize);
 
       for (HiveChatItem i in localMessages) {
         messages.insertAfter(
@@ -355,12 +360,16 @@ class HiveRxChat extends RxChat {
         );
       }
 
-      await _initAttachments(localMessages.map((e) => e.value));
+      _initAttachments(localMessages.map((e) => e.value));
+
+      if (localMessages.length == _pageSize) {
+        onMessagesAdded();
+      }
     }
 
     HiveChatItem? item = await get(
-      messages.first.value.id,
-      timestamp: messages.first.value.timestamp,
+      firstMessage.id,
+      timestamp: firstMessage.timestamp,
     );
 
     if (item == null) {
@@ -383,9 +392,9 @@ class HiveRxChat extends RxChat {
           if (item.value.status.value == SendingStatus.sent) {
             int i =
                 itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
-            if (i == -1 &&
-                !item.value.at.isBefore(itemsQuery.items.last.value.at)) {
-              if (!item.value.at.isBefore(itemsQuery.items.last.value.at)) {
+            if (i == -1) {
+              if (itemsQuery.items.isNotEmpty &&
+                  !item.value.at.isBefore(itemsQuery.items.last.value.at)) {
                 _local.remove(item.value.timestamp);
               } else {
                 messages.removeWhere((e) => e.value.id == item.value.id);
@@ -402,11 +411,15 @@ class HiveRxChat extends RxChat {
           _chatRepository.putChatItem(item);
         }
       }
+
+      if (localMessages?.length != _pageSize) {
+        onMessagesAdded();
+      }
     });
   }
 
   @override
-  FutureOr<void> fetchPreviousPage() async {
+  FutureOr<void> fetchPreviousPage(VoidCallback onMessagesAdded) async {
     if (messages.isEmpty || !hasPreviousPage) {
       return;
     }
@@ -438,6 +451,7 @@ class HiveRxChat extends RxChat {
           _chatRepository.putChatItem(item);
         }
       }
+      onMessagesAdded();
     });
   }
 
@@ -1108,6 +1122,11 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.itemPosted:
               event as EventChatItemPosted;
               for (var item in event.item) {
+                if (item.value.authorId == me) {
+                  chatEntity.lastReadItemCursor = item.cursor;
+                  lastReadItemCursor = item.cursor;
+                }
+
                 if (item.value is ChatMessage && item.value.authorId == me) {
                   ChatMessage? pending =
                       _pending.whereType<ChatMessage>().firstWhereOrNull(
