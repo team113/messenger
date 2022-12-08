@@ -82,6 +82,10 @@ abstract class AbstractCallRepository {
     ChatName? groupName,
   );
 
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId);
+
   /// Generates the [ChatCallCredentials] for a [Chat] identified by the
   /// provided [id].
   ///

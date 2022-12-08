@@ -998,6 +998,37 @@ class ToggleChatCallHandException
   }
 }
 
+/// Exception of `Mutation.redialChatCallMember` described in the [code].
+class RedialChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RedialChatCallMemberException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RedialChatCallMemberErrorCode code;
+
+  @override
+  String toString() => 'RedialChatCallMemberException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RedialChatCallMemberErrorCode.notCallMember:
+        return 'err_not_call_member'.l10n;
+      case RedialChatCallMemberErrorCode.noCall:
+        return 'err_call_not_found'.l10n;
+      case RedialChatCallMemberErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case RedialChatCallMemberErrorCode.notChatMember:
+        return 'err_not_member'.l10n;
+      case RedialChatCallMemberErrorCode.notGroup:
+        return 'err_contact_not_group'.l10n;
+      case RedialChatCallMemberErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.createChatDirectLink` described in the [code].
 class CreateChatDirectLinkException
     with LocalizedExceptionMixin

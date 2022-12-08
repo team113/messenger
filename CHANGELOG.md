@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Media panel:
+        - Participants redialing. ([#241], [#233])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
 
@@ -76,7 +78,9 @@ All user visible changes to this project will be documented in this file. This p
 [#218]: /../../pull/218
 [#221]: /../../pull/221
 [#223]: /../../issues/223
+[#233]: /../../issues/233
 [#237]: /../../pull/237
+[#241]: /../../pull/241
 
 
 
