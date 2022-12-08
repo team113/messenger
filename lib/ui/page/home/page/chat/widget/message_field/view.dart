@@ -101,27 +101,29 @@ class MessageFieldView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    Widget sendButton() => WidgetButton(
-          onPressed: onSend?.call,
-          child: SizedBox(
-            width: 56,
-            height: 56,
-            child: Center(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                child: SizedBox(
-                  key: messageSendButtonKey ?? const Key('Send'),
-                  width: 25.18,
+    Widget sendButton() {
+      return WidgetButton(
+        onPressed: onSend,
+        child: SizedBox(
+          width: 56,
+          height: 56,
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: SizedBox(
+                key: messageSendButtonKey ?? const Key('Send'),
+                width: 25.18,
+                height: 22.85,
+                child: SvgLoader.asset(
+                  'assets/icons/send.svg',
                   height: 22.85,
-                  child: SvgLoader.asset(
-                    'assets/icons/send.svg',
-                    height: 22.85,
-                  ),
                 ),
               ),
             ),
           ),
-        );
+        ),
+      );
+    }
 
     return GetBuilder<MessageFieldController>(
       init: controller,
@@ -510,9 +512,7 @@ class MessageFieldView extends StatelessWidget {
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value == true
                                       ? WidgetButton(
-                                          onPressed: () {
-                                            onSend?.call();
-                                          },
+                                          onPressed: onSend,
                                           child: SizedBox(
                                             width: 56,
                                             height: 56,

@@ -56,7 +56,7 @@ class ChatForwardController extends GetxController {
         attachments = RxObsList(attachments ?? []);
 
   /// Selected items in [SearchView] popup.
-  final Rx<SearchViewResults?> searchResults = Rx<SearchViewResults?>(null);
+  final Rx<SearchViewResults?> searchResults = Rx(null);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
@@ -102,7 +102,9 @@ class ChatForwardController extends GetxController {
     sendController.attachments.addAll(attachments);
 
     quotesChanges = ever(quotes, (_) {
-      if (quotes.isEmpty) pop?.call();
+      if (quotes.isEmpty) {
+        pop?.call();
+      }
     });
 
     send = TextFieldState(

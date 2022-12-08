@@ -202,8 +202,8 @@ class SearchView extends StatelessWidget {
                           });
                         } else if (e is RxChat) {
                           child = Obx(() {
-                            return chatTile(
-                              context,
+                            return tile(
+                              context: context,
                               chat: e,
                               selected: c.selectedChats.contains(e),
                               onTap: selectable
@@ -312,15 +312,84 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Builds [User]s tile.
+  /// Builds a visual representation of the provided [user], [contact] or
+  /// [chat].
   Widget tile({
     required BuildContext context,
     RxUser? user,
     RxChatContact? contact,
+    RxChat? chat,
     void Function()? onTap,
     bool selected = false,
   }) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    if (chat != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+          height: 76,
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            border: style.cardBorder,
+            color: Colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: selected
+                ? style.cardSelectedColor
+                : style.cardColor.darken(0.05),
+            child: InkWell(
+              key: Key('Chat_${chat.chat.value.id}'),
+              borderRadius: style.cardRadius,
+              onTap: onTap,
+              hoverColor: selected
+                  ? const Color(0x00D7ECFF)
+                  : const Color(0xFFD7ECFF).withOpacity(0.8),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                child: Row(
+                  children: [
+                    AvatarWidget.fromRxChat(chat, radius: 26),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        chat.title.value,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.headline5,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: selected
+                            ? const CircleAvatar(
+                                backgroundColor: Color(0xFF63B4FF),
+                                radius: 12,
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              )
+                            : const CircleAvatar(
+                                backgroundColor: Color(0xFFD7D7D7),
+                                radius: 12,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -363,80 +432,6 @@ class SearchView extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  /// Builds [Chat]s tile.
-  Widget chatTile(
-    BuildContext context, {
-    required RxChat chat,
-    void Function()? onTap,
-    bool selected = false,
-  }) {
-    Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
-        height: 76,
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          border: style.cardBorder,
-          color: Colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color:
-              selected ? style.cardSelectedColor : style.cardColor.darken(0.05),
-          child: InkWell(
-            key: Key('Chat_${chat.chat.value.id}'),
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            hoverColor: selected
-                ? const Color(0x00D7ECFF)
-                : const Color(0xFFD7ECFF).withOpacity(0.8),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-              child: Row(
-                children: [
-                  AvatarWidget.fromRxChat(chat, radius: 26),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      chat.title.value,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: selected
-                          ? const CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
-                              radius: 12,
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                            )
-                          : const CircleAvatar(
-                              backgroundColor: Color(0xFFD7D7D7),
-                              radius: 12,
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

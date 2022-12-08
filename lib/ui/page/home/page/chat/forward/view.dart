@@ -107,7 +107,7 @@ class ChatForwardView extends StatelessWidget {
       builder: (ChatForwardController c) {
         return Obx(() {
           return DropTarget(
-            onDragDone: (details) => c.dropFiles(details),
+            onDragDone: c.dropFiles,
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
             enable: DropTargetList.keys.lastOrNull == 'ChatForwardView_$from',
