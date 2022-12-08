@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -110,16 +109,32 @@ class ContactRepository implements AbstractContactRepository {
     _initLocalSubscription();
     _initRemoteSubscription();
 
-    HashMap<ChatContactId, HiveChatContact> fetched =
-        await _chatContacts(first: _pageSize);
+    ContactsQuery fetched = await _chatContacts(first: _pageSize);
 
-    for (ChatContactId id in contacts.keys) {
-      if (!fetched.containsKey(id)) {
-        _contactLocal.remove(id);
+    if (!fetched.pageInfo.hasNextPage) {
+      _hasNextPage = false;
+    }
+
+    List<HiveRxChatContact> removed = <HiveRxChatContact>[];
+    for (HiveRxChatContact e in contacts.values) {
+      int i = fetched.items
+          .indexWhere((item) => item.value.id == e.contact.value.id);
+      if (i == -1) {
+        if (e.contact.value.name.val
+                .compareTo(fetched.items.last.value.name.val) !=
+            -1) {
+          _contactLocal.remove(e.contact.value.id);
+        } else {
+          removed.add(e);
+        }
       }
     }
 
-    for (HiveChatContact c in fetched.values) {
+    for (HiveRxChatContact item in removed) {
+      contacts.remove(item.contact.value.id);
+    }
+
+    for (HiveChatContact c in fetched.items) {
       _putChatContact(c);
     }
 
@@ -180,48 +195,52 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> fetchNextPage() async {
-    if (this.contacts.isEmpty || !_hasNextPage) {
+    if (contacts.isEmpty || !_hasNextPage) {
       return;
     }
 
-    List<HiveChatContact>? localContacts;
-    if (!_contactLocal.isEmpty &&
-        _contactLocal.contacts.length > this.contacts.length) {
-      localContacts = _contactLocal.contacts
-          .sortedBy((a) => a.value.name.val)
-          .skip(this.contacts.length)
-          .take(_pageSize)
-          .toList();
-      for (HiveChatContact c in localContacts) {
-        final HiveRxChatContact entry = HiveRxChatContact(_userRepo, c);
-        this.contacts[c.value.id] = entry;
-        entry.init();
-      }
-    }
-
-    ChatContactsCursor? cursor = this
-        .contacts
-        .values
+    ChatContactsCursor? cursor = contacts.values
         .sortedBy((a) => a.contact.value.name.val)
         .lastWhereOrNull((e) => e.cursor != null)
         ?.cursor;
 
-    HashMap<ChatContactId, HiveChatContact> contacts =
+    List<HiveChatContact>? localContacts;
+    if (!_contactLocal.isEmpty &&
+        _contactLocal.contacts.length > contacts.length) {
+      localContacts = _contactLocal.contacts
+          .sortedBy((a) => a.value.name.val)
+          .skip(contacts.length)
+          .take(_pageSize)
+          .toList();
+      for (HiveChatContact c in localContacts) {
+        final HiveRxChatContact entry = HiveRxChatContact(_userRepo, c);
+        contacts[c.value.id] = entry;
+        entry.init();
+      }
+    }
+
+    ContactsQuery fetched =
         await _chatContacts(first: _pageSize, after: cursor);
 
-    if (contacts.length < _pageSize) {
+    if (!fetched.pageInfo.hasNextPage) {
       _hasNextPage = false;
     }
 
     if (localContacts != null) {
-      for (HiveChatContact c in localContacts) {
-        if (!contacts.containsKey(c.value.id)) {
-          _contactLocal.remove(c.value.id);
+      for (HiveChatContact e in localContacts) {
+        int i = fetched.items.indexWhere((item) => item.value.id == e.value.id);
+        if (i == -1) {
+          if (e.value.name.val.compareTo(fetched.items.last.value.name.val) !=
+              -1) {
+            _contactLocal.remove(e.value.id);
+          } else {
+            contacts.remove(e.value.id);
+          }
         }
       }
     }
 
-    for (HiveChatContact c in contacts.values) {
+    for (HiveChatContact c in fetched.items) {
       _putChatContact(c);
     }
   }
@@ -429,7 +448,9 @@ class ContactRepository implements AbstractContactRepository {
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _chatContacts(first: 120))[id];
+    var contact = (await _chatContacts(first: _pageSize))
+        .items
+        .firstWhereOrNull((e) => e.value.id == id);
     if (contact != null) {
       _putChatContact(contact);
     }
@@ -440,7 +461,7 @@ class ContactRepository implements AbstractContactRepository {
   ///
   /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
   /// [User.gallery] to the [GalleryItemHiveProvider].
-  Future<HashMap<ChatContactId, HiveChatContact>> _chatContacts({
+  Future<ContactsQuery> _chatContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,
@@ -454,18 +475,17 @@ class ContactRepository implements AbstractContactRepository {
         before: before);
     _sessionLocal.setChatContactsListVersion(query.ver);
 
-    HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
+    List<HiveChatContact> contacts = <HiveChatContact>[];
     for (var c in query.edges) {
       List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
 
-      HiveChatContact contact = c.node.toHive(cursor: c.cursor);
-      contacts[contact.value.id] = contact;
+      contacts.add(c.node.toHive(cursor: c.cursor));
     }
 
-    return contacts;
+    return ContactsQuery(contacts, query.pageInfo);
   }
 
   /// Notifies about updates in all [ChatContact]s of the authenticated
@@ -579,4 +599,15 @@ class ContactRepository implements AbstractContactRepository {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
     }
   }
+}
+
+/// Result of a [ChatContact]s fetching.
+class ContactsQuery {
+  const ContactsQuery(this.items, this.pageInfo);
+
+  /// Fetched [HiveChatContact]s.
+  final List<HiveChatContact> items;
+
+  /// Page info of this [ContactsQuery].
+  final Contacts$Query$ChatContacts$PageInfo pageInfo;
 }

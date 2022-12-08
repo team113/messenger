@@ -91,7 +91,7 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
   Iterable<HiveChatItem> takeBefore(String timestamp, int count) {
     List<HiveChatItem> list = valuesSafe.toList().reversed.toList();
     HiveChatItem? item = getSafe(timestamp);
-    //var index = list.indexWhere((e) => e.value.timestamp == timestamp);
+
     var index = list.indexWhere((e) => e == item);
     if (index == -1) {
       return [];

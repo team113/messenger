@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
@@ -151,16 +150,32 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    HashMap<ChatId, ChatData> fetched = await _fetchChats(first: _pageSize);
+    ChatsQuery fetched = await _fetchChats(first: _pageSize);
 
-    for (ChatId id in _chats.keys) {
-      if (!fetched.containsKey(id)) {
-        _chatLocal.remove(id);
+    if (!fetched.pageInfo.hasNextPage) {
+      _hasNextPage = false;
+    }
+
+    List<HiveRxChat> removed = <HiveRxChat>[];
+    for (HiveRxChat e in _chats.values) {
+      int i =
+          fetched.items.indexWhere((item) => item.value.id == e.chat.value.id);
+      if (i == -1) {
+        if (!e.chat.value.updatedAt
+            .isBefore(fetched.items.last.value.updatedAt)) {
+          _chatLocal.remove(e.id);
+        } else {
+          removed.add(e);
+        }
       }
     }
 
-    for (ChatData c in fetched.values) {
-      _chats[c.chat.value.id]?.subscribe();
+    for (HiveRxChat item in removed) {
+      _chats.remove(item.chat.value.id);
+    }
+
+    for (HiveChat c in fetched.items) {
+      _chats[c.value.id]?.subscribe();
       _putEntry(c);
     }
 
@@ -232,9 +247,15 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> fetchNextPage() async {
-    if (this.chats.isEmpty || !_hasNextPage) {
+    if (chats.isEmpty || !_hasNextPage) {
       return;
     }
+
+    RecentChatsCursor? cursor = chats.values
+        .sorted(
+            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt))
+        .lastWhereOrNull((e) => e.cursor != null)
+        ?.cursor;
 
     List<HiveChat>? localChats;
     if (!_chatLocal.isEmpty && _chatLocal.chats.length > _chats.length) {
@@ -250,30 +271,26 @@ class ChatRepository implements AbstractChatRepository {
       }
     }
 
-    RecentChatsCursor? cursor = this
-        .chats
-        .values
-        .sorted(
-            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt))
-        .lastWhereOrNull((e) => e.cursor != null)
-        ?.cursor;
+    ChatsQuery fetched = await _fetchChats(first: _pageSize, after: cursor);
 
-    HashMap<ChatId, ChatData> chats =
-        await _fetchChats(first: _pageSize, after: cursor);
-
-    if (chats.length < _pageSize) {
+    if (!fetched.pageInfo.hasNextPage) {
       _hasNextPage = false;
     }
 
     if (localChats != null) {
-      for (HiveChat c in localChats) {
-        if (!chats.containsKey(c.value.id)) {
-          _chatLocal.remove(c.value.id);
+      for (HiveChat e in localChats) {
+        int i = fetched.items.indexWhere((item) => item.value.id == e.value.id);
+        if (i == -1) {
+          if (!e.value.updatedAt.isBefore(fetched.items.last.value.updatedAt)) {
+            _chatLocal.remove(e.value.id);
+          } else {
+            _chats.remove(e.value.id);
+          }
         }
       }
     }
 
-    for (ChatData c in chats.values) {
+    for (HiveChat c in fetched.items) {
       _putEntry(c);
     }
   }
@@ -773,7 +790,7 @@ class ChatRepository implements AbstractChatRepository {
         } else if (events.$$typename == 'Chat') {
           var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
           var data = _chat(chat);
-          yield ChatEventsChat(data.chat);
+          yield ChatEventsChat(data);
         } else if (events.$$typename == 'ChatEventsVersioned') {
           var mixin =
               events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
@@ -1073,8 +1090,8 @@ class ChatRepository implements AbstractChatRepository {
 
       case RecentChatsEventKind.list:
         var node = event as RecentChatsTop;
-        for (ChatData c in node.list) {
-          if (chats[c.chat.value.id] == null) {
+        for (HiveChat c in node.list) {
+          if (chats[c.value.id] == null) {
             _putEntry(c);
           }
         }
@@ -1084,7 +1101,7 @@ class ChatRepository implements AbstractChatRepository {
         event as EventRecentChatsUpdated;
         // Update the chat only if it's new since, otherwise its state is
         // maintained by itself via [chatEvents].
-        if (chats[event.chat.chat.value.id] == null) {
+        if (chats[event.chat.value.id] == null) {
           _putEntry(event.chat);
         }
         break;
@@ -1122,7 +1139,7 @@ class ChatRepository implements AbstractChatRepository {
       });
 
   /// Fetches [HiveChat]s from the remote with pagination.
-  Future<HashMap<ChatId, ChatData>> _fetchChats({
+  Future<ChatsQuery> _fetchChats({
     int? first,
     RecentChatsCursor? after,
     int? last,
@@ -1136,24 +1153,23 @@ class ChatRepository implements AbstractChatRepository {
     ))
         .recentChats;
 
-    HashMap<ChatId, ChatData> chats = HashMap();
+    List<HiveChat> chats = <HiveChat>[];
     for (var c in query.edges) {
-      ChatData data = _chat(c.node, cursor: c.cursor);
-      chats[data.chat.value.id] = data;
+      chats.add(_chat(c.node, cursor: c.cursor));
     }
 
-    return chats;
+    return ChatsQuery(chats, query.pageInfo);
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(ChatData data) async {
-    HiveRxChat? entry = chats[data.chat.value.id];
+  Future<HiveRxChat> _putEntry(HiveChat data) async {
+    HiveRxChat? entry = chats[data.value.id];
 
-    _putChat(data.chat);
+    _putChat(data);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
-      _chats[data.chat.value.id] = entry;
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, data);
+      _chats[data.value.id] = entry;
       entry.init();
       entry.subscribe();
     }
@@ -1162,12 +1178,12 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Constructs a new [ChatData] from the given [ChatMixin] fragment.
-  ChatData _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
+  HiveChat _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toData(cursor: cursor);
+    return q.toHive(cursor: cursor);
   }
 
   @override
@@ -1256,8 +1272,8 @@ class ChatRepository implements AbstractChatRepository {
       case FavoriteChatsEventsKind.chatsList:
         var node = event as FavoriteChatsEventsChatsList;
         _sessionLocal.setFavoriteChatsListVersion(node.ver);
-        for (ChatData data in node.chatList) {
-          if (_chats[data.chat.value.id] == null) {
+        for (HiveChat data in node.chatList) {
+          if (_chats[data.value.id] == null) {
             _putEntry(data);
           }
         }
@@ -1305,7 +1321,7 @@ class ChatRepository implements AbstractChatRepository {
         } else if (events.$$typename == 'FavoriteChatsList') {
           var chatsList = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          var data = chatsList.chats.nodes.map((e) => e.toHive()).toList();
           yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
         } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
           var mixin = events
@@ -1335,22 +1351,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 }
 
-/// Result of fetching a [Chat].
-class ChatData {
-  const ChatData(this.chat, this.lastItem, this.lastReadItem);
-
-  /// [HiveChat] returned from the [Chat] fetching.
-  final HiveChat chat;
-
-  /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
-  final List<HiveChatItem>? lastItem;
-
-  /// [HiveChatItem]s of a [Chat.lastReadItem] returned from the [Chat]
-  /// fetching.
-  final List<HiveChatItem>? lastReadItem;
-}
-
-/// Result of fetching a [ChatItem]s.
+/// Result of a [ChatItem]s fetching.
 class ChatItemsQuery {
   const ChatItemsQuery(this.items, this.pageInfo);
 
@@ -1359,4 +1360,15 @@ class ChatItemsQuery {
 
   /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
   final GetMessages$Query$Chat$Items$PageInfo? pageInfo;
+}
+
+/// Result of a [Chat]s fetching.
+class ChatsQuery {
+  const ChatsQuery(this.items, this.pageInfo);
+
+  /// Fetched [ChatData]s.
+  final List<HiveChat> items;
+
+  /// Page info of this [ChatsQuery].
+  final RecentChats$Query$RecentChats$PageInfo pageInfo;
 }

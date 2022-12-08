@@ -127,7 +127,7 @@ class ChatService extends DisposableService {
     );
   }
 
-  /// Fetches next page of a [ChatItem]s.
+  /// Fetches next page of a [Chat]s.
   Future<void> fetchNextChats() => _chatRepository.fetchNextPage();
 
   /// Resends the specified [item].
