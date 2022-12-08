@@ -59,8 +59,8 @@ abstract class AbstractContactRepository {
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
 
-  /// Updates `name` of the specified [ChatContact] in the authenticated
-  /// [MyUser]'s address book.
+  /// Creates a new contact record in the specified [ChatContact] of the
+  /// authenticated [MyUser]'s address book.
   Future<void> createChatContactRecord(
     ChatContactId id, {
     User? user,
@@ -69,8 +69,8 @@ abstract class AbstractContactRepository {
     UserPhone? phone,
   });
 
-  /// Updates `name` of the specified [ChatContact] in the authenticated
-  /// [MyUser]'s address book.
+  /// Removes the specified contact record from the specified [ChatContact] in
+  /// the authenticated [MyUser]'s address book.
   Future<void> deleteChatContactRecord(
     ChatContactId id, {
     User? user,

@@ -239,8 +239,8 @@ abstract class ContactGraphQlMixin {
         .updateChatContactName as ChatContactEventsVersionedMixin;
   }
 
-  /// Updates the `name` of the specified [ChatContact] in the authenticated
-  /// [MyUser]'s address book.
+  /// Creates a new [ChatContactRecord] in the specified [ChatContact] of the
+  /// authenticated [MyUser]'s address book.
   ///
   /// ### Authentication
   ///
@@ -248,13 +248,16 @@ abstract class ContactGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactNameUpdated].
+  /// The following [ChatContactEvent]s may be produced on success:
+  /// - [EventChatContactEmailAdded];
+  /// - [EventChatContactGroupAdded];
+  /// - [EventChatContactPhoneAdded];
+  /// - [EventChatContactUserAdded].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
-  /// [ChatContact] has such name already.
+  /// Succeeds as no-op (and returns no [ChatContactEvent]s) if the specified
+  /// [ChatContact] has such [ChatContactRecord] already.
   Future<ChatContactEventsVersionedMixin?> createChatContactRecord(
       ChatContactId id, ChatContactRecord record) async {
     CreateChatContactRecordArguments variables =
@@ -276,8 +279,8 @@ abstract class ContactGraphQlMixin {
         .createChatContactRecord as ChatContactEventsVersionedMixin?;
   }
 
-  /// Updates the `name` of the specified [ChatContact] in the authenticated
-  /// [MyUser]'s address book.
+  /// Removes the specified [ChatContactRecord] from the specified [ChatContact]
+  /// in the authenticated [MyUser]'s address book.
   ///
   /// ### Authentication
   ///
@@ -285,13 +288,16 @@ abstract class ContactGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactNameUpdated].
+  /// The following [ChatContactEvent] may be produced on success:
+  /// - [EventChatContactEmailRemoved];
+  /// - [EventChatContactGroupRemoved];
+  /// - [EventChatContactPhoneRemoved];
+  /// - [EventChatContactUserRemoved].
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
-  /// [ChatContact] has such name already.
+  /// [ChatContact] has no such [ChatContactRecord] already.
   Future<ChatContactEventsVersionedMixin?> deleteChatContactRecord(
       ChatContactId id, ChatContactRecord record) async {
     DeleteChatContactRecordArguments variables =

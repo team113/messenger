@@ -308,8 +308,6 @@ class ContactController extends GetxController {
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
     if (!inContacts.value) {
-      print(contact.user.value?.user.value.id);
-      print(contact.user.value?.user.value.name);
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(contact.user.value!.user.value);
@@ -326,7 +324,6 @@ class ContactController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      print(contact.user.value?.user.value);
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
