@@ -353,7 +353,7 @@ abstract class ReactiveFieldState {
   FocusNode get focus;
 
   RxBool get changed;
-  final bool approvable = false;
+  bool get approvable;
 
   /// Reactive error message.
   final RxnString error = RxnString();

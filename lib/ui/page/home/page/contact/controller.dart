@@ -19,6 +19,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
@@ -27,10 +28,12 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart'
     show
         DeleteChatContactRecordException,
+        HideChatException,
         ToggleChatMuteException,
         UpdateChatContactNameException;
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/obs/obs.dart';
 
 import '../../../../../domain/model/precise_date_time/precise_date_time.dart';
 import '../../../../../util/message_popup.dart';
@@ -73,10 +76,9 @@ class ContactController extends GetxController {
   /// - `status.isSuccess`, meaning [user] is successfully fetched.
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
-  final RxList<UserEmail> emails = RxList();
-  final RxList<UserPhone> phones = RxList();
 
-  final RxBool blocked = RxBool(false);
+  RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
+
   @override
   void onInit() {
     contact = _contactService.contacts[id]!;
@@ -247,14 +249,6 @@ class ContactController extends GetxController {
     }
   }
 
-  Future<void> addToFavorites() async {
-    inFavorites.value = true;
-  }
-
-  Future<void> removeFromFavorites() async {
-    inFavorites.value = false;
-  }
-
   Future<void> removePhone(UserPhone phone) async {
     try {
       await _contactService.deleteChatContactRecord(id, phone: phone);
@@ -314,6 +308,8 @@ class ContactController extends GetxController {
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
     if (!inContacts.value) {
+      print(contact.user.value?.user.value.id);
+      print(contact.user.value?.user.value.name);
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(contact.user.value!.user.value);
@@ -330,6 +326,7 @@ class ContactController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
+      print(contact.user.value?.user.value);
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
@@ -343,6 +340,21 @@ class ContactController extends GetxController {
           status.value = RxStatus.success();
         }
       }
+    }
+  }
+
+  /// Hides the [Chat] identified by the provided [id].
+  Future<void> hideChat(ChatId id) async {
+    try {
+      await _chatService.hideChat(id);
+      if (router.route == '${Routes.chat}/$id') {
+        router.go('/');
+      }
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 }

@@ -14,9 +14,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/delete_email/view.dart';
@@ -239,8 +241,10 @@ class ContactView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: SvgLoader.asset('assets/icons/delete.svg',
-                          height: 14),
+                      child: SvgLoader.asset(
+                        'assets/icons/delete.svg',
+                        height: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -268,7 +272,6 @@ class ContactView extends StatelessWidget {
       ReactiveTextField(
         state: c.email,
         label: 'Добавить E-mail',
-        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
     widgets.add(const SizedBox(height: 10));
@@ -322,7 +325,6 @@ class ContactView extends StatelessWidget {
       ReactiveTextField(
         state: c.phone,
         label: 'Добавить телефон',
-        // style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
     widgets.add(const SizedBox(height: 10));
@@ -343,12 +345,20 @@ class ContactView extends StatelessWidget {
       Padding(padding: const EdgeInsets.all(8), child: child);
 
   Widget _actions(ContactController c, BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _dense(
-          Obx(() {
-            return WidgetButton(
+    return Obx(() {
+      Chat? dialog = c.chats.values
+          .firstWhereOrNull((e) =>
+              c.contact.user.value?.id != null &&
+              e.chat.value.isDialog &&
+              e.members.containsKey(c.contact.user.value!.id))
+          ?.chat
+          .value;
+      final bool muted = dialog?.muted != null;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _dense(
+            WidgetButton(
               onPressed:
                   c.inContacts.value ? c.removeFromContacts : c.addToContacts,
               child: IgnorePointer(
@@ -363,16 +373,12 @@ class ContactView extends StatelessWidget {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            return WidgetButton(
-              onPressed: c.inFavorites.value
-                  ? c.removeFromFavorites
-                  : c.addToFavorites,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
+              onPressed: () {},
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
@@ -385,26 +391,14 @@ class ContactView extends StatelessWidget {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          Obx(() {
-            final bool muted =
-                c.contact.user.value!.user.value.dialog!.muted != null;
-
-            return WidgetButton(
+            ),
+          ),
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
               onPressed: () => muted
                   ? c.unmuteChat(c.contact.user.value!.user.value.dialog!.id)
-                  : MuteChatView.show(
-                      context,
-                      chatId: c.contact.user.value!.user.value.dialog!.id,
-                      onMute: (duration) => c.muteChat(
-                        c.contact.user.value!.user.value.dialog!.id,
-                        duration: duration,
-                      ),
-                    ),
+                  : c.muteChat(c.contact.user.value!.user.value.dialog!.id),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
@@ -434,95 +428,96 @@ class ContactView extends StatelessWidget {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
-            );
-          }),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          WidgetButton(
-            onPressed: () {},
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'Скрыть чат',
-                  editable: false,
-                ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
+              onPressed: () =>
+                  dialog?.id != null ? c.hideChat(dialog!.id) : null,
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: 'Скрыть чат',
+                    editable: false,
+                  ),
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/delete.svg',
+                        height: 14,
+                      ),
                     ),
                   ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          WidgetButton(
-            onPressed: () {},
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'Очистить чат',
-                  editable: false,
-                ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
+              onPressed: () {},
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: 'Очистить чат',
+                    editable: false,
+                  ),
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/delete.svg',
+                        height: 14,
+                      ),
                     ),
                   ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          WidgetButton(
-            onPressed: c.blocked.toggle,
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: c.blocked.value ? 'Разблокировать' : 'Заблокировать',
-                  editable: false,
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
+              onPressed: () {},
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: 'Заблокировать',
+                    editable: false,
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        _dense(
-          WidgetButton(
-            onPressed: () {},
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'Пожаловаться',
-                  editable: false,
+          const SizedBox(height: 10),
+          _dense(
+            WidgetButton(
+              onPressed: () {},
+              child: IgnorePointer(
+                child: ReactiveTextField(
+                  state: TextFieldState(
+                    text: 'Пожаловаться',
+                    editable: false,
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   /// Returns a [User.name] text widget with an [AvatarWidget].
