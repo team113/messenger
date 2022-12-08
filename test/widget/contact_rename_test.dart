@@ -123,6 +123,7 @@ void main() async {
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
@@ -131,6 +132,9 @@ void main() async {
   );
   when(graphQlProvider.keepOnline())
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.recentChatsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
+
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
   );
@@ -237,6 +241,8 @@ void main() async {
       graphQlProvider,
       userRepository,
       credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
@@ -250,9 +256,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
-    );
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ContactsTabView()));

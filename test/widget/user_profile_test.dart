@@ -144,8 +144,8 @@ void main() async {
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
-  var mediaProvider = MediaSettingsHiveProvider();
-  await mediaProvider.init();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
@@ -344,6 +344,11 @@ void main() async {
     );
     Get.put(MyUserService(authService, myUserRepository));
 
+    SettingsRepository settingsRepository = SettingsRepository(
+      mediaSettingsProvider,
+      applicationSettingsProvider,
+      backgroundProvider,
+    );
     ContactRepository contactRepository = ContactRepository(
         graphQlProvider, contactProvider, userRepository, sessionProvider);
     Get.put(ContactService(contactRepository));
@@ -352,6 +357,8 @@ void main() async {
       graphQlProvider,
       userRepository,
       credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
     );
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
@@ -363,15 +370,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    SettingsRepository settingsRepository = SettingsRepository(
-      mediaProvider,
-      applicationSettingsProvider,
-      backgroundProvider,
-    );
-
-    Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
-    );
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const UserView(UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')),
