@@ -378,6 +378,7 @@ class TextFieldState extends ReactiveFieldState {
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
+    _previousSubmit = text;
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());

@@ -21,6 +21,7 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/delete_email/view.dart';
 import 'package:messenger/ui/page/home/page/user/delete_phone/view.dart';
+import 'package:messenger/ui/page/home/tab/chats/mute_chat_popup/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -61,8 +62,8 @@ class ContactView extends StatelessWidget {
                 shadowColor: const Color(0x55000000),
                 color: Colors.white,
                 child: Center(
-                  child: AvatarWidget.fromContact(
-                    c.contact.contact.value,
+                  child: AvatarWidget.fromRxContact(
+                    c.contact,
                     radius: 17,
                   ),
                 ),
@@ -79,7 +80,6 @@ class ContactView extends StatelessWidget {
                       Text(
                         c.contact.contact.value.name.val,
                       ),
-                      // const SizedBox(height: 1),
                       Obx(() {
                         final subtitle =
                             c.contact.user.value?.user.value.getStatus();
@@ -168,8 +168,8 @@ class ContactView extends StatelessWidget {
               block(
                 children: [
                   _label(context, 'Публичная информация'),
-                  AvatarWidget.fromContact(
-                    c.contact.contact.value,
+                  AvatarWidget.fromRxContact(
+                    c.contact,
                     radius: 100,
                     // showBadge: false,
                     // quality: AvatarQuality.original,
@@ -392,12 +392,19 @@ class ContactView extends StatelessWidget {
         _dense(
           Obx(() {
             final bool muted =
-                c.contact.user.value?.user.value.dialog?.muted != null;
+                c.contact.user.value!.user.value.dialog!.muted != null;
 
             return WidgetButton(
               onPressed: () => muted
                   ? c.unmuteChat(c.contact.user.value!.user.value.dialog!.id)
-                  : c.muteChat(c.contact.user.value!.user.value.dialog!.id),
+                  : MuteChatView.show(
+                      context,
+                      chatId: c.contact.user.value!.user.value.dialog!.id,
+                      onMute: (duration) => c.muteChat(
+                        c.contact.user.value!.user.value.dialog!.id,
+                        duration: duration,
+                      ),
+                    ),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
@@ -524,30 +531,24 @@ class ContactView extends StatelessWidget {
       ReactiveTextField(
         key: const Key('NameField'),
         state: c.name,
-        // state: TextFieldState(text: c.user?.user.value.name?.val),
         label: 'label_name'.l10n,
         filled: true,
-        trailing: c.contact.user.value!.user.value.name == null
-            ? null
-            : Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
-                  ),
-                ),
-              ),
-        onSuffixPressed: c.contact.user.value?.user.value.name == null
-            ? null
-            : () {
-                Clipboard.setData(
-                  ClipboardData(
-                      text: c.contact.user.value!.user.value.name?.val),
-                );
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
-              },
+        trailing: Transform.translate(
+          offset: const Offset(0, -1),
+          child: Transform.scale(
+            scale: 1.15,
+            child: SvgLoader.asset(
+              'assets/icons/copy.svg',
+              height: 15,
+            ),
+          ),
+        ),
+        onSuffixPressed: () {
+          Clipboard.setData(
+            ClipboardData(text: c.contact.user.value!.user.value.name?.val),
+          );
+          MessagePopup.success('label_copied_to_clipboard'.l10n);
+        },
       ),
     );
   }

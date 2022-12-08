@@ -25,7 +25,10 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart'
-    show DeleteChatContactRecordException, ToggleChatMuteException;
+    show
+        DeleteChatContactRecordException,
+        ToggleChatMuteException,
+        UpdateChatContactNameException;
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -49,7 +52,7 @@ class ContactController extends GetxController {
 
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
-  late final RxBool inContacts;
+  late final RxBool inContacts = RxBool(false);
   final ContactService _contactService;
   final ChatService _chatService;
   final CallService _callService;
@@ -59,7 +62,7 @@ class ContactController extends GetxController {
   late final TextFieldState email;
 
   late final TextFieldState phone;
-  late final RxBool inFavorites;
+  final RxBool inFavorites = RxBool(false);
   late final RxChatContact contact;
 
   /// Status of the [user] fetching.
@@ -78,10 +81,8 @@ class ContactController extends GetxController {
   void onInit() {
     contact = _contactService.contacts[id]!;
 
-    inContacts = RxBool(_contactService.contacts.values
-        .any((e) => e.contact.value.users.every((m) => m.id == id)));
-    inFavorites = RxBool(_contactService.favorites.values
-        .any((e) => e.contact.value.users.every((m) => m.id == id)));
+    inContacts.value = _contactService.contacts.values.any((e) => e.id == id);
+    inFavorites.value = _contactService.favorites.values.any((e) => e.id == id);
 
     name = TextFieldState(
       text: contact.contact.value.name.val,
@@ -98,26 +99,36 @@ class ContactController extends GetxController {
       },
       onSubmitted: (s) async {
         s.error.value = null;
+
+        if (contact.contact.value.name.val == s.text) {
+          return;
+        }
+
+        UserName? name;
+
         try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
+          name = UserName(s.text);
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
         if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
           try {
-            await Future.delayed(1.seconds);
-            s.status.value = RxStatus.empty();
+            s.status.value = RxStatus.loading();
+            s.editable.value = false;
+
+            await _contactService.changeContactName(
+              contact.id,
+              name!,
+            );
+          } on UpdateChatContactNameException catch (e) {
+            s.error.value = e.toMessage();
           } catch (e) {
             s.error.value = e.toString();
-            s.status.value = RxStatus.empty();
             rethrow;
           } finally {
             s.editable.value = true;
+            s.status.value = RxStatus.empty();
           }
         }
       },
