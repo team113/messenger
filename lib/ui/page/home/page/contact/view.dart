@@ -14,32 +14,28 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/page/home/page/user/delete_email/view.dart';
-import 'package:messenger/ui/page/home/page/user/delete_phone/view.dart';
-import 'package:messenger/ui/page/home/tab/chats/mute_chat_popup/view.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/message_popup.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import '../../../../../domain/model/user.dart';
-import '../../widget/avatar.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/page/user/delete_email/view.dart';
+import '/ui/page/home/page/user/delete_phone/view.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
-// TODO: Implement [Routes.contact] page.
 /// View of the [Routes.contact] page.
 class ContactView extends StatelessWidget {
   const ContactView(this.id, {Key? key}) : super(key: key);
@@ -79,9 +75,7 @@ class ContactView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        c.contact.contact.value.name.val,
-                      ),
+                      Text(c.contact.contact.value.name.val),
                       Obx(() {
                         final subtitle =
                             c.contact.user.value?.user.value.getStatus();
@@ -346,14 +340,6 @@ class ContactView extends StatelessWidget {
 
   Widget _actions(ContactController c, BuildContext context) {
     return Obx(() {
-      Chat? dialog = c.chats.values
-          .firstWhereOrNull((e) =>
-              c.contact.user.value?.id != null &&
-              e.chat.value.isDialog &&
-              e.members.containsKey(c.contact.user.value!.id))
-          ?.chat
-          .value;
-      final bool muted = dialog?.muted != null;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -396,13 +382,11 @@ class ContactView extends StatelessWidget {
           const SizedBox(height: 10),
           _dense(
             WidgetButton(
-              onPressed: () => muted
-                  ? c.unmuteChat(c.contact.user.value!.user.value.dialog!.id)
-                  : c.muteChat(c.contact.user.value!.user.value.dialog!.id),
+              onPressed: c.muted.toggle,
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: muted
+                    text: c.muted.isTrue
                         ? 'Включить уведомления'
                         : 'Отключить уведомления',
                     editable: false,
@@ -411,14 +395,14 @@ class ContactView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: muted
+                      child: c.muted.isTrue
                           ? SvgLoader.asset(
-                              'assets/icons/btn_mute.svg',
+                              'assets/icons/btn_unmute.svg',
                               width: 18.68,
                               height: 15,
                             )
                           : SvgLoader.asset(
-                              'assets/icons/btn_unmute.svg',
+                              'assets/icons/btn_mute.svg',
                               width: 17.86,
                               height: 15,
                             ),
@@ -433,8 +417,7 @@ class ContactView extends StatelessWidget {
           const SizedBox(height: 10),
           _dense(
             WidgetButton(
-              onPressed: () =>
-                  dialog?.id != null ? c.hideChat(dialog!.id) : null,
+              onPressed: () {},
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(

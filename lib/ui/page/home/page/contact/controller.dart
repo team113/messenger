@@ -15,29 +15,29 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/call.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/service/call.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart'
+
+import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
+import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
+import '/domain/service/contact.dart';
+import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
     show
         DeleteChatContactRecordException,
         HideChatException,
         ToggleChatMuteException,
         UpdateChatContactNameException;
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/obs/obs.dart';
-
-import '../../../../../domain/model/precise_date_time/precise_date_time.dart';
-import '../../../../../util/message_popup.dart';
-import '/domain/model/contact.dart';
+import '/routes.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 
 export 'view.dart';
 
@@ -66,6 +66,7 @@ class ContactController extends GetxController {
 
   late final TextFieldState phone;
   final RxBool inFavorites = RxBool(false);
+  final RxBool muted = RxBool(false);
   late final RxChatContact contact;
 
   /// Status of the [user] fetching.
