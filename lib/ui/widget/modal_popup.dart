@@ -17,12 +17,18 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
+  /// Returns padding based on the [BuildContext.isMobile] value.
+  static EdgeInsets padding(BuildContext context) => context.isMobile
+      ? EdgeInsets.zero
+      : const EdgeInsets.symmetric(horizontal: 30);
+
   /// Opens a new [ModalPopup] wrapping the provided [child].
   static Future<T?> show<T>({
     required BuildContext context,
@@ -145,5 +151,62 @@ abstract class ModalPopup {
         },
       );
     }
+  }
+}
+
+/// Stylized header of a popup window.
+class ModalPopupHeader extends StatelessWidget {
+  const ModalPopupHeader({
+    Key? key,
+    this.onBack,
+    this.header,
+  }) : super(key: key);
+
+  /// Callback, called when the back button is pressed.
+  ///
+  /// If `null`, then no back button will be displayed.
+  final void Function()? onBack;
+
+  /// Optional [Widget] displayed in this [ModalPopupHeader].
+  final Widget? header;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          if (onBack != null)
+            WidgetButton(
+              onPressed: onBack,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 40),
+          if (header != null) Expanded(child: header!) else const Spacer(),
+          if (!context.isMobile)
+            WidgetButton(
+              onPressed: Navigator.of(context).pop,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 40),
+        ],
+      ),
+    );
   }
 }

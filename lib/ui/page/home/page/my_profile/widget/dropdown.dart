@@ -150,4 +150,7 @@ class DropdownFieldState<T> extends ReactiveFieldState {
     controller.text = stringify(value);
     _value = value;
   }
+
+  @override
+  RxBool changed = RxBool(false);
 }

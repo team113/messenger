@@ -208,7 +208,9 @@ class ChatInfoView extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '${'label_transition_count'.l10n}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}',
+                      'label_transition_count'.l10nfmt({
+                        'count': c.chat?.chat.value.directLink?.usageCount ?? 0,
+                      }),
                     ),
                     Expanded(
                       child: Row(

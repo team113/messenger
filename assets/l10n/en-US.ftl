@@ -182,6 +182,7 @@ btn_your_profile = Your profile
 colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
+dot_space = .{" "}
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
@@ -266,8 +267,9 @@ err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
+label_add_additional_email = Add additional E-mail
 label_add_chat_member = Add member
-label_add_email = Add an email
+label_add_email = Add E-mail
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
@@ -316,6 +318,7 @@ label_ago_date = { $years ->
     [1] An year ago
     *[other] {$years} years ago
 }
+label_all = All
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
@@ -325,6 +328,7 @@ label_attachments = [{$count} { $count ->
     }]
 label_audio_call = Audio call
 label_away = Away
+label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
 label_call_active = Active call
@@ -343,6 +347,7 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_calls = Calls
 label_camera = Camera
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -354,6 +359,7 @@ label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
+label_confirm = Confirm
 label_contact = Contact
 label_contacts = Contacts
 label_copied_to_clipboard = Copied to the clipboard
@@ -362,10 +368,12 @@ label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
+label_danger_zone = Danger zone
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
+label_details = Details
 label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
@@ -385,6 +393,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_download_app = Download application
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -393,9 +402,10 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
+label_email = E-mail
+label_email_visible = Yor E-mail visible to:{" "}
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
-label_emails = Emails
 label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
@@ -431,9 +441,14 @@ label_introduction_description =
 
     In order not to lose access to your account, set a password.
 label_kb = {$amount} KB
+label_language = Language
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login
+label_login_options = Login options
+label_login_visibility_hint = Unique login is an additional unique identifier for your account.
+label_login_visible = Your login visible to:{" "}
+label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
@@ -455,6 +470,7 @@ label_mute_for = { $days ->
     *[other] {$days} days
 }
 label_mute_chat_for = Mute chat for
+label_my_contacts = My contacts
 label_name = Name
 label_name_hint = Your publicly visible name
 label_new_password = New password
@@ -463,6 +479,7 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
+label_nobody = Nobody
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
@@ -477,14 +494,17 @@ label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
 label_personalization = Personalization
+label_phone = Phone
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
-label_phones = Phones
+label_phone_number = Phone number
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
 label_presence_hidden = Hidden
 label_presence_present = Last visit information
+label_profile = Profile
+label_public_information = Public information
 label_read_by = Read by
 label_recent = Recent
 label_recover_account = Access recovery
@@ -522,7 +542,7 @@ label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_transition_count = Transitions
+label_transition_count = Transitions: {count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
@@ -532,14 +552,17 @@ label_unread_messages = { $quantity ->
 }
 label_use_search = Use search to find an user
 label_users = Users
+label_verify_email = Verify E-mail
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
+label_visible_to = Visible to:
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_your_direct_link = Direct link to chat with you
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
