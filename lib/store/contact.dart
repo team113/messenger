@@ -504,23 +504,24 @@ class ContactRepository implements AbstractContactRepository {
     ChatContactId id,
     ChatContactPosition? position,
   ) async {
-    final bool isChangeInContacts = contacts[id] != null;
+    final bool fromContacts = contacts[id] != null;
     final HiveRxChatContact? contact =
-        isChangeInContacts ? contacts[id] : favorites[id];
+        fromContacts ? contacts[id] : favorites[id];
+
     final ChatContactPosition? oldPosition =
         contact?.contact.value.favoritePosition;
     final ChatContactPosition newPosition;
 
     if (position == null) {
-      final sortFavorites = favorites.values.toList()
+      final List<HiveRxChatContact> sorted = favorites.values.toList()
         ..sort(
           (a, b) => a.contact.value.favoritePosition!
               .compareTo(b.contact.value.favoritePosition!),
         );
 
-      final double? lowestFavorite = sortFavorites.isEmpty
+      final double? lowestFavorite = sorted.isEmpty
           ? null
-          : sortFavorites.first.contact.value.favoritePosition!.val;
+          : sorted.first.contact.value.favoritePosition!.val;
 
       newPosition = ChatContactPosition(
         lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
@@ -530,7 +531,7 @@ class ContactRepository implements AbstractContactRepository {
     }
 
     contact?.contact.update((c) => c?.favoritePosition = newPosition);
-    if (isChangeInContacts) {
+    if (fromContacts) {
       contacts.remove(id);
       favorites.addIf(contact != null, id, contact!);
     } else {
@@ -543,7 +544,7 @@ class ContactRepository implements AbstractContactRepository {
       await _graphQlProvider.favoriteChatContact(id, newPosition);
     } catch (e) {
       contact?.contact.update((c) => c?.favoritePosition = oldPosition);
-      if (isChangeInContacts) {
+      if (fromContacts) {
         favorites.remove(id);
         contacts.addIf(contact != null, id, contact!);
       } else {

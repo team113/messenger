@@ -35,9 +35,10 @@ final StepDefinitionGeneric contactIsFavorite =
     given2<String, FavoriteStatus, CustomWorld>(
   '{string} contact is {favorite}',
   (String name, status, context) async {
-    final ChatContactId chatContactId = context.world.contacts[name]!;
-    final provider = GraphQlProvider();
+    final ChatContactId contactId = context.world.contacts[name]!;
     final AuthService authService = Get.find();
+
+    final provider = GraphQlProvider();
     provider.token = authService.credentials.value!.session.token;
 
     if (status == FavoriteStatus.favorite) {
@@ -57,9 +58,9 @@ final StepDefinitionGeneric contactIsFavorite =
       final position =
           ChatContactPosition(lowest == null ? 9007199254740991 : lowest / 2);
 
-      await provider.favoriteChatContact(chatContactId, position);
+      await provider.favoriteChatContact(contactId, position);
     } else {
-      await provider.unfavoriteChatContact(chatContactId);
+      await provider.unfavoriteChatContact(contactId);
     }
 
     provider.disconnect();

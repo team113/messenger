@@ -22,7 +22,7 @@ import '../world/custom_world.dart';
 /// Long presses a [ChatContact] with the provided name.
 ///
 /// Examples:
-/// - When I long press "Name" contact.
+/// - When I long press "Bob" contact.
 final StepDefinitionGeneric longPressContact = when1<String, CustomWorld>(
   'I long press {string} contact',
   (name, context) async {

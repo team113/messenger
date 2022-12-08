@@ -102,9 +102,8 @@ class ContactsTabView extends StatelessWidget {
   Widget _contact(
     BuildContext context,
     RxChatContact contact,
-    ContactsTabController c, {
-    bool enlarge = false,
-  }) {
+    ContactsTabController c,
+  ) {
     bool favorite = c.favorites.contains(contact);
 
     final bool selected = router.routes
@@ -116,9 +115,7 @@ class ContactsTabView extends StatelessWidget {
       key: Key('Contact_${contact.id}'),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
-        radius: enlarge ? 30 + 7 : 30,
         contact: contact,
-        darken: 0,
         folded: favorite,
         selected: selected,
         onTap: contact.contact.value.users.isNotEmpty

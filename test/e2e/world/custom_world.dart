@@ -29,7 +29,7 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of group [Chat]s identified by their names.
   final Map<String, ChatId> groups = {};
 
-  /// [Map] of group [ChatContact]s identified by their names.
+  /// [Map] of [ChatContact]s identified by their names.
   final Map<String, ChatContactId> contacts = {};
 
   /// [ClipboardData] currently stored in this [CustomWorld].

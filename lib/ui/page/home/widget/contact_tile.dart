@@ -15,17 +15,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/model/contact.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
 ///

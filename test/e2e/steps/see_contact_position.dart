@@ -26,8 +26,8 @@ import '../world/custom_world.dart';
 /// specified [PositionStatus].
 ///
 /// Examples:
-/// - Then I see "Example" contact first in contacts list
-/// - Then I see "Example" contact last in contacts list
+/// - Then I see "Bob" contact first in contacts list
+/// - Then I see "Bob" contact last in contacts list
 final StepDefinitionGeneric seeContactPosition =
     then2<String, PositionStatus, CustomWorld>(
   'I see {string} contact {position} in contacts list',
@@ -37,15 +37,14 @@ final StepDefinitionGeneric seeContactPosition =
         await context.world.appDriver.waitForAppToSettle();
 
         final controller = Get.find<ContactsTabController>();
-        final ChatContactId chatContactId = context.world.contacts[name]!;
+        final ChatContactId contactId = context.world.contacts[name]!;
 
         switch (status) {
           case PositionStatus.first:
-            return controller.favorites.first.id == chatContactId;
+            return controller.favorites.first.id == contactId;
 
           case PositionStatus.last:
-            return controller.favorites
-                    .indexWhere((e) => e.id == chatContactId) ==
+            return controller.favorites.indexWhere((e) => e.id == contactId) ==
                 -1;
         }
       },

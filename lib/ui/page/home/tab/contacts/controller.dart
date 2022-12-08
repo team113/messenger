@@ -77,8 +77,7 @@ class ContactsTabController extends GetxController {
 
   @override
   void onInit() {
-    favorites =
-        RxList<RxChatContact>(_contactService.favorites.values.toList());
+    favorites = RxList(_contactService.favorites.values.toList());
     _sortFavorites();
 
     _initUsersUpdates();
@@ -162,9 +161,8 @@ class ContactsTabController extends GetxController {
       }
     });
 
-    for (var c in favorites) {
-      listen(c);
-    }
+    favorites.forEach(listen);
+
     _favoritesSubscription = _contactService.favorites.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
@@ -211,7 +209,7 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Sorts the [favorites] by the [ChatContact.favoritePosition]
+  /// Sorts the [favorites] by the [ChatContact.favoritePosition].
   void _sortFavorites() {
     favorites.sort(
       (a, b) => a.contact.value.favoritePosition!

@@ -253,7 +253,7 @@ abstract class ContactGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactFavorited]
+  /// - [EventChatContactFavorited].
   ///
   /// ### Idempotent
   ///
@@ -289,7 +289,7 @@ abstract class ContactGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactUnfavorited]
+  /// - [EventChatContactUnfavorited].
   ///
   /// ### Idempotent
   ///

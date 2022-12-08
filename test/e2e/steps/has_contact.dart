@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates [ChatContact]s of the provided [User]s
+/// Creates [ChatContact]s of the provided [User]s.
 final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
   'I have contacts {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
@@ -31,18 +31,14 @@ final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = authService.credentials.value!.session.token;
 
-    var contact1 = await provider.createChatContact(
-      name: UserName(user1.name),
-      records: [],
-    );
+    final contact1 = await provider
+        .createChatContact(name: UserName(user1.name), records: []);
     context.world.contacts[user1.name] = contact1.events
         .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
         .contactId;
 
-    var contact2 = await provider.createChatContact(
-      name: UserName(user2.name),
-      records: [],
-    );
+    final contact2 = await provider
+        .createChatContact(name: UserName(user2.name), records: []);
     context.world.contacts[user2.name] = contact2.events
         .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
         .contactId;

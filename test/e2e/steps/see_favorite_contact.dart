@@ -25,7 +25,7 @@ import '../world/custom_world.dart';
 /// the specified [FavoriteStatus].
 ///
 /// Examples:
-/// - Then I see "Example" contact as favorite
+/// - Then I see "Bob" contact as favorite
 final StepDefinitionGeneric seeContactAsFavorite =
     then2<String, FavoriteStatus, CustomWorld>(
   'I see {string} contact as {favorite}',
@@ -34,19 +34,19 @@ final StepDefinitionGeneric seeContactAsFavorite =
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatContactId chatContactId = context.world.contacts[name]!;
+        final ChatContactId contactId = context.world.contacts[name]!;
 
         switch (status) {
           case FavoriteStatus.favorite:
             return await context.world.appDriver.isPresent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatContactId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
             );
 
           case FavoriteStatus.unfavorite:
             return await context.world.appDriver.isAbsent(
               context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatContactId'),
+                  .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
             );
         }
       },
