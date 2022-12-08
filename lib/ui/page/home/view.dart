@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
 import 'package:messenger/ui/widget/menu_interceptor/menu_interceptor.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -42,6 +43,7 @@ import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/finance/view.dart';
 import 'tab/menu/controller.dart';
+import 'tab/menu/status/view.dart';
 import 'tab/publics/view.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -258,47 +260,9 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                   CustomNavigationBarItem(
                                     key: const Key('MenuButton'),
-                                    // icon: FontAwesomeIcons.bars,
-                                    child: ContextMenuRegion(
-                                      alignment: Alignment.bottomRight,
-                                      moveDownwards: false,
-                                      selector: c.profileKey,
-                                      width: 220,
-                                      margin: PlatformUtils.isMobile
-                                          ? const EdgeInsets.only(bottom: 54)
-                                          : const EdgeInsets.only(
-                                              bottom: 17,
-                                              left: 26,
-                                            ),
-                                      actions: [
-                                        ContextMenuButton(
-                                          label: 'btn_online'.l10n,
-                                          onPressed: () =>
-                                              c.setPresence(Presence.present),
-                                          leading: const CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Colors.green,
-                                          ),
-                                        ),
-                                        ContextMenuButton(
-                                          label: 'btn_away'.l10n,
-                                          onPressed: () =>
-                                              c.setPresence(Presence.away),
-                                          leading: const CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Colors.orange,
-                                          ),
-                                        ),
-                                        ContextMenuButton(
-                                          label: 'btn_hidden'.l10n,
-                                          onPressed: () =>
-                                              c.setPresence(Presence.hidden),
-                                          leading: const CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
+                                    child: RmbDetector(
+                                      onSecondaryButton: () =>
+                                          StatusView.show(context),
                                       child: Padding(
                                         key: c.profileKey,
                                         padding:
@@ -312,6 +276,60 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                       ),
                                     ),
+                                    // icon: FontAwesomeIcons.bars,
+                                    // child: ContextMenuRegion(
+                                    //   alignment: Alignment.bottomRight,
+                                    //   moveDownwards: false,
+                                    //   selector: c.profileKey,
+                                    //   width: 220,
+                                    //   margin: PlatformUtils.isMobile
+                                    //       ? const EdgeInsets.only(bottom: 54)
+                                    //       : const EdgeInsets.only(
+                                    //           bottom: 17,
+                                    //           left: 26,
+                                    //         ),
+                                    //   actions: [
+                                    //     ContextMenuButton(
+                                    //       label: 'btn_online'.l10n,
+                                    //       onPressed: () =>
+                                    //           c.setPresence(Presence.present),
+                                    //       leading: const CircleAvatar(
+                                    //         radius: 8,
+                                    //         backgroundColor: Colors.green,
+                                    //       ),
+                                    //     ),
+                                    //     ContextMenuButton(
+                                    //       label: 'btn_away'.l10n,
+                                    //       onPressed: () =>
+                                    //           c.setPresence(Presence.away),
+                                    //       leading: const CircleAvatar(
+                                    //         radius: 8,
+                                    //         backgroundColor: Colors.orange,
+                                    //       ),
+                                    //     ),
+                                    //     ContextMenuButton(
+                                    //       label: 'btn_hidden'.l10n,
+                                    //       onPressed: () =>
+                                    //           c.setPresence(Presence.hidden),
+                                    //       leading: const CircleAvatar(
+                                    //         radius: 8,
+                                    //         backgroundColor: Colors.grey,
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    //   child: Padding(
+                                    //     key: c.profileKey,
+                                    //     padding:
+                                    //         const EdgeInsets.only(bottom: 2),
+                                    //     child: animated(
+                                    //       tab: HomeTab.menu,
+                                    //       child: AvatarWidget.fromMyUser(
+                                    //         c.myUser.value,
+                                    //         radius: 15,
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     // label: 'label_tab_menu'.l10n,
                                   ),
                                   // CustomNavigationBarItem(

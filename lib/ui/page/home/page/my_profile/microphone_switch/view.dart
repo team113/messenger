@@ -83,79 +83,88 @@ class MicrophoneSwitchView extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 25 - 12),
-
               Flexible(
-                child: Obx(() {
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    padding: ModalPopup.padding(context),
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemCount: c.devices.audio().length,
-                    itemBuilder: (_, i) {
-                      return Obx(() {
-                        final MediaDeviceInfo e = c.devices.audio().toList()[i];
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    const SizedBox(height: 25 - 12),
+                    Obx(() {
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        padding: ModalPopup.padding(context),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemCount: c.devices.audio().length,
+                        itemBuilder: (_, i) {
+                          return Obx(() {
+                            final MediaDeviceInfo e =
+                                c.devices.audio().toList()[i];
 
-                        final bool selected = (c.mic.value == null && i == 0) ||
-                            c.mic.value == e.deviceId();
+                            final bool selected =
+                                (c.mic.value == null && i == 0) ||
+                                    c.mic.value == e.deviceId();
 
-                        return SizedBox(
-                          // height: 48,
-                          child: Material(
-                            borderRadius: BorderRadius.circular(10),
-                            color: selected
-                                ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                                : Colors.white.darken(0.05),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => c.setAudioDevice(e.deviceId()),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        e.label(),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: selected
-                                          ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircleAvatar(
-                                                backgroundColor:
-                                                    Color(0xFF63B4FF),
-                                                radius: 12,
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 12,
+                            return SizedBox(
+                              // height: 48,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(10),
+                                color: selected
+                                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                                    : Colors.white.darken(0.05),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () => c.setAudioDevice(e.deviceId()),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            e.label(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style:
+                                                const TextStyle(fontSize: 15),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        AnimatedSwitcher(
+                                          duration: 200.milliseconds,
+                                          child: selected
+                                              ? const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: CircleAvatar(
+                                                    backgroundColor:
+                                                        Color(0xFF63B4FF),
+                                                    radius: 12,
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 12,
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  key: Key('0'),
                                                 ),
-                                              ),
-                                            )
-                                          : const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              key: Key('0'),
-                                            ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      });
-                    },
-                  );
-                }),
+                            );
+                          });
+                        },
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
+
               // const SizedBox(height: 25),
 
               // const SizedBox(height: 25),
@@ -172,7 +181,6 @@ class MicrophoneSwitchView extends StatelessWidget {
               //     color: const Color(0xFF63B4FF),
               //   ),
               // ),
-              const SizedBox(height: 16),
             ],
           ),
         );

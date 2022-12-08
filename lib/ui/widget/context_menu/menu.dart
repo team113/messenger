@@ -14,61 +14,48 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 import '/themes.dart';
+import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({
-    Key? key,
-    required this.actions,
-    this.width,
-  }) : super(key: key);
+  const ContextMenu({super.key, required this.actions, this.wide});
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
+  /// List of [Widget]s to display in this [ContextMenu].
+  final List<Widget> actions;
 
-  final double? width;
+  /// Indicator
+  final bool? wide;
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgets = [];
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    int length = 0;
+    final bool isMobile = context.isMobile;
+
+    List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(actions[i]);
 
-      length = max(actions[i].label.length, length);
-
       // Adds a divider if required.
-      // if (i < actions.length - 1) {
-      //   widgets.add(
-      //     const SizedBox(height: 8),
-      //     // Container(
-      //     //   color: const Color(0x11000000),
-      //     //   // color: const Color(0xFF202020),
-      //     //   height: 1,
-      //     //   width: double.infinity,
-      //     // ),
-      //   );
-      // }
+      if (isMobile && i < actions.length - 1) {
+        widgets.add(
+          Container(
+            color: const Color(0x11000000),
+            height: 1,
+            width: double.infinity,
+          ),
+        );
+      }
     }
 
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Container(
-      // width: (length * 15),
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
-        // color: const Color(0xFF3A3A3A),
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
         border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
@@ -87,9 +74,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 6),
               ...widgets,
-              const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 6),
             ],
           ),
         ),
@@ -106,22 +93,19 @@ class ContextMenuButton extends StatefulWidget {
     this.leading,
     this.trailing,
     this.onPressed,
-    this.style,
   }) : super(key: key);
 
   /// Label of this [ContextMenuButton].
   final String label;
 
-  /// Optional leading widget.
+  /// Optional leading widget, typically an [Icon].
   final Widget? leading;
 
-  /// Optional trailing widget, typically an [Icon].
+  /// Optional trailing widget.
   final Widget? trailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
-
-  final TextStyle? style;
 
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
@@ -136,6 +120,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    final bool isMobile = context.isMobile;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -146,41 +132,53 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          margin: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+          padding: isMobile
+              ? const EdgeInsets.symmetric(horizontal: 18)
+              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
+          margin: isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          // height: 26,
+          height: isMobile ? 50 : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
-                // ? Colors.white.withOpacity(0.1)
-                // ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
-                ? Theme.of(context).colorScheme.secondary
+                ? isMobile
+                    ? Theme.of(context)
+                        .extension<Style>()!
+                        .contextMenuHoveredColor
+                    : Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.leading != null) ...[
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+                const SizedBox(width: 14),
+              ],
               Text(
                 widget.label,
-                style: style.boldBody
-                    .copyWith(
-                      color: isMouseOver ? Colors.white : Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    )
-                    .merge(widget.style),
+                style: style.boldBody.copyWith(
+                  color:
+                      (isMouseOver && !isMobile) ? Colors.white : Colors.black,
+                  fontSize: isMobile ? 17 : 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              // if (widget.trailing != null) ...[
-              //   const Spacer(),
-              //   const SizedBox(width: 14),
-              //   Theme(
-              //     data: Theme.of(context).copyWith(
-              //       iconTheme: const IconThemeData(color: Colors.blue),
-              //     ),
-              //     child: widget.trailing!,
-              //   ),
-              // ],
+              if (isMobile && widget.trailing != null) ...[
+                const SizedBox(width: 36),
+                const Spacer(),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.trailing!,
+                ),
+              ],
             ],
           ),
         ),

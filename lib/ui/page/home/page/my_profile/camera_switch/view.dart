@@ -83,120 +83,130 @@ class CameraSwitchView extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 25 - 12),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: StreamBuilder(
-                  stream: c.localTracks?.changes,
-                  builder: (context, snapshot) {
-                    RtcVideoRenderer? local = c.localTracks
-                        ?.firstWhereOrNull((t) =>
-                            t.source == MediaSourceKind.Device &&
-                            t.renderer.value is RtcVideoRenderer)
-                        ?.renderer
-                        .value as RtcVideoRenderer?;
-                    return Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          height: 250,
-                          width: 370,
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: local == null
-                              ? Center(
-                                  child: SvgLoader.asset(
-                                    'assets/icons/no_video.svg',
-                                    width: 48.54,
-                                    height: 42,
-                                  ),
-                                )
-                              : webrtc.VideoView(
-                                  local.inner,
-                                  objectFit: webrtc.VideoViewObjectFit.cover,
-                                  mirror: true,
-                                ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 25),
               Flexible(
-                child: Obx(() {
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    padding: ModalPopup.padding(context),
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemCount: c.devices.video().length,
-                    itemBuilder: (_, i) {
-                      return Obx(() {
-                        final MediaDeviceInfo e = c.devices.video().toList()[i];
-
-                        final bool selected =
-                            (c.camera.value == null && i == 0) ||
-                                c.camera.value == e.deviceId();
-
-                        return SizedBox(
-                          // height: 48,
-                          child: Material(
-                            borderRadius: BorderRadius.circular(10),
-                            color: selected
-                                ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                                : Colors.white.darken(0.05),
-                            child: InkWell(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    const SizedBox(height: 25 - 12),
+                    Padding(
+                      padding: ModalPopup.padding(context),
+                      child: StreamBuilder(
+                        stream: c.localTracks?.changes,
+                        builder: (context, snapshot) {
+                          RtcVideoRenderer? local = c.localTracks
+                              ?.firstWhereOrNull((t) =>
+                                  t.source == MediaSourceKind.Device &&
+                                  t.renderer.value is RtcVideoRenderer)
+                              ?.renderer
+                              .value as RtcVideoRenderer?;
+                          return Center(
+                            child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              onTap: () => c.setVideoDevice(e.deviceId()),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        e.label(),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: selected
-                                          ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircleAvatar(
-                                                backgroundColor:
-                                                    Color(0xFF63B4FF),
-                                                radius: 12,
-                                                child: Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 12,
-                                                ),
-                                              ),
-                                            )
-                                          : const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              key: Key('0'),
-                                            ),
-                                    ),
-                                  ],
+                              child: Container(
+                                height: 250,
+                                width: 370,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
+                                child: local == null
+                                    ? Center(
+                                        child: SvgLoader.asset(
+                                          'assets/icons/no_video.svg',
+                                          width: 48.54,
+                                          height: 42,
+                                        ),
+                                      )
+                                    : webrtc.VideoView(
+                                        local.inner,
+                                        objectFit:
+                                            webrtc.VideoViewObjectFit.cover,
+                                        mirror: true,
+                                      ),
                               ),
                             ),
-                          ),
-                        );
-                      });
-                    },
-                  );
-                }),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        padding: ModalPopup.padding(context),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemCount: c.devices.video().length,
+                        itemBuilder: (_, i) {
+                          return Obx(() {
+                            final MediaDeviceInfo e =
+                                c.devices.video().toList()[i];
+
+                            final bool selected =
+                                (c.camera.value == null && i == 0) ||
+                                    c.camera.value == e.deviceId();
+
+                            return SizedBox(
+                              // height: 48,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(10),
+                                color: selected
+                                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                                    : Colors.white.darken(0.05),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () => c.setVideoDevice(e.deviceId()),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            e.label(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style:
+                                                const TextStyle(fontSize: 15),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        AnimatedSwitcher(
+                                          duration: 200.milliseconds,
+                                          child: selected
+                                              ? const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: CircleAvatar(
+                                                    backgroundColor:
+                                                        Color(0xFF63B4FF),
+                                                    radius: 12,
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      color: Colors.white,
+                                                      size: 12,
+                                                    ),
+                                                  ),
+                                                )
+                                              : const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  key: Key('0'),
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
+
               // const SizedBox(height: 25),
 
               // const SizedBox(height: 25),
@@ -213,7 +223,6 @@ class CameraSwitchView extends StatelessWidget {
               //     color: const Color(0xFF63B4FF),
               //   ),
               // ),
-              const SizedBox(height: 16),
             ],
           ),
         );

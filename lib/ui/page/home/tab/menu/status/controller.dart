@@ -15,5 +15,31 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 
-class ChatItemReadsController extends GetxController {}
+import '/api/backend/schema.dart' show Presence;
+import '/domain/service/my_user.dart';
+
+class MoreController extends GetxController {
+  MoreController(this._myUserService);
+
+  final Rx<Presence?> presence = Rx(null);
+
+  final MyUserService _myUserService;
+
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Sets the [MyUser.presence] to the provided value.
+  Future<void> setPresence(Presence presence) =>
+      _myUserService.updateUserPresence(presence);
+
+  onInit() {
+    presence.value = myUser.value?.presence;
+  }
+
+  onClose() {
+    if (myUser.value?.presence != presence.value && presence.value != null) {
+      setPresence(presence.value!);
+    }
+  }
+}

@@ -16,6 +16,7 @@
 
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
@@ -47,6 +48,9 @@ class CallSettingsController extends GetxController {
 
   /// Returns ID of the currently used output device.
   RxnString get output => _call.value.outputDevice;
+
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
 
   /// Callback to pop the [CallSettingsView].
   void Function() onPop;

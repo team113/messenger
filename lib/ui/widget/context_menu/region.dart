@@ -187,7 +187,7 @@ class ContextMenuRegion extends StatelessWidget {
                         alignment.x > 0 ? 0 : -1,
                         alignment.y > 0 ? 0 : -1,
                       ),
-                      child: ContextMenu(actions: actions, width: width),
+                      child: ContextMenu(actions: actions),
                     ),
                   )
                 ],
