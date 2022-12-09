@@ -198,9 +198,32 @@ Widget desktopCall(CallController c, BuildContext context) {
                   as RtcVideoRenderer?;
           var callCover = c.chat.value?.callCover;
 
-          return c.videoState.value == LocalTrackState.disabled || local == null
-              ? CallCoverWidget(callCover)
-              : RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+          return ContextMenuRegion(
+            preventContextMenu: true,
+            actions: [
+              ContextMenuButton(
+                label: c.videoState.value.isEnabled
+                    ? 'btn_call_video_off'.l10n
+                    : 'btn_call_video_on'.l10n,
+                onPressed: c.toggleVideo,
+              ),
+              ContextMenuButton(
+                label: c.audioState.value.isEnabled
+                    ? 'btn_call_audio_off'.l10n
+                    : 'btn_call_audio_on'.l10n,
+                onPressed: c.toggleAudio,
+              ),
+            ],
+            child:
+                c.videoState.value == LocalTrackState.disabled || local == null
+                    ? CallCoverWidget(callCover)
+                    : RtcVideoView(
+                        local,
+                        mirror: true,
+                        fit: BoxFit.cover,
+                        enableContextMenu: false,
+                      ),
+          );
         }));
 
         // Display a caller's name if the call is not outgoing and the chat is
@@ -1317,23 +1340,62 @@ Widget _primaryView(CallController c) {
                                       }
                                     },
                                   ),
+                              ],
+                              if (c.primary.length == 1)
                                 ContextMenuButton(
-                                  label: 'btn_call_center_video'.l10n,
+                                  label: 'btn_call_uncenter'.l10n,
+                                  onPressed: c.focusAll,
+                                )
+                              else
+                                ContextMenuButton(
+                                  label: 'btn_call_center'.l10n,
                                   onPressed: () => c.center(participant),
                                 ),
-                              ],
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
                                 ContextMenuButton(
-                                  label: (participant
-                                              .video.value?.renderer.value !=
-                                          null)
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
+                                  label: 'btn_call_remove_participant'.l10n,
+                                  onPressed: () => c.removeChatMember(
+                                    participant.member.id.userId,
+                                  ),
                                 ),
+                              ] else ...[
+                                ContextMenuButton(
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: c.toggleVideo,
+                                ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: c.toggleAudio,
+                                ),
+                              ],
                             ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
@@ -1821,28 +1883,55 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             key: ObjectKey(participant),
                             preventContextMenu: true,
                             actions: [
-                              if ((participant.member.owner !=
-                                          MediaOwnerKind.local ||
-                                      participant.source !=
-                                          MediaSourceKind.Display) &&
-                                  participant.video.value?.renderer.value !=
-                                      null)
+                              ContextMenuButton(
+                                label: 'btn_call_center'.l10n,
+                                onPressed: () => c.center(participant),
+                              ),
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
                                 ContextMenuButton(
-                                  label: 'btn_call_center_video'.l10n,
-                                  onPressed: () => c.center(participant),
+                                  label: 'btn_call_remove_participant'.l10n,
+                                  onPressed: () => c.removeChatMember(
+                                    participant.member.id.userId,
+                                  ),
                                 ),
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
+                              ] else ...[
                                 ContextMenuButton(
-                                  label: (participant
-                                              .video.value?.renderer.value !=
-                                          null)
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                )
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: c.toggleVideo,
+                                ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: c.toggleAudio,
+                                ),
+                              ],
                             ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
