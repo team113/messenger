@@ -361,6 +361,7 @@ label_call_title =
         }
     }
 label_camera = Камера
+label_chat = Чат
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_dropped = Отменённый звонок
 label_chat_call_ended = Завершённый звонок
@@ -485,6 +486,7 @@ label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
+label_no_user_found = Пользователь не найден
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
 label_offline = Офлайн
@@ -516,6 +518,7 @@ label_replies = [{$count} { $count ->
     [few] ответа
     *[other] ответов
     }]
+label_required = Обязательный
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
@@ -553,6 +556,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} непрочитанных сообщения
 }
 label_use_search = Используйте поиск, чтобы найти пользователя
+label_user = Пользователь
 label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок

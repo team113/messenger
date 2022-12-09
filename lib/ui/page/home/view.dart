@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -181,91 +182,98 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
-                        return CustomNavigationBar(
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              child: tab(
-                                tab: HomeTab.contacts,
-                                child: SvgLoader.asset(
-                                  'assets/icons/contacts.svg',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('ChatsButton'),
-                              badge: c.unreadChatsCount.value == 0
-                                  ? null
-                                  : '${c.unreadChatsCount.value}',
-                              child: tab(
-                                tab: HomeTab.chats,
-                                child: SvgLoader.asset(
-                                  'assets/icons/chats.svg',
-                                  width: 36.06,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              child: ContextMenuRegion(
-                                alignment: Alignment.bottomRight,
-                                moveDownwards: false,
-                                selector: c.profileKey,
-                                width: 220,
-                                margin: PlatformUtils.isMobile
-                                    ? const EdgeInsets.only(bottom: 54)
-                                    : const EdgeInsets.only(
-                                        bottom: 17,
-                                        left: 26,
-                                      ),
-                                actions: [
-                                  ContextMenuButton(
-                                    label: 'btn_online'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.present),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_away'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.away),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_hidden'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.hidden),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                                child: Padding(
-                                  key: c.profileKey,
-                                  padding: const EdgeInsets.only(bottom: 2),
+                        Widget child = router.navigation.value ??
+                            CustomNavigationBar(
+                              items: [
+                                CustomNavigationBarItem(
+                                  key: const Key('ContactsButton'),
                                   child: tab(
-                                    tab: HomeTab.menu,
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
+                                    tab: HomeTab.contacts,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/contacts.svg',
+                                      width: 30,
+                                      height: 30,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
+                                CustomNavigationBarItem(
+                                  key: const Key('ChatsButton'),
+                                  badge: c.unreadChatsCount.value == 0
+                                      ? null
+                                      : '${c.unreadChatsCount.value}',
+                                  child: tab(
+                                    tab: HomeTab.chats,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/chats.svg',
+                                      width: 36.06,
+                                      height: 30,
+                                    ),
+                                  ),
+                                ),
+                                CustomNavigationBarItem(
+                                  key: const Key('MenuButton'),
+                                  child: ContextMenuRegion(
+                                    alignment: Alignment.bottomRight,
+                                    moveDownwards: false,
+                                    selector: c.profileKey,
+                                    width: 220,
+                                    margin: PlatformUtils.isMobile
+                                        ? const EdgeInsets.only(bottom: 54)
+                                        : const EdgeInsets.only(
+                                            bottom: 17,
+                                            left: 26,
+                                          ),
+                                    actions: [
+                                      ContextMenuButton(
+                                        label: 'btn_online'.l10n,
+                                        onPressed: () =>
+                                            c.setPresence(Presence.present),
+                                        leading: const CircleAvatar(
+                                          radius: 8,
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_away'.l10n,
+                                        onPressed: () =>
+                                            c.setPresence(Presence.away),
+                                        leading: const CircleAvatar(
+                                          radius: 8,
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_hidden'.l10n,
+                                        onPressed: () =>
+                                            c.setPresence(Presence.hidden),
+                                        leading: const CircleAvatar(
+                                          radius: 8,
+                                          backgroundColor: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                    child: Padding(
+                                      key: c.profileKey,
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: tab(
+                                        tab: HomeTab.menu,
+                                        child: AvatarWidget.fromMyUser(
+                                          c.myUser.value,
+                                          radius: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              currentIndex: router.tab.index,
+                              onTap: (i) => c.pages.jumpToPage(i),
+                            );
+
+                        return AnimatedSizeAndFade(
+                          fadeDuration: 250.milliseconds,
+                          sizeDuration: 250.milliseconds,
+                          child: child,
                         );
                       }),
                     ),

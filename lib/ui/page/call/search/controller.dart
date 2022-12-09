@@ -70,6 +70,9 @@ class SearchController extends GetxController {
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
 
+  /// Reactive list of the selected [Chat]s.
+  final RxList<RxUser> selectedRecent = RxList<RxUser>([]);
+
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
@@ -204,6 +207,15 @@ class SearchController extends GetxController {
       selectedUsers.remove(user);
     } else {
       selectedUsers.add(user);
+    }
+  }
+
+  /// Selects or unselects the specified [user].
+  void selectRecent(RxUser user) {
+    if (selectedRecent.contains(user)) {
+      selectedRecent.remove(user);
+    } else {
+      selectedRecent.add(user);
     }
   }
 

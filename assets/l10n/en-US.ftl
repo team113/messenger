@@ -344,6 +344,7 @@ label_call_title =
         }
     }
 label_camera = Camera
+label_chat = Chat
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
@@ -463,6 +464,7 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
+label_no_user_found = No user found
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
@@ -493,6 +495,7 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_required = Required
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -530,6 +533,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} unread messages
 }
 label_use_search = Use search to find an user
+label_user = User
 label_users = Users
 label_video = Video
 label_video_call = Video call

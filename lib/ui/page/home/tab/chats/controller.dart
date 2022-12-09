@@ -19,10 +19,12 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -40,6 +42,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
+        CreateGroupChatException,
         FavoriteChatException,
         HideChatException,
         RemoveChatMemberException,
@@ -61,6 +64,7 @@ class ChatsTabController extends GetxController {
     this._authService,
     this._userService,
     this._contactService,
+    this._myUserService,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -68,6 +72,10 @@ class ChatsTabController extends GetxController {
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
+
+  /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s
+  /// in group creation mode.
+  final Rx<SearchController?> creationGroupSearch = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
@@ -87,6 +95,9 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
+  /// [MyUserService] used to get [myUser] value.
+  final MyUserService _myUserService;
+
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -94,12 +105,29 @@ class ChatsTabController extends GetxController {
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
+  /// Subscription for [SearchController.chats], [SearchController.users] and
+  /// [SearchController.contacts] changes updating the [elements] in group
+  /// creation mode.
+  StreamSubscription? _creationGroupSearchSubscription;
+
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// Indicator whether group creation mode is enabled
+  final RxBool groupCreating = RxBool(false);
+
+  // Indicator whether search is involved when creating a group
+  final RxBool searching = RxBool(false);
+
+  /// Status of the [Chat.avatar] upload or removal.
+  final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns [MyUser]
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
@@ -147,6 +175,11 @@ class ChatsTabController extends GetxController {
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
+
+    _creationGroupSearchSubscription?.cancel();
+    creationGroupSearch.value?.search.focus
+        .removeListener(_disableCreationGroupSearchFocusListener);
+    creationGroupSearch.value?.onClose();
 
     super.onClose();
   }
@@ -340,6 +373,67 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Enables and initializes or disables and disposes the
+  /// [creationGroupSearch].
+  void creationGroupToggleSearch([bool enable = true]) {
+    creationGroupSearch.value?.onClose();
+    creationGroupSearch.value?.search.focus
+        .removeListener(_disableCreationGroupSearchFocusListener);
+    _creationGroupSearchSubscription?.cancel();
+
+    if (enable) {
+      creationGroupSearch.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.recent,
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _creationGroupSearchSubscription = StreamGroup.merge([
+        creationGroupSearch.value!.recent.stream,
+        creationGroupSearch.value!.contacts.stream,
+        creationGroupSearch.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        if (groupCreating.value) {
+          elements.add(const MyUserElement());
+        }
+
+        if (creationGroupSearch.value?.recent.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxUser c in creationGroupSearch.value!.recent.values) {
+            elements.add(RecentElement(c));
+          }
+        }
+
+        if (creationGroupSearch.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in creationGroupSearch.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        creationGroupSearch.value?.users.removeWhere((k, v) => me == k);
+        if (creationGroupSearch.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in creationGroupSearch.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      creationGroupSearch.value!.search.focus.requestFocus();
+    } else {
+      creationGroupSearch.value = null;
+      elements.clear();
+    }
+  }
+
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
@@ -372,6 +466,53 @@ class ChatsTabController extends GetxController {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
+    }
+  }
+
+  /// Disables the [creationGroupSearch], if its focus is lost or its query is
+  /// empty.
+  void _disableCreationGroupSearchFocusListener() {
+    if (creationGroupSearch.value?.search.focus.hasFocus == false &&
+        creationGroupSearch.value?.search.text.isEmpty == true) {
+      creationGroupToggleSearch(false);
+    }
+  }
+
+  /// Exiting group creation mode
+  void closeCreationGroup() {
+    creationGroupToggleSearch(false);
+    searching.value = false;
+    groupCreating.value = false;
+    router.navigation.value = null;
+  }
+
+  /// Creates a group [Chat] with [SearchController.selectedRecent],
+  /// [SearchController.selectedContacts] and [SearchController.selectedUsers].
+  Future<void> createGroup() async {
+    creatingStatus.value = RxStatus.loading();
+
+    try {
+      RxChat chat = (await _chatService.createGroupChat(
+        {
+          ...creationGroupSearch.value!.selectedRecent.map((e) => e.id),
+          ...creationGroupSearch.value!.selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...creationGroupSearch.value!.selectedUsers.map((e) => e.id),
+        }.where((e) => e != me).toList(),
+        name: null,
+      ));
+
+      router.chatInfo(chat.chat.value.id);
+      closeCreationGroup();
+    } on CreateGroupChatException catch (e) {
+      MessagePopup.error(e);
+    } on FormatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      creatingStatus.value = RxStatus.empty();
     }
   }
 }
@@ -446,4 +587,17 @@ class DividerElement extends ListElement {
 
   /// [SearchCategory] of this [DividerElement].
   final SearchCategory category;
+}
+
+/// [ListElement] representing [MyUser].
+class MyUserElement extends ListElement {
+  const MyUserElement();
+}
+
+/// [ListElement] representing a [RxUser].
+class RecentElement extends ListElement {
+  const RecentElement(this.user);
+
+  /// [RxUser] itself.
+  final RxUser user;
 }
