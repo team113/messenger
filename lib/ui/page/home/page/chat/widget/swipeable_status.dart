@@ -120,43 +120,38 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.systemMessageTextStyle.copyWith(fontSize: 11),
-      // style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
-      child: Padding(
-        // padding: EdgeInsets.zero,
-        padding: const EdgeInsets.only(left: 8),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-          margin: const EdgeInsets.only(right: 2),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: style.systemMessageBorder,
-            color: style.systemMessageColor,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSent || isDelivered || isRead || isSending || isError)
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? const Color(0xFF63B4FF)
-                      : isError
-                          ? Colors.red
-                          : const Color(0xFF888888),
-                  size: 12,
-                ),
-              const SizedBox(width: 3),
-              swipeable,
-            ],
-          ),
+      style: style.systemMessageStyle.copyWith(fontSize: 11),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        margin: const EdgeInsets.only(right: 2, left: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSent || isDelivered || isRead || isSending || isError)
+              Icon(
+                (isRead || isDelivered)
+                    ? Icons.done_all
+                    : isSending
+                        ? Icons.access_alarm
+                        : isError
+                            ? Icons.error_outline
+                            : Icons.done,
+                color: isRead
+                    ? Theme.of(context).colorScheme.secondary
+                    : isError
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.primary,
+                size: 12,
+              ),
+            const SizedBox(width: 3),
+            swipeable,
+          ],
         ),
       ),
     );

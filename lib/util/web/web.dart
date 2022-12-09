@@ -261,8 +261,6 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
-  static String? get arch => html.window.navigator.platform;
-
   /// Pushes [title] to browser's window title.
   static void title(String title) =>
       SystemChrome.setApplicationSwitcherDescription(
@@ -488,7 +486,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    Response response = await Dio().head(url);
+    final Response response = await PlatformUtils.dio.head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }

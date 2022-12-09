@@ -21,10 +21,8 @@ class AnimatedDelayedWidth extends StatefulWidget {
   const AnimatedDelayedWidth({
     Key? key,
     this.delay = Duration.zero,
-    this.beginWidth,
-    this.endWidth,
-    this.beginColor,
-    this.endColor,
+    required this.beginWidth,
+    required this.endWidth,
     this.duration = const Duration(milliseconds: 300),
   }) : super(key: key);
 
@@ -35,37 +33,28 @@ class AnimatedDelayedWidth extends StatefulWidget {
   final Duration duration;
 
   /// Initial width of the [AnimatedContainer].
-  final double? beginWidth;
+  final double beginWidth;
 
   /// Target width of the [AnimatedContainer].
-  final double? endWidth;
-
-  final Color? beginColor;
-  final Color? endColor;
+  final double endWidth;
 
   @override
   State<AnimatedDelayedWidth> createState() => _AnimatedDelayedWidthState();
 }
 
-/// State of an [AnimatedDelayedWidth] maintaining the [width].
+/// State of an [AnimatedDelayedWidth] maintaining its [width].
 class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
   /// Current width value.
-  late double? width;
-
-  late Color? color;
+  late double width;
 
   @override
   void initState() {
     super.initState();
 
     width = widget.beginWidth;
-    color = widget.beginColor;
-
     Future.delayed(widget.delay, () {
       if (mounted) {
-        width = widget.endWidth;
-        color = widget.endColor;
-        setState(() {});
+        setState(() => width = widget.endWidth);
       }
     });
   }
@@ -75,7 +64,6 @@ class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
     return AnimatedContainer(
       duration: widget.duration,
       width: width,
-      color: color,
       curve: Curves.ease,
     );
   }

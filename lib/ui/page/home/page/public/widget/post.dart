@@ -194,7 +194,7 @@ class _PostWidgetState extends State<PostWidget> {
               color: Colors.white,
             ),
             child: DefaultTextStyle.merge(
-              style: style.systemMessageTextStyle.copyWith(
+              style: style.systemMessageStyle.copyWith(
                 fontSize: 15,
                 color: iconColor,
               ),
@@ -329,7 +329,7 @@ class _PostWidgetState extends State<PostWidget> {
                                     textAlign: TextAlign.end,
                                     maxLines: 1,
                                     overflow: TextOverflow.visible,
-                                    style: style.systemMessageTextStyle
+                                    style: style.systemMessageStyle
                                         .copyWith(fontSize: 11),
                                     child: Container(
                                       padding:
@@ -905,8 +905,7 @@ class _PostWidgetState extends State<PostWidget> {
                       textAlign: TextAlign.end,
                       maxLines: 1,
                       overflow: TextOverflow.visible,
-                      style:
-                          style.systemMessageTextStyle.copyWith(fontSize: 11),
+                      style: style.systemMessageStyle.copyWith(fontSize: 11),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
                         decoration: BoxDecoration(

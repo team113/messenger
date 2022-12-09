@@ -162,7 +162,6 @@ class _PublicViewState extends State<PublicView>
                 ],
               ),
               leading: [StyledBackButton(color: style.green)],
-              automaticallyImplyLeading: false,
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),

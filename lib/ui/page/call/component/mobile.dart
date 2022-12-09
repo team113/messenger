@@ -456,9 +456,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             const SizedBox(height: 32),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
-              child: chat(context, c),
+              child: _chat(context, c),
             ),
-            // _callTile(context, c),
             const SizedBox(height: 15),
           ];
         }
@@ -642,40 +641,99 @@ Widget mobileCall(CallController c, BuildContext context) {
   });
 }
 
-/// Button with an [icon] and a [child] that has a strict layout.
-Widget _layoutButton({
-  required Widget icon,
-  required Widget child,
-  void Function()? onTap,
-  Widget? trailing,
-}) =>
-    ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 400),
-      child: InkWell(
-        hoverColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: onTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(flex: 1, child: icon),
-            Expanded(
-                flex: 3,
-                child: Row(
-                  children: [
-                    Expanded(flex: 3, child: child),
-                    if (trailing != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 24),
-                        child: trailing,
-                      ),
-                  ],
-                )),
-          ],
+/// Builds a tile representation of the [CallController.chat].
+Widget _chat(BuildContext context, CallController c) {
+  return Obx(() {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final RxChat chat = c.chat.value!;
+
+    final Set<UserId> actualMembers =
+        c.members.keys.map((k) => k.userId).toSet();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: const Color(0x794E5A78),
+          child: InkWell(
+            borderRadius: style.cardRadius,
+            onTap: () => c.openAddMember(context),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              child: Row(
+                children: [
+                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                chat.title.value,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Row(
+                            children: [
+                              Text(
+                                'label_a_of_b'.l10nfmt({
+                                  'a': '${actualMembers.length}',
+                                  'b': '${c.chat.value?.members.length}',
+                                }),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                width: 1,
+                                height: 12,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.color,
+                              ),
+                              Text(
+                                c.duration.value.hhMmSs(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
+  });
+}
 
 /// [FitView] of the [CallController.primary] widgets.
 Widget _primaryView(CallController c, BuildContext context) {
@@ -1232,174 +1290,6 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   });
 
   Overlay.of(context)?.insert(c.secondaryEntry!);
-}
-
-Widget chat(BuildContext context, CallController c) {
-  return Obx(() {
-    Style style = Theme.of(context).extension<Style>()!;
-    RxChat chat = c.chat.value!;
-
-    final Set<UserId> actualMembers =
-        c.members.keys.map((k) => k.userId).toSet();
-
-    return ContextMenuRegion(
-      key: Key('ContextMenuRegion_${chat.chat.value.id}'),
-      preventContextMenu: false,
-      actions: [
-        // ContextMenuButton(
-        //   key: const Key('ButtonHideChat'),
-        //   label: 'btn_hide_chat'.l10n,
-        //   onPressed: () => c.hideChat(chat.id),
-        // ),
-        // if (chat.isGroup)
-        //   ContextMenuButton(
-        //     key: const Key('ButtonLeaveChat'),
-        //     label: 'btn_leave_chat'.l10n,
-        //     onPressed: () => c.leaveChat(chat.id),
-        //   ),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            // color: style.cardColor.darken(0.05),
-            color: const Color(0x794E5A78),
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              // onTap: () => router.chat(chat.id),
-              onTap: () => c.openAddMember(context),
-              // hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(chat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  chat.title.value,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline5
-                                      ?.copyWith(color: Colors.white),
-                                ),
-                              ),
-                              // const SizedBox(height: 10),
-                              // Text(
-                              //   _duration.value.hhMmSs(),
-                              //   style: Theme.of(context).textTheme.subtitle2,
-                              // ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 3),
-                            child: Row(
-                              children: [
-                                Text(
-                                  '${actualMembers.length} of ${c.chat.value?.members.length}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.copyWith(color: Colors.white),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                  width: 1,
-                                  height: 12,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.color,
-                                ),
-                                Text(
-                                  c.duration.value.hhMmSs(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.copyWith(color: Colors.white),
-                                ),
-                                // Text(
-                                //   '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
-                                //   style: Theme.of(context).textTheme.subtitle2,
-                                // ),
-                                // const Spacer(),
-                                // Text(
-                                //   c.duration.value.hhMmSs(),
-                                //   style: Theme.of(context).textTheme.subtitle2,
-                                // ),
-                                // const SizedBox(width: 6),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // child: Row(
-                //   children: [
-                //     AvatarWidget.fromRxChat(chat, radius: 30),
-                //     const SizedBox(width: 12),
-                //     Expanded(
-                //       child: Text(
-                //         chat.title.value,
-                //         overflow: TextOverflow.ellipsis,
-                //         maxLines: 1,
-                //         style: Theme.of(context)
-                //             .textTheme
-                //             .headline5
-                //             ?.copyWith(color: Colors.white),
-                //       ),
-                //     ),
-                //     SizedBox(
-                //       height: 40,
-                //       child: Column(
-                //         crossAxisAlignment: CrossAxisAlignment.end,
-                //         mainAxisSize: MainAxisSize.min,
-                //         children: [
-                //           Text(
-                //             '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
-                //             style: Theme.of(context)
-                //                 .textTheme
-                //                 .subtitle2
-                //                 ?.copyWith(color: Colors.white),
-                //           ),
-                //           const Spacer(),
-                //           Text(
-                //             c.duration.value.hhMmSs(),
-                //             style: Theme.of(context)
-                //                 .textTheme
-                //                 .subtitle2
-                //                 ?.copyWith(color: Colors.white),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ],
-                // ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  });
 }
 
 /// [Draggable] data consisting of a [participant].

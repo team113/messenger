@@ -407,55 +407,6 @@ Widget desktopCall(CallController c, BuildContext context) {
 
       /// Builds the more panel containing the [CallController.panel].
       Widget launchpad() {
-        Widget button(CallButton e) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-            child: SizedBox(
-              width: 100,
-              height: 100,
-              child: Column(
-                children: [
-                  Draggable(
-                    feedback: Transform.translate(
-                      offset: const Offset(
-                        CallController.buttonSize / 2 * -1,
-                        CallController.buttonSize / 2 * -1,
-                      ),
-                      child: SizedBox(
-                        height: CallController.buttonSize,
-                        width: CallController.buttonSize,
-                        child: e.build(),
-                      ),
-                    ),
-                    data: e,
-                    onDragStarted: () {
-                      c.showDragAndDropButtonsHint = false;
-                      c.draggedButton.value = e;
-                    },
-                    onDragCompleted: () => c.draggedButton.value = null,
-                    onDragEnd: (_) => c.draggedButton.value = null,
-                    onDraggableCanceled: (_, __) =>
-                        c.draggedButton.value = null,
-                    maxSimultaneousDrags: e.isRemovable ? null : 0,
-                    dragAnchorStrategy: pointerDragAnchorStrategy,
-                    child: e.build(hinted: false),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    e.hint,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                  )
-                ],
-              ),
-            ),
-          );
-        }
-
         Widget builder(
           BuildContext context,
           List<CallButton?> candidate,
@@ -1478,10 +1429,6 @@ Widget _primaryView(CallController c) {
 
             return null;
           },
-          // itemConstraints: BoxConstraints(
-          //   maxWidth: max(c.secondaryWidth.value, c.secondaryHeight.value),
-          //   maxHeight: max(c.secondaryWidth.value, c.secondaryHeight.value),
-          // ),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -2124,7 +2071,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               // TODO: Wait for fix on `Flutter` end.
                               color: PlatformUtils.isWeb
                                   ? const Color(0x9D165084)
-                                  : const Color.fromRGBO(22, 80, 132, 0.916),
+                                  : const Color(0xE9165084),
                               child: Row(
                                 children: [
                                   const SizedBox(width: 7),

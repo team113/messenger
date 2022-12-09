@@ -987,7 +987,6 @@ class CallController extends GetxController {
     _uiTimer?.cancel();
     showUi.value = isPanelOpen.value || (enabled ?? true);
     showHeader.value = (enabled ?? true);
-
     if (state.value == OngoingCallState.active &&
         enabled == null &&
         !isPanelOpen.value) {
@@ -1123,19 +1122,6 @@ class CallController extends GetxController {
   /// Returns a result of [showDialog] that builds [CallSettingsView].
   Future<dynamic> openSettings(BuildContext context) {
     return CallSettingsView.show(context, call: _currentCall);
-    // return showDialog(
-    //   context: context,
-    //   builder: (_) => CallSettingsView(
-    //     _currentCall,
-    //     lmbValue: handleLmb.value,
-    //     onLmbChanged: (b) {
-    //       lmbTimeout = 7;
-    //       handleLmb.value = b ?? false;
-    //     },
-    //     panelValue: panelUp.value,
-    //     onPanelChanged: (b) => panelUp.value = b ?? false,
-    //   ),
-    // );
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
@@ -1148,9 +1134,6 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns an [User] from the [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
-
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
     try {
@@ -1162,6 +1145,9 @@ class CallController extends GetxController {
       rethrow;
     }
   }
+
+  /// Returns an [User] from the [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {

@@ -172,12 +172,7 @@ class _HomeViewState extends State<HomeView> {
                               KeepAlivePage(child: ContactsTabView()),
                               // KeepAlivePage(child: PublicsTabView()),
                               KeepAlivePage(child: ChatsTabView()),
-                              KeepAlivePage(
-                                child: MenuTabView(),
-                                // child: context.isNarrow
-                                //     ? const MyUserView()
-                                //     : const MenuTabView(),
-                              ),
+                              KeepAlivePage(child: MenuTabView()),
                             ],
                           );
                         }),
@@ -276,126 +271,10 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                       ),
                                     ),
-                                    // icon: FontAwesomeIcons.bars,
-                                    // child: ContextMenuRegion(
-                                    //   alignment: Alignment.bottomRight,
-                                    //   moveDownwards: false,
-                                    //   selector: c.profileKey,
-                                    //   width: 220,
-                                    //   margin: PlatformUtils.isMobile
-                                    //       ? const EdgeInsets.only(bottom: 54)
-                                    //       : const EdgeInsets.only(
-                                    //           bottom: 17,
-                                    //           left: 26,
-                                    //         ),
-                                    //   actions: [
-                                    //     ContextMenuButton(
-                                    //       label: 'btn_online'.l10n,
-                                    //       onPressed: () =>
-                                    //           c.setPresence(Presence.present),
-                                    //       leading: const CircleAvatar(
-                                    //         radius: 8,
-                                    //         backgroundColor: Colors.green,
-                                    //       ),
-                                    //     ),
-                                    //     ContextMenuButton(
-                                    //       label: 'btn_away'.l10n,
-                                    //       onPressed: () =>
-                                    //           c.setPresence(Presence.away),
-                                    //       leading: const CircleAvatar(
-                                    //         radius: 8,
-                                    //         backgroundColor: Colors.orange,
-                                    //       ),
-                                    //     ),
-                                    //     ContextMenuButton(
-                                    //       label: 'btn_hidden'.l10n,
-                                    //       onPressed: () =>
-                                    //           c.setPresence(Presence.hidden),
-                                    //       leading: const CircleAvatar(
-                                    //         radius: 8,
-                                    //         backgroundColor: Colors.grey,
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    //   child: Padding(
-                                    //     key: c.profileKey,
-                                    //     padding:
-                                    //         const EdgeInsets.only(bottom: 2),
-                                    //     child: animated(
-                                    //       tab: HomeTab.menu,
-                                    //       child: AvatarWidget.fromMyUser(
-                                    //         c.myUser.value,
-                                    //         radius: 15,
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // label: 'label_tab_menu'.l10n,
                                   ),
-                                  // CustomNavigationBarItem(
-                                  //   key: const Key('MenuButton2'),
-                                  //   leading: ContextMenuRegion(
-                                  //     actions: [
-                                  //       ContextMenuButton(
-                                  //         label: 'Status',
-                                  //         onPressed: () {},
-                                  //       ),
-                                  //     ],
-                                  //     child: Padding(
-                                  //       padding:
-                                  //           const EdgeInsets.only(bottom: 2),
-                                  //       child: Obx(
-                                  //         () => AnimatedOpacity(
-                                  //           duration: 150.milliseconds,
-                                  //           opacity:
-                                  //               c.page.value == HomeTab.menu
-                                  //                   ? 1
-                                  //                   : 0.6,
-                                  //           child: Container(
-                                  //             decoration: const BoxDecoration(
-                                  //               shape: BoxShape.circle,
-                                  //               color: Color(0xFF63b4ff),
-                                  //             ),
-                                  //             width: 30,
-                                  //             height: 30,
-                                  //             child: const Icon(
-                                  //               Icons.menu,
-                                  //               color: Colors.white,
-                                  //             ),
-                                  //           ),
-                                  //         ),
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  //   // label: 'label_tab_menu'.l10n,
-                                  // ),
                                 ],
                                 currentIndex: router.tab.index,
-                                onTap: (i) {
-                                  // if (i == 3) {
-                                  //   showModalBottomSheet(
-                                  //     context: context,
-                                  //     isScrollControlled: true,
-                                  //     enableDrag: false,
-                                  //     isDismissible: false,
-                                  //     builder: (context) {
-                                  //       return const MenuTabView();
-                                  //     },
-                                  //   );
-                                  // } else {
-
-                                  c.pages.jumpToPage(i);
-
-                                  // if (i < 2) {
-                                  //   c.pages.jumpToPage(i);
-                                  // } else if (i == 2) {
-                                  //   router
-                                  //       .user(Get.find<AuthService>().userId!);
-                                  // } else if (i >= 3) {
-                                  //   c.pages.jumpToPage(i - 1);
-                                  // }
-                                  // }
-                                },
+                                onTap: (i) => c.pages.jumpToPage(i),
                               );
 
                           return AnimatedSizeAndFade(
@@ -429,7 +308,6 @@ class _HomeViewState extends State<HomeView> {
         /// Nested navigation widget that displays [navigator] in an [Expanded]
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
-          key: const Key('Navigation'),
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
             return Row(
@@ -469,11 +347,10 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? null : navigation),
                   sideBar,
                   Container(child: context.isNarrow ? navigation : null),
-                ] else ...[
+                ] else
                   const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
                   )
-                ],
               ],
             );
           }),

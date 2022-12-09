@@ -26,15 +26,14 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/page/home/widget/init_callback.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';

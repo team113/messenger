@@ -44,7 +44,7 @@ abstract class AbstractCallRepository {
   /// Adds the provided [ChatCall] to the [calls], if not already.
   Rx<OngoingCall>? add(ChatCall call);
 
-  /// Transforms the provided [WebStoredCall] to an [OngoingCall] and adds it,
+  /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
   /// if not already.
   Rx<OngoingCall> addStored(
     WebStoredCall stored, {
@@ -57,7 +57,7 @@ abstract class AbstractCallRepository {
   /// [newChatId].
   void move(ChatId chatId, ChatId newChatId);
 
-  /// Ends an [OngoingCall] happening in a [Chat] identified by the provided
+  /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
   /// [chatId].
   Rx<OngoingCall>? remove(ChatId chatId);
 

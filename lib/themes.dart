@@ -72,11 +72,6 @@ class Themes {
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             unreadMessageThickness: 4,
-            systemMessageTextStyle: GoogleFonts.roboto(
-              color: const Color(0xFF888888),
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
@@ -379,7 +374,6 @@ class Style extends ThemeExtension<Style> {
     required this.secondaryBorder,
     required this.sidebarColor,
     required this.unreadMessageThickness,
-    required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.green,
@@ -445,7 +439,6 @@ class Style extends ThemeExtension<Style> {
 
   /// [Border] to apply to system messages.
   final double unreadMessageThickness;
-  final TextStyle systemMessageTextStyle;
 
   final Border systemMessageBorder;
 
@@ -510,8 +503,6 @@ class Style extends ThemeExtension<Style> {
       sidebarColor: sidebarColor ?? this.sidebarColor,
       unreadMessageThickness:
           unreadMessageThickness ?? this.unreadMessageThickness,
-      systemMessageTextStyle:
-          systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       green: green ?? this.green,
@@ -558,11 +549,6 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      systemMessageTextStyle: TextStyle.lerp(
-        systemMessageTextStyle,
-        other.systemMessageTextStyle,
-        t,
-      )!,
       unreadMessageThickness:
           unreadMessageThickness * (1.0 - t) + other.unreadMessageThickness * t,
       systemMessageBorder:

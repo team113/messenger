@@ -89,15 +89,6 @@ class Routes {
   static const settingsMedia = '/settings/media';
   static const user = '/user';
 
-  static const profile = '/profile';
-  static const link = '/link';
-  static const emails = '/emails';
-  static const privacy = '/privacy';
-  static const devices = '/devices';
-  static const storage = '/storage';
-  static const media = '/media';
-  static const language = '/language';
-
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
 
@@ -646,14 +637,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.settingsMedia ||
         _state.route == Routes.personalization ||
         _state.route == Routes.download ||
-        _state.route == Routes.profile ||
-        _state.route == Routes.link ||
-        _state.route == Routes.emails ||
-        _state.route == Routes.media ||
-        _state.route == Routes.privacy ||
-        _state.route == Routes.storage ||
-        _state.route == Routes.devices ||
-        _state.route == Routes.language ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -771,37 +754,10 @@ extension RouteLinks on RouterState {
   void chatInfo(ChatId id, [String route = Routes.chat]) =>
       go('$route/$id${Routes.chatInfo}');
 
-  void profile({bool push = false}) =>
-      push ? this.push(Routes.profile) : go(Routes.profile);
-
-  void link({bool push = false}) =>
-      push ? this.push(Routes.profile) : go(Routes.link);
-
-  void emails({bool push = false}) =>
-      push ? this.push(Routes.emails) : go(Routes.emails);
-
-  void privacy({bool push = false}) =>
-      push ? this.push(Routes.privacy) : go(Routes.privacy);
-
-  void devices({bool push = false}) =>
-      push ? this.push(Routes.devices) : go(Routes.devices);
-
-  void storage({bool push = false}) =>
-      push ? this.push(Routes.storage) : go(Routes.storage);
-
-  void media({bool push = false}) =>
-      push ? this.push(Routes.media) : go(Routes.media);
-
-  void language({bool push = false}) =>
-      push ? this.push(Routes.language) : go(Routes.language);
-
   /// Changes router location to the [Routes.public] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void public(
-    ChatId id, {
-    bool push = false,
-  }) {
+  void public(ChatId id, {bool push = false}) {
     if (push) {
       this.push('${Routes.public}/$id');
     } else {

@@ -166,7 +166,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // const SizedBox(height: 12),
         ModalPopupHeader(
           header: Center(
             child: Text(
@@ -175,12 +174,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             ),
           ),
         ),
-        // Center(
-        //   child: Text(
-        //     widget.title,
-        //     style: thin?.copyWith(fontSize: 18),
-        //   ),
-        // ),
         const SizedBox(height: 25 - 12),
         ...widget.additional.map((e) {
           return Padding(padding: ModalPopup.padding(context), child: e);

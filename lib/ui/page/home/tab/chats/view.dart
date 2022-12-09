@@ -14,54 +14,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-import 'dart:ui';
-
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:badges/badges.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
-import 'package:messenger/ui/page/home/widget/animated_typing.dart';
-import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/sending_status.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animations.dart';
-import '/ui/widget/context_menu/menu.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'create_group/controller.dart';
-import 'create_group/view.dart';
-import 'mute_chat_popup/view.dart';
-import 'widget/hovered_ink.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
@@ -771,13 +747,9 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      ThemeData theme = Theme.of(context);
-                      final TextStyle? thin = theme.textTheme.bodyText1
-                          ?.copyWith(color: Colors.black);
-
                       Widget chip(Widget child) {
                         return DefaultTextStyle(
-                          style: style.systemMessageTextStyle.copyWith(
+                          style: style.systemMessageStyle.copyWith(
                             fontSize: 11,
                             color: Colors.black,
                           ),
@@ -985,7 +957,7 @@ class ChatsTabView extends StatelessWidget {
                                                   element.category.name
                                                       .capitalizeFirst!,
                                                   style: style
-                                                      .systemMessageTextStyle
+                                                      .systemMessageStyle
                                                       .copyWith(
                                                     color: Colors.black,
                                                     fontSize: 15,

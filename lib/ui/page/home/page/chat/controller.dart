@@ -179,12 +179,12 @@ class ChatController extends GetxController {
   int unreadMessages = 0;
 
   /// Sticky element index of a [FlutterListView] currently being visible.
-  RxnInt stickyIndex = RxnInt(null);
+  final RxnInt stickyIndex = RxnInt(null);
 
   /// Indicator whether sticky header should be visible or not.
   ///
   /// Used to hide it when no scrolling is happening.
-  RxBool showSticky = RxBool(false);
+  final RxBool showSticky = RxBool(false);
 
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);

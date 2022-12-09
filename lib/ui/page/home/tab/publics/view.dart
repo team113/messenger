@@ -29,12 +29,10 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
-import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/page/home/widget/init_callback.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -641,7 +639,7 @@ class PublicsTabView extends StatelessWidget {
 
                   Widget chip(Widget child) {
                     return DefaultTextStyle(
-                      style: style.systemMessageTextStyle.copyWith(
+                      style: style.systemMessageStyle.copyWith(
                         fontSize: 11,
                         color: Colors.black,
                       ),
@@ -951,8 +949,7 @@ class PublicsTabView extends StatelessWidget {
                                             child: Text(
                                               element.category.name
                                                   .capitalizeFirst!,
-                                              style: style
-                                                  .systemMessageTextStyle
+                                              style: style.systemMessageStyle
                                                   .copyWith(
                                                 color: Colors.black,
                                                 fontSize: 15,

@@ -126,7 +126,7 @@ class SwipeableInfo extends StatelessWidget {
           textAlign: TextAlign.end,
           maxLines: 1,
           overflow: TextOverflow.visible,
-          style: style.systemMessageTextStyle.copyWith(fontSize: 11),
+          style: style.systemMessageStyle.copyWith(fontSize: 11),
           // style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
           child: Padding(
             // padding: EdgeInsets.zero,

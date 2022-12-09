@@ -164,10 +164,6 @@ class DownloadView extends StatelessWidget {
     Widget content = ListView(
       shrinkWrap: true,
       children: [
-        if (PlatformUtils.isWeb) ...[
-          const SizedBox(height: 20),
-          Center(child: Text('Navigator.platform is: ${WebUtils.arch}')),
-        ],
         const SizedBox(height: 20),
         if (primary != null) ...[
           const SizedBox(height: 20),

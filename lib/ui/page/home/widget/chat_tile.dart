@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -37,7 +36,6 @@ class ChatTile extends StatelessWidget {
     this.leading = const [],
     this.trailing = const [],
     this.actions = const [],
-    this.badge,
     this.selected = false,
     this.onTap,
     this.height = 94,
@@ -63,8 +61,6 @@ class ChatTile extends StatelessWidget {
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
   final List<ContextMenuButton> actions;
-
-  final Widget? badge;
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
@@ -106,12 +102,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  Badge(
-                    position: BadgePosition.bottomStart(start: 0, bottom: -5),
-                    showBadge: badge != null,
-                    badgeContent: badge,
-                    child: AvatarWidget.fromRxChat(chat, radius: 30),
-                  ),
+                  AvatarWidget.fromRxChat(chat, radius: 30),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

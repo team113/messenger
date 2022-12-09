@@ -26,7 +26,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
-/// [User] or [ChatContact] visual representation.
+/// [ContactTile] intended to be used as a search result representing the
+/// provided [User] or [ChatContact].
 class SearchUserTile extends StatelessWidget {
   const SearchUserTile({
     super.key,
@@ -41,22 +42,18 @@ class SearchUserTile extends StatelessWidget {
   /// [RxChatContact] this [SearchUserTile] is about.
   final RxChatContact? contact;
 
-  /// Callback, called when [SearchUserTile] is pressed.
+  /// Callback, called when this [SearchUserTile] is pressed.
   final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool selected = false;
-      ChatId? chatId = user?.user.value.dialog?.id;
-      chatId = chatId ?? contact?.user.value?.user.value.dialog?.id;
+      final ChatId? chatId = user?.user.value.dialog?.id ??
+          contact?.user.value?.user.value.dialog?.id;
 
-      if (chatId != null &&
-          router.routes.lastWhereOrNull(
-                  (e) => e.startsWith('${Routes.chat}/$chatId')) !=
-              null) {
-        selected = true;
-      }
+      final bool selected = router.routes
+              .lastWhereOrNull((e) => e.startsWith('${Routes.chat}/$chatId')) !=
+          null;
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -67,7 +64,6 @@ class SearchUserTile extends StatelessWidget {
           darken: 0,
           onTap: onTap,
           selected: selected,
-          radius: 30,
           subtitle: [
             const SizedBox(height: 5),
             Text(

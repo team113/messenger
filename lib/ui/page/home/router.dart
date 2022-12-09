@@ -88,54 +88,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.download,
           child: DownloadView(false),
         ));
-      } else if (route == Routes.media) {
-        pages.add(const _CustomPage(
-          key: ValueKey('MediaSettingsPage'),
-          name: Routes.media,
-          child: MediaSettingsView(),
-        ));
-      } else if (route == Routes.profile) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.settings,
-          child: MyProfileView(),
-        ));
-      } else if (route == Routes.privacy) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.privacy,
-          child: SettingsView(),
-        ));
-      } else if (route == Routes.storage) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.storage,
-          child: SettingsView(),
-        ));
-      } else if (route == Routes.devices) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.devices,
-          child: SettingsView(),
-        ));
-      } else if (route == Routes.language) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.language,
-          child: SettingsView(),
-        ));
-      } else if (route == Routes.link) {
-        pages.add(const _CustomPage(
-          key: ValueKey('LinkPage'),
-          name: Routes.language,
-          child: SettingsView(),
-        ));
-      } else if (route == Routes.emails) {
-        pages.add(const _CustomPage(
-          key: ValueKey('EmailsPage'),
-          name: Routes.emails,
-          child: SettingsView(),
-        ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),

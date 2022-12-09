@@ -282,18 +282,12 @@ class MenuTabView extends StatelessWidget {
                 ),
               ),
             ],
-            automaticallyImplyLeading: false,
           ),
           body: FlutterListView(
             delegate: FlutterListViewDelegate(
               (context, i) {
                 final Widget child;
                 final ProfileTab tab = ProfileTab.values[i];
-
-                void onTap() {
-                  router.profileTab.value = tab;
-                  router.profile();
-                }
 
                 Widget widget({
                   required String title,
@@ -307,7 +301,7 @@ class MenuTabView extends StatelessWidget {
                       subtitle: Text(subtitle),
                       onTap: () {
                         router.profileTab.value = tab;
-                        router.profile();
+                        router.me();
                       },
                       selected: tab == router.profileTab.value &&
                           router.route == Routes.me,

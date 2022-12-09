@@ -17,7 +17,7 @@
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/contact.dart';
 
-import '../../../../../domain/repository/contact.dart';
+import '/domain/repository/contact.dart';
 import '/domain/model/contact.dart';
 
 export 'view.dart';

@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Media panel:
+        - Participants redialing. ([#241], [#233])
 
 ### Changed
 
@@ -33,8 +35,10 @@ All user visible changes to this project will be documented in this file. This p
         - Video resizing when dragged. ([#191], [#190])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
+        - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Redesigned desktop context menu. ([#245])
 
 ### Fixed
 
@@ -68,8 +72,13 @@ All user visible changes to this project will be documented in this file. This p
 [#209]: /../../issues/209
 [#212]: /../../pull/212
 [#214]: /../../issues/214
+[#215]: /../../issues/215
 [#217]: /../../pull/217
 [#218]: /../../pull/218
+[#221]: /../../pull/221
+[#233]: /../../issues/233
+[#241]: /../../pull/241
+[#245]: /../../pull/245
 
 
 

@@ -558,10 +558,14 @@ extension SumStringExtension on String {
 }
 
 /// Extension adding an ability to lighten or darken a color.
-extension LightenColorExtension on Color {
+extension BrightnessColorExtension on Color {
   /// Returns a lighten variant of this color.
   Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =
@@ -573,6 +577,10 @@ extension LightenColorExtension on Color {
   /// Returns a darken variant of this color.
   Color darken([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =

@@ -113,24 +113,6 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
-        title: const [
-          // if (chat.muted != null) ...[
-          //   const SizedBox(width: 5),
-          //   SvgLoader.asset(
-          //     'assets/icons/muted.svg',
-          //     key: Key('MuteIndicator_${chat.id}'),
-          //     width: 18.02,
-          //     height: 13,
-          //   ),
-          //   // Icon(
-          //   //   Icons.volume_off,
-          //   //   size: 17,
-          //   //   color: Theme.of(context).primaryIconTheme.color,
-          //   //   key: Key('MuteIndicator_${chat.id}'),
-          //   // ),
-          //   const SizedBox(width: 5),
-          // ],
-        ],
         status: [
           _status(context),
           Text(
@@ -154,12 +136,6 @@ class RecentChatTile extends StatelessWidget {
                     width: 19.99,
                     height: 15,
                   ),
-                  // Icon(
-                  //   Icons.volume_off,
-                  //   size: 17,
-                  //   color: Theme.of(context).primaryIconTheme.color,
-                  //   key: Key('MuteIndicator_${chat.id}'),
-                  // ),
                   const SizedBox(width: 5),
                 ],
                 _counter(),

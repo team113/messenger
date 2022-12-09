@@ -140,7 +140,6 @@ class MyUserView extends StatelessWidget {
                   leading: context.isNarrow
                       ? const [StyledBackButton()]
                       : const [SizedBox(width: 30)],
-                  automaticallyImplyLeading: false,
                   actions: [
                     Padding(
                       padding: const EdgeInsets.only(left: 16, right: 16),

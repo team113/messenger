@@ -202,13 +202,6 @@ class _ChatViewState extends State<ChatView>
                                             width: 19.99,
                                             height: 15,
                                           ),
-                                          // Icon(
-                                          //   Icons.volume_off,
-                                          //   color: Theme.of(context)
-                                          //       .primaryIconTheme
-                                          //       .color,
-                                          //   size: 17,
-                                          // ),
                                         ]
                                       ],
                                     ),

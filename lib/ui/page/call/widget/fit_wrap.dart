@@ -31,7 +31,6 @@ class FitWrap extends StatelessWidget {
     this.axis = Axis.horizontal,
     this.spacing = 1,
     this.alignment = WrapAlignment.center,
-    this.allowFit = true,
   }) : super(key: key);
 
   /// Widgets to put inside a [Wrap].
@@ -48,8 +47,6 @@ class FitWrap extends StatelessWidget {
 
   /// Alignment of the [children].
   final WrapAlignment alignment;
-
-  final bool allowFit;
 
   /// Returns calculated size of a [FitWrap] with [maxSize], [constraints],
   /// [axis] and children [length].
@@ -111,17 +108,15 @@ class FitWrap extends StatelessWidget {
         axis: axis,
       );
 
-      if (allowFit) {
-        bool fitView = useFitView(
-          maxSize: maxSize,
-          constraints: Size(constraints.maxWidth, constraints.maxHeight),
-          length: children.length,
-          axis: axis,
-        );
+      bool fitView = useFitView(
+        maxSize: maxSize,
+        constraints: Size(constraints.maxWidth, constraints.maxHeight),
+        length: children.length,
+        axis: axis,
+      );
 
-        if (fitView) {
-          return FitView(children: children);
-        }
+      if (fitView) {
+        return FitView(children: children);
       }
 
       return Wrap(

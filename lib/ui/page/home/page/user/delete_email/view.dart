@@ -14,47 +14,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
-import 'dart:ui';
-
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/call/widget/round_button.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
-import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
-import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/sending_status.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/chat/forward/controller.dart';
-import '/ui/page/home/page/chat/widget/animated_fab.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.

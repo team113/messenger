@@ -21,28 +21,22 @@ import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({super.key, required this.actions, this.wide});
+  const ContextMenu({super.key, required this.actions});
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
 
-  /// Indicator
-  final bool? wide;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
-
-    final bool isMobile = context.isMobile;
-
-    List<Widget> widgets = [];
+    final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(actions[i]);
 
       // Adds a divider if required.
-      if (isMobile && i < actions.length - 1) {
+      if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
             color: const Color(0x11000000),
@@ -74,9 +68,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMobile) const SizedBox(height: 6),
+              if (!context.isMobile) const SizedBox(height: 6),
               ...widgets,
-              if (!isMobile) const SizedBox(height: 6),
+              if (!context.isMobile) const SizedBox(height: 6),
             ],
           ),
         ),
@@ -120,8 +114,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final bool isMobile = context.isMobile;
-
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -132,16 +124,17 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: isMobile
+          padding: context.isMobile
               ? const EdgeInsets.symmetric(horizontal: 18)
               : const EdgeInsets.fromLTRB(12, 6, 12, 6),
-          margin: isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
+          margin:
+              context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          height: isMobile ? 50 : null,
+          height: context.isMobile ? 50 : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
-                ? isMobile
+                ? context.isMobile
                     ? Theme.of(context)
                         .extension<Style>()!
                         .contextMenuHoveredColor
@@ -163,13 +156,14 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               Text(
                 widget.label,
                 style: style.boldBody.copyWith(
-                  color:
-                      (isMouseOver && !isMobile) ? Colors.white : Colors.black,
-                  fontSize: isMobile ? 17 : 14,
+                  color: (isMouseOver && !context.isMobile)
+                      ? Colors.white
+                      : Colors.black,
+                  fontSize: context.isMobile ? 17 : 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (isMobile && widget.trailing != null) ...[
+              if (context.isMobile && widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(
