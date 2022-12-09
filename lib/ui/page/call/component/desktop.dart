@@ -2056,8 +2056,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           key: const ValueKey('TitleBar'),
                           opacity: c.secondaryHovered.value ? 1 : 0,
                           child: ConditionalBackdropFilter(
+                            condition: PlatformUtils.isWeb,
                             child: Container(
-                              color: const Color(0x9D165084),
+                              color: PlatformUtils.isWeb
+                                  ? const Color(0x9D165084)
+                                  : const Color(0xE9165084),
                               child: Row(
                                 children: [
                                   const SizedBox(width: 7),
@@ -2190,7 +2193,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
                           decoration: BoxDecoration(
-                            border: c.secondaryHovered.value
+                            border: (c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0)
                                 ? c.secondaryAlignment.value == null
                                     ? Border.all(
                                         color: const Color(0xFF888888),
@@ -2295,8 +2299,29 @@ Widget _secondaryTarget(CallController c) {
                           duration: 200.milliseconds,
                           child: c.primaryDrags.value >= 1
                               ? Container(
-                                  decoration: const BoxDecoration(
-                                    boxShadow: [
+                                  padding: EdgeInsets.only(
+                                    left: secondaryAxis == Axis.horizontal
+                                        ? 1
+                                        : 0,
+                                    bottom:
+                                        secondaryAxis == Axis.vertical ? 1 : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      left: secondaryAxis == Axis.horizontal
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                      bottom: secondaryAxis == Axis.vertical
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                    ),
+                                    boxShadow: const [
                                       CustomBoxShadow(
                                         color: Color(0x33000000),
                                         blurRadius: 8,
@@ -2305,8 +2330,11 @@ Widget _secondaryTarget(CallController c) {
                                     ],
                                   ),
                                   child: ConditionalBackdropFilter(
-                                    child: Container(
-                                      color: const Color(0x30000000),
+                                    child: AnimatedContainer(
+                                      duration: 300.milliseconds,
+                                      color: candidate.isNotEmpty
+                                          ? const Color(0x10FFFFFF)
+                                          : const Color(0x00FFFFFF),
                                       child: Center(
                                         child: SizedBox(
                                           width:
