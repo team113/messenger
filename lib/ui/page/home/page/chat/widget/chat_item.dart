@@ -1363,7 +1363,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),
-                              label: 'btn_copy'.l10n,
+                              label: 'btn_copy_text'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
                                 height: 12,
@@ -1413,7 +1413,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete'.l10n,
+                              label: 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 12,
@@ -1465,7 +1465,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete'.l10n,
+                              label: 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,

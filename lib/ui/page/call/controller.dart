@@ -39,9 +39,11 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -968,13 +970,14 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles the provided [participant]'s incoming video on and off.
+  /// Toggles the provided [participant]'s incoming audio on and off.
   Future<void> toggleAudioEnabled(Participant participant) async {
     if (participant.member.id == me.id) {
       await toggleAudio();
     } else if (participant.audio.value?.direction.value.isEmitting ?? false) {
-      await participant.member
-          .setAudioEnabled(!participant.audio.value!.direction.value.isEnabled);
+      await participant.member.setAudioEnabled(
+        !participant.audio.value!.direction.value.isEnabled,
+      );
     }
   }
 
@@ -1147,6 +1150,18 @@ class CallController extends GetxController {
 
   /// Returns an [User] from the [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Removes [User] identified by the provided [userId] from the [chat].
+  Future<void> removeChatMember(UserId userId) async {
+    try {
+      await _chatService.removeChatMember(chatId, userId);
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {

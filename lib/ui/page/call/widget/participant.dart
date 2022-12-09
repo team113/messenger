@@ -340,7 +340,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   top: 4,
                                   bottom: 4,
                                 ),
-                                height: 32, //28,
+                                height: 32,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
