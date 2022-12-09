@@ -59,13 +59,15 @@ btn_call_audio_on_desc =
     Включить
     микрофон
 btn_call_cancel = Отменить
-btn_call_center_video = Центрировать видео
+btn_call_center = Центрировать
 btn_call_cut_video = Обрезать видео
 btn_call_decline = Отклонить
+btn_call_disable_audio = Отключить аудио
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
 btn_call_drop_video_here =
     Добавить видео в отдельную панель можно простым перетаскиванием
+btn_call_enable_audio = Включить аудио
 btn_call_enable_video = Включить видео
 btn_call_end = Завершить звонок
 btn_call_end_desc =
@@ -96,6 +98,7 @@ btn_call_remote_video_on = Включить входящее видео
 btn_call_remote_video_on_desc =
     Включить
     входящее видео
+btn_call_remove_participant = Выгнать участника
 btn_call_screen_off = Завершить демонстрацию экрана
 btn_call_screen_off_desc =
     Завершить
@@ -113,6 +116,7 @@ btn_call_toggle_speaker = Переключить динамик
 btn_call_toggle_speaker_desc =
     Переключить
     динамик
+btn_call_uncenter = Убрать из центра
 btn_call_video_off = Выключить камеру
 btn_call_video_off_desc =
     Выключить

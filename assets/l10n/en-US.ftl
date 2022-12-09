@@ -59,13 +59,15 @@ btn_call_audio_on_desc =
     Unmute
     microphone
 btn_call_cancel = Cancel call
-btn_call_center_video = Center video
+btn_call_center = Center
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
+btn_call_disable_audio = Disable audio
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
+btn_call_enable_audio = Enable audio
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_end_desc =
@@ -96,6 +98,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
+btn_call_remove_participant = Kick participant
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,6 +116,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
+btn_call_uncenter = Uncenter
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
