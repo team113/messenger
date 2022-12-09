@@ -212,6 +212,8 @@ class MyProfileView extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             _name(c),
+                            // _bio(c),
+                            _status(c),
                           ],
                         );
 
@@ -615,16 +617,68 @@ Widget _name(MyProfileController c) {
   );
 }
 
-/// Returns [MyUser.bio] editable field.
-Widget _bio(MyProfileController c) => _padding(
-      ReactiveTextField(
-        key: const Key('BioField'),
-        state: c.bio,
-        suffix: Icons.edit,
-        label: 'label_biography'.l10n,
-        hint: 'label_biography_hint'.l10n,
-      ),
-    );
+/// Returns [MyUser.name] editable field.
+Widget _bio(MyProfileController c) {
+  return _padding(
+    ReactiveTextField(
+      key: const Key('BioField'),
+      state: c.bio,
+      label: 'About'.l10n,
+      filled: true,
+      type: TextInputType.multiline,
+      maxLines: null,
+      textInputAction: TextInputAction.newline,
+      onSuffixPressed: c.bio.text.isEmpty
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: c.name.text));
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            },
+      trailing: c.login.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/copy.svg',
+                  height: 15,
+                ),
+              ),
+            ),
+    ),
+  );
+}
+
+/// Returns [MyUser.name] editable field.
+Widget _status(MyProfileController c) {
+  return _padding(
+    ReactiveTextField(
+      key: const Key('StatusField'),
+      state: c.status,
+      label: 'Text status (25 symbols)'.l10n,
+      filled: true,
+      onSuffixPressed: c.status.text.isEmpty
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: c.status.text));
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            },
+      trailing: c.status.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/copy.svg',
+                  height: 15,
+                ),
+              ),
+            ),
+    ),
+  );
+}
 
 /// Returns [MyUser.presence] dropdown.
 Widget _presence(MyProfileController c) => _padding(

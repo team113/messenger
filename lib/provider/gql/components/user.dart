@@ -160,6 +160,17 @@ abstract class UserGraphQlMixin {
     return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
   }
 
+  Future<MyUserEventsVersionedMixin?> updateUserStatus(UserTextStatus? text) async {
+    final variables = UpdateUserStatusArguments(text: text);
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        document: UpdateUserStatusMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UpdateUserStatus$Mutation.fromJson(res.data!).updateUserStatus;
+  }
+
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// ### Authentication

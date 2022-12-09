@@ -194,6 +194,7 @@ class UserView extends StatelessWidget {
                       ),
                       const SizedBox(height: 15),
                       _name(c, context),
+                      _status(c, context),
                     ],
                   ),
                   // block(
@@ -1034,31 +1035,26 @@ class UserView extends StatelessWidget {
               },
       ),
     );
+  }
 
-    // _padding(
-    //   Row(
-    //     key: const Key('UserName'),
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     mainAxisSize: MainAxisSize.min,
-    //     children: [
-    //       AvatarWidget.fromUser(c.user?.user.value, radius: 29),
-    //       const SizedBox(width: 20),
-    //       Expanded(
-    //         child: Column(
-    //           crossAxisAlignment: CrossAxisAlignment.start,
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             SelectableText(
-    //               '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-    //               style: const TextStyle(fontSize: 24),
-    //             ),
-    //             _onlineStatus(c),
-    //           ],
-    //         ),
-    //       )
-    //     ],
-    //   ),
-    // );
+  /// Returns a [User.name] text widget with an [AvatarWidget].
+  Widget _status(UserController c, BuildContext context) {
+    return Obx(() {
+      final UserTextStatus? status = c.user?.user.value.status;
+
+      if (status == null) {
+        return Container();
+      }
+
+      return _padding(
+        CopyableTextField(
+          key: const Key('StatusField'),
+          state: TextFieldState(text: status.val),
+          label: 'Text status'.l10n,
+          copy: status.val,
+        ),
+      );
+    });
   }
 
   /// Returns an online status subtitle of the [User] this [UserView] is about.

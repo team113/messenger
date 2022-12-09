@@ -436,7 +436,7 @@ label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_group_created = Группа создана
-label_hidden = Статус скрыт
+label_hidden = Был(а) недавно
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =

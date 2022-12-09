@@ -79,6 +79,9 @@ class MyUserService extends DisposableService {
   /// If [bio] is `null`, then resets [MyUser.bio] field.
   Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
 
+  Future<void> updateUserStatus(UserTextStatus? status) =>
+      _userRepo.updateUserStatus(status);
+
   /// Updates password for the authenticated [MyUser].
   ///
   /// If [MyUser] has no password yet (when sets his password), then `old`

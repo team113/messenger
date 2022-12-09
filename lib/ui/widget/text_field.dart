@@ -279,55 +279,64 @@ class ReactiveTextField extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: state.controller,
-              style: style,
-              focusNode: focusNode ?? state.focus,
-              onChanged: (s) {
-                state.isEmpty.value = s.isEmpty;
-                onChanged?.call();
-              },
-              textAlign: textAlign,
-              onSubmitted: (s) => state.submit(),
-              inputFormatters: formatters,
-              readOnly: !enabled || !state.editable.value,
-              enabled: enabled && state.editable.value,
-              decoration: InputDecoration(
-                isDense: dense ?? PlatformUtils.isMobile,
-                prefixText: prefixText,
-                prefix: prefix,
-                prefixIcon: prefixIcon,
-                prefixIconColor: prefixIconColor,
-                fillColor: Colors.white,
-                filled: true,
-                // fillColor: filled == false ? Colors.transparent : null,
-                contentPadding: contentPadding,
-                suffixIconConstraints: null,
+            Stack(
+              children: [
+                TextField(
+                  controller: state.controller,
+                  style: style,
+                  focusNode: focusNode ?? state.focus,
+                  onChanged: (s) {
+                    state.isEmpty.value = s.isEmpty;
+                    onChanged?.call();
+                  },
+                  textAlign: textAlign,
+                  onSubmitted: (s) => state.submit(),
+                  inputFormatters: formatters,
+                  readOnly: !enabled || !state.editable.value,
+                  enabled: enabled && state.editable.value,
+                  decoration: InputDecoration(
+                    isDense: dense ?? PlatformUtils.isMobile,
+                    prefixText: prefixText,
+                    prefix: prefix,
+                    prefixIcon: prefixIcon,
+                    prefixIconColor: prefixIconColor,
+                    fillColor: Colors.white,
+                    filled: true,
+                    // fillColor: filled == false ? Colors.transparent : null,
+                    contentPadding: contentPadding,
+                    suffixIconConstraints: null,
 
-                // suffixIconConstraints: suffix == null && trailing == null
-                //     ? const BoxConstraints(maxWidth: 44)
-                //     : null,
-                suffixIcon: dense == true ? null : buildSuffix(),
-                icon: icon == null
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Icon(icon),
-                      ),
-                labelText: label,
-                hintText: hint,
-                hintMaxLines: 1,
+                    // suffixIconConstraints: suffix == null && trailing == null
+                    //     ? const BoxConstraints(maxWidth: 44)
+                    //     : null,
+                    suffixIcon: dense == true ? null : buildSuffix(),
+                    icon: icon == null
+                        ? null
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Icon(icon),
+                          ),
+                    labelText: label,
+                    hintText: hint,
+                    hintMaxLines: 1,
 
-                // Hide the error's text as the [AnimatedSize] below this
-                // [TextField] displays it better.
-                errorStyle: const TextStyle(fontSize: 0),
-                errorText: state.error.value,
-              ),
-              obscureText: obscure,
-              keyboardType: type,
-              minLines: minLines,
-              maxLines: maxLines,
-              textInputAction: textInputAction,
+                    // Hide the error's text as the [AnimatedSize] below this
+                    // [TextField] displays it better.
+                    errorStyle: const TextStyle(fontSize: 0),
+                    errorText: state.error.value,
+                  ),
+                  obscureText: obscure,
+                  keyboardType: type,
+                  minLines: minLines,
+                  maxLines: maxLines,
+                  textInputAction: textInputAction,
+                ),
+                // Positioned(
+                //   right: 0,
+                //   bottom: 12,
+                //   child: buildSuffix(),
+                // ),
+              ],
             ),
 
             // Displays an error, if any.

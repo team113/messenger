@@ -121,6 +121,8 @@ class MyProfileController extends GetxController {
   /// [MyUser.bio]'s field state.
   late final TextFieldState bio;
 
+  late final TextFieldState status;
+
   /// [MyUser.presence]'s dropdown state.
   late final DropdownFieldState<Presence> presence;
 
@@ -168,6 +170,8 @@ class MyProfileController extends GetxController {
 
   /// [Timer] to set the `RxStatus.empty` status of the [bio] field.
   Timer? _bioTimer;
+
+  Timer? _statusTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [presence] field.
   Timer? _presenceTimer;
@@ -267,6 +271,9 @@ class MyProfileController extends GetxController {
         }
         if (!bio.focus.hasFocus) {
           bio.unchecked = v?.bio?.val;
+        }
+        if (!status.focus.hasFocus) {
+          status.unchecked = v?.status?.val;
         }
         if (!presence.focus.hasFocus) {
           presence.unchecked = v?.presence;
@@ -426,10 +433,48 @@ class MyProfileController extends GetxController {
       },
     );
 
+    status = TextFieldState(
+      text: myUser.value?.status?.val,
+      approvable: true,
+      onChanged: (s) => s.error.value = null,
+      onSubmitted: (s) async {
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          _statusTimer?.cancel();
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await _myUserService.updateUserStatus(
+              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+            );
+            s.status.value = RxStatus.success();
+            _statusTimer = Timer(
+              const Duration(milliseconds: 1500),
+              () => s.status.value = RxStatus.empty(),
+            );
+          } catch (e) {
+            s.error.value = e.toString();
+            s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
     bio = TextFieldState(
       text: myUser.value?.bio?.val,
-      onChanged: (s) async {
-        s.error.value = null;
+      approvable: true,
+      onChanged: (s) => s.error.value = null,
+      onSubmitted: (s) async {
         try {
           if (s.text.isNotEmpty) {
             UserBio(s.text);

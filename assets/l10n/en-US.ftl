@@ -413,7 +413,7 @@ label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
-label_hidden = Status is hidden
+label_hidden = Last seen recently
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =

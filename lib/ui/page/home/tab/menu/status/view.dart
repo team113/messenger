@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
 import 'package:messenger/l10n/l10n.dart';
@@ -22,6 +23,9 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import 'controller.dart';
 
@@ -51,6 +55,24 @@ class StatusView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
+    Widget header(String text) {
+      final Style style = Theme.of(context).extension<Style>()!;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Text(
+              text,
+              style: style.systemMessageStyle
+                  .copyWith(color: Colors.black, fontSize: 18),
+            ),
+          ),
+        ),
+      );
+    }
+
     return GetBuilder(
       init: MoreController(Get.find()),
       builder: (MoreController c) {
@@ -70,7 +92,38 @@ class StatusView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 shrinkWrap: true,
                 children: [
+                  const SizedBox(height: 0),
+                  _padding(
+                    ReactiveTextField(
+                      key: const Key('StatusField'),
+                      state: c.status,
+                      label: 'Text status'.l10n,
+                      filled: true,
+                      onSuffixPressed: c.status.text.isEmpty
+                          ? null
+                          : () {
+                              Clipboard.setData(
+                                  ClipboardData(text: c.status.text));
+                              MessagePopup.success(
+                                'label_copied_to_clipboard'.l10n,
+                              );
+                            },
+                      trailing: c.status.text.isEmpty
+                          ? null
+                          : Transform.translate(
+                              offset: const Offset(0, -1),
+                              child: Transform.scale(
+                                scale: 1.15,
+                                child: SvgLoader.asset(
+                                  'assets/icons/copy.svg',
+                                  height: 15,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
                   const SizedBox(height: 8),
+                  header('Presence'),
                   ...[Presence.present, Presence.away, Presence.hidden]
                       .map((e) {
                     return Obx(() {
@@ -143,4 +196,8 @@ class StatusView extends StatelessWidget {
       },
     );
   }
+
+  /// Basic [Padding] wrapper.
+  Widget _padding(Widget child) =>
+      Padding(padding: const EdgeInsets.all(8), child: child);
 }
