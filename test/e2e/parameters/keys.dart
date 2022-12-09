@@ -56,7 +56,6 @@ enum WidgetKey {
   LoginField,
   LoginView,
   LogoutButton,
-  LogoutConfirmedButton,
   MenuButton,
   MenuTab,
   MessageField,

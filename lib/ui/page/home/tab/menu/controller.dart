@@ -24,8 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart'
-    show CreateChatDirectLinkErrorCode, Presence;
+import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode, Presence;
 import '/config.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
@@ -160,7 +159,7 @@ class MenuTabController extends GetxController {
   onInit() {
     _worker = ever(
       _myUserService.myUser,
-          (MyUser? v) {
+      (MyUser? v) {
         if (!name.focus.hasFocus) {
           name.unchecked = v?.name?.val;
         }
@@ -200,7 +199,7 @@ class MenuTabController extends GetxController {
                 .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
             s.status.value = RxStatus.success();
             _nameTimer = Timer(const Duration(seconds: 1),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -319,7 +318,7 @@ class MenuTabController extends GetxController {
                 .updateUserBio(s.text.isNotEmpty ? UserBio(s.text) : null);
             s.status.value = RxStatus.success();
             _bioTimer = Timer(const Duration(seconds: 1),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -346,7 +345,7 @@ class MenuTabController extends GetxController {
             await _myUserService.updateUserPresence(presence.value!);
             s.status.value = RxStatus.success();
             _presenceTimer = Timer(const Duration(seconds: 1),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -361,7 +360,7 @@ class MenuTabController extends GetxController {
     num = TextFieldState(
       text: myUser.value?.num.val.replaceAllMapped(
         RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
+        (match) => '${match.group(0)} ',
       ),
       editable: false,
     );
@@ -394,7 +393,7 @@ class MenuTabController extends GetxController {
             await _myUserService.createChatDirectLink(slug!);
             s.status.value = RxStatus.success();
             _linkTimer = Timer(const Duration(seconds: 1),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
             s.error.value = e.toMessage();
@@ -428,7 +427,7 @@ class MenuTabController extends GetxController {
             await _myUserService.updateUserLogin(UserLogin(s.text));
             s.status.value = RxStatus.success();
             _loginTimer = Timer(const Duration(seconds: 1),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } on UpdateUserLoginException catch (e) {
             s.error.value = e.toMessage();
             s.status.value = RxStatus.empty();
@@ -560,11 +559,8 @@ class MenuTabController extends GetxController {
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
     // TODO: [MyUserService.myUser] might still be `null` here.
-    if (await ConfirmLogoutView.show(
-      router.context!,
-      //hasPassword: _myUserService.myUser.value?.hasPassword ?? false,  TODO
-    ) !=
-        true) {
+    if (await ConfirmLogoutView.show(router.context!) != true) {
+      // TODO: check that on mobile back button will close this modal
       return false;
     }
 
@@ -625,7 +621,7 @@ class MenuTabController extends GetxController {
       try {
         await _myUserService.updateUserPassword(
           oldPassword:
-          myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
+              myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
           newPassword: UserPassword(newPassword.text),
         );
         repeatPassword.status.value = RxStatus.success();
@@ -680,7 +676,7 @@ class MenuTabController extends GetxController {
   /// Deletes [email] address from [MyUser.emails].
   Future<void> deleteUserEmail(UserEmail email) async {
     if (await MessagePopup.alert(
-        'alert_are_you_sure_want_to_delete_email'.l10n) ==
+            'alert_are_you_sure_want_to_delete_email'.l10n) ==
         true) {
       emailsOnDeletion.addIf(!emailsOnDeletion.contains(email), email);
       UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
@@ -699,7 +695,7 @@ class MenuTabController extends GetxController {
   /// Deletes [phone] number from [MyUser.phones].
   Future<void> deleteUserPhone(UserPhone phone) async {
     if (await MessagePopup.alert(
-        'alert_are_you_sure_want_to_delete_phone'.l10n) ==
+            'alert_are_you_sure_want_to_delete_phone'.l10n) ==
         true) {
       phonesOnDeletion.addIf(!phonesOnDeletion.contains(phone), phone);
       UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
@@ -738,10 +734,14 @@ class MenuTabController extends GetxController {
       if (result != null) {
         avatarUpload.value = RxStatus.loading();
 
-        List<Future> deletes = [];
+        List<GalleryItemId> deletes = [];
 
         for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-          deletes.add(_myUserService.deleteGalleryItem(item.id));
+          deletes.add(item.id);
+        }
+
+        for (var e in deletes) {
+          _myUserService.deleteGalleryItem(e);
         }
 
         List<Future<ImageGalleryItem?>> futures = result.files
@@ -813,7 +813,7 @@ class MenuTabController extends GetxController {
       rethrow;
     } finally {
       _deleteGalleryTimer = Timer(const Duration(seconds: 1),
-              () => deleteGalleryStatus.value = RxStatus.empty());
+          () => deleteGalleryStatus.value = RxStatus.empty());
     }
   }
 
@@ -842,7 +842,7 @@ class MenuTabController extends GetxController {
         link.status.value = RxStatus.success();
         link.error.value = null;
         _linkTimer = Timer(const Duration(seconds: 1),
-                () => link.status.value = RxStatus.empty());
+            () => link.status.value = RxStatus.empty());
         generated = true;
       } on CreateChatDirectLinkException catch (e) {
         if (e.code != CreateChatDirectLinkErrorCode.occupied) {
@@ -874,7 +874,7 @@ class MenuTabController extends GetxController {
       link.error.value = null;
       link.unchecked = '';
       _linkTimer = Timer(const Duration(seconds: 1),
-              () => link.status.value = RxStatus.empty());
+          () => link.status.value = RxStatus.empty());
     } on DeleteChatDirectLinkException catch (e) {
       link.status.value = RxStatus.empty();
       link.error.value = e.toMessage();
@@ -891,7 +891,7 @@ class MenuTabController extends GetxController {
     Clipboard.setData(
       ClipboardData(
         text:
-        '${Config.origin}${Routes.chatDirectLink}/${myUser.value?.chatDirectLink!.slug.val}',
+            '${Config.origin}${Routes.chatDirectLink}/${myUser.value?.chatDirectLink!.slug.val}',
       ),
     );
 
@@ -919,7 +919,7 @@ class MenuTabController extends GetxController {
       rethrow;
     } finally {
       _avatarTimer = Timer(const Duration(seconds: 1),
-              () => avatarStatus.value = RxStatus.empty());
+          () => avatarStatus.value = RxStatus.empty());
     }
   }
 
@@ -929,7 +929,7 @@ class MenuTabController extends GetxController {
       resendEmailTimeout.value = 30;
       _resendEmailTimer = Timer.periodic(
         const Duration(seconds: 1),
-            (_) {
+        (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {
             resendEmailTimeout.value = 0;
@@ -951,7 +951,7 @@ class MenuTabController extends GetxController {
       resendPhoneTimeout.value = 30;
       _resendPhoneTimer = Timer.periodic(
         const Duration(seconds: 1),
-            (_) {
+        (_) {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {
             resendPhoneTimeout.value = 0;

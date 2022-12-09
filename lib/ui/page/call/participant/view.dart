@@ -142,7 +142,7 @@ class ParticipantView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: OutlinedRoundedButton(
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       'btn_add_participants'.l10n,
                       overflow: TextOverflow.ellipsis,

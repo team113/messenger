@@ -15,15 +15,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-//import 'accounts/view.dart'; TODO
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -111,11 +110,12 @@ class MenuTabView extends StatelessWidget {
         }
 
         void Function()? onBack =
-        context.isNarrow && ModalRoute.of(context)?.canPop == true
-            ? Navigator.of(context).pop
-            : null;
+            context.isNarrow && ModalRoute.of(context)?.canPop == true
+                ? Navigator.of(context).pop
+                : null;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
             title: Row(
               children: [
@@ -148,7 +148,10 @@ class MenuTabView extends StatelessWidget {
                                       color: Colors.black.withOpacity(0.3),
                                     ),
                                     child: const Center(
-                                      child: CircularProgressIndicator(),
+                                      child: SizedBox.square(
+                                        dimension: 22,
+                                        child: CircularProgressIndicator(),
+                                      ),
                                     ),
                                   );
                                 } else {
@@ -175,7 +178,7 @@ class MenuTabView extends StatelessWidget {
                         context,
                         actions: [
                           ContextMenuButton(
-                            label: 'Online',
+                            label: 'label_presence_present'.l10n,
                             onPressed: () => c.setPresence(Presence.present),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -183,7 +186,7 @@ class MenuTabView extends StatelessWidget {
                             ),
                           ),
                           ContextMenuButton(
-                            label: 'Away',
+                            label: 'label_presence_away'.l10n,
                             onPressed: () => c.setPresence(Presence.away),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -191,7 +194,7 @@ class MenuTabView extends StatelessWidget {
                             ),
                           ),
                           ContextMenuButton(
-                            label: 'Hidden',
+                            label: 'label_presence_hidden'.l10n,
                             onPressed: () => c.setPresence(Presence.hidden),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -219,28 +222,9 @@ class MenuTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Obx(() {
-                                final String status;
-
-                                switch (c.myUser.value?.presence) {
-                                  case Presence.hidden:
-                                    status = 'Hidden';
-                                    break;
-
-                                  case Presence.away:
-                                    status = 'Away';
-                                    break;
-
-                                  case Presence.present:
-                                    status = 'Online';
-                                    break;
-
-                                  default:
-                                    status = '...';
-                                    break;
-                                }
-
                                 return Text(
-                                  status,
+                                  c.myUser.value?.presence.localizedString() ??
+                                      'dot'.l10n * 3,
                                   style: Theme.of(context).textTheme.caption,
                                 );
                               }),
@@ -264,9 +248,11 @@ class MenuTabView extends StatelessWidget {
                 ? const [StyledBackButton()]
                 : [const SizedBox(width: 23)],
           ),
-          body: FlutterListView(
-            delegate: FlutterListViewDelegate(
-                  (context, i) {
+          body: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: ListView.builder(
+              itemCount: ProfileTab.values.length,
+              itemBuilder: (context, i) {
                 final Widget child;
                 final ProfileTab tab = ProfileTab.values[i];
 
@@ -274,18 +260,21 @@ class MenuTabView extends StatelessWidget {
                   required String title,
                   required String subtitle,
                   required IconData icon,
+                  VoidCallback? onTap,
                 }) {
                   return Obx(() {
                     return bigButton(
                       leading: Icon(icon, color: const Color(0xFF63B4FF)),
                       title: Text(title),
                       subtitle: Text(subtitle),
-                      onTap: () {
-                        router.profileTab.value = tab;
-                        router.settings();
-                      },
+                      onTap: onTap ??
+                          () {
+                            router.profileTab.value = tab;
+                            router.profileTab.refresh();
+                            router.profile();
+                          },
                       selected: tab == router.profileTab.value &&
-                          router.route == Routes.me,
+                          router.route == Routes.profile,
                     );
                   });
                 }
@@ -294,55 +283,55 @@ class MenuTabView extends StatelessWidget {
                   case ProfileTab.public:
                     child = widget(
                       icon: Icons.person,
-                      title: 'Публичная информация'.l10n,
-                      subtitle: 'Аватар и имя'.l10n,
+                      title: 'label_public_information'.l10n,
+                      subtitle: 'label_public_section_hint'.l10n,
                     );
                     break;
 
                   case ProfileTab.signing:
                     child = widget(
                       icon: Icons.lock,
-                      title: 'Параметры входа'.l10n,
-                      subtitle: 'Логин, e-mail, телефон, пароль'.l10n,
+                      title: 'label_login_options'.l10n,
+                      subtitle: 'label_login_section_hint'.l10n,
                     );
                     break;
 
                   case ProfileTab.link:
                     child = widget(
                       icon: Icons.link,
-                      title: 'Ссылка на чат'.l10n,
-                      subtitle: 'Прямая ссылка на чат с Вами'.l10n,
+                      title: 'label_link_to_chat'.l10n,
+                      subtitle: 'label_your_direct_link'.l10n,
                     );
                     break;
 
                   case ProfileTab.background:
                     child = widget(
                       icon: Icons.image,
-                      title: 'Бэкграунд'.l10n,
-                      subtitle: 'Фон приложения'.l10n,
+                      title: 'label_background'.l10n,
+                      subtitle: 'label_app_background'.l10n,
                     );
                     break;
 
                   case ProfileTab.calls:
                     if (PlatformUtils.isMobile) {
-                      child = const SizedBox();
+                      return const SizedBox();
                     } else {
                       child = widget(
                         icon: Icons.call,
-                        title: 'Звонки'.l10n,
-                        subtitle: 'Отображение звонков'.l10n,
+                        title: 'label_calls'.l10n,
+                        subtitle: 'label_calls_displaying'.l10n,
                       );
                     }
                     break;
 
                   case ProfileTab.media:
                     if (PlatformUtils.isMobile) {
-                      child = const SizedBox();
+                      return const SizedBox();
                     } else {
                       child = widget(
                         icon: Icons.video_call,
-                        title: 'Медиа'.l10n,
-                        subtitle: 'Аудио и видео устройства'.l10n,
+                        title: 'label_media'.l10n,
+                        subtitle: 'label_media_section_hint'.l10n,
                       );
                     }
                     break;
@@ -350,42 +339,39 @@ class MenuTabView extends StatelessWidget {
                   case ProfileTab.language:
                     child = widget(
                       icon: Icons.language,
-                      title: 'Язык'.l10n,
-                      subtitle: L10n.chosen.value?.name ?? 'Текущий язык'.l10n,
+                      title: 'label_language'.l10n,
+                      subtitle: L10n.chosen.value?.name ??
+                          'label_current_language'.l10n,
                     );
                     break;
 
                   case ProfileTab.download:
                     child = widget(
                       icon: Icons.download,
-                      title: 'Скачать'.l10n,
-                      subtitle: 'Приложение'.l10n,
+                      title: 'label_download'.l10n,
+                      subtitle: 'label_application'.l10n,
                     );
                     break;
 
                   case ProfileTab.danger:
                     child = widget(
                       icon: Icons.dangerous,
-                      title: 'Опасная зона'.l10n,
-                      subtitle: 'Удалить аккаунт'.l10n,
+                      title: 'label_danger_zone'.l10n,
+                      subtitle: 'label_delete_account'.l10n,
                     );
                     break;
 
                   case ProfileTab.logout:
-                    child = bigButton(
-                      title: Text('btn_logout'.l10n),
-                      leading: const Icon(
-                        Icons.logout,
-                        color: Color(0xFF63B4FF),
-                      ),
-                      subtitle: Text('Завершить сессию'.l10n),
-                      onTap: () async {
-                        if (await c.confirmLogout()) {
-                          router.go(await c.logout());
-                          router.tab = HomeTab.chats;
-                        }
-                      },
-                    );
+                    child = widget(
+                        icon: Icons.logout,
+                        title: 'btn_logout'.l10n,
+                        subtitle: 'label_end_session'.l10n,
+                        onTap: () async {
+                          if (await c.confirmLogout()) {
+                            router.go(await c.logout());
+                            router.tab = HomeTab.chats;
+                          }
+                        });
                     break;
                 }
 
@@ -394,7 +380,6 @@ class MenuTabView extends StatelessWidget {
                   child: child,
                 );
               },
-              childCount: ProfileTab.values.length,
             ),
           ),
         );

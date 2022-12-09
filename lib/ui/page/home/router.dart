@@ -65,6 +65,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.personalization,
           child: PersonalizationView(),
         ));
+      } else if (route == Routes.profile) {
+        pages.add(const _CustomPage(
+          key: ValueKey('ProfilePage'),
+          name: Routes.profile,
+          child: MyProfileView(),
+        ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),

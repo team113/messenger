@@ -214,7 +214,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               if (widget.withCancel) ...[
                 Expanded(
                   child: OutlinedRoundedButton(
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text('btn_cancel'.l10n, style: thin),
                     onPressed: Navigator.of(context).pop,
                     color: const Color(0xFFEEEEEE),
@@ -225,7 +225,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               Expanded(
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
-                  maxWidth: null,
+                  maxWidth: double.infinity,
                   title: Text(
                     widget.submitLabel ?? 'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),

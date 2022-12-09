@@ -16,6 +16,7 @@
 
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
@@ -49,6 +50,12 @@ class ConfirmLogoutController extends GetxController {
 
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
+
+  /// Returns current [MyUser].
+  Rx<MyUser?> get myUser => _myUser.myUser;
+
+  /// Returns [MyUser.hasPassword] indicator.
+  bool get hasPassword => _myUser.myUser.value?.hasPassword ?? false;
 
   @override
   void onInit() {

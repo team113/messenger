@@ -39,6 +39,7 @@ abstract class ModalPopup {
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
+    bool showClose = true,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 
@@ -120,30 +121,29 @@ abstract class ModalPopup {
                       ),
                     ],
                   ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Padding(
-                        padding: desktopPadding.right == 0
-                            ? const EdgeInsets.only(right: 10)
-                            : EdgeInsets.zero,
-                        child: SizedBox(
-                          height: 16,
-                          child: isDismissible
-                              ? InkResponse(
-                                  onTap: Navigator.of(context).pop,
-                                  radius: 11,
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Color(0xBB818181),
-                                  ),
-                                )
-                              : null,
+                  if (isDismissible && showClose)
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: desktopPadding.right == 0
+                              ? const EdgeInsets.only(right: 10)
+                              : EdgeInsets.zero,
+                          child: SizedBox(
+                            height: 16,
+                            child: InkResponse(
+                              onTap: Navigator.of(context).pop,
+                              radius: 11,
+                              child: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Color(0xBB818181),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

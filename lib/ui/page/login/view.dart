@@ -60,7 +60,7 @@ class LoginView extends StatelessWidget {
           }) {
             return OutlinedRoundedButton(
               key: key,
-              maxWidth: null,
+              maxWidth: double.infinity,
               title: Text(
                 title ?? '',
                 style: const TextStyle(color: Colors.white),
@@ -78,7 +78,7 @@ class LoginView extends StatelessWidget {
           }) {
             return OutlinedRoundedButton(
               key: key,
-              maxWidth: null,
+              maxWidth: double.infinity,
               title: Text(
                 title ?? '',
                 style: const TextStyle(color: Colors.black),

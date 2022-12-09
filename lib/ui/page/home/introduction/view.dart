@@ -139,7 +139,7 @@ class IntroductionView extends StatelessWidget {
                     Expanded(
                       child: OutlinedRoundedButton(
                         key: const Key('SetPasswordButton'),
-                        maxWidth: null,
+                        maxWidth: double.infinity,
                         title: Text(
                           'btn_set_password'.l10n,
                           style: thin?.copyWith(color: Colors.white),
@@ -153,7 +153,7 @@ class IntroductionView extends StatelessWidget {
                     Expanded(
                       child: OutlinedRoundedButton(
                         key: const Key('CloseButton'),
-                        maxWidth: null,
+                        maxWidth: double.infinity,
                         title: Text('btn_close'.l10n, style: thin),
                         onPressed: Navigator.of(context).pop,
                         color: const Color(0xFFEEEEEE),

@@ -681,6 +681,7 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.personalization] page.
   void personalization() => go(Routes.personalization);
 
+  /// Changes router location to the [Routes.profile] page.
   void profile({bool push = false}) =>
       push ? this.push(Routes.profile) : go(Routes.profile);
 

@@ -19,9 +19,6 @@ alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
 alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
-alert_are_you_sure_want_to_log_out =
-    Are you sure you want to log out?
-    Your active calls will be ended.
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
@@ -268,10 +265,11 @@ err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
 label_add_additional_email = Add additional E-mail
+label_add_additional_number = Add additional number
 label_add_chat_member = Add member
 label_add_email = Add E-mail
 label_add_email_hint = Write your email address
-label_add_number = Add a number
+label_add_number = Add phone number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_add_participants = Add participants
 label_account_access_will_be_lost = Account access will be lost
@@ -319,9 +317,12 @@ label_ago_date = { $years ->
     *[other] {$years} years ago
 }
 label_all = All
+label_android = Android
+label_app_background = Application background
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
+label_are_you_sure_want_to_log_out = Are you sure you want to log out{" "}
 label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
@@ -348,6 +349,7 @@ label_call_title =
         }
     }
 label_calls = Calls
+label_calls_displaying = Calls displaying
 label_camera = Camera
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -367,8 +369,10 @@ label_copy = Copy
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
+label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
+label_delete_account = Delete account
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
@@ -393,6 +397,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_download = Download
 label_download_app = Download application
 label_draft = Draft
 label_drop_here =
@@ -408,6 +413,7 @@ label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
+label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
 label_entrance = Login
@@ -417,6 +423,8 @@ label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
+label_hello = Hello!
+label_hello_reply = Yay, hello :)
 label_hidden = Status is hidden
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
@@ -440,19 +448,27 @@ label_introduction_description =
         • You will not press the "Logout" button.
 
     In order not to lose access to your account, set a password.
+label_ios = iOS
 label_kb = {$amount} KB
 label_language = Language
 label_last_seen = Last seen
+label_link_to_chat = Link to chat
+label_linux = Linux
 label_login = Login
 label_login_hint = Your unique login
 label_login_options = Login options
+label_login_section_hint = Login, e-mail, phone, password
 label_login_visibility_hint = Unique login is an additional unique identifier for your account.
 label_login_visible = Your login visible to:{" "}
+label_logout = Logout
+label_logout_password_not_set = Password not set. Access to account will be lost.
+label_macos = macOS
 label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Output
+label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
@@ -484,6 +500,8 @@ label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
+label_open_calls_in_app = Display calls in the application window.
+label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_participant_redial_successfully = Participant redialed
@@ -502,9 +520,10 @@ label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
 label_presence_hidden = Hidden
-label_presence_present = Last visit information
+label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
+label_public_section_hint = Avatar and name
 label_read_by = Read by
 label_recent = Recent
 label_recover_account = Access recovery
@@ -542,7 +561,7 @@ label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_transition_count = Transitions: {count}
+label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
@@ -553,6 +572,7 @@ label_unread_messages = { $quantity ->
 label_use_search = Use search to find an user
 label_users = Users
 label_verify_email = Verify E-mail
+label_verify_number = Verify phone number
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
@@ -560,9 +580,11 @@ label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
+label_windows = Windows
 label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_direct_link = Direct link to chat with you
 plus = +
+question_mark = ?
 space = {" "}
 space_vertical_space = {" "}|{" "}

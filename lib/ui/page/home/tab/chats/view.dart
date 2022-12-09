@@ -287,7 +287,6 @@ class ChatsTabView extends StatelessWidget {
                   child = AnimationLimiter(
                     key: const Key('Chats'),
                     child: ListView.builder(
-                      controller: ScrollController(),
                       itemCount: c.chats.length,
                       itemBuilder: (_, i) {
                         final RxChat chat = c.chats[i];
@@ -333,7 +332,7 @@ class ChatsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: ContextMenuInterceptor(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),

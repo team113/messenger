@@ -18,10 +18,9 @@ import 'dart:async';
 
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -36,18 +35,14 @@ import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
-import '/domain/service/auth.dart';
-import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/ui/page/home/tab/menu/confirm/view.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'widget/dropdown.dart';
 
 export 'view.dart';
@@ -55,18 +50,12 @@ export 'view.dart';
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
   MyProfileController(
-      this._myUserService,
-      this._callService,
-      this._authService,
-      this._settingsRepo,
-      );
+    this._myUserService,
+    this._settingsRepo,
+  );
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
-
-  /// Index of the currently displayed [ImageGalleryItem] in the
-  /// [MyUser.gallery] list.
-  final RxInt galleryIndex = RxInt(0);
 
   /// Upload status of the added [ImageGalleryItem].
   final Rx<RxStatus> addGalleryStatus = Rx<RxStatus>(RxStatus.empty());
@@ -103,9 +92,6 @@ class MyProfileController extends GetxController {
   /// [CarouselController] of the [MyUser.gallery] used to jump between gallery
   /// items on [MyUser] updates.
   CarouselController? galleryController;
-
-  /// [GlobalKey] of a button opening the [Language] selection.
-  final GlobalKey languageKey = GlobalKey();
 
   final FlutterListViewController listController = FlutterListViewController();
 
@@ -154,12 +140,6 @@ class MyProfileController extends GetxController {
   /// State of a repeated new [myUser]'s password field.
   late final TextFieldState repeatPassword;
 
-  /// Authorization service used to logout the [MyUser].
-  final AuthService _authService;
-
-  /// Call service used to gets active calls.
-  final CallService _callService;
-
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
@@ -178,12 +158,6 @@ class MyProfileController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [addGalleryStatus].
-  Timer? _addGalleryTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [deleteGalleryStatus].
-  Timer? _deleteGalleryTimer;
-
   /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
   Timer? _avatarTimer;
 
@@ -196,21 +170,11 @@ class MyProfileController extends GetxController {
   /// Worker to react on [myUser] changes.
   Worker? _worker;
 
-  /// Previous length of the [MyUser.gallery] used to change the [galleryIndex]
-  /// on its difference with the actual [MyUser.gallery] length.
-  int? _galleryLength;
-
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
-
-  /// Indicates whether the [ImageGalleryItem] at [galleryIndex] is the current
-  /// [MyUser.avatar].
-  bool get isAvatar => // TODO: unused, delete
-      myUser.value?.gallery?[galleryIndex.value].id ==
-          myUser.value?.avatar?.galleryItem?.id;
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
@@ -240,11 +204,15 @@ class MyProfileController extends GetxController {
 
     _profileWorker = ever(
       router.profileTab,
-          (ProfileTab? tab) {
+      (ProfileTab? tab) {
         if (ignoreWorker) {
           ignoreWorker = false;
         } else {
-          listController.sliverController.jumpToIndex(tab?.index ?? 0);
+          listController.sliverController.animateToIndex(
+            tab?.index ?? 0,
+            duration: 200.milliseconds,
+            curve: Curves.ease,
+          );
         }
       },
     );
@@ -256,13 +224,14 @@ class MyProfileController extends GetxController {
         if (router.profileTab.value != tab) {
           ignoreWorker = true;
           router.profileTab.value = tab;
+          Future.delayed(0.milliseconds, () => ignoreWorker = false);
         }
       }
     };
 
     _worker = ever(
       _myUserService.myUser,
-          (MyUser? v) {
+      (MyUser? v) {
         if (!name.focus.hasFocus && !name.changed.value) {
           name.unchecked = v?.name?.val;
         }
@@ -277,24 +246,6 @@ class MyProfileController extends GetxController {
         }
         if (!link.focus.hasFocus && !link.changed.value) {
           link.unchecked = v?.chatDirectLink?.slug.val;
-        }
-        if (_galleryLength != v?.gallery?.length) {
-          _galleryLength = v?.gallery?.length;
-
-          if (galleryIndex.value >= (_galleryLength ?? 1)) {
-            galleryIndex.value = (_galleryLength ?? 1) - 1;
-            if (galleryIndex.value < 0) {
-              galleryIndex.value = 0;
-            }
-          }
-
-          if (v?.gallery?.isNotEmpty == true &&
-              !addGalleryStatus.value.isEmpty) {
-            Future.delayed(Duration.zero, () {
-              galleryController?.jumpToPage(0);
-              galleryIndex.value = 0;
-            });
-          }
         }
       },
     );
@@ -448,7 +399,7 @@ class MyProfileController extends GetxController {
                 .updateUserBio(s.text.isNotEmpty ? UserBio(s.text) : null);
             s.status.value = RxStatus.success();
             _bioTimer = Timer(const Duration(milliseconds: 1500),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -475,7 +426,7 @@ class MyProfileController extends GetxController {
             await _myUserService.updateUserPresence(presence.value!);
             s.status.value = RxStatus.success();
             _presenceTimer = Timer(const Duration(milliseconds: 1500),
-                    () => s.status.value = RxStatus.empty());
+                () => s.status.value = RxStatus.empty());
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
@@ -490,7 +441,7 @@ class MyProfileController extends GetxController {
     num = TextFieldState(
       text: myUser.value?.num.val.replaceAllMapped(
         RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
+        (match) => '${match.group(0)} ',
       ),
       editable: false,
     );
@@ -573,7 +524,7 @@ class MyProfileController extends GetxController {
             s.status.value = RxStatus.success();
             _loginTimer = Timer(
               const Duration(milliseconds: 1500),
-                  () => s.status.value = RxStatus.empty(),
+              () => s.status.value = RxStatus.empty(),
             );
           } on UpdateUserLoginException catch (e) {
             s.error.value = e.toMessage();
@@ -759,30 +710,6 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Determines whether the [logout] action may be invoked or not.
-  ///
-  /// Shows a confirmation popup if there's any ongoing calls.
-  Future<bool> confirmLogout() async {
-    if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
-      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
-          true) {
-        return false;
-      }
-    }
-
-    // TODO: [MyUserService.myUser] might still be `null` here.
-    if (_myUserService.myUser.value?.hasPassword != true) {
-      if (await ConfirmLogoutView.show(router.context!) != true) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout();
-
   /// Validates and updates current [myUser]'s password with the one specified
   /// in the [newPassword] and [repeatPassword] fields.
   Future<void> changePassword() async {
@@ -830,7 +757,7 @@ class MyProfileController extends GetxController {
       try {
         await _myUserService.updateUserPassword(
           oldPassword:
-          myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
+              myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
           newPassword: UserPassword(newPassword.text),
         );
         repeatPassword.status.value = RxStatus.success();
@@ -885,7 +812,7 @@ class MyProfileController extends GetxController {
   /// Deletes [email] address from [MyUser.emails].
   Future<void> deleteUserEmail(UserEmail email) async {
     if (await MessagePopup.alert(
-        'alert_are_you_sure_want_to_delete_email'.l10n) ==
+            'alert_are_you_sure_want_to_delete_email'.l10n) ==
         true) {
       emailsOnDeletion.addIf(!emailsOnDeletion.contains(email), email);
       UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
@@ -904,7 +831,7 @@ class MyProfileController extends GetxController {
   /// Deletes [phone] number from [MyUser.phones].
   Future<void> deleteUserPhone(UserPhone phone) async {
     if (await MessagePopup.alert(
-        'alert_are_you_sure_want_to_delete_phone'.l10n) ==
+            'alert_are_you_sure_want_to_delete_phone'.l10n) ==
         true) {
       phonesOnDeletion.addIf(!phonesOnDeletion.contains(phone), phone);
       UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
@@ -917,15 +844,6 @@ class MyProfileController extends GetxController {
         }
         phonesOnDeletion.remove(phone);
       }
-    }
-  }
-
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with the [ImageGalleryItem]
-  /// at [galleryIndex].
-  Future<void> updateAvatar() async {
-    var galleryItem = myUser.value?.gallery?[galleryIndex.value];
-    if (galleryItem != null) {
-      _updateAvatar(galleryItem.id);
     }
   }
 
@@ -969,56 +887,6 @@ class MyProfileController extends GetxController {
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
-    }
-  }
-
-  /// Opens a file choose popup and uploads the selected images to the
-  /// [MyUser.gallery]
-  Future<void> pickGalleryItem() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-      withReadStream: true,
-    );
-
-    if (result != null) {
-      _uploadGalleryItems(result.files);
-    }
-  }
-
-  /// Uploads the specified [details] files to the [MyUser.gallery].
-  Future<void> dropFiles(DropDoneDetails details) async {
-    List<PlatformFile> files = [];
-    for (var file in details.files) {
-      files.add(PlatformFile(
-        path: file.path,
-        name: file.name,
-        size: await file.length(),
-        readStream: file.openRead(),
-      ));
-    }
-    await _uploadGalleryItems(files);
-  }
-
-  /// Deletes [ImageGalleryItem] at the [galleryIndex] from [MyUser.gallery].
-  Future<void> deleteGalleryItem([ImageGalleryItem? galleryItem]) async {
-    try {
-      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-        _deleteGalleryTimer?.cancel();
-        deleteGalleryStatus.value = RxStatus.loading();
-        galleryItem ??
-            _myUserService.myUser.value?.gallery?[galleryIndex.value];
-        if (galleryItem != null) {
-          await _myUserService.deleteGalleryItem(galleryItem.id);
-        }
-        deleteGalleryStatus.value = RxStatus.success();
-      }
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      _deleteGalleryTimer = Timer(const Duration(milliseconds: 1500),
-              () => deleteGalleryStatus.value = RxStatus.empty());
     }
   }
 
@@ -1092,35 +960,11 @@ class MyProfileController extends GetxController {
     Clipboard.setData(
       ClipboardData(
         text:
-        '${Config.origin}${Routes.chatDirectLink}/${myUser.value?.chatDirectLink!.slug.val}',
+            '${Config.origin}${Routes.chatDirectLink}/${myUser.value?.chatDirectLink!.slug.val}',
       ),
     );
 
     MessagePopup.success('label_copied_to_clipboard'.l10n);
-  }
-
-  /// Uploads the specified [files] to the [MyUser.gallery].
-  Future<void> _uploadGalleryItems(List<PlatformFile> files) async {
-    try {
-      if (files.isNotEmpty) {
-        _addGalleryTimer?.cancel();
-        addGalleryStatus.value = RxStatus.loading();
-        List<Future> futures = files
-            .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e))
-            .toList();
-        await Future.wait(futures);
-        addGalleryStatus.value = RxStatus.success();
-      }
-    } on UploadUserGalleryItemException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      _addGalleryTimer = Timer(const Duration(milliseconds: 1500),
-              () => addGalleryStatus.value = RxStatus.empty());
-    }
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
@@ -1144,7 +988,7 @@ class MyProfileController extends GetxController {
       rethrow;
     } finally {
       _avatarTimer = Timer(const Duration(milliseconds: 1500),
-              () => avatarStatus.value = RxStatus.empty());
+          () => avatarStatus.value = RxStatus.empty());
     }
   }
 
@@ -1154,7 +998,7 @@ class MyProfileController extends GetxController {
       resendEmailTimeout.value = 30;
       _resendEmailTimer = Timer.periodic(
         const Duration(milliseconds: 1500),
-            (_) {
+        (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {
             resendEmailTimeout.value = 0;
@@ -1176,7 +1020,7 @@ class MyProfileController extends GetxController {
       resendPhoneTimeout.value = 30;
       _resendPhoneTimer = Timer.periodic(
         const Duration(milliseconds: 1500),
-            (_) {
+        (_) {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {
             resendPhoneTimeout.value = 0;

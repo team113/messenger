@@ -34,12 +34,14 @@ import 'package:get/get.dart';
 // import 'microphone_switch/view.dart';
 // import 'output_switch/view.dart';
 import '/config.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/bloc.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
@@ -77,16 +79,9 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
+      init: MyProfileController(Get.find(), Get.find()),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -110,37 +105,15 @@ class MyProfileView extends StatelessWidget {
                 return const CircularProgressIndicator();
               }
 
-              Widget block({List<Widget> children = const []}) {
-                return Center(
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                    decoration: BoxDecoration(
-                      border: style.primaryBorder,
-                      color: style.messageColor,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    constraints: context.isNarrow
-                        ? null
-                        : const BoxConstraints(maxWidth: 400),
-                    padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: children,
-                    ),
-                  ),
-                );
-              }
-
               return FlutterListView(
                 controller: c.listController,
                 delegate: FlutterListViewDelegate(
                   (context, i) {
                     switch (ProfileTab.values[i]) {
                       case ProfileTab.public:
-                        return block(
+                        return Bloc(
+                          title: 'label_public_information'.l10n,
                           children: [
-                            _label(context, 'label_public_information'.l10n),
                             Stack(
                               alignment: Alignment.center,
                               children: [
@@ -205,9 +178,9 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.signing:
-                        return block(
+                        return Bloc(
+                          title: 'label_login_options'.l10n,
                           children: [
-                            _label(context, 'label_login_options'.l10n),
                             _num(c),
                             _login(c, context),
                             const SizedBox(height: 10),
@@ -217,24 +190,26 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.link:
-                        return block(
+                        return Bloc(
+                          title: 'label_your_direct_link'.l10n,
                           children: [
-                            _label(context, 'label_your_direct_link'.l10n),
                             _link(context, c),
                           ],
                         );
 
                       case ProfileTab.background:
-                        return block(children: [
-                          _label(context, 'label_background'.l10n),
-                          _personalization(context, c),
-                        ]);
+                        return Bloc(
+                          title: 'label_background'.l10n,
+                          children: [
+                            _background(context, c),
+                          ],
+                        );
 
                       case ProfileTab.calls:
                         if (!PlatformUtils.isMobile) {
-                          return block(
+                          return Bloc(
+                            title: 'label_calls'.l10n,
                             children: [
-                              _label(context, 'label_calls'.l10n),
                               _call(context, c),
                             ],
                           );
@@ -244,9 +219,9 @@ class MyProfileView extends StatelessWidget {
 
                       case ProfileTab.media:
                         if (!PlatformUtils.isMobile) {
-                          return block(
+                          return Bloc(
+                            title: 'label_media'.l10n,
                             children: [
-                              _label(context, 'label_media'.l10n),
                               _media(context, c),
                             ],
                           );
@@ -255,25 +230,25 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
 
                       case ProfileTab.language:
-                        return block(
+                        return Bloc(
+                          title: 'label_language'.l10n,
                           children: [
-                            _label(context, 'label_language'.l10n),
                             _language(context, c),
                           ],
                         );
 
                       case ProfileTab.download:
-                        return block(
+                        return Bloc(
+                          title: 'label_download_app'.l10n,
                           children: [
-                            _label(context, 'label_download_app'.l10n),
                             _downloads(context, c),
                           ],
                         );
 
                       case ProfileTab.danger:
-                        return block(
+                        return Bloc(
+                          title: 'label_danger_zone'.l10n,
                           children: [
-                            _label(context, 'label_danger_zone'.l10n),
                             _deleteAccount(context, c),
                           ],
                         );
@@ -519,24 +494,6 @@ Widget _login(MyProfileController c, BuildContext context) {
   );
 }
 
-Widget _label(BuildContext context, String text) {
-  final Style style = Theme.of(context).extension<Style>()!;
-
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-    child: Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Text(
-          text,
-          style: style.systemMessageStyle
-              .copyWith(color: Colors.black, fontSize: 18),
-        ),
-      ),
-    ),
-  );
-}
-
 /// Returns addable list of [MyUser.emails].
 Widget _emails(MyProfileController c, BuildContext context) {
   return Obx(() {
@@ -574,8 +531,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   ),
                 ),
                 WidgetButton(
-                  // TODO: show a delete email popup.
-                  //onPressed: () => DeleteEmailView.show(context, email: e),
+                  onPressed: () {
+                    // TODO: show a delete email popup.
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10),
                     width: 30,
@@ -663,13 +621,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
             children: [
               WidgetButton(
                 behavior: HitTestBehavior.deferToChild,
-                // TODO: show an add email popup.
-                // onPressed: () {
-                //   AddEmailView.show(
-                //     context,
-                //     email: c.myUser.value!.emails.unconfirmed!,
-                //   );
-                // },
+                onPressed: () {
+                  // TODO: show an add email popup.
+                },
                 child: IgnorePointer(
                   child: ReactiveTextField(
                     state: TextFieldState(
@@ -692,11 +646,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 ),
               ),
               WidgetButton(
-                // TODO: show a delete email popup.
-                // onPressed: () => DeleteEmailView.show(
-                //   context,
-                //   email: c.myUser.value!.emails.unconfirmed!,
-                // ),
+                onPressed: () {
+                  // TODO: show a delete email popup.
+                },
                 child: Container(
                   margin: const EdgeInsets.only(right: 10),
                   width: 30,
@@ -713,8 +665,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
     if (c.myUser.value?.emails.unconfirmed == null) {
       widgets.add(
         WidgetButton(
-          // TODO: show an add email popup.
-          //onPressed: () => AddEmailView.show(context),
+          onPressed: () {
+            // TODO: show an add email popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
@@ -762,8 +715,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   ),
                 ),
                 WidgetButton(
-                  // TODO: show a delete phone popup.
-                  //onPressed: () => DeletePhoneView.show(context, phone: e),
+                  onPressed: () {
+                    // TODO: show a delete phone popup.
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10),
                     width: 30,
@@ -793,33 +747,33 @@ Widget _emails(MyProfileController c, BuildContext context) {
                           await ConfirmDialog.show(
                             context,
                             title: 'label_phone'.l10n,
-                            additional: const [
+                            additional: [
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  'Visible to:',
-                                  style: TextStyle(
+                                  'label_visible_to'.l10n,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     color: Colors.black,
                                   ),
                                 ),
                               ),
                             ],
-                            proceedLabel: 'Confirm',
+                            proceedLabel: 'label_confirm'.l10n,
                             withCancel: false,
                             initial: 2,
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('Все'.l10n),
+                                child: Text('label_all'.l10n),
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('Мои контакты'.l10n),
+                                child: Text('label_my_contacts'.l10n),
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('Никто'.l10n),
+                                child: Text('label_nobody'.l10n),
                               ),
                             ],
                           );
@@ -851,20 +805,16 @@ Widget _emails(MyProfileController c, BuildContext context) {
             children: [
               WidgetButton(
                 behavior: HitTestBehavior.deferToChild,
-                // TODO: show a add phone popup.
-                // onPressed: () {
-                //   AddPhoneView.show(
-                //     context,
-                //     phone: c.myUser.value!.phones.unconfirmed!,
-                //   );
-                // },
+                onPressed: () {
+                  // TODO: show a add phone popup.
+                },
                 child: IgnorePointer(
                   child: ReactiveTextField(
                     state: TextFieldState(
                       text: c.myUser.value!.phones.unconfirmed!.val,
                       editable: false,
                     ),
-                    label: 'Верифицировать номер телефона',
+                    label: 'label_verify_number'.l10n,
                     trailing: Transform.translate(
                       offset: const Offset(0, -1),
                       child: Transform.scale(
@@ -880,11 +830,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 ),
               ),
               WidgetButton(
-                // TODO: show a delete phone popup.
-                // onPressed: () => DeletePhoneView.show(
-                //   context,
-                //   phone: c.myUser.value!.phones.unconfirmed!,
-                // ),
+                onPressed: () {
+                  // TODO: show a delete phone popup.
+                },
                 child: Container(
                   margin: const EdgeInsets.only(right: 10),
                   width: 30,
@@ -901,14 +849,15 @@ Widget _emails(MyProfileController c, BuildContext context) {
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
         WidgetButton(
-          // TODO: show a add phone popup.
-          //onPressed: () => AddPhoneView.show(context),
+          onPressed: () {
+            // TODO: show a add phone popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
                 text: c.myUser.value?.phones.confirmed.isNotEmpty == true
-                    ? 'Добавить дополнительный телефон'
-                    : 'Добавить номер телефона',
+                    ? 'label_add_additional_number'.l10n
+                    : 'label_add_number'.l10n,
                 editable: false,
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -934,14 +883,15 @@ Widget _password(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         WidgetButton(
-          // TODO: show a change password popup.
-          //onPressed: () => ChangePasswordView.show(context),
+          onPressed: () {
+            // TODO: show a change password popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
                 text: c.myUser.value?.hasPassword == true
-                    ? 'Изменить пароль'
-                    : 'Задать пароль',
+                    ? 'btn_change_password'.l10n
+                    : 'btn_set_password'.l10n,
                 editable: false,
               ),
               style: TextStyle(
@@ -962,8 +912,9 @@ Widget _password(BuildContext context, MyProfileController c) {
 Widget _deleteAccount(BuildContext context, MyProfileController c) {
   return _dense(
     WidgetButton(
-      // TODO: show a delete account popup.
-      //onPressed: () => DeleteAccountView.show(context),
+      onPressed: () {
+        // TODO: show a delete account popup.
+      },
       child: IgnorePointer(
         child: ReactiveTextField(
           state:
@@ -982,7 +933,8 @@ Widget _deleteAccount(BuildContext context, MyProfileController c) {
   );
 }
 
-Widget _personalization(BuildContext context, MyProfileController c) {
+/// Returns [Widget] for changing background image.
+Widget _background(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
 
   Widget message({
@@ -1014,7 +966,7 @@ Widget _personalization(BuildContext context, MyProfileController c) {
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
                 child: Text(text, style: style.boldBody),
-              )
+              ),
             ],
           ),
         ),
@@ -1064,14 +1016,14 @@ Widget _personalization(BuildContext context, MyProfileController c) {
                               alignment: Alignment.topLeft,
                               child: message(
                                 fromMe: false,
-                                text: 'Hello!',
+                                text: 'label_hello'.l10n,
                               ),
                             ),
                             Align(
                               alignment: Alignment.topRight,
                               child: message(
                                 fromMe: true,
-                                text: 'Yay, hello :)',
+                                text: 'label_hello_reply'.l10n,
                               ),
                             ),
                           ],
@@ -1090,7 +1042,7 @@ Widget _personalization(BuildContext context, MyProfileController c) {
             child: WidgetButton(
               onPressed: c.background.value == null ? null : c.removeBackground,
               child: Text(
-                'Delete',
+                'btn_delete'.l10n,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                   fontSize: 11,
@@ -1104,20 +1056,22 @@ Widget _personalization(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns button for changing calls opening.
 Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
         WidgetButton(
-          // TODO: show a call window switch popup.
-          //onPressed: () => CallWindowSwitchView.show(context),
+          onPressed: () {
+            // TODO: show a call window switch popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
                 text: (c.settings.value?.enablePopups ?? true)
-                    ? 'Отображать звонки в отдельном окне.'
-                    : 'Отображать звонки в окне приложения.',
+                    ? 'label_open_calls_in_window'.l10n
+                    : 'label_open_calls_in_app'.l10n,
               ),
               maxLines: null,
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -1129,14 +1083,16 @@ Widget _call(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns buttons for changing media settings.
 Widget _media(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
         WidgetButton(
-          // TODO: show a camera switch popup.
-          //onPressed: () => CameraSwitchView.show(context, call: c.call),
+          onPressed: () {
+            // TODO: show a camera switch popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               label: 'label_media_camera'.l10n,
@@ -1156,8 +1112,9 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       _dense(
         WidgetButton(
-          // TODO: show a microphone switch popup.
-          //onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
+          onPressed: () {
+            // TODO: show a microphone switch popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               label: 'label_media_microphone'.l10n,
@@ -1177,8 +1134,9 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       _dense(
         WidgetButton(
-          // TODO: show a output switch popup.
-          //onPressed: () => OutputSwitchView.show(context, call: c.call),
+          onPressed: () {
+            // TODO: show a output switch popup.
+          },
           child: IgnorePointer(
             child: ReactiveTextField(
               label: 'label_media_output'.l10n,
@@ -1199,12 +1157,13 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns buttons for downloading application.
 Widget _downloads(BuildContext context, MyProfileController c) {
   Widget button({
-    String? asset,
-    double width = 1,
-    double height = 1,
-    String title = '...',
+    required String asset,
+    required double width,
+    required double height,
+    required String title,
     String? link,
   }) {
     return Stack(
@@ -1276,7 +1235,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'windows',
           width: 21.93,
           height: 22,
-          title: 'Windows',
+          title: 'label_windows'.l10n,
           link: 'messenger-windows.zip',
         ),
         const SizedBox(height: 8),
@@ -1284,7 +1243,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'macOS',
+          title: 'label_macos'.l10n,
           link: 'messenger-macos.zip',
         ),
         const SizedBox(height: 8),
@@ -1292,7 +1251,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'linux',
           width: 18.85,
           height: 22,
-          title: 'Linux',
+          title: 'label_linux'.l10n,
           link: 'messenger-linux.zip',
         ),
         const SizedBox(height: 8),
@@ -1300,14 +1259,14 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'iOS',
+          title: 'label_ios'.l10n,
         ),
         const SizedBox(height: 8),
         button(
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android',
+          title: 'label_android'.l10n,
           link: 'messenger-android.apk',
         ),
       ],
@@ -1315,12 +1274,13 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns button for changing language.
 Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
     WidgetButton(
-      key: c.languageKey,
-      // TODO: show a language selector popup.
-      //onPressed: () async => await LanguageSelectionView.show(context),
+      onPressed: () async {
+        // TODO: show a language selector popup.
+      },
       child: IgnorePointer(
         child: ReactiveTextField(
           state: TextFieldState(

@@ -391,7 +391,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     MyUserEventsVersionedMixin? events =
-    await _graphQlProvider.uploadUserGalleryItem(
+        await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
