@@ -38,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Redesigned desktop context menu. ([#245])
 
 ### Fixed
 
@@ -77,6 +78,7 @@ All user visible changes to this project will be documented in this file. This p
 [#221]: /../../pull/221
 [#233]: /../../issues/233
 [#241]: /../../pull/241
+[#245]: /../../pull/245
 
 
 
