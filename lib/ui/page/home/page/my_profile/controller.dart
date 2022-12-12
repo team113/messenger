@@ -63,12 +63,6 @@ class MyProfileController extends GetxController {
   /// executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// Timeout of a [resendPhone] action.
-  final RxInt resendPhoneTimeout = RxInt(0);
-
-  /// Timeout of a [resendEmail] action.
-  final RxInt resendEmailTimeout = RxInt(0);
-
   /// [CarouselController] of the [MyUser.gallery] used to jump between gallery
   /// items on [MyUser] updates.
   CarouselController? galleryController;
@@ -105,12 +99,6 @@ class MyProfileController extends GetxController {
 
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
-
-  /// [Timer] to decrease [resendPhoneTimeout].
-  Timer? _resendPhoneTimer;
-
-  /// [Timer] to decrease [resendEmailTimeout].
-  Timer? _resendEmailTimer;
 
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
@@ -357,8 +345,6 @@ class MyProfileController extends GetxController {
 
   @override
   void onClose() {
-    _setResendEmailTimer(false);
-    _setResendPhoneTimer(false);
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     call.value.dispose();
@@ -451,50 +437,6 @@ class MyProfileController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
-    }
-  }
-
-  /// Starts or stops [resendEmailTimer] based on [enabled] value.
-  void _setResendEmailTimer([bool enabled = true]) {
-    if (enabled) {
-      resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
-    } else {
-      resendEmailTimeout.value = 0;
-      _resendEmailTimer?.cancel();
-      _resendEmailTimer = null;
-    }
-  }
-
-  /// Starts or stops [resendPhoneTimer] based on [enabled] value.
-  void _setResendPhoneTimer([bool enabled = true]) {
-    if (enabled) {
-      resendPhoneTimeout.value = 30;
-      _resendPhoneTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
-        (_) {
-          resendPhoneTimeout.value--;
-          if (resendPhoneTimeout.value <= 0) {
-            resendPhoneTimeout.value = 0;
-            _resendPhoneTimer?.cancel();
-            _resendPhoneTimer = null;
-          }
-        },
-      );
-    } else {
-      resendPhoneTimeout.value = 0;
-      _resendPhoneTimer?.cancel();
-      _resendPhoneTimer = null;
     }
   }
 }

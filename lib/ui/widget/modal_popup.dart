@@ -24,7 +24,7 @@ import '/util/platform_utils.dart';
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
-  /// Returns padding based on the [BuildContext.isMobile] value.
+  /// Returns padding based on the `isMobile` indicator.
   static EdgeInsets padding(BuildContext context) => context.isMobile
       ? EdgeInsets.zero
       : const EdgeInsets.symmetric(horizontal: 30);
