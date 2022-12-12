@@ -309,18 +309,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
             right: widget.alignment == Alignment.bottomRight ? 10 : 0,
           ),
         ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 220),
-          child: SlideTransition(
-            position: slide,
-            child: FadeTransition(
-              opacity: fade,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: 10 + router.context!.mediaQueryPadding.bottom,
-                ),
-                child: _actions(),
+        child: SlideTransition(
+          position: slide,
+          child: FadeTransition(
+            opacity: fade,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
+              child: _actions(),
             ),
           ),
         ),
@@ -347,7 +344,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     }
 
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) => _dismiss(),
@@ -358,10 +355,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
             color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
+          child: IntrinsicWidth(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            ),
           ),
         ),
       ),

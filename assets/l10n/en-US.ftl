@@ -56,13 +56,15 @@ btn_call_audio_on_desc =
     Unmute
     microphone
 btn_call_cancel = Cancel call
-btn_call_center_video = Center video
+btn_call_center = Center
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
+btn_call_disable_audio = Disable audio
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
+btn_call_enable_audio = Enable audio
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_end_desc =
@@ -93,6 +95,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
+btn_call_remove_participant = Kick participant
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -110,6 +113,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
+btn_call_uncenter = Uncenter
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
@@ -124,20 +128,20 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
-btn_copy = Copy
+btn_copy_text = Copy text
 btn_create_group = Create group
-btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Unfavorite
+btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
-btn_forward = Forward
+btn_forward = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -161,7 +165,7 @@ btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
-btn_reply = Reply
+btn_reply = Reply to message
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save

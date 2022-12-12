@@ -34,6 +34,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+        - Redesigned chat tile in mobile interface. ([#246], [#232])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
@@ -41,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned attachments preview. ([#217], [#214])
     - Profile page:
         - Redesigned profile page. ([#244], [#243])
+    - Redesigned desktop context menu. ([#245])
 
 ### Fixed
 
@@ -78,10 +80,13 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
+[#232]: /../../issues/232
 [#233]: /../../issues/233
 [#241]: /../../pull/241
 [#243]: /../../issues/243
 [#244]: /../../pull/244
+[#245]: /../../pull/245
+[#246]: /../../pull/246
 
 
 
