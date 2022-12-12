@@ -844,6 +844,8 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.ongoingCall!.conversationStartedAt =
                     PreciseDateTime.now();
               }
+
+              _chatRepository.addCall(event.call);
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -864,6 +866,7 @@ class HiveRxChat extends RxChat {
               }
 
               _chatRepository.removeCredentials(event.call.id);
+              _chatRepository.endCall(event.call.chatId);
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
