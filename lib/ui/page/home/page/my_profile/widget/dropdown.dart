@@ -135,6 +135,9 @@ class DropdownFieldState<T> extends ReactiveFieldState {
   @override
   final bool approvable = false;
 
+  @override
+  final RxBool changed = RxBool(false);
+
   /// Currently selected value of this [DropdownFieldState].
   T? _value;
 
@@ -153,7 +156,4 @@ class DropdownFieldState<T> extends ReactiveFieldState {
     controller.text = stringify(value);
     _value = value;
   }
-
-  @override
-  RxBool get changed => throw UnimplementedError();
 }

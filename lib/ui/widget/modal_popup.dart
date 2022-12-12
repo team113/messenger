@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
@@ -154,15 +154,15 @@ abstract class ModalPopup {
   }
 }
 
+/// Header widget of [ModalPopup].
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     Key? key,
-    this.onBack,
-    this.header,
+    this.child,
   }) : super(key: key);
 
-  final void Function()? onBack;
-  final Widget? header;
+  /// Child widget of [ModalPopupHeader].
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -170,22 +170,8 @@ class ModalPopupHeader extends StatelessWidget {
       height: 48,
       child: Row(
         children: [
-          if (onBack != null)
-            WidgetButton(
-              onPressed: onBack,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-          if (header != null) Expanded(child: header!) else const Spacer(),
-          // const SizedBox(width: 36, height: 16 + 12 * 2),
+          const SizedBox(width: 40),
+          if (child != null) Expanded(child: child!) else const Spacer(),
           if (!context.isMobile)
             WidgetButton(
               onPressed: Navigator.of(context).pop,
@@ -195,7 +181,6 @@ class ModalPopupHeader extends StatelessWidget {
                   Icons.close,
                   size: 18,
                   color: Theme.of(context).colorScheme.secondary,
-                  // color: Color(0xBB818181),
                 ),
               ),
             )

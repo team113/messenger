@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/util/platform_utils.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
@@ -166,7 +167,6 @@ class ReactiveTextField extends StatelessWidget {
                 ? Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: SizedBox(
-                      // width: 24,
                       height: 24,
                       child: ElasticAnimatedSwitcher(
                         child: state.status.value.isLoading
@@ -210,7 +210,7 @@ class ReactiveTextField extends StatelessWidget {
                                             onPressed: state.submit,
                                             icon: UnconstrainedBox(
                                               child: Text(
-                                                'Сохранить',
+                                                'btn_save'.l10n,
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: Theme.of(context)
@@ -338,7 +338,11 @@ abstract class ReactiveFieldState {
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
   FocusNode get focus;
 
+  /// Indicator whether [controller] was changed or not.
   RxBool get changed;
+
+  /// Indicator whether this [ReactiveFieldState] should display approve button
+  /// or not.
   bool get approvable;
 
   /// Reactive error message.

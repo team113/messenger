@@ -17,29 +17,32 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
-/// View for forwarding the provided [quotes] into the selected [Chat]s.
+/// View for displaying confirmation of deleting some [ChatContact]s record.
 ///
 /// Intended to be displayed with the [show] method.
-class DeletePhoneView extends StatelessWidget {
-  const DeletePhoneView(
-    this.phone, {
-    Key? key,
-    required this.onSubmit,
-  }) : super(key: key);
+class DeleteContactRecordView extends StatelessWidget {
+  const DeleteContactRecordView(this.title, this.text,
+      {Key? key, required this.onSubmit})
+      : super(key: key);
 
+  /// Title of this modal popup.
+  final String title;
+
+  /// List of text [InlineSpan] items.
+  final List<InlineSpan> text;
+
+  /// Callback called when submit button was pressed.
   final void Function() onSubmit;
-  final UserPhone phone;
 
-  /// Displays a [DeletePhoneView] wrapped in a [ModalPopup].
+  /// Displays a [DeleteContactRecordView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required UserPhone phone,
+    required String title,
+    required List<InlineSpan> text,
     required void Function() onSubmit,
   }) {
     return ModalPopup.show(
@@ -55,7 +58,7 @@ class DeletePhoneView extends StatelessWidget {
         maxHeight: double.infinity,
       ),
       showPrimaryCloseButton: false,
-      child: DeletePhoneView(phone, onSubmit: onSubmit),
+      child: DeleteContactRecordView(title, text, onSubmit: onSubmit),
     );
   }
 
@@ -72,9 +75,9 @@ class DeletePhoneView extends StatelessWidget {
         children: [
           const SizedBox(height: 16 - 12),
           ModalPopupHeader(
-            header: Center(
+            child: Center(
               child: Text(
-                'label_delete_phone_number'.l10n,
+                title,
                 style: thin?.copyWith(fontSize: 18),
               ),
             ),
@@ -84,16 +87,7 @@ class DeletePhoneView extends StatelessWidget {
             padding: ModalPopup.padding(context),
             child: RichText(
               text: TextSpan(
-                children: [
-                  TextSpan(text: '${'label_phone_number'.l10n}${'space'.l10n}'),
-                  TextSpan(
-                    text: phone.val,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  TextSpan(
-                      text:
-                          '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}'),
-                ],
+                children: text,
                 style: thin?.copyWith(
                   fontSize: 15,
                   color: const Color(0xFF888888),

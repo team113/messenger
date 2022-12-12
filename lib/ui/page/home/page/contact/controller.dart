@@ -20,18 +20,15 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart'
-    show DeleteChatContactRecordException, UpdateChatContactNameException;
+import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 
 export 'view.dart';
 
@@ -47,40 +44,33 @@ class ContactController extends GetxController {
   /// ID of a [ChatContact] this [ContactController] represents.
   final ChatContactId id;
 
-  /// Indicator whether this [user] is already in the contacts list of the
-  /// authenticated [MyUser].
-  late final RxBool inContacts = RxBool(false);
-
-  /// [ChatContact.name]'s field state.
-  late final TextFieldState name;
-
-  /// [ChatContact.emails]'s field state.
-  late final TextFieldState email;
-
-  /// [ChatContact.phones]'s field state.
-  late final TextFieldState phone;
+  /// Indicator whether this [contact] is already in the contacts list of the
+  /// authenticated [MyUser]'s address book.
+  final RxBool inContacts = RxBool(false);
 
   /// Indicator whether [ChatContact] is in favorite list or not.
   final RxBool inFavorites = RxBool(false);
 
+  /// [ChatContact.name]'s field state.
+  late final TextFieldState name;
+
+  /// Adding new [ChatContact.emails]'s field state.
+  late final TextFieldState email;
+
+  /// Adding new [ChatContact.phones]'s field state.
+  late final TextFieldState phone;
+
   /// Reactive value of [ChatContact].
   late final RxChatContact contact;
 
-  /// Status of the [user] fetching.
-  ///
-  /// May be:
-  /// - `status.isLoading`, meaning [user] is being fetched from the service.
-  /// - `status.isEmpty`, meaning [user] with specified [id] was not found.
-  /// - `status.isSuccess`, meaning [user] is successfully fetched.
-  /// - `status.isLoadingMore`, meaning a request is being made.
-  Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
-
-  ///
+  /// [ContactService] used to get contacts list.
   final ContactService _contactService;
-  final ChatService _chatService;
-  final CallService _callService;
 
-  RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
+  /// [ChatService] used to create [Chat]-dialog.
+  final ChatService _chatService;
+
+  /// [CallService] used to make calls.
+  final CallService _callService;
 
   @override
   void onInit() {
@@ -92,7 +82,7 @@ class ContactController extends GetxController {
     name = TextFieldState(
       text: contact.contact.value.name.val,
       approvable: true,
-      onChanged: (s) async {
+      onChanged: (s) {
         s.error.value = null;
         try {
           if (s.text.isNotEmpty) {
@@ -110,7 +100,6 @@ class ContactController extends GetxController {
         }
 
         UserName? name;
-
         try {
           name = UserName(s.text);
         } on FormatException catch (_) {
@@ -225,7 +214,7 @@ class ContactController extends GetxController {
   }
 
   // TODO: No [Chat] should be created.
-  /// Opens a [Chat]-dialog with this [user].
+  /// Opens a [Chat]-dialog with this [contact.user].
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
@@ -238,7 +227,7 @@ class ContactController extends GetxController {
     }
   }
 
-  /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
+  /// Starts an [OngoingCall] with this [contact] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     Chat? dialog = contact.user.value?.user.value.dialog;
     if (contact.user.value?.id != null) {
@@ -254,7 +243,7 @@ class ContactController extends GetxController {
     }
   }
 
-  /// Removes specified [email] or [phone] from contact records of this
+  /// Removes specified [email] or [phone] from [contact] records of this
   /// [ChatContact].
   Future<void> removeContactRecord({UserEmail? email, UserPhone? phone}) async {
     try {
@@ -263,36 +252,30 @@ class ContactController extends GetxController {
         email: email,
         phone: phone,
       );
-    } on DeleteChatContactRecordException catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
     }
   }
 
-  /// Adds the [user] to the contacts list of the authenticated [MyUser].
+  /// Adds the [contact] to the contacts list of the authenticated [MyUser]'s.
   Future<void> addToContacts() async {
     if (!inContacts.value) {
-      status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(contact.user.value!.user.value);
+
         inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
-      } finally {
-        status.value = RxStatus.success();
       }
     }
   }
 
-  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  /// Removes the [contact] from the contacts list of the authenticated [MyUser]'s.
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-        status.value = RxStatus.loadingMore();
         try {
           await _contactService.deleteContact(contact.contact.value.id);
 
@@ -300,8 +283,6 @@ class ContactController extends GetxController {
         } catch (e) {
           MessagePopup.error(e);
           rethrow;
-        } finally {
-          status.value = RxStatus.success();
         }
       }
     }

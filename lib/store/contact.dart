@@ -163,9 +163,8 @@ class ContactRepository implements AbstractContactRepository {
     Chat? group,
     UserEmail? email,
     UserPhone? phone,
-  }) async {
-    try {
-      await _graphQlProvider.createChatContactRecord(
+  }) =>
+      _graphQlProvider.createChatContactRecord(
         id,
         ChatContactRecord(
           groupId: group?.id,
@@ -174,10 +173,6 @@ class ContactRepository implements AbstractContactRepository {
           phone: phone,
         ),
       );
-    } catch (_) {
-      rethrow;
-    }
-  }
 
   @override
   Future<void> deleteChatContactRecord(
@@ -358,9 +353,7 @@ class ContactRepository implements AbstractContactRepository {
 
               case ChatContactEventKind.emailRemoved:
                 node as EventChatContactEmailRemoved;
-                if (contactEntity.value.emails.contains(node.email)) {
-                  contactEntity.value.emails.remove(node.email);
-                }
+                contactEntity.value.emails.remove(node.email);
                 break;
 
               case ChatContactEventKind.favorited:
@@ -393,9 +386,7 @@ class ContactRepository implements AbstractContactRepository {
 
               case ChatContactEventKind.phoneRemoved:
                 node as EventChatContactPhoneRemoved;
-                if (contactEntity.value.phones.contains(node.phone)) {
-                  contactEntity.value.phones.remove(node.phone);
-                }
+                contactEntity.value.phones.remove(node.phone);
                 break;
 
               case ChatContactEventKind.unfavorited:

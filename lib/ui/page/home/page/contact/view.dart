@@ -25,8 +25,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/page/user/delete_email/view.dart';
-import '/ui/page/home/page/user/delete_phone/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
@@ -35,6 +33,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widgets/delete_contact_record.dart';
 
 /// View of the [Routes.contact] page.
 class ContactView extends StatelessWidget {
@@ -187,7 +186,6 @@ class ContactView extends StatelessWidget {
                   _actions(c, context),
                 ],
               ),
-              const SizedBox(height: 8),
             ],
           );
         }),
@@ -205,15 +203,17 @@ class ContactView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
             text,
-            style: style.systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
+            style: style.systemMessageStyle.copyWith(
+              color: Colors.black,
+              fontSize: 18,
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// Returns addable list of [MyUser.emails].
+  /// Returns addable list of [ChatContact.emails].
   Widget _emails(ContactController c, BuildContext context) {
     final List<Widget> widgets = [];
 
@@ -246,9 +246,20 @@ class ContactView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => DeleteEmailView.show(
+              onPressed: () => DeleteContactRecordView.show(
                 context,
-                email: e,
+                title: 'label_delete_email'.l10n,
+                text: [
+                  TextSpan(text: '${'label_email'.l10n}${'space'.l10n}'),
+                  TextSpan(
+                    text: e.val,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  TextSpan(
+                    text:
+                        '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
+                  ),
+                ],
                 onSubmit: () => c.removeContactRecord(email: e),
               ),
               child: Container(
@@ -278,7 +289,7 @@ class ContactView extends StatelessWidget {
     );
   }
 
-  /// Returns addable list of [MyUser.phones].
+  /// Returns addable list of [ChatContact.phones].
   Widget _phones(ContactController c, BuildContext context) {
     final List<Widget> widgets = [];
 
@@ -311,9 +322,20 @@ class ContactView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => DeletePhoneView.show(
+              onPressed: () => DeleteContactRecordView.show(
                 context,
-                phone: e,
+                title: 'label_delete_phone_number'.l10n,
+                text: [
+                  TextSpan(text: '${'label_phone_number'.l10n}${'space'.l10n}'),
+                  TextSpan(
+                    text: e.val,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  TextSpan(
+                    text:
+                        '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
+                  ),
+                ],
                 onSubmit: () => c.removeContactRecord(phone: e),
               ),
               child: Container(
@@ -351,158 +373,77 @@ class ContactView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
+  /// Returns list of action buttons.
   Widget _actions(ContactController c, BuildContext context) {
+    Widget action({
+      required String text,
+      void Function()? onPressed,
+      Widget? svg,
+      double marginBottom = 10,
+    }) {
+      return Container(
+        margin: EdgeInsets.only(bottom: marginBottom),
+        child: _dense(
+          WidgetButton(
+            onPressed: onPressed ?? () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: text,
+                  editable: false,
+                ),
+                trailing: svg != null
+                    ? Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: Transform.scale(
+                          scale: 1.15,
+                          child: svg,
+                        ),
+                      )
+                    : null,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _dense(
-            WidgetButton(
-              onPressed:
-                  c.inContacts.value ? c.removeFromContacts : c.addToContacts,
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: c.inContacts.value
-                        ? 'btn_delete_from_contacts'.l10n
-                        : 'btn_add_to_contacts'.l10n,
-                    editable: false,
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
+          action(
+            text: c.inContacts.value
+                ? 'btn_delete_from_contacts'.l10n
+                : 'btn_add_to_contacts'.l10n,
+            onPressed:
+                c.inContacts.value ? c.removeFromContacts : c.addToContacts,
+          ),
+          action(
+            text: c.inFavorites.value
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+          ),
+          action(
+            text: 'btn_mute_chat'.l10n,
+            svg: SvgLoader.asset(
+              'assets/icons/btn_mute.svg',
+              width: 17.86,
+              height: 15,
             ),
           ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: c.inFavorites.value
-                        ? 'btn_delete_from_favorites'.l10n
-                        : 'btn_add_to_favorites'.l10n,
-                    editable: false,
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
           ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: 'btn_mute_chat'.l10n,
-                    editable: false,
-                  ),
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/btn_mute.svg',
-                        width: 17.86,
-                        height: 15,
-                      ),
-                    ),
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
+          action(
+            text: 'btn_clear_chat'.l10n,
+            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
           ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: 'btn_hide_chat'.l10n,
-                    editable: false,
-                  ),
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/delete.svg',
-                        height: 14,
-                      ),
-                    ),
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: 'btn_clear_chat'.l10n,
-                    editable: false,
-                  ),
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/delete.svg',
-                        height: 14,
-                      ),
-                    ),
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: 'btn_blacklist'.l10n,
-                    editable: false,
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _dense(
-            WidgetButton(
-              onPressed: () {},
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: 'btn_report'.l10n,
-                    editable: false,
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
-              ),
-            ),
-          ),
+          action(text: 'btn_blacklist'.l10n),
+          action(text: 'btn_report'.l10n, marginBottom: 8),
         ],
       );
     });
