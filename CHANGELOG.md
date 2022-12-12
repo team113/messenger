@@ -31,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+        - Redesigned menu tab. ([#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
     - Chat page:
@@ -38,6 +39,8 @@ All user visible changes to this project will be documented in this file. This p
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Profile page:
+        - Redesigned profile page. ([#244], [#243])
 
 ### Fixed
 
@@ -77,6 +80,8 @@ All user visible changes to this project will be documented in this file. This p
 [#221]: /../../pull/221
 [#233]: /../../issues/233
 [#241]: /../../pull/241
+[#243]: /../../issues/243
+[#244]: /../../pull/244
 
 
 

@@ -62,7 +62,7 @@ import 'steps/see_chat_position.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_search_results.dart';
-import 'steps/sees_as.dart';
+import 'steps/sees_as_online.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';

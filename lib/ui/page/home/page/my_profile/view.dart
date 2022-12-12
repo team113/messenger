@@ -840,7 +840,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
   });
 }
 
-/// Returns editable fields of [MyUser.password].
+/// Returns button for changing [MyUser.password].
 Widget _password(BuildContext context, MyProfileController c) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
