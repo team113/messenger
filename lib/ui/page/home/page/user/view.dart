@@ -91,13 +91,24 @@ class UserView extends StatelessWidget {
                           // const SizedBox(height: 1),
                           Obx(() {
                             final subtitle = c.user?.user.value.getStatus();
-                            if (subtitle != null) {
+                            final status = c.user?.user.value.status;
+
+                            if (status != null || subtitle != null) {
+                              final StringBuffer buffer =
+                                  StringBuffer(status ?? '');
+
+                              if (status != null && subtitle != null) {
+                                buffer.write(' | ');
+                              }
+
+                              buffer.write(subtitle ?? '');
+
                               return Text(
-                                subtitle,
+                                buffer.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .caption
-                                    ?.copyWith(color: Color(0xFF888888)),
+                                    ?.copyWith(color: const Color(0xFF888888)),
                               );
                             }
 
@@ -195,6 +206,7 @@ class UserView extends StatelessWidget {
                       const SizedBox(height: 15),
                       _name(c, context),
                       _status(c, context),
+                      _presence(c, context),
                     ],
                   ),
                   // block(
@@ -1050,7 +1062,7 @@ class UserView extends StatelessWidget {
         CopyableTextField(
           key: const Key('StatusField'),
           state: TextFieldState(text: status.val),
-          label: 'Text status'.l10n,
+          label: 'Status'.l10n,
           copy: status.val,
         ),
       );
@@ -1142,18 +1154,62 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.presence] text.
-  Widget _presence(UserController c, BuildContext context) => ListTile(
-        key: const Key('UserPresence'),
-        leading: _centered(const Icon(Icons.info)),
-        title: Text(Presence.values
-            .firstWhere((e) => e.index == c.user?.user.value.presenceIndex)
-            .localizedString()
-            .toString()),
-        subtitle: Text(
-          'label_presence'.l10n,
-          style: const TextStyle(color: Color(0xFF888888)),
+  Widget _presence(UserController c, BuildContext context) {
+    return Obx(() {
+      final Presence? presence = c.user?.user.value.presence;
+
+      if (presence == null || presence == Presence.hidden) {
+        return Container();
+      }
+
+      final subtitle = c.user?.user.value.getStatus();
+
+      Color? color;
+
+      switch (presence) {
+        case Presence.present:
+          color = Colors.green;
+          break;
+
+        case Presence.away:
+          color = Colors.orange;
+          break;
+
+        case Presence.hidden:
+          color = Colors.grey;
+          break;
+
+        case Presence.artemisUnknown:
+          break;
+      }
+
+      return _padding(
+        ReactiveTextField(
+          key: const Key('StatusField'),
+          state: TextFieldState(text: subtitle),
+          label: 'label_presence'.l10n,
+          enabled: false,
+          trailing: CircleAvatar(
+            backgroundColor: color,
+            radius: 7,
+          ),
         ),
       );
+    });
+
+    return ListTile(
+      key: const Key('UserPresence'),
+      leading: _centered(const Icon(Icons.info)),
+      title: Text(Presence.values
+          .firstWhere((e) => e.index == c.user?.user.value.presenceIndex)
+          .localizedString()
+          .toString()),
+      subtitle: Text(
+        'label_presence'.l10n,
+        style: const TextStyle(color: Color(0xFF888888)),
+      ),
+    );
+  }
 
   /// Returns a contact-related button adding or removing the [User] from the
   /// contacts list of the authenticated [MyUser].

@@ -19,7 +19,8 @@ alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
 alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
-alert_are_you_sure_want_to_log_out = Вы действительно хотите выйти из аккаунта?
+alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
+alert_are_you_sure_want_to_log_out2 = ?
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока
@@ -112,7 +113,7 @@ btn_call_screen_on = Демонстрация экрана
 btn_call_screen_on_desc =
     Демонстрация
     экрана
-btn_call_settings = Настройки
+btn_call_settings = Настройки звонка
 btn_call_switch_camera = Переключить камеру
 btn_call_switch_camera_desc =
     Переключить
@@ -153,7 +154,7 @@ btn_forward = Переслать сообщение
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
-btn_hidden = Скрыт
+btn_hidden = Не показывать
 btn_hide_chat = Скрыть чат
 btn_info = Информация
 btn_join_call = Присоединиться к звонку
@@ -466,7 +467,7 @@ label_login_hint = Ваш уникальный логин
 label_media_camera = Камера
 label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
-label_media_output = Устройство выхода
+label_media_output = Устройство аудио вывода
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
@@ -505,21 +506,27 @@ label_participant_redial_successfully = Участник перенабран
 label_participants = Участники
 label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
-label_password_not_set = Пароль не задан
-label_password_was_changed = Пароль был изменен
+label_password_changed = Пароль изменён.
+label_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.
+label_password_not_set_info = Для Вашего аккаунта не задан пароль. Как следствие:
+    - доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
+    - в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файла cookie.
+label_password_set = Пароль задан.
 label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
 label_phones = Телефоны
 label_photo = Фото
-label_presence = Отображение статуса
+label_presence = Присутствие
 label_presence_away = Отошёл
-label_presence_hidden = Скрыт
-label_presence_present = Информация о последнем входе
+label_presence_hidden = Не показывать
+label_presence_present = Онлайн
 label_read_by = Прочитано
 label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
+label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
+label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_repeat_password = Повторите пароль
 label_replies = [{$count} { $count ->
     [1] ответ
@@ -587,11 +594,5 @@ err_incorrect_phone = Некорректный номер телефона
 label_add_phone_description = На указанный Вами номер телефона будет отправлен код подтверждения.
 label_add_phone_confirmation_sent = На указанный Вами номер телефона был отправлен код подтверждения. Код подтверждения действителен в течение 24 часов. Пожалуйста, введите его ниже.
 label_add_phone_confirmation_sent_again = На указанный Вам номер телефона повторно отправлен код подтверждения. Код подтверждения действителен в течение 24 часов. Пожалуйста, введите его ниже.
-label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
-label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
-label_password_changed = Пароль изменён.
-label_password_set = Пароль задан.
 label_language = Язык
-label_password_not_set_info = Для Вашего аккаунта не задан пароль. Как следствие:
-    - доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
-    - в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файла cookie.
+label_status = Cтатус

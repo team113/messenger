@@ -24,6 +24,8 @@ import '/util/platform_utils.dart';
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
+  /// Returns a padding that should be applied to the elements inside a
+  /// [ModalPopup].
   static EdgeInsets padding(BuildContext context) => context.isMobile
       ? EdgeInsets.zero
       : const EdgeInsets.symmetric(horizontal: 30);
@@ -32,10 +34,16 @@ abstract class ModalPopup {
   static Future<T?> show<T>({
     required BuildContext context,
     required Widget child,
-    BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
-    BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
-    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
-    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
+    BoxConstraints desktopConstraints = const BoxConstraints(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+    ),
+    BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 380),
+    BoxConstraints mobileConstraints = const BoxConstraints(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+    ),
+    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
     Color? color,
@@ -186,6 +194,7 @@ abstract class ModalPopup {
   }
 }
 
+/// [Row] with an optional [header] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     Key? key,
@@ -193,8 +202,13 @@ class ModalPopupHeader extends StatelessWidget {
     this.header,
   }) : super(key: key);
 
-  final void Function()? onBack;
+  /// [Widget] to put as a title of this [ModalPopupHeader].
   final Widget? header;
+
+  /// Callback, called when a back button is pressed.
+  ///
+  /// If `null`, then no back button is displayed at all.
+  final void Function()? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +231,6 @@ class ModalPopupHeader extends StatelessWidget {
           else
             const SizedBox(width: 40),
           if (header != null) Expanded(child: header!) else const Spacer(),
-          // const SizedBox(width: 36, height: 16 + 12 * 2),
           if (!context.isMobile)
             WidgetButton(
               onPressed: Navigator.of(context).pop,
@@ -227,7 +240,6 @@ class ModalPopupHeader extends StatelessWidget {
                   Icons.close,
                   size: 18,
                   color: Theme.of(context).colorScheme.secondary,
-                  // color: Color(0xBB818181),
                 ),
               ),
             )

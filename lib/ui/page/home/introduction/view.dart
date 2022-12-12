@@ -55,9 +55,8 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -118,19 +117,13 @@ class IntroductionView extends StatelessWidget {
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  // height: 50,
-                  // leading: SvgLoader.asset(
-                  //   'assets/icons/save.svg',
-                  //   height: 25 * 0.7,
-                  // ),
-                  color: const Color(0xFF63B4FF),
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ];
               break;
 
             case IntroductionViewStage.success:
               children = [
-                // const SizedBox(height: 14),
                 Text(
                   'label_password_set'.l10n,
                   style: thin?.copyWith(
@@ -148,7 +141,7 @@ class IntroductionView extends StatelessWidget {
                       style: thin?.copyWith(color: Colors.white),
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFF63B4FF),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ];
@@ -158,32 +151,16 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text('label_introduction_description'.l10n, style: thin),
                 const SizedBox(height: 25),
-                Row(
-                  children: [
-                    // Expanded(
-                    //   child: OutlinedRoundedButton(
-                    //     key: const Key('CloseButton'),
-                    //     maxWidth: null,
-                    //     title: Text('btn_close'.l10n, style: thin),
-                    //     onPressed: Navigator.of(context).pop,
-                    //     color: const Color(0xFFEEEEEE),
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('SetPasswordButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_set_password'.l10n,
-                          style: thin?.copyWith(color: Colors.white),
-                        ),
-                        onPressed: () =>
-                            c.stage.value = IntroductionViewStage.password,
-                        color: const Color(0xFF63B4FF),
-                      ),
-                    ),
-                  ],
+                OutlinedRoundedButton(
+                  key: const Key('SetPasswordButton'),
+                  maxWidth: null,
+                  title: Text(
+                    'btn_set_password'.l10n,
+                    style: thin?.copyWith(color: Colors.white),
+                  ),
+                  onPressed: () =>
+                      c.stage.value = IntroductionViewStage.password,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ];
               break;
@@ -217,8 +194,10 @@ class IntroductionView extends StatelessWidget {
                           text: c.num.text,
                           label: 'label_num'.l10n,
                           share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                          trailing: SvgLoader.asset('assets/icons/share.svg',
-                              width: 18),
+                          trailing: SvgLoader.asset(
+                            'assets/icons/share.svg',
+                            width: 18,
+                          ),
                           style: thin,
                         )
                       : CopyableTextField(

@@ -17,13 +17,13 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View for logging in or recovering access on.
@@ -34,22 +34,7 @@ class LoginView extends StatelessWidget {
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      // desktopConstraints: const BoxConstraints(maxWidth: 400),
-      // modalConstraints: const BoxConstraints(maxWidth: 520),
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const LoginView(),
-    );
+    return ModalPopup.show(context: context, child: const LoginView());
   }
 
   @override
@@ -83,35 +68,6 @@ class LoginView extends StatelessWidget {
             );
           }
 
-          // Returns a secondary styled [OutlinedRoundedButton].
-          Widget secondaryButton({
-            Key? key,
-            String? title,
-            VoidCallback? onPressed,
-          }) {
-            return OutlinedRoundedButton(
-              key: key,
-              maxWidth: null,
-              title: Text(
-                title ?? '',
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: onPressed,
-              color: const Color(0xFFEEEEEE),
-            );
-          }
-
-          // Returns a [Row] with [a] and [b] placed in the [Expanded] widgets.
-          Row spaced(Widget a, Widget b) {
-            return Row(
-              children: [
-                Expanded(child: a),
-                const SizedBox(width: 10),
-                Expanded(child: b)
-              ],
-            );
-          }
-
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               children = [
@@ -124,7 +80,6 @@ class LoginView extends StatelessWidget {
                     ),
                   ),
                 ),
-                // const SizedBox(height: 57 - 12),
                 const SizedBox(height: 25 - 12),
                 Padding(
                   padding: ModalPopup.padding(context),

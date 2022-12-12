@@ -48,13 +48,19 @@ class ConfirmLogoutController extends GetxController {
   /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
+  /// Indicator whether the currently authenticated [MyUser] has a password.
+  late final RxBool hasPassword;
+
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
 
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
 
   @override
   void onInit() {
+    hasPassword = RxBool(myUser.value?.hasPassword ?? false);
+
     password = TextFieldState(
       onChanged: (s) {
         password.error.value = null;

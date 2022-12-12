@@ -30,10 +30,12 @@ import 'package:messenger/util/message_popup.dart';
 import 'controller.dart';
 
 class StatusView extends StatelessWidget {
-  const StatusView({Key? key}) : super(key: key);
+  const StatusView({super.key, this.presenceOnly = false});
+
+  final bool presenceOnly;
 
   /// Displays an [StatusView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(BuildContext context, {bool presenceOnly = false}) {
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -46,7 +48,7 @@ class StatusView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      child: const StatusView(),
+      child: StatusView(presenceOnly: presenceOnly),
     );
   }
 
@@ -82,7 +84,7 @@ class StatusView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'Status'.l10n,
+                  presenceOnly ? 'label_presence'.l10n : 'label_status'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -92,42 +94,70 @@ class StatusView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 shrinkWrap: true,
                 children: [
-                  const SizedBox(height: 0),
-                  _padding(
-                    ReactiveTextField(
-                      key: const Key('StatusField'),
-                      state: c.status,
-                      label: 'Text status'.l10n,
-                      filled: true,
-                      onSuffixPressed: c.status.text.isEmpty
-                          ? null
-                          : () {
-                              Clipboard.setData(
-                                  ClipboardData(text: c.status.text));
-                              MessagePopup.success(
-                                'label_copied_to_clipboard'.l10n,
-                              );
-                            },
-                      trailing: c.status.text.isEmpty
-                          ? null
-                          : Transform.translate(
-                              offset: const Offset(0, -1),
-                              child: Transform.scale(
-                                scale: 1.15,
-                                child: SvgLoader.asset(
-                                  'assets/icons/copy.svg',
-                                  height: 15,
+                  if (!presenceOnly) ...[
+                    _padding(
+                      ReactiveTextField(
+                        key: const Key('StatusField'),
+                        state: c.status,
+                        label: 'Status'.l10n,
+                        filled: true,
+                        onSuffixPressed: c.status.text.isEmpty
+                            ? null
+                            : () {
+                                Clipboard.setData(
+                                    ClipboardData(text: c.status.text));
+                                MessagePopup.success(
+                                  'label_copied_to_clipboard'.l10n,
+                                );
+                              },
+                        trailing: c.status.text.isEmpty
+                            ? null
+                            : Transform.translate(
+                                offset: const Offset(0, -1),
+                                child: Transform.scale(
+                                  scale: 1.15,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/copy.svg',
+                                    height: 15,
+                                  ),
                                 ),
                               ),
-                            ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  header('Presence'),
+                    const SizedBox(height: 8),
+                    header('Presence'),
+                  ],
                   ...[Presence.present, Presence.away, Presence.hidden]
                       .map((e) {
                     return Obx(() {
+                      String? subtitle;
+                      String? title;
+                      Color? color;
+
+                      switch (e) {
+                        case Presence.present:
+                          title = 'btn_online'.l10n;
+                          color = Colors.green;
+                          subtitle = 'Или информация о последнем входе';
+                          break;
+
+                        case Presence.away:
+                          title = 'btn_away'.l10n;
+                          color = Colors.orange;
+                          subtitle = 'Или информация о последнем входе';
+                          break;
+
+                        case Presence.hidden:
+                          title = 'btn_hidden'.l10n;
+                          color = Colors.grey;
+                          break;
+
+                        case Presence.artemisUnknown:
+                          break;
+                      }
+
                       final bool selected = c.presence.value == e;
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Material(
@@ -142,42 +172,56 @@ class StatusView extends StatelessWidget {
                               padding: const EdgeInsets.all(16.0),
                               child: Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 8,
-                                    backgroundColor: e == Presence.present
-                                        ? Colors.green
-                                        : e == Presence.away
-                                            ? Colors.orange
-                                            : Colors.grey,
+                                  // CircleAvatar(
+                                  //   radius: 8,
+                                  //   backgroundColor: color,
+                                  // ),
+                                  // const SizedBox(width: 8 + 4),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          title ?? '',
+                                          maxLines: 1,
+                                          style: const TextStyle(fontSize: 17),
+                                        ),
+                                        if (subtitle != null) ...[
+                                          const SizedBox(height: 4),
+                                          Flexible(
+                                            child: Text(
+                                              subtitle,
+                                              style: const TextStyle(
+                                                color: Color(0xFF888888),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    e == Presence.present
-                                        ? 'btn_online'.l10n
-                                        : e == Presence.away
-                                            ? 'btn_away'.l10n
-                                            : 'btn_hidden'.l10n,
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  const Spacer(),
-                                  AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: selected
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFF63B4FF),
-                                              radius: 12,
-                                              child: Icon(
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircleAvatar(
+                                      backgroundColor:
+                                          // Color(0xFF63B4FF),
+                                          color,
+                                      radius: 12,
+                                      child: AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: selected
+                                            ? const Icon(
                                                 Icons.check,
                                                 color: Colors.white,
                                                 size: 12,
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox(key: Key('0')),
+                                              )
+                                            : const SizedBox(key: Key('None')),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

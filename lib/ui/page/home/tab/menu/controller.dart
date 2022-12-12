@@ -565,11 +565,7 @@ class MenuTabController extends GetxController {
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
     // TODO: [MyUserService.myUser] might still be `null` here.
-    if (await ConfirmLogoutView.show(
-          router.context!,
-          hasPassword: _myUserService.myUser.value?.hasPassword ?? false,
-        ) !=
-        true) {
+    if (await ConfirmLogoutView.show(router.context!) != true) {
       return false;
     }
 

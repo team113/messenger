@@ -70,6 +70,7 @@ class LoginController extends GetxController {
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
 
+  /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
 
   /// [LoginViewStage] currently being displayed.
@@ -318,9 +319,9 @@ class LoginController extends GetxController {
       recoveryCode.status.value = RxStatus.success();
       stage.value = LoginViewStage.recoveryPassword;
     } on FormatException {
-      recoveryCode.error.value = 'err_incorrect_input'.l10n;
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ArgumentError {
-      recoveryCode.error.value = 'err_incorrect_input'.l10n;
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ValidateUserPasswordRecoveryCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {

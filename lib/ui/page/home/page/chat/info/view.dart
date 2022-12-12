@@ -573,72 +573,127 @@ class ChatInfoView extends StatelessWidget {
 
       final Style style = Theme.of(context).extension<Style>()!;
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            constraints: const BoxConstraints(minHeight: 76),
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              border: style.cardBorder,
-              color: Colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: style.cardColor.darken(0.05),
-              child: InkWell(
+      Widget bigButton({
+        Key? key,
+        Widget? leading,
+        required Widget title,
+        Widget? subtitle,
+        void Function()? onTap,
+        bool selected = false,
+      }) {
+        return Padding(
+          key: key,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: SizedBox(
+            height: 73,
+            child: Container(
+              decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                onTap: () {},
-                hoverColor: const Color.fromARGB(255, 244, 249, 255),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  child: Row(
-                    children: [
-                      const AvatarWidget(radius: 30),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Добавить в группу',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
+                border: style.cardBorder,
+                color: Colors.transparent,
+              ),
+              child: Material(
+                type: MaterialType.card,
+                borderRadius: style.cardRadius,
+                color: selected
+                    ? style.cardSelectedColor
+                    : style.cardColor.darken(0.05),
+                child: InkWell(
+                  borderRadius: style.cardRadius,
+                  onTap: onTap,
+                  hoverColor: const Color.fromARGB(255, 244, 249, 255),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                    child: Row(
+                      children: [
+                        if (leading != null) ...[
+                          const SizedBox(width: 12),
+                          leading,
+                          const SizedBox(width: 18),
+                        ],
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DefaultTextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headline5!,
+                                child: title,
                               ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          // const SizedBox(height: 6),
-          // _dense(
-          //   WidgetButton(
-          //     onPressed: () {},
-          //     child: IgnorePointer(
-          //       child: ReactiveTextField(
-          //         state: TextFieldState(
-          //           text: 'Добавить в группу',
-          //           editable: false,
-          //         ),
-          //         trailing: Transform.translate(
-          //           offset: const Offset(0, -1),
-          //           child: Transform.scale(
-          //             scale: 1.15,
-          //             child: SvgLoader.asset(
-          //               'assets/icons/delete.svg',
-          //               height: 14,
+        );
+      }
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          bigButton(
+            leading: Icon(Icons.people),
+            title: Text('Добавить участника'),
+            onTap: () => AddMemberView.show(context, chatId: id),
+          ),
+          // Container(
+          //   // constraints: const BoxConstraints(minHeight: 76),
+          //   decoration: BoxDecoration(
+          //     borderRadius: style.cardRadius,
+          //     border: style.cardBorder,
+          //     color: Colors.transparent,
+          //   ),
+          //   child: Material(
+          //     type: MaterialType.card,
+          //     borderRadius: style.cardRadius,
+          //     color: style.cardColor.darken(0.05),
+          //     child: InkWell(
+          //       borderRadius: style.cardRadius,
+          //       onTap: () => AddMemberView.show(context, chatId: id),
+          //       hoverColor: const Color(0xFFF4F9FF),
+          //       child: Padding(
+          //         padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          //         child: Row(
+          //           children: [
+          //             const AvatarWidget(radius: 30),
+          //             const SizedBox(width: 12),
+          //             Expanded(
+          //               child: Text(
+          //                 'Добавить в группу',
+          //                 overflow: TextOverflow.ellipsis,
+          //                 maxLines: 1,
+          //                 style: Theme.of(context)
+          //                     .textTheme
+          //                     .headline5
+          //                     ?.copyWith(
+          //                       color: Theme.of(context).colorScheme.secondary,
+          //                     ),
+          //               ),
           //             ),
-          //           ),
+          //           ],
           //         ),
-          //         style:
-          //             TextStyle(color: Theme.of(context).colorScheme.secondary),
           //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 6),
+          // WidgetButton(
+          //   onPressed: () => AddMemberView.show(context, chatId: id),
+          //   child: IgnorePointer(
+          //     child: ReactiveTextField(
+          //       state: TextFieldState(
+          //         text: 'Добавить участника',
+          //         editable: false,
+          //       ),
+          //       style:
+          //           TextStyle(color: Theme.of(context).colorScheme.secondary),
           //     ),
           //   ),
           // ),
@@ -672,40 +727,6 @@ class ChatInfoView extends StatelessWidget {
               ],
             );
           }),
-        ],
-      );
-
-      return Column(
-        children: [
-          ...c.chat!.members.values.map(
-            (u) => ListTile(
-              title: Text(u.user.value.name?.val ?? u.user.value.num.val),
-              leading: AvatarWidget.fromRxUser(u),
-              trailing: IconButton(
-                key: const Key('DeleteChatMember'),
-                icon: Icon(u.id == c.me ? Icons.exit_to_app : Icons.delete),
-                onPressed: c.membersOnRemoval.contains(u.id)
-                    ? null
-                    : () => c.removeChatMember(u.id),
-              ),
-              onTap: () => router.user(u.id, push: true),
-            ),
-          ),
-          ListTile(
-            key: const Key('AddMemberButton'),
-            title: Text('btn_add_participant'.l10n),
-            leading: CircleAvatar(
-              child: SvgLoader.asset(
-                'assets/icons/add_user.svg',
-                width: 26,
-                height: 28,
-              ),
-            ),
-            onTap: () => showDialog(
-              context: context,
-              builder: (c) => AddChatMemberView(id),
-            ),
-          ),
         ],
       );
     });

@@ -1270,7 +1270,8 @@ extension PresenceL10n on Presence {
       case Presence.away:
         return 'label_presence_away'.l10n;
       case Presence.hidden:
-        return 'label_presence_hidden'.l10n;
+        // return 'label_presence_hidden'.l10n;
+        return null;
       case Presence.artemisUnknown:
         return null;
     }

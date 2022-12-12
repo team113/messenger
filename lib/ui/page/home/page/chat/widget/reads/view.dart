@@ -87,30 +87,28 @@ class ChatItemReadsView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25 - 12),
-            ...(chat.value?.lastReads ?? []).map(
-              (e) {
-                if (e.at == item.value.at) {
-                  return Padding(
-                    padding: ModalPopup.padding(context),
-                    child: FutureBuilder<RxUser?>(
-                      future: getUser?.call(e.memberId),
-                      builder: (context, snapshot) {
-                        return ContactTile(
-                          user: snapshot.data,
-                          darken: 0.05,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            router.user(e.memberId, push: true);
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
+            ...(chat.value?.lastReads ?? []).map((e) {
+              if (e.at == item.value.at) {
+                return Padding(
+                  padding: ModalPopup.padding(context),
+                  child: FutureBuilder<RxUser?>(
+                    future: getUser?.call(e.memberId),
+                    builder: (context, snapshot) {
+                      return ContactTile(
+                        user: snapshot.data,
+                        darken: 0.05,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          router.user(e.memberId, push: true);
+                        },
+                      );
+                    },
+                  ),
+                );
+              }
 
-                return const SizedBox();
-              },
-            ),
+              return const SizedBox();
+            }),
             const SizedBox(height: 16),
           ],
         );

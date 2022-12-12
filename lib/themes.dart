@@ -202,7 +202,6 @@ class Themes {
               prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
-              // floatingLabelStyle: GoogleFonts.roboto(color: colors.secondary),
               floatingLabelStyle:
                   GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorMaxLines: 5,

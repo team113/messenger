@@ -28,6 +28,7 @@ import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/tab/menu/status/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -214,6 +215,7 @@ class MyProfileView extends StatelessWidget {
                             _name(c),
                             // _bio(c),
                             _status(c),
+                            _presence(c, context),
                           ],
                         );
 
@@ -656,7 +658,7 @@ Widget _status(MyProfileController c) {
     ReactiveTextField(
       key: const Key('StatusField'),
       state: c.status,
-      label: 'Text status (25 symbols)'.l10n,
+      label: 'Status (25 symbols)'.l10n,
       filled: true,
       onSuffixPressed: c.status.text.isEmpty
           ? null
@@ -681,13 +683,58 @@ Widget _status(MyProfileController c) {
 }
 
 /// Returns [MyUser.presence] dropdown.
-Widget _presence(MyProfileController c) => _padding(
-      ReactiveDropdown<Presence>(
-        key: const Key('PresenceDropdown'),
-        state: c.presence,
-        label: 'label_presence'.l10n,
+Widget _presence(MyProfileController c, BuildContext context) {
+  Presence? presence = c.myUser.value?.presence;
+  Color? color;
+
+  switch (presence) {
+    case Presence.present:
+      color = Colors.green;
+      break;
+
+    case Presence.away:
+      color = Colors.orange;
+      break;
+
+    case Presence.hidden:
+      color = Colors.grey;
+      break;
+
+    case Presence.artemisUnknown:
+      break;
+
+    default:
+      break;
+  }
+
+  return _padding(
+    WidgetButton(
+      onPressed: () => StatusView.show(context, presenceOnly: true),
+      child: IgnorePointer(
+        child: ReactiveTextField(
+          label: 'label_presence'.l10n,
+          state: TextFieldState(
+            text: c.myUser.value?.presence.localizedString(),
+            editable: false,
+          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          trailing: CircleAvatar(
+            backgroundColor: color,
+            radius: 7,
+          ),
+        ),
       ),
-    );
+    ),
+  );
+
+  return _padding(
+    ReactiveDropdown<Presence>(
+      key: const Key('PresenceDropdown'),
+      state: c.presence,
+      label: 'label_presence'.l10n,
+    ),
+  );
+}
 
 /// Returns [MyUser.num] copyable field.
 Widget _num(MyProfileController c) => _padding(

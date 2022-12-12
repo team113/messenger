@@ -14,12 +14,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
@@ -123,7 +122,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
       return Padding(
         padding: ModalPopup.padding(context),
         child: Material(
@@ -174,7 +173,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             ),
           ),
         ),
-        const SizedBox(height: 25 - 12),
+        const SizedBox(height: 12),
         ...widget.additional.map((e) {
           return Padding(padding: ModalPopup.padding(context), child: e);
         }),
@@ -197,9 +196,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         if (widget.variants.length > 1 && widget.description != null)
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
-          ...widget.variants.map(button).expandIndexed(
-                (i, e) => i > 0 ? [const SizedBox(height: 10), e] : [e],
-              ),
+          Flexible(
+            child: ListView.separated(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (c, i) => button(widget.variants[i]),
+              separatorBuilder: (c, i) => const SizedBox(height: 10),
+              itemCount: widget.variants.length,
+            ),
+          ),
         if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
         Padding(
@@ -235,7 +240,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             ],
           ),
         ),
-        const SizedBox(height: 25),
+        const SizedBox(height: 12),
       ],
     );
   }
