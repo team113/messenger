@@ -134,7 +134,7 @@ class Selector<T> extends StatefulWidget {
     }
   }
 
-  /// Displays a [Selector] as the stylized menu.
+  /// Displays a [Selector] as a context menu.
   static Future<ContextMenuButton?> menu<T extends Object>(
     BuildContext context, {
     required List<ContextMenuButton> actions,

@@ -21,18 +21,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-// import 'add_email/view.dart';
-// import 'add_phone/view.dart';
-// import 'call_window_switch/view.dart';
-// import 'camera_switch/view.dart';
-// import 'change_password/view.dart';
-// import 'delete_account/view.dart';
-// import 'delete_email/view.dart';
-// import 'delete_phone/view.dart';
-// import 'language/view.dart';
-// import 'link_details/view.dart';
-// import 'microphone_switch/view.dart';
-// import 'output_switch/view.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -45,7 +33,6 @@ import '/ui/page/home/page/my_profile/widget/bloc.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
-import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -55,27 +42,9 @@ import '/util/web/web_utils.dart';
 import 'controller.dart';
 import 'widget/copyable.dart';
 
-/// View of the [Routes.me] page.
+/// View of the [Routes.profile] page.
 class MyProfileView extends StatelessWidget {
   const MyProfileView({Key? key}) : super(key: key);
-
-  /// Displays an [MyProfileView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 420, maxHeight: 600),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      mobilePadding: const EdgeInsets.all(0),
-      child: const MyProfileView(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,15 +59,6 @@ class MyProfileView extends StatelessWidget {
               title: Text('label_profile'.l10n),
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
-              actions: [
-                WidgetButton(
-                  onPressed: () {},
-                  child: SvgLoader.asset(
-                    'assets/icons/search.svg',
-                    width: 17.77,
-                  ),
-                ),
-              ],
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
@@ -238,12 +198,16 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.download:
-                        return Bloc(
-                          title: 'label_download_app'.l10n,
-                          children: [
-                            _downloads(context, c),
-                          ],
-                        );
+                        if (PlatformUtils.isWeb) {
+                          return Bloc(
+                            title: 'label_download_app'.l10n,
+                            children: [
+                              _downloads(context, c),
+                            ],
+                          );
+                        }
+
+                        return const SizedBox();
 
                       case ProfileTab.danger:
                         return Bloc(
@@ -1200,7 +1164,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
                 ),
               ),
               state: TextFieldState(
-                text: '    $title',
+                text: 'space'.l10n * 4 + title,
                 editable: false,
               ),
               style: TextStyle(

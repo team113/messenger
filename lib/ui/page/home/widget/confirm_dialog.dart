@@ -179,7 +179,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             ),
           ),
         ),
-        const SizedBox(height: 25 - 12),
+        const SizedBox(height: 13),
         ...widget.additional.map((e) {
           return Padding(padding: ModalPopup.padding(context), child: e);
         }),

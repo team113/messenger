@@ -178,7 +178,7 @@ class MenuTabView extends StatelessWidget {
                         context,
                         actions: [
                           ContextMenuButton(
-                            label: 'label_presence_present'.l10n,
+                            label: Presence.present.localizedString()!,
                             onPressed: () => c.setPresence(Presence.present),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -186,7 +186,7 @@ class MenuTabView extends StatelessWidget {
                             ),
                           ),
                           ContextMenuButton(
-                            label: 'label_presence_away'.l10n,
+                            label: Presence.away.localizedString()!,
                             onPressed: () => c.setPresence(Presence.away),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -194,7 +194,7 @@ class MenuTabView extends StatelessWidget {
                             ),
                           ),
                           ContextMenuButton(
-                            label: 'label_presence_hidden'.l10n,
+                            label: Presence.hidden.localizedString()!,
                             onPressed: () => c.setPresence(Presence.hidden),
                             leading: const CircleAvatar(
                               radius: 8,
@@ -218,7 +218,6 @@ class MenuTabView extends StatelessWidget {
                             style: const TextStyle(color: Colors.black),
                           ),
                           Row(
-                            key: c.profileKey,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Obx(() {
@@ -349,11 +348,16 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.download:
-                    child = widget(
-                      icon: Icons.download,
-                      title: 'label_download'.l10n,
-                      subtitle: 'label_application'.l10n,
-                    );
+                    if (PlatformUtils.isWeb) {
+                      child = widget(
+                        icon: Icons.download,
+                        title: 'label_download'.l10n,
+                        subtitle: 'label_application'.l10n,
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+
                     break;
 
                   case ProfileTab.danger:

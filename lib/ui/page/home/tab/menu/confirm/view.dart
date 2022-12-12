@@ -75,7 +75,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25 - 12),
+                const SizedBox(height: 13),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: ReactiveTextField(
@@ -143,7 +143,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25 - 12),
+                const SizedBox(height: 13),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: Text(
@@ -183,7 +183,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25 - 12),
+                const SizedBox(height: 13),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: Center(

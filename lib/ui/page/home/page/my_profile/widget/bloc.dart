@@ -20,7 +20,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/util/platform_utils.dart';
 
-/// [ProfileTab] section visual representation.
+/// [Routes.profile] page section wrapper.
 class Bloc extends StatelessWidget {
   const Bloc({
     Key? key,
@@ -28,7 +28,7 @@ class Bloc extends StatelessWidget {
     this.title = '',
   }) : super(key: key);
 
-  /// Widgets to display.
+  /// [Widget]s to display.
   final List<Widget> children;
 
   /// Optional title of this [Bloc].
