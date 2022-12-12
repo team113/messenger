@@ -134,6 +134,15 @@ class ChatRepository implements AbstractChatRepository {
         final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
+        if (entry.chat.value.isDialog) {
+          _userRepo
+              .users[entry.chat.value.members
+                  .firstWhere((e) => e.user.id != me)
+                  .user
+                  .id]
+              ?.dialog
+              .value = entry;
+        }
       }
       _isReady.value = true;
     }
@@ -664,7 +673,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Updates [User.dialog] with provided [chat].
-  void updateDialog(UserId userId, Chat chat) {
+  void updateDialog(UserId userId, RxChat chat) {
     if (_userRepo.users[userId]?.dialog.value?.id != chat.id) {
       _userRepo.updateDialog(userId, chat);
     }
@@ -960,6 +969,15 @@ class ChatRepository implements AbstractChatRepository {
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
+          if (entry.chat.value.isDialog) {
+            _userRepo
+                .users[entry.chat.value.members
+                    .firstWhere((e) => e.user.id != me)
+                    .user
+                    .id]
+                ?.dialog
+                .value = entry;
+          }
         } else {
           chat.chat.value = event.value.value;
           chat.chat.refresh();
@@ -1085,6 +1103,15 @@ class ChatRepository implements AbstractChatRepository {
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();
+      if (entry.chat.value.isDialog) {
+        _userRepo
+            .users[entry.chat.value.members
+                .firstWhere((e) => e.user.id != me)
+                .user
+                .id]
+            ?.dialog
+            .value = entry;
+      }
     }
 
     for (var item in [

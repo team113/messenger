@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import 'chat.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -68,11 +69,11 @@ abstract class RxUser {
   /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
 
-  /// Returns reactive value of the [Chat] this [RxUser] dialog represents.
-  Rx<Chat?> get dialog;
-
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
+
+  /// Returns reactive value of the [Chat] this [RxUser] dialog represents.
+  Rx<RxChat?> dialog = Rx<RxChat?>(null);
 
   /// States that this [user] should get its updates.
   void listenUpdates();

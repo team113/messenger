@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
@@ -76,7 +77,6 @@ class UserRepository implements AbstractUserRepository {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
         _users[c.value.id] = HiveRxUser(this, _userLocal, c);
-        _users[c.value.id]?.init();
       }
       isReady.value = true;
     }
@@ -121,7 +121,6 @@ class UserRepository implements AbstractUserRepository {
           HiveUser stored = query.toHive();
           put(stored);
           var fetched = HiveRxUser(this, _userLocal, stored);
-          fetched.init();
           users[id] = fetched;
           user = fetched;
         }
@@ -141,10 +140,10 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Updates the locally stored [User]s dialog with the provided [chat] value.
-  void updateDialog(UserId userId, Chat chat) {
+  void updateDialog(UserId userId, RxChat chat) {
     HiveUser? hiveUser = _userLocal.get(userId);
     if (hiveUser != null && hiveUser.value.dialog == null) {
-      hiveUser.value.dialog = chat;
+      hiveUser.value.dialog = chat.chat.value;
       put(hiveUser, ignoreVersion: true);
     }
   }
@@ -211,15 +210,9 @@ class UserRepository implements AbstractUserRepository {
         RxUser? user = _users[UserId(event.key)];
         if (user == null) {
           _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
-          _users[UserId(event.key)]?.init();
         } else {
           user.user.value = event.value.value;
           user.user.refresh();
-
-          if (user.dialog.value == null) {
-            user.dialog.value = user.user.value.dialog;
-            user.dialog.refresh();
-          }
         }
       }
     }

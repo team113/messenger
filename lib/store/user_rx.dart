@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
@@ -39,9 +38,6 @@ class HiveRxUser extends RxUser {
   @override
   final Rx<User> user;
 
-  @override
-  final Rx<Chat?> dialog = Rx<Chat?>(null);
-
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
@@ -57,11 +53,6 @@ class HiveRxUser extends RxUser {
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
-
-  /// Initializes this [HiveRxUser].
-  void init() {
-    dialog.value = user.value.dialog;
-  }
 
   @override
   void listenUpdates() {
