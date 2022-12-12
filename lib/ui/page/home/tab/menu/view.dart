@@ -269,8 +269,11 @@ class MenuTabView extends StatelessWidget {
                       subtitle: Text(subtitle),
                       onTap: onTap ??
                           () {
-                            router.profileTab.value = tab;
-                            router.profileTab.refresh();
+                            if (router.profileTab.value == tab) {
+                              router.profileTab.refresh();
+                            } else {
+                              router.profileTab.value = tab;
+                            }
                             router.profile();
                           },
                       selected: tab == router.profileTab.value &&

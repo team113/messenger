@@ -201,30 +201,33 @@ class MyProfileController extends GetxController {
     listInitIndex = router.profileTab.value?.index ?? 0;
 
     bool ignoreWorker = false;
+    bool ignorePositions = false;
 
     _profileWorker = ever(
       router.profileTab,
-      (ProfileTab? tab) {
+      (ProfileTab? tab) async {
         if (ignoreWorker) {
           ignoreWorker = false;
         } else {
-          listController.sliverController.animateToIndex(
+          ignorePositions = true;
+          await listController.sliverController.animateToIndex(
             tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
+          Future.delayed(Duration.zero, () => ignorePositions = false);
         }
       },
     );
 
     listController.sliverController.onPaintItemPositionsCallback =
         (height, positions) {
-      if (positions.isNotEmpty) {
+      if (positions.isNotEmpty && !ignorePositions) {
         final ProfileTab tab = ProfileTab.values[positions.first.index];
         if (router.profileTab.value != tab) {
           ignoreWorker = true;
           router.profileTab.value = tab;
-          Future.delayed(0.milliseconds, () => ignoreWorker = false);
+          Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
     };
