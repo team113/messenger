@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -45,6 +46,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -53,6 +55,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -123,6 +126,8 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
   );
+  when(graphQlProvider.myUserEvents(null))
+      .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
 
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
@@ -159,6 +164,9 @@ void main() async {
   await chatItemHiveProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -288,6 +296,14 @@ void main() async {
         ),
       ),
     ));
+
+    MyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    Get.put(MyUserService(authService, myUserRepository));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
