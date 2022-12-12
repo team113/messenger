@@ -21,7 +21,7 @@ Feature: Favorite contacts
     And users Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
-    And I have contacts Bob and Charlie
+    And contacts Bob and Charlie
     And I wait until text "Bob" is present
     And I wait until text "Charlie" is present
 

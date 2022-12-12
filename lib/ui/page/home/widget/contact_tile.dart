@@ -45,17 +45,13 @@ class ContactTile extends StatelessWidget {
     this.height = 86,
     this.radius = 30,
     this.actions,
-    this.canDelete = false,
-    this.onDelete,
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.onBadgeTap,
-    this.onAvatarTap,
     this.showBadge = true,
-    this.border,
   }) : super(key: key);
 
+  /// [MyUser] to display.
   final MyUser? myUser;
 
   /// [RxChatContact] to display.
@@ -70,9 +66,6 @@ class ContactTile extends StatelessWidget {
   /// Optional trailing [Widget]s.
   final List<Widget> trailing;
 
-  final bool canDelete;
-  final void Function()? onDelete;
-
   /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
 
@@ -82,10 +75,18 @@ class ContactTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
+  /// Indicator whether this [ContactTile] should have its corner folded.
   final bool folded;
 
+  /// Indicator whether a default context menu should be prevented or not.
+  ///
+  /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
+
+  /// [ContextMenuRegion.actions] of this [ContactTile].
   final List<ContextMenuButton>? actions;
+
+  /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
 
   /// Optional subtitle [Widget]s.
@@ -97,11 +98,8 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  final void Function()? onBadgeTap;
-  final void Function()? onAvatarTap;
+  /// Indicator of whether [Badge] should be displayed at [AvatarWidget].
   final bool showBadge;
-
-  final Border? border;
 
   @override
   Widget build(BuildContext context) {

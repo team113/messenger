@@ -49,7 +49,6 @@ import 'steps/contact_is_favorite.dart';
 import 'steps/contact.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
-import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';

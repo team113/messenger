@@ -48,3 +48,40 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Creates [ChatContact]s of the provided [User]s.
+///
+/// Examples:
+/// - Given contacts Bob and Charlie.
+final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
+  'contacts {user} and {user}',
+  (TestUser user1, TestUser user2, context) async {
+    final AuthService authService = Get.find();
+    final provider = GraphQlProvider();
+    provider.token = authService.credentials.value!.session.token;
+
+    final contact1 = await provider.createChatContact(
+      name: UserName(user1.name),
+      records: [
+        ChatContactRecord(userId: context.world.sessions[user1.name]!.userId)
+      ],
+    );
+    context.world.contacts[user1.name] = contact1.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
+
+    final contact2 = await provider.createChatContact(
+      name: UserName(user2.name),
+      records: [
+        ChatContactRecord(userId: context.world.sessions[user2.name]!.userId)
+      ],
+    );
+    context.world.contacts[user2.name] = contact2.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);

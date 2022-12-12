@@ -141,29 +141,18 @@ class ContactsTabView extends StatelessWidget {
           ),
         ],
         subtitle: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 5),
-                    Obx(() {
-                      final subtitle =
-                          contact.user.value?.user.value.getStatus();
-                      if (subtitle != null) {
-                        return Text(
-                          subtitle,
-                          style: const TextStyle(color: Color(0xFF888888)),
-                        );
-                      }
-                      return Container();
-                    }),
-                  ],
-                ),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Obx(() {
+              final subtitle = contact.user.value?.user.value.getStatus();
+              if (subtitle != null) {
+                return Text(
+                  subtitle,
+                  style: const TextStyle(color: Color(0xFF888888)),
+                );
+              }
+              return Container();
+            }),
           ),
         ],
       ),
