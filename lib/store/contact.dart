@@ -187,6 +187,15 @@ class ContactRepository implements AbstractContactRepository {
     UserEmail? email,
     UserPhone? phone,
   }) async {
+    final HiveRxChatContact? contact = contacts[id];
+    contact?.contact.update((c) {
+      if (email != null) contact.contact.value.emails.remove(email);
+      if (phone != null) contact.contact.value.phones.remove(phone);
+    });
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
+
     try {
       await _graphQlProvider.deleteChatContactRecord(
         id,
@@ -198,6 +207,17 @@ class ContactRepository implements AbstractContactRepository {
         ),
       );
     } catch (_) {
+      contact?.contact.update((c) {
+        if (email != null && !contact.contact.value.emails.contains(email)) {
+          contact.contact.value.emails.add(email);
+        }
+        if (phone != null && !contact.contact.value.phones.contains(phone)) {
+          contact.contact.value.phones.add(phone);
+        }
+      });
+      contacts.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
       rethrow;
     }
   }

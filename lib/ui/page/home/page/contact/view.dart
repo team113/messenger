@@ -163,12 +163,11 @@ class ContactView extends StatelessWidget {
               const SizedBox(height: 8),
               block(
                 children: [
-                  _label(context, 'Публичная информация'),
+                  _label(context, 'label_public_information'.l10n),
                   AvatarWidget.fromRxContact(
                     c.contact,
                     radius: 100,
-                    // showBadge: false,
-                    // quality: AvatarQuality.original,
+                    showBadge: false,
                   ),
                   const SizedBox(height: 15),
                   _name(c, context),
@@ -176,14 +175,15 @@ class ContactView extends StatelessWidget {
               ),
               block(
                 children: [
-                  _label(context, 'Контактная информация'),
+                  _label(context, 'label_contact_information'.l10n),
                   _num(c, context),
                   _emails(c, context),
+                  _phones(c, context),
                 ],
               ),
               block(
                 children: [
-                  _label(context, 'Действия'),
+                  _label(context, 'label_actions'.l10n),
                   _actions(c, context),
                 ],
               ),
@@ -230,13 +230,14 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(text: e.val, editable: false),
-                  label: 'E-mail',
+                  label: 'label_email'.l10n,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
                       child: SvgLoader.asset(
                         'assets/icons/delete.svg',
+                        color: Theme.of(context).primaryIconTheme.color,
                         height: 14,
                       ),
                     ),
@@ -248,7 +249,7 @@ class ContactView extends StatelessWidget {
               onPressed: () => DeleteEmailView.show(
                 context,
                 email: e,
-                onSubmit: () => c.removeEmail(e),
+                onSubmit: () => c.removeContactRecord(email: e),
               ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
@@ -265,10 +266,21 @@ class ContactView extends StatelessWidget {
     widgets.add(
       ReactiveTextField(
         state: c.email,
-        label: 'Добавить E-mail',
+        label: 'label_add_email'.l10n,
       ),
     );
     widgets.add(const SizedBox(height: 10));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => _dense(e)).toList(),
+    );
+  }
+
+  /// Returns addable list of [MyUser.phones].
+  Widget _phones(ContactController c, BuildContext context) {
+    final List<Widget> widgets = [];
 
     for (UserPhone e in c.contact.contact.value.phones) {
       widgets.add(
@@ -283,13 +295,14 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(text: e.val, editable: false),
-                  label: 'Phone number',
+                  label: 'label_phone_number'.l10n,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
                       child: SvgLoader.asset(
                         'assets/icons/delete.svg',
+                        color: Theme.of(context).primaryIconTheme.color,
                         height: 14,
                       ),
                     ),
@@ -301,7 +314,7 @@ class ContactView extends StatelessWidget {
               onPressed: () => DeletePhoneView.show(
                 context,
                 phone: e,
-                onSubmit: () => c.removePhone(e),
+                onSubmit: () => c.removeContactRecord(phone: e),
               ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
@@ -318,7 +331,7 @@ class ContactView extends StatelessWidget {
     widgets.add(
       ReactiveTextField(
         state: c.phone,
-        label: 'Добавить телефон',
+        label: 'label_add_number'.l10n,
       ),
     );
     widgets.add(const SizedBox(height: 10));
@@ -351,8 +364,8 @@ class ContactView extends StatelessWidget {
                 child: ReactiveTextField(
                   state: TextFieldState(
                     text: c.inContacts.value
-                        ? 'Удалить из контактов'
-                        : 'Добавить в контакты',
+                        ? 'btn_delete_from_contacts'.l10n
+                        : 'btn_add_to_contacts'.l10n,
                     editable: false,
                   ),
                   style:
@@ -369,8 +382,8 @@ class ContactView extends StatelessWidget {
                 child: ReactiveTextField(
                   state: TextFieldState(
                     text: c.inFavorites.value
-                        ? 'Удалить из избранных'
-                        : 'Добавить в избранные',
+                        ? 'btn_delete_from_favorites'.l10n
+                        : 'btn_add_to_favorites'.l10n,
                     editable: false,
                   ),
                   style:
@@ -382,30 +395,22 @@ class ContactView extends StatelessWidget {
           const SizedBox(height: 10),
           _dense(
             WidgetButton(
-              onPressed: c.muted.toggle,
+              onPressed: () {},
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: c.muted.isTrue
-                        ? 'Включить уведомления'
-                        : 'Отключить уведомления',
+                    text: 'btn_mute_chat'.l10n,
                     editable: false,
                   ),
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(
                       scale: 1.15,
-                      child: c.muted.isTrue
-                          ? SvgLoader.asset(
-                              'assets/icons/btn_unmute.svg',
-                              width: 18.68,
-                              height: 15,
-                            )
-                          : SvgLoader.asset(
-                              'assets/icons/btn_mute.svg',
-                              width: 17.86,
-                              height: 15,
-                            ),
+                      child: SvgLoader.asset(
+                        'assets/icons/btn_mute.svg',
+                        width: 17.86,
+                        height: 15,
+                      ),
                     ),
                   ),
                   style:
@@ -421,7 +426,7 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: 'Скрыть чат',
+                    text: 'btn_hide_chat'.l10n,
                     editable: false,
                   ),
                   trailing: Transform.translate(
@@ -447,7 +452,7 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: 'Очистить чат',
+                    text: 'btn_clear_chat'.l10n,
                     editable: false,
                   ),
                   trailing: Transform.translate(
@@ -473,7 +478,7 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: 'Заблокировать',
+                    text: 'btn_blacklist'.l10n,
                     editable: false,
                   ),
                   style:
@@ -489,7 +494,7 @@ class ContactView extends StatelessWidget {
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
-                    text: 'Пожаловаться',
+                    text: 'btn_report'.l10n,
                     editable: false,
                   ),
                   style:
@@ -503,7 +508,7 @@ class ContactView extends StatelessWidget {
     });
   }
 
-  /// Returns a [User.name] text widget with an [AvatarWidget].
+  /// Returns a [ChatContact.name] text widget with an [AvatarWidget].
   Widget _name(ContactController c, BuildContext context) {
     return _padding(
       ReactiveTextField(
@@ -531,7 +536,7 @@ class ContactView extends StatelessWidget {
     );
   }
 
-  /// Returns a [User.num] copyable field.
+  /// Returns a [ChatContact]s [User.num] copyable field.
   Widget _num(ContactController c, BuildContext context) {
     return _padding(
       Column(

@@ -719,7 +719,7 @@ class UpdateChatContactNameException
   }
 }
 
-/// Exception of `Mutation.updateChatContactName` described in the [code].
+/// Exception of `Mutation.createChatContactRecord` described in the [code].
 class CreateChatContactRecordException
     with LocalizedExceptionMixin
     implements Exception {
@@ -750,7 +750,7 @@ class CreateChatContactRecordException
   }
 }
 
-/// Exception of `Mutation.updateChatContactName` described in the [code].
+/// Exception of `Mutation.deleteChatContactRecord` described in the [code].
 class DeleteChatContactRecordException
     with LocalizedExceptionMixin
     implements Exception {

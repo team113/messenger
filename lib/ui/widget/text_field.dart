@@ -38,10 +38,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
-    this.suffixColor,
-    this.suffixSize,
     this.trailing,
-    this.trailingWidth = 24,
     this.type,
     this.padding,
     this.minLines,
@@ -77,14 +74,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional prefix [Widget].
   final Widget? prefix;
 
-  final Color? suffixColor;
-  final double? suffixSize;
-
+  /// Optional content padding.
   final EdgeInsets? padding;
 
   /// Optional trailing [Widget].
   final Widget? trailing;
-  final double? trailingWidth;
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
@@ -229,13 +223,9 @@ class ReactiveTextField extends StatelessWidget {
                                           )
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
-                                            width: trailingWidth,
+                                            width: 24,
                                             child: suffix != null
-                                                ? Icon(
-                                                    suffix,
-                                                    color: suffixColor,
-                                                    size: suffixSize,
-                                                  )
+                                                ? Icon(suffix)
                                                 : trailing == null
                                                     ? Container()
                                                     : trailing!,
@@ -278,11 +268,7 @@ class ReactiveTextField extends StatelessWidget {
                 prefix: prefix,
                 contentPadding: contentPadding,
                 fillColor: filled == false ? Colors.transparent : null,
-                suffixIconConstraints: suffix == null &&
-                        trailing == null &&
-                        state.status.value.isEmpty
-                    ? const BoxConstraints(maxWidth: 0)
-                    : null,
+                suffixIconConstraints: null,
                 suffixIcon: dense == true ? null : buildSuffix(),
                 icon: icon == null
                     ? null
@@ -383,10 +369,17 @@ class TextFieldState extends ReactiveFieldState {
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
 
-    changed.value = _previousSubmit != text;
+    changed.value = _previousSubmit != null && _previousSubmit != text;
     if (onChanged != null) {
       controller.addListener(() {
-        changed.value = controller.text != _previousSubmit;
+        if (_previousSubmit != null && controller.text != _previousSubmit) {
+          changed.value = true;
+        } else if (_previousSubmit == null &&
+            controller.text.isEmpty == false) {
+          changed.value = true;
+        } else {
+          changed.value = false;
+        }
       });
       this.focus.addListener(
         () {

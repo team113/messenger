@@ -118,7 +118,6 @@ abstract class ModalPopup {
                           child: child,
                         ),
                       ),
-                      // const SizedBox(height: 16),
                     ],
                   ),
                   if (showPrimaryCloseButton)

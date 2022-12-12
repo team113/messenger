@@ -16,14 +16,12 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
-import 'controller.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
@@ -66,66 +64,63 @@ class DeletePhoneView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
-    return GetBuilder(
-      init: DeletePhoneController(Get.find(), phone: phone),
-      builder: (DeletePhoneController c) {
-        return AnimatedSizeAndFade(
-          fadeDuration: const Duration(milliseconds: 250),
-          sizeDuration: const Duration(milliseconds: 250),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16 - 12),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'Delete phone number'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 250),
+      sizeDuration: const Duration(milliseconds: 250),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16 - 12),
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'label_delete_phone_number'.l10n,
+                style: thin?.copyWith(fontSize: 18),
               ),
-              const SizedBox(height: 25 - 12),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(text: 'Номер телефона '),
-                      TextSpan(
-                        text: c.phone.val,
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                      const TextSpan(text: ' будет удалён.'),
-                    ],
-                    style: thin?.copyWith(
-                      fontSize: 15,
-                      color: const Color(0xFF888888),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: null,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    onSubmit.call();
-                    Navigator.of(context).pop();
-                  },
-                  color: const Color(0xFF63B4FF),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
-        );
-      },
+          const SizedBox(height: 25 - 12),
+          Padding(
+            padding: ModalPopup.padding(context),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(text: '${'label_phone_number'.l10n}${'space'.l10n}'),
+                  TextSpan(
+                    text: phone.val,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  TextSpan(
+                      text:
+                          '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}'),
+                ],
+                style: thin?.copyWith(
+                  fontSize: 15,
+                  color: const Color(0xFF888888),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 25),
+          Padding(
+            padding: ModalPopup.padding(context),
+            child: OutlinedRoundedButton(
+              key: const Key('Proceed'),
+              maxWidth: null,
+              title: Text(
+                'btn_proceed'.l10n,
+                style: thin?.copyWith(color: Colors.white),
+              ),
+              onPressed: () {
+                onSubmit.call();
+                Navigator.of(context).pop();
+              },
+              color: const Color(0xFF63B4FF),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

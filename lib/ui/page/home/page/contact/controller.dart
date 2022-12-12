@@ -18,8 +18,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/domain/model/mute_duration.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
@@ -29,11 +27,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        DeleteChatContactRecordException,
-        HideChatException,
-        ToggleChatMuteException,
-        UpdateChatContactNameException;
+    show DeleteChatContactRecordException, UpdateChatContactNameException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -56,17 +50,20 @@ class ContactController extends GetxController {
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   late final RxBool inContacts = RxBool(false);
-  final ContactService _contactService;
-  final ChatService _chatService;
-  final CallService _callService;
 
+  /// [ChatContact.name]'s field state.
   late final TextFieldState name;
 
+  /// [ChatContact.emails]'s field state.
   late final TextFieldState email;
 
+  /// [ChatContact.phones]'s field state.
   late final TextFieldState phone;
+
+  /// Indicator whether [ChatContact] is in favorite list or not.
   final RxBool inFavorites = RxBool(false);
-  final RxBool muted = RxBool(false);
+
+  /// Reactive value of [ChatContact].
   late final RxChatContact contact;
 
   /// Status of the [user] fetching.
@@ -77,6 +74,11 @@ class ContactController extends GetxController {
   /// - `status.isSuccess`, meaning [user] is successfully fetched.
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  ///
+  final ContactService _contactService;
+  final ChatService _chatService;
+  final CallService _callService;
 
   RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
 
@@ -152,6 +154,7 @@ class ContactController extends GetxController {
           email = UserEmail(s.text);
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
+          return;
         }
 
         if (s.error.value == null ||
@@ -192,6 +195,7 @@ class ContactController extends GetxController {
           phone = UserPhone(s.text);
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
+          return;
         }
 
         if (s.error.value == null ||
@@ -250,56 +254,18 @@ class ContactController extends GetxController {
     }
   }
 
-  Future<void> removePhone(UserPhone phone) async {
+  /// Removes specified [email] or [phone] from contact records of this
+  /// [ChatContact].
+  Future<void> removeContactRecord({UserEmail? email, UserPhone? phone}) async {
     try {
-      await _contactService.deleteChatContactRecord(id, phone: phone);
-    } on DeleteChatContactRecordException catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  Future<void> removeEmail(UserEmail email) async {
-    try {
-      await _contactService.deleteChatContactRecord(id, email: email);
-    } on DeleteChatContactRecordException catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Unmutes a [Chat] identified by the provided [id].
-  Future<void> unmuteChat(ChatId id) async {
-    try {
-      await _chatService.toggleChatMute(id, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id, {Duration? duration}) async {
-    try {
-      PreciseDateTime? until;
-      if (duration != null) {
-        until = PreciseDateTime.now().add(duration);
-      }
-
-      await _chatService.toggleChatMute(
+      await _contactService.deleteChatContactRecord(
         id,
-        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+        email: email,
+        phone: phone,
       );
-    } on ToggleChatMuteException catch (e) {
+    } on DeleteChatContactRecordException catch (e) {
       MessagePopup.error(e);
+      rethrow;
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -338,21 +304,6 @@ class ContactController extends GetxController {
           status.value = RxStatus.success();
         }
       }
-    }
-  }
-
-  /// Hides the [Chat] identified by the provided [id].
-  Future<void> hideChat(ChatId id) async {
-    try {
-      await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
-    } on HideChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 }
