@@ -27,6 +27,7 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
@@ -45,7 +46,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_call_credentials.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
@@ -83,7 +83,7 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
-  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
+  /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
 
   /// [RxChat.draft] local [Hive] storage.
@@ -693,6 +693,13 @@ class ChatRepository implements AbstractChatRepository {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callRepo.removeCredentials(id);
+
+  /// Adds the provided [ChatCall] to the [AbstractCallRepository].
+  void addCall(ChatCall call) => _callRepo.add(call);
+
+  /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
+  /// [chatId], if any.
+  void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(
