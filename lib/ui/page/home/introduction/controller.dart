@@ -135,13 +135,8 @@ class IntroductionController extends GetxController {
 
     password.editable.value = false;
     repeat.editable.value = false;
-    password.status.value = RxStatus.loading();
-    repeat.status.value = RxStatus.loading();
     try {
       await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
-      password.status.value = RxStatus.success();
-      repeat.status.value = RxStatus.success();
-      await Future.delayed(1.seconds);
       stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
@@ -149,8 +144,6 @@ class IntroductionController extends GetxController {
       repeat.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
-      password.status.value = RxStatus.empty();
-      repeat.status.value = RxStatus.empty();
       password.editable.value = true;
       repeat.editable.value = true;
     }
