@@ -510,6 +510,7 @@ label_participants = Participants
 label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_not_set = Password not set
+label_password_set = Password has been set.
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
 label_personalization = Personalization

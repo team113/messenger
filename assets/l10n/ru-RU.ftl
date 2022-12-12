@@ -532,6 +532,7 @@ label_participants = Участники
 label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
 label_password_not_set = Пароль не задан
+label_password_set = Пароль задан.
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
 label_personalization = Персонализация

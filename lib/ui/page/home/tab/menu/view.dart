@@ -256,6 +256,7 @@ class MenuTabView extends StatelessWidget {
                 final ProfileTab tab = ProfileTab.values[i];
 
                 Widget widget({
+                  Key? key,
                   required String title,
                   required String subtitle,
                   required IconData icon,
@@ -263,6 +264,7 @@ class MenuTabView extends StatelessWidget {
                 }) {
                   return Obx(() {
                     return bigButton(
+                      key: key,
                       leading: Icon(icon, color: const Color(0xFF63B4FF)),
                       title: Text(title),
                       subtitle: Text(subtitle),
@@ -370,6 +372,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.logout:
                     child = widget(
+                        key: const Key('LogoutButton'),
                         icon: Icons.logout,
                         title: 'btn_logout'.l10n,
                         subtitle: 'label_end_session'.l10n,

@@ -145,6 +145,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 13),
                 Padding(
+                  key: const Key('SuccessStage'),
                   padding: ModalPopup.padding(context),
                   child: Text(
                     'label_password_set'.l10n,
@@ -230,6 +231,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   Padding(
                     padding: ModalPopup.padding(context),
                     child: OutlinedRoundedButton(
+                      key: const Key('ConfirmLogoutButton'),
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_logout'.l10n,
@@ -260,6 +262,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: OutlinedRoundedButton(
+                            key: const Key('ConfirmLogoutButton'),
                             maxWidth: double.infinity,
                             title: Text(
                               'btn_logout'.l10n,

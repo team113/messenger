@@ -30,7 +30,6 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/ui/page/home/page/my_profile/widget/dropdown.dart';
 import '/util/message_popup.dart';
 import 'confirm/view.dart';
 
@@ -39,9 +38,6 @@ export 'view.dart';
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
-
-  /// [MyUser.presence]'s dropdown state.
-  late final DropdownFieldState<Presence> presence;
 
   /// Status of a [uploadAvatar] completion.
   ///
@@ -56,34 +52,11 @@ class MenuTabController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
   Timer? _avatarTimer;
 
-  /// Worker to react on [myUser] changes.
-  Worker? _worker;
-
   /// Service managing [MyUser].
   final MyUserService _myUserService;
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
-
-  @override
-  onInit() {
-    _worker = ever(
-      _myUserService.myUser,
-      (MyUser? v) {
-        if (!presence.focus.hasFocus) {
-          presence.unchecked = v?.presence;
-        }
-      },
-    );
-
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _worker?.dispose();
-    super.onClose();
-  }
 
   /// Determines whether the [logout] action may be invoked or not.
   ///

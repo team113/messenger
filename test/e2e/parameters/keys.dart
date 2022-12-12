@@ -34,6 +34,7 @@ enum WidgetKey {
   ChatsButton,
   ChatsTab,
   CloseButton,
+  ConfirmLogoutButton,
   ConfirmLogoutView,
   ContactsButton,
   ContactsTab,
