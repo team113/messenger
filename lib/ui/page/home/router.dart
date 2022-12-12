@@ -27,8 +27,6 @@ import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/personalization/view.dart';
-import 'page/settings/media/controller.dart';
-import 'page/settings/view.dart';
 import 'page/user/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
@@ -71,20 +69,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.profile,
           child: MyProfileView(),
         ));
-      } else if (route.startsWith(Routes.settings)) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.settings,
-          child: SettingsView(),
-        ));
-
-        if (route == Routes.settingsMedia) {
-          pages.add(const _CustomPage(
-            key: ValueKey('MediaSettingsPage'),
-            name: Routes.settingsMedia,
-            child: MediaSettingsView(),
-          ));
-        }
       } else if (route.startsWith('${Routes.chat}/')) {
         String id = route
             .replaceFirst('${Routes.chat}/', '')

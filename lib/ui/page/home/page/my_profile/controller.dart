@@ -24,8 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode, Presence;
-import '/config.dart';
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
@@ -41,9 +40,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import 'widget/dropdown.dart';
 
 export 'view.dart';
 
@@ -57,17 +54,14 @@ class MyProfileController extends GetxController {
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  /// Upload status of the added [ImageGalleryItem].
-  final Rx<RxStatus> addGalleryStatus = Rx<RxStatus>(RxStatus.empty());
-
-  /// Delete status of the [ImageGalleryItem].
-  final Rx<RxStatus> deleteGalleryStatus = Rx<RxStatus>(RxStatus.empty());
-
-  /// Status of the [MyUser.avatar] update.
-  final Rx<RxStatus> avatarStatus = Rx<RxStatus>(RxStatus.empty());
-
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
+  /// Status of a [uploadAvatar] or [deleteAvatar] completion.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [uploadAvatar] and [deleteAvatar] is
+  /// executing.
+  /// - `status.isLoading`, meaning [uploadAvatar] or [deleteAvatar] is
+  /// executing.
+  final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
   /// Timeout of a [resendPhone] action.
   final RxInt resendPhoneTimeout = RxInt(0);
@@ -75,24 +69,11 @@ class MyProfileController extends GetxController {
   /// Timeout of a [resendEmail] action.
   final RxInt resendEmailTimeout = RxInt(0);
 
-  /// [UserEmail]s that are being deleted.
-  final RxList<UserEmail> emailsOnDeletion = RxList<UserEmail>([]);
-
-  /// [UserPhone]s that are being deleted.
-  final RxList<UserPhone> phonesOnDeletion = RxList<UserPhone>([]);
-
-  /// Indicator whether resend phone confirmation code button should be visible
-  /// or not.
-  final RxBool showEmailCodeButton = RxBool(false);
-
-  /// Indicator whether resend email confirmation code button should be visible
-  /// or not.
-  final RxBool showPhoneCodeButton = RxBool(false);
-
   /// [CarouselController] of the [MyUser.gallery] used to jump between gallery
   /// items on [MyUser] updates.
   CarouselController? galleryController;
 
+  /// [FlutterListViewController] of the profile sections [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
   /// Index of the initial profile page section.
@@ -104,12 +85,6 @@ class MyProfileController extends GetxController {
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
 
-  /// [MyUser.bio]'s field state.
-  late final TextFieldState bio;
-
-  /// [MyUser.presence]'s dropdown state.
-  late final DropdownFieldState<Presence> presence;
-
   /// [MyUser.num]'s copyable state.
   late final TextFieldState num;
 
@@ -118,27 +93,6 @@ class MyProfileController extends GetxController {
 
   /// [MyUser.login]'s field state.
   late final TextFieldState login;
-
-  /// A new [UserEmail]'s field state.
-  late final TextFieldState email;
-
-  /// A new [UserEmail] confirmation code field state.
-  late final TextFieldState emailCode;
-
-  /// A new [UserPhone] confirmation code field state.
-  late final TextFieldState phoneCode;
-
-  /// A new [UserPhone]'s field state.
-  late final TextFieldState phone;
-
-  /// State of a current [myUser]'s password field.
-  late final TextFieldState oldPassword;
-
-  /// State of a new [myUser]'s password field.
-  late final TextFieldState newPassword;
-
-  /// State of a repeated new [myUser]'s password field.
-  late final TextFieldState repeatPassword;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -149,17 +103,8 @@ class MyProfileController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
   Timer? _linkTimer;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [bio] field.
-  Timer? _bioTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [presence] field.
-  Timer? _presenceTimer;
-
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
-  Timer? _avatarTimer;
 
   /// [Timer] to decrease [resendPhoneTimeout].
   Timer? _resendPhoneTimer;
@@ -168,7 +113,10 @@ class MyProfileController extends GetxController {
   Timer? _resendEmailTimer;
 
   /// Worker to react on [myUser] changes.
-  Worker? _worker;
+  Worker? _myUserWorker;
+
+  /// Worker to react on [RouterState.profileSection] changes.
+  Worker? _profileWorker;
 
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -178,9 +126,6 @@ class MyProfileController extends GetxController {
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
-
-  /// Returns the local [Track]s.
-  ObsList<Track>? get localTracks => call.value.localTracks;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
   InputDevices get devices => call.value.devices;
@@ -194,17 +139,15 @@ class MyProfileController extends GetxController {
   /// Returns ID of the currently used output device.
   RxnString get output => call.value.outputDevice;
 
-  Worker? _profileWorker;
-
   @override
   void onInit() {
-    listInitIndex = router.profileTab.value?.index ?? 0;
+    listInitIndex = router.profileSection.value?.index ?? 0;
 
     bool ignoreWorker = false;
     bool ignorePositions = false;
 
     _profileWorker = ever(
-      router.profileTab,
+      router.profileSection,
       (ProfileTab? tab) async {
         if (ignoreWorker) {
           ignoreWorker = false;
@@ -224,25 +167,19 @@ class MyProfileController extends GetxController {
         (height, positions) {
       if (positions.isNotEmpty && !ignorePositions) {
         final ProfileTab tab = ProfileTab.values[positions.first.index];
-        if (router.profileTab.value != tab) {
+        if (router.profileSection.value != tab) {
           ignoreWorker = true;
-          router.profileTab.value = tab;
+          router.profileSection.value = tab;
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
     };
 
-    _worker = ever(
+    _myUserWorker = ever(
       _myUserService.myUser,
       (MyUser? v) {
         if (!name.focus.hasFocus && !name.changed.value) {
           name.unchecked = v?.name?.val;
-        }
-        if (!bio.focus.hasFocus) {
-          bio.unchecked = v?.bio?.val;
-        }
-        if (!presence.focus.hasFocus) {
-          presence.unchecked = v?.presence;
         }
         if (!login.focus.hasFocus && !login.changed.value) {
           login.unchecked = v?.login?.val;
@@ -295,152 +232,6 @@ class MyProfileController extends GetxController {
       },
     );
 
-    email = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
-      },
-      onSubmitted: (s) async {
-        UserEmail? email;
-        try {
-          email = UserEmail(s.text);
-
-          if (myUser.value!.emails.confirmed.contains(email) ||
-              myUser.value?.emails.unconfirmed == email) {
-            s.error.value = 'err_you_already_add_this_email'.l10n;
-          }
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _myUserService.addUserEmail(email!);
-            MessagePopup.success('label_email_confirmation_code_was_sent'.l10n);
-            _setResendEmailTimer(true);
-            s.clear();
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } on AddUserEmailException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    phone = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
-      },
-      onSubmitted: (s) async {
-        UserPhone? phone;
-        try {
-          phone = UserPhone(s.text.replaceAll(' ', ''));
-
-          if (_myUserService.myUser.value!.phones.confirmed.contains(phone) ||
-              _myUserService.myUser.value?.phones.unconfirmed == phone) {
-            s.error.value = 'err_you_already_add_this_phone'.l10n;
-          }
-        } catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _myUserService.addUserPhone(phone!);
-            MessagePopup.success('label_phone_confirmation_code_was_send'.l10n);
-            _setResendPhoneTimer(true);
-            s.clear();
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } on AddUserPhoneException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    bio = TextFieldState(
-      text: myUser.value?.bio?.val,
-      onChanged: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserBio(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _bioTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService
-                .updateUserBio(s.text.isNotEmpty ? UserBio(s.text) : null);
-            s.status.value = RxStatus.success();
-            _bioTimer = Timer(const Duration(milliseconds: 1500),
-                () => s.status.value = RxStatus.empty());
-          } catch (e) {
-            s.error.value = e.toString();
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    presence = DropdownFieldState(
-      value: myUser.value?.presence,
-      items: Presence.values.getRange(0, Presence.values.length - 1).toList(),
-      stringify: (s) => s?.localizedString() ?? '',
-      onChanged: (s) async {
-        if (myUser.value?.presence != s.value) {
-          _presenceTimer?.cancel();
-          s.status.value = RxStatus.loading();
-          s.error.value = null;
-          s.editable.value = false;
-          await Future.delayed(1.seconds);
-          try {
-            await _myUserService.updateUserPresence(presence.value!);
-            s.status.value = RxStatus.success();
-            _presenceTimer = Timer(const Duration(milliseconds: 1500),
-                () => s.status.value = RxStatus.empty());
-          } catch (e) {
-            s.error.value = e.toString();
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
     num = TextFieldState(
       text: myUser.value?.num.val.replaceAllMapped(
         RegExp(r'.{4}'),
@@ -471,7 +262,7 @@ class MyProfileController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
-        if (slug == myUser.value?.chatDirectLink?.slug) {
+        if (slug == null || slug == myUser.value?.chatDirectLink?.slug) {
           return;
         }
 
@@ -481,7 +272,8 @@ class MyProfileController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            // TODO: impl direct link creation.
+            await _myUserService.createChatDirectLink(slug);
+            s.status.value = RxStatus.success();
             await Future.delayed(const Duration(seconds: 1));
             s.status.value = RxStatus.empty();
           } on CreateChatDirectLinkException catch (e) {
@@ -543,107 +335,6 @@ class MyProfileController extends GetxController {
       },
     );
 
-    emailCode = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
-      },
-      onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
-            showEmailCodeButton.value = false;
-            s.clear();
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } on ConfirmUserEmailException catch (e) {
-            showEmailCodeButton.value = false;
-            s.error.value = e.toMessage();
-          } catch (e) {
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    phoneCode = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
-      },
-      onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
-            showPhoneCodeButton.value = false;
-            s.clear();
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } on ConfirmUserPhoneException catch (e) {
-            showPhoneCodeButton.value = false;
-            s.error.value = e.toMessage();
-          } catch (e) {
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    oldPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        newPassword.error.value = null;
-        repeatPassword.error.value = null;
-        try {
-          UserPassword(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-    );
-    newPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        repeatPassword.error.value = null;
-        try {
-          UserPassword(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-    );
-    repeatPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        newPassword.error.value = null;
-        if (s.text != newPassword.text && newPassword.isValidated) {
-          s.error.value = 'err_passwords_mismatch'.l10n;
-        }
-      },
-    );
-
     if (!PlatformUtils.isMobile) {
       // TODO: This is a really bad hack. We should not create call here. Required
       //       functionality should be decoupled from the OngoingCall or
@@ -668,32 +359,10 @@ class MyProfileController extends GetxController {
   void onClose() {
     _setResendEmailTimer(false);
     _setResendPhoneTimer(false);
-    _worker?.dispose();
+    _myUserWorker?.dispose();
     _profileWorker?.dispose();
     call.value.dispose();
     super.onClose();
-  }
-
-  /// Sets the [ApplicationSettings.enablePopups] value.
-  Future<void> setPopupsEnabled(bool enabled) =>
-      _settingsRepo.setPopupsEnabled(enabled);
-
-  /// Sets device with [id] as a used by default [camera] device.
-  void setVideoDevice(String id) {
-    call.value.setVideoDevice(id);
-    _settingsRepo.setVideoDevice(id);
-  }
-
-  /// Sets device with [id] as a used by default [mic] device.
-  void setAudioDevice(String id) {
-    call.value.setAudioDevice(id);
-    _settingsRepo.setAudioDevice(id);
-  }
-
-  /// Sets device with [id] as a used by default [output] device.
-  void setOutputDevice(String id) {
-    call.value.setOutputDevice(id);
-    _settingsRepo.setOutputDevice(id);
   }
 
   /// Removes the currently set [background].
@@ -713,143 +382,6 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Validates and updates current [myUser]'s password with the one specified
-  /// in the [newPassword] and [repeatPassword] fields.
-  Future<void> changePassword() async {
-    if (myUser.value?.hasPassword == true) {
-      oldPassword.focus.unfocus();
-      oldPassword.submit();
-    }
-
-    newPassword.focus.unfocus();
-    newPassword.submit();
-    repeatPassword.focus.unfocus();
-    repeatPassword.submit();
-
-    if (myUser.value?.hasPassword == true) {
-      if (!oldPassword.isValidated || oldPassword.text.isEmpty) {
-        oldPassword.error.value = 'err_current_password_empty'.l10n;
-        return;
-      }
-
-      if (oldPassword.error.value != null) {
-        return;
-      }
-    }
-
-    if (newPassword.error.value == null && repeatPassword.error.value == null) {
-      if (!newPassword.isValidated || newPassword.text.isEmpty) {
-        newPassword.error.value = 'err_new_password_empty'.l10n;
-        return;
-      }
-
-      if (!repeatPassword.isValidated || repeatPassword.text.isEmpty) {
-        repeatPassword.error.value = 'err_repeat_password_empty'.l10n;
-        return;
-      }
-
-      if (repeatPassword.text != newPassword.text) {
-        repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
-        return;
-      }
-
-      oldPassword.editable.value = false;
-      newPassword.editable.value = false;
-      repeatPassword.editable.value = false;
-      repeatPassword.status.value = RxStatus.loading();
-      try {
-        await _myUserService.updateUserPassword(
-          oldPassword:
-              myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
-          newPassword: UserPassword(newPassword.text),
-        );
-        repeatPassword.status.value = RxStatus.success();
-        await Future.delayed(1.seconds);
-        oldPassword.clear();
-        newPassword.clear();
-        repeatPassword.clear();
-      } on UpdateUserPasswordException catch (e) {
-        oldPassword.error.value = e.toMessage();
-      } catch (e) {
-        repeatPassword.error.value = e.toString();
-        rethrow;
-      } finally {
-        repeatPassword.status.value = RxStatus.empty();
-        oldPassword.editable.value = true;
-        newPassword.editable.value = true;
-        repeatPassword.editable.value = true;
-      }
-    }
-  }
-
-  /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field to
-  /// [MyUser.emails].
-  Future<void> resendEmail() async {
-    try {
-      await _myUserService.resendEmail();
-      _setResendEmailTimer(true);
-      MessagePopup.success('label_email_confirmation_code_was_sent'.l10n);
-    } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Resend [ConfirmationCode] to [UserPhone] specified in the [phone] field to
-  /// [MyUser.phones].
-  Future<void> resendPhone() async {
-    try {
-      await _myUserService.resendPhone();
-      _setResendPhoneTimer(true);
-      MessagePopup.success('label_phone_confirmation_code_was_send'.l10n);
-    } on ResendUserPhoneConfirmationException catch (e) {
-      email.error.value = e.toMessage();
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Deletes [email] address from [MyUser.emails].
-  Future<void> deleteUserEmail(UserEmail email) async {
-    if (await MessagePopup.alert(
-            'alert_are_you_sure_want_to_delete_email'.l10n) ==
-        true) {
-      emailsOnDeletion.addIf(!emailsOnDeletion.contains(email), email);
-      UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
-      try {
-        await _myUserService.deleteUserEmail(email);
-      } finally {
-        if (unconfirmed == email) {
-          emailCode.clear();
-          showEmailCodeButton.value = false;
-        }
-        emailsOnDeletion.remove(email);
-      }
-    }
-  }
-
-  /// Deletes [phone] number from [MyUser.phones].
-  Future<void> deleteUserPhone(UserPhone phone) async {
-    if (await MessagePopup.alert(
-            'alert_are_you_sure_want_to_delete_phone'.l10n) ==
-        true) {
-      phonesOnDeletion.addIf(!phonesOnDeletion.contains(phone), phone);
-      UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
-      try {
-        await _myUserService.deleteUserPhone(phone);
-      } finally {
-        if (unconfirmed == phone) {
-          phoneCode.clear();
-          showPhoneCodeButton.value = false;
-        }
-        phonesOnDeletion.remove(phone);
-      }
-    }
-  }
-
   /// Deletes the [MyUser.avatar] and [MyUser.callCover].
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
@@ -860,8 +392,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
-
+  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -873,10 +404,14 @@ class MyProfileController extends GetxController {
       if (result != null) {
         avatarUpload.value = RxStatus.loading();
 
-        List<Future> deletes = [];
+        List<GalleryItemId> deleted = [];
 
         for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-          deletes.add(_myUserService.deleteGalleryItem(item.id));
+          deleted.add(item.id);
+        }
+
+        for (var e in deleted) {
+          _myUserService.deleteGalleryItem(e);
         }
 
         List<Future<ImageGalleryItem?>> futures = result.files
@@ -900,76 +435,6 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Generates a new [MyUser.chatDirectLink].
-  Future<void> generateLink() async {
-    if (link.editable.isFalse) return;
-
-    _linkTimer?.cancel();
-    link.editable.value = false;
-    link.status.value = RxStatus.loading();
-
-    bool generated = false;
-    while (!generated) {
-      ChatDirectLinkSlug slug = ChatDirectLinkSlug.generate(10);
-
-      try {
-        await _myUserService.createChatDirectLink(slug);
-        link.text = slug.val;
-        link.status.value = RxStatus.empty();
-        link.error.value = null;
-        generated = true;
-      } on CreateChatDirectLinkException catch (e) {
-        if (e.code != CreateChatDirectLinkErrorCode.occupied) {
-          link.status.value = RxStatus.empty();
-          link.error.value = e.toMessage();
-          generated = true;
-        }
-      } catch (e) {
-        link.status.value = RxStatus.empty();
-        link.editable.value = true;
-        rethrow;
-      }
-    }
-
-    link.editable.value = true;
-  }
-
-  /// Deletes [MyUser.chatDirectLink].
-  Future<void> deleteLink() async {
-    if (link.editable.isFalse) return;
-
-    _linkTimer?.cancel();
-    link.editable.value = false;
-    link.status.value = RxStatus.loading();
-
-    try {
-      await _myUserService.deleteChatDirectLink();
-      link.status.value = RxStatus.empty();
-      link.error.value = null;
-      link.unchecked = '';
-    } on DeleteChatDirectLinkException catch (e) {
-      link.status.value = RxStatus.empty();
-      link.error.value = e.toMessage();
-    } catch (e) {
-      link.status.value = RxStatus.empty();
-      rethrow;
-    } finally {
-      link.editable.value = true;
-    }
-  }
-
-  /// Puts the [MyUser.chatDirectLink] into the clipboard and shows a snackbar.
-  void copyLink() {
-    Clipboard.setData(
-      ClipboardData(
-        text:
-            '${Config.origin}${Routes.chatDirectLink}/${myUser.value?.chatDirectLink!.slug.val}',
-      ),
-    );
-
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
-  }
-
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
   /// with the provided [id].
   ///
@@ -977,11 +442,8 @@ class MyProfileController extends GetxController {
   /// [MyUser.callCover].
   Future<void> _updateAvatar(GalleryItemId? id) async {
     try {
-      _avatarTimer?.cancel();
-      avatarStatus.value = RxStatus.loading();
       await _myUserService.updateAvatar(id);
       await _myUserService.updateCallCover(id);
-      avatarStatus.value = RxStatus.success();
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);
     } on UpdateUserCallCoverException catch (e) {
@@ -989,9 +451,6 @@ class MyProfileController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
-    } finally {
-      _avatarTimer = Timer(const Duration(milliseconds: 1500),
-          () => avatarStatus.value = RxStatus.empty());
     }
   }
 

@@ -711,18 +711,14 @@ class MenuTabController extends GetxController {
     }
   }
 
-  /// Deletes the [MyUser.avatar] and [MyUser.callCover].
-  Future<void> deleteAvatar() async {
-    avatarUpload.value = RxStatus.loading();
-    try {
-      await _updateAvatar(null);
-    } finally {
-      avatarUpload.value = RxStatus.empty();
-    }
-  }
-
+  /// Status of a [uploadAvatar] completion.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [uploadAvatar] is executing.
+  /// - `status.isLoading`, meaning [uploadAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
+  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -734,13 +730,13 @@ class MenuTabController extends GetxController {
       if (result != null) {
         avatarUpload.value = RxStatus.loading();
 
-        List<GalleryItemId> deletes = [];
+        List<GalleryItemId> deleted = [];
 
         for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-          deletes.add(item.id);
+          deleted.add(item.id);
         }
 
-        for (var e in deletes) {
+        for (var e in deleted) {
           _myUserService.deleteGalleryItem(e);
         }
 

@@ -206,6 +206,7 @@ err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
 err_incorrect_input = Incorrect input
+err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_password = Incorrect Password
 err_input_empty = Must not be empty
 err_invalid_crop_coordinates = Invalid crop coordinates

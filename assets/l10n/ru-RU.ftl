@@ -207,6 +207,7 @@ err_dimensions_too_big = Слишком большое разрешение
 err_email_occupied = Почта уже привязана к другому аккаунту
 err_incorrect_chat_name = Некорректное имя
 err_incorrect_input = Некорректный формат
+err_incorrect_login_input = Уникальный логин должен содержать только буквы латинского алфавита, цифры и символы "-", "." и "_". Он должен начинаться с буквы или цифры и содержать не менее 3 и не более 20 символов.
 err_incorrect_password = Неверный пароль
 err_input_empty = Поле не должно быть пустым
 err_invalid_crop_coordinates = Неверные координаты обрезки

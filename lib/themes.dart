@@ -226,9 +226,9 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
-              thickness: MaterialStateProperty.all(6),
-            ),
+        scrollbarTheme: ThemeData.light()
+            .scrollbarTheme
+            .copyWith(thickness: MaterialStateProperty.all(6)),
         radioTheme: ThemeData.light().radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {

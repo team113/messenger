@@ -80,11 +80,9 @@ class Routes {
   static const me = '/me';
   static const menu = '/menu';
   static const personalization = '/personalization';
-  static const settings = '/settings';
+  static const profile = '/profile';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
-
-  static const profile = '/profile';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -147,8 +145,8 @@ class RouterState extends ChangeNotifier {
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
-  /// Current [Routes.profile] section.
-  final Rx<ProfileTab?> profileTab = Rx(null);
+  /// Current [Routes.profile] page section.
+  final Rx<ProfileTab?> profileSection = Rx(null);
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
@@ -607,7 +605,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
-        _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
         _state.route == Routes.personalization ||
         _state.route == Routes.profile ||
@@ -671,9 +668,6 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
-
-  /// Changes router location to the [Routes.settings] page.
-  void settings() => go(Routes.settings);
 
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
