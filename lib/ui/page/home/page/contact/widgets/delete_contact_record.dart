@@ -73,7 +73,7 @@ class DeleteContactRecordView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16 - 12),
+          const SizedBox(height: 4),
           ModalPopupHeader(
             child: Center(
               child: Text(
@@ -82,7 +82,7 @@ class DeleteContactRecordView extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 25 - 12),
+          const SizedBox(height: 13),
           Padding(
             padding: ModalPopup.padding(context),
             child: RichText(

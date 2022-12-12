@@ -214,7 +214,7 @@ class ContactController extends GetxController {
   }
 
   // TODO: No [Chat] should be created.
-  /// Opens a [Chat]-dialog with this [contact.user].
+  /// Opens a [Chat]-dialog with this [contact]s user.
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
@@ -243,9 +243,9 @@ class ContactController extends GetxController {
     }
   }
 
-  /// Removes specified [email] or [phone] from [contact] records of this
+  /// Deletes specified [email] or [phone] from [contact] records of this
   /// [ChatContact].
-  Future<void> removeContactRecord({UserEmail? email, UserPhone? phone}) async {
+  Future<void> deleteContactRecord({UserEmail? email, UserPhone? phone}) async {
     try {
       await _contactService.deleteChatContactRecord(
         id,
@@ -260,7 +260,7 @@ class ContactController extends GetxController {
 
   /// Adds the [contact] to the contacts list of the authenticated [MyUser]'s.
   Future<void> addToContacts() async {
-    if (!inContacts.value) {
+    if (inContacts.isFalse) {
       try {
         await _contactService.createChatContact(contact.user.value!.user.value);
 
@@ -272,9 +272,10 @@ class ContactController extends GetxController {
     }
   }
 
-  /// Removes the [contact] from the contacts list of the authenticated [MyUser]'s.
+  /// Removes the [contact] from the contacts list of the authenticated
+  /// [MyUser]'s.
   Future<void> removeFromContacts() async {
-    if (inContacts.value) {
+    if (inContacts.isTrue) {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         try {
           await _contactService.deleteContact(contact.contact.value.id);

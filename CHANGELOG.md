@@ -40,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
     - Redesigned desktop context menu. ([#245])
+    - Bootstrap contact profile ([#250], [#242])
 
 ### Fixed
 
@@ -80,8 +81,10 @@ All user visible changes to this project will be documented in this file. This p
 [#232]: /../../issues/232
 [#233]: /../../issues/233
 [#241]: /../../pull/241
+[#242]: /../../issues/242
 [#245]: /../../pull/245
 [#246]: /../../pull/246
+[#250]: /../../pull/250
 
 
 

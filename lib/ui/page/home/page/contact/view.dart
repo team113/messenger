@@ -260,7 +260,7 @@ class ContactView extends StatelessWidget {
                         '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
                   ),
                 ],
-                onSubmit: () => c.removeContactRecord(email: e),
+                onSubmit: () => c.deleteContactRecord(email: e),
               ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
@@ -336,7 +336,7 @@ class ContactView extends StatelessWidget {
                         '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
                   ),
                 ],
-                onSubmit: () => c.removeContactRecord(phone: e),
+                onSubmit: () => c.deleteContactRecord(phone: e),
               ),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
@@ -449,7 +449,7 @@ class ContactView extends StatelessWidget {
     });
   }
 
-  /// Returns a [ChatContact.name] text widget with an [AvatarWidget].
+  /// Returns a [ChatContact.name] editable text field.
   Widget _name(ContactController c, BuildContext context) {
     return _padding(
       ReactiveTextField(
