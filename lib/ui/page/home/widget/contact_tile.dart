@@ -48,7 +48,6 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.showBadge = true,
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -98,9 +97,6 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  /// Indicator of whether [Badge] should be displayed at [AvatarWidget].
-  final bool showBadge;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -134,17 +130,9 @@ class ContactTile extends StatelessWidget {
               children: [
                 ...leading,
                 if (contact != null)
-                  AvatarWidget.fromRxContact(
-                    contact,
-                    radius: radius,
-                    showBadge: showBadge,
-                  )
+                  AvatarWidget.fromRxContact(contact, radius: radius)
                 else if (user != null)
-                  AvatarWidget.fromRxUser(
-                    user,
-                    radius: radius,
-                    showBadge: showBadge,
-                  )
+                  AvatarWidget.fromRxUser(user, radius: radius)
                 else
                   AvatarWidget.fromMyUser(
                     myUser,

@@ -19,11 +19,9 @@ Feature: Favorite contacts
   Background: User has contacts Bob and Charlie
     Given I am Alice
     And users Bob and Charlie
+    And contacts Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
-    And contacts Bob and Charlie
-    And I wait until text "Bob" is present
-    And I wait until text "Charlie" is present
 
   Scenario: User adds contact to favorites
     When I long press "Bob" contact

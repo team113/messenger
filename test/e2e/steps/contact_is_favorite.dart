@@ -26,8 +26,8 @@ import 'package:messenger/util/obs/obs.dart';
 import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
-/// Adds or removes a [ChatContact] with the provided name to or from the favorites
-/// depending on the specified [FavoriteStatus].
+/// Adds or removes a [ChatContact] with the provided name to or from the
+/// favorites depending on the specified [FavoriteStatus].
 ///
 /// Examples:
 /// - Given "Name" contact is favorite

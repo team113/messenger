@@ -148,9 +148,11 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: const TextStyle(color: Color(0xFF888888)),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 );
               }
+
               return Container();
             }),
           ),

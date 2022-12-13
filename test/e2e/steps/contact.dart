@@ -28,7 +28,7 @@ import '../world/custom_world.dart';
 /// authenticated [MyUser].
 ///
 /// Examples:
-/// - Given contact Bob.
+/// - Given contact Bob
 final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
   'contact {user}',
   (TestUser user, context) async {
@@ -36,12 +36,16 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = authService.credentials.value!.session.token;
 
-    await provider.createChatContact(
+    final contact = await provider.createChatContact(
       name: UserName(user.name),
       records: [
         ChatContactRecord(userId: context.world.sessions[user.name]!.userId)
       ],
     );
+
+    context.world.contacts[user.name] = contact.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
 
     provider.disconnect();
   },
@@ -49,11 +53,11 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Creates [ChatContact]s of the provided [User]s.
+/// Creates two [ChatContact]s of the provided [User]s.
 ///
 /// Examples:
-/// - Given contacts Bob and Charlie.
-final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
+/// - Given contacts Bob and Charlie
+final twoContacts = given2<TestUser, TestUser, CustomWorld>(
   'contacts {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
     final AuthService authService = Get.find();
@@ -66,6 +70,7 @@ final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
         ChatContactRecord(userId: context.world.sessions[user1.name]!.userId)
       ],
     );
+
     context.world.contacts[user1.name] = contact1.events
         .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
         .contactId;
@@ -76,6 +81,7 @@ final haveTwoContacts = given2<TestUser, TestUser, CustomWorld>(
         ChatContactRecord(userId: context.world.sessions[user2.name]!.userId)
       ],
     );
+
     context.world.contacts[user2.name] = contact2.events
         .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
         .contactId;
