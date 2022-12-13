@@ -684,56 +684,50 @@ Widget _status(MyProfileController c) {
 
 /// Returns [MyUser.presence] dropdown.
 Widget _presence(MyProfileController c, BuildContext context) {
-  Presence? presence = c.myUser.value?.presence;
-  Color? color;
+  return Obx(() {
+    Presence? presence = c.myUser.value?.presence;
+    Color? color;
 
-  switch (presence) {
-    case Presence.present:
-      color = Colors.green;
-      break;
+    switch (presence) {
+      case Presence.present:
+        color = Colors.green;
+        break;
 
-    case Presence.away:
-      color = Colors.orange;
-      break;
+      case Presence.away:
+        color = Colors.orange;
+        break;
 
-    case Presence.hidden:
-      color = Colors.grey;
-      break;
+      case Presence.hidden:
+        color = Colors.grey;
+        break;
 
-    case Presence.artemisUnknown:
-      break;
+      case Presence.artemisUnknown:
+        break;
 
-    default:
-      break;
-  }
+      default:
+        break;
+    }
 
-  return _padding(
-    WidgetButton(
-      onPressed: () => StatusView.show(context, presenceOnly: true),
-      child: IgnorePointer(
-        child: ReactiveTextField(
-          label: 'label_presence'.l10n,
-          state: TextFieldState(
-            text: c.myUser.value?.presence.localizedString(),
-            editable: false,
-          ),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          trailing: CircleAvatar(
-            backgroundColor: color,
-            radius: 7,
+    return _padding(
+      WidgetButton(
+        onPressed: () => StatusView.show(context, presenceOnly: true),
+        child: IgnorePointer(
+          child: ReactiveTextField(
+            label: 'label_presence'.l10n,
+            state: TextFieldState(
+              text: presence?.localizedString(),
+              editable: false,
+            ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            trailing: CircleAvatar(
+              backgroundColor: color,
+              radius: 7,
+            ),
           ),
         ),
       ),
-    ),
-  );
-
-  return _padding(
-    ReactiveDropdown<Presence>(
-      key: const Key('PresenceDropdown'),
-      state: c.presence,
-      label: 'label_presence'.l10n,
-    ),
-  );
+    );
+  });
 }
 
 /// Returns [MyUser.num] copyable field.

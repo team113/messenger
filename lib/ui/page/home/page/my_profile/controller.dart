@@ -1267,11 +1267,13 @@ extension PresenceL10n on Presence {
     switch (this) {
       case Presence.present:
         return 'label_presence_present'.l10n;
+
       case Presence.away:
         return 'label_presence_away'.l10n;
+
       case Presence.hidden:
-        // return 'label_presence_hidden'.l10n;
-        return null;
+        return 'label_presence_hidden'.l10n;
+
       case Presence.artemisUnknown:
         return null;
     }

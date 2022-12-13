@@ -36,6 +36,8 @@ class MoreController extends GetxController {
 
   Timer? _statusTimer;
 
+  Worker? _worker;
+
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Sets the [MyUser.presence] to the provided value.
@@ -45,6 +47,16 @@ class MoreController extends GetxController {
   @override
   void onInit() {
     presence.value = myUser.value?.presence;
+
+    _worker = debounce(
+      presence,
+      (Presence? presence) {
+        if (myUser.value?.presence != presence && presence != null) {
+          setPresence(presence);
+        }
+      },
+      time: 250.milliseconds,
+    );
 
     status = TextFieldState(
       text: myUser.value?.status?.val,
@@ -88,10 +100,7 @@ class MoreController extends GetxController {
 
   @override
   void onClose() {
-    if (myUser.value?.presence != presence.value && presence.value != null) {
-      setPresence(presence.value!);
-    }
-
+    _worker?.dispose();
     super.onClose();
   }
 }
