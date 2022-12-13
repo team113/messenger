@@ -214,8 +214,8 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             _name(c),
                             // _bio(c),
-                            _status(c),
                             _presence(c, context),
+                            _status(c),
                           ],
                         );
 
@@ -658,8 +658,9 @@ Widget _status(MyProfileController c) {
     ReactiveTextField(
       key: const Key('StatusField'),
       state: c.status,
-      label: 'Status (25 symbols)'.l10n,
+      label: 'Status'.l10n,
       filled: true,
+      maxLength: 25,
       onSuffixPressed: c.status.text.isEmpty
           ? null
           : () {

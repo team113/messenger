@@ -443,7 +443,7 @@ class MyProfileController extends GetxController {
             UserTextStatus(s.text);
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
+          s.error.value = 'err_incorrect_status'.l10n;
         }
 
         if (s.error.value == null) {

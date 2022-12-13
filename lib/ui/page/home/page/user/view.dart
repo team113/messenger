@@ -205,8 +205,8 @@ class UserView extends StatelessWidget {
                       ),
                       const SizedBox(height: 15),
                       _name(c, context),
-                      _status(c, context),
                       _presence(c, context),
+                      _status(c, context),
                     ],
                   ),
                   // block(

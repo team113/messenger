@@ -581,52 +581,47 @@ class ChatInfoView extends StatelessWidget {
         void Function()? onTap,
         bool selected = false,
       }) {
-        return Padding(
-          key: key,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: SizedBox(
-            height: 73,
-            child: Container(
-              decoration: BoxDecoration(
+        return SizedBox(
+          height: 56, // 73,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              border: style.cardBorder,
+              color: Colors.transparent,
+            ),
+            child: Material(
+              type: MaterialType.card,
+              borderRadius: style.cardRadius,
+              color: selected
+                  ? style.cardSelectedColor
+                  : style.cardColor.darken(0.05),
+              child: InkWell(
                 borderRadius: style.cardRadius,
-                border: style.cardBorder,
-                color: Colors.transparent,
-              ),
-              child: Material(
-                type: MaterialType.card,
-                borderRadius: style.cardRadius,
-                color: selected
-                    ? style.cardSelectedColor
-                    : style.cardColor.darken(0.05),
-                child: InkWell(
-                  borderRadius: style.cardRadius,
-                  onTap: onTap,
-                  hoverColor: const Color.fromARGB(255, 244, 249, 255),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                    child: Row(
-                      children: [
-                        if (leading != null) ...[
-                          const SizedBox(width: 12),
-                          leading,
-                          const SizedBox(width: 18),
-                        ],
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DefaultTextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5!,
-                                child: title,
-                              ),
-                            ],
+                onTap: onTap,
+                hoverColor: const Color(0xFFF4F9FF),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: DefaultTextStyle(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w300,
                           ),
+                          child: title,
                         ),
+                      ),
+                      if (leading != null) ...[
+                        const SizedBox(width: 12),
+                        leading,
+                        const SizedBox(width: 4),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -639,10 +634,14 @@ class ChatInfoView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           bigButton(
-            leading: Icon(Icons.people),
-            title: Text('Добавить участника'),
+            leading: Icon(
+              Icons.people,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            title: const Text('Добавить участника'),
             onTap: () => AddMemberView.show(context, chatId: id),
           ),
+          const SizedBox(height: 3),
           // Container(
           //   // constraints: const BoxConstraints(minHeight: 76),
           //   decoration: BoxDecoration(

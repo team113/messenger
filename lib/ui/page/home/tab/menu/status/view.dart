@@ -84,7 +84,9 @@ class StatusView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  presenceOnly ? 'label_presence'.l10n : 'label_status'.l10n,
+                  presenceOnly
+                      ? 'label_presence_title'.l10n
+                      : 'label_status'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -95,6 +97,70 @@ class StatusView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   if (!presenceOnly) ...[
+                    // Obx(() {
+                    //   final bool selected = c.myUser.value?.muted != null;
+
+                    //   return Padding(
+                    //     padding: const EdgeInsets.only(bottom: 8),
+                    //     child: Material(
+                    //       borderRadius: BorderRadius.circular(10),
+                    //       color: selected
+                    //           ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                    //           : Colors.white.darken(0.05),
+                    //       child: InkWell(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         onTap: () {},
+                    //         child: Padding(
+                    //           padding: const EdgeInsets.all(16.0),
+                    //           child: Row(
+                    //             children: [
+                    //               Expanded(
+                    //                 child: Column(
+                    //                   mainAxisSize: MainAxisSize.min,
+                    //                   crossAxisAlignment:
+                    //                       CrossAxisAlignment.start,
+                    //                   children: const [
+                    //                     Text(
+                    //                       'Бесшумный режим',
+                    //                       maxLines: 1,
+                    //                       style: const TextStyle(fontSize: 17),
+                    //                     ),
+                    //                     SizedBox(height: 4),
+                    //                     Flexible(
+                    //                       child: Text(
+                    //                         'Вы не будете получать уведомления',
+                    //                         style: TextStyle(
+                    //                           color: Color(0xFF888888),
+                    //                         ),
+                    //                       ),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //               const SizedBox(width: 8),
+                    //               AnimatedSwitcher(
+                    //                 duration: 200.milliseconds,
+                    //                 child: selected
+                    //                     ? SvgLoader.asset(
+                    //                         'assets/icons/btn_mute.svg',
+                    //                         width: 19.68,
+                    //                         height: 15,
+                    //                       )
+                    //                     : SvgLoader.asset(
+                    //                         'assets/icons/btn_unmute.svg',
+                    //                         width: 17.86,
+                    //                         height: 15,
+                    //                       ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   );
+                    // }),
+                    // const SizedBox(height: 8),
+                    // header('label_status'.l10n),
                     _padding(
                       ReactiveTextField(
                         key: const Key('StatusField'),
@@ -127,7 +193,7 @@ class StatusView extends StatelessWidget {
                     const SizedBox(height: 8),
                     header('Presence'),
                   ],
-                  ...[Presence.present, Presence.away, Presence.hidden]
+                  ...[Presence.hidden, Presence.away, Presence.present]
                       .map((e) {
                     return Obx(() {
                       String? subtitle;
@@ -138,18 +204,18 @@ class StatusView extends StatelessWidget {
                         case Presence.present:
                           title = 'btn_online'.l10n;
                           color = Colors.green;
-                          subtitle = 'Или информация о последнем входе';
+                          // subtitle = 'Или информация о последнем входе';
                           break;
 
                         case Presence.away:
                           title = 'btn_away'.l10n;
                           color = Colors.orange;
-                          subtitle = 'Или информация о последнем входе';
+                          // subtitle = 'Или информация о последнем входе';
                           break;
 
                         case Presence.hidden:
                           title = 'btn_hidden'.l10n;
-                          color = Colors.grey;
+                          color = Colors.red;
                           break;
 
                         case Presence.artemisUnknown:
