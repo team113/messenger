@@ -80,13 +80,13 @@ class ContactTile extends StatelessWidget {
       constraints: BoxConstraints(minHeight: height),
       child: InkWellWithHover(
         selectedColor: style.cardSelectedColor,
-        unselectedColor: style.cardColor,
+        unselectedColor: style.cardColor.darken(darken),
         selected: selected,
         hoveredBorder: selected ? style.primaryBorder : style.cardHoveredBorder,
         border: selected ? style.primaryBorder : style.cardBorder,
         borderRadius: style.cardRadius,
         onTap: onTap,
-        unselectedHoverColor: style.cardHoveredColor,
+        unselectedHoverColor: style.cardHoveredColor.darken(darken),
         selectedHoverColor: style.cardSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(12),

@@ -115,9 +115,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                     width: widget.borderRadius?.topLeft.y ?? 10,
                     height: widget.borderRadius?.topLeft.y ?? 10,
                     decoration: BoxDecoration(
-                      color: hovered
-                          ? widget.hoveredBorder!.top.color.darken(0.1)
-                          : widget.border!.top.color.darken(0.1),
+                      color: widget.selected
+                          ? widget.selectedHoverColor?.darken(0.1)
+                          : widget.hoveredBorder!.top.color.darken(0.1),
                       borderRadius: const BorderRadius.only(
                         bottomRight: Radius.circular(4),
                       ),

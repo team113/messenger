@@ -23,19 +23,26 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Media panel:
+        - Participants redialing. ([#241], [#233])
 
 ### Changed
 
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+        - Redesigned introduction and logout modals. ([#249])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+        - Redesigned chat tile in mobile interface. ([#246], [#232])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Redesigned desktop context menu. ([#245])
+    - Auth page:
+        - Redesigned login modal. ([#249])
     - Contacts tab:
         - Alphabetical and last seen at sorting. ([#235], [#226])
 
@@ -76,7 +83,13 @@ All user visible changes to this project will be documented in this file. This p
 [#218]: /../../pull/218
 [#221]: /../../pull/221
 [#226]: /../../issues/226
+[#232]: /../../issues/232
+[#233]: /../../issues/233
 [#235]: /../../pull/235
+[#241]: /../../pull/241
+[#245]: /../../pull/245
+[#246]: /../../pull/246
+[#249]: /../../pull/249
 
 
 
