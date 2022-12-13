@@ -200,6 +200,16 @@ class HiveRxChat extends RxChat {
         await Future.wait(futures);
       }
 
+      if (chat.value.isDialog) {
+        UserId? responderId = chat.value.members
+            .firstWhereOrNull((e) => e.user.id != me)
+            ?.user
+            .id;
+        if (responderId != null) {
+          _chatRepository.updateDialog(responderId, this);
+        }
+      }
+
       status.value = RxStatus.success();
     });
   }
@@ -569,12 +579,6 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isGroup) {
       avatar.value = chat.value.avatar;
-    } else if (chat.value.isDialog) {
-      UserId? responderId =
-          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
-      if (responderId != null) {
-        _chatRepository.updateDialog(responderId, this);
-      }
     }
 
     _muteTimer?.cancel();
