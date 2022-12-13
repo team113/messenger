@@ -15,17 +15,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui//widget/svg/svg.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/gallery.dart';
-import '/util/message_popup.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the [Routes.user] page.
@@ -37,6 +41,8 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Style? style = Theme.of(context).extension<Style>();
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -44,235 +50,368 @@ class UserView extends StatelessWidget {
         return Obx(() {
           if (c.status.value.isSuccess) {
             return Scaffold(
-              body: CustomScrollView(
-                key: const Key('UserColumn'),
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // App bar with gallery.
-                  SliverAppBar(
-                    elevation: 0,
-                    pinned: true,
-                    stretch: true,
-                    backgroundColor: context.theme.scaffoldBackgroundColor,
-                    leading: IconButton(
-                      onPressed: router.pop,
-                      icon: const Icon(Icons.arrow_back),
-                    ),
-                    expandedHeight: MediaQuery.of(context).size.height * 0.6,
-                    flexibleSpace: FlexibleSpaceBar(background: _gallery(c)),
-                  ),
-
-                  // Main content of this page.
-                  SliverList(
-                    delegate: SliverChildListDelegate.fixed(
-                      [
-                        Align(
-                          alignment: Alignment.center,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 450),
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 10),
-                                _name(c, context),
-                                if (c.user?.user.value.bio != null)
-                                  _bio(c, context),
-                                const Divider(thickness: 2),
-                                _presence(c, context),
-                                _num(c, context),
-                                if (id != c.me) ...[
-                                  const Divider(thickness: 2),
-                                  _audioCall(c, context),
-                                  _videoCall(c, context),
-                                  const Divider(thickness: 2),
-                                  _dialog(c, context),
-                                  _contacts(c, context),
-                                  const Divider(thickness: 2),
-                                  _blacklist(c, context),
-                                ],
-                                const SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
+              appBar: CustomAppBar(
+                title: Row(
+                  children: [
+                    Material(
+                      elevation: 6,
+                      type: MaterialType.circle,
+                      shadowColor: const Color(0x55000000),
+                      color: Colors.white,
+                      child: Center(
+                        child: AvatarWidget.fromRxUser(
+                          c.user,
+                          radius: 17,
                         ),
-                      ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: DefaultTextStyle.merge(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        child: Obx(() {
+                          final subtitle = c.user?.user.value.getStatus();
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                              if (subtitle != null)
+                                Text(
+                                  subtitle,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .caption
+                                      ?.copyWith(
+                                          color: const Color(0xFF888888)),
+                                )
+                            ],
+                          );
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ),
+                padding: const EdgeInsets.only(left: 4, right: 20),
+                leading: const [StyledBackButton()],
+                actions: [
+                  WidgetButton(
+                    onPressed: c.openChat,
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat.svg',
+                        width: 20.12,
+                        height: 21.62,
+                      ),
+                    ),
+                  ),
+                  if (!context.isMobile) ...[
+                    const SizedBox(width: 28),
+                    WidgetButton(
+                      onPressed: () => c.call(true),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(false),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
                 ],
               ),
-            );
-          } else if (c.status.value.isEmpty) {
-            return Scaffold(
-              appBar: AppBar(),
-              body: Center(child: Text('err_unknown_user'.l10n)),
-            );
-          } else {
-            return Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: Obx(() {
+                Widget block({
+                  List<Widget> children = const [],
+                  EdgeInsets padding =
+                      const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                }) {
+                  return Center(
+                    child: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                      decoration: BoxDecoration(
+                        border: style?.primaryBorder,
+                        color: style?.messageColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      constraints: context.isNarrow
+                          ? null
+                          : const BoxConstraints(maxWidth: 400),
+                      padding: padding,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: children,
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView(
+                  key: const Key('UserColumn'),
+                  children: [
+                    const SizedBox(height: 8),
+                    block(
+                      children: [
+                        _label(context, 'label_public_information'.l10n),
+                        AvatarWidget.fromRxUser(
+                          c.user,
+                          radius: 100,
+                          showBadge: false,
+                        ),
+                        const SizedBox(height: 15),
+                        _name(c, context),
+                        _status(c, context),
+                        _presence(c, context),
+                      ],
+                    ),
+                    block(
+                      children: [
+                        _label(context, 'label_contact_information'.l10n),
+                        _num(c, context),
+                      ],
+                    ),
+                    block(
+                      children: [
+                        _label(context, 'label_actions'.l10n),
+                        _actions(c, context),
+                      ],
+                    ),
+                  ],
+                );
+              }),
             );
           }
+
+          return Scaffold(
+            appBar: const CustomAppBar(
+              padding: EdgeInsets.only(left: 4, right: 20),
+              leading: [StyledBackButton()],
+            ),
+            body: Center(
+              child: c.status.value.isEmpty
+                  ? Text('err_unknown_user'.l10n)
+                  : const CircularProgressIndicator(),
+            ),
+          );
         });
       },
     );
   }
 
+  /// Returns [Widget] with specified [text] as title of the block.
+  Widget _label(BuildContext context, String text) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: style.systemMessageStyle.copyWith(
+              color: Colors.black,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Dense [Padding] wrapper.
+  Widget _dense(Widget child) =>
+      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
+
   /// Basic [Padding] wrapper.
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns a [CarouselGallery] of the [User.gallery].
-  Widget _gallery(UserController c) => Obx(
-        () => CarouselGallery(
-          items: c.user?.user.value.gallery,
-          index: c.galleryIndex.value,
-          onChanged: (i) => c.galleryIndex.value = i,
-        ),
-      );
-
-  /// Returns a [User.name] text widget with an [AvatarWidget].
-  Widget _name(UserController c, BuildContext context) => _padding(
-        Row(
-          key: const Key('UserName'),
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AvatarWidget.fromRxUser(c.user, radius: 29, showBadge: false),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SelectableText(
-                    '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  _onlineStatus(c),
-                ],
+  /// Returns list of action buttons.
+  Widget _actions(UserController c, BuildContext context) {
+    // Returns [Widget] button.
+    Widget action({
+      Key? key,
+      required String text,
+      void Function()? onPressed,
+      Widget? svg,
+      double marginBottom = 10,
+    }) {
+      return Container(
+        margin: EdgeInsets.only(bottom: marginBottom),
+        child: _dense(
+          WidgetButton(
+            key: key,
+            onPressed: onPressed ?? () {},
+            child: IgnorePointer(
+              child: ReactiveTextField(
+                state: TextFieldState(
+                  text: text,
+                  editable: false,
+                ),
+                trailing: svg != null
+                    ? Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: Transform.scale(
+                          scale: 1.15,
+                          child: svg,
+                        ),
+                      )
+                    : null,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
-            )
-          ],
+            ),
+          ),
         ),
-      );
-
-  /// Returns an online status subtitle of the [User] this [UserView] is about.
-  Widget _onlineStatus(UserController c) {
-    final subtitle = c.user?.user.value.getStatus();
-    if (subtitle != null) {
-      return Text(
-        subtitle,
-        style: const TextStyle(color: Color(0xFF888888)),
       );
     }
-    return Container();
+
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          action(
+            key: Key(c.inContacts.value
+                ? 'DeleteFromContactsButton'
+                : 'AddToContactsButton'),
+            text: c.inContacts.value
+                ? 'btn_delete_from_contacts'.l10n
+                : 'btn_add_to_contacts'.l10n,
+            onPressed:
+                c.inContacts.value ? c.removeFromContacts : c.addToContacts,
+          ),
+          action(text: 'btn_add_to_favorites'.l10n),
+          action(
+            text: 'btn_mute_chat'.l10n,
+            svg: SvgLoader.asset(
+              'assets/icons/btn_mute.svg',
+              width: 17.86,
+              height: 15,
+            ),
+          ),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          ),
+          action(
+            text: 'btn_clear_chat'.l10n,
+            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          ),
+          action(text: 'btn_blacklist'.l10n),
+          action(text: 'btn_report'.l10n, marginBottom: 8),
+        ],
+      );
+    });
   }
 
-  /// Returns a [User.bio] text.
-  Widget _bio(UserController c, BuildContext context) => Obx(() {
-        return ListTile(
-          key: const Key('UserBio'),
-          leading: _centered(const Icon(Icons.article)),
-          title: SelectableText(
-            '${c.user?.user.value.bio?.val}',
-            style: const TextStyle(fontSize: 17),
-          ),
-          subtitle: Text(
-            'label_biography'.l10n,
-            style: const TextStyle(color: Color(0xFF888888)),
-          ),
-        );
-      });
+  /// Returns a [ChatContact.name] editable text field.
+  Widget _name(UserController c, BuildContext context) {
+    return _padding(
+      CopyableTextField(
+        key: const Key('NameField'),
+        state: TextFieldState(
+          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+        ),
+        label: 'label_name'.l10n,
+        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
+      ),
+    );
+  }
 
-  /// Returns a [User.num] copyable field.
-  Widget _num(UserController c, BuildContext context) => ListTile(
+  /// Returns a [User.name] text widget with an [AvatarWidget].
+  Widget _status(UserController c, BuildContext context) {
+    return Obx(() {
+      final UserTextStatus? status = c.user?.user.value.status;
+
+      if (status == null) {
+        return Container();
+      }
+
+      return _padding(
+        CopyableTextField(
+          key: const Key('StatusField'),
+          state: TextFieldState(text: status.val),
+          label: 'Status'.l10n,
+          copy: status.val,
+        ),
+      );
+    });
+  }
+
+  /// Returns a [ChatContact]s [User.num] copyable field.
+  Widget _num(UserController c, BuildContext context) {
+    return _padding(
+      CopyableTextField(
         key: const Key('UserNum'),
-        leading: _centered(const Icon(Icons.fingerprint)),
-        title: Text(
-          c.user!.user.value.num.val.replaceAllMapped(
+        state: TextFieldState(
+          text: c.user!.user.value.num.val.replaceAllMapped(
             RegExp(r'.{4}'),
             (match) => '${match.group(0)} ',
           ),
         ),
-        subtitle: Text(
-          'label_num'.l10n,
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-        trailing: _centered(const Icon(Icons.copy)),
-        onTap: () => _copy(c.user!.user.value.num.val),
-      );
-
-  /// Returns a [User.presence] text.
-  Widget _presence(UserController c, BuildContext context) => ListTile(
-        key: const Key('UserPresence'),
-        leading: _centered(const Icon(Icons.info)),
-        title: Text(Presence.values
-            .firstWhere((e) => e.index == c.user?.user.value.presenceIndex)
-            .localizedString()
-            .toString()),
-        subtitle: Text(
-          'label_presence'.l10n,
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-      );
-
-  /// Returns a contact-related button adding or removing the [User] from the
-  /// contacts list of the authenticated [MyUser].
-  Widget _contacts(UserController c, BuildContext context) => Obx(
-        () => ListTile(
-          key: c.inContacts.value
-              ? const Key('DeleteFromContactsButton')
-              : const Key('AddToContactsButton'),
-          leading: _centered(c.inContacts.value
-              ? const Icon(Icons.delete)
-              : const Icon(Icons.person_add)),
-          title: Text(c.inContacts.value
-              ? 'btn_delete_from_contacts'.l10n
-              : 'btn_add_to_contacts'.l10n),
-          onTap: c.status.value.isLoadingMore
-              ? null
-              : c.inContacts.value
-                  ? c.removeFromContacts
-                  : c.addToContacts,
-        ),
-      );
-
-  /// Returns a [Chat]-dialog button opening the [User.dialog].
-  Widget _dialog(UserController c, BuildContext context) => ListTile(
-        leading: _centered(const Icon(Icons.chat)),
-        title: Text('btn_write_message'.l10n),
-        onTap: c.openChat,
-      );
-
-  /// Returns a button making an audio call with the [User].
-  Widget _audioCall(UserController c, BuildContext context) => ListTile(
-        leading: _centered(const Icon(Icons.call)),
-        title: Text('btn_audio_call'.l10n),
-        onTap: () => c.call(false),
-      );
-
-  /// Returns a button making a video call with the [User].
-  Widget _videoCall(UserController c, BuildContext context) => ListTile(
-        leading: _centered(const Icon(Icons.video_call)),
-        title: Text('btn_video_call'.l10n),
-        onTap: () => c.call(true),
-      );
-
-  /// Returns a button blacklisting the [User] .
-  Widget _blacklist(UserController c, BuildContext context) => ListTile(
-        leading: _centered(const Icon(Icons.block)),
-        title: Text('btn_blacklist'.l10n),
-        onTap: () => throw UnimplementedError(),
-      );
-
-  /// Puts a [copy] of data into the clipboard and shows a snackbar.
-  void _copy(String copy) {
-    Clipboard.setData(ClipboardData(text: copy));
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+        label: 'label_num'.l10n,
+        copy: c.user!.user.value.num.val,
+      ),
+    );
   }
 
-  /// Returns the vertically centered [widget].
-  Widget _centered(Widget widget) => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [widget],
+  /// Returns a [User.presence] text.
+  Widget _presence(UserController c, BuildContext context) {
+    return Obx(() {
+      final Presence? presence = c.user?.user.value.presence;
+
+      if (presence == null || presence == Presence.hidden) {
+        return Container();
+      }
+
+      final subtitle = c.user?.user.value.getStatus();
+
+      Color? color;
+      Key presenceKey = const Key('PresenceEmpty');
+
+      switch (presence) {
+        case Presence.present:
+          presenceKey = const Key('PresencePresent');
+          color = Colors.green;
+          break;
+
+        case Presence.away:
+          presenceKey = const Key('PresenceAway');
+          color = Colors.orange;
+          break;
+
+        case Presence.hidden:
+          color = Colors.grey;
+          break;
+
+        case Presence.artemisUnknown:
+          break;
+      }
+
+      return _padding(
+        ReactiveTextField(
+          key: const Key('StatusField'),
+          state: TextFieldState(text: subtitle),
+          label: 'label_presence'.l10n,
+          enabled: false,
+          trailing: CircleAvatar(
+            key: presenceKey,
+            backgroundColor: color,
+            radius: 7,
+          ),
+        ),
       );
+    });
+  }
 }
