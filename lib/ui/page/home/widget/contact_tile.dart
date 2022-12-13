@@ -107,8 +107,8 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
-      child: Container(
-        margin: margin,
+      child: Padding(
+        padding: margin,
         child: InkWellWithHover(
           selectedColor: style.cardSelectedColor,
           unselectedColor: style.cardColor.darken(darken),
