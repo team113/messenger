@@ -560,7 +560,7 @@ class ValidateUserPasswordRecoveryCodeException
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }

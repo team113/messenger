@@ -33,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
+        - Redesigned introduction and logout modals. ([#249])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned chat tile in mobile interface. ([#246], [#232])
@@ -42,6 +43,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
     - Redesigned desktop context menu. ([#245])
+    - Auth page:
+        - Redesigned login modal. ([#249])
 
 ### Fixed
 
@@ -86,6 +89,7 @@ All user visible changes to this project will be documented in this file. This p
 [#241]: /../../pull/241
 [#245]: /../../pull/245
 [#246]: /../../pull/246
+[#249]: /../../pull/249
 
 
 
