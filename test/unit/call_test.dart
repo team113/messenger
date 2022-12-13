@@ -46,6 +46,7 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
@@ -61,6 +62,28 @@ Map<String, dynamic> _caller([String? id]) => {
       'presence': 'AWAY',
       'ver': '0',
     };
+
+var chatData = {
+  'id': 'chatId',
+  'name': null,
+  'avatar': null,
+  'members': {'nodes': []},
+  'kind': 'GROUP',
+  'isHidden': false,
+  'muted': null,
+  'directLink': null,
+  'createdAt': '2021-12-15T15:11:18.316846+00:00',
+  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+  'lastReads': [],
+  'lastDelivery': '1970-01-01T00:00:00+00:00',
+  'lastItem': null,
+  'lastReadItem': null,
+  'gallery': {'nodes': []},
+  'unreadCount': 0,
+  'totalCount': 0,
+  'ongoingCall': null,
+  'ver': '0'
+};
 
 void main() async {
   setUp(() => Get.reset());
@@ -84,6 +107,7 @@ void main() async {
   await credentialsProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
+  await chatProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
 
@@ -147,6 +171,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     ChatRepository chatRepository = Get.put(
@@ -161,7 +187,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService = Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
+      CallService(authService, chatService, callRepository),
     );
     callService.onReady();
 
@@ -169,34 +195,49 @@ void main() async {
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
 
-    graphQlProvider.ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallRemoved',
-          'call': {
-            'id': 'first',
-            'chatId': 'chatId',
-            'authorId': 'authorId',
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'caller': _caller(),
-            'withVideo': false,
-            'members': [
-              {
-                'user': _caller(),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
-              }
-            ],
+    graphQlProvider.chatEventsStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'chatEvents': {
+            '__typename': 'ChatEventsVersioned',
             'ver': '1',
-            'presence': 'AWAY',
-            'online': {'__typename': 'UserOnline'},
-          },
+            'events': [
+              {
+                '__typename': 'EventChatCallFinished',
+                'chatId': 'chatId',
+                'callId': 'first',
+                'call': {
+                  '__typename': 'ChatCall',
+                  'id': 'first',
+                  'chatId': 'chatId',
+                  'authorId': 'authorId',
+                  'answered': false,
+                  'at': DateTime.now().toString(),
+                  'caller': _caller(),
+                  'conversationStartedAt': null,
+                  'finishReason': 'UNANSWERED',
+                  'finishedAt': DateTime.now().toString(),
+                  'joinLink': null,
+                  'members': [
+                    {
+                      'user': _caller(),
+                      'handRaised': false,
+                      'joinedAt': DateTime.now().toString(),
+                    }
+                  ],
+                  'ver': '1',
+                  'withVideo': false
+                },
+                'reason': 'UNANSWERED',
+                'at': DateTime.now().toString(),
+              }
+            ]
+          }
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
@@ -258,6 +299,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     ChatRepository chatRepository = Get.put(
@@ -272,7 +315,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService = Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
+      CallService(authService, chatService, callRepository),
     );
     callService.onReady();
 
@@ -325,6 +368,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     ChatRepository chatRepository = Get.put(
@@ -339,12 +384,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     CallService callService = Get.put(
-      CallService(
-        authService,
-        chatService,
-        settingsRepository,
-        callRepository,
-      ),
+      CallService(authService, chatService, callRepository),
     );
     callService.onReady();
 
@@ -455,6 +495,24 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       Future.value(_heartbeat.stream);
 
   @override
+  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
+    Future.delayed(
+      Duration.zero,
+      () => chatEventsStream.add(QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'chatEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true,
+          }
+        },
+        parserFn: (_) => null,
+      )),
+    );
+    return Future.value(chatEventsStream.stream);
+  }
+
+  @override
   Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
     ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
@@ -546,35 +604,65 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
+  Future<RecentChats$Query> recentChats({
+    int? first,
+    RecentChatsCursor? after,
+    int? last,
+    RecentChatsCursor? before,
+  }) async {
+    return RecentChats$Query.fromJson({
+      'recentChats': {
+        'nodes': [chatData]
+      }
+    });
+  }
+
+  @override
   Future<ChatEventsVersionedMixin?> leaveChatCall(
       ChatId chatId, ChatCallDeviceId deviceId) async {
-    ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallRemoved',
-          'call': {
-            'id': 'id',
-            'chatId': chatId.val,
-            'authorId': 'me',
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'caller': _caller('me'),
-            'withVideo': false,
-            'members': [
+    chatEventsStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'chatEvents': {
+            '__typename': 'ChatEventsVersioned',
+            'ver': '1',
+            'events': [
               {
-                'user': _caller('me'),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
+                '__typename': 'EventChatCallFinished',
+                'chatId': chatId.val,
+                'callId': 'id',
+                'call': {
+                  '__typename': 'ChatCall',
+                  'id': 'id',
+                  'chatId': chatId.val,
+                  'authorId': 'authorId',
+                  'answered': false,
+                  'at': DateTime.now().toString(),
+                  'caller': _caller('me'),
+                  'conversationStartedAt': null,
+                  'finishReason': 'UNANSWERED',
+                  'finishedAt': DateTime.now().toString(),
+                  'joinLink': null,
+                  'members': [
+                    {
+                      'user': _caller('me'),
+                      'handRaised': false,
+                      'joinedAt': DateTime.now().toString(),
+                    }
+                  ],
+                  'ver': '1',
+                  'withVideo': false
+                },
+                'reason': 'DROPPED',
+                'at': DateTime.now().toString(),
               }
-            ],
-            'finishReason': 'ChatCallFinishReason.DROPPED',
-            'ver': '$latestVersion',
-          },
+            ]
+          }
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     return null;
   }
@@ -624,6 +712,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
           },
         },
       }).joinChatCall as JoinCall$Mutation$JoinChatCall$JoinChatCallOk);
+
+  @override
+  Future<GetChat$Query> getChat(ChatId id) async {
+    return GetChat$Query.fromJson(chatData);
+  }
 
   Map<String, dynamic> userData = {
     'id': 'id',

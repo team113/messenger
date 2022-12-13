@@ -39,9 +39,11 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -925,7 +927,8 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
+        !PlatformUtils.isWeb) {
       List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
@@ -981,6 +984,17 @@ class CallController extends GetxController {
       await participant.member.setVideoEnabled(
         !participant.video.value!.direction.value.isEnabled,
         source: participant.video.value!.source,
+      );
+    }
+  }
+
+  /// Toggles the provided [participant]'s incoming audio on and off.
+  Future<void> toggleAudioEnabled(Participant participant) async {
+    if (participant.member.id == me.id) {
+      await toggleAudio();
+    } else if (participant.audio.value?.direction.value.isEmitting ?? false) {
+      await participant.member.setAudioEnabled(
+        !participant.audio.value!.direction.value.isEnabled,
       );
     }
   }
@@ -1148,6 +1162,18 @@ class CallController extends GetxController {
       call: _currentCall,
       duration: duration,
     );
+  }
+
+  /// Removes [User] identified by the provided [userId] from the [chat].
+  Future<void> removeChatMember(UserId userId) async {
+    try {
+      await _chatService.removeChatMember(chatId, userId);
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
