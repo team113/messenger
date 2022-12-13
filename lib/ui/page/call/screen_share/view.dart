@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/video_view.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
@@ -29,39 +29,19 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView({
-    Key? key,
-    required this.chatId,
-    required this.displays,
-    this.onProceed,
-  }) : super(key: key);
+  const ScreenShareView(this.call, {Key? key}) : super(key: key);
 
-  /// ID of a [Chat] this [ScreenShareView] is bound to.
-  final Rx<ChatId> chatId;
-
-  /// Available [MediaDisplayInfo]s for screen sharing.
-  final RxList<MediaDisplayInfo> displays;
-
-  /// Callback, called when this [ScreenShareView] is submitted.
-  final void Function(MediaDisplayInfo display)? onProceed;
+  /// [OngoingCall] this [ScreenShareView] is bound to.
+  final Rx<OngoingCall> call;
 
   /// Size of the biggest side of a [RtcVideoView].
   static const double videoSize = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(
-    BuildContext context, {
-    required Rx<ChatId> chatId,
-    required RxList<MediaDisplayInfo> displays,
-    void Function(MediaDisplayInfo duration)? onProceed,
-  }) {
-    return ModalPopup.show(
+  static Future<T?> show<T>(BuildContext context, Rx<OngoingCall> call) {
+    return ModalPopup.show<T>(
       context: context,
-      child: ScreenShareView(
-        chatId: chatId,
-        displays: displays,
-        onProceed: onProceed,
-      ),
+      child: ScreenShareView(call),
     );
   }
 
@@ -75,18 +55,17 @@ class ScreenShareView extends StatelessWidget {
     return GetBuilder(
       init: ScreenShareController(
         Get.find(),
-        chatId: chatId,
-        displays: displays,
+        call: call,
         pop: Navigator.of(context).pop,
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
-          return ConfirmDialog(
+          return ConfirmDialog<String>(
             title: 'label_start_screen_sharing'.l10n,
-            variants: displays
+            variants: call.value.displays
                 .map(
-                  (e) => ConfirmDialogVariant(
-                    onProceed: () => onProceed?.call(e),
+                  (e) => ConfirmDialogVariant<String>(
+                    value: e.deviceId(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,

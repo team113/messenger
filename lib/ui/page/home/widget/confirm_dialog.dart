@@ -22,11 +22,15 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Variant of a [ConfirmDialog].
-class ConfirmDialogVariant {
-  const ConfirmDialogVariant({required this.child, this.onProceed});
+class ConfirmDialogVariant<T> {
+  const ConfirmDialogVariant({required this.child, this.onProceed, this.value});
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
   final void Function()? onProceed;
+
+  /// Optional value to return on `pop` when this [ConfirmDialogVariant] is
+  /// submitted.
+  final T? value;
 
   /// [Widget] representing this [ConfirmDialogVariant].
   final Widget child;
@@ -35,7 +39,7 @@ class ConfirmDialogVariant {
 /// Dialog confirming a specific action from the provided [variants].
 ///
 /// Intended to be displayed with the [show] method.
-class ConfirmDialog extends StatefulWidget {
+class ConfirmDialog<T> extends StatefulWidget {
   ConfirmDialog({
     Key? key,
     this.description,
@@ -45,7 +49,7 @@ class ConfirmDialog extends StatefulWidget {
         super(key: key);
 
   /// [ConfirmDialogVariant]s of this [ConfirmDialog].
-  final List<ConfirmDialogVariant> variants;
+  final List<ConfirmDialogVariant<T>> variants;
 
   /// Title of this [ConfirmDialog].
   final String title;
@@ -71,16 +75,16 @@ class ConfirmDialog extends StatefulWidget {
   }
 
   @override
-  State<ConfirmDialog> createState() => _ConfirmDialogState();
+  State<ConfirmDialog<T>> createState() => _ConfirmDialogState<T>();
 }
 
 /// State of a [ConfirmDialog] keeping the selected [ConfirmDialogVariant].
-class _ConfirmDialogState extends State<ConfirmDialog> {
+class _ConfirmDialogState<T> extends State<ConfirmDialog<T>> {
   /// Currently selected [ConfirmDialogVariant].
-  late ConfirmDialogVariant _variant;
+  late ConfirmDialogVariant<T> _variant;
 
   @override
-  didUpdateWidget(ConfirmDialog oldWidget) {
+  didUpdateWidget(ConfirmDialog<T> oldWidget) {
     if (!widget.variants.contains(_variant)) {
       setState(() {
         _variant = widget.variants.first;
@@ -102,7 +106,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
-    Widget button(ConfirmDialogVariant variant) {
+    Widget button(ConfirmDialogVariant<T> variant) {
       Style style = Theme.of(context).extension<Style>()!;
       return Material(
         type: MaterialType.card,
@@ -176,7 +180,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 ),
                 onPressed: () {
                   _variant.onProceed?.call();
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(_variant.value);
                 },
                 color: const Color(0xFF63B4FF),
               ),

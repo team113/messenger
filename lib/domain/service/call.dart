@@ -137,6 +137,7 @@ class CallService extends DisposableService {
     ChatId chatId, {
     bool withAudio = true,
     bool withVideo = true,
+    bool withScreen = false,
   }) async {
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
@@ -184,6 +185,7 @@ class CallService extends DisposableService {
         stored.value.state.value = OngoingCallState.joining;
         stored.value.setAudioEnabled(withAudio);
         stored.value.setVideoEnabled(withVideo);
+        stored.value.setScreenShareEnabled(withScreen);
         await _callsRepo.join(stored);
         stored.value.connect(this);
       }
@@ -207,8 +209,11 @@ class CallService extends DisposableService {
     }
 
     if (deviceId != null) {
-      await _callsRepo.leave(chatId, deviceId);
-      _callsRepo.remove(chatId);
+      try {
+        await _callsRepo.leave(chatId, deviceId);
+      } finally {
+        _callsRepo.remove(chatId);
+      }
     }
 
     WebUtils.removeCall(chatId);

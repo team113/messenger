@@ -858,11 +858,13 @@ class CallController extends GetxController {
   void join({
     bool withAudio = true,
     bool withVideo = true,
+    bool withScreen = false,
   }) =>
       _currentCall.value.join(
         _calls,
         withAudio: withAudio,
         withVideo: withVideo,
+        withScreen: withScreen,
       );
 
   /// Toggles local screen-sharing stream on and off.
@@ -875,15 +877,8 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        String? deviceId;
-        await ScreenShareView.show(
-          context,
-          chatId: chatId,
-          displays: _currentCall.value.displays,
-          onProceed: (display) {
-            deviceId = display.deviceId();
-          },
-        );
+        String? deviceId =
+            await ScreenShareView.show<String>(context, _currentCall);
 
         if (deviceId != null) {
           await _currentCall.value

@@ -32,18 +32,14 @@ export 'view.dart';
 class ScreenShareController extends GetxController {
   ScreenShareController(
     this._callService, {
-    required this.chatId,
-    required this.displays,
-    this.pop,
+    required this.call,
+    required this.pop,
   });
 
-  /// ID of a [Chat] this [ScreenShareSelector] is bound to.
-  final Rx<ChatId> chatId;
+  /// [OngoingCall] this [ScreenShareController] is bound to.
+  final Rx<OngoingCall> call;
 
-  /// Available [MediaDisplayInfo]s for screen sharing.
-  final RxList<MediaDisplayInfo> displays;
-
-  /// Callback, called when a [ScreenShareSelector] this controller is bound to
+  /// Callback, called when a [ScreenShareView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
@@ -75,7 +71,7 @@ class ScreenShareController extends GetxController {
     _chatsSubscription = _callService.calls.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
-          if (chatId.value == e.key) {
+          if (call.value.chatId.value == e.key) {
             pop?.call();
           }
           break;
@@ -87,7 +83,7 @@ class ScreenShareController extends GetxController {
       }
     });
 
-    _displaysSubscription = displays.listen((e) {
+    _displaysSubscription = call.value.displays.listen((e) {
       for (var display in e) {
         if (renderers[display] == null) {
           initRenderer(display);
@@ -137,19 +133,18 @@ class ScreenShareController extends GetxController {
 
   /// Initializes the [renderers].
   void _initRenderers() {
-    for (var e in displays) {
+    for (var e in call.value.displays) {
       initRenderer(e);
     }
   }
 
   /// Returns [MediaStreamSettings] with enabled screen sharing.
-  MediaStreamSettings _mediaStreamSettings(String screenShareDevice) {
+  MediaStreamSettings _mediaStreamSettings(String screenDevice) {
     MediaStreamSettings settings = MediaStreamSettings();
 
     DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
-    constraints.deviceId(screenShareDevice);
+    constraints.deviceId(screenDevice);
     constraints.idealFrameRate(5);
-    constraints.exactFrameRate(5);
 
     settings.displayVideo(constraints);
     return settings;

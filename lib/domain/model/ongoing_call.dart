@@ -142,12 +142,14 @@ class OngoingCall {
     bool withScreen = false,
     MediaSettings? mediaSettings,
     OngoingCallState state = OngoingCallState.pending,
+    String? screenDeviceId,
     this.creds,
     this.deviceId,
   })  : chatId = Rx(chatId),
         _me = CallMemberId(me, null),
         audioDevice = RxnString(mediaSettings?.audioDevice),
         videoDevice = RxnString(mediaSettings?.videoDevice),
+        screenDevice = RxnString(screenDeviceId),
         outputDevice = RxnString(mediaSettings?.outputDevice) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
@@ -207,7 +209,7 @@ class OngoingCall {
   late final RxnString audioDevice;
 
   /// ID of the currently used screen share device.
-  final RxnString screenDevice = RxnString();
+  final RxnString screenDevice;
 
   /// ID of the currently used audio output device.
   late final RxnString outputDevice;
@@ -540,11 +542,13 @@ class OngoingCall {
     CallService calls, {
     bool withAudio = true,
     bool withVideo = true,
+    bool withScreen = false,
   }) async =>
       await calls.join(
         chatId.value,
         withAudio: withAudio,
         withVideo: withVideo,
+        withScreen: withScreen,
       );
 
   /// Enables/disables local screen-sharing stream based on [enabled].
@@ -562,14 +566,16 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
-            screenShareState.value = LocalTrackState.disabled;
-            _errors.add('enableScreenShare() call failed with $e');
-            rethrow;
+            if (!e.toString().contains('Permission denied')) {
+              screenShareState.value = LocalTrackState.disabled;
+              _errors.add('enableScreenShare() call failed with $e');
+              rethrow;
+            }
           }
         }
         break;
@@ -703,7 +709,9 @@ class OngoingCall {
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
 
-      displays.value = await _mediaManager!.enumerateDisplays();
+      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+        displays.value = await _mediaManager!.enumerateDisplays();
+      }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
       rethrow;
@@ -851,8 +859,7 @@ class OngoingCall {
       if (screenDevice != null) {
         constraints.deviceId(screenDevice);
       }
-      constraints.exactFrameRate(60);
-      constraints.idealFrameRate(60);
+      constraints.idealFrameRate(30);
       settings.displayVideo(constraints);
     }
 
