@@ -34,16 +34,6 @@ class ContactsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> divider = [
-      const SizedBox(height: 10),
-      Container(
-        width: double.infinity,
-        color: const Color(0xFFE0E0E0),
-        height: 0.5,
-      ),
-      const SizedBox(height: 10),
-    ];
-
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
@@ -76,16 +66,7 @@ class ContactsTabView extends StatelessWidget {
                         child: ListView(
                           controller: ScrollController(),
                           children: [
-                            if (c.favorites.isNotEmpty) ...[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.l10n),
-                              ),
-                              ...c.favorites.map((e) => _contact(context, e, c))
-                            ],
-                            if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
-                              ...divider,
+                            ...c.favorites.map((e) => _contact(context, e, c)),
                             ...c.contacts.entries
                                 .map((e) => _contact(context, e.value, c))
                           ],
