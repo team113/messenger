@@ -1243,9 +1243,10 @@ class OngoingCall {
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
-            audioDevice: audioDevice ?? this.audioDevice.value,
-            videoDevice: videoDevice ?? this.videoDevice.value,
-            screenDevice: screenDevice ?? this.screenDevice.value);
+          audioDevice: audioDevice ?? this.audioDevice.value,
+          videoDevice: videoDevice ?? this.videoDevice.value,
+          screenDevice: screenDevice ?? this.screenDevice.value,
+        );
         try {
           await _room?.setLocalMediaSettings(settings, true, true);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;

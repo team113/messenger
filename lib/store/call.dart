@@ -106,7 +106,9 @@ class CallRepository implements AbstractCallRepository {
   @override
   Future<void> join(Rx<OngoingCall> call) async {
     var response = await _graphQlProvider.joinChatCall(
-        call.value.chatId.value, call.value.creds!);
+      call.value.chatId.value,
+      call.value.creds!,
+    );
 
     call.value.deviceId = response.deviceId;
 
