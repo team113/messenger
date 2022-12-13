@@ -523,7 +523,7 @@ label_replies = [{$count} { $count ->
     [few] ответа
     *[other] ответов
     }]
-label_required = Обязательный
+label_required = Обязательно
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено

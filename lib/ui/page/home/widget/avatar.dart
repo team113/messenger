@@ -20,7 +20,6 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
@@ -33,13 +32,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
-
-enum AvatarQuality {
-  original,
-  big,
-  medium,
-  small,
-}
 
 /// Widget to build an [Avatar].
 ///
@@ -57,10 +49,6 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.useLayoutBuilder = true,
-    this.onBadgeTap,
-    this.onAvatarTap,
-    this.quality = AvatarQuality.big,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -72,9 +60,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
-    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -87,9 +72,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -102,9 +84,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
-    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -115,9 +94,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
     }
 
@@ -136,9 +112,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
     });
   }
@@ -151,9 +124,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
-    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         isOnline: showBadge && myUser?.online == true,
@@ -165,9 +135,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -178,10 +145,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool useLayoutBuilder = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
-    AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
         key: key,
@@ -192,10 +155,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -207,10 +166,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    bool useLayoutBuilder = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
-    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -220,10 +175,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       );
     }
 
@@ -239,10 +190,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
-        quality: quality,
       ),
     );
   }
@@ -278,7 +225,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    AvatarQuality quality = AvatarQuality.big,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -287,7 +233,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
     }
 
@@ -305,7 +250,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        quality: quality,
       );
     });
   }
@@ -357,13 +301,6 @@ class AvatarWidget extends StatelessWidget {
   ///
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
-
-  final bool useLayoutBuilder;
-
-  final void Function()? onBadgeTap;
-  final void Function()? onAvatarTap;
-
-  final AvatarQuality quality;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -440,31 +377,14 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
-      switch (quality) {
-        case AvatarQuality.original:
-          break;
-
-        case AvatarQuality.big:
-          break;
-
-        case AvatarQuality.medium:
-          break;
-
-        case AvatarQuality.small:
-          break;
-      }
-
       return Badge(
         showBadge: isOnline,
-        badgeContent: WidgetButton(
-          onPressed: onBadgeTap,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isAway ? Colors.orange : Colors.green,
-            ),
-            padding: EdgeInsets.all(badgeSize),
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
           ),
+          padding: EdgeInsets.all(badgeSize),
         ),
         padding: EdgeInsets.all(badgeSize / 3),
         badgeColor: Colors.white,
@@ -474,50 +394,43 @@ class AvatarWidget extends StatelessWidget {
           end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
         ),
         elevation: 0,
-        child: WidgetButton(
-          onPressed: onAvatarTap,
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: minHeight,
-              minWidth: minWidth,
-              maxWidth: maxWidth,
-              maxHeight: maxHeight,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [gradient.lighten(), gradient],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: avatar == null
-                ? Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      textScaleFactor: 1,
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40.0),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  )
-                : ClipOval(
-                    child: RetryImage(
-                      avatar!.original.url,
-                      fit: BoxFit.cover,
-                      height: double.infinity,
-                      width: double.infinity,
-                    ),
-                  ),
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
           ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
+            ),
+            shape: BoxShape.circle,
+          ),
+          child: avatar == null
+              ? Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    textScaleFactor: 1,
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                )
+              : ClipOval(
+                  child: RetryImage(
+                    avatar!.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                  ),
+                ),
         ),
       );
-    }
-
-    if (!useLayoutBuilder) {
-      return child(null);
     }
 
     return LayoutBuilder(builder: (context, constraints) => child(constraints));
@@ -525,7 +438,7 @@ class AvatarWidget extends StatelessWidget {
 }
 
 /// Extension adding an ability to get initials from a [String].
-extension InitialsExtension on String {
+extension _InitialsExtension on String {
   /// Returns initials (two letters which begin each word) of this string.
   String initials() {
     List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
@@ -551,10 +464,14 @@ extension SumStringExtension on String {
 }
 
 /// Extension adding an ability to lighten or darken a color.
-extension LightenColorExtension on Color {
+extension BrightnessColorExtension on Color {
   /// Returns a lighten variant of this color.
   Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =
@@ -566,6 +483,10 @@ extension LightenColorExtension on Color {
   /// Returns a darken variant of this color.
   Color darken([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =
