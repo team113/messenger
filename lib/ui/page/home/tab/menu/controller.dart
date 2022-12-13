@@ -20,29 +20,21 @@ import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
-import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/util/message_popup.dart';
-import '/util/web/web_utils.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
 
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._auth, this._myUserService, this._callService);
+  MenuTabController(this._auth, this._myUserService);
 
   /// Authorization service.
   final AuthService _auth;
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
-
-  /// [CallService], used to determine whether a confirm logout alert should be
-  /// shown or not.
-  final CallService _callService;
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;

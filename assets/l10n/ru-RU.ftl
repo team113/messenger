@@ -501,9 +501,6 @@ label_participants_added_successfully = Участники успешно доб
 label_password = Пароль
 label_password_changed = Пароль изменён.
 label_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.
-label_password_not_set_info = Для Вашего аккаунта не задан пароль. Как следствие:
-    - доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
-    - в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файла cookie.
 label_password_set = Пароль задан.
 label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
