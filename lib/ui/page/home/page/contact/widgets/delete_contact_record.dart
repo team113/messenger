@@ -65,7 +65,6 @@ class DeleteContactRecordView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      showPrimaryCloseButton: false,
       child: DeleteContactRecordView(onSubmit, email: email, phone: phone),
     );
   }
@@ -83,7 +82,7 @@ class DeleteContactRecordView extends StatelessWidget {
         children: [
           const SizedBox(height: 4),
           ModalPopupHeader(
-            child: Center(
+            header: Center(
               child: Text(
                 email != null
                     ? 'label_delete_email'.l10n
