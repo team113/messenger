@@ -19,14 +19,13 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
@@ -58,7 +57,7 @@ class UserRepository implements AbstractUserRepository {
   final RxBool _isReady = RxBool(false);
 
   /// [users] value.
-  final RxMap<UserId, HiveRxUser> _users = RxMap<UserId, HiveRxUser>();
+  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
