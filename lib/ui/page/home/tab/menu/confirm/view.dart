@@ -181,6 +181,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 const SizedBox(height: 25),
                 if (c.hasPassword.value) ...[
                   OutlinedRoundedButton(
+                    key: const Key('ConfirmLogoutButton'),
                     maxWidth: null,
                     title: Text(
                       'btn_logout'.l10n,
@@ -219,7 +220,7 @@ class ConfirmLogoutView extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: OutlinedRoundedButton(
-                          key: const Key('LogoutConfirmedButton'),
+                          key: const Key('ConfirmLogoutButton'),
                           maxWidth: null,
                           title: Text(
                             'btn_logout'.l10n,

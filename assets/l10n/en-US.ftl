@@ -153,6 +153,7 @@ btn_hidden = Don't show
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
+btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
@@ -498,6 +499,7 @@ label_presence_present = Online
 label_read_by = Read by
 label_recent = Recent
 label_recover_account = Access recovery
+label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
@@ -529,7 +531,7 @@ label_short_weekday =
         *[other] Sun
     }
 label_sign_in = Log In
-label_sign_in_input = Gapopa ID, Login, Email or Phone
+label_sign_in_input = Gapopa ID, login, E-mail or phone
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts

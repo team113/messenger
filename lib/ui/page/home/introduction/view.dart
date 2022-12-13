@@ -37,20 +37,7 @@ class IntroductionView extends StatelessWidget {
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const IntroductionView(),
-    );
+    return ModalPopup.show(context: context, child: const IntroductionView());
   }
 
   @override
@@ -63,7 +50,7 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> children;
+          final List<Widget> children;
 
           switch (c.stage.value) {
             case IntroductionViewStage.password:
@@ -209,12 +196,8 @@ class IntroductionView extends StatelessWidget {
                         ),
                 ),
                 const SizedBox(height: 25),
-                ...children.map((e) {
-                  return Padding(
-                    padding: ModalPopup.padding(context),
-                    child: e,
-                  );
-                }),
+                ...children.map((e) =>
+                    Padding(padding: ModalPopup.padding(context), child: e)),
                 const SizedBox(height: 16),
               ],
             ),

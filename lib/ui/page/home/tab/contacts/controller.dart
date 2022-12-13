@@ -101,7 +101,7 @@ class ContactsTabController extends GetxController {
       _contactService.contacts;
 
   /// Returns the current reactive favorite [ChatContact]s map.
-  RxMap<ChatContactId, RxChatContact> get allFavorites =>
+  RxObsMap<ChatContactId, RxChatContact> get allFavorites =>
       _contactService.favorites;
 
   /// Indicates whether [ContactService] is ready to be used.

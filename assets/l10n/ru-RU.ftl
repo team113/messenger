@@ -158,6 +158,7 @@ btn_hidden = Не показывать
 btn_hide_chat = Скрыть чат
 btn_info = Информация
 btn_join_call = Присоединиться к звонку
+btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
@@ -524,6 +525,7 @@ label_presence_present = Онлайн
 label_read_by = Прочитано
 label_recent = Недавние
 label_recover_account = Восстановление доступа
+label_recover_account_description = Укажите Ваш Gapopa ID, логин, E-mail или номер телефона.
 label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
@@ -556,7 +558,7 @@ label_short_weekday =
         *[other] вс
     }
 label_sign_in = Войти
-label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
+label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты

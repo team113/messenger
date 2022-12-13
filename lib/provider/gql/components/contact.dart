@@ -238,23 +238,63 @@ abstract class ContactGraphQlMixin {
         .updateChatContactName as ChatContactEventsVersionedMixin;
   }
 
-  Future<ChatContactEventsVersionedMixin> favoriteChatContact(
+  /// Marks the specified [ChatContact] as favorited for the authenticated
+  /// [MyUser] and sets its position in the favorites list.
+  ///
+  /// To move the [ChatContact] to a concrete position in a favorites list,
+  /// provide the average value of two other [ChatContact]s positions
+  /// surrounding it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatContactEvent] may be produced on success:
+  /// - [EventChatContactFavorited].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
+  /// [ChatContact] is already favorited at the same position.
+  Future<ChatContactEventsVersionedMixin?> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition pos,
+    ChatContactPosition position,
   ) async {
-    final variables = FavoriteChatContactArguments(id: id, pos: pos);
+    final variables = FavoriteChatContactArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'FavoriteChatContact',
         document: FavoriteChatContactMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      onException: (data) => FavoriteChatContactException(
+          (FavoriteChatContact$Mutation.fromJson(data).favoriteChatContact
+                  as FavoriteChatContact$Mutation$FavoriteChatContact$FavoriteChatContactError)
+              .code),
     );
     return FavoriteChatContact$Mutation.fromJson(result.data!)
-        .favoriteChatContact as ChatContactEventsVersionedMixin;
+        .favoriteChatContact as ChatContactEventsVersionedMixin?;
   }
 
-  Future<ChatContactEventsVersionedMixin> unfavoriteChatContact(
+  /// Removes the specified [ChatContact] from the favorites list of the
+  /// authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatContactEvent] may be produced on success:
+  /// - [EventChatContactUnfavorited].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
+  /// [ChatContact] is not in the favorites list already.
+  Future<ChatContactEventsVersionedMixin?> unfavoriteChatContact(
     ChatContactId id,
   ) async {
     final variables = UnfavoriteChatContactArguments(id: id);
@@ -264,8 +304,12 @@ abstract class ContactGraphQlMixin {
         document: UnfavoriteChatContactMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      onException: (data) => UnfavoriteChatContactException(
+          (UnfavoriteChatContact$Mutation.fromJson(data).unfavoriteChatContact
+                  as UnfavoriteChatContact$Mutation$UnfavoriteChatContact$UnfavoriteChatContactError)
+              .code),
     );
     return UnfavoriteChatContact$Mutation.fromJson(result.data!)
-        .unfavoriteChatContact as ChatContactEventsVersionedMixin;
+        .unfavoriteChatContact as ChatContactEventsVersionedMixin?;
   }
 }

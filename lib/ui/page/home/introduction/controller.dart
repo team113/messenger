@@ -137,7 +137,6 @@ class IntroductionController extends GetxController {
     repeat.editable.value = false;
     try {
       await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
-      await Future.delayed(1.seconds);
       stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
