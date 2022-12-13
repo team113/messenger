@@ -70,28 +70,25 @@ class ContactView extends StatelessWidget {
                 child: DefaultTextStyle.merge(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(c.contact.contact.value.name.val),
-                      Obx(() {
-                        final subtitle =
-                            c.contact.user.value?.user.value.getStatus();
-                        if (subtitle != null) {
-                          return Text(
+                  child: Obx(() {
+                    final subtitle =
+                        c.contact.user.value?.user.value.getStatus();
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(c.contact.contact.value.name.val),
+                        if (subtitle != null)
+                          Text(
                             subtitle,
                             style: Theme.of(context)
                                 .textTheme
                                 .caption
                                 ?.copyWith(color: const Color(0xFF888888)),
-                          );
-                        }
-
-                        return Container();
-                      }),
-                    ],
-                  ),
+                          )
+                      ],
+                    );
+                  }),
                 ),
               ),
               const SizedBox(width: 10),
@@ -193,6 +190,7 @@ class ContactView extends StatelessWidget {
     );
   }
 
+  /// Returns [Widget] with specified [text] as title of the block.
   Widget _label(BuildContext context, String text) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -248,18 +246,7 @@ class ContactView extends StatelessWidget {
             WidgetButton(
               onPressed: () => DeleteContactRecordView.show(
                 context,
-                title: 'label_delete_email'.l10n,
-                text: [
-                  TextSpan(text: '${'label_email'.l10n}${'space'.l10n}'),
-                  TextSpan(
-                    text: e.val,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  TextSpan(
-                    text:
-                        '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
-                  ),
-                ],
+                email: e,
                 onSubmit: () => c.deleteContactRecord(email: e),
               ),
               child: Container(
@@ -324,18 +311,7 @@ class ContactView extends StatelessWidget {
             WidgetButton(
               onPressed: () => DeleteContactRecordView.show(
                 context,
-                title: 'label_delete_phone_number'.l10n,
-                text: [
-                  TextSpan(text: '${'label_phone_number'.l10n}${'space'.l10n}'),
-                  TextSpan(
-                    text: e.val,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  TextSpan(
-                    text:
-                        '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
-                  ),
-                ],
+                phone: e,
                 onSubmit: () => c.deleteContactRecord(phone: e),
               ),
               child: Container(
@@ -375,6 +351,7 @@ class ContactView extends StatelessWidget {
 
   /// Returns list of action buttons.
   Widget _actions(ContactController c, BuildContext context) {
+    // Returns [Widget] button.
     Widget action({
       required String text,
       void Function()? onPressed,

@@ -40,7 +40,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
     - Redesigned desktop context menu. ([#245])
-    - Bootstrap contact profile ([#250], [#242])
+    - Redesigned contact page. ([#250], [#242])
 
 ### Fixed
 

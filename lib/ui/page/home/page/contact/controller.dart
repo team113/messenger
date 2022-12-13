@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -54,10 +55,10 @@ class ContactController extends GetxController {
   /// [ChatContact.name]'s field state.
   late final TextFieldState name;
 
-  /// Adding new [ChatContact.emails]'s field state.
+  /// Adding new [ChatContact.emails] field state.
   late final TextFieldState email;
 
-  /// Adding new [ChatContact.phones]'s field state.
+  /// Adding new [ChatContact.phones] field state.
   late final TextFieldState phone;
 
   /// Reactive value of [ChatContact].
@@ -146,8 +147,8 @@ class ContactController extends GetxController {
           return;
         }
 
-        if (s.error.value == null ||
-            contact.contact.value.emails.contains(email)) {
+        if (s.error.value == null &&
+            !contact.contact.value.emails.contains(email)) {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
@@ -187,7 +188,7 @@ class ContactController extends GetxController {
           return;
         }
 
-        if (s.error.value == null ||
+        if (s.error.value == null &&
             !contact.contact.value.phones.contains(phone)) {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
@@ -278,9 +279,22 @@ class ContactController extends GetxController {
     if (inContacts.isTrue) {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         try {
-          await _contactService.deleteContact(contact.contact.value.id);
+          if (_contactService.contacts[id] == null) {
+            ChatContactId? chatContactId = _contactService.contacts.values
+                .firstWhereOrNull(
+                  (e) => e.user.value?.id == contact.user.value?.id,
+                )
+                ?.id;
+            if (chatContactId != null) {
+              await _contactService.deleteContact(chatContactId);
 
-          inContacts.value = false;
+              inContacts.value = false;
+            }
+          } else {
+            await _contactService.deleteContact(contact.contact.value.id);
+
+            inContacts.value = false;
+          }
         } catch (e) {
           MessagePopup.error(e);
           rethrow;

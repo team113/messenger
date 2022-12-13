@@ -39,6 +39,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
+    this.prefix,
     this.trailing,
     this.type,
     this.padding,
@@ -47,7 +48,6 @@ class ReactiveTextField extends StatelessWidget {
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.prefix,
     this.filled,
     this.treatErrorAsStatus = true,
   }) : super(key: key);
@@ -155,6 +155,7 @@ class ReactiveTextField extends StatelessWidget {
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
     }
 
+    /// Returns suffix [Widget].
     Widget buildSuffix() {
       return Obx(() {
         return WidgetButton(

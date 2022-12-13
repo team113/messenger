@@ -17,6 +17,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -25,15 +26,18 @@ import '/ui/widget/outlined_rounded_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteContactRecordView extends StatelessWidget {
-  const DeleteContactRecordView(this.title, this.text,
-      {Key? key, required this.onSubmit})
-      : super(key: key);
+  const DeleteContactRecordView(
+    this.onSubmit, {
+    Key? key,
+    this.email,
+    this.phone,
+  }) : super(key: key);
 
-  /// Title of this modal popup.
-  final String title;
+  /// That [UserEmail] would be deleted.
+  final UserEmail? email;
 
-  /// List of text [InlineSpan] items.
-  final List<InlineSpan> text;
+  /// That [UserPhone] would be deleted.
+  final UserPhone? phone;
 
   /// Callback called when submit button was pressed.
   final void Function() onSubmit;
@@ -41,10 +45,14 @@ class DeleteContactRecordView extends StatelessWidget {
   /// Displays a [DeleteContactRecordView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required String title,
-    required List<InlineSpan> text,
     required void Function() onSubmit,
+    UserEmail? email,
+    UserPhone? phone,
   }) {
+    assert(
+      email == null && phone != null || email != null && phone == null,
+      'Only email or phone should be specified',
+    );
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -58,7 +66,7 @@ class DeleteContactRecordView extends StatelessWidget {
         maxHeight: double.infinity,
       ),
       showPrimaryCloseButton: false,
-      child: DeleteContactRecordView(title, text, onSubmit: onSubmit),
+      child: DeleteContactRecordView(onSubmit, email: email, phone: phone),
     );
   }
 
@@ -77,7 +85,9 @@ class DeleteContactRecordView extends StatelessWidget {
           ModalPopupHeader(
             child: Center(
               child: Text(
-                title,
+                email != null
+                    ? 'label_delete_email'.l10n
+                    : 'label_delete_phone_number'.l10n,
                 style: thin?.copyWith(fontSize: 18),
               ),
             ),
@@ -87,7 +97,19 @@ class DeleteContactRecordView extends StatelessWidget {
             padding: ModalPopup.padding(context),
             child: RichText(
               text: TextSpan(
-                children: text,
+                children: [
+                  TextSpan(
+                      text:
+                          '${email != null ? 'label_email'.l10n : 'label_phone_number'.l10n}${'space'.l10n}'),
+                  TextSpan(
+                    text: email?.val ?? phone!.val,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  TextSpan(
+                    text:
+                        '${'space'.l10n}${'label_will_be_removed'.l10n}${'dot'.l10n}',
+                  )
+                ],
                 style: thin?.copyWith(
                   fontSize: 15,
                   color: const Color(0xFF888888),
