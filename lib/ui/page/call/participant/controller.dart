@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -33,6 +34,7 @@ import '/provider/gql/exceptions.dart'
         TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -97,6 +99,10 @@ class ParticipantController extends GetxController {
 
   @override
   void onInit() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     _chatsSubscription = _chatService.chats.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
@@ -136,6 +142,11 @@ class ParticipantController extends GetxController {
     _chatsSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
+
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -205,5 +216,15 @@ class ParticipantController extends GetxController {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
     }
+  }
+
+  /// Invokes [pop].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true` to intercept back button.
+  bool _onBack(bool _, RouteInfo __) {
+    pop?.call();
+
+    return true;
   }
 }

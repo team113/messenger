@@ -43,18 +43,18 @@ class ScreenShareController extends GetxController {
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Renderers of the [displays].
+  /// Renderers of the [OngoingCall.displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _chatsSubscription;
 
-  /// Subscription for the [displays] updating the [renderers].
+  /// Subscription for the [OngoingCall.displays] updating the [renderers].
   late final StreamSubscription? _displaysSubscription;
 
   /// [CallService] for [pop]ping the view when [ChatCall] in the [Chat]
-  /// identified by the [chatId] is removed.
+  /// identified by the [OngoingCall.chatId] is removed.
   final CallService _callService;
 
   /// Handle to a media manager tracking all the connected devices.

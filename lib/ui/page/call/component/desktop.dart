@@ -276,21 +276,17 @@ Widget desktopCall(CallController c, BuildContext context) {
                     if (PlatformUtils.isMobile)
                       padding(
                         c.videoState.value.isEnabled
-                            ? SwitchButton(c).build(context, blur: true)
-                            : SpeakerButton(c).build(context, blur: true),
+                            ? SwitchButton(c).build(blur: true)
+                            : SpeakerButton(c).build(blur: true),
                       ),
-                    padding(VideoButton(c).build(context, blur: true)),
-                    padding(CancelButton(c).build(context, blur: true)),
-                    padding(AudioButton(c).build(context, blur: true)),
+                    padding(VideoButton(c).build(blur: true)),
+                    padding(CancelButton(c).build(blur: true)),
+                    padding(AudioButton(c).build(blur: true)),
                   ]
                 : [
-                    padding(
-                      AcceptAudioButton(c).build(context, expanded: true),
-                    ),
-                    padding(
-                      AcceptVideoButton(c).build(context, expanded: true),
-                    ),
-                    padding(DeclineButton(c).build(context, expanded: true)),
+                    padding(AcceptAudioButton(c).build(expanded: true)),
+                    padding(AcceptVideoButton(c).build(expanded: true)),
+                    padding(DeclineButton(c).build(expanded: true)),
                   ];
 
             return ConstrainedBox(
@@ -377,7 +373,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   items: c.buttons.value,
                                   itemWidth: CallController.buttonSize,
                                   itemBuilder: (e) => e.build(
-                                    context,
                                     hinted: c.draggedButton.value == null,
                                   ),
                                   onReorder: (buttons) {
@@ -477,7 +472,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                           child: SizedBox(
                                             height: CallController.buttonSize,
                                             width: CallController.buttonSize,
-                                            child: e.build(context),
+                                            child: e.build(),
                                           ),
                                         ),
                                         data: e,
@@ -495,7 +490,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                             e.isRemovable ? null : 0,
                                         dragAnchorStrategy:
                                             pointerDragAnchorStrategy,
-                                        child: e.build(context, hinted: false),
+                                        child: e.build(hinted: false),
                                       ),
                                       const SizedBox(height: 6),
                                       Text(
