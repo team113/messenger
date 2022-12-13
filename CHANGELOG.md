@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
     - Chats tab:
-        - Chat muting/unmuting. ([#172], [#63])
+        - Chat muting/unmuting. ([#172], [#63], [#251])
         - Favorite chats. ([#218], [#209])
         - Searching. ([#206], [#205])
     - Home page:
@@ -86,6 +86,7 @@ All user visible changes to this project will be documented in this file. This p
 [#245]: /../../pull/245
 [#246]: /../../pull/246
 [#249]: /../../pull/249
+[#251]: /../../pull/251
 
 
 
