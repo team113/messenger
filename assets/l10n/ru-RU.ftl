@@ -19,9 +19,8 @@ alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
 alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
-alert_are_you_sure_want_to_log_out =
-    Вы действительно хотите выйти из аккаунта?
-    Ваши активные звонки будут завершены.
+alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
+alert_are_you_sure_want_to_log_out2 = ?
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока
@@ -153,6 +152,7 @@ btn_hidden = Скрыт
 btn_hide_chat = Скрыть чат
 btn_info = Информация
 btn_join_call = Присоединиться к звонку
+btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
@@ -214,9 +214,9 @@ err_data_transfer =
 err_dimensions_too_big = Слишком большое разрешение
 err_email_occupied = Почта уже привязана к другому аккаунту
 err_incorrect_chat_name = Некорректное имя
-err_incorrect_input = Некорректный формат
+err_incorrect_input = Некорректный формат.
 err_incorrect_password = Неверный пароль
-err_input_empty = Поле не должно быть пустым
+err_input_empty = Поле не должно быть пустым.
 err_invalid_crop_coordinates = Неверные координаты обрезки
 err_invalid_crop_points = Неверные точки обрезки
 err_login_occupied = Логин уже занят
@@ -506,9 +506,9 @@ label_participant_redial_successfully = Участник перенабран
 label_participants = Участники
 label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
-label_password_not_set = Пароль не задан
-label_password_set_successfully = Пароль успешно задан
-label_password_was_changed = Пароль был изменен
+label_password_changed = Пароль изменён.
+label_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.
+label_password_set = Пароль задан.
 label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
@@ -523,7 +523,10 @@ label_public_information = Публичная информация
 label_read_by = Прочитано
 label_recent = Недавние
 label_recover_account = Восстановление доступа
+label_recover_account_description = Укажите Ваш Gapopa ID, логин, E-mail или номер телефона.
 label_recovery_code = Код восстановления
+label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
+label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_repeat_password = Повторите пароль
 label_replies = [{$count} { $count ->
     [1] ответ
@@ -553,7 +556,7 @@ label_short_weekday =
         *[other] вс
     }
 label_sign_in = Войти
-label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
+label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
