@@ -1167,7 +1167,7 @@ class CallController extends GetxController {
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
     try {
-      await _chatService.removeChatMember(chatId, userId);
+      await _chatService.removeChatMember(chatId.value, userId);
     } on RemoveChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
