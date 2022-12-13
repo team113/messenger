@@ -34,6 +34,7 @@ Feature: Logout confirmation
     And I tap `CloseButton` button
 
     When I tap `LogoutButton` button
+    And I tap `ConfirmLogoutButton` button
     Then I wait until `AuthView` is present
 
     When I tap `SignInButton` button
