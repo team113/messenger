@@ -100,7 +100,7 @@ class ContactsTabController extends GetxController {
   @override
   void onInit() {
     contacts.addAll(_contactService.contacts.values);
-    sortContacts();
+    _sortContacts();
 
     contactName = TextFieldState(
       onChanged: (s) async {
@@ -198,12 +198,12 @@ class ContactsTabController extends GetxController {
   /// Toggles the [sortByName] sorting the [contacts].
   void toggleSorting() {
     _settingsRepository.setSortContactsByName(!sortByName);
-    sortContacts();
+    _sortContacts();
   }
 
   /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
   /// the [sortByName] indicator.
-  void sortContacts() {
+  void _sortContacts() {
     contacts.sort((a, b) {
       if (sortByName == true) {
         return a.contact.value.name.val.compareTo(b.contact.value.name.val);
@@ -256,10 +256,11 @@ class ContactsTabController extends GetxController {
                 _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
           _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
 
-          sortContacts();
+          _sortContacts();
         }
       });
     }
+    _sortContacts();
   }
 
   /// Maintains an interest in updates of every [RxChatContact.user] in the
@@ -306,7 +307,7 @@ class ContactsTabController extends GetxController {
           break;
       }
 
-      sortContacts();
+      _sortContacts();
     });
   }
 }
