@@ -164,6 +164,7 @@ class ModalPopupHeader extends StatelessWidget {
           if (header != null) Expanded(child: header!) else const Spacer(),
           if (!context.isMobile)
             WidgetButton(
+              key: const Key('CloseButton'),
               onPressed: Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),
