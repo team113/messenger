@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
 /// [AnimatedSwitcher] with an elastic [ScaleTransition] of its [child].
@@ -29,14 +30,12 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 900),
-      switchInCurve: Curves.elasticInOut,
-      switchOutCurve: Curves.elasticInOut,
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: animation,
-        child: child,
-      ),
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 900),
+      sizeDuration: const Duration(milliseconds: 900),
+      sizeCurve: Curves.elasticInOut,
+      fadeInCurve: Curves.elasticInOut,
+      fadeOutCurve: Curves.elasticInOut,
       child: child,
     );
   }

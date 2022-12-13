@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
+import 'domain/model/contact.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -669,7 +670,7 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.contact] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void contact(UserId id, {bool push = false}) =>
+  void contact(ChatContactId id, {bool push = false}) =>
       push ? this.push('${Routes.contact}/$id') : go('${Routes.contact}/$id');
 
   /// Changes router location to the [Routes.user] page.

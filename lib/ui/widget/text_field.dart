@@ -18,8 +18,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/util/platform_utils.dart';
 import 'animations.dart';
+import 'svg/svg.dart';
+import 'widget_button.dart';
 
 /// Reactive stylized [TextField] wrapper.
 class ReactiveTextField extends StatelessWidget {
@@ -152,6 +155,94 @@ class ReactiveTextField extends StatelessWidget {
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
     }
 
+    /// Returns suffix [Widget].
+    Widget buildSuffix() {
+      return Obx(() {
+        return WidgetButton(
+          onPressed: onSuffixPressed,
+          child: ElasticAnimatedSwitcher(
+            child: (state.approvable ||
+                    suffix != null ||
+                    trailing != null ||
+                    !state.status.value.isEmpty)
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: SizedBox(
+                      height: 24,
+                      child: ElasticAnimatedSwitcher(
+                        child: state.status.value.isLoading
+                            ? SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: SvgLoader.asset(
+                                  'assets/icons/timer.svg',
+                                  height: 17,
+                                ),
+                              )
+                            : state.status.value.isSuccess
+                                ? const SizedBox(
+                                    key: ValueKey('Success'),
+                                    width: 24,
+                                    child: Icon(
+                                      Icons.check,
+                                      size: 18,
+                                      color: Colors.green,
+                                    ),
+                                  )
+                                : (state.error.value != null &&
+                                            treatErrorAsStatus) ||
+                                        state.status.value.isError
+                                    ? const SizedBox(
+                                        key: ValueKey('Error'),
+                                        width: 24,
+                                        child: Icon(
+                                          Icons.error,
+                                          size: 18,
+                                          color: Colors.red,
+                                        ),
+                                      )
+                                    : (state.approvable && state.changed.value)
+                                        ? IconButton(
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints.tight(
+                                              const Size(76, 24),
+                                            ),
+                                            key: const ValueKey('Approve'),
+                                            onPressed: state.submit,
+                                            icon: UnconstrainedBox(
+                                              child: Text(
+                                                'btn_save'.l10n,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : SizedBox(
+                                            key: const ValueKey('Icon'),
+                                            width: 24,
+                                            child: suffix != null
+                                                ? Icon(suffix)
+                                                : trailing == null
+                                                    ? Container()
+                                                    : trailing!,
+                                          ),
+                      ),
+                    ),
+                  )
+                : const SizedBox(
+                    width: 1,
+                    height: 0,
+                  ),
+          ),
+        );
+      });
+    }
+
     return Obx(
       () => Theme(
         data: Theme.of(context).copyWith(
@@ -178,65 +269,8 @@ class ReactiveTextField extends StatelessWidget {
                 prefix: prefix,
                 contentPadding: contentPadding,
                 fillColor: filled == false ? Colors.transparent : null,
-                suffixIconConstraints: suffix == null &&
-                        trailing == null &&
-                        state.status.value.isEmpty
-                    ? const BoxConstraints(maxWidth: 0)
-                    : null,
-                suffixIcon: ElasticAnimatedSwitcher(
-                  child: (suffix != null ||
-                          trailing != null ||
-                          !state.status.value.isEmpty)
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: ElasticAnimatedSwitcher(
-                              child: state.status.value.isLoading
-                                  ? const Icon(
-                                      Icons.query_builder_outlined,
-                                      size: 18,
-                                      key: ValueKey('Load'),
-                                    )
-                                  : state.status.value.isSuccess
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 18,
-                                          color: Colors.green,
-                                          key: ValueKey('Success'),
-                                        )
-                                      : (state.error.value != null &&
-                                                  treatErrorAsStatus) ||
-                                              state.status.value.isError
-                                          ? const Icon(
-                                              Icons.error,
-                                              size: 18,
-                                              color: Colors.red,
-                                              key: ValueKey('Error'),
-                                            )
-                                          : IgnorePointer(
-                                              ignoring: onSuffixPressed == null,
-                                              child: IconButton(
-                                                padding: EdgeInsets.zero,
-                                                constraints:
-                                                    BoxConstraints.tight(
-                                                  const Size(24, 24),
-                                                ),
-                                                key: const ValueKey('Icon'),
-                                                onPressed: onSuffixPressed,
-                                                icon: suffix != null
-                                                    ? Icon(suffix)
-                                                    : trailing == null
-                                                        ? Container()
-                                                        : trailing!,
-                                              ),
-                                            ),
-                            ),
-                          ),
-                        )
-                      : const SizedBox(width: 1),
-                ),
+                suffixIconConstraints: null,
+                suffixIcon: dense == true ? null : buildSuffix(),
                 icon: icon == null
                     ? null
                     : Padding(
@@ -305,6 +339,13 @@ abstract class ReactiveFieldState {
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
   FocusNode get focus;
 
+  /// Indicator whether [controller] was changed or not.
+  RxBool get changed;
+
+  /// Indicator whether this [ReactiveFieldState] should display approve button
+  /// or not.
+  bool get approvable;
+
   /// Reactive error message.
   final RxnString error = RxnString();
 
@@ -323,15 +364,28 @@ class TextFieldState extends ReactiveFieldState {
     this.onSubmitted,
     RxStatus? status,
     FocusNode? focus,
+    this.approvable = false,
     bool editable = true,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
+    _previousSubmit = text;
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
 
+    changed.value = _previousSubmit != null && _previousSubmit != text;
     if (onChanged != null) {
+      controller.addListener(() {
+        if (_previousSubmit != null && controller.text != _previousSubmit) {
+          changed.value = true;
+        } else if (_previousSubmit == null &&
+            controller.text.isEmpty == false) {
+          changed.value = true;
+        } else {
+          changed.value = false;
+        }
+      });
       this.focus.addListener(
         () {
           if (controller.text != _previousText &&
@@ -361,6 +415,12 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [submit] was manually called.
   final Function(TextFieldState)? onSubmitted;
+
+  @override
+  final bool approvable;
+
+  @override
+  final RxBool changed = RxBool(false);
 
   /// [TextEditingController] of this [TextFieldState].
   @override
@@ -396,6 +456,7 @@ class TextFieldState extends ReactiveFieldState {
     controller.text = value;
     _previousText = value;
     isEmpty.value = value.isEmpty;
+    changed.value = true;
     onChanged?.call(this);
   }
 
@@ -404,6 +465,7 @@ class TextFieldState extends ReactiveFieldState {
   set unchecked(String? value) {
     controller.text = value ?? '';
     _previousText = value ?? '';
+    changed.value = false;
     isEmpty.value = controller.text.isEmpty;
   }
 
@@ -422,6 +484,7 @@ class TextFieldState extends ReactiveFieldState {
         }
         _previousSubmit = controller.text;
         onSubmitted?.call(this);
+        changed.value = false;
       }
     }
   }
@@ -436,5 +499,6 @@ class TextFieldState extends ReactiveFieldState {
     error.value = null;
     _previousText = null;
     _previousSubmit = null;
+    changed.value = false;
   }
 }
