@@ -649,7 +649,9 @@ class ChatRepository implements AbstractChatRepository {
     final HiveRxChat? chat = _chats[id];
     final MuteDuration? muted = chat?.chat.value.muted;
 
-    final Muting? muting = mute == null ? null : Muting(duration: null);
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
 
     chat?.chat.update((c) => c?.muted = muting?.toModel());
 
