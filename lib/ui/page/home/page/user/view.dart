@@ -16,20 +16,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui//widget/svg/svg.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.user] page.
@@ -252,7 +252,7 @@ class UserView extends StatelessWidget {
         child: _dense(
           WidgetButton(
             key: key,
-            onPressed: onPressed ?? () {},
+            onPressed: onPressed,
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
@@ -288,34 +288,52 @@ class UserView extends StatelessWidget {
             text: c.inContacts.value
                 ? 'btn_delete_from_contacts'.l10n
                 : 'btn_add_to_contacts'.l10n,
-            onPressed:
-                c.inContacts.value ? c.removeFromContacts : c.addToContacts,
+            onPressed: c.status.value.isLoadingMore
+                ? null
+                : c.inContacts.value
+                    ? c.removeFromContacts
+                    : c.addToContacts,
           ),
-          action(text: 'btn_add_to_favorites'.l10n),
           action(
-            text: 'btn_mute_chat'.l10n,
-            svg: SvgLoader.asset(
-              'assets/icons/btn_mute.svg',
-              width: 17.86,
-              height: 15,
-            ),
+            text: c.inFavorites.value
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            onPressed: () => c.inFavorites.toggle(),
+          ),
+          action(
+            text:
+                c.isMuted.value ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+            svg: c.isMuted.value
+                ? SvgLoader.asset(
+                    'assets/icons/btn_unmute.svg',
+                    width: 17.86,
+                    height: 15,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/btn_mute.svg',
+                    width: 18.68,
+                    height: 15,
+                  ),
+            onPressed: () => c.isMuted.toggle(),
           ),
           action(
             text: 'btn_hide_chat'.l10n,
             svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () {},
           ),
           action(
             text: 'btn_clear_chat'.l10n,
             svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () {},
           ),
-          action(text: 'btn_blacklist'.l10n),
-          action(text: 'btn_report'.l10n, marginBottom: 8),
+          action(text: 'btn_blacklist'.l10n, onPressed: () {}),
+          action(text: 'btn_report'.l10n, marginBottom: 8, onPressed: () {}),
         ],
       );
     });
   }
 
-  /// Returns a [ChatContact.name] editable text field.
+  /// Returns a [User.name] copyable field.
   Widget _name(UserController c, BuildContext context) {
     return _padding(
       CopyableTextField(
@@ -329,7 +347,7 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns a [User.name] text widget with an [AvatarWidget].
+  /// Returns a [User.status] copyable field.
   Widget _status(UserController c, BuildContext context) {
     return Obx(() {
       final UserTextStatus? status = c.user?.user.value.status;
@@ -349,7 +367,7 @@ class UserView extends StatelessWidget {
     });
   }
 
-  /// Returns a [ChatContact]s [User.num] copyable field.
+  /// Returns a [User.num] copyable field.
   Widget _num(UserController c, BuildContext context) {
     return _padding(
       CopyableTextField(

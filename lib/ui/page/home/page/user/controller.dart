@@ -62,6 +62,12 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// Indicator whether user is muted or not.
+  final RxBool isMuted = RxBool(false);
+
+  /// Indicator whether user is in favorites or not.
+  final RxBool inFavorites = RxBool(false);
+
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   late final RxBool inContacts;

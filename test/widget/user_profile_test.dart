@@ -32,7 +32,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
@@ -62,7 +61,6 @@ import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock/overflow_error.dart';
 import 'user_profile_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -166,7 +164,6 @@ void main() async {
   Get.put(credentialsProvider);
 
   Widget createWidgetForTesting({required Widget child}) {
-    // FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(
