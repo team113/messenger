@@ -37,3 +37,6 @@ Feature: Blacklist
     When I go to Bob's page
     And I tap `Block` button
     Then Bob sends message to me and receives blacklist exception
+
+    When I tap `Unblock` button
+    Then Bob sends message to me and receives no exception

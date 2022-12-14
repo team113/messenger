@@ -21,6 +21,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/exception.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -53,9 +54,9 @@ final StepDefinitionGeneric sendsMessageToMe =
 /// - Bob sends message to me and receives blacklist exception
 /// - Charlie sends message to me and receives blacklist exception
 final StepDefinitionGeneric sendsMessageWithException =
-    and1<TestUser, CustomWorld>(
-  '{user} sends message to me and receives blacklist exception',
-  (TestUser user, context) async {
+    and2<TestUser, ExceptionType, CustomWorld>(
+  '{user} sends message to me and receives {exception} exception',
+  (TestUser user, ExceptionType ex, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
     Object? exception;
@@ -69,10 +70,18 @@ final StepDefinitionGeneric sendsMessageWithException =
       exception = e;
     }
 
-    assert(
-      exception is PostChatMessageException &&
-          exception.code == PostChatMessageErrorCode.blacklisted,
-    );
+    switch (ex) {
+      case ExceptionType.blacklist:
+        assert(
+          exception is PostChatMessageException &&
+              exception.code == PostChatMessageErrorCode.blacklisted,
+        );
+        break;
+
+      case ExceptionType.no:
+        assert(exception == null);
+        break;
+    }
 
     provider.disconnect();
   },
