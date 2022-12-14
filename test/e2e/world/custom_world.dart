@@ -17,6 +17,7 @@
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 
@@ -27,6 +28,9 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [Map] of group [Chat]s identified by their names.
   final Map<String, ChatId> groups = {};
+
+  /// [Map] of [ChatContact]s identified by their names.
+  final Map<String, ChatContactId> contacts = {};
 
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;

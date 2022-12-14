@@ -17,12 +17,15 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/contact.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
 ///
@@ -32,6 +35,7 @@ class ContactTile extends StatelessWidget {
     Key? key,
     this.contact,
     this.user,
+    this.myUser,
     this.leading = const [],
     this.trailing = const [],
     this.onTap,
@@ -40,7 +44,14 @@ class ContactTile extends StatelessWidget {
     this.darken = 0,
     this.height = 86,
     this.radius = 30,
+    this.actions,
+    this.folded = false,
+    this.preventContextMenu = false,
+    this.margin = const EdgeInsets.symmetric(vertical: 3),
   }) : super(key: key);
+
+  /// [MyUser] to display.
+  final MyUser? myUser;
 
   /// [RxChatContact] to display.
   final RxChatContact? contact;
@@ -63,6 +74,20 @@ class ContactTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
+  /// Indicator whether this [ContactTile] should have its corner folded.
+  final bool folded;
+
+  /// Indicator whether a default context menu should be prevented or not.
+  ///
+  /// Only effective under the web, since only web has a default context menu.
+  final bool preventContextMenu;
+
+  /// [ContextMenuRegion.actions] of this [ContactTile].
+  final List<ContextMenuButton>? actions;
+
+  /// Margin to apply to this [ContactTile].
+  final EdgeInsets margin;
+
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
@@ -76,56 +101,77 @@ class ContactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Container(
-      constraints: BoxConstraints(minHeight: height),
-      child: InkWellWithHover(
-        selectedColor: style.cardSelectedColor,
-        unselectedColor: style.cardColor,
-        selected: selected,
-        hoveredBorder: selected ? style.primaryBorder : style.cardHoveredBorder,
-        border: selected ? style.primaryBorder : style.cardBorder,
-        borderRadius: style.cardRadius,
-        onTap: onTap,
-        unselectedHoverColor: style.cardHoveredColor,
-        selectedHoverColor: style.cardSelectedColor,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              ...leading,
-              if (contact != null)
-                AvatarWidget.fromRxContact(contact, radius: radius)
-              else
-                AvatarWidget.fromRxUser(user, radius: radius),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            contact?.contact.value.name.val ??
-                                contact?.user.value?.user.value.name?.val ??
-                                contact?.user.value?.user.value.num.val ??
-                                user?.user.value.name?.val ??
-                                user?.user.value.num.val ??
-                                'dot'.l10n * 3,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.headline5,
+    return ContextMenuRegion(
+      key: contact != null || user != null
+          ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
+          : null,
+      preventContextMenu: preventContextMenu,
+      actions: actions ?? [],
+      child: Padding(
+        padding: margin,
+        child: InkWellWithHover(
+          selectedColor: style.cardSelectedColor,
+          unselectedColor: style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.primaryBorder : style.cardHoveredBorder,
+          border: selected ? style.primaryBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor.darken(darken),
+          selectedHoverColor: style.cardSelectedColor,
+          folded: contact?.contact.value.favoritePosition != null,
+          child: Padding(
+            key: contact?.contact.value.favoritePosition != null
+                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                : null,
+            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            child: Row(
+              children: [
+                ...leading,
+                if (contact != null)
+                  AvatarWidget.fromRxContact(contact, radius: radius)
+                else if (user != null)
+                  AvatarWidget.fromRxUser(user, radius: radius)
+                else
+                  AvatarWidget.fromMyUser(
+                    myUser,
+                    radius: radius,
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              contact?.contact.value.name.val ??
+                                  contact?.user.value?.user.value.name?.val ??
+                                  contact?.user.value?.user.value.num.val ??
+                                  user?.user.value.name?.val ??
+                                  user?.user.value.num.val ??
+                                  myUser?.name?.val ??
+                                  myUser?.num.val ??
+                                  (myUser == null
+                                      ? '...'
+                                      : 'btn_your_profile'.l10n),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    ...subtitle,
-                  ],
+                        ],
+                      ),
+                      ...subtitle,
+                    ],
+                  ),
                 ),
-              ),
-              ...trailing,
-            ],
+                ...trailing,
+              ],
+            ),
           ),
         ),
       ),

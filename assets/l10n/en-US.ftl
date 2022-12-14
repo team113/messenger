@@ -19,9 +19,8 @@ alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
 alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
-alert_are_you_sure_want_to_log_out =
-    Are you sure you want to log out?
-    Your active calls will be ended.
+alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
+alert_are_you_sure_want_to_log_out2 = ?
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
@@ -59,13 +58,15 @@ btn_call_audio_on_desc =
     Unmute
     microphone
 btn_call_cancel = Cancel call
-btn_call_center_video = Center video
+btn_call_center = Center
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
+btn_call_disable_audio = Disable audio
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
+btn_call_enable_audio = Enable audio
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_end_desc =
@@ -96,6 +97,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
+btn_call_remove_participant = Kick participant
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,6 +115,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
+btn_call_uncenter = Uncenter
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
@@ -127,20 +130,20 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
-btn_copy = Copy
+btn_copy_text = Copy text
 btn_create_group = Create group
-btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Unfavorite
+btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
-btn_forward = Forward
+btn_forward = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -148,6 +151,7 @@ btn_hidden = Hidden
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
+btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
@@ -164,7 +168,7 @@ btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
-btn_reply = Reply
+btn_reply = Reply to message
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
@@ -208,9 +212,9 @@ err_data_transfer =
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
-err_incorrect_input = Incorrect input
+err_incorrect_input = Incorrect input.
 err_incorrect_password = Incorrect Password
-err_input_empty = Must not be empty
+err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
 err_login_occupied = Login already occupied
@@ -470,12 +474,13 @@ label_offline = Offline
 label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participant_redial_successfully = Participant redialed
 label_participants = Participants
 label_participants_added_successfully = Participants successfully added
 label_password = Password
-label_password_not_set = Password not set
-label_password_set_successfully = Password successfully set
-label_password_was_changed = Password was changed
+label_password_changed = Password has been changed.
+label_password_not_set = Password not set. Access to the account will be lost.
+label_password_set = Password has been set.
 label_personalization = Personalization
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
@@ -488,7 +493,10 @@ label_presence_present = Last visit information
 label_read_by = Read by
 label_recent = Recent
 label_recover_account = Access recovery
+label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
+label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
+label_recovery_enter_new_password = Please enter the new password below.
 label_repeat_password = Repeat password
 label_replies = [{$count} { $count ->
     [1] reply
@@ -517,7 +525,7 @@ label_short_weekday =
         *[other] Sun
     }
 label_sign_in = Log In
-label_sign_in_input = Gapopa ID, Login, Email or Phone
+label_sign_in_input = Gapopa ID, login, E-mail or phone
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
