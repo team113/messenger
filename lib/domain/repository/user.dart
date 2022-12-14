@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
 
