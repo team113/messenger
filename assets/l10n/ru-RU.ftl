@@ -553,6 +553,7 @@ label_short_weekday =
     }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_status = Статус
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты

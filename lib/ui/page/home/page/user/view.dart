@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/block.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
@@ -41,8 +42,6 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style? style = Theme.of(context).extension<Style>();
-
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -59,10 +58,7 @@ class UserView extends StatelessWidget {
                       shadowColor: const Color(0x55000000),
                       color: Colors.white,
                       child: Center(
-                        child: AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 17,
-                        ),
+                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -85,7 +81,10 @@ class UserView extends StatelessWidget {
                                       .textTheme
                                       .caption
                                       ?.copyWith(
-                                          color: const Color(0xFF888888)),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
                                 )
                             ],
                           );
@@ -109,7 +108,7 @@ class UserView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!context.isMobile) ...[
+                  if (!context.isNarrow) ...[
                     const SizedBox(width: 28),
                     WidgetButton(
                       onPressed: () => c.call(true),
@@ -130,39 +129,13 @@ class UserView extends StatelessWidget {
                 ],
               ),
               body: Obx(() {
-                Widget block({
-                  List<Widget> children = const [],
-                  EdgeInsets padding =
-                      const EdgeInsets.fromLTRB(32, 16, 32, 16),
-                }) {
-                  return Center(
-                    child: Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                      decoration: BoxDecoration(
-                        border: style?.primaryBorder,
-                        color: style?.messageColor,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      constraints: context.isNarrow
-                          ? null
-                          : const BoxConstraints(maxWidth: 400),
-                      padding: padding,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: children,
-                      ),
-                    ),
-                  );
-                }
-
                 return ListView(
                   key: const Key('UserColumn'),
                   children: [
                     const SizedBox(height: 8),
-                    block(
+                    Block(
+                      title: 'label_public_information'.l10n,
                       children: [
-                        _label(context, 'label_public_information'.l10n),
                         AvatarWidget.fromRxUser(
                           c.user,
                           radius: 100,
@@ -174,17 +147,13 @@ class UserView extends StatelessWidget {
                         _presence(c, context),
                       ],
                     ),
-                    block(
-                      children: [
-                        _label(context, 'label_contact_information'.l10n),
-                        _num(c, context),
-                      ],
+                    Block(
+                      title: 'label_contact_information'.l10n,
+                      children: [_num(c, context)],
                     ),
-                    block(
-                      children: [
-                        _label(context, 'label_actions'.l10n),
-                        _actions(c, context),
-                      ],
+                    Block(
+                      title: 'label_actions'.l10n,
+                      children: [_actions(c, context)],
                     ),
                   ],
                 );
@@ -208,27 +177,6 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns [Widget] with specified [text] as title of the block.
-  Widget _label(BuildContext context, String text) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            text,
-            style: style.systemMessageStyle.copyWith(
-              color: Colors.black,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Dense [Padding] wrapper.
   Widget _dense(Widget child) =>
       Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
@@ -237,35 +185,28 @@ class UserView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns list of action buttons.
+  /// Returns the actions that can be done with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    // Returns [Widget] button.
+    // Builds a stylized button representing an action.
     Widget action({
       Key? key,
-      required String text,
+      String? text,
       void Function()? onPressed,
-      Widget? svg,
-      double marginBottom = 10,
+      Widget? trailing,
     }) {
       return Container(
-        margin: EdgeInsets.only(bottom: marginBottom),
+        margin: const EdgeInsets.only(bottom: 8),
         child: _dense(
           WidgetButton(
             key: key,
             onPressed: onPressed,
             child: IgnorePointer(
               child: ReactiveTextField(
-                state: TextFieldState(
-                  text: text,
-                  editable: false,
-                ),
-                trailing: svg != null
+                state: TextFieldState(text: text ?? '', editable: false),
+                trailing: trailing != null
                     ? Transform.translate(
                         offset: const Offset(0, -1),
-                        child: Transform.scale(
-                          scale: 1.15,
-                          child: svg,
-                        ),
+                        child: Transform.scale(scale: 1.15, child: trailing),
                       )
                     : null,
                 style:
@@ -298,36 +239,36 @@ class UserView extends StatelessWidget {
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            onPressed: () => c.inFavorites.toggle(),
+            onPressed: c.inFavorites,
           ),
           action(
             text:
                 c.isMuted.value ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            svg: c.isMuted.value
+            trailing: c.isMuted.value
                 ? SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
                     'assets/icons/btn_mute.svg',
                     width: 18.68,
                     height: 15,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/btn_unmute.svg',
+                    width: 17.86,
+                    height: 15,
                   ),
-            onPressed: () => c.isMuted.toggle(),
+            onPressed: c.isMuted.toggle,
           ),
           action(
             text: 'btn_hide_chat'.l10n,
-            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () {},
           ),
           action(
             text: 'btn_clear_chat'.l10n,
-            svg: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () {},
           ),
           action(text: 'btn_blacklist'.l10n, onPressed: () {}),
-          action(text: 'btn_report'.l10n, marginBottom: 8, onPressed: () {}),
+          action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
       );
     });
@@ -360,7 +301,7 @@ class UserView extends StatelessWidget {
         CopyableTextField(
           key: const Key('StatusField'),
           state: TextFieldState(text: status.val),
-          label: 'Status'.l10n,
+          label: 'label_status'.l10n,
           copy: status.val,
         ),
       );
@@ -379,7 +320,7 @@ class UserView extends StatelessWidget {
           ),
         ),
         label: 'label_num'.l10n,
-        copy: c.user!.user.value.num.val,
+        copy: c.user?.user.value.num.val,
       ),
     );
   }
@@ -395,17 +336,14 @@ class UserView extends StatelessWidget {
 
       final subtitle = c.user?.user.value.getStatus();
 
-      Color? color;
-      Key presenceKey = const Key('PresenceEmpty');
+      final Color? color;
 
       switch (presence) {
         case Presence.present:
-          presenceKey = const Key('PresencePresent');
           color = Colors.green;
           break;
 
         case Presence.away:
-          presenceKey = const Key('PresenceAway');
           color = Colors.orange;
           break;
 
@@ -414,17 +352,18 @@ class UserView extends StatelessWidget {
           break;
 
         case Presence.artemisUnknown:
+          color = null;
           break;
       }
 
       return _padding(
         ReactiveTextField(
-          key: const Key('StatusField'),
+          key: const Key('Presence'),
           state: TextFieldState(text: subtitle),
           label: 'label_presence'.l10n,
           enabled: false,
           trailing: CircleAvatar(
-            key: presenceKey,
+            key: Key(presence.name.capitalizeFirst!),
             backgroundColor: color,
             radius: 7,
           ),

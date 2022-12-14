@@ -62,10 +62,10 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// Indicator whether user is muted or not.
+  /// Temporary indicator whether the [user] is muted.
   final RxBool isMuted = RxBool(false);
 
-  /// Indicator whether user is in favorites or not.
+  /// Temporary indicator whether the [user] is favorite.
   final RxBool inFavorites = RxBool(false);
 
   /// Indicator whether this [user] is already in the contacts list of the
@@ -92,6 +92,10 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
+  /// [StreamSubscription] to [ContactService.favorites] determining the
+  /// [inContacts] indicator.
+  StreamSubscription? _favoritesSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -99,10 +103,34 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    inContacts = RxBool(_contactService.contacts.values
-        .any((e) => e.contact.value.users.every((m) => m.id == id)));
+    inContacts = RxBool(
+      _contactService.contacts.values
+              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
+          _contactService.favorites.values
+              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+    );
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+            inContacts.value = true;
+          }
+          break;
+
+        case OperationKind.removed:
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+            inContacts.value = false;
+          }
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
+    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
@@ -129,6 +157,7 @@ class UserController extends GetxController {
   void onClose() {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     super.onClose();
   }
 
@@ -154,9 +183,13 @@ class UserController extends GetxController {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
-          RxChatContact? contact = _contactService.contacts.values
-              .firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id));
+          RxChatContact? contact =
+              _contactService.contacts.values.firstWhereOrNull(
+                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                  ) ??
+                  _contactService.favorites.values.firstWhereOrNull(
+                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                  );
           if (contact != null) {
             await _contactService.deleteContact(contact.contact.value.id);
           }

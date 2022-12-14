@@ -165,13 +165,14 @@ void main() async {
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets(
@@ -381,7 +382,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
-    expect(find.byKey(const Key('PresencePresent')), findsOneWidget);
+    expect(find.byKey(const Key('Present')), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserColumn')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
