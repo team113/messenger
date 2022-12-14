@@ -46,6 +46,8 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned desktop context menu. ([#245])
     - Auth page:
         - Redesigned login modal. ([#249])
+    - User page:
+        - Redesigned user page. ([#254], [#252])
 
 ### Fixed
 
@@ -94,6 +96,8 @@ All user visible changes to this project will be documented in this file. This p
 [#246]: /../../pull/246
 [#249]: /../../pull/249
 [#251]: /../../pull/251
+[#252]: /../../issues/252
+[#254]: /../../pull/254
 
 
 

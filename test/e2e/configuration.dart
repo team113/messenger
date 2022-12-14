@@ -75,7 +75,7 @@ import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
-import 'steps/updates_bio.dart';
+import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -144,7 +144,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilAttachmentFetched,
         untilTextExists,
         untilTextExistsWithin,
-        updateBio,
+        updateName,
         user,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
