@@ -228,32 +228,33 @@ class SearchView extends StatelessWidget {
                   );
                 }),
               ),
-              if (onSubmit != null)...[
-              const SizedBox(height: 18),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Obx(() {
-                  bool enabled = this.enabled &&
-                      (c.selectedContacts.isNotEmpty ||
-                          c.selectedUsers.isNotEmpty);
+              if (onSubmit != null) ...[
+                const SizedBox(height: 18),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Obx(() {
+                    bool enabled = this.enabled &&
+                        (c.selectedContacts.isNotEmpty ||
+                            c.selectedUsers.isNotEmpty);
 
-                  return OutlinedRoundedButton(
-                    key: const Key('SearchSubmitButton'),
-                    maxWidth: null,
-                    title: Text(
-                      submit ?? 'btn_submit'.l10n,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(
-                        color: enabled ? Colors.white : Colors.black,
+                    return OutlinedRoundedButton(
+                      key: const Key('SearchSubmitButton'),
+                      maxWidth: null,
+                      title: Text(
+                        submit ?? 'btn_submit'.l10n,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: enabled ? Colors.white : Colors.black,
+                        ),
                       ),
-                    ),
-                    onPressed:
-                        enabled ? () => onSubmit?.call(c.selected()) : null,
-                    color: Theme.of(context).colorScheme.secondary,
-                  );
-                }),
-              ),]
+                      onPressed:
+                          enabled ? () => onSubmit?.call(c.selected()) : null,
+                      color: Theme.of(context).colorScheme.secondary,
+                    );
+                  }),
+                ),
+              ],
               const SizedBox(height: 12),
             ],
           ),

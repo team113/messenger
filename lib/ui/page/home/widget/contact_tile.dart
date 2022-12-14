@@ -135,15 +135,15 @@ class ContactTile extends StatelessWidget {
         padding: margin,
         child: InkWellWithHover(
           selectedColor: selectedColor ?? style.cardSelectedColor,
-        unselectedColor: unselectedColor ?? style.cardColor.darken(darken),
+          unselectedColor: unselectedColor ?? style.cardColor.darken(darken),
           selected: selected,
-          hoveredBorder:
-              hoveredBorder ??
-            (selected ? style.primaryBorder : style.cardHoveredBorder),
+          hoveredBorder: hoveredBorder ??
+              (selected ? style.primaryBorder : style.cardHoveredBorder),
           border: border ?? (selected ? style.primaryBorder : style.cardBorder),
           borderRadius: style.cardRadius,
           onTap: onTap,
-          unselectedHoverColor: unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
+          unselectedHoverColor:
+              unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
           selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
           folded: contact?.contact.value.favoritePosition != null,
           child: Padding(

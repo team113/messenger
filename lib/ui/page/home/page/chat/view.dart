@@ -821,100 +821,57 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          hoverColor: Colors.transparent,
-          filled: true,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
-      child: c.isEditingMessage.isFalse
-          ? MessageFieldView(
-              controller: c.sendController,
-              textFieldState: c.send,
-              onSend: () async {
-                if (c.sendController.forwarding.value) {
-                  if (c.sendController.repliedMessages.isNotEmpty) {
-                    bool? result = await ChatForwardView.show(
-                      context,
-                      c.id,
-                      c.sendController.repliedMessages
-                          .map((e) => ChatItemQuote(item: e))
-                          .toList(),
-                      text: c.send.text,
-                      attachments: c.sendController.attachments
-                          .map((e) => e.value)
-                          .toList(),
-                    );
+    return c.isEditingMessage.isFalse
+        ? MessageFieldView(
+            controller: c.sendController,
+            textFieldState: c.send,
+            onSend: () async {
+              if (c.sendController.forwarding.value) {
+                if (c.sendController.repliedMessages.isNotEmpty) {
+                  bool? result = await ChatForwardView.show(
+                    context,
+                    c.id,
+                    c.sendController.repliedMessages
+                        .map((e) => ChatItemQuote(item: e))
+                        .toList(),
+                    text: c.send.text,
+                    attachments: c.sendController.attachments
+                        .map((e) => e.value)
+                        .toList(),
+                  );
 
-                    if (result == true) {
-                      c.sendController.repliedMessages.clear();
-                      c.sendController.forwarding.value = false;
-                      c.sendController.attachments.clear();
-                      c.send.clear();
-                    }
+                  if (result == true) {
+                    c.sendController.repliedMessages.clear();
+                    c.sendController.forwarding.value = false;
+                    c.sendController.attachments.clear();
+                    c.send.clear();
                   }
-                } else {
-                  c.send.submit();
                 }
-              },
-              onReorder: (int old, int to) {
-                if (old < to) {
-                  --to;
-                }
+              } else {
+                c.send.submit();
+              }
+            },
+            onReorder: (int old, int to) {
+              if (old < to) {
+                --to;
+              }
 
-                final ChatItem item =
-                    c.sendController.repliedMessages.removeAt(old);
-                c.sendController.repliedMessages.insert(to, item);
+              final ChatItem item =
+                  c.sendController.repliedMessages.removeAt(old);
+              c.sendController.repliedMessages.insert(to, item);
 
-                HapticFeedback.lightImpact();
-              },
-              onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-              enabledForwarding: true,
-            )
-          : MessageFieldView(
-              controller: c.editController,
-              textFieldState: c.edit!,
-              onSend: c.edit!.submit,
-              onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-              canAttachFile: false,
-            ),
-    );
+              HapticFeedback.lightImpact();
+            },
+            onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            enabledForwarding: true,
+          )
+        : MessageFieldView(
+            controller: c.editController,
+            textFieldState: c.edit!,
+            onSend: c.edit!.submit,
+            onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+            canAttachFile: false,
+          );
   }
 
   /// Cancels a [_horizontalScrollTimer] and starts it again with the provided

@@ -133,66 +133,23 @@ class ChatForwardView extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            shadowColor: const Color(0x55000000),
-                            iconTheme: const IconThemeData(color: Colors.blue),
-                            inputDecorationTheme: InputDecorationTheme(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusColor: Colors.white,
-                              fillColor: Colors.white,
-                              hoverColor: Colors.transparent,
-                              filled: true,
-                              isDense: true,
-                              contentPadding: EdgeInsets.fromLTRB(
-                                15,
-                                PlatformUtils.isDesktop ? 30 : 23,
-                                15,
-                                0,
-                              ),
-                            ),
-                          ),
-                          child: MessageFieldView(
-                            messageFieldKey: const Key('ForwardField'),
-                            messageSendButtonKey: const Key('SendForward'),
-                            controller: c.sendController,
-                            textFieldState: c.send,
-                            onSend: c.send.submit,
-                            onReorder: (int old, int to) {
-                              if (old < to) {
-                                --to;
-                              }
+                        child: MessageFieldView(
+                          messageFieldKey: const Key('ForwardField'),
+                          messageSendButtonKey: const Key('SendForward'),
+                          controller: c.sendController,
+                          textFieldState: c.send,
+                          onSend: c.send.submit,
+                          onReorder: (int old, int to) {
+                            if (old < to) {
+                              --to;
+                            }
 
-                              final ChatItemQuote item =
-                                  c.sendController.quotes.removeAt(old);
-                              c.sendController.quotes.insert(to, item);
+                            final ChatItemQuote item =
+                                c.sendController.quotes.removeAt(old);
+                            c.sendController.quotes.insert(to, item);
 
-                              HapticFeedback.lightImpact();
-                            },
-                          ),
+                            HapticFeedback.lightImpact();
+                          },
                         ),
                       ),
                     ],

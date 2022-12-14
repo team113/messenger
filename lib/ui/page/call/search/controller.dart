@@ -209,13 +209,15 @@ class SearchController extends GetxController {
       } else {
         selectedContacts.add(contact);
       }
-    } else if (user != null) {
+    }
+    if (user != null) {
       if (selectedUsers.contains(user)) {
         selectedUsers.remove(user);
       } else {
         selectedUsers.add(user);
       }
-    } else if (chat != null) {
+    }
+    if (chat != null) {
       if (selectedChats.contains(chat)) {
         selectedChats.remove(chat);
       } else {
