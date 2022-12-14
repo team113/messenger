@@ -218,39 +218,46 @@ class MessageFieldView extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (c.editedMessage.value != null)
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxHeight:
-                                            MediaQuery.of(context).size.height /
-                                                3,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          4,
-                                          4,
-                                          4,
-                                          4,
+                                  Obx(() {
+                                    if (c.editedMessage.value != null) {
+                                      return ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
                                         ),
-                                        child: Dismissible(
-                                          key: Key(
-                                              '${c.editedMessage.value?.id}'),
-                                          direction:
-                                              DismissDirection.horizontal,
-                                          onDismissed: (_) =>
-                                              c.editedMessage.value = null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2,
-                                            ),
-                                            child: buildEditedMessage(
-                                              context,
-                                              c,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            4,
+                                            4,
+                                            4,
+                                            4,
+                                          ),
+                                          child: Dismissible(
+                                            key: Key(
+                                                '${c.editedMessage.value?.id}'),
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            onDismissed: (_) =>
+                                                c.editedMessage.value = null,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 2,
+                                              ),
+                                              child: buildEditedMessage(
+                                                context,
+                                                c,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
+                                  }),
                                   if (c.quotes.isNotEmpty)
                                     ConstrainedBox(
                                       constraints: BoxConstraints(

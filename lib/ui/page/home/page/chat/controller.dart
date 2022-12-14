@@ -124,9 +124,6 @@ class ChatController extends GetxController {
   /// State of an edit message field.
   TextFieldState? edit;
 
-  /// Indicator whether [ChatItem] message is editing or not
-  final RxBool isEditingMessage = RxBool(false);
-
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
@@ -347,10 +344,12 @@ class ChatController extends GetxController {
               int cursor;
 
               if (send.controller.selection.isCollapsed) {
+                print('1');
                 cursor = send.controller.selection.base.offset;
-                send.text =
-                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+                // send.text =
+                //     '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
               } else {
+                print('2');
                 cursor = send.controller.selection.start;
                 send.text =
                     '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
@@ -467,7 +466,7 @@ class ChatController extends GetxController {
     }
 
     if (item is ChatMessage) {
-      isEditingMessage.value = true;
+      editController.editedMessage.value = item;
       edit = TextFieldState(
         text: item.text?.val,
         onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
@@ -475,7 +474,7 @@ class ChatController extends GetxController {
             : s.status.value = RxStatus.empty(),
         onSubmitted: (s) async {
           if (s.text == item.text?.val) {
-            isEditingMessage.value = false;
+            editController.editedMessage.value = null;
             edit = null;
           } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
             ChatMessageText? text;
@@ -485,7 +484,7 @@ class ChatController extends GetxController {
 
             try {
               await _chatService.editChatMessage(item, text);
-              isEditingMessage.value = false;
+              editController.editedMessage.value = null;
               edit = null;
 
               _typingSubscription?.cancel();

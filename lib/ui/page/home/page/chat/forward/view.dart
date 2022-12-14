@@ -30,7 +30,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/widget/modal_popup.dart';
-import '/util/platform_utils.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///

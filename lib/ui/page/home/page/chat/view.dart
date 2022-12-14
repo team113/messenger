@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -821,7 +822,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
-    return c.isEditingMessage.isFalse
+    return c.editController.editedMessage.value == null
         ? MessageFieldView(
             controller: c.sendController,
             textFieldState: c.send,
@@ -866,6 +867,7 @@ class _ChatViewState extends State<ChatView>
             enabledForwarding: true,
           )
         : MessageFieldView(
+            key: const Key('EditMessageFieldView'),
             controller: c.editController,
             textFieldState: c.edit!,
             onSend: c.edit!.submit,
