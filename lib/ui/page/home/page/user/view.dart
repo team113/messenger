@@ -16,18 +16,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/block.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui//widget/svg/svg.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -185,9 +184,9 @@ class UserView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns the actions that can be done with this [User].
+  /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    // Builds a stylized button representing an action.
+    // Builds a stylized button representing a single action.
     Widget action({
       Key? key,
       String? text,

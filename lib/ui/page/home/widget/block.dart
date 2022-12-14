@@ -8,11 +8,11 @@ class Block extends StatelessWidget {
   const Block({
     super.key,
     this.children = const [],
-    required this.title,
+    this.title,
   });
 
-  /// Header of this [Block].
-  final String title;
+  /// Optional header of this [Block].
+  final String? title;
 
   /// [Widget]s to display.
   final List<Widget> children;
@@ -36,7 +36,7 @@ class Block extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (title.isNotEmpty)
+            if (title != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
                 child: Center(
@@ -44,7 +44,7 @@ class Block extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: Text(
-                      title,
+                      title!,
                       style: style.systemMessageStyle
                           .copyWith(color: Colors.black, fontSize: 18),
                     ),
