@@ -1438,3 +1438,47 @@ class UnfavoriteChatContactException
     }
   }
 }
+
+/// Exception of `Mutation.blacklistUser` described in the [code].
+class BlacklistUserException with LocalizedExceptionMixin implements Exception {
+  const BlacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final BlacklistUserErrorCode code;
+
+  @override
+  String toString() => 'BlacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case BlacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case BlacklistUserErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unblacklistUser` described in the [code].
+class UnblacklistUserException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnblacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnblacklistUserErrorCode code;
+
+  @override
+  String toString() => 'UnblacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnblacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case UnblacklistUserErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
