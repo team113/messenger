@@ -20,19 +20,25 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/gql/exceptions.dart'
+    show CreateChatDirectLinkException;
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/service/my_user.dart';
 
-class MoreController extends GetxController {
-  MoreController(this._myUserService);
+class ChatsMoreController extends GetxController {
+  ChatsMoreController(this._myUserService);
 
   final Rx<Presence?> presence = Rx(null);
 
   late final TextFieldState status;
 
   final RxBool muted = RxBool(false);
+
+  /// [MyUser.chatDirectLink]'s copyable state.
+  late final TextFieldState link;
 
   final MyUserService _myUserService;
 
@@ -89,6 +95,55 @@ class MoreController extends GetxController {
           } catch (e) {
             s.error.value = e.toString();
             s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
+    link = TextFieldState(
+      text: myUser.value?.chatDirectLink?.slug.val ??
+          ChatDirectLinkSlug.generate(10).val,
+      approvable: true,
+      submitted: myUser.value?.chatDirectLink != null,
+      onChanged: (s) {
+        s.error.value = null;
+
+        try {
+          ChatDirectLinkSlug(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        ChatDirectLinkSlug? slug;
+        try {
+          slug = ChatDirectLinkSlug(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (slug == myUser.value?.chatDirectLink?.slug) {
+          return;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            // await _myUserService.createChatDirectLink(slug!);
+            await Future.delayed(const Duration(seconds: 1));
+            s.status.value = RxStatus.empty();
+          } on CreateChatDirectLinkException catch (e) {
+            s.status.value = RxStatus.empty();
+            s.error.value = e.toMessage();
+          } catch (e) {
+            s.status.value = RxStatus.empty();
+            MessagePopup.error(e);
+            s.unsubmit();
             rethrow;
           } finally {
             s.editable.value = true;

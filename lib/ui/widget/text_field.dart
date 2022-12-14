@@ -56,7 +56,9 @@ class ReactiveTextField extends StatelessWidget {
     this.prefixIcon,
     this.prefixIconColor,
     this.focusNode,
-    this.textAlign = TextAlign.start,this.maxLength,
+    this.textAlign = TextAlign.start,
+    this.maxLength,
+    this.fillColor = Colors.white,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -148,6 +150,8 @@ class ReactiveTextField extends StatelessWidget {
   final TextAlign textAlign;
 
   final int? maxLength;
+
+  final Color fillColor;
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +307,7 @@ class ReactiveTextField extends StatelessWidget {
                     prefix: prefix,
                     prefixIcon: prefixIcon,
                     prefixIconColor: prefixIconColor,
-                    fillColor: Colors.white,
+                    fillColor: fillColor,
                     filled: true,
                     // fillColor: filled == false ? Colors.transparent : null,
                     contentPadding: contentPadding,

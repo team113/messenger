@@ -112,6 +112,7 @@ enum ProfileTab {
   background,
   calls,
   media,
+  notifications,
   language,
   download,
   danger,

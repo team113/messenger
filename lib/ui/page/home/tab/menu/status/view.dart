@@ -25,6 +25,7 @@ import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import 'controller.dart';
@@ -84,9 +85,7 @@ class StatusView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  presenceOnly
-                      ? 'label_presence_title'.l10n
-                      : 'label_status'.l10n,
+                  presenceOnly ? 'label_presence'.l10n : 'label_status'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -97,70 +96,7 @@ class StatusView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   if (!presenceOnly) ...[
-                    // Obx(() {
-                    //   final bool selected = c.myUser.value?.muted != null;
-
-                    //   return Padding(
-                    //     padding: const EdgeInsets.only(bottom: 8),
-                    //     child: Material(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //       color: selected
-                    //           ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                    //           : Colors.white.darken(0.05),
-                    //       child: InkWell(
-                    //         borderRadius: BorderRadius.circular(10),
-                    //         onTap: () {},
-                    //         child: Padding(
-                    //           padding: const EdgeInsets.all(16.0),
-                    //           child: Row(
-                    //             children: [
-                    //               Expanded(
-                    //                 child: Column(
-                    //                   mainAxisSize: MainAxisSize.min,
-                    //                   crossAxisAlignment:
-                    //                       CrossAxisAlignment.start,
-                    //                   children: const [
-                    //                     Text(
-                    //                       'Бесшумный режим',
-                    //                       maxLines: 1,
-                    //                       style: const TextStyle(fontSize: 17),
-                    //                     ),
-                    //                     SizedBox(height: 4),
-                    //                     Flexible(
-                    //                       child: Text(
-                    //                         'Вы не будете получать уведомления',
-                    //                         style: TextStyle(
-                    //                           color: Color(0xFF888888),
-                    //                         ),
-                    //                       ),
-                    //                     ),
-                    //                   ],
-                    //                 ),
-                    //               ),
-                    //               const SizedBox(width: 8),
-                    //               AnimatedSwitcher(
-                    //                 duration: 200.milliseconds,
-                    //                 child: selected
-                    //                     ? SvgLoader.asset(
-                    //                         'assets/icons/btn_mute.svg',
-                    //                         width: 19.68,
-                    //                         height: 15,
-                    //                       )
-                    //                     : SvgLoader.asset(
-                    //                         'assets/icons/btn_unmute.svg',
-                    //                         width: 17.86,
-                    //                         height: 15,
-                    //                       ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   );
-                    // }),
                     // const SizedBox(height: 8),
-                    // header('label_status'.l10n),
                     _padding(
                       ReactiveTextField(
                         key: const Key('StatusField'),
@@ -191,9 +127,9 @@ class StatusView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    header('Presence'),
+                    header('label_presence'.l10n),
                   ],
-                  ...[Presence.hidden, Presence.away, Presence.present]
+                  ...[Presence.present, Presence.away, Presence.hidden]
                       .map((e) {
                     return Obx(() {
                       String? subtitle;
@@ -214,15 +150,54 @@ class StatusView extends StatelessWidget {
                           break;
 
                         case Presence.hidden:
-                          title = 'btn_hidden'.l10n;
-                          color = Colors.red;
+                          title = 'btn_invisible'.l10n;
+                          color = Colors.grey;
                           break;
 
                         case Presence.artemisUnknown:
+                          // No-op.
                           break;
                       }
 
+                      final Style style = Theme.of(context).extension<Style>()!;
+
                       final bool selected = c.presence.value == e;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: WidgetButton(
+                          onPressed: () => c.presence.value = e,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              fillColor: c.presence.value == e
+                                  ? style.cardSelectedColor
+                                  : Colors.white,
+                              state:
+                                  TextFieldState(text: title, editable: false),
+                              trailing: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircleAvatar(
+                                  backgroundColor:
+                                      // Color(0xFF63B4FF),
+                                      color,
+                                  radius: 12,
+                                  child: AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: selected
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 12,
+                                          )
+                                        : const SizedBox(key: Key('None')),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
@@ -234,8 +209,9 @@ class StatusView extends StatelessWidget {
                           child: InkWell(
                             borderRadius: BorderRadius.circular(10),
                             onTap: () => c.presence.value = e,
-                            child: Padding(
+                            child: Container(
                               padding: const EdgeInsets.all(16.0),
+                              height: 52,
                               child: Row(
                                 children: [
                                   // CircleAvatar(
@@ -297,6 +273,135 @@ class StatusView extends StatelessWidget {
                       );
                     });
                   }),
+                  if (false && !presenceOnly) ...[
+                    const SizedBox(height: 16),
+                    header('Звуковые уведомления'),
+                    Obx(() {
+                      return Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          IgnorePointer(
+                            child: ReactiveTextField(
+                              state: TextFieldState(
+                                text: c.muted.value ? 'Отключены' : 'Включены',
+                                editable: false,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 5),
+                              child: Transform.scale(
+                                scale: 0.7,
+                                transformHitTests: false,
+                                child: Theme(
+                                  data: ThemeData(
+                                    platform: TargetPlatform.macOS,
+                                  ),
+                                  child: Switch.adaptive(
+                                    activeColor:
+                                        Theme.of(context).colorScheme.secondary,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    value: !c.muted.value,
+                                    onChanged: (m) => c.muted.toggle(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Material(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white.darken(0.05),
+                          child: Container(
+                            padding: const EdgeInsets.all(16.0),
+                            height: 52,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              c.muted.value
+                                                  ? 'Отключены'
+                                                  : 'Включены',
+                                              maxLines: 1,
+                                              style:
+                                                  const TextStyle(fontSize: 17),
+                                            ),
+                                          ),
+                                          Theme(
+                                            data: ThemeData(
+                                              platform: TargetPlatform.macOS,
+                                            ),
+                                            child: Transform.scale(
+                                              transformHitTests: false,
+                                              scale: 0.7,
+                                              child: SizedBox(
+                                                width: 30,
+                                                height: 20,
+                                                child: Switch.adaptive(
+                                                  activeColor: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary,
+                                                  materialTapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  value: !c.muted.value,
+                                                  onChanged: (m) =>
+                                                      c.muted.toggle(),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      // SizedBox(height: 4),
+                                      // Flexible(
+                                      //   child: Text(
+                                      //     'Вы не будете получать уведомления',
+                                      //     style: TextStyle(
+                                      //       color: Color(0xFF888888),
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                // const SizedBox(width: 8),
+                                // AnimatedSwitcher(
+                                //   duration: 200.milliseconds,
+                                //   child: selected
+                                //       ? SvgLoader.asset(
+                                //           'assets/icons/btn_mute.svg',
+                                //           width: 19.68,
+                                //           height: 15,
+                                //         )
+                                //       : SvgLoader.asset(
+                                //           'assets/icons/btn_unmute.svg',
+                                //           width: 17.86,
+                                //           height: 15,
+                                //         ),
+                                // ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ],
               ),
             ),

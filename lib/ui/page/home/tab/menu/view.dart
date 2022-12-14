@@ -366,6 +366,14 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.notifications:
+                    child = widget(
+                      icon: Icons.notifications,
+                      title: 'Уведомления'.l10n,
+                      subtitle: 'Звук и вибрация'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.language:
                     child = widget(
                       icon: Icons.language,

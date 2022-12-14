@@ -77,6 +77,8 @@ class MyProfileController extends GetxController {
   /// Status of the [MyUser.avatar] update.
   final Rx<RxStatus> avatarStatus = Rx<RxStatus>(RxStatus.empty());
 
+  final RxBool muted = RxBool(false);
+
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 

@@ -254,7 +254,6 @@ class MyProfileView extends StatelessWidget {
                             ],
                           );
                         }
-
                         return const SizedBox();
 
                       case ProfileTab.media:
@@ -266,8 +265,15 @@ class MyProfileView extends StatelessWidget {
                             ],
                           );
                         }
-
                         return const SizedBox();
+
+                      case ProfileTab.notifications:
+                        return block(
+                          children: [
+                            _label(context, 'Звуковые уведомления'),
+                            _notifications(context, c),
+                          ],
+                        );
 
                       case ProfileTab.language:
                         return block(
@@ -1702,6 +1708,99 @@ Widget _media(BuildContext context, MyProfileController c) {
       ),
     ],
   );
+}
+
+Widget _notifications(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: c.muted.value ? 'Отключены' : 'Включены',
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(
+                    platform: TargetPlatform.macOS,
+                  ),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: !c.muted.value,
+                    onChanged: (m) => c.muted.toggle(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return _dense(Material(
+      borderRadius: BorderRadius.circular(10),
+      color: Colors.white.darken(0.05),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        height: 52,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          c.muted.value ? 'Отключены' : 'Включены',
+                          maxLines: 1,
+                          style: const TextStyle(fontSize: 17),
+                        ),
+                      ),
+                      Theme(
+                        data: ThemeData(
+                          platform: TargetPlatform.macOS,
+                        ),
+                        child: Transform.scale(
+                          scale: 0.7,
+                          child: SizedBox(
+                            width: 30,
+                            height: 20,
+                            child: Switch.adaptive(
+                              activeColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              value: !c.muted.value,
+                              onChanged: (m) => c.muted.toggle(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ));
+  });
 }
 
 Widget _downloads(BuildContext context, MyProfileController c) {

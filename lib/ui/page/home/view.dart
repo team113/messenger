@@ -39,6 +39,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'page/user/my_user/view.dart';
 import 'router.dart';
+import 'tab/chats/chats_more/view.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/finance/view.dart';
@@ -244,12 +245,16 @@ class _HomeViewState extends State<HomeView> {
                                     badge: c.unreadChatsCount.value == 0
                                         ? null
                                         : '${c.unreadChatsCount.value}',
-                                    child: animated(
-                                      tab: HomeTab.chats,
-                                      child: SvgLoader.asset(
-                                        'assets/icons/chats.svg',
-                                        width: 36.06,
-                                        height: 30,
+                                    child: RmbDetector(
+                                      onSecondaryButton: () =>
+                                          ChatsMoreView.show(context),
+                                      child: animated(
+                                        tab: HomeTab.chats,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/chats.svg',
+                                          width: 36.06,
+                                          height: 30,
+                                        ),
                                       ),
                                     ),
                                   ),
