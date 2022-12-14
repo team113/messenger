@@ -1426,7 +1426,7 @@ class UnfavoriteChatContactException
   final UnfavoriteChatContactErrorCode code;
 
   @override
-  String toString() => 'UnavoriteChatContactException($code)';
+  String toString() => 'UnfavoriteChatContactException($code)';
 
   @override
   String toMessage() {
