@@ -25,8 +25,6 @@ Feature: Chat muting and unmuting
   Scenario: User mutes chat
     When I long press "Alice and Bob" chat
     And I tap `MuteChatButton` button
-    And I tap `MuteForever` button
-    And I tap `Proceed` button
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmutes chat
