@@ -15,7 +15,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.dart'
+    show PostChatMessageErrorCode;
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/users.dart';
@@ -37,6 +40,40 @@ final StepDefinitionGeneric sendsMessageToMe =
       context.world.sessions[user.name]!.dialog!,
       text: ChatMessageText(msg),
     );
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Sends a message from the specified [User] to the authenticated [MyUser] in
+/// their [Chat]-dialog and asserts that catched exception is `blacklisted`.
+///
+/// Examples:
+/// - Bob sends message to me and receives blacklist exception
+/// - Charlie sends message to me and receives blacklist exception
+final StepDefinitionGeneric sendsMessageWithException =
+    and1<TestUser, CustomWorld>(
+    '{user} sends message to me and receives blacklist exception',
+  (TestUser user, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+    Object? exception;
+
+    try {
+      await provider.postChatMessage(
+        context.world.sessions[user.name]!.dialog!,
+        text: const ChatMessageText('111'),
+      );
+    } catch (e) {
+      exception = e;
+    }
+
+    assert(
+      exception is PostChatMessageException &&
+          exception.code == PostChatMessageErrorCode.blacklisted,
+    );
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

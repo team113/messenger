@@ -131,7 +131,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id) async {
+  Future<void> blockUser(UserId id) async {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 
@@ -141,7 +141,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.blacklistUser(id);
+      await _graphQlProvider.blockUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
         user.user.value.isBlacklisted = isBlacklisted!;
@@ -152,7 +152,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> unblacklistUser(UserId id) async {
+  Future<void> unblockUser(UserId id) async {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 
@@ -162,7 +162,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.unblacklistUser(id);
+      await _graphQlProvider.unblockUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
         user.user.value.isBlacklisted = isBlacklisted!;

@@ -259,15 +259,14 @@ class UserView extends StatelessWidget {
 
   /// Returns a button blacklisting the [User] .
   Widget _blacklist(UserController c, BuildContext context) => ListTile(
+        key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
         leading: _centered(const Icon(Icons.block)),
-        title: Text(c.user!.user.value.isBlacklisted
-            ? 'btn_unblacklist'.l10n
-            : 'btn_blacklist'.l10n),
+        title: Text(c.isBlacklisted! ? 'btn_unblock'.l10n : 'btn_block'.l10n),
         onTap: () {
-          if (c.user!.user.value.isBlacklisted) {
-            c.unblacklist();
+          if (c.isBlacklisted!) {
+            c.unblock();
           } else {
-            c.blacklist();
+            c.block();
           }
         },
       );
