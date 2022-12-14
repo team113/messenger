@@ -23,6 +23,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
@@ -37,9 +38,11 @@ class ContactTile extends StatelessWidget {
     this.leading = const [],
     this.trailing = const [],
     this.onTap,
+    this.actions = const [],
     this.selected = false,
     this.subtitle = const [],
     this.darken = 0,
+    this.folded = false,
     this.height = 86,
     this.radius = 30,
   }) : super(key: key);
@@ -61,11 +64,17 @@ class ContactTile extends StatelessWidget {
   /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
 
+  /// [ContextMenuRegion.actions] of this [ChatTile].
+  final List<ContextMenuButton> actions;
+
   /// Indicator whether this [ContactTile] is selected.
   final bool selected;
 
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
+
+  /// Indicator whether this [ContactTile] should have its corner folded.
+  final bool folded;
 
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
