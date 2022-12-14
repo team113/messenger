@@ -211,8 +211,10 @@ err_data_transfer =
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
+err_incorrect_email = Incorrect E-mail
 err_incorrect_input = Incorrect input.
 err_incorrect_password = Incorrect Password
+err_incorrect_phone = Incorrect phone number
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
@@ -270,14 +272,22 @@ err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
+label_account = Account{" "}
+label_account_access_will_be_lost = Account access will be lost
+label_account_created = Account is created
 label_add_chat_member = Add member
-label_add_email = Add an email
+label_add_email = Add E-mail
+label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_description = A confirmation code will be sent to the indicated E-mail.
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_add_participants = Add participants
-label_account_access_will_be_lost = Account access will be lost
-label_account_created = Account is created
+label_add_phone = Add phone number
+label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_phone_description = A confirmation code will be sent to the indicated phone number.
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -347,7 +357,9 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_calls = Calls
 label_camera = Camera
+label_change_password = Change password
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
@@ -358,6 +370,7 @@ label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
+label_confirmation_code = Confirmation code
 label_contact = Contact
 label_contacts = Contacts
 label_copied_to_clipboard = Copied to the clipboard
@@ -366,9 +379,11 @@ label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
+label_delete_account = Delete account
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
+label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
@@ -397,8 +412,10 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
+label_email = E-mail
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
+label_email_example = example@gmail.com
 label_emails = Emails
 label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
@@ -471,6 +488,8 @@ label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
+label_open_calls_in_popup = Display calls in a separate window.
+label_open_calls_in_main_app = Display calls in the application window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_participant_redial_successfully = Participant redialed
@@ -479,10 +498,14 @@ label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_changed = Password has been changed.
 label_password_not_set = Password not set. Access to the account will be lost.
+label_password_not_set_info = No password has been set for your account. Consequently:
+    - access to your account will be lost forever when you close the current window;
+    - if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
 label_personalization = Personalization
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
+label_phone_number = Phone number
 label_phones = Phones
 label_photo = Photo
 label_presence = Presence
@@ -501,6 +524,8 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_resend = Resend
+label_resend_timeout = Resend ({$timeout})
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -512,6 +537,7 @@ label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
+label_set_password = Set password
 label_settings = Settings
 label_short_weekday =
     {$weekday ->
@@ -545,8 +571,10 @@ label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
+label_will_be_deleted = {" "}will be deleted.
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_your_chat_link = Your direct chat link
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
