@@ -92,7 +92,7 @@ targets:
               dart_type:
                 name: ChatFavoritePosition
                 imports:
-                  - "package:messenger/domain/model/chat.dart"      
+                  - "package:messenger/domain/model/chat.dart"
             - graphql_type: ChatId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
               dart_type:
@@ -152,7 +152,7 @@ targets:
               dart_type:
                 name: FavoriteChatsListVersion
                 imports:
-                 - "package:messenger/store/model/chat.dart"     
+                 - "package:messenger/store/model/chat.dart"
             - graphql_type: GalleryItemId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/gallery.dart"
               dart_type:

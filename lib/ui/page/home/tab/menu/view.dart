@@ -40,7 +40,7 @@ class MenuTabView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('MenuTab'),
-      init: MenuTabController(Get.find(), Get.find(), Get.find()),
+      init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) => Scaffold(
         appBar: AppBar(
           title: Text('label_menu'.l10n),

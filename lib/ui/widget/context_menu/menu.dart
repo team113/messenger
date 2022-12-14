@@ -15,27 +15,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
+import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({Key? key, required this.actions}) : super(key: key);
+  const ContextMenu({super.key, required this.actions});
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
+  /// List of [Widget]s to display in this [ContextMenu].
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgets = [];
+    final Style style = Theme.of(context).extension<Style>()!;
+    final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(actions[i]);
 
       // Adds a divider if required.
-      if (i < actions.length - 1) {
+      if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
             color: const Color(0x11000000),
@@ -46,17 +47,15 @@ class ContextMenu extends StatelessWidget {
       }
     }
 
-    Style style = Theme.of(context).extension<Style>()!;
-
     return Container(
-      width: 220,
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
+        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
         boxShadow: const [
-          CustomBoxShadow(
-            blurRadius: 8,
+          BoxShadow(
+            blurRadius: 12,
             color: Color(0x33000000),
             blurStyle: BlurStyle.outer,
           )
@@ -64,10 +63,16 @@ class ContextMenu extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: widgets,
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!context.isMobile) const SizedBox(height: 6),
+              ...widgets,
+              if (!context.isMobile) const SizedBox(height: 6),
+            ],
+          ),
         ),
       ),
     );
@@ -107,6 +112,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -117,12 +124,21 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding: context.isMobile
+              ? const EdgeInsets.symmetric(horizontal: 18)
+              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
+          margin:
+              context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          height: 50,
+          height: context.isMobile ? 50 : null,
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
             color: isMouseOver
-                ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
+                ? context.isMobile
+                    ? Theme.of(context)
+                        .extension<Style>()!
+                        .contextMenuHoveredColor
+                    : Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
           child: Row(
@@ -137,16 +153,19 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 ),
                 const SizedBox(width: 14),
               ],
-              Expanded(
-                child: Text(
-                  widget.label,
-                  style: context.theme.outlinedButtonTheme.style!.textStyle!
-                      .resolve({MaterialState.disabled})!.copyWith(
-                          color: Colors.black),
+              Text(
+                widget.label,
+                style: style.boldBody.copyWith(
+                  color: (isMouseOver && !context.isMobile)
+                      ? Colors.white
+                      : Colors.black,
+                  fontSize: context.isMobile ? 17 : 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              if (widget.trailing != null) ...[
-                const SizedBox(width: 14),
+              if (context.isMobile && widget.trailing != null) ...[
+                const SizedBox(width: 36),
+                const Spacer(),
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme: const IconThemeData(color: Colors.blue),

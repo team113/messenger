@@ -560,7 +560,7 @@ class ValidateUserPasswordRecoveryCodeException
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -1388,6 +1388,52 @@ class UnfavoriteChatException
       case UnfavoriteChatErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
       case UnfavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.favoriteChatContact` described in the [code].
+class FavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const FavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatContactErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChatContact` described in the [code].
+class UnfavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'UnavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatContactErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

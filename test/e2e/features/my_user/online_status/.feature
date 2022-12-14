@@ -25,6 +25,7 @@ Feature: MyUser's online status is correctly updated
 
     When I tap `MenuButton` button
     And I tap `LogoutButton` button
+    And I tap `ConfirmLogoutButton` button
     Then I wait until `AuthView` is present
     And Bob sees Alice as offline
 
