@@ -42,16 +42,15 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('IntroductionView'),
       init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> children;
+          final List<Widget> children;
 
           switch (c.stage.value) {
             case IntroductionViewStage.password:
@@ -95,36 +94,41 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('ChangePasswordButton'),
                   title: Text(
-                    'btn_save'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    'btn_proceed'.l10n,
+                    style: thin?.copyWith(
+                      color: c.password.isEmpty.value || c.repeat.isEmpty.value
+                          ? Colors.black
+                          : Colors.white,
+                    ),
                   ),
-                  onPressed: c.setPassword,
-                  height: 50,
-                  leading: SvgLoader.asset(
-                    'assets/icons/save.svg',
-                    height: 25 * 0.7,
-                  ),
-                  color: const Color(0xFF63B4FF),
+                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
+                      ? null
+                      : c.setPassword,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ];
               break;
 
             case IntroductionViewStage.success:
               children = [
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'label_password_set_successfully'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                Text(
+                  'label_password_set'.l10n,
+                  style: thin?.copyWith(
+                    fontSize: 15,
+                    color: const Color(0xFF888888),
                   ),
                 ),
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('CloseButton'),
-                    title: Text('btn_close'.l10n),
+                    maxWidth: double.infinity,
+                    title: Text(
+                      'btn_close'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
                     onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFFEEEEEE),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ];
@@ -134,32 +138,16 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text('label_introduction_description'.l10n, style: thin),
                 const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('SetPasswordButton'),
-                        maxWidth: double.infinity,
-                        title: Text(
-                          'btn_set_password'.l10n,
-                          style: thin?.copyWith(color: Colors.white),
-                        ),
-                        onPressed: () =>
-                            c.stage.value = IntroductionViewStage.password,
-                        color: const Color(0xFF63B4FF),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('CloseButton'),
-                        maxWidth: double.infinity,
-                        title: Text('btn_close'.l10n, style: thin),
-                        onPressed: Navigator.of(context).pop,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    )
-                  ],
+                OutlinedRoundedButton(
+                  key: const Key('SetPasswordButton'),
+                  maxWidth: double.infinity,
+                  title: Text(
+                    'btn_set_password'.l10n,
+                    style: thin?.copyWith(color: Colors.white),
+                  ),
+                  onPressed: () =>
+                      c.stage.value = IntroductionViewStage.password,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ];
               break;
@@ -173,35 +161,44 @@ class IntroductionView extends StatelessWidget {
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    'label_account_created'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  onBack: c.stage.value == IntroductionViewStage.password
+                      ? () => c.stage.value = null
+                      : null,
+                  header: Center(
+                    child: Text(
+                      'label_account_created'.l10n,
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
-                if (PlatformUtils.isMobile)
-                  SharableTextField(
-                    key: const Key('NumCopyable'),
-                    text: c.num.text,
-                    label: 'label_num'.l10n,
-                    share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                    trailing:
-                        SvgLoader.asset('assets/icons/share.svg', width: 18),
-                    style: thin,
-                  )
-                else
-                  CopyableTextField(
-                    key: const Key('NumCopyable'),
-                    state: c.num,
-                    label: 'label_num'.l10n,
-                    copy: c.myUser.value?.num.val,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: PlatformUtils.isMobile
+                      ? SharableTextField(
+                          key: const Key('NumCopyable'),
+                          text: c.num.text,
+                          label: 'label_num'.l10n,
+                          share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                          trailing: SvgLoader.asset(
+                            'assets/icons/share.svg',
+                            width: 18,
+                          ),
+                          style: thin,
+                        )
+                      : CopyableTextField(
+                          key: const Key('NumCopyable'),
+                          state: c.num,
+                          label: 'label_num'.l10n,
+                          copy: c.myUser.value?.num.val,
+                          style: thin?.copyWith(fontSize: 18),
+                        ),
+                ),
                 const SizedBox(height: 25),
-                ...children,
-                const SizedBox(height: 25 + 12),
+                ...children.map((e) =>
+                    Padding(padding: ModalPopup.padding(context), child: e)),
+                const SizedBox(height: 16),
               ],
             ),
           );

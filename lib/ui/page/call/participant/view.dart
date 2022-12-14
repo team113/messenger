@@ -58,15 +58,6 @@ class ParticipantView extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       mobilePadding: const EdgeInsets.all(0),
       child: ParticipantView(call: call, duration: duration),
     );
@@ -114,11 +105,12 @@ class ParticipantView extends StatelessWidget {
 
             case ParticipantsFlowStage.participants:
               List<Widget> children = [
+                const SizedBox(height: 12),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: _chat(context, c.chat.value),
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 12),
                 Center(
                   child: Text(
                     'label_participants'.l10n,
@@ -164,9 +156,8 @@ class ParticipantView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    const SizedBox(height: 16),
                     ...children,
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                   ],
                 ),
               );
@@ -174,10 +165,12 @@ class ParticipantView extends StatelessWidget {
           }
 
           return AnimatedSizeAndFade(
-            key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: child,
+            child: KeyedSubtree(
+              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+              child: child,
+            ),
           );
         });
       },
@@ -277,10 +270,9 @@ class ParticipantView extends StatelessWidget {
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     return ContextMenuRegion(
-      enabled: user.id != c.me,
       actions: [
         ContextMenuButton(
-          label: 'btn_remove'.l10n,
+          label: user.id != c.me ? 'btn_remove'.l10n : 'btn_leave'.l10n,
           onPressed: () => c.removeChatMember(user.id),
           trailing: SvgLoader.asset(
             'assets/icons/delete_small.svg',

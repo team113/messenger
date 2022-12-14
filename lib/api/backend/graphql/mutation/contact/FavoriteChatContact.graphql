@@ -14,28 +14,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation ResetUserPassword(
-    $num: UserNum
-    $login: UserLogin
-    $email: UserEmail
-    $phone: UserPhone
-    $code: ConfirmationCode!
-    $newPassword: UserPassword!
-) {
-    resetUserPassword(
-        num: $num
-        email: $email
-        login: $login
-        phone: $phone
-        code: $code
-        newPassword: $newPassword
-    ){
+mutation FavoriteChatContact($id: ChatContactId!, $pos: ChatContactPosition!){
+    favoriteChatContact(id: $id, pos: $pos) {
         __typename
-        # TODO: Wait for fix.
-        # ... on MyUserEventsVersioned {
-        #     ...MyUserEventsVersioned
-        # }
-        ... on ResetUserPasswordError{
+        ... on ChatContactEventsVersioned {
+            ...ChatContactEventsVersioned
+        }
+        ... on FavoriteChatContactError {
             code
         }
     }

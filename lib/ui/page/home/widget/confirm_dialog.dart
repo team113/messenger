@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -44,8 +43,7 @@ class ConfirmDialog extends StatefulWidget {
     required this.title,
     required this.variants,
     this.initial = 0,
-    this.submitLabel,
-    this.withCancel = true,
+    this.label,
     this.additional = const [],
   })  : assert(variants.isNotEmpty),
         super(key: key);
@@ -60,12 +58,9 @@ class ConfirmDialog extends StatefulWidget {
   final String? description;
 
   /// Label of the submit button.
-  final String? submitLabel;
+  final String? label;
 
-  /// Indicator whether cancel button should be showed.
-  final bool withCancel;
-
-  /// Additional [Widget]s showed above the [description].
+  /// [Widget]s to put above the [description].
   final List<Widget> additional;
 
   /// Index of the [variants] to be initially selected.
@@ -77,30 +72,18 @@ class ConfirmDialog extends StatefulWidget {
     String? description,
     required String title,
     required List<ConfirmDialogVariant> variants,
-    String? proceedLabel,
-    bool withCancel = true,
+    String? label,
     List<Widget> additional = const [],
     int initial = 0,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       child: ConfirmDialog(
         description: description,
         title: title,
         variants: variants,
         additional: additional,
-        submitLabel: proceedLabel,
-        withCancel: withCancel,
+        label: label,
         initial: initial,
       ),
     );
@@ -128,14 +111,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
-      Style style = Theme.of(context).extension<Style>()!;
+      final Style style = Theme.of(context).extension<Style>()!;
+
       return Padding(
         padding: ModalPopup.padding(context),
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
           color: _variant == variant
-              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+              ? style.cardSelectedColor.withOpacity(0.8)
               : style.cardColor.darken(0.05),
           child: InkWell(
             onTap: () => setState(() => _variant = variant),
@@ -173,13 +157,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       children: [
         ModalPopupHeader(
           header: Center(
-            child: Text(
-              widget.title,
-              style: thin?.copyWith(fontSize: 18),
-            ),
+            child: Text(widget.title, style: thin?.copyWith(fontSize: 18)),
           ),
         ),
-        const SizedBox(height: 13),
+        const SizedBox(height: 12),
         ...widget.additional.map((e) {
           return Padding(padding: ModalPopup.padding(context), child: e);
         }),
@@ -194,7 +175,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 widget.description!,
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: const Color(0xFF888888),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -202,45 +183,34 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         if (widget.variants.length > 1 && widget.description != null)
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
-          ...widget.variants.map(button).expandIndexed(
-                (i, e) => i > 0 ? [const SizedBox(height: 10), e] : [e],
-              ),
+          Flexible(
+            child: ListView.separated(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (c, i) => button(widget.variants[i]),
+              separatorBuilder: (c, i) => const SizedBox(height: 10),
+              itemCount: widget.variants.length,
+            ),
+          ),
         if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
         Padding(
           padding: ModalPopup.padding(context),
-          child: Row(
-            children: [
-              if (widget.withCancel) ...[
-                Expanded(
-                  child: OutlinedRoundedButton(
-                    maxWidth: double.infinity,
-                    title: Text('btn_cancel'.l10n, style: thin),
-                    onPressed: Navigator.of(context).pop,
-                    color: const Color(0xFFEEEEEE),
-                  ),
-                ),
-                const SizedBox(width: 10),
-              ],
-              Expanded(
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    widget.submitLabel ?? 'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    _variant.onProceed?.call();
-                    Navigator.of(context).pop();
-                  },
-                  color: const Color(0xFF63B4FF),
-                ),
-              ),
-            ],
+          child: OutlinedRoundedButton(
+            key: const Key('Proceed'),
+            maxWidth: double.infinity,
+            title: Text(
+              widget.label ?? 'btn_proceed'.l10n,
+              style: thin?.copyWith(color: Colors.white),
+            ),
+            onPressed: () {
+              _variant.onProceed?.call();
+              Navigator.of(context).pop();
+            },
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
-        const SizedBox(height: 25),
+        const SizedBox(height: 12),
       ],
     );
   }

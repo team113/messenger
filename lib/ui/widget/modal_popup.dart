@@ -19,12 +19,14 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'widget_button.dart';
 
 /// Stylized modal popup.
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
-  /// Returns padding based on the `isMobile` indicator.
+  /// Returns a padding that should be applied to the elements inside a
+  /// [ModalPopup].
   static EdgeInsets padding(BuildContext context) => context.isMobile
       ? EdgeInsets.zero
       : const EdgeInsets.symmetric(horizontal: 30);
@@ -33,15 +35,21 @@ abstract class ModalPopup {
   static Future<T?> show<T>({
     required BuildContext context,
     required Widget child,
-    BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
-    BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
-    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
-    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
+    BoxConstraints desktopConstraints = const BoxConstraints(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+    ),
+    BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 380),
+    BoxConstraints mobileConstraints = const BoxConstraints(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+    ),
+    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
     bool showClose = true,
   }) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     if (context.isNarrow) {
       return showModalBottomSheet(
@@ -107,44 +115,9 @@ abstract class ModalPopup {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: ConstrainedBox(
-                          constraints: desktopConstraints,
-                          child: child,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (isDismissible && showClose)
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: desktopPadding.right == 0
-                              ? const EdgeInsets.only(right: 10)
-                              : EdgeInsets.zero,
-                          child: SizedBox(
-                            height: 16,
-                            child: InkResponse(
-                              onTap: Navigator.of(context).pop,
-                              radius: 11,
-                              child: const Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Color(0xBB818181),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              child: ConstrainedBox(
+                constraints: desktopConstraints,
+                child: child,
               ),
             ),
           );
@@ -154,7 +127,7 @@ abstract class ModalPopup {
   }
 }
 
-/// Stylized header of a popup window.
+/// [Row] with an optional [header] stylized to be a [ModalPopup] header.
 class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     Key? key,
@@ -162,18 +135,18 @@ class ModalPopupHeader extends StatelessWidget {
     this.header,
   }) : super(key: key);
 
-  /// Callback, called when the back button is pressed.
-  ///
-  /// If `null`, then no back button will be displayed.
-  final void Function()? onBack;
-
-  /// Optional [Widget] displayed in this [ModalPopupHeader].
+  /// [Widget] to put as a title of this [ModalPopupHeader].
   final Widget? header;
+
+  /// Callback, called when a back button is pressed.
+  ///
+  /// If `null`, then no back button is displayed at all.
+  final void Function()? onBack;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 48),
       child: Row(
         children: [
           if (onBack != null)
@@ -193,6 +166,7 @@ class ModalPopupHeader extends StatelessWidget {
           if (header != null) Expanded(child: header!) else const Spacer(),
           if (!context.isMobile)
             WidgetButton(
+              key: const Key('CloseButton'),
               onPressed: Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),

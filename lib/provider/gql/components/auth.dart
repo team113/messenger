@@ -312,7 +312,7 @@ abstract class AuthGraphQlMixin {
   ///
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] was used
   /// already.
-  Future<MyUserEventsVersionedMixin?> resetUserPassword(
+  Future<void> resetUserPassword(
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
@@ -322,7 +322,8 @@ abstract class AuthGraphQlMixin {
   ) async {
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.');
+        'Exactly one of num/login/email/phone should be specified.',
+      );
     }
 
     final variables = ResetUserPasswordArguments(
@@ -333,19 +334,17 @@ abstract class AuthGraphQlMixin {
       code: code,
       newPassword: newPassword,
     );
-    final QueryResult result = await client.query(
-      QueryOptions(
+    await client.mutate(
+      MutationOptions(
         operationName: 'ResetUserPassword',
         document: ResetUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => ResetUserPasswordException((ResetUserPassword$Mutation.fromJson(
-                      data)
-                  .resetUserPassword
-              as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
-          .code),
+      onException: (data) => ResetUserPasswordException(
+        (ResetUserPassword$Mutation.fromJson(data).resetUserPassword
+                as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
+            .code,
+      ),
     );
-    return ResetUserPassword$Mutation.fromJson(result.data!).resetUserPassword
-        as MyUserEventsVersionedMixin?;
   }
 }

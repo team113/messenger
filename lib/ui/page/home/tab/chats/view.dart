@@ -29,7 +29,6 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
-import 'mute_chat_popup/view.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
@@ -309,14 +308,7 @@ class ChatsTabView extends StatelessWidget {
                                   onLeave: () => c.leaveChat(chat.id),
                                   onHide: () => c.hideChat(chat.id),
                                   inCall: () => c.inCall(chat.id),
-                                  onMute: () => MuteChatView.show(
-                                    context,
-                                    chatId: chat.id,
-                                    onMute: (duration) => c.muteChat(
-                                      chat.id,
-                                      duration: duration,
-                                    ),
-                                  ),
+                                  onMute: () => c.muteChat(chat.id),
                                   onUnmute: () => c.unmuteChat(chat.id),
                                   onFavorite: () => c.favoriteChat(chat.id),
                                   onUnfavorite: () => c.unfavoriteChat(chat.id),

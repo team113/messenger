@@ -5,6 +5,7 @@ Feature: Chat messages have correct sending status
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I wait for app to settle
 
   Scenario: User sends message
     When I fill `MessageField` field with "123"

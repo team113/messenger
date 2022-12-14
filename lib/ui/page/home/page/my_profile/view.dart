@@ -429,8 +429,7 @@ Widget _login(MyProfileController c, BuildContext context) {
                             ),
                           ),
                         ],
-                        proceedLabel: 'label_confirm'.l10n,
-                        withCancel: false,
+                        label: 'label_confirm'.l10n,
                         initial: 2,
                         variants: [
                           ConfirmDialogVariant(
@@ -539,8 +538,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 ),
                               ),
                             ],
-                            proceedLabel: 'label_confirm',
-                            withCancel: false,
+                            label: 'label_confirm',
                             initial: 2,
                             variants: [
                               ConfirmDialogVariant(
@@ -723,8 +721,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 ),
                               ),
                             ],
-                            proceedLabel: 'label_confirm'.l10n,
-                            withCancel: false,
+                            label: 'label_confirm'.l10n,
                             initial: 2,
                             variants: [
                               ConfirmDialogVariant(

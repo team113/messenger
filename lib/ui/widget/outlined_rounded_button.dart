@@ -83,7 +83,7 @@ class OutlinedRoundedButton extends StatelessWidget {
         maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
-        color: onPressed == null ? const Color(0xFFBBBBBB) : color,
+        color: onPressed == null ? const Color(0xFFEEEEEE) : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
