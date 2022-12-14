@@ -255,17 +255,9 @@ class ChatsTabController extends GetxController {
   }
 
   /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+  Future<void> muteChat(ChatId id) async {
     try {
-      PreciseDateTime? until;
-      if (duration != null) {
-        until = PreciseDateTime.now().add(duration);
-      }
-
-      await _chatService.toggleChatMute(
-        id,
-        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
-      );
+      await _chatService.toggleChatMute(id, MuteDuration.forever());
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
