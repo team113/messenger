@@ -24,12 +24,10 @@ import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
@@ -55,17 +53,13 @@ class ContactsTabView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
               child: WidgetButton(
                 onPressed: c.toggleSorting,
-                child: SizedBox(
-                  width: 29.69,
-                  height: 21,
-                  child: Obx(() {
-                    return SvgLoader.asset(
-                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                      width: 30,
-                      height: 21,
-                    );
-                  }),
-                ),
+                child: Obx(() {
+                  return SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                    width: 29.69,
+                    height: 21,
+                  );
+                }),
               ),
             ),
           ],

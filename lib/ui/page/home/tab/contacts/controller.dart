@@ -72,9 +72,6 @@ class ContactsTabController extends GetxController {
   /// [Worker]s to [RxUser.user] reacting on its changes.
   final Map<UserId, Worker> _userWorkers = {};
 
-  /// Stored [User]s [_OnlineData].
-  final Map<UserId, _OnlineData> _usersMap = {};
-
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
@@ -93,8 +90,9 @@ class ContactsTabController extends GetxController {
       _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
   @override
-  void onInit() {    contacts.addAll(_contactService.contacts.values);
-  _sortContacts();
+  void onInit() {
+    contacts.addAll(_contactService.contacts.values);
+    _sortContacts();
     favorites = RxList(_contactService.favorites.values.toList());
     _sortFavorites();
 
@@ -134,10 +132,143 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Marks the specified [ChatContact] identified by its [id] as favorited.
+  Future<void> favoriteContact(ChatContactId id) async {
+    try {
+      await _contactService.favoriteChatContact(id);
+    } on FavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [ChatContact] identified by its [id] from the
+  /// favorites.
+  Future<void> unfavoriteContact(ChatContactId id) async {
+    try {
+      await _contactService.unfavoriteChatContact(id);
+    } on UnfavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Toggles the [sortByName] sorting the [contacts].
   void toggleSorting() {
     _settingsRepository.setSortContactsByName(!sortByName);
     _sortContacts();
+  }
+
+  /// Starts a [ChatCall] with a [user] [withVideo] or not.
+  ///
+  /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
+  Future<void> _call(User user, bool withVideo) async {
+    Chat? dialog = user.dialog;
+    dialog ??= (await _chatRepository.createDialogChat(user.id)).chat.value;
+    try {
+      await _calls.call(dialog.id, withVideo: withVideo);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
+
+  /// Starts listen updates of [User].
+  void _startUserListen(Rx<User> user) {
+    final User u = user.value;
+
+    if (_userWorkers[u.id] == null) {
+      bool online = u.online;
+      PreciseDateTime? lastSeenAt = u.lastSeenAt;
+
+      _userWorkers[u.id] = ever(user, (User u) {
+        if (sortByName == false &&
+            (online != u.online || lastSeenAt != u.lastSeenAt)) {
+          online = u.online;
+          lastSeenAt = u.lastSeenAt;
+
+          _sortContacts();
+        }
+      });
+    }
+    _sortContacts();
+  }
+
+  /// Maintains an interest in updates of every [RxChatContact.user] in the
+  /// [contacts] list.
+  void _initUsersUpdates() {
+    /// States an interest in updates of the specified [RxChatContact.user].
+    void listen(RxChatContact c) {
+      RxUser? rxUser = c.user.value?..listenUpdates();
+      _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
+        if (rxUser?.id != user?.id) {
+          rxUser?.stopUpdates();
+          rxUser = user?..listenUpdates();
+          _userWorkers.remove(user?.id)?.dispose();
+        }
+
+        if (user != null) {
+          _startUserListen(user.user);
+        }
+      });
+
+      if (c.user.value != null) {
+        _startUserListen(c.user.value!.user);
+      }
+    }
+
+    contacts.forEach(listen);
+
+    _contactsSubscription = _contactService.contacts.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          contacts.add(e.value!);
+          listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          contacts.removeWhere((c) => c.id == e.key);
+          _userWorkers.remove(e.key)?.dispose();
+          _rxUserWorkers.remove(e.key)?.dispose();
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+
+      _sortContacts();
+    });
+
+    favorites.forEach(listen);
+
+    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          favorites.add(e.value!);
+          _sortFavorites();
+          listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          _userWorkers.remove(e.key)?.dispose();
+          favorites.removeWhere((c) => c.contact.value.id == e.key);
+          break;
+
+        case OperationKind.updated:
+          _sortFavorites();
+          break;
+      }
+    });
   }
 
   /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
@@ -165,138 +296,6 @@ class ContactsTabController extends GetxController {
     });
   }
 
-  /// Starts a [ChatCall] with a [user] [withVideo] or not.
-  ///
-  /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
-  Future<void> _call(User user, bool withVideo) async {
-    Chat? dialog = user.dialog;
-    dialog ??= (await _chatRepository.createDialogChat(user.id)).chat.value;
-    try {
-      await _calls.call(dialog.id, withVideo: withVideo);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyExistsException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
-    }
-  }
-
-  /// Starts listen updates of [User].
-  void _startUserListen(Rx<User> user) {
-    final User u = user.value;
-
-    if (_userWorkers[u.id] == null && _usersMap[u.id] == null) {
-      _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
-
-      _userWorkers[u.id] = ever(user, (User u) {
-        if (sortByName == false &&
-            (_usersMap[u.id]!.online != u.online ||
-                _usersMap[u.id]!.lastSeenAt != u.lastSeenAt)) {
-          _usersMap[u.id] = _OnlineData(u.online, u.lastSeenAt);
-
-          _sortContacts();
-        }
-      });
-    }
-    _sortContacts();
-  }
-
-  /// Maintains an interest in updates of every [RxChatContact.user] in the
-  /// [contacts] list.
-  void _initUsersUpdates() {
-    /// States an interest in updates of the specified [RxChatContact.user].
-    void listen(RxChatContact c) {
-      RxUser? rxUser = c.user.value?..listenUpdates();
-      _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
-        if (rxUser?.id != user?.id) {
-          rxUser?.stopUpdates();
-          rxUser = user?..listenUpdates();
-        }
-
-        if (user != null) {
-          _startUserListen(user.user);
-        }
-      });
-
-      if (c.user.value != null) {
-        _startUserListen(c.user.value!.user);
-      }
-    }
-
-    contacts.forEach(listen);
-
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          contacts.add(e.value!);
-          listen(e.value!);
-          break;
-
-        case OperationKind.removed:
-          e.value?.user.value?.stopUpdates();
-          contacts.removeWhere((c) => c.id == e.key);
-          _usersMap.remove(e.key);
-          _userWorkers.remove(e.key)?.dispose();
-          _rxUserWorkers.remove(e.key)?.dispose();
-          break;
-
-        case OperationKind.updated:
-          // no-op
-          break;
-      }
-    });
-
-    favorites.forEach(listen);
-
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          favorites.add(e.value!);
-          _sortFavorites();
-          listen(e.value!);
-          break;
-
-        case OperationKind.removed:
-          e.value?.user.value?.stopUpdates();
-          _userWorkers.remove(e.key)?.dispose();
-          favorites.removeWhere((c) => c.contact.value.id == e.key);
-          break;
-
-        case OperationKind.updated:
-          _sortFavorites();
-          break;
-      }
-
-      _sortContacts();
-    });
-  }
-
-  /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
-    try {
-      await _contactService.favoriteChatContact(id);
-    } on FavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Removes the specified [ChatContact] identified by its [id] from the
-  /// favorites.
-  Future<void> unfavoriteContact(ChatContactId id) async {
-    try {
-      await _contactService.unfavoriteChatContact(id);
-    } on UnfavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
   /// Sorts the [favorites] by the [ChatContact.favoritePosition].
   void _sortFavorites() {
     favorites.sort(
@@ -304,15 +303,4 @@ class ContactsTabController extends GetxController {
           .compareTo(b.contact.value.favoritePosition!),
     );
   }
-}
-
-/// Wrapped [User]s online state data.
-class _OnlineData {
-  const _OnlineData(this.online, this.lastSeenAt);
-
-  /// Online state of [User].
-  final bool online;
-
-  /// [PreciseDateTime] when [User] was seen online last time.
-  final PreciseDateTime? lastSeenAt;
 }
