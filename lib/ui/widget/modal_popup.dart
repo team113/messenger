@@ -14,9 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -183,10 +181,4 @@ class ModalPopupHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Contains list of [DropTarget]s keys.
-class DropTargetList {
-  /// List of [DropTarget]s keys.
-  static final RxList<String> keys = RxList<String>([]);
 }

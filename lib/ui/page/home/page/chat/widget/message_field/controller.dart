@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -33,6 +34,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -44,6 +46,7 @@ class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
     this._userService, {
+    this.onSubmit,
     this.updateDraft,
   });
 
@@ -60,6 +63,9 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
 
+  /// Callback called when send message was submitted.
+  void Function()? onSubmit;
+
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
@@ -75,6 +81,9 @@ class MessageFieldController extends GetxController {
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
+  /// State of a send message field.
+  late final TextFieldState send;
+
   /// [Chat]s service used to upload attachments.
   final ChatService _chatService;
 
@@ -83,6 +92,44 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  @override
+  void onInit() {
+    send = TextFieldState(
+      onSubmitted: (s) => onSubmit?.call(),
+      focus: FocusNode(
+        onKey: (FocusNode node, RawKeyEvent e) {
+          if (e.logicalKey == LogicalKeyboardKey.enter &&
+              e is RawKeyDownEvent) {
+            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+              int cursor;
+
+              if (send.controller.selection.isCollapsed) {
+                cursor = send.controller.selection.base.offset;
+                send.text =
+                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+              } else {
+                cursor = send.controller.selection.start;
+                send.text =
+                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+              }
+
+              send.controller.selection =
+                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
+              return KeyEventResult.handled;
+            } else if (!e.isShiftPressed) {
+              send.submit();
+              return KeyEventResult.handled;
+            }
+          }
+
+          return KeyEventResult.ignored;
+        },
+      ),
+    );
+
+    super.onInit();
+  }
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);

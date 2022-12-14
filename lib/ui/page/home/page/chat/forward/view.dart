@@ -14,8 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -28,6 +26,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
+import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/widget/modal_popup.dart';
 
@@ -105,11 +104,11 @@ class ChatForwardView extends StatelessWidget {
       ),
       builder: (ChatForwardController c) {
         return Obx(() {
-          return DropTarget(
+          return CustomDropTarget(
+            key: Key('ChatForwardView_$from'),
             onDragDone: c.dropFiles,
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
-            enable: DropTargetList.keys.lastOrNull == 'ChatForwardView_$from',
             child: Stack(
               children: [
                 Container(
@@ -136,19 +135,6 @@ class ChatForwardView extends StatelessWidget {
                           messageFieldKey: const Key('ForwardField'),
                           messageSendButtonKey: const Key('SendForward'),
                           controller: c.sendController,
-                          textFieldState: c.send,
-                          onSend: c.send.submit,
-                          onReorder: (int old, int to) {
-                            if (old < to) {
-                              --to;
-                            }
-
-                            final ChatItemQuote item =
-                                c.sendController.quotes.removeAt(old);
-                            c.sendController.quotes.insert(to, item);
-
-                            HapticFeedback.lightImpact();
-                          },
                         ),
                       ),
                     ],

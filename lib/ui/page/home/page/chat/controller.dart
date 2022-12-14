@@ -57,8 +57,6 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/message_field/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/widget/modal_popup.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
@@ -112,17 +110,11 @@ class ChatController extends GetxController {
   /// [RxSplayTreeMap] of the [ListElement]s to display.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
-  /// State of a send message field.
-  late final TextFieldState send;
-
   /// [MessageFieldController] controller of sending message.
   late final MessageFieldController sendController;
 
   /// [MessageFieldController] controller of editing message.
   late final MessageFieldController editController;
-
-  /// State of an edit message field.
-  TextFieldState? edit;
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -297,75 +289,41 @@ class ChatController extends GetxController {
       _userService,
       updateDraft: updateDraft,
     );
-    editController = MessageFieldController(_chatService, _userService);
+    editController = MessageFieldController(
+      _chatService,
+      _userService,
+      onSubmit: () async {
+        ChatMessage item = editController.editedMessage.value as ChatMessage;
+        if (editController.send.text == item.text?.val) {
+          editController.editedMessage.value = null;
+          editController.editedMessage.value = null;
+        } else if (editController.send.text.isNotEmpty ||
+            item.attachments.isNotEmpty) {
+          ChatMessageText? text;
+          if (editController.send.text.isNotEmpty) {
+            text = ChatMessageText(editController.send.text);
+          }
 
-    send = TextFieldState(
-      onChanged: (s) {},
-      onSubmitted: (s) {
-        if (s.text.isNotEmpty ||
-            sendController.attachments.isNotEmpty ||
-            sendController.repliedMessages.isNotEmpty) {
-          _chatService
-              .sendChatMessage(
-                chat!.chat.value.id,
-                text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: sendController.repliedMessages.reversed.toList(),
-                attachments:
-                    sendController.attachments.map((e) => e.value).toList(),
-              )
-              .then((_) => _playMessageSent())
-              .onError<PostChatMessageException>(
-                  (e, _) => MessagePopup.error(e))
-              .onError<UploadAttachmentException>(
-                  (e, _) => MessagePopup.error(e))
-              .onError<ConnectionException>((e, _) {});
+          try {
+            await _chatService.editChatMessage(item, text);
+            editController.editedMessage.value = null;
+            editController.editedMessage.value = null;
 
-          sendController.repliedMessages.clear();
-          sendController.attachments.clear();
-          s.clear();
-          s.unsubmit();
+            _typingSubscription?.cancel();
+            _typingSubscription = null;
+            _typingTimer?.cancel();
 
-          chat?.setDraft();
-
-          _typingSubscription?.cancel();
-          _typingSubscription = null;
-          _typingTimer?.cancel();
-
-          if (!PlatformUtils.isMobile) {
-            Future.delayed(Duration.zero, () => s.focus.requestFocus());
+            if (sendController.send.isEmpty.isFalse) {
+              sendController.send.focus.requestFocus();
+            }
+          } on EditChatMessageException catch (e) {
+            MessagePopup.error(e);
+          } catch (e) {
+            MessagePopup.error(e);
+            rethrow;
           }
         }
       },
-      focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
-              e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
-
-              if (send.controller.selection.isCollapsed) {
-                print('1');
-                cursor = send.controller.selection.base.offset;
-                // send.text =
-                //     '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-              } else {
-                print('2');
-                cursor = send.controller.selection.start;
-                send.text =
-                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
-              }
-
-              send.controller.selection =
-                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
-            } else if (!e.isShiftPressed) {
-              send.submit();
-              return KeyEventResult.handled;
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
     );
 
     super.onInit();
@@ -373,7 +331,6 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
-    DropTargetList.keys.add('ChatView_$id');
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     _fetchChat();
@@ -383,9 +340,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DropTargetList.keys.remove('ChatView_$id');
-    });
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _messagesSubscription?.cancel();
@@ -407,6 +361,44 @@ class ChatController extends GetxController {
         .forEach(AudioCache.instance.clear);
 
     super.onClose();
+  }
+
+  /// Sends chat message.
+  void sendMessage() {
+    if (sendController.send.text.isNotEmpty ||
+        sendController.attachments.isNotEmpty ||
+        sendController.repliedMessages.isNotEmpty) {
+      _chatService
+          .sendChatMessage(
+            chat!.chat.value.id,
+            text: sendController.send.text.isEmpty
+                ? null
+                : ChatMessageText(sendController.send.text),
+            repliesTo: sendController.repliedMessages.reversed.toList(),
+            attachments:
+                sendController.attachments.map((e) => e.value).toList(),
+          )
+          .then((_) => _playMessageSent())
+          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
+          .onError<ConnectionException>((e, _) {});
+
+      sendController.repliedMessages.clear();
+      sendController.attachments.clear();
+      sendController.send.clear();
+      sendController.send.unsubmit();
+
+      chat?.setDraft();
+
+      _typingSubscription?.cancel();
+      _typingSubscription = null;
+      _typingTimer?.cancel();
+
+      if (!PlatformUtils.isMobile) {
+        Future.delayed(
+            Duration.zero, () => sendController.send.focus.requestFocus());
+      }
+    }
   }
 
   // TODO: Handle [CallAlreadyExistsException].
@@ -467,71 +459,10 @@ class ChatController extends GetxController {
 
     if (item is ChatMessage) {
       editController.editedMessage.value = item;
-      edit = TextFieldState(
-        text: item.text?.val,
-        onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
-            ? s.status.value = RxStatus.error()
-            : s.status.value = RxStatus.empty(),
-        onSubmitted: (s) async {
-          if (s.text == item.text?.val) {
-            editController.editedMessage.value = null;
-            edit = null;
-          } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
-            ChatMessageText? text;
-            if (s.text.isNotEmpty) {
-              text = ChatMessageText(s.text);
-            }
-
-            try {
-              await _chatService.editChatMessage(item, text);
-              editController.editedMessage.value = null;
-              edit = null;
-
-              _typingSubscription?.cancel();
-              _typingSubscription = null;
-              _typingTimer?.cancel();
-
-              if (send.isEmpty.isFalse) {
-                send.focus.requestFocus();
-              }
-            } on EditChatMessageException catch (e) {
-              MessagePopup.error(e);
-            } catch (e) {
-              MessagePopup.error(e);
-              rethrow;
-            }
-          }
-        },
-        focus: FocusNode(
-          onKey: (FocusNode node, RawKeyEvent e) {
-            if (e.logicalKey == LogicalKeyboardKey.enter &&
-                e is RawKeyDownEvent) {
-              if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-                final int cursor;
-
-                if (edit!.controller.selection.isCollapsed) {
-                  cursor = edit!.controller.selection.base.offset;
-                  edit!.text =
-                      '${edit!.text.substring(0, cursor)}\n${edit!.text.substring(cursor, edit!.text.length)}';
-                } else {
-                  cursor = edit!.controller.selection.start;
-                  edit!.text =
-                      '${edit!.text.substring(0, edit!.controller.selection.start)}\n${edit!.text.substring(edit!.controller.selection.end, edit!.text.length)}';
-                }
-
-                edit!.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-              } else if (!e.isShiftPressed) {
-                edit!.submit();
-                return KeyEventResult.handled;
-              }
-            }
-
-            return KeyEventResult.ignored;
-          },
-        ),
-      )..focus.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        editController.send.text = item.text?.val ?? '';
+        editController.send.focus.requestFocus();
+      });
     }
   }
 
@@ -552,7 +483,9 @@ class ChatController extends GetxController {
     }
 
     chat?.setDraft(
-      text: send.text.isEmpty ? null : ChatMessageText(send.text),
+      text: sendController.send.text.isEmpty
+          ? null
+          : ChatMessageText(sendController.send.text),
       attachments: persisted.map((e) => e.value).toList(),
       repliesTo: List.from(
         sendController.repliedMessages,
@@ -572,14 +505,16 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.text = draft?.text?.val ?? '';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        sendController.send.text = draft?.text?.val ?? '';
+        sendController.send.onChanged = (s) => updateDraft();
+      });
       sendController.repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
         sendController.attachments.add(MapEntry(GlobalKey(), e));
       }
 
-      send.onChanged = (s) => updateDraft();
       _repliesWorker ??=
           ever(sendController.repliedMessages, (_) => updateDraft());
       _attachmentsWorker ??=

@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -37,13 +36,13 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -132,8 +131,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
-          return DropTarget(
-            enable: DropTargetList.keys.lastOrNull == 'ChatView_${c.id}',
+          return CustomDropTarget(
+            key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -824,53 +823,40 @@ class _ChatViewState extends State<ChatView>
   Widget _bottomBar(ChatController c, BuildContext context) {
     return c.editController.editedMessage.value == null
         ? MessageFieldView(
-            controller: c.sendController,
-            textFieldState: c.send,
-            onSend: () async {
-              if (c.sendController.forwarding.value) {
-                if (c.sendController.repliedMessages.isNotEmpty) {
-                  bool? result = await ChatForwardView.show(
-                    context,
-                    c.id,
-                    c.sendController.repliedMessages
-                        .map((e) => ChatItemQuote(item: e))
-                        .toList(),
-                    text: c.send.text,
-                    attachments: c.sendController.attachments
-                        .map((e) => e.value)
-                        .toList(),
-                  );
+            key: const Key('SendMessageField'),
+            controller: c.sendController
+              ..onSubmit = () async {
+                if (c.sendController.forwarding.value) {
+                  if (c.sendController.repliedMessages.isNotEmpty) {
+                    bool? result = await ChatForwardView.show(
+                      context,
+                      c.id,
+                      c.sendController.repliedMessages
+                          .map((e) => ChatItemQuote(item: e))
+                          .toList(),
+                      text: c.sendController.send.text,
+                      attachments: c.sendController.attachments
+                          .map((e) => e.value)
+                          .toList(),
+                    );
 
-                  if (result == true) {
-                    c.sendController.repliedMessages.clear();
-                    c.sendController.forwarding.value = false;
-                    c.sendController.attachments.clear();
-                    c.send.clear();
+                    if (result == true) {
+                      c.sendController.repliedMessages.clear();
+                      c.sendController.forwarding.value = false;
+                      c.sendController.attachments.clear();
+                      c.sendController.send.clear();
+                    }
                   }
+                } else {
+                  c.sendMessage();
                 }
-              } else {
-                c.send.submit();
-              }
-            },
-            onReorder: (int old, int to) {
-              if (old < to) {
-                --to;
-              }
-
-              final ChatItem item =
-                  c.sendController.repliedMessages.removeAt(old);
-              c.sendController.repliedMessages.insert(to, item);
-
-              HapticFeedback.lightImpact();
-            },
+              },
             onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
             enabledForwarding: true,
           )
         : MessageFieldView(
             key: const Key('EditMessageFieldView'),
             controller: c.editController,
-            textFieldState: c.edit!,
-            onSend: c.edit!.submit,
             onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
             canAttachFile: false,
           );

@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -35,8 +34,6 @@ import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/widget/message_field/controller.dart';
-import '/ui/widget/modal_popup.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -67,9 +64,6 @@ class ChatForwardController extends GetxController {
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote> quotes;
 
-  /// State of a send message field.
-  late final TextFieldState send;
-
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
@@ -97,25 +91,16 @@ class ChatForwardController extends GetxController {
 
   @override
   void onInit() {
-    sendController = MessageFieldController(_chatService, _userService);
-    sendController.quotes.addAll(quotes);
-    sendController.attachments.addAll(attachments);
-
-    quotesChanges = ever(quotes, (_) {
-      if (quotes.isEmpty) {
-        pop?.call();
-      }
-    });
-
-    send = TextFieldState(
-      text: text,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
+    sendController = MessageFieldController(
+      _chatService,
+      _userService,
+      onSubmit: () async {
         if (searchResults.value?.isEmpty != false) {
+          sendController.send.unsubmit();
           return;
         }
-        s.status.value = RxStatus.loading();
-        s.editable.value = false;
+        sendController.send.status.value = RxStatus.loading();
+        sendController.send.editable.value = false;
 
         try {
           List<Future> uploads = sendController.attachments
@@ -137,7 +122,9 @@ class ChatForwardController extends GetxController {
           List<AttachmentId>? attachments = sendController.attachments.isEmpty
               ? null
               : sendController.attachments.map((a) => a.value.id).toList();
-          ChatMessageText? text = s.text == '' ? null : ChatMessageText(s.text);
+          ChatMessageText? text = sendController.send.text == ''
+              ? null
+              : ChatMessageText(sendController.send.text);
 
           List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {
@@ -183,55 +170,25 @@ class ChatForwardController extends GetxController {
           MessagePopup.error(e);
           rethrow;
         } finally {
-          s.unsubmit();
+          sendController.send.unsubmit();
         }
       },
-      focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
-              e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
-
-              if (send.controller.selection.isCollapsed) {
-                cursor = send.controller.selection.base.offset;
-                send.text =
-                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-              } else {
-                cursor = send.controller.selection.start;
-                send.text =
-                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
-              }
-
-              send.controller.selection =
-                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
-            } else if (!e.isShiftPressed) {
-              send.submit();
-              return KeyEventResult.handled;
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
     );
+    sendController.quotes.addAll(quotes);
+    sendController.attachments.addAll(attachments);
+
+    quotesChanges = ever(quotes, (_) {
+      if (quotes.isEmpty) {
+        pop?.call();
+      }
+    });
 
     super.onInit();
   }
 
   @override
-  void onReady() {
-    DropTargetList.keys.add('ChatForwardView_$from');
-
-    super.onReady();
-  }
-
-  @override
   void onClose() {
     quotesChanges.dispose();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DropTargetList.keys.remove('ChatForwardView_$from');
-    });
 
     super.onClose();
   }

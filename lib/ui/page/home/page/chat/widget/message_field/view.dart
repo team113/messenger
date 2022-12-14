@@ -26,6 +26,7 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -51,15 +52,12 @@ class MessageFieldView extends StatelessWidget {
   const MessageFieldView({
     Key? key,
     this.keepTyping,
-    this.onReorder,
     this.onChatItemTap,
     this.messageFieldKey,
     this.messageSendButtonKey,
     this.updateDraft,
     this.enabledForwarding = false,
     this.canAttachFile = true,
-    this.onSend,
-    required this.textFieldState,
     required this.controller,
   }) : super(key: key);
 
@@ -68,9 +66,6 @@ class MessageFieldView extends StatelessWidget {
 
   /// [Key] of message send button.
   final Key? messageSendButtonKey;
-
-  /// State of a send message field.
-  final TextFieldState textFieldState;
 
   /// Indicator whether forwarding message is enabled or not.
   final bool enabledForwarding;
@@ -84,26 +79,19 @@ class MessageFieldView extends StatelessWidget {
   /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
   final Future<void> Function(ChatItemId id)? onChatItemTap;
 
-  /// Callback, called when send message button was tapped.
-  final void Function()? onSend;
-
   /// Callback, called when user typing in message field.
   final void Function()? keepTyping;
 
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
-  /// Callback, called when the [MessageFieldController.quotes] or the
-  /// [MessageFieldController.repliedMessages] were reordered.
-  final void Function(int old, int to)? onReorder;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    Widget sendButton() {
+    Widget sendButton(MessageFieldController c) {
       return WidgetButton(
-        onPressed: onSend,
+        onPressed: c.send.submit,
         child: SizedBox(
           width: 56,
           height: 56,
@@ -270,8 +258,16 @@ class MessageFieldView extends StatelessWidget {
                                           shrinkWrap: true,
                                           buildDefaultDragHandles:
                                               PlatformUtils.isMobile,
-                                          onReorder: (int from, int to) {
-                                            onReorder?.call(from, to);
+                                          onReorder: (int old, int to) {
+                                            if (old < to) {
+                                              --to;
+                                            }
+
+                                            final ChatItemQuote item =
+                                                c.quotes.removeAt(old);
+                                            c.quotes.insert(to, item);
+
+                                            HapticFeedback.lightImpact();
                                           },
                                           proxyDecorator:
                                               (child, i, animation) {
@@ -361,8 +357,16 @@ class MessageFieldView extends StatelessWidget {
                                         shrinkWrap: true,
                                         buildDefaultDragHandles:
                                             PlatformUtils.isMobile,
-                                        onReorder: (from, to) {
-                                          onReorder?.call(from, to);
+                                        onReorder: (int old, int to) {
+                                          if (old < to) {
+                                            --to;
+                                          }
+
+                                          final ChatItem item =
+                                              c.repliedMessages.removeAt(old);
+                                          c.repliedMessages.insert(to, item);
+
+                                          HapticFeedback.lightImpact();
                                         },
                                         proxyDecorator: (child, i, animation) {
                                           return AnimatedBuilder(
@@ -543,7 +547,7 @@ class MessageFieldView extends StatelessWidget {
                                 onChanged: keepTyping,
                                 key: messageFieldKey ??
                                     const Key('MessageField'),
-                                state: textFieldState,
+                                state: c.send,
                                 hint: 'label_send_message_hint'.l10n,
                                 minLines: 1,
                                 maxLines: 7,
@@ -553,7 +557,7 @@ class MessageFieldView extends StatelessWidget {
                                     const EdgeInsets.symmetric(vertical: 8),
                                 style: style.boldBody.copyWith(fontSize: 17),
                                 type: TextInputType.multiline,
-                                textInputAction: TextInputAction.send,
+                                textInputAction: TextInputAction.newline,
                               ),
                             ),
                           ),
@@ -566,7 +570,7 @@ class MessageFieldView extends StatelessWidget {
                                     duration: 300.milliseconds,
                                     child: c.forwarding.value == true
                                         ? WidgetButton(
-                                            onPressed: onSend,
+                                            onPressed: c.send.submit,
                                             child: SizedBox(
                                               width: 56,
                                               height: 56,
@@ -588,10 +592,10 @@ class MessageFieldView extends StatelessWidget {
                                               ),
                                             ),
                                           )
-                                        : sendButton(),
+                                        : sendButton(c),
                                   ),
                                 )
-                              : sendButton(),
+                              : sendButton(c),
                         ),
                       ],
                     ),
@@ -855,7 +859,7 @@ class MessageFieldView extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!textFieldState.status.value.isLoading)
+              if (!c.send.status.value.isLoading)
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
