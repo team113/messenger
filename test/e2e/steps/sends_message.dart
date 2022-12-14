@@ -54,7 +54,7 @@ final StepDefinitionGeneric sendsMessageToMe =
 /// - Charlie sends message to me and receives blacklist exception
 final StepDefinitionGeneric sendsMessageWithException =
     and1<TestUser, CustomWorld>(
-    '{user} sends message to me and receives blacklist exception',
+  '{user} sends message to me and receives blacklist exception',
   (TestUser user, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
