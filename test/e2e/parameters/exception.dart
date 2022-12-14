@@ -23,11 +23,11 @@ enum ExceptionType { blacklist, no }
 class ExceptionParameter extends CustomParameter<ExceptionType> {
   ExceptionParameter()
       : super(
-    'exception',
-    RegExp(
-      '(${ExceptionType.values.map((e) => e.name).join('|')})',
-      caseSensitive: false,
-    ),
-        (c) => ExceptionType.values.firstWhere((e) => e.name == c),
-  );
+          'exception',
+          RegExp(
+            '(${ExceptionType.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => ExceptionType.values.firstWhere((e) => e.name == c),
+        );
 }
