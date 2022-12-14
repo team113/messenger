@@ -143,9 +143,6 @@ class ParticipantController extends GetxController {
   Future<void> removeChatMember(UserId userId) async {
     try {
       await _chatService.removeChatMember(chatId.value, userId);
-      if (userId == me) {
-        pop?.call();
-      }
     } on RemoveChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
