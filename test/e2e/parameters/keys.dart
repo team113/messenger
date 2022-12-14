@@ -45,6 +45,7 @@ enum WidgetKey {
   DeleteForAll,
   EmailsExpandable,
   FavoriteChatButton,
+  FavoriteContactButton,
   ForwardButton,
   ForwardField,
   HideForMe,
@@ -62,7 +63,6 @@ enum WidgetKey {
   MessageField,
   MonologButton,
   MuteChatButton,
-  MuteForever,
   MyProfileButton,
   MyProfileScrollable,
   MyProfileView,
@@ -89,6 +89,7 @@ enum WidgetKey {
   StartButton,
   SuccessStage,
   UnfavoriteChatButton,
+  UnfavoriteContactButton,
   UnmuteChatButton,
   UsernameField,
 }
