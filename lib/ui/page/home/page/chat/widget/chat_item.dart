@@ -54,6 +54,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -1227,6 +1228,45 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     bool isSent = item.status.value == SendingStatus.sent;
 
+    const int maxAvatars = 4;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true &&
+        widget.chat.value?.lastItem?.id == widget.item.value.id) {
+      widget.chat.value?.lastReads.removeWhere((e) => e.memberId == widget.me);
+
+      final Iterable<LastChatRead> reads = (widget.chat.value?.lastReads ?? [])
+          .where((e) =>
+              e.at == widget.item.value.at ||
+              e.at.isAfter(widget.item.value.at));
+
+      final int take = reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+      for (LastChatRead m in reads.take(take)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget.fromUser(user, radius: 10),
+          ),
+        );
+      }
+
+      if (reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(
+              title: '+${reads.length - take}',
+              radius: 10,
+            ),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       asStack: !_fromMe,
@@ -1475,7 +1515,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        child: child,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            child,
+                            Transform.translate(
+                              offset: const Offset(-12, -4),
+                              child: WidgetButton(
+                                onPressed: () => ChatItemReads.show(
+                                  context,
+                                  item: widget.item,
+                                  chat: widget.chat,
+                                  getUser: widget.getUser,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: avatars,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
