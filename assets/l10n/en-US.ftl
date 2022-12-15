@@ -384,6 +384,7 @@ label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
 label_delete_account = Delete account
+label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?

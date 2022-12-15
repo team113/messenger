@@ -401,6 +401,7 @@ label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
 label_current_password = Текущий пароль
 label_delete_account = Удалить аккаунт
+label_delete_email = Удалить E-mail
 label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?

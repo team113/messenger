@@ -70,7 +70,7 @@ class DeleteEmailView extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Delete E-mail'.l10n,
+                    'label_delete_email'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -81,12 +81,12 @@ class DeleteEmailView extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      const TextSpan(text: 'E-mail '),
+                      TextSpan(text: 'label_email'.l10n + 'space'.l10n),
                       TextSpan(
                         text: c.email.val,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      const TextSpan(text: ' будет удалён.'),
+                      TextSpan(text: 'label_will_be_deleted'.l10n),
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,
