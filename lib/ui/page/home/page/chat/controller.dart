@@ -504,12 +504,7 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        print(sendController);
-
-        sendController.send.text = draft?.text?.val ?? '';
-        sendController.send.onChanged = (s) => updateDraft();
-      });
+      sendController.send.text = draft?.text?.val ?? '';
       sendController.repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {

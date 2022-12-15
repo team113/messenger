@@ -85,7 +85,7 @@ class MessageFieldController extends GetxController {
   late final TextFieldState send;
 
   /// Indicator whether [send] was initialized or not.
-  final RxBool sendInitialized = RxBool(false);
+  final RxBool _sendInitialized = RxBool(false);
 
   /// [Chat]s service used to upload attachments.
   final ChatService _chatService;
@@ -98,8 +98,9 @@ class MessageFieldController extends GetxController {
 
   @override
   void onInit() {
-    if (sendInitialized.isFalse) {
+    if (_sendInitialized.isFalse) {
       send = TextFieldState(
+        onChanged: (_) => updateDraft?.call(),
         onSubmitted: (s) => onSubmit?.call(),
         focus: FocusNode(
           onKey: (FocusNode node, RawKeyEvent e) {
@@ -131,7 +132,7 @@ class MessageFieldController extends GetxController {
           },
         ),
       );
-      sendInitialized.value = true;
+      _sendInitialized.value = true;
     }
 
     super.onInit();

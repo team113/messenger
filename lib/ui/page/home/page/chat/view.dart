@@ -851,10 +851,7 @@ class _ChatViewState extends State<ChatView>
                   c.sendMessage();
                 }
               },
-            keepTyping: () {
-              c.keepTyping();
-              c.updateDraft();
-            },
+            keepTyping: c.keepTyping,
             onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
             enabledForwarding: true,
           )
