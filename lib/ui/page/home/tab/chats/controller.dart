@@ -116,7 +116,7 @@ class ChatsTabController extends GetxController {
   /// Indicator whether group creation mode is enabled.
   final RxBool groupCreating = RxBool(false);
 
-  /// Group сreation mutation status.
+  /// Group creation mutation status.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// Returns [MyUser]'s [UserId].
@@ -172,6 +172,8 @@ class ChatsTabController extends GetxController {
 
     _searchSubscription?.cancel();
     search.value.onClose();
+
+    router.navigation.value = null;
 
     super.onClose();
   }
@@ -412,14 +414,14 @@ class ChatsTabController extends GetxController {
   }
 
   /// Enable group creation mode.
-  void startCreationGroup() {
+  void startGroupCreating() {
     groupCreating.value = true;
     router.navigation.value = const SizedBox();
     search.value.populate();
   }
 
   /// Exiting group creation mode.
-  void closeCreationGroup() {
+  void closeGroupCreating() {
     closeSearchCreationGroup();
     groupCreating.value = false;
     router.navigation.value = null;
@@ -458,7 +460,7 @@ class ChatsTabController extends GetxController {
       ));
 
       router.chatInfo(chat.chat.value.id);
-      closeCreationGroup();
+      closeGroupCreating();
     } on CreateGroupChatException catch (e) {
       MessagePopup.error(e);
     } on FormatException catch (e) {
