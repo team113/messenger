@@ -25,7 +25,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View for adding and confirming a new [UserEmail].
+/// View for adding and confirming an [UserEmail].
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {

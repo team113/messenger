@@ -25,16 +25,14 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
-  code,
-}
-
 /// Controller of a [ChatForwardView].
 class DeleteEmailController extends GetxController {
   DeleteEmailController(this._myUserService, {required this.email});
 
+  /// [UserEmail] to delete.
   final UserEmail email;
 
+  /// [MyUserService] deleting the [email].
   final MyUserService _myUserService;
 
   /// Returns current [MyUser] value.

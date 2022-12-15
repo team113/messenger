@@ -25,11 +25,6 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Possible [DeletePhoneView] flow stage.
-enum AddEmailFlowStage {
-  code,
-}
-
 /// Controller of a [DeletePhoneView].
 class DeletePhoneController extends GetxController {
   DeletePhoneController(this._myUserService, {required this.phone});
@@ -37,7 +32,7 @@ class DeletePhoneController extends GetxController {
   /// [UserPhone] to delete.
   final UserPhone phone;
 
-  /// [MyUserService] used for deleting the [phone] from the [MyUser.phones].
+  /// [MyUserService] deleting the [phone].
   final MyUserService _myUserService;
 
   /// Returns current [MyUser] value.

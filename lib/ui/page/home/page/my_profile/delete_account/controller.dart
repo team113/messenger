@@ -39,6 +39,7 @@ class DeleteAccountController extends GetxController {
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Deletes [myUser]'s account.
   Future<void> deleteAccount() async {
     try {
       router.go(await _authService.logout());

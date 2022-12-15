@@ -208,7 +208,6 @@ class ChangePasswordView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // const SizedBox(height: 16 - 12),
                 ModalPopupHeader(
                   header: Center(
                     child: Text(

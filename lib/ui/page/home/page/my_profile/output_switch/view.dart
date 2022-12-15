@@ -35,7 +35,7 @@ class OutputSwitchView extends StatelessWidget {
   /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
+  /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<OngoingCall> call,
@@ -79,7 +79,6 @@ class OutputSwitchView extends StatelessWidget {
                   ),
                 ),
               ),
-
               Flexible(
                 child: ListView(
                   shrinkWrap: true,

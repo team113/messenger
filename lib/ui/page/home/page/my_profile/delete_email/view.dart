@@ -17,20 +17,21 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
-/// View for forwarding the provided [quotes] into the selected [Chat]s.
+/// View for deleting the provided [email] from the [MyUser.emails].
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteEmailView extends StatelessWidget {
   const DeleteEmailView(this.email, {Key? key}) : super(key: key);
 
+  /// [UserEmail] to delete.
   final UserEmail email;
 
   /// Displays a [DeleteEmailView] wrapped in a [ModalPopup].

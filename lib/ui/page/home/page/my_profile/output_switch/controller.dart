@@ -25,7 +25,7 @@ import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._call, this._settingsRepository);
 

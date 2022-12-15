@@ -44,7 +44,7 @@ class AddEmailController extends GetxController {
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
 
-  /// [UserEmail]'s field state.
+  /// [UserEmail] field state.
   late final TextFieldState email;
 
   /// [TextFieldState] for the [UserEmail] confirmation code.
@@ -59,7 +59,7 @@ class AddEmailController extends GetxController {
   /// [AddEmailFlowStage] currently being displayed.
   final Rx<AddEmailFlowStage?> stage = Rx(null);
 
-  /// [MyUserService] used for adding an [UserEmail] to the [MyUser.emails].
+  /// [MyUserService] used for confirming an [UserEmail].
   final MyUserService _myUserService;
 
   /// [Timer] to decrease [resendEmailTimeout].

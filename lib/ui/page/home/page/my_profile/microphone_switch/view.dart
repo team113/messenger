@@ -79,7 +79,6 @@ class MicrophoneSwitchView extends StatelessWidget {
                   ),
                 ),
               ),
-
               Flexible(
                 child: ListView(
                   shrinkWrap: true,

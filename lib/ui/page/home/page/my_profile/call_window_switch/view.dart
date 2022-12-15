@@ -29,6 +29,7 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class CallWindowSwitchView extends StatelessWidget {
   const CallWindowSwitchView({super.key});
+
   /// Displays a [CallWindowSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
@@ -70,9 +71,7 @@ class CallWindowSwitchView extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 25 - 12),
-
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,

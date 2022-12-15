@@ -25,7 +25,7 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View for adding and confirming a new [UserPhone].
+/// View for adding and confirming an [UserPhone].
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {

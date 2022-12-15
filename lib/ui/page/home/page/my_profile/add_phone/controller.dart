@@ -44,7 +44,7 @@ class AddPhoneController extends GetxController {
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
 
-  /// [UserPhone]'s field state.
+  /// [UserPhone] field state.
   late final TextFieldState phone;
 
   /// [TextFieldState] for the [UserPhone] confirmation code.
@@ -59,7 +59,7 @@ class AddPhoneController extends GetxController {
   /// [AddPhoneFlowStage] currently being displayed.
   final Rx<AddPhoneFlowStage?> stage = Rx(null);
 
-  /// [MyUserService] used for adding an [UserPhone] to the [MyUser.phones].
+  /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
 
   /// [Timer] to decrease [resendPhoneTimeout].
