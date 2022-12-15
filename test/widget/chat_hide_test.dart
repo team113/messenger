@@ -23,6 +23,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
@@ -101,6 +102,9 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
+
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
   );
@@ -246,6 +250,8 @@ void main() async {
       graphQlProvider,
       userRepository,
       credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
@@ -259,9 +265,7 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    Get.put(
-      CallService(authService, chatService, settingsRepository, callRepository),
-    );
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));

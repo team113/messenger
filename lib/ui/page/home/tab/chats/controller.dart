@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -230,17 +231,9 @@ class ChatsTabController extends GetxController {
   }
 
   /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+  Future<void> muteChat(ChatId id) async {
     try {
-      PreciseDateTime? until;
-      if (duration != null) {
-        until = PreciseDateTime.now().add(duration);
-      }
-
-      await _chatService.toggleChatMute(
-        id,
-        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
-      );
+      await _chatService.toggleChatMute(id, MuteDuration.forever());
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -279,8 +272,15 @@ class ChatsTabController extends GetxController {
   /// Indicates whether this device of the currently authenticated [MyUser]
   /// takes part in an [OngoingCall] in a [Chat] identified by the provided
   /// [id].
-  bool inCall(ChatId id) =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
+  bool inCall(ChatId id) {
+    final Rx<OngoingCall>? call = _callService.calls[id];
+    if (call != null) {
+      return call.value.state.value == OngoingCallState.active ||
+          call.value.state.value == OngoingCallState.joining;
+    }
+
+    return WebUtils.containsCall(id);
+  }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);

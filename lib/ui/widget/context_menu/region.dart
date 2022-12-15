@@ -130,17 +130,12 @@ class ContextMenuRegion extends StatelessWidget {
         width: width,
         margin: margin,
         buttonBuilder: (i, b) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              b,
-              if (i < actions.length - 1)
-                Container(
-                  color: const Color(0x11000000),
-                  height: 1,
-                  width: double.infinity,
-                ),
-            ],
+          return Padding(
+            padding: EdgeInsets.only(
+              top: i == 0 ? 6 : 0,
+              bottom: i == actions.length - 1 ? 6 : 0,
+            ),
+            child: b,
           );
         },
         itemBuilder: (b) {
