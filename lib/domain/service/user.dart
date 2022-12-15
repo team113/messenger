@@ -92,6 +92,14 @@ class UserService extends DisposableService {
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) => _userRepository.get(id);
 
+  /// Blacklists the specified [User] for the authenticated [MyUser].
+  Future<void> blacklistUser(UserId id) => _userRepository.blacklistUser(id);
+
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
+  Future<void> unblacklistUser(UserId id) =>
+      _userRepository.unblacklistUser(id);
+
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();
 }
