@@ -296,7 +296,6 @@ class ChatController extends GetxController {
         ChatMessage item = editController.editedMessage.value as ChatMessage;
         if (editController.send.text == item.text?.val) {
           editController.editedMessage.value = null;
-          editController.editedMessage.value = null;
         } else if (editController.send.text.isNotEmpty ||
             item.attachments.isNotEmpty) {
           ChatMessageText? text;
@@ -365,15 +364,15 @@ class ChatController extends GetxController {
 
   /// Sends chat message.
   void sendMessage() {
-    if (sendController.send.text.isNotEmpty ||
+    if (sendController.send.text.trim().isNotEmpty ||
         sendController.attachments.isNotEmpty ||
         sendController.repliedMessages.isNotEmpty) {
       _chatService
           .sendChatMessage(
             chat!.chat.value.id,
-            text: sendController.send.text.isEmpty
+            text: sendController.send.text.trim().isEmpty
                 ? null
-                : ChatMessageText(sendController.send.text),
+                : ChatMessageText(sendController.send.text.trim()),
             repliesTo: sendController.repliedMessages.reversed.toList(),
             attachments:
                 sendController.attachments.map((e) => e.value).toList(),

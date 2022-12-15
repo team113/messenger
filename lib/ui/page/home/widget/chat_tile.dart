@@ -39,6 +39,13 @@ class ChatTile extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.height = 94,
+    this.radius = 30,
+    this.unselectedColor,
+    this.selectedColor,
+    this.selectedHoverColor,
+    this.unselectedHoverColor,
+    this.border,
+    this.hoveredBorder,
   }) : super(key: key);
 
   /// [Chat] this [ChatTile] represents.
@@ -71,6 +78,27 @@ class ChatTile extends StatelessWidget {
   /// Height of this [ChatTile].
   final double height;
 
+  /// Radius of an [AvatarWidget] this [ChatTile] displays.
+  final double radius;
+
+  /// Background color of unselected this [ChatTile].
+  final Color? unselectedColor;
+
+  /// Background color of selected this [ChatTile].
+  final Color? selectedColor;
+
+  /// Background hover color of selected this [ChatTile].
+  final Color? selectedHoverColor;
+
+  /// Background hover color of unselected this [ChatTile].
+  final Color? unselectedHoverColor;
+
+  /// [Border] of this [ChatTile].
+  final Border? border;
+
+  /// Hovered [Border] of this [ChatTile].
+  final Border? hoveredBorder;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -84,16 +112,18 @@ class ChatTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: style.cardSelectedColor,
-            unselectedColor: style.cardColor,
+            selectedColor: selectedColor ?? style.cardSelectedColor,
+            unselectedColor: unselectedColor ?? style.cardColor,
             selected: selected,
-            hoveredBorder:
-                selected ? style.primaryBorder : style.cardHoveredBorder,
-            border: selected ? style.primaryBorder : style.cardBorder,
+            hoveredBorder: hoveredBorder ??
+                (selected ? style.primaryBorder : style.cardHoveredBorder),
+            border:
+                border ?? (selected ? style.primaryBorder : style.cardBorder),
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.cardSelectedColor,
+            unselectedHoverColor:
+                unselectedHoverColor ?? style.cardHoveredColor,
+            selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
@@ -102,7 +132,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  AvatarWidget.fromRxChat(chat, radius: radius),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

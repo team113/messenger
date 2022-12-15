@@ -25,6 +25,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -215,10 +216,7 @@ class SearchView extends StatelessWidget {
                           });
                         }
 
-                        return Padding(
-                          padding: EdgeInsets.only(top: i > 0 ? 7 : 0),
-                          child: child,
-                        );
+                        return child;
                       },
                       childCount: c.chats.length +
                           c.contacts.length +
@@ -302,66 +300,41 @@ class SearchView extends StatelessWidget {
     if (chat != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Container(
+        child: ChatTile(
+          chat: chat,
+          selected: selected,
           height: 76,
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: selected
-                ? style.cardSelectedColor
-                : style.cardColor.darken(0.05),
-            child: InkWell(
-              key: Key('Chat_${chat.chat.value.id}'),
-              borderRadius: style.cardRadius,
-              onTap: onTap,
-              hoverColor: selected
-                  ? const Color(0x00D7ECFF)
-                  : const Color(0xFFD7ECFF).withOpacity(0.8),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(chat, radius: 26),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        chat.title.value,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.headline5,
+          onTap: onTap,
+          radius: 26,
+          selectedColor: style.cardSelectedColor,
+          unselectedColor: style.cardColor.darken(0.05),
+          selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+          unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+          border: style.cardBorder,
+          hoveredBorder: style.cardBorder,
+          trailing: [
+            SizedBox(
+              width: 30,
+              height: 30,
+              child: AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: selected
+                    ? const CircleAvatar(
+                        backgroundColor: Color(0xFF63B4FF),
+                        radius: 12,
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      )
+                    : const CircleAvatar(
+                        backgroundColor: Color(0xFFD7D7D7),
+                        radius: 12,
                       ),
-                    ),
-                    SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: selected
-                            ? const CircleAvatar(
-                                backgroundColor: Color(0xFF63B4FF),
-                                radius: 12,
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                              )
-                            : const CircleAvatar(
-                                backgroundColor: Color(0xFFD7D7D7),
-                                radius: 12,
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ),
-          ),
+            )
+          ],
         ),
       );
     }
@@ -382,6 +355,7 @@ class SearchView extends StatelessWidget {
         unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
         border: style.cardBorder,
         hoveredBorder: style.cardBorder,
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
         trailing: [
           if (selectable)
             SizedBox(

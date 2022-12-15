@@ -47,13 +47,13 @@ class ContactTile extends StatelessWidget {
     this.actions,
     this.folded = false,
     this.preventContextMenu = false,
-    this.margin = const EdgeInsets.symmetric(vertical: 3),
     this.unselectedColor,
     this.selectedColor,
     this.selectedHoverColor,
     this.unselectedHoverColor,
     this.border,
     this.hoveredBorder,
+    this.padding = const EdgeInsets.fromLTRB(12, 14, 12, 14),
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -91,9 +91,6 @@ class ContactTile extends StatelessWidget {
   /// [ContextMenuRegion.actions] of this [ContactTile].
   final List<ContextMenuButton>? actions;
 
-  /// Margin to apply to this [ContactTile].
-  final EdgeInsets margin;
-
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
@@ -121,6 +118,9 @@ class ContactTile extends StatelessWidget {
   /// Hovered [Border] of this [ContactTile].
   final Border? hoveredBorder;
 
+  /// Padding of this [ChatTile].
+  final EdgeInsets padding;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -131,71 +131,76 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
-      child: Padding(
-        padding: margin,
-        child: InkWellWithHover(
-          selectedColor: selectedColor ?? style.cardSelectedColor,
-          unselectedColor: unselectedColor ?? style.cardColor.darken(darken),
-          selected: selected,
-          hoveredBorder: hoveredBorder ??
-              (selected ? style.primaryBorder : style.cardHoveredBorder),
-          border: border ?? (selected ? style.primaryBorder : style.cardBorder),
-          borderRadius: style.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor:
-              unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
-          selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
-          folded: contact?.contact.value.favoritePosition != null,
-          child: Padding(
-            key: contact?.contact.value.favoritePosition != null
-                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                : null,
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
-            child: Row(
-              children: [
-                ...leading,
-                if (contact != null)
-                  AvatarWidget.fromRxContact(contact, radius: radius)
-                else if (user != null)
-                  AvatarWidget.fromRxUser(user, radius: radius)
-                else
-                  AvatarWidget.fromMyUser(
-                    myUser,
-                    radius: radius,
-                  ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
-                                  user?.user.value.name?.val ??
-                                  user?.user.value.num.val ??
-                                  myUser?.name?.val ??
-                                  myUser?.num.val ??
-                                  (myUser == null
-                                      ? '...'
-                                      : 'btn_your_profile'.l10n),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: InkWellWithHover(
+            selectedColor: selectedColor ?? style.cardSelectedColor,
+            unselectedColor: unselectedColor ?? style.cardColor.darken(darken),
+            selected: selected,
+            hoveredBorder: hoveredBorder ??
+                (selected ? style.primaryBorder : style.cardHoveredBorder),
+            border:
+                border ?? (selected ? style.primaryBorder : style.cardBorder),
+            borderRadius: style.cardRadius,
+            onTap: onTap,
+            unselectedHoverColor:
+                unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
+            selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
+            folded: contact?.contact.value.favoritePosition != null,
+            child: Container(
+              key: contact?.contact.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                  : null,
+              height: height,
+              padding: padding,
+              child: Row(
+                children: [
+                  ...leading,
+                  if (contact != null)
+                    AvatarWidget.fromRxContact(contact, radius: radius)
+                  else if (user != null)
+                    AvatarWidget.fromRxUser(user, radius: radius)
+                  else
+                    AvatarWidget.fromMyUser(
+                      myUser,
+                      radius: radius,
+                    ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                contact?.contact.value.name.val ??
+                                    contact?.user.value?.user.value.name?.val ??
+                                    contact?.user.value?.user.value.num.val ??
+                                    user?.user.value.name?.val ??
+                                    user?.user.value.num.val ??
+                                    myUser?.name?.val ??
+                                    myUser?.num.val ??
+                                    (myUser == null
+                                        ? '...'
+                                        : 'btn_your_profile'.l10n),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      ...subtitle,
-                    ],
+                          ],
+                        ),
+                        ...subtitle,
+                      ],
+                    ),
                   ),
-                ),
-                ...trailing,
-              ],
+                  ...trailing,
+                ],
+              ),
             ),
           ),
         ),

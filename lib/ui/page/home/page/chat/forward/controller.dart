@@ -122,9 +122,9 @@ class ChatForwardController extends GetxController {
           List<AttachmentId>? attachments = sendController.attachments.isEmpty
               ? null
               : sendController.attachments.map((a) => a.value.id).toList();
-          ChatMessageText? text = sendController.send.text == ''
+          ChatMessageText? text = sendController.send.text.trim().isEmpty
               ? null
-              : ChatMessageText(sendController.send.text);
+              : ChatMessageText(sendController.send.text.trim());
 
           List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {

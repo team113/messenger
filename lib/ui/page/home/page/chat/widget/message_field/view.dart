@@ -22,6 +22,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '../attachment_selector.dart';
+import '../video_thumbnail/video_thumbnail.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
@@ -43,8 +45,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import '../attachment_selector.dart';
-import '../video_thumbnail/video_thumbnail.dart';
 import 'controller.dart';
 
 /// View of the [MessageFieldView] widget.
@@ -55,7 +55,6 @@ class MessageFieldView extends StatelessWidget {
     this.onChatItemTap,
     this.messageFieldKey,
     this.messageSendButtonKey,
-    this.updateDraft,
     this.enabledForwarding = false,
     this.canAttachFile = true,
     required this.controller,
@@ -81,9 +80,6 @@ class MessageFieldView extends StatelessWidget {
 
   /// Callback, called when user typing in message field.
   final void Function()? keepTyping;
-
-  /// Callback, called when need to update draft message.
-  final void Function()? updateDraft;
 
   @override
   Widget build(BuildContext context) {
