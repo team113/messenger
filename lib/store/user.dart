@@ -135,16 +135,17 @@ class UserRepository implements AbstractUserRepository {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 
-    if (user != null && !user.user.value.isBlacklisted) {
-      user.user.value.isBlacklisted = true;
-      user.user.refresh();
+    if (user?.user.value.isBlacklisted == false) {
+      user?.user.value.isBlacklisted = true;
+      user?.user.refresh();
     }
 
     try {
       await _graphQlProvider.blacklistUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted = isBlacklisted!;
+        user.user.value.isBlacklisted =
+            isBlacklisted ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
@@ -156,16 +157,17 @@ class UserRepository implements AbstractUserRepository {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 
-    if (user != null && user.user.value.isBlacklisted) {
-      user.user.value.isBlacklisted = false;
-      user.user.refresh();
+    if (user?.user.value.isBlacklisted == true) {
+      user?.user.value.isBlacklisted = false;
+      user?.user.refresh();
     }
 
     try {
       await _graphQlProvider.unblacklistUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
-        user.user.value.isBlacklisted = isBlacklisted!;
+        user.user.value.isBlacklisted =
+            isBlacklisted ?? user.user.value.isBlacklisted;
         user.user.refresh();
       }
       rethrow;
