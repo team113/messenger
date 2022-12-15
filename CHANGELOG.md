@@ -49,7 +49,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned login modal. ([#249])
     - User page:
         - Redesigned user page. ([#254], [#252])
-    - Transparent system bar. ([#211], [#208])
+    - Android:
+        - Transparent system bars. ([#211], [#208])
 
 ### Fixed
 
