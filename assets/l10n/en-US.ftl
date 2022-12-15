@@ -524,6 +524,7 @@ label_phone = Phone
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
 label_phone_number = Phone number
+label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away

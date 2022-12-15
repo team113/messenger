@@ -547,6 +547,7 @@ label_phone = Телефон
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
 label_phone_number = Номер телефона
+label_phone_visible = Ваш номер телефона видят:{" "}
 label_photo = Фото
 label_presence = Отображение статуса
 label_presence_away = Отошёл

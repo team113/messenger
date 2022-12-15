@@ -29,6 +29,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -452,42 +453,26 @@ Widget _emails(MyProfileController c, BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                WidgetButton(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: e.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
-                  },
-                  child: IgnorePointer(
-                    child: ReactiveTextField(
-                      state: TextFieldState(text: e.val, editable: false),
-                      label: 'label_email'.l10n,
-                      trailing: Transform.translate(
-                        offset: const Offset(0, -1),
-                        child: Transform.scale(
-                          scale: 1.15,
-                          child: SvgLoader.asset(
-                            'assets/icons/delete.svg',
-                            height: 14,
-                          ),
-                        ),
-                      ),
-                    ),
+            FieldButton(
+              text: e.val,
+              hint: 'label_email'.l10n,
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: e.val));
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+              onTrailingPressed: () {
+                // TODO: show a delete email popup.
+              },
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
                   ),
                 ),
-                WidgetButton(
-                  onPressed: () {
-                    // TODO: show a delete email popup.
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -564,47 +549,26 @@ Widget _emails(MyProfileController c, BuildContext context) {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
           ),
-          child: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              WidgetButton(
-                behavior: HitTestBehavior.deferToChild,
-                onPressed: () {
-                  // TODO: show an add email popup.
-                },
-                child: IgnorePointer(
-                  child: ReactiveTextField(
-                    state: TextFieldState(
-                      text: c.myUser.value!.emails.unconfirmed!.val,
-                      editable: false,
-                    ),
-                    label: 'label_verify_email'.l10n,
-                    trailing: Transform.translate(
-                      offset: const Offset(0, -1),
-                      child: Transform.scale(
-                        scale: 1.15,
-                        child: SvgLoader.asset(
-                          'assets/icons/delete.svg',
-                          height: 14,
-                        ),
-                      ),
-                    ),
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
+          child: FieldButton(
+            text: c.myUser.value!.emails.unconfirmed!.val,
+            hint: 'label_verify_email'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
               ),
-              WidgetButton(
-                onPressed: () {
-                  // TODO: show a delete email popup.
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  width: 30,
-                  height: 30,
-                ),
-              ),
-            ],
+            ),
+            onPressed: () {
+              // TODO: show an add email popup.
+            },
+            onTrailingPressed: () {
+              // TODO: show a delete email popup.
+            },
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
       ]);
@@ -613,21 +577,14 @@ Widget _emails(MyProfileController c, BuildContext context) {
 
     if (c.myUser.value?.emails.unconfirmed == null) {
       widgets.add(
-        WidgetButton(
+        FieldButton(
+          text: c.myUser.value?.emails.confirmed.isNotEmpty == true
+              ? 'label_add_additional_email'.l10n
+              : 'label_add_email'.l10n,
           onPressed: () {
             // TODO: show an add email popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: c.myUser.value?.emails.confirmed.isNotEmpty == true
-                    ? 'label_add_additional_email'.l10n
-                    : 'label_add_email'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -686,7 +643,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   ),
                   children: [
                     TextSpan(
-                      text: 'Ваш номер телефона видят: ',
+                      text: 'label_phone_visible'.l10n,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -751,47 +708,26 @@ Widget _emails(MyProfileController c, BuildContext context) {
                       TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
           ),
-          child: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              WidgetButton(
-                behavior: HitTestBehavior.deferToChild,
-                onPressed: () {
-                  // TODO: show a add phone popup.
-                },
-                child: IgnorePointer(
-                  child: ReactiveTextField(
-                    state: TextFieldState(
-                      text: c.myUser.value!.phones.unconfirmed!.val,
-                      editable: false,
-                    ),
-                    label: 'label_verify_number'.l10n,
-                    trailing: Transform.translate(
-                      offset: const Offset(0, -1),
-                      child: Transform.scale(
-                        scale: 1.15,
-                        child: SvgLoader.asset(
-                          'assets/icons/delete.svg',
-                          height: 14,
-                        ),
-                      ),
-                    ),
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
+          child: FieldButton(
+            text: c.myUser.value!.phones.unconfirmed!.val,
+            hint: 'label_verify_number'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
               ),
-              WidgetButton(
-                onPressed: () {
-                  // TODO: show a delete phone popup.
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  width: 30,
-                  height: 30,
-                ),
-              ),
-            ],
+            ),
+            onPressed: () {
+              // TODO: show a add phone popup.
+            },
+            onTrailingPressed: () {
+              // TODO: show a delete phone popup.
+            },
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
       ]);
@@ -800,21 +736,14 @@ Widget _emails(MyProfileController c, BuildContext context) {
 
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
-        WidgetButton(
+        FieldButton(
           onPressed: () {
             // TODO: show a add phone popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: c.myUser.value?.phones.confirmed.isNotEmpty == true
-                    ? 'label_add_additional_number'.l10n
-                    : 'label_add_number'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          text: c.myUser.value?.phones.confirmed.isNotEmpty == true
+              ? 'label_add_additional_number'.l10n
+              : 'label_add_number'.l10n,
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       );
       widgets.add(const SizedBox(height: 10));
@@ -834,24 +763,17 @@ Widget _password(BuildContext context, MyProfileController c) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       _dense(
-        WidgetButton(
+        FieldButton(
+          text: c.myUser.value?.hasPassword == true
+              ? 'btn_change_password'.l10n
+              : 'btn_set_password'.l10n,
           onPressed: () {
             // TODO: show a change password popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: c.myUser.value?.hasPassword == true
-                    ? 'btn_change_password'.l10n
-                    : 'btn_set_password'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(
-                color: c.myUser.value?.hasPassword != true
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.secondary,
-              ),
-            ),
+          style: TextStyle(
+            color: c.myUser.value?.hasPassword != true
+                ? Colors.red
+                : Theme.of(context).colorScheme.secondary,
           ),
         ),
       ),
@@ -863,24 +785,19 @@ Widget _password(BuildContext context, MyProfileController c) {
 /// Returns button to delete the account.
 Widget _deleteAccount(BuildContext context, MyProfileController c) {
   return _dense(
-    WidgetButton(
+    FieldButton(
+      text: 'btn_delete_account'.l10n,
+      trailing: Transform.translate(
+        offset: const Offset(0, -1),
+        child: Transform.scale(
+          scale: 1.15,
+          child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+        ),
+      ),
       onPressed: () {
         // TODO: show a delete account popup.
       },
-      child: IgnorePointer(
-        child: ReactiveTextField(
-          state:
-              TextFieldState(text: 'btn_delete_account'.l10n, editable: false),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            ),
-          ),
-        ),
-      ),
+      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
 }
@@ -1041,68 +958,47 @@ Widget _media(BuildContext context, MyProfileController c) {
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
-        WidgetButton(
+        FieldButton(
+          text: (c.devices.video().firstWhereOrNull(
+                          (e) => e.deviceId() == c.camera.value) ??
+                      c.devices.video().firstOrNull)
+                  ?.label() ??
+              'label_media_no_device_available'.l10n,
+          hint: 'label_media_camera'.l10n,
           onPressed: () {
             // TODO: show a camera switch popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              label: 'label_media_camera'.l10n,
-              state: TextFieldState(
-                text: (c.devices.video().firstWhereOrNull(
-                                (e) => e.deviceId() == c.camera.value) ??
-                            c.devices.video().firstOrNull)
-                        ?.label() ??
-                    'label_media_no_device_available'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
       const SizedBox(height: 16),
       _dense(
-        WidgetButton(
+        FieldButton(
+          text: (c.devices.audio().firstWhereOrNull(
+                          (e) => e.deviceId() == c.mic.value) ??
+                      c.devices.audio().firstOrNull)
+                  ?.label() ??
+              'label_media_no_device_available'.l10n,
+          hint: 'label_media_microphone'.l10n,
           onPressed: () {
             // TODO: show a microphone switch popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              label: 'label_media_microphone'.l10n,
-              state: TextFieldState(
-                text: (c.devices.audio().firstWhereOrNull(
-                                (e) => e.deviceId() == c.mic.value) ??
-                            c.devices.audio().firstOrNull)
-                        ?.label() ??
-                    'label_media_no_device_available'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
       const SizedBox(height: 16),
       _dense(
-        WidgetButton(
+        FieldButton(
+          text: (c.devices.output().firstWhereOrNull(
+                          (e) => e.deviceId() == c.output.value) ??
+                      c.devices.output().firstOrNull)
+                  ?.label() ??
+              'label_media_no_device_available'.l10n,
+          hint: 'label_media_output'.l10n,
           onPressed: () {
             // TODO: show a output switch popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              label: 'label_media_output'.l10n,
-              state: TextFieldState(
-                text: (c.devices.output().firstWhereOrNull(
-                                (e) => e.deviceId() == c.output.value) ??
-                            c.devices.output().firstOrNull)
-                        ?.label() ??
-                    'label_media_no_device_available'.l10n,
-                editable: false,
-              ),
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
     ],
@@ -1118,65 +1014,45 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     required String title,
     String? link,
   }) {
-    return Stack(
-      alignment: Alignment.centerRight,
-      children: [
-        WidgetButton(
-          onPressed: link == null
-              ? null
-              : () {
-                  WebUtils.download('${Config.origin}/artifacts/$link', link);
-                },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              textAlign: TextAlign.center,
-              prefix: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: Transform.scale(
-                  scale: 2,
-                  child: SvgLoader.asset(
-                    'assets/icons/$asset.svg',
-                    width: width / 2,
-                    height: height / 2,
-                  ),
-                ),
-              ),
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: SvgLoader.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
-                  ),
-                ),
-              ),
-              state: TextFieldState(
-                text: 'space'.l10n * 4 + title,
-                editable: false,
-              ),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
+    return FieldButton(
+      text: 'space'.l10n * 4 + title,
+      onPressed: link == null
+          ? null
+          : () {
+              WebUtils.download('${Config.origin}/artifacts/$link', link);
+            },
+      onTrailingPressed: () {
+        if (link != null) {
+          Clipboard.setData(
+            ClipboardData(text: '${Config.origin}/artifacts/$link'),
+          );
+          MessagePopup.success('label_copied_to_clipboard'.l10n);
+        }
+      },
+      prefix: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Transform.scale(
+          scale: 2,
+          child: SvgLoader.asset(
+            'assets/icons/$asset.svg',
+            width: width / 2,
+            height: height / 2,
           ),
         ),
-        WidgetButton(
-          onPressed: () {
-            if (link != null) {
-              Clipboard.setData(
-                ClipboardData(text: '${Config.origin}/artifacts/$link'),
-              );
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
-            }
-          },
-          child: Container(
-            margin: const EdgeInsets.only(right: 10),
-            width: 30,
-            height: 30,
+      ),
+      trailing: Transform.translate(
+        offset: const Offset(0, -1),
+        child: Transform.scale(
+          scale: 1.15,
+          child: SvgLoader.asset(
+            'assets/icons/copy.svg',
+            height: 15,
           ),
         ),
-      ],
+      ),
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.secondary,
+      ),
     );
   }
 
@@ -1229,20 +1105,13 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 /// Returns button for changing language.
 Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
-    WidgetButton(
+    FieldButton(
       onPressed: () async {
         // TODO: show a language selector popup.
       },
-      child: IgnorePointer(
-        child: ReactiveTextField(
-          state: TextFieldState(
-            text:
-                '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
-            editable: false,
-          ),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ),
+      text:
+          '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
 }

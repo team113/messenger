@@ -214,7 +214,7 @@ class ReactiveTextField extends StatelessWidget {
                                             onPressed: state.submit,
                                             icon: UnconstrainedBox(
                                               child: Text(
-                                                'Сохранить',
+                                                'btn_save',
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: Theme.of(context)
