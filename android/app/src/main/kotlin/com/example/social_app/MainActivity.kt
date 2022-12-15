@@ -40,6 +40,13 @@ import android.app.KeyguardManager
 class MainActivity: FlutterActivity() {
     private val UTILS_CHANNEL = "team113.flutter.dev/android_utils"
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+//        }
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
