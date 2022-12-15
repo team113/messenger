@@ -140,11 +140,13 @@ class UserRepository implements AbstractUserRepository {
 
   /// Updates the locally stored [User]s dialog with the provided [chat] value.
   void updateDialog(UserId userId, RxChat chat) {
-    HiveUser? hiveUser = _userLocal.get(userId);
-    users[userId]?.dialog.value = chat;
-    if (hiveUser != null && hiveUser.value.dialog == null) {
-      hiveUser.value.dialog = chat.chat.value;
-      put(hiveUser, ignoreVersion: true);
+    if (users[userId]?.dialog.value?.id != chat.id) {
+      HiveUser? hiveUser = _userLocal.get(userId);
+      users[userId]?.dialog.value = chat;
+      if (hiveUser != null && hiveUser.value.dialog == null) {
+        hiveUser.value.dialog = chat.chat.value;
+        put(hiveUser, ignoreVersion: true);
+      }
     }
   }
 

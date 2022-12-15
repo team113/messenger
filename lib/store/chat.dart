@@ -664,11 +664,8 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Updates [User.dialog] with provided [chat].
-  void updateDialog(UserId userId, RxChat chat) {
-    if (_userRepo.users[userId]?.dialog.value?.id != chat.id) {
+  void updateDialog(UserId userId, RxChat chat) =>
       _userRepo.updateDialog(userId, chat);
-    }
-  }
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
