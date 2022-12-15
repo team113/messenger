@@ -976,7 +976,7 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
   /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blockUser(UserId id) async {
+  Future<BlacklistEventsVersionedMixin?> blacklistUser(UserId id) async {
     final variables = BlacklistUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -995,7 +995,7 @@ abstract class UserGraphQlMixin {
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].
   ///
-  /// Reverses the action of [blockUser].
+  /// Reverses the action of [blacklistUser].
   ///
   /// ### Authentication
   ///
@@ -1010,7 +1010,7 @@ abstract class UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
   /// [User] is not blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> unblockUser(UserId id) async {
+  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
     final variables = UnblacklistUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(

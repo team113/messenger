@@ -141,7 +141,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.blockUser(id);
+      await _graphQlProvider.blacklistUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
         user.user.value.isBlacklisted = isBlacklisted!;
@@ -162,7 +162,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.unblockUser(id);
+      await _graphQlProvider.unblacklistUser(id);
     } catch (_) {
       if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
         user.user.value.isBlacklisted = isBlacklisted!;
