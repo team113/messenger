@@ -131,7 +131,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blockUser(UserId id) async {
+  Future<void> blacklistUser(UserId id) async {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 
@@ -152,7 +152,7 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> unblockUser(UserId id) async {
+  Future<void> unblacklistUser(UserId id) async {
     final RxUser? user = _users[id];
     final bool? isBlacklisted = user?.user.value.isBlacklisted;
 

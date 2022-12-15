@@ -270,7 +270,7 @@ class UserView extends StatelessWidget {
             key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
             text:
                 c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true ? c.unblock : c.block,
+            onPressed: c.isBlacklisted == true ? c.unblacklist : c.blacklist,
           ),
           action(text: 'btn_report'.l10n, onPressed: () {}),
         ],

@@ -48,17 +48,18 @@ final StepDefinitionGeneric sendsMessageToMe =
 );
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog and asserts that catched exception is `blacklisted`.
+/// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
 ///
 /// Examples:
-/// - Bob sends message to me and receives blacklist exception
-/// - Charlie sends message to me and receives blacklist exception
+/// - Bob sends message to me and receives blacklisted exception
+/// - Charlie sends message to me and receives no exception
 final StepDefinitionGeneric sendsMessageWithException =
     and2<TestUser, ExceptionType, CustomWorld>(
   '{user} sends message to me and receives {exception} exception',
-  (TestUser user, ExceptionType ex, context) async {
+  (TestUser user, ExceptionType type, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
+
     Object? exception;
 
     try {
@@ -70,8 +71,8 @@ final StepDefinitionGeneric sendsMessageWithException =
       exception = e;
     }
 
-    switch (ex) {
-      case ExceptionType.blacklist:
+    switch (type) {
+      case ExceptionType.blacklisted:
         assert(
           exception is PostChatMessageException &&
               exception.code == PostChatMessageErrorCode.blacklisted,

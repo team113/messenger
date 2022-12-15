@@ -16,19 +16,7 @@
 
 Feature: Blacklist
 
-  Scenario: Add user to blacklist
-    Given I am Alice
-    And user Bob
-    And I wait until `HomeView` is present
-    And I go to Bob's page
-
-    When I tap `Block` button
-    Then I wait until `Unblock` is present
-
-    When I tap `Unblock` button
-    Then I wait until `Block` is present
-
-  Scenario: Blacklisted user sends me message
+  Scenario: Blacklisted user cannot send me a message
     Given I am Alice
     And user Bob
     And Bob has dialog with me
@@ -36,7 +24,7 @@ Feature: Blacklist
 
     When I go to Bob's page
     And I tap `Block` button
-    Then Bob sends message to me and receives blacklist exception
+    Then Bob sends message to me and receives blacklisted exception
 
     When I tap `Unblock` button
     Then Bob sends message to me and receives no exception

@@ -96,7 +96,7 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
-  /// Returns indicator whether the [user] is blacklisted.
+  /// Indicates whether this [user] is blacklisted.
   bool? get isBlacklisted => user?.user.value.isBlacklisted;
 
   /// Returns [MyUser]'s [UserId].
@@ -230,10 +230,10 @@ class UserController extends GetxController {
   }
 
   /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> block() => _userService.blockUser(id);
+  Future<void> blacklist() => _userService.blacklistUser(id);
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblock() => _userService.unblockUser(id);
+  Future<void> unblacklist() => _userService.unblacklistUser(id);
 
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
