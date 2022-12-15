@@ -14,50 +14,51 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
-import '/util/obs/obs.dart';
 
 export 'view.dart';
 
-/// Controller of a [CameraSwitchView].
-class CameraSwitchController extends GetxController {
-  CameraSwitchController(this._call, this._settingsRepository);
+/// Controller of a [ChatForwardView].
+class OutputSwitchController extends GetxController {
+  OutputSwitchController(this._call, this._settingsRepository);
 
   /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  /// Settings repository, used to update the [MediaSettings.videoDevice] value.
+  /// Settings repository, used to update the [MediaSettings.outputDevice]
+  /// value.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
   InputDevices get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
-
-  /// Returns the local [Track]s.
-  ObsList<Track>? get localTracks => _call.value.localTracks;
+  RxnString get output => _call.value.outputDevice;
 
   @override
   void onInit() {
-    _call.value.setVideoEnabled(true);
+    _call.value.setAudioEnabled(true);
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setVideoEnabled(false);
+    _call.value.setAudioEnabled(false);
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default camera device.
-  void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
-    _settingsRepository.setVideoDevice(id);
+  /// Sets device with [id] as a used by default output device.
+  Future<void> setOutputDevice(String id) async {
+    await Future.wait([
+      _call.value.setOutputDevice(id),
+      _settingsRepository.setOutputDevice(id),
+    ]);
   }
 }
