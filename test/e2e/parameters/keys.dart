@@ -63,7 +63,6 @@ enum WidgetKey {
   MessageField,
   MonologButton,
   MuteChatButton,
-  MuteForever,
   MyProfileButton,
   MyProfileScrollable,
   MyProfileView,
