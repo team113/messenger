@@ -390,14 +390,13 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    MyUserEventsVersionedMixin? events =
-        await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
 
-    for (var event in events?.events ?? []) {
-      MyUserEvent e = _myUserEvent(event);
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
       if (e is EventUserGalleryItemAdded) {
         return e.galleryItem;
       }

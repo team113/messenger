@@ -79,9 +79,6 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
-  static const personalization = '/personalization';
-  static const profile = '/profile';
-  static const settingsMedia = '/settings/media';
   static const user = '/user';
 
   // E2E tests related page, should not be used in non-test environment.
@@ -94,7 +91,7 @@ class Routes {
 /// List of [Routes.home] page tabs.
 enum HomeTab { contacts, chats, menu }
 
-/// List of [Routes.profile] page sections.
+/// List of [Routes.me] page sections.
 enum ProfileTab {
   public,
   signing,
@@ -145,7 +142,7 @@ class RouterState extends ChangeNotifier {
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
-  /// Current [Routes.profile] page section.
+  /// Current [Routes.me] page section.
   final Rx<ProfileTab?> profileSection = Rx(null);
 
   /// Auth service used to determine the auth status.
@@ -607,9 +604,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
-        _state.route == Routes.settingsMedia ||
-        _state.route == Routes.personalization ||
-        _state.route == Routes.profile ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -670,16 +664,6 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
-
-  /// Changes router location to the [Routes.settingsMedia] page.
-  void settingsMedia() => go(Routes.settingsMedia);
-
-  /// Changes router location to the [Routes.personalization] page.
-  void personalization() => go(Routes.personalization);
-
-  /// Changes router location to the [Routes.profile] page.
-  void profile({bool push = false}) =>
-      push ? this.push(Routes.profile) : go(Routes.profile);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

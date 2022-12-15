@@ -133,6 +133,7 @@ btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
+btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
@@ -344,7 +345,6 @@ label_ago_date = { $years ->
     *[other] {$years} лет назад
 }
 label_all = Все
-label_android = Android
 label_app_background = Фон приложения
 label_application = приложение
 label_are_you_sure_no = Нет
@@ -406,7 +406,7 @@ label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
-label_details = Подробнее
+label_details = Подробнее.
 label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
@@ -429,7 +429,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_download = Скачать
-label_download_app = Скачать приложение
+label_download_application = Скачать приложение
 label_draft = Черновик
 label_drop_here =
     Перетащите сюда,
@@ -479,12 +479,10 @@ label_introduction_description =
         • Вы не нажмёте кнопку "Выйти".
 
     Чтобы не потерять доступ к аккаунту, задайте пароль.
-label_ios = iOS
 label_kb = {$amount} КБ
 label_language = Язык
 label_last_seen = Был(а)
 label_link_to_chat = Ссылка на чат
-label_linux = Linux
 label_login = Логин
 label_login_hint = Ваш уникальный логин
 label_login_options = Параметры входа
@@ -493,7 +491,6 @@ label_login_visibility_hint = Логин — это дополнительный
 label_login_visible = Ваш логин видят:{" "}
 label_logout = Выйти
 label_logout_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.
-label_macos = macOS
 label_media = Медиа
 label_media_camera = Камера
 label_media_microphone = Микрофон
@@ -619,7 +616,6 @@ label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Виден для:
 label_was_added = {$who} был(а) добавлен(а)
 label_was_removed = {$who} был(а) удален(а)
-label_windows = Windows
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_direct_link = Прямая ссылка на чат с Вами

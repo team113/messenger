@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-# TODO: fix test after profile modal windows transferring.
+# TODO: Uncomment when `MyProfile` modals are implemented.
 #Feature: Application localization changes correctly
 #
 #  Scenario: User changes localization

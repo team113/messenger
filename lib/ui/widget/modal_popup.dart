@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'widget_button.dart';
 
@@ -47,7 +46,6 @@ abstract class ModalPopup {
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
-    bool showClose = true,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 

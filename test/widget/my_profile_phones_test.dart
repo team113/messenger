@@ -16,7 +16,7 @@
 
 // ignore_for_file: null_argument_to_non_null_type
 
-// TODO: fix test after profile modal windows transferring.
+// TODO: Uncomment when `MyProfile` modals are implemented.
 // import 'dart:async';
 
 import 'package:flutter/material.dart';

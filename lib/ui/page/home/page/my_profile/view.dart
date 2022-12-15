@@ -29,9 +29,9 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/bloc.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -42,7 +42,7 @@ import '/util/web/web_utils.dart';
 import 'controller.dart';
 import 'widget/copyable.dart';
 
-/// View of the [Routes.profile] page.
+/// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
   const MyProfileView({Key? key}) : super(key: key);
 
@@ -71,7 +71,7 @@ class MyProfileView extends StatelessWidget {
                   (context, i) {
                     switch (ProfileTab.values[i]) {
                       case ProfileTab.public:
-                        return Bloc(
+                        return Block(
                           title: 'label_public_information'.l10n,
                           children: [
                             Stack(
@@ -138,7 +138,7 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.signing:
-                        return Bloc(
+                        return Block(
                           title: 'label_login_options'.l10n,
                           children: [
                             _num(c),
@@ -150,28 +150,22 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.link:
-                        return Bloc(
+                        return Block(
                           title: 'label_your_direct_link'.l10n,
-                          children: [
-                            _link(context, c),
-                          ],
+                          children: [_link(context, c)],
                         );
 
                       case ProfileTab.background:
-                        return Bloc(
+                        return Block(
                           title: 'label_background'.l10n,
-                          children: [
-                            _background(context, c),
-                          ],
+                          children: [_background(context, c)],
                         );
 
                       case ProfileTab.calls:
                         if (!PlatformUtils.isMobile) {
-                          return Bloc(
+                          return Block(
                             title: 'label_calls'.l10n,
-                            children: [
-                              _call(context, c),
-                            ],
+                            children: [_call(context, c)],
                           );
                         }
 
@@ -179,42 +173,34 @@ class MyProfileView extends StatelessWidget {
 
                       case ProfileTab.media:
                         if (!PlatformUtils.isMobile) {
-                          return Bloc(
+                          return Block(
                             title: 'label_media'.l10n,
-                            children: [
-                              _media(context, c),
-                            ],
+                            children: [_media(context, c)],
                           );
                         }
 
                         return const SizedBox();
 
                       case ProfileTab.language:
-                        return Bloc(
+                        return Block(
                           title: 'label_language'.l10n,
-                          children: [
-                            _language(context, c),
-                          ],
+                          children: [_language(context, c)],
                         );
 
                       case ProfileTab.download:
                         if (PlatformUtils.isWeb) {
-                          return Bloc(
-                            title: 'label_download_app'.l10n,
-                            children: [
-                              _downloads(context, c),
-                            ],
+                          return Block(
+                            title: 'label_download_application'.l10n,
+                            children: [_downloads(context, c)],
                           );
                         }
 
                         return const SizedBox();
 
                       case ProfileTab.danger:
-                        return Bloc(
+                        return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: [
-                            _deleteAccount(context, c),
-                          ],
+                          children: [_deleteAccount(context, c)],
                         );
 
                       case ProfileTab.logout:
@@ -262,10 +248,7 @@ Widget _name(MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/copy.svg',
-                  height: 15,
-                ),
+                child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
     ),
@@ -316,10 +299,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
+                    child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
           label: '${Config.origin}/',
@@ -338,10 +318,12 @@ Widget _link(BuildContext context, MyProfileController c) {
                     TextSpan(
                       text: 'label_transition_count'.l10nfmt({'count': 0}) +
                           'dot_space'.l10n,
-                      style: const TextStyle(color: Color(0xFF888888)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     TextSpan(
-                      text: 'label_details'.l10n + 'dot'.l10n,
+                      text: 'label_details'.l10n,
                       style: const TextStyle(color: Color(0xFF00A3FF)),
                       recognizer: TapGestureRecognizer(),
                     ),
@@ -398,7 +380,8 @@ Widget _login(MyProfileController c, BuildContext context) {
               children: [
                 TextSpan(
                   text: 'label_login_visible'.l10n,
-                  style: const TextStyle(color: Color(0xFF888888)),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
@@ -412,12 +395,13 @@ Widget _login(MyProfileController c, BuildContext context) {
                           Center(
                             child: Text(
                               'label_login_visibility_hint'.l10n,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
-                                color: Color(0xFF888888),
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),
+                          const SizedBox(height: 20),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -462,7 +446,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (UserEmail e in [...c.myUser.value?.emails.confirmed ?? []]) {
+    for (UserEmail e in c.myUser.value?.emails.confirmed ?? []) {
       widgets.add(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,7 +500,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: const TextStyle(color: Color(0xFF888888)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
@@ -538,7 +524,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 ),
                               ),
                             ],
-                            label: 'label_confirm',
+                            label: 'label_confirm'.l10n,
                             initial: 2,
                             variants: [
                               ConfirmDialogVariant(
@@ -603,7 +589,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
                         ),
                       ),
                     ),
-                    style: const TextStyle(color: Color(0xFF888888)),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -633,10 +620,11 @@ Widget _emails(MyProfileController c, BuildContext context) {
           child: IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                  text: c.myUser.value?.emails.confirmed.isNotEmpty == true
-                      ? 'label_add_additional_email'.l10n
-                      : 'label_add_email'.l10n,
-                  editable: false),
+                text: c.myUser.value?.emails.confirmed.isNotEmpty == true
+                    ? 'label_add_additional_email'.l10n
+                    : 'label_add_email'.l10n,
+                editable: false,
+              ),
               style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
           ),
@@ -697,9 +685,11 @@ Widget _emails(MyProfileController c, BuildContext context) {
                     fontWeight: FontWeight.normal,
                   ),
                   children: [
-                    const TextSpan(
+                    TextSpan(
                       text: 'Ваш номер телефона видят: ',
-                      style: TextStyle(color: Color(0xFF888888)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
@@ -786,7 +776,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
                         ),
                       ),
                     ),
-                    style: const TextStyle(color: Color(0xFF888888)),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ),
@@ -1196,7 +1187,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'windows',
           width: 21.93,
           height: 22,
-          title: 'label_windows'.l10n,
+          title: 'Windows'.l10n,
           link: 'messenger-windows.zip',
         ),
         const SizedBox(height: 8),
@@ -1204,7 +1195,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'label_macos'.l10n,
+          title: 'macOS'.l10n,
           link: 'messenger-macos.zip',
         ),
         const SizedBox(height: 8),
@@ -1212,7 +1203,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'linux',
           width: 18.85,
           height: 22,
-          title: 'label_linux'.l10n,
+          title: 'Linux'.l10n,
           link: 'messenger-linux.zip',
         ),
         const SizedBox(height: 8),
@@ -1220,14 +1211,14 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'label_ios'.l10n,
+          title: 'iOS'.l10n,
         ),
         const SizedBox(height: 8),
         button(
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'label_android'.l10n,
+          title: 'Android'.l10n,
           link: 'messenger-android.apk',
         ),
       ],

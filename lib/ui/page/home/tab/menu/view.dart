@@ -69,7 +69,7 @@ class MenuTabView extends StatelessWidget {
                   child: InkWell(
                     borderRadius: style.cardRadius,
                     onTap: onTap,
-                    hoverColor: const Color.fromARGB(255, 244, 249, 255),
+                    hoverColor: const Color(0xFFF4F9FF),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                       child: Row(
@@ -109,7 +109,7 @@ class MenuTabView extends StatelessWidget {
           );
         }
 
-        void Function()? onBack =
+        final void Function()? onBack =
             context.isNarrow && ModalRoute.of(context)?.canPop == true
                 ? Navigator.of(context).pop
                 : null;
@@ -132,9 +132,9 @@ class MenuTabView extends StatelessWidget {
                         return Stack(
                           children: [
                             AvatarWidget.fromMyUser(
-                              onAvatarTap: c.uploadAvatar,
                               c.myUser.value,
                               radius: 17,
+                              onTap: c.uploadAvatar,
                               showBadge: false,
                             ),
                             Positioned.fill(
@@ -275,10 +275,10 @@ class MenuTabView extends StatelessWidget {
                             } else {
                               router.profileSection.value = tab;
                             }
-                            router.profile();
+                            router.me();
                           },
                       selected: tab == router.profileSection.value &&
-                          router.route == Routes.profile,
+                          router.route == Routes.me,
                     );
                   });
                 }

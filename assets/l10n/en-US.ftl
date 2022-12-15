@@ -133,6 +133,7 @@ btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text
 btn_create_group = Create group
+btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
@@ -328,12 +329,10 @@ label_ago_date = { $years ->
     *[other] {$years} years ago
 }
 label_all = All
-label_android = Android
 label_app_background = Application background
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
-label_are_you_sure_want_to_log_out = Are you sure you want to log out{" "}
 label_attachments = [{$count} { $count ->
     [1] attachment
     *[other] attachments
@@ -389,7 +388,7 @@ label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
-label_details = Details
+label_details = Details.
 label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
@@ -410,7 +409,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_download = Download
-label_download_app = Download application
+label_download_application = Download application
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -460,21 +459,18 @@ label_introduction_description =
         • You will not press the "Logout" button.
 
     In order not to lose access to your account, set a password.
-label_ios = iOS
 label_kb = {$amount} KB
 label_language = Language
 label_last_seen = Last seen
 label_link_to_chat = Link to chat
-label_linux = Linux
 label_login = Login
 label_login_hint = Your unique login
 label_login_options = Login options
 label_login_section_hint = Login, e-mail, phone, password
 label_login_visibility_hint = Unique login is an additional unique identifier for your account.
-label_login_visible = Your login visible to:{" "}
+label_login_visible = Your login is visible to:{" "}
 label_logout = Logout
 label_logout_password_not_set = Password not set. Access to account will be lost.
-label_macos = macOS
 label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
@@ -507,7 +503,7 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
-label_nobody = Nobody
+label_nobody = No one
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
@@ -596,7 +592,6 @@ label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
-label_windows = Windows
 label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_direct_link = Direct link to chat with you

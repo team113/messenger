@@ -50,7 +50,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.onAvatarTap,
+    this.onTap,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -126,7 +126,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    void Function()? onAvatarTap,
+    void Function()? onTap,
   }) =>
       AvatarWidget(
         isOnline: showBadge && myUser?.online == true,
@@ -138,7 +138,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onAvatarTap: onAvatarTap,
+        onTap: onTap,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -306,8 +306,8 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  /// Callback called when this [AvatarWidget] is tapped.
-  final void Function()? onAvatarTap;
+  /// Callback, called when this [AvatarWidget] is tapped.
+  final void Function()? onTap;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -390,7 +390,7 @@ class AvatarWidget extends StatelessWidget {
         ),
         elevation: 0,
         child: WidgetButton(
-          onPressed: onAvatarTap,
+          onPressed: onTap,
           child: Container(
             constraints: BoxConstraints(
               minHeight: minHeight,

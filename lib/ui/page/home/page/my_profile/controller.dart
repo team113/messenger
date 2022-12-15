@@ -51,16 +51,11 @@ class MyProfileController extends GetxController {
     this._settingsRepo,
   );
 
-  /// Service responsible for [MyUser] management.
-  final MyUserService _myUserService;
-
-  /// Status of a [uploadAvatar] or [deleteAvatar] completion.
+  /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning no [uploadAvatar] and [deleteAvatar] is
-  /// executing.
-  /// - `status.isLoading`, meaning [uploadAvatar] or [deleteAvatar] is
-  /// executing.
+  /// - `status.isEmpty`, meaning no [uploadAvatar]/[deleteAvatar] is executing.
+  /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
   /// [CarouselController] of the [MyUser.gallery] used to jump between gallery
@@ -87,6 +82,9 @@ class MyProfileController extends GetxController {
 
   /// [MyUser.login]'s field state.
   late final TextFieldState login;
+
+  /// Service responsible for [MyUser] management.
+  final MyUserService _myUserService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -324,9 +322,9 @@ class MyProfileController extends GetxController {
     );
 
     if (!PlatformUtils.isMobile) {
-      // TODO: This is a really bad hack. We should not create call here. Required
-      //       functionality should be decoupled from the OngoingCall or
-      //       reimplemented here.
+      // TODO: This is a really bad hack. We should not create a call here.
+      //       Required functionality should be decoupled from the
+      //       [OngoingCall] or reimplemented here.
       call = Rx<OngoingCall>(OngoingCall(
         const ChatId('settings'),
         const UserId(''),
