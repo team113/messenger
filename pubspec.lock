@@ -585,7 +585,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.49.1"
+    version: "1.54.0"
   flutter_staggered_animations:
     dependency: "direct main"
     description:
@@ -973,14 +973,14 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.ba21f0dd8d75b59a8ff93b4daf1b55bfc54e75f8"
+    version: "0.8.0-dev+rev.39f8181e33a20db445d16c1bfedd7d337a777fe3"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3"
+    version: "0.3.0-dev+rev.83b7899d983d24165509d6f7b915948cc2276ab6"
   meta:
     dependency: transitive
     description:
@@ -1603,7 +1603,7 @@ packages:
       name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.6"
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:

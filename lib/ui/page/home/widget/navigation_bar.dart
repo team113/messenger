@@ -87,24 +87,30 @@ class CustomNavigationBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             if (b.child != null)
-                              Badge(
-                                badgeContent: b.badge == null
-                                    ? null
-                                    : Text(
-                                        b.badge!,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                showBadge: b.badge != null,
-                                child: InkResponse(
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  onTap: () => onTap?.call(i),
-                                  child: b.child!,
+                              InkResponse(
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                onTap: () => onTap?.call(i),
+                                child: Container(
+                                  width: 80,
+                                  color: Colors.transparent,
+                                  child: Center(
+                                    child: Badge(
+                                      badgeContent: b.badge == null
+                                          ? null
+                                          : Text(
+                                              b.badge!,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                      showBadge: b.badge != null,
+                                      child: b.child!,
+                                    ),
+                                  ),
                                 ),
                               ),
                           ],

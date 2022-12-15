@@ -78,6 +78,8 @@ class MyProfileController extends GetxController {
   final Rx<RxStatus> avatarStatus = Rx<RxStatus>(RxStatus.empty());
 
   final RxBool muted = RxBool(false);
+  final RxBool showReadLabels = RxBool(true);
+  final RxBool showSeenAt = RxBool(true);
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);

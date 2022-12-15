@@ -70,7 +70,7 @@ class ChatsMoreView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'Прямая ссылка на чат с Вами'.l10n,
+                  'Звуковые уведомления'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -81,10 +81,11 @@ class ChatsMoreView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(height: 8),
-                  _link(context, c),
-                  const SizedBox(height: 12),
-                  header('Звуковые уведомления'),
                   _mute(context, c),
+                  const SizedBox(height: 21),
+                  header('Прямая ссылка на чат с Вами'),
+                  const SizedBox(height: 4),
+                  _link(context, c),
                 ],
               ),
             ),

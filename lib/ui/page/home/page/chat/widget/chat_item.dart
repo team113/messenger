@@ -1213,6 +1213,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  bool _reallyDragging = false;
+  Offset _reallyOffset = Offset.zero;
+
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
@@ -1265,6 +1268,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           behavior: HitTestBehavior.translucent,
           onHorizontalDragStart: (d) {
             _draggingStarted = true;
+            _reallyDragging = false;
             setState(() => _offsetDuration = Duration.zero);
           },
           onHorizontalDragUpdate: (d) {
@@ -1280,10 +1284,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
+              if (_reallyDragging) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + 10 && _offset.dx - d.delta.dx < 30 + 10) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+              } else {
+                _reallyOffset += d.delta;
+                _reallyDragging = _reallyOffset.dx > 10;
               }
 
               setState(() {});
@@ -1292,8 +1302,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           onHorizontalDragEnd: (d) {
             if (_dragging) {
               _dragging = false;
+              _reallyDragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _reallyOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});

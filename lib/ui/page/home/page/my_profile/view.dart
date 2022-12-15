@@ -16,6 +16,7 @@
 
 import 'dart:math';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:expandable/expandable.dart';
@@ -228,6 +229,14 @@ class MyProfileView extends StatelessWidget {
                             const SizedBox(height: 10),
                             _emails(c, context),
                             _password(context, c),
+                          ],
+                        );
+
+                      case ProfileTab.privacy:
+                        return block(
+                          children: [
+                            _label(context, 'Приватность'),
+                            _privacy(context, c),
                           ],
                         );
 
@@ -755,9 +764,6 @@ Widget _num(MyProfileController c) => _padding(
 
 /// Returns [MyUser.chatDirectLink] editable field.
 Widget _link(BuildContext context, MyProfileController c) {
-  final TextStyle? thin =
-      Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
   return Obx(() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -902,10 +908,8 @@ Widget _login(MyProfileController c, BuildContext context) {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               'Visible to:',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.black),
                             ),
                           ),
                         ],
@@ -1494,6 +1498,259 @@ Widget _deleteAccount(BuildContext context, MyProfileController c) {
         ),
       ),
     ),
+  );
+}
+
+/// Returns button to delete the account.
+Widget _privacy(BuildContext context, MyProfileController c) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      // _dense(
+      //   WidgetButton(
+      //     onPressed: () async {
+      //       await ConfirmDialog.show(
+      //         context,
+      //         title: 'Логин'.l10n,
+      //         // description:
+      //         //     'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+      //         additional: const [
+      //           Center(
+      //             child: Text(
+      //               'Unique login is an additional unique identifier for your account.\n',
+      //               style: TextStyle(
+      //                 fontSize: 15,
+      //                 color: Color(0xFF888888),
+      //               ),
+      //             ),
+      //           ),
+      //           Align(
+      //             alignment: Alignment.centerLeft,
+      //             child: Text(
+      //               'Visible to:',
+      //               style: TextStyle(fontSize: 18, color: Colors.black),
+      //             ),
+      //           ),
+      //         ],
+      //         proceedLabel: 'Confirm',
+      //         withCancel: false,
+      //         initial: 2,
+      //         variants: [
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Все'.l10n),
+      //           ),
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Мои контакты'.l10n),
+      //           ),
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Никто'.l10n),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //     child: IgnorePointer(
+      //       child: ReactiveTextField(
+      //         state: TextFieldState(
+      //           text: 'Ваш логин видят: все'.l10n,
+      //           editable: false,
+      //         ),
+      //         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // const SizedBox(height: 12),
+      Column(
+        children: [
+          Obx(() {
+            return _dense(
+              Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  IgnorePointer(
+                    child: ReactiveTextField(
+                      state: TextFieldState(
+                        text: 'Отметки о прочтении',
+                        editable: false,
+                      ),
+                      trailing: const SizedBox(),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Transform.scale(
+                        scale: 0.7,
+                        transformHitTests: false,
+                        child: Theme(
+                          data: ThemeData(
+                            platform: TargetPlatform.macOS,
+                          ),
+                          child: Switch.adaptive(
+                            activeColor:
+                                Theme.of(context).colorScheme.secondary,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            value: c.showReadLabels.value,
+                            onChanged: (m) => c.showReadLabels.toggle(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          Obx(() {
+            final Widget child;
+
+            if (!c.showReadLabels.value) {
+              child = const Padding(
+                padding: EdgeInsets.fromLTRB(24, 6, 24, 6),
+                child: Text(
+                  'Вы также не сможете видеть отметки о прочтении других пользователей.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              );
+            } else {
+              child = const SizedBox(width: double.infinity);
+            }
+
+            return AnimatedSizeAndFade(
+              fadeDuration: 200.milliseconds,
+              sizeDuration: 200.milliseconds,
+              child: child,
+            );
+          }),
+        ],
+      ),
+      const SizedBox(height: 12),
+      // _dense(
+      //   WidgetButton(
+      //     onPressed: () async {
+      //       await ConfirmDialog.show(
+      //         context,
+      //         title: 'Время последнего входа'.l10n,
+      //         additional: const [
+      //           Align(
+      //             alignment: Alignment.centerLeft,
+      //             child: Text(
+      //               'Visible to:',
+      //               style: TextStyle(fontSize: 18, color: Colors.black),
+      //             ),
+      //           ),
+      //         ],
+      //         proceedLabel: 'Confirm',
+      //         withCancel: false,
+      //         variants: [
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Все'.l10n),
+      //           ),
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Мои контакты'.l10n),
+      //           ),
+      //           ConfirmDialogVariant(
+      //             onProceed: () {},
+      //             child: Text('Никто'.l10n),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //     child: IgnorePointer(
+      //       child: ReactiveTextField(
+      //         maxLines: null,
+      //         state: TextFieldState(
+      //           text: 'Время последнего входа: все',
+      //           editable: false,
+      //         ),
+      //         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      //         trailing: const SizedBox(),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      Column(
+        children: [
+          Obx(() {
+            return _dense(
+              Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  IgnorePointer(
+                    child: ReactiveTextField(
+                      state: TextFieldState(
+                        text: 'Время последнего входа',
+                        editable: false,
+                      ),
+                      trailing: const SizedBox(),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Transform.scale(
+                        scale: 0.7,
+                        transformHitTests: false,
+                        child: Theme(
+                          data: ThemeData(
+                            platform: TargetPlatform.macOS,
+                          ),
+                          child: Switch.adaptive(
+                            activeColor:
+                                Theme.of(context).colorScheme.secondary,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            value: c.showSeenAt.value,
+                            onChanged: (m) => c.showSeenAt.toggle(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          Obx(() {
+            final Widget child;
+
+            if (!c.showSeenAt.value) {
+              child = const Padding(
+                padding: EdgeInsets.fromLTRB(24, 6, 24, 6),
+                child: Text(
+                  'Вы также не сможете видеть время последнего входа других пользователей.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.normal,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              );
+            } else {
+              child = const SizedBox(width: double.infinity);
+            }
+
+            return AnimatedSizeAndFade(
+              fadeDuration: 200.milliseconds,
+              sizeDuration: 200.milliseconds,
+              child: child,
+            );
+          }),
+        ],
+      ),
+    ],
   );
 }
 

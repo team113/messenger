@@ -326,6 +326,14 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.privacy:
+                    child = widget(
+                      icon: Icons.privacy_tip,
+                      title: 'Приватность'.l10n,
+                      subtitle: 'Кто видит Ваши данные'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.link:
                     child = widget(
                       icon: Icons.link,

@@ -119,8 +119,8 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.6.0
-  medea_flutter_webrtc: 0.8.0-dev+rev.ba21f0dd8d75b59a8ff93b4daf1b55bfc54e75f8
-  medea_jason: 0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3
+  medea_flutter_webrtc: 0.8.0-dev+rev.39f8181e33a20db445d16c1bfedd7d337a777fe3
+  medea_jason: 0.3.0-dev+rev.83b7899d983d24165509d6f7b915948cc2276ab6
   js: ^0.6.5
 
 flutter:
