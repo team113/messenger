@@ -38,7 +38,7 @@ class DeletePhoneController extends GetxController {
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Deletes [email] address from [MyUser.emails].
+  /// Deletes [phone] from [MyUser.phones].
   Future<void> deletePhone() async {
     try {
       if (myUser.value?.phones.unconfirmed != null) {

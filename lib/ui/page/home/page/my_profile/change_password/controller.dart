@@ -46,7 +46,7 @@ class ChangePasswordController extends GetxController {
   /// State of a repeated new [myUser]'s password field.
   late final TextFieldState repeatPassword;
 
-  /// Indicator whether the [password] should be obscured.
+  /// Indicator whether the [oldPassword] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
   /// Indicator whether the [newPassword] should be obscured.
