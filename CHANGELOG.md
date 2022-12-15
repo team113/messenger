@@ -27,6 +27,8 @@ All user visible changes to this project will be documented in this file. This p
         - Participants redialing. ([#241], [#233])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
+    - User page:
+        - Blacklisting. ([#234], [#229])
 
 ### Changed
 
@@ -87,9 +89,11 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
+[#229]: /../../issues/229
 [#232]: /../../issues/232
 [#223]: /../../issues/223
 [#233]: /../../issues/233
+[#234]: /../../pull/234
 [#237]: /../../pull/237
 [#241]: /../../pull/241
 [#245]: /../../pull/245

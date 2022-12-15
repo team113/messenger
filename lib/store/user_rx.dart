@@ -194,7 +194,15 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blacklistEvent:
-        // TODO: Handle this case.
+        var saved = _userLocal.get(id);
+        var versioned = (events as UserEventsBlacklistEventsEvent).event;
+        if (saved != null && saved.blacklistedVer > versioned.ver) {
+          break;
+        }
+
+        for (var event in versioned.events) {
+          _userLocal.put(event.user);
+        }
         break;
 
       case UserEventsKind.isBlacklisted:
