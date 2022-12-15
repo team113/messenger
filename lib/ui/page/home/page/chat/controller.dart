@@ -247,10 +247,10 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
-  /// Worker capturing any [repliedMessages] changes.
+  /// Worker capturing any [MessageFieldController.repliedMessages] changes.
   Worker? _repliesWorker;
 
-  /// Worker capturing any [attachments] changes.
+  /// Worker capturing any [MessageFieldController.attachments] changes.
   Worker? _attachmentsWorker;
 
   /// Worker performing a [readChat] on [lastVisible] changes.
@@ -288,7 +288,7 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       updateDraft: updateDraft,
-    );
+    )..onInit();
     editController = MessageFieldController(
       _chatService,
       _userService,
@@ -465,7 +465,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Updates [RxChat.draft] with the current [send],
+  /// Updates [RxChat.draft] with the current [sendController] values,
   /// [MessageFieldController.attachments] and
   /// [MessageFieldController.repliedMessages] fields.
   void updateDraft() {
@@ -505,6 +505,8 @@ class ChatController extends GetxController {
       ChatMessage? draft = chat!.draft.value;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        print(sendController);
+
         sendController.send.text = draft?.text?.val ?? '';
         sendController.send.onChanged = (s) => updateDraft();
       });

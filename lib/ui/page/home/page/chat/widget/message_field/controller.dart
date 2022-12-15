@@ -84,6 +84,9 @@ class MessageFieldController extends GetxController {
   /// State of a send message field.
   late final TextFieldState send;
 
+  /// Indicator whether [send] was initialized or not.
+  final RxBool sendInitialized = RxBool(false);
+
   /// [Chat]s service used to upload attachments.
   final ChatService _chatService;
 
@@ -95,38 +98,41 @@ class MessageFieldController extends GetxController {
 
   @override
   void onInit() {
-    send = TextFieldState(
-      onSubmitted: (s) => onSubmit?.call(),
-      focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
-              e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
+    if (sendInitialized.isFalse) {
+      send = TextFieldState(
+        onSubmitted: (s) => onSubmit?.call(),
+        focus: FocusNode(
+          onKey: (FocusNode node, RawKeyEvent e) {
+            if (e.logicalKey == LogicalKeyboardKey.enter &&
+                e is RawKeyDownEvent) {
+              if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+                int cursor;
 
-              if (send.controller.selection.isCollapsed) {
-                cursor = send.controller.selection.base.offset;
-                send.text =
-                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-              } else {
-                cursor = send.controller.selection.start;
-                send.text =
-                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+                if (send.controller.selection.isCollapsed) {
+                  cursor = send.controller.selection.base.offset;
+                  send.text =
+                      '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+                } else {
+                  cursor = send.controller.selection.start;
+                  send.text =
+                      '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+                }
+
+                send.controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: cursor + 1));
+                return KeyEventResult.handled;
+              } else if (!e.isShiftPressed) {
+                send.submit();
+                return KeyEventResult.handled;
               }
-
-              send.controller.selection =
-                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
-              return KeyEventResult.handled;
-            } else if (!e.isShiftPressed) {
-              send.submit();
-              return KeyEventResult.handled;
             }
-          }
 
-          return KeyEventResult.ignored;
-        },
-      ),
-    );
+            return KeyEventResult.ignored;
+          },
+        ),
+      );
+      sendInitialized.value = true;
+    }
 
     super.onInit();
   }
