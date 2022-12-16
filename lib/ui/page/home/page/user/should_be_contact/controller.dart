@@ -17,7 +17,12 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -62,19 +67,20 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// Temporary indicator whether the [user] is muted.
-  final RxBool isMuted = RxBool(false);
-
-  /// Temporary indicator whether the [user] is favorite.
-  final RxBool inFavorites = RxBool(false);
-
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   late final RxBool inContacts;
+  late final RxBool inFavorites;
 
   /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
+
+  late final TextFieldState name;
+
+  late final TextFieldState email;
+
+  late final TextFieldState phone;
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -92,12 +98,10 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
-  /// [StreamSubscription] to [ContactService.favorites] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _favoritesSubscription;
+  final RxList<UserEmail> emails = RxList();
+  final RxList<UserPhone> phones = RxList();
 
-  /// Indicates whether this [user] is blacklisted.
-  bool? get isBlacklisted => user?.user.value.isBlacklisted;
+  final RxBool blocked = RxBool(false);
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -106,12 +110,8 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    inContacts = RxBool(
-      _contactService.contacts.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
-          _contactService.favorites.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)),
-    );
+    inContacts = RxBool(_contactService.contacts.values
+        .any((e) => e.contact.value.users.every((m) => m.id == id)));
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
@@ -133,25 +133,123 @@ class UserController extends GetxController {
       }
     });
 
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inContacts.value = true;
-          }
-          break;
+    inFavorites = RxBool(_contactService.favorites.values
+        .any((e) => e.contact.value.users.every((m) => m.id == id)));
 
-        case OperationKind.removed:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inContacts.value = false;
+    name = TextFieldState(
+      approvable: true,
+      onChanged: (s) async {
+        s.error.value = null;
+        try {
+          if (s.text.isNotEmpty) {
+            UserName(s.text);
           }
-          break;
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        s.error.value = null;
+        try {
+          if (s.text.isNotEmpty) {
+            UserName(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
 
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    });
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await Future.delayed(1.seconds);
+            s.status.value = RxStatus.empty();
+          } catch (e) {
+            s.error.value = e.toString();
+            s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
+    email = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        if (s.text.isEmpty) {
+          s.clear();
+        }
+      },
+      onSubmitted: (s) async {
+        UserEmail? email;
+        try {
+          email = UserEmail(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await Future.delayed(1.seconds);
+            emails.add(email!);
+            s.clear();
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          } catch (e) {
+            MessagePopup.error(e);
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
+    );
+
+    phone = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        if (s.text.isEmpty) {
+          s.clear();
+        }
+      },
+      onSubmitted: (s) async {
+        UserPhone? phone;
+        try {
+          phone = UserPhone(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await Future.delayed(1.seconds);
+            phones.add(phone!);
+            s.clear();
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          } catch (e) {
+            MessagePopup.error(e);
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+            s.status.value = RxStatus.empty();
+          }
+        }
+      },
+    );
 
     super.onInit();
   }
@@ -160,7 +258,6 @@ class UserController extends GetxController {
   void onClose() {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
     super.onClose();
   }
 
@@ -186,13 +283,9 @@ class UserController extends GetxController {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
-          RxChatContact? contact =
-              _contactService.contacts.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  ) ??
-                  _contactService.favorites.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  );
+          RxChatContact? contact = _contactService.contacts.values
+              .firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id));
           if (contact != null) {
             await _contactService.deleteContact(contact.contact.value.id);
           }
@@ -229,16 +322,52 @@ class UserController extends GetxController {
     }
   }
 
-  /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() => _userService.blacklistUser(id);
+  Future<void> addToFavorites() async {
+    inFavorites.value = true;
+  }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() => _userService.unblacklistUser(id);
+  Future<void> removeFromFavorites() async {
+    inFavorites.value = false;
+  }
+
+  /// Unmutes a [Chat] identified by the provided [id].
+  Future<void> unmuteChat(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat] identified by the provided [id].
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    try {
+      PreciseDateTime? until;
+      if (duration != null) {
+        until = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(
+        id,
+        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
+
+      name.unchecked = user?.user.value.name?.val;
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
@@ -284,7 +413,7 @@ extension UserViewExt on User {
 
 /// Extension adding an ability to get text represented indication of how long
 /// ago a [DateTime] happened compared to [DateTime.now].
-extension _DateTimeToAgo on DateTime {
+extension DateTimeToAgo on DateTime {
   /// Returns text representation of a [difference] with [DateTime.now]
   /// indicating how long ago this [DateTime] happened compared to
   /// [DateTime.now].

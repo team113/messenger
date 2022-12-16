@@ -41,7 +41,10 @@ import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show ToggleChatMuteException, UpdateChatContactNameException;
+    show
+        ToggleChatMuteException,
+        FavoriteChatContactException,
+        UnfavoriteChatContactException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';

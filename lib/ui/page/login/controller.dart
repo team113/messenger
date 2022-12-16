@@ -36,7 +36,6 @@ enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
-  recoverySuccess,
 }
 
 /// [GetxController] of a [LoginView].
@@ -388,7 +387,6 @@ class LoginController extends GetxController {
         newPassword: UserPassword(newPassword.text),
       );
 
-      // stage.value = LoginViewStage.recoverySuccess;
       recovered.value = true;
       stage.value = null;
     } on FormatException {
