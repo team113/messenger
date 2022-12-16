@@ -42,7 +42,7 @@ btn_allow = Allow
 btn_audio_call = Audio call
 btn_away = Away
 btn_back = Back
-btn_blacklist = Add to blacklist
+btn_block = Block
 btn_call_answer_with_audio =
     Answer
     audio only
@@ -182,6 +182,7 @@ btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
+btn_unblock = Unblock
 btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -292,8 +293,8 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] recently
-                                            [1] recently
+                                            [0] just now
+                                            [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
                                         }
                                     [1] an hour ago
