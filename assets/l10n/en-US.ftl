@@ -332,6 +332,7 @@ label_all = All
 label_app_background = Application background
 label_application = application
 label_are_you_sure_no = No
+label_are_you_sure_want_to_log_out = Are you sure you want to log out from account{" "}
 label_are_you_sure_yes = Yes
 label_attachments = [{$count} { $count ->
     [1] attachment

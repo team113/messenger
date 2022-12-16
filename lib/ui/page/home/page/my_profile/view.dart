@@ -596,42 +596,26 @@ Widget _emails(MyProfileController c, BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                WidgetButton(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: e.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
-                  },
-                  child: IgnorePointer(
-                    child: ReactiveTextField(
-                      state: TextFieldState(text: e.val, editable: false),
-                      label: 'label_phone_number'.l10n,
-                      trailing: Transform.translate(
-                        offset: const Offset(0, -1),
-                        child: Transform.scale(
-                          scale: 1.15,
-                          child: SvgLoader.asset(
-                            'assets/icons/delete.svg',
-                            height: 14,
-                          ),
-                        ),
-                      ),
-                    ),
+            FieldButton(
+              text: e.val,
+              hint: 'label_phone_number'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
                   ),
                 ),
-                WidgetButton(
-                  onPressed: () {
-                    // TODO: show a delete phone popup.
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ],
+              ),
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: e.val));
+                MessagePopup.success('label_copied_to_clipboard'.l10n);
+              },
+              onTrailingPressed: () {
+                // TODO: show a delete phone popup.
+              },
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
@@ -931,21 +915,15 @@ Widget _call(BuildContext context, MyProfileController c) {
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
-        WidgetButton(
+        FieldButton(
+          text: (c.settings.value?.enablePopups ?? true)
+              ? 'label_open_calls_in_window'.l10n
+              : 'label_open_calls_in_app'.l10n,
+          maxLines: null,
           onPressed: () {
             // TODO: show a call window switch popup.
           },
-          child: IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: (c.settings.value?.enablePopups ?? true)
-                    ? 'label_open_calls_in_window'.l10n
-                    : 'label_open_calls_in_app'.l10n,
-              ),
-              maxLines: null,
-              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
     ],

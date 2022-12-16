@@ -19,18 +19,28 @@ import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/ui/widget/text_field.dart';
 
-/// Button from the [ReactiveTextField].
+/// Button based on the [ReactiveTextField].
 class FieldButton extends StatelessWidget {
   const FieldButton({
     Key? key,
+    this.text,
+    this.hint,
+    this.maxLines = 1,
     this.onPressed,
     this.onTrailingPressed,
-    this.text,
-    this.style,
-    this.hint,
     this.trailing,
     this.prefix,
+    this.style,
   }) : super(key: key);
+
+  /// Optional label of this [FieldButton].
+  final String? text;
+
+  /// Optional hint of this [FieldButton].
+  final String? hint;
+
+  /// Maximum number of lines to show at one time, wrapping if necessary.
+  final int? maxLines;
 
   /// Callback called when this [FieldButton] is pressed.
   final VoidCallback? onPressed;
@@ -40,24 +50,18 @@ class FieldButton extends StatelessWidget {
   /// Does nothing if the [trailing] is `null`.
   final VoidCallback? onTrailingPressed;
 
-  /// Optional label of this [FieldButton].
-  final String? text;
-
-  /// [TextStyle] of the [text].
-  final TextStyle? style;
-
-  /// Optional hint of this [FieldButton].
-  final String? hint;
-
   /// Optional trailing [Widget].
   final Widget? trailing;
 
   /// Optional prefix [Widget].
   final Widget? prefix;
 
+  /// [TextStyle] of the [text].
+  final TextStyle? style;
+
   @override
   Widget build(BuildContext context) {
-    final Widget field = WidgetButton(
+    return WidgetButton(
       behavior: HitTestBehavior.deferToChild,
       onPressed: onPressed,
       child: IgnorePointer(
@@ -67,30 +71,13 @@ class FieldButton extends StatelessWidget {
             editable: false,
           ),
           label: hint,
+          maxLines: maxLines,
           trailing: trailing,
           prefix: prefix,
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          style: style,
+          onSuffixPressed: onTrailingPressed,
         ),
       ),
     );
-
-    if (trailing != null && onTrailingPressed != null) {
-      return Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          field,
-          WidgetButton(
-            onPressed: onTrailingPressed,
-            child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              width: 30,
-              height: 30,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return field;
   }
 }

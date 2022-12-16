@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animations.dart';
@@ -214,7 +215,7 @@ class ReactiveTextField extends StatelessWidget {
                                             onPressed: state.submit,
                                             icon: UnconstrainedBox(
                                               child: Text(
-                                                'btn_save',
+                                                'btn_save'.l10n,
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: Theme.of(context)

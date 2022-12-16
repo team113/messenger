@@ -245,7 +245,7 @@ class MenuTabView extends StatelessWidget {
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : [const SizedBox(width: 23)],
+                : const [SizedBox(width: 23)],
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
