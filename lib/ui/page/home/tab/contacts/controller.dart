@@ -50,8 +50,11 @@ class ContactsTabController extends GetxController {
     this._settingsRepository,
   );
 
-  /// Returns current reactive [ChatContact]s list.
-  final RxList<RxChatContact> contacts = RxList<RxChatContact>();
+  /// Reactive list of sorted [ChatContact]s.
+  final RxList<RxChatContact> contacts = RxList();
+
+  /// Reactive list of favorited [ChatContact]s.
+  final RxList<RxChatContact> favorites = RxList();
 
   /// [Chat] repository used to create a dialog [Chat].
   final AbstractChatRepository _chatRepository;
@@ -62,8 +65,7 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Settings repository, used to get the stored
-  /// [ApplicationSettings.sortContactsByName] and update it.
+  /// Settings repository maintaining the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
@@ -78,9 +80,6 @@ class ContactsTabController extends GetxController {
   /// [StreamSubscription]s to the [favorites] updates.
   StreamSubscription? _favoritesSubscription;
 
-  /// Reactive list of sorted [ChatContact]s.
-  late final RxList<RxChatContact> favorites;
-
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
@@ -91,9 +90,9 @@ class ContactsTabController extends GetxController {
 
   @override
   void onInit() {
-    contacts.addAll(_contactService.contacts.values);
+    contacts.value = _contactService.contacts.values.toList();
+    favorites.value = _contactService.favorites.values.toList();
     _sortContacts();
-    favorites = RxList(_contactService.favorites.values.toList());
     _sortFavorites();
 
     _initUsersUpdates();
@@ -103,7 +102,7 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    for (RxChatContact contact in contacts) {
+    for (RxChatContact contact in [...contacts, ...favorites]) {
       contact.user.value?.stopUpdates();
     }
 
@@ -180,27 +179,6 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Starts listen updates of [User].
-  void _startUserListen(Rx<User> user) {
-    final User u = user.value;
-
-    if (_userWorkers[u.id] == null) {
-      bool online = u.online;
-      PreciseDateTime? lastSeenAt = u.lastSeenAt;
-
-      _userWorkers[u.id] = ever(user, (User u) {
-        if (sortByName == false &&
-            (online != u.online || lastSeenAt != u.lastSeenAt)) {
-          online = u.online;
-          lastSeenAt = u.lastSeenAt;
-
-          _sortContacts();
-        }
-      });
-    }
-    _sortContacts();
-  }
-
   /// Maintains an interest in updates of every [RxChatContact.user] in the
   /// [contacts] list.
   void _initUsersUpdates() {
@@ -215,12 +193,13 @@ class ContactsTabController extends GetxController {
         }
 
         if (user != null) {
-          _startUserListen(user.user);
+          _populateSortingWorker(user.user);
+          _sortContacts();
         }
       });
 
       if (c.user.value != null) {
-        _startUserListen(c.user.value!.user);
+        _populateSortingWorker(c.user.value!.user);
       }
     }
 
@@ -230,6 +209,7 @@ class ContactsTabController extends GetxController {
       switch (e.op) {
         case OperationKind.added:
           contacts.add(e.value!);
+          _sortContacts();
           listen(e.value!);
           break;
 
@@ -241,11 +221,9 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortContacts();
           break;
       }
-
-      _sortContacts();
     });
 
     favorites.forEach(listen);
@@ -261,6 +239,7 @@ class ContactsTabController extends GetxController {
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
           _userWorkers.remove(e.key)?.dispose();
+          _rxUserWorkers.remove(e.key)?.dispose();
           favorites.removeWhere((c) => c.contact.value.id == e.key);
           break;
 
@@ -271,6 +250,25 @@ class ContactsTabController extends GetxController {
     });
   }
 
+  /// Populates a [Worker] sorting the [contacts] on the [User.online] and
+  /// [User.lastSeenAt] changes of the provided [user].
+  void _populateSortingWorker(Rx<User> user) {
+    final User u = user.value;
+
+    if (_userWorkers[u.id] == null) {
+      bool online = u.online;
+      PreciseDateTime? lastSeenAt = u.lastSeenAt;
+
+      _userWorkers[u.id] = ever(user, (User u) {
+        if (!sortByName && (online != u.online || lastSeenAt != u.lastSeenAt)) {
+          online = u.online;
+          lastSeenAt = u.lastSeenAt;
+          _sortContacts();
+        }
+      });
+    }
+  }
+
   /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
   /// the [sortByName] indicator.
   void _sortContacts() {
@@ -278,8 +276,8 @@ class ContactsTabController extends GetxController {
       if (sortByName == true) {
         return a.contact.value.name.val.compareTo(b.contact.value.name.val);
       } else {
-        User? userA = a.user.value?.user.value;
-        User? userB = b.user.value?.user.value;
+        final User? userA = a.user.value?.user.value;
+        final User? userB = b.user.value?.user.value;
 
         if (userA?.online == true && userB?.online == false) {
           return -1;
