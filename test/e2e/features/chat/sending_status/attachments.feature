@@ -5,6 +5,7 @@ Feature: Chat attachments have correct sending status
     And user Bob
     And Bob has dialog with Alice
     And I am in chat with Bob
+    And I wait for app to settle
 
   Scenario: File attachment status changes from `sending` to `sent`
     Given I have Internet with delay of 4 seconds

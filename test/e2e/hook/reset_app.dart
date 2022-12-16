@@ -21,7 +21,9 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
-import 'package:messenger/util/web/web_utils.dart';
+import 'package:messenger/util/platform_utils.dart';
+
+import '../steps/internet.dart';
 
 /// [Hook] resetting the [Hive] and [Get] states after a test.
 class ResetAppHook extends Hook {
@@ -39,7 +41,7 @@ class ResetAppHook extends Hook {
     await Get.deleteAll(force: true);
     Get.reset();
 
-    WebUtils.removeAllCalls();
+    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
     await Hive.close();

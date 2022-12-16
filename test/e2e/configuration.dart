@@ -34,16 +34,24 @@ import 'parameters/attachment.dart';
 import 'parameters/chat.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled.dart';
+import 'parameters/exception.dart';
+import 'parameters/favorite_status.dart';
+import 'parameters/fetch_status.dart';
 import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
+import 'parameters/position_status.dart';
+import 'parameters/search_category.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/add_user_to_call.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/contact.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_chat.dart';
@@ -51,13 +59,19 @@ import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
+import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/see_chat_position.dart';
+import 'steps/see_contact_position.dart';
 import 'steps/see_draft.dart';
+import 'steps/see_favorite_chat.dart';
+import 'steps/see_favorite_contact.dart';
+import 'steps/see_search_results.dart';
 import 'steps/sees_as.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
@@ -68,10 +82,13 @@ import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
+import 'steps/updates_name.dart';
 import 'steps/user_call.dart';
 import 'steps/user_hand.dart';
 import 'steps/users.dart';
+import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
+import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_in_call.dart';
@@ -90,7 +107,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsFavorite,
         chatIsMuted,
+        contact,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
         fillField,
@@ -105,6 +125,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatNamed,
         iAmInChatWith,
         longPressChat,
+        longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
@@ -116,29 +137,39 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         returnToPreviousPage,
         scrollAndSee,
+        seeChatAsFavorite,
         seeChatAsMuted,
-        seesAs,
+        seeChatInSearchResults,
+        seeChatPosition,
+        seeContactAsFavorite,
+        seeContactPosition,
         seeDraftInDialog,
+        seeUserInSearchResults,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
+        sendsMessageWithException,
         signInAs,
         tapDropdownItem,
         tapText,
         tapUserInSearch,
         tapWidget,
+        twoContacts,
         twoUsers,
         untilAttachmentExists,
+        untilAttachmentFetched,
         untilMyUserHand,
         untilTextExists,
+        untilTextExistsWithin,
         untilUserHand,
         untilUserInCallExists,
-        untilTextExistsWithin,
-        updateBio,
+        updateName,
         user,
         userDeclineCall,
         userEndCall,
         userJoinCall,
         userStartCall,
+        waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
         waitUntilKeyExists,
@@ -162,12 +193,17 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
-        DownloadStatusParameter(),
         ChatTypeParameter(),
+        DownloadStatusParameter(),
         EnabledParameter(),
+        ExceptionParameter(),
+        FavoriteStatusParameter(),
         HandStatusParameter(),
+        ImageFetchStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
+        PositionStatusParameter(),
+        SearchCategoryParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

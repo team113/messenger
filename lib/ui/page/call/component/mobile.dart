@@ -35,8 +35,9 @@ import '../widget/participant.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -341,23 +342,8 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Populate the sliding panel height and its content.
         if (c.state.value == OngoingCallState.active ||
             c.state.value == OngoingCallState.joining) {
-          panelHeight = 360;
+          panelHeight = 360 + 34;
           panelHeight = min(c.size.height - 45, panelHeight);
-
-          Widget divider() => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Divider(
-                      color: Color(0x99FFFFFF),
-                      thickness: 1,
-                      height: 1,
-                    ),
-                  ),
-                ),
-              );
 
           panelChildren = [
             const SizedBox(height: 12),
@@ -465,11 +451,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                 )),
               ],
             ),
-            const SizedBox(height: 13),
-            divider(),
-            const SizedBox(height: 13),
-            _callTile(context, c),
-            const SizedBox(height: 13),
+            const SizedBox(height: 32),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 366),
+              child: _chat(context, c),
+            ),
+            const SizedBox(height: 15),
           ];
         }
 
@@ -652,115 +639,99 @@ Widget mobileCall(CallController c, BuildContext context) {
   });
 }
 
-/// Button with an [icon] and a [child] that has a strict layout.
-Widget _layoutButton({
-  required Widget icon,
-  required Widget child,
-  void Function()? onTap,
-  Widget? trailing,
-}) =>
-    ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 400),
-      child: InkWell(
-        hoverColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: onTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(flex: 1, child: icon),
-            Expanded(
-                flex: 3,
-                child: Row(
-                  children: [
-                    Expanded(flex: 3, child: child),
-                    if (trailing != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 24),
-                        child: trailing,
-                      ),
-                  ],
-                )),
-          ],
+/// Builds a tile representation of the [CallController.chat].
+Widget _chat(BuildContext context, CallController c) {
+  return Obx(() {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final RxChat chat = c.chat.value!;
+
+    final Set<UserId> actualMembers =
+        c.members.keys.map((k) => k.userId).toSet();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: const Color(0x794E5A78),
+          child: InkWell(
+            borderRadius: style.cardRadius,
+            onTap: () => c.openAddMember(context),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              child: Row(
+                children: [
+                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                chat.title.value,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline5
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Row(
+                            children: [
+                              Text(
+                                'label_a_of_b'.l10nfmt({
+                                  'a': '${actualMembers.length}',
+                                  'b': '${c.chat.value?.members.length}',
+                                }),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                width: 1,
+                                height: 12,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.color,
+                              ),
+                              Text(
+                                c.duration.value.hhMmSs(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
-
-/// Call's tile containing information about the call.
-Widget _callTile(BuildContext context, CallController c) => Obx(
-      () {
-        bool isOutgoing =
-            (c.outgoing || c.state.value == OngoingCallState.local) &&
-                !c.started;
-        String state = c.state.value == OngoingCallState.active
-            ? c.duration.value.localizedString()
-            : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.l10n
-                : isOutgoing
-                    ? 'label_call_calling'.l10n
-                    : c.withVideo == true
-                        ? 'label_video_call'.l10n
-                        : 'label_audio_call'.l10n;
-
-        String? subtitle;
-        if (c.isGroup) {
-          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          subtitle = 'label_a_of_b'.l10nfmt({
-            'a': '${actualMembers.length}',
-            'b': '${c.chat.value?.members.length}',
-          });
-        }
-
-        return _layoutButton(
-          icon: Center(
-            child: SizedBox(
-              width: 58,
-              height: 58,
-              child: AvatarWidget.fromRxChat(c.chat.value),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                c.chat.value?.title.value ?? ('dot'.l10n * 3),
-                style: context.textTheme.headline4
-                    ?.copyWith(color: Colors.white, fontSize: 20),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              if (c.isGroup) ...[
-                const SizedBox(height: 5),
-                Text(
-                  '$subtitle',
-                  style: context.textTheme.headline4
-                      ?.copyWith(color: Colors.white, fontSize: 15),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
-            ],
-          ),
-          trailing: Text(
-            state,
-            style: context.textTheme.headline4
-                ?.copyWith(color: Colors.white, fontSize: 15),
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.right,
-            maxLines: 1,
-          ),
-          onTap: () {
-            if (c.chat.value != null) {
-              c.minimize();
-              router.chat(c.chat.value!.chat.value.id);
-            }
-          },
-        );
-      },
-    );
+  });
+}
 
 /// [FitView] of the [CallController.primary] widgets.
 Widget _primaryView(CallController c, BuildContext context) {

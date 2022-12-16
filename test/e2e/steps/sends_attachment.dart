@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' as dio;
@@ -31,6 +32,7 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then Bob sends "test.txt" attachment to me
+/// - Then Bob sends "test.jpg" attachment to me
 final StepDefinitionGeneric sendsAttachmentToMe =
     and2<TestUser, String, CustomWorld>(
   '{user} sends {string} attachment to me',
@@ -38,10 +40,16 @@ final StepDefinitionGeneric sendsAttachmentToMe =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
 
-    String? type = MimeResolver.lookup(filename);
-    var response = await provider.uploadAttachment(
+    final String? type = MimeResolver.lookup(filename);
+    final MediaType? mime = type != null ? MediaType.parse(type) : null;
+
+    final response = await provider.uploadAttachment(
       dio.MultipartFile.fromBytes(
-        Uint8List.fromList([1, 1]),
+        mime?.type == 'image'
+            ? base64Decode(
+                '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+              )
+            : Uint8List.fromList([1, 1]),
         filename: filename,
         contentType: type != null ? MediaType.parse(type) : null,
       ),

@@ -19,9 +19,8 @@ alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
 alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
-alert_are_you_sure_want_to_log_out =
-    Вы действительно хотите выйти из аккаунта?
-    Ваши активные звонки будут завершены.
+alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
+alert_are_you_sure_want_to_log_out2 = ?
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока
@@ -38,11 +37,12 @@ btn_add = Добавить
 btn_add_participant = Добавить участника
 btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
+btn_add_to_favorites = В избранные
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
 btn_away = Отошёл
 btn_back = Назад
-btn_blacklist = Добавить в черный список
+btn_block = Заблокировать
 btn_call_answer_with_audio =
     Ответить
     только аудио
@@ -58,13 +58,15 @@ btn_call_audio_on_desc =
     Включить
     микрофон
 btn_call_cancel = Отменить
-btn_call_center_video = Центрировать видео
+btn_call_center = Центрировать
 btn_call_cut_video = Обрезать видео
 btn_call_decline = Отклонить
+btn_call_disable_audio = Отключить аудио
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
 btn_call_drop_video_here =
     Добавить видео в отдельную панель можно простым перетаскиванием
+btn_call_enable_audio = Включить аудио
 btn_call_enable_video = Включить видео
 btn_call_end = Завершить звонок
 btn_call_end_desc =
@@ -95,6 +97,7 @@ btn_call_remote_video_on = Включить входящее видео
 btn_call_remote_video_on_desc =
     Включить
     входящее видео
+btn_call_remove_participant = Выгнать участника
 btn_call_screen_off = Завершить демонстрацию экрана
 btn_call_screen_off_desc =
     Завершить
@@ -112,6 +115,7 @@ btn_call_toggle_speaker = Переключить динамик
 btn_call_toggle_speaker_desc =
     Переключить
     динамик
+btn_call_uncenter = Убрать из центра
 btn_call_video_off = Выключить камеру
 btn_call_video_off_desc =
     Выключить
@@ -124,28 +128,31 @@ btn_call_video_on_desc =
 btn_change = Сменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
+btn_clear_chat = Очистить чат
 btn_close = Закрыть
 btn_confirm = Подтвердить
-btn_copy = Скопировать
+btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
-btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
+btn_delete_from_favorites = Из избранных
+btn_delete_message = Удалить
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
 btn_forgot_password = Забыли пароль?
-btn_forward = Переслать
+btn_forward = Переслать сообщение
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hidden = Скрыт
 btn_hide_chat = Скрыть чат
 btn_info = Информация
-btn_join_call = Присоединиться
+btn_join_call = Присоединиться к звонку
+btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
@@ -162,7 +169,8 @@ btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
 btn_rename = Переименовать
-btn_reply = Ответить
+btn_reply = Ответить на сообщение
+btn_report = Пожаловаться
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
@@ -173,6 +181,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
+btn_unblock = Разблокировать
 btn_unmute_chat = Включить уведомления
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -206,9 +215,9 @@ err_data_transfer =
 err_dimensions_too_big = Слишком большое разрешение
 err_email_occupied = Почта уже привязана к другому аккаунту
 err_incorrect_chat_name = Некорректное имя
-err_incorrect_input = Некорректный формат
+err_incorrect_input = Некорректный формат.
 err_incorrect_password = Неверный пароль
-err_input_empty = Поле не должно быть пустым
+err_input_empty = Поле не должно быть пустым.
 err_invalid_crop_coordinates = Неверные координаты обрезки
 err_invalid_crop_points = Неверные точки обрезки
 err_login_occupied = Логин уже занят
@@ -268,6 +277,7 @@ err_you_already_has_unconfirmed_phone =
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 label_a_of_b = {$a} из {$b}
+label_actions = Действия
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
@@ -282,8 +292,8 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] недавно
-                                            [1] недавно
+                                            [0] только что
+                                            [1] 1 минуту назад
                                             [few] {$minutes} минуты назад
                                             *[other] {$minutes} минут назад
                                         }
@@ -370,6 +380,7 @@ label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
 label_contact = Контакт
+label_contact_information = Контактная информация
 label_contacts = Контакты
 label_copied_to_clipboard = Скопировано в буфер обмена
 label_copy = Копировать
@@ -489,12 +500,13 @@ label_offline = Офлайн
 label_online = Онлайн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participant_redial_successfully = Участник перенабран
 label_participants = Участники
 label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
-label_password_not_set = Пароль не задан
-label_password_set_successfully = Пароль успешно задан
-label_password_was_changed = Пароль был изменен
+label_password_changed = Пароль изменён.
+label_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.
+label_password_set = Пароль задан.
 label_personalization = Персонализация
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
@@ -504,10 +516,14 @@ label_presence = Отображение статуса
 label_presence_away = Отошёл
 label_presence_hidden = Скрыт
 label_presence_present = Информация о последнем входе
+label_public_information = Публичная информация
 label_read_by = Прочитано
 label_recent = Недавние
 label_recover_account = Восстановление доступа
+label_recover_account_description = Укажите Ваш Gapopa ID, логин, E-mail или номер телефона.
 label_recovery_code = Код восстановления
+label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
+label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_repeat_password = Повторите пароль
 label_replies = [{$count} { $count ->
     [1] ответ
@@ -537,7 +553,8 @@ label_short_weekday =
         *[other] вс
     }
 label_sign_in = Войти
-label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
+label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_status = Статус
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
@@ -561,6 +578,5 @@ label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 plus = +
-semicolon_space = :{" "}
 space = {" "}
 space_vertical_space = {" "}|{" "}

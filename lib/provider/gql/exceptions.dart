@@ -560,7 +560,7 @@ class ValidateUserPasswordRecoveryCodeException
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -998,6 +998,37 @@ class ToggleChatCallHandException
   }
 }
 
+/// Exception of `Mutation.redialChatCallMember` described in the [code].
+class RedialChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RedialChatCallMemberException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RedialChatCallMemberErrorCode code;
+
+  @override
+  String toString() => 'RedialChatCallMemberException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RedialChatCallMemberErrorCode.notCallMember:
+        return 'err_not_call_member'.l10n;
+      case RedialChatCallMemberErrorCode.noCall:
+        return 'err_call_not_found'.l10n;
+      case RedialChatCallMemberErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case RedialChatCallMemberErrorCode.notChatMember:
+        return 'err_not_member'.l10n;
+      case RedialChatCallMemberErrorCode.notGroup:
+        return 'err_contact_not_group'.l10n;
+      case RedialChatCallMemberErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.createChatDirectLink` described in the [code].
 class CreateChatDirectLinkException
     with LocalizedExceptionMixin
@@ -1313,6 +1344,140 @@ class ToggleChatMuteException
       case ToggleChatMuteErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
       case ToggleChatMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.favoriteChat` described in the [code].
+class FavoriteChatException with LocalizedExceptionMixin implements Exception {
+  const FavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChat` described in the [code].
+class UnfavoriteChatException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'UnfavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.favoriteChatContact` described in the [code].
+class FavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const FavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatContactErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChatContact` described in the [code].
+class UnfavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'UnfavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatContactErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.blacklistUser` described in the [code].
+class BlacklistUserException with LocalizedExceptionMixin implements Exception {
+  const BlacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final BlacklistUserErrorCode code;
+
+  @override
+  String toString() => 'BlacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case BlacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case BlacklistUserErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unblacklistUser` described in the [code].
+class UnblacklistUserException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnblacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnblacklistUserErrorCode code;
+
+  @override
+  String toString() => 'UnblacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnblacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case UnblacklistUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

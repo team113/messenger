@@ -227,32 +227,32 @@ class ParticipantOverlayWidget extends StatelessWidget {
           (participant.video.value?.direction.value.isEmitting ?? false) &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      bool isAudioDisabled = !isMuted &&
-          participant.audio.value != null &&
+      bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       List<Widget> additionally = [];
 
-      if (isMuted) {
+      if (isAudioDisabled) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
+            padding: const EdgeInsets.only(left: 3, right: 3),
             child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 12,
+              'assets/icons/audio_off_small.svg',
+              width: 20.88,
+              height: 17,
+              fit: BoxFit.fitWidth,
             ),
           ),
         );
-      } else if (isAudioDisabled) {
+      } else if (isMuted) {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
-              'assets/icons/speaker_off.svg',
-              height: 35,
-              fit: BoxFit.fitWidth,
+              'assets/icons/microphone_off_small.svg',
+              height: 16.5,
             ),
           ),
         );
@@ -260,27 +260,41 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
+
+        if (isVideoDisabled) {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
+            ),
+          );
+        }
       } else if (isVideoDisabled) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
+            padding: const EdgeInsets.only(left: 5, right: 5),
             child: SvgLoader.asset(
-              'assets/icons/video_off.svg',
-              height: 35,
+              'assets/icons/video_off_small.svg',
+              width: 19.8,
+              height: 17,
             ),
           ),
         );
@@ -290,7 +304,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const SizedBox(width: double.infinity, height: double.infinity),
+            const IgnorePointer(
+              child: SizedBox(width: double.infinity, height: double.infinity),
+            ),
             Positioned.fill(
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -327,7 +343,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   top: 4,
                                   bottom: 4,
                                 ),
-                                height: 28,
+                                height: 32,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

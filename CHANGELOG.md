@@ -18,31 +18,55 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
     - Chats tab:
-        - Chat muting/unmuting. ([#172], [#63])
+        - Chat muting/unmuting. ([#251], [#172], [#63])
+        - Favorite chats. ([#218], [#209])
+        - Searching. ([#206], [#205])
     - Home page:
         - Quick status changing menu. ([#204], [#203])
+    - Media panel:
+        - Participants redialing. ([#241], [#233])
+    - Contacts tab:
+        - Favorite contacts. ([#237], [#223])
+    - User page:
+        - Blacklisting. ([#234], [#229])
 
 ### Changed
 
 - UI:
     - Home page:
         - Redesigned chats tab. ([#142])
-        - Redesigned gallery. ([#212], [#199])
+        - Redesigned introduction and logout modals. ([#249])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
+        - Redesigned chat tile in mobile interface. ([#246], [#232])
+    - Chat page:
+        - Redesigned gallery. ([#212], [#199])
+        - Date headers disappearing when not scrolling. ([#221], [#215])
+    - Chats tab:
+        - Redesigned attachments preview. ([#217], [#214])
+    - Redesigned desktop context menu. ([#245])
+    - Auth page:
+        - Redesigned login modal. ([#249])
+    - User page:
+        - Redesigned user page. ([#254], [#252])
+    - Contacts tab:
+        - Alphabetical and last seen sorting. ([#235], [#226])
 
 ### Fixed
 
 - UI:
     - Chat page:
         - Replies having reversed order in messages. ([#193], [#192])
+        - Images sometimes not loading. ([#164], [#126])
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#63]: /../../issues/63
 [#102]: /../../issues/102
+[#126]: /../../issues/126
 [#134]: /../../issues/134
 [#142]: /../../pull/142
+[#164]: /../../pull/164
 [#172]: /../../pull/172
 [#173]: /../../pull/173
 [#188]: /../../pull/188
@@ -55,7 +79,30 @@ All user visible changes to this project will be documented in this file. This p
 [#199]: /../../issues/199
 [#203]: /../../issues/203
 [#204]: /../../pull/204
+[#205]: /../../issues/205
+[#206]: /../../pull/206
+[#209]: /../../issues/209
 [#212]: /../../pull/212
+[#214]: /../../issues/214
+[#215]: /../../issues/215
+[#217]: /../../pull/217
+[#218]: /../../pull/218
+[#221]: /../../pull/221
+[#223]: /../../issues/223
+[#226]: /../../issues/226
+[#229]: /../../issues/229
+[#232]: /../../issues/232
+[#233]: /../../issues/233
+[#234]: /../../pull/234
+[#235]: /../../pull/235
+[#237]: /../../pull/237
+[#241]: /../../pull/241
+[#245]: /../../pull/245
+[#246]: /../../pull/246
+[#249]: /../../pull/249
+[#251]: /../../pull/251
+[#252]: /../../issues/252
+[#254]: /../../pull/254
 
 
 

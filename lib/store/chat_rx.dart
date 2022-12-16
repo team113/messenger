@@ -844,6 +844,8 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.ongoingCall!.conversationStartedAt =
                     PreciseDateTime.now();
               }
+
+              _chatRepository.addCall(event.call);
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -864,6 +866,7 @@ class HiveRxChat extends RxChat {
               }
 
               _chatRepository.removeCredentials(event.call.id);
+              _chatRepository.endCall(event.call.chatId);
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
@@ -1018,6 +1021,29 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.callMoved:
               // TODO: Implement EventChatCallMoved.
+              break;
+
+            case ChatEventKind.favorited:
+              event as EventChatFavorited;
+              chatEntity.value.favoritePosition = event.position;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(
+                  chatEntity.value.id,
+                  chatEntity.value.id,
+                  _chatRepository.chats[chatEntity.value.id],
+                ),
+              );
+              break;
+
+            case ChatEventKind.unfavorited:
+              chatEntity.value.favoritePosition = null;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(
+                  chatEntity.value.id,
+                  chatEntity.value.id,
+                  _chatRepository.chats[chatEntity.value.id],
+                ),
+              );
               break;
           }
         }

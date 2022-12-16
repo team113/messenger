@@ -31,6 +31,7 @@ class ChatTile extends StatelessWidget {
     Key? key,
     this.chat,
     this.title = const [],
+    this.status = const [],
     this.subtitle = const [],
     this.leading = const [],
     this.trailing = const [],
@@ -45,6 +46,9 @@ class ChatTile extends StatelessWidget {
 
   /// Optional [Widget]s to display after the [chat]'s title.
   final List<Widget> title;
+
+  /// Optional [Widget]s to display as a trailing to the [chat]'s title.
+  final List<Widget> status;
 
   /// Optional leading [Widget]s.
   final List<Widget> leading;
@@ -69,7 +73,7 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return ContextMenuRegion(
       key: Key('ChatTile_${chat?.chat.value.id}'),
@@ -90,7 +94,11 @@ class ChatTile extends StatelessWidget {
             onTap: onTap,
             unselectedHoverColor: style.cardHoveredColor,
             selectedHoverColor: style.cardSelectedColor,
+            folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
+              key: chat?.chat.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                  : null,
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
@@ -104,17 +112,26 @@ class ChatTile extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Flexible(
-                              child: Obx(() {
-                                return Text(
-                                  chat?.title.value ?? ('dot'.l10n * 3),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                );
-                              }),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Obx(() {
+                                      return Text(
+                                        chat?.title.value ?? ('dot'.l10n * 3),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5,
+                                      );
+                                    }),
+                                  ),
+                                  ...title,
+                                ],
+                              ),
                             ),
-                            ...title,
+                            ...status,
                           ],
                         ),
                         ...subtitle,

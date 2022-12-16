@@ -24,15 +24,19 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/my_user.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -41,6 +45,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -70,6 +75,12 @@ void main() async {
   await userProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -131,6 +142,10 @@ void main() async {
   when(graphQlProvider.keepOnline())
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
@@ -151,6 +166,8 @@ void main() async {
       Get.put(MyUserService(authService, myUserRepository));
 
   when(graphQlProvider.recentChatsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
   when(graphQlProvider.chatEvents(
@@ -210,6 +227,14 @@ void main() async {
       }).createChatDirectLink as MyUserEventsVersionedMixin?),
     );
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -217,6 +242,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -226,6 +253,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -253,6 +281,14 @@ void main() async {
       (_) => Future.value(),
     );
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -260,6 +296,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -269,6 +307,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -317,6 +356,14 @@ void main() async {
           as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk),
     );
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -324,6 +371,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -333,6 +382,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     Get.put(ChatService(chatRepository, authService));
@@ -357,6 +407,14 @@ void main() async {
         .thenThrow(const CreateChatDirectLinkException(
             CreateChatDirectLinkErrorCode.unknownChat));
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -364,6 +422,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -373,6 +433,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -408,6 +469,14 @@ void main() async {
     )).thenThrow(const DeleteChatDirectLinkException(
         DeleteChatDirectLinkErrorCode.unknownChat));
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -415,6 +484,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -424,6 +495,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -450,6 +522,14 @@ void main() async {
     )).thenThrow(const UseChatDirectLinkException(
         UseChatDirectLinkErrorCode.unknownDirectLink));
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
@@ -457,6 +537,8 @@ void main() async {
         graphQlProvider,
         userRepository,
         credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
       ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -466,6 +548,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     Get.put(ChatService(chatRepository, authService));

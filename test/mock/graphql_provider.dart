@@ -31,6 +31,9 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   final StreamController<QueryResult> ongoingCallStream =
       StreamController<QueryResult>();
 
+  final StreamController<QueryResult> chatEventsStream =
+      StreamController<QueryResult>();
+
   @override
   void disconnect() {}
 
@@ -80,5 +83,10 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
 
   @override
   Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) =>
+      Future.value(const Stream.empty());
+
+  @override
+  Future<Stream<QueryResult>> favoriteChatsEvents(
+          FavoriteChatsListVersion? ver) =>
       Future.value(const Stream.empty());
 }

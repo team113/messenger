@@ -61,7 +61,7 @@ class ContactRepository implements AbstractContactRepository {
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
-  final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
+  final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -124,12 +124,114 @@ class ContactRepository implements AbstractContactRepository {
       );
 
   @override
-  Future<void> deleteContact(ChatContactId id) =>
-      _graphQlProvider.deleteChatContact(id);
+  Future<void> deleteContact(ChatContactId id) async {
+    final HiveRxChatContact? oldChatContact = contacts.remove(id);
+
+    try {
+      await _graphQlProvider.deleteChatContact(id);
+    } catch (_) {
+      contacts.addIf(oldChatContact != null, id, oldChatContact!);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> changeContactName(ChatContactId id, UserName name) =>
-      _graphQlProvider.changeContactName(id, name);
+  Future<void> changeContactName(ChatContactId id, UserName name) async {
+    final HiveRxChatContact? contact = contacts[id];
+    final UserName? oldName = contact?.contact.value.name;
+
+    contact?.contact.update((c) => c?.name = name);
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
+
+    try {
+      await _graphQlProvider.changeContactName(id, name);
+    } catch (_) {
+      contact?.contact.update((c) => c?.name = oldName!);
+      contacts.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> favoriteChatContact(
+    ChatContactId id,
+    ChatContactPosition? position,
+  ) async {
+    final bool fromContacts = contacts[id] != null;
+    final HiveRxChatContact? contact =
+        fromContacts ? contacts[id] : favorites[id];
+
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+    final ChatContactPosition newPosition;
+
+    if (position == null) {
+      final List<HiveRxChatContact> sorted = favorites.values.toList()
+        ..sort(
+          (a, b) => a.contact.value.favoritePosition!
+              .compareTo(b.contact.value.favoritePosition!),
+        );
+
+      final double? lowestFavorite = sorted.isEmpty
+          ? null
+          : sorted.first.contact.value.favoritePosition!.val;
+
+      newPosition = ChatContactPosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    contact?.contact.update((c) => c?.favoritePosition = newPosition);
+    if (fromContacts) {
+      contacts.remove(id);
+      favorites.addIf(contact != null, id, contact!);
+    } else {
+      favorites.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+    }
+
+    try {
+      await _graphQlProvider.favoriteChatContact(id, newPosition);
+    } catch (e) {
+      contact?.contact.update((c) => c?.favoritePosition = oldPosition);
+      if (fromContacts) {
+        favorites.remove(id);
+        contacts.addIf(contact != null, id, contact!);
+      } else {
+        favorites.emit(
+          MapChangeNotification.updated(contact?.id, contact?.id, contact),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChatContact(ChatContactId id) async {
+    final HiveRxChatContact? contact = favorites[id];
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+
+    contact?.contact.update((c) => c?.favoritePosition = null);
+    favorites.remove(id);
+    contacts.addIf(contact != null, id, contact!);
+
+    try {
+      await _graphQlProvider.unfavoriteChatContact(id);
+    } catch (e) {
+      contact.contact.update((c) => c?.favoritePosition = oldPosition);
+      contacts.remove(id);
+      favorites[id] = contact;
+      rethrow;
+    }
+  }
 
   /// Puts the provided [contact] to [Hive].
   Future<void> _putChatContact(HiveChatContact contact) async {
@@ -320,7 +422,6 @@ class ContactRepository implements AbstractContactRepository {
             }
 
             contactEntity.save();
-            break;
           }
         }
     }

@@ -14,9 +14,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -34,6 +38,10 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
+    PlatformUtils.dio.interceptors.add(
+      DelayedInterceptor(Duration(seconds: delay)),
+    );
   }),
 );
 
@@ -49,6 +57,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.delay = null;
       provider.client.throwException = false;
     }
+    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
   }),
 );
 
@@ -66,3 +75,20 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     }
   }),
 );
+
+/// [Interceptor] for [Dio] requests adding the provided [delay].
+class DelayedInterceptor extends Interceptor {
+  DelayedInterceptor(this.delay);
+
+  /// [Duration] to delay the requests for.
+  final Duration delay;
+
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future.delayed(delay);
+    handler.next(options);
+  }
+}

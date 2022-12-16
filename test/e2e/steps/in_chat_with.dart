@@ -32,7 +32,6 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
 
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
         return context.world.appDriver.isPresent(
           context.world.appDriver.findBy('ChatView', FindType.key),
         );
