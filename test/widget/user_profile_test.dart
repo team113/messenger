@@ -32,7 +32,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
@@ -56,6 +55,8 @@ import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -163,12 +164,15 @@ void main() async {
   Get.put(credentialsProvider);
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(home: Builder(
-      builder: (BuildContext context) {
-        router.context = context;
-        return Scaffold(body: child);
-      },
-    ));
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets(
@@ -377,9 +381,8 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('user name'), findsOneWidget);
-    expect(find.text('user bio'), findsOneWidget);
-    expect(find.text('label_presence_present'.l10n), findsOneWidget);
+    expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
+    expect(find.byKey(const Key('Present')), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserColumn')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
