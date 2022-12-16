@@ -19,191 +19,65 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
-import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
-import '/ui/page/home/widget/user_search_bar/view.dart';
+import '/ui/page/call/search/controller.dart';
+import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View of the chat member addition modal.
+/// [Chat.members] enumeration and administration view.
+///
+/// Intended to be displayed with the [show] method.
 class AddChatMemberView extends StatelessWidget {
-  const AddChatMemberView(this.chatId, {Key? key}) : super(key: key);
+  const AddChatMemberView({super.key, required this.chatId});
 
-  /// ID of the [Chat] this page is about.
+  /// ID of the [Chat] to which new members adds.
   final ChatId chatId;
 
-  /// [Container] representing a divider for content.
-  static final Widget _divider = Container(
-    margin: const EdgeInsets.symmetric(horizontal: 9),
-    color: const Color(0x99000000),
-    height: 1,
-    width: double.infinity,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
-    TextStyle font13 = context.theme.outlinedButtonTheme.style!.textStyle!
-        .resolve({MaterialState.disabled})!.copyWith(
-            color: Colors.black, fontSize: 13);
-
-    return MediaQuery.removeViewInsets(
-      removeLeft: true,
-      removeTop: true,
-      removeRight: true,
-      removeBottom: true,
+  /// Displays a [AddChatMemberView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
+    return ModalPopup.show(
       context: context,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 600,
-            maxHeight: 500,
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Material(
-              color: const Color(0xFFFFFFFF),
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              type: MaterialType.card,
-              child: GetBuilder(
-                init: AddChatMemberController(
-                  Navigator.of(context).pop,
-                  chatId,
-                  Get.find(),
-                  Get.find(),
-                ),
-                builder: (AddChatMemberController c) => Obx(
-                  () => c.status.value.isLoading || c.chat.value == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : Column(
-                          children: [
-                            const SizedBox(height: 5),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'label_add_chat_member'.l10n,
-                                    style: font17,
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                    onPressed: Navigator.of(context).pop,
-                                    icon: const Icon(Icons.close, size: 20),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            _divider,
-                            _userSearchBar(c, font17, font13),
-                            const SizedBox(height: 5),
-                          ],
-                        ),
-                ),
-              ),
-            ),
-          ),
-        ),
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
       ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      mobilePadding: const EdgeInsets.all(0),
+      child: AddChatMemberView(chatId: chatId),
     );
   }
 
-  /// Returns [Expanded] with [UserSearchBar] in it.
-  Expanded _userSearchBar(
-    AddChatMemberController c,
-    TextStyle font17,
-    TextStyle font13,
-  ) {
-    return Expanded(
-      child: UserSearchBar(
-        onUserTap: c.selectUser,
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  ...c.selectedUsers.map(
-                    (e) => AddUserListTile(e, () => c.unselectUser(e)),
-                  ),
-                  ...c.contacts.entries
-                      .where((e) => e.value.contact.value.users.isNotEmpty)
-                      .where((e) =>
-                          c.chat.value!.value.members.firstWhereOrNull((m) =>
-                              e.value.contact.value.users
-                                  .firstWhereOrNull((u) => u.id == m.user.id) !=
-                              null) ==
-                          null)
-                      .map(
-                    (e) {
-                      bool selected = c.selectedContacts.contains(e.value);
-                      return AddContactListTile(
-                        selected,
-                        e.value,
-                        () => c.selectContact(e.value),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            _divider,
-            const SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
-              child: Row(
-                children: [
-                  Flexible(
-                    fit: FlexFit.tight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text(
-                        '${'label_create_group_selected'.l10n}'
-                        ' ${c.selectedContacts.length + c.selectedUsers.length} '
-                        '${'label_create_group_users'.l10n}',
-                        style: font13,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  c.status.value.isError
-                      ? Expanded(
-                          child: Center(
-                            child: Text(
-                              c.status.value.errorMessage ?? 'err_unknown'.l10n,
-                              style: font13.copyWith(color: Colors.red),
-                            ),
-                          ),
-                        )
-                      : const Spacer(),
-                  TextButton(
-                    key: const Key('AddChatMembersButton'),
-                    onPressed:
-                        c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
-                            ? null
-                            : c.addChatMembers,
-                    child: Text(
-                      'btn_add_participant'.l10n,
-                      style:
-                          c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
-                              ? font17.copyWith(color: Colors.grey)
-                              : font17,
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder(
+      init: AddChatMemberController(
+        chatId,
+        Get.find(),
+        pop: Navigator.of(context).pop,
       ),
+      builder: (AddChatMemberController c) {
+        return Obx(() {
+          if (c.chat.value == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SearchView(
+            categories: const [
+              SearchCategory.recent,
+              SearchCategory.contact,
+              SearchCategory.user,
+            ],
+            title: 'label_add_participants'.l10n,
+            submit: 'btn_add'.l10n,
+            onSubmit: c.addMembers,
+            enabled: c.status.value.isEmpty,
+            chat: c.chat.value,
+          );
+        });
+      },
     );
   }
 }

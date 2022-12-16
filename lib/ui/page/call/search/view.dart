@@ -158,34 +158,6 @@ class SearchView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25),
-              SizedBox(
-                height: 17,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        children: categories
-                            .map((e) => _category(context, c, e))
-                            .toList(),
-                      ),
-                    ),
-                    Obx(() {
-                      return Text(
-                        'label_selected'.l10nfmt({
-                          'count':
-                              c.selectedContacts.length + c.selectedUsers.length
-                        }),
-                        style: thin?.copyWith(fontSize: 15),
-                      );
-                    }),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-              ),
               const SizedBox(height: 18),
               Expanded(
                 child: Obx(() {
@@ -234,10 +206,7 @@ class SearchView extends StatelessWidget {
                           });
                         }
 
-                        return Padding(
-                          padding: EdgeInsets.only(top: i > 0 ? 7 : 0),
-                          child: child,
-                        );
+                        return child;
                       },
                       childCount:
                           c.contacts.length + c.users.length + c.recent.length,
