@@ -81,7 +81,6 @@ import 'steps/tap_text.dart';
 import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
-import 'steps/updates_bio.dart';
 import 'steps/updates_name.dart';
 import 'steps/user_call.dart';
 import 'steps/user_hand.dart';

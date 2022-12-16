@@ -64,7 +64,7 @@ final StepDefinitionGeneric sendsMessageWithException =
 
     try {
       await provider.postChatMessage(
-        context.world.sessions[user.name]!.dialog!,
+        context.world.sessions[user.name]!.chat!,
         text: const ChatMessageText('111'),
       );
     } catch (e) {
