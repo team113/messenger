@@ -147,6 +147,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = WidgetButton(
+                  key: Key('SortBy${c.sortByName ? 'Abc' : 'SortByTime'}'),
                   onPressed: c.toggleSorting,
                   child: SvgLoader.asset(
                     'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
@@ -267,7 +268,7 @@ class ContactsTabView extends StatelessWidget {
             } else {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
                 child = Center(
-                  key: const Key('NoChats'),
+                  key: const Key('NoContacts'),
                   child: Text('label_no_chats'.l10n),
                 );
               } else {
@@ -275,8 +276,10 @@ class ContactsTabView extends StatelessWidget {
                   controller: ScrollController(),
                   itemCount: c.favorites.length + c.contacts.length,
                   itemBuilder: (_, i) {
-                    final RxChatContact contact =
-                        [...c.favorites, ...c.contacts][i];
+                    final RxChatContact contact = [
+                      ...c.favorites,
+                      ...c.contacts,
+                    ][i];
                     return AnimationConfiguration.staggeredList(
                       position: i,
                       duration: const Duration(milliseconds: 375),

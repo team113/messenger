@@ -73,7 +73,7 @@ class ContactsTabController extends GetxController {
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
 
-  /// [User]s service fetching the [User]s in [getUser] method.
+  /// [User]s service used in [SearchController].
   final UserService _userService;
 
   /// Call service used to start a [ChatCall].
