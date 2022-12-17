@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -27,15 +28,18 @@ import '/domain/repository/call.dart'
         CallAlreadyJoinedException,
         CallAlreadyExistsException,
         CallIsInPopupException;
-import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
+import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -44,10 +48,11 @@ export 'view.dart';
 /// Controller of the `HomeTab.contacts` tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
-    this._chatRepository,
+    this._chatService,
     this._contactService,
     this._calls,
     this._settingsRepository,
+    this._userService,
   );
 
   /// Reactive list of sorted [ChatContact]s.
@@ -56,11 +61,20 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// [Chat] repository used to create a dialog [Chat].
-  final AbstractChatRepository _chatRepository;
+  /// [SearchController] for searching the [User]s and [ChatContact]s.
+  final Rx<SearchController?> search = Rx(null);
+
+  /// [ListElement]s representing the [search] results visually.
+  final RxList<ListElement> elements = RxList([]);
+
+  /// [Chat]s service used to create a dialog [Chat].
+  final ChatService _chatService;
 
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
+
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
 
   /// Call service used to start a [ChatCall].
   final CallService _calls;
@@ -79,6 +93,10 @@ class ContactsTabController extends GetxController {
 
   /// [StreamSubscription]s to the [favorites] updates.
   StreamSubscription? _favoritesSubscription;
+
+  /// Subscription for [SearchController.users] and [SearchController.contacts]
+  /// changes updating the [elements].
+  StreamSubscription? _searchSubscription;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
@@ -162,12 +180,58 @@ class ContactsTabController extends GetxController {
     _sortContacts();
   }
 
+  /// Enables and initializes or disables and disposes the [search].
+  void toggleSearch([bool enable = true]) {
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    _searchSubscription?.cancel();
+
+    if (enable) {
+      search.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _searchSubscription = StreamGroup.merge([
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
+      search.value!.search.focus.requestFocus();
+    } else {
+      search.value = null;
+      elements.clear();
+    }
+  }
+
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
   Future<void> _call(User user, bool withVideo) async {
     Chat? dialog = user.dialog;
-    dialog ??= (await _chatRepository.createDialogChat(user.id)).chat.value;
+    dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
     try {
       await _calls.call(dialog.id, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
@@ -300,5 +364,13 @@ class ContactsTabController extends GetxController {
       (a, b) => a.contact.value.favoritePosition!
           .compareTo(b.contact.value.favoritePosition!),
     );
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      toggleSearch(false);
+    }
   }
 }
