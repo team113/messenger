@@ -269,7 +269,7 @@ class ContactsTabView extends StatelessWidget {
               if (c.contacts.isEmpty && c.favorites.isEmpty) {
                 child = Center(
                   key: const Key('NoContacts'),
-                  child: Text('label_no_chats'.l10n),
+                  child: Text('label_no_contacts'.l10n),
                 );
               } else {
                 child = ListView.builder(
