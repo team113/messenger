@@ -28,6 +28,7 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
+    this.sortContactsByName = true,
     this.callButtons = const [],
   });
 
@@ -62,4 +63,8 @@ class ApplicationSettings extends HiveObject {
   /// [OngoingCall].
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
+
+  /// Indicator whether [ChatContact]s should be sorted by their names.
+  @HiveField(7)
+  bool sortContactsByName;
 }

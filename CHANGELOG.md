@@ -49,8 +49,10 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned login modal. ([#249])
     - User page:
         - Redesigned user page. ([#254], [#252])
-    - Android:
-        - Transparent system bars. ([#211], [#208])
+    - Contacts tab:
+        - Alphabetical and last seen sorting. ([#235], [#226])
+- Android:
+     - Transparent system bars. ([#211], [#208])
 
 ### Fixed
 
@@ -90,11 +92,13 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
+[#223]: /../../issues/223
+[#226]: /../../issues/226
 [#229]: /../../issues/229
 [#232]: /../../issues/232
-[#223]: /../../issues/223
 [#233]: /../../issues/233
 [#234]: /../../pull/234
+[#235]: /../../pull/235
 [#237]: /../../pull/237
 [#241]: /../../pull/241
 [#245]: /../../pull/245
