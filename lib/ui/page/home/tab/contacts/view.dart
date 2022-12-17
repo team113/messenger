@@ -132,41 +132,34 @@ class ContactsTabView extends StatelessWidget {
               Widget child;
 
               if (c.search.value != null) {
-                child = Container(
+                child = WidgetButton(
                   key: const Key('CloseSearch'),
-                  alignment: Alignment.center,
-                  width: 29.69,
-                  height: 21,
-                  child: WidgetButton(
-                    onPressed: () {
-                      if (c.search.value?.query.isNotEmpty == true) {
-                        c.toggleSearch(false);
-                      }
-                    },
-                    child: SvgLoader.asset(
-                      'assets/icons/close_primary.svg',
-                      height: 15,
-                      width: 15,
-                    ),
+                  onPressed: () {
+                    if (c.search.value?.query.isNotEmpty == true) {
+                      c.toggleSearch(false);
+                    }
+                  },
+                  child: SvgLoader.asset(
+                    'assets/icons/close_primary.svg',
+                    height: 15,
+                    width: 15,
                   ),
                 );
               } else {
-                child = Container(
-                  alignment: Alignment.center,
-                  width: 29.69,
-                  height: 21,
-                  child: WidgetButton(
-                    onPressed: c.toggleSorting,
-                    child: SvgLoader.asset(
-                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                      width: 29.69,
-                      height: 21,
-                    ),
+                child = WidgetButton(
+                  onPressed: c.toggleSorting,
+                  child: SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                    width: 29.69,
+                    height: 21,
                   ),
                 );
               }
-              return Padding(
-                padding: const EdgeInsets.only(left: 12, right: 18),
+              return Container(
+                alignment: Alignment.center,
+                width: 29.69,
+                height: 21,
+                margin: const EdgeInsets.only(left: 12, right: 18),
                 child: AnimatedSwitcher(
                   duration: 250.milliseconds,
                   child: child,
