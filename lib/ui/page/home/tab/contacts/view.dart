@@ -18,23 +18,23 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/chats/controller.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/search_user_tile.dart';
-import 'package:messenger/ui/widget/animations.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/tab/chats/controller.dart';
+import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -132,72 +132,48 @@ class ContactsTabView extends StatelessWidget {
               Widget child;
 
               if (c.search.value != null) {
-                child = WidgetButton(
+                child = Container(
                   key: const Key('CloseSearch'),
-                  onPressed: () {
-                    if (c.search.value?.query.isNotEmpty == true) {
-                      c.toggleSearch(false);
-                    }
-                  },
-                  child: SvgLoader.asset(
-                    'assets/icons/close_primary.svg',
-                    height: 15,
+                  alignment: Alignment.center,
+                  width: 29.69,
+                  height: 21,
+                  child: WidgetButton(
+                    onPressed: () {
+                      if (c.search.value?.query.isNotEmpty == true) {
+                        c.toggleSearch(false);
+                      }
+                    },
+                    child: SvgLoader.asset(
+                      'assets/icons/close_primary.svg',
+                      height: 15,
+                      width: 15,
+                    ),
                   ),
                 );
               } else {
-                child = WidgetButton(
-                  onPressed: c.toggleSorting,
-                  child: SvgLoader.asset(
-                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                    width: 29.69,
-                    height: 21,
+                child = Container(
+                  alignment: Alignment.center,
+                  width: 29.69,
+                  height: 21,
+                  child: WidgetButton(
+                    onPressed: c.toggleSorting,
+                    child: SvgLoader.asset(
+                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                      width: 29.69,
+                      height: 21,
+                    ),
                   ),
                 );
               }
               return Padding(
-                padding: c.search.value != null
-                    ? const EdgeInsets.only(left: 12, right: 18)
-                    : const EdgeInsets.only(left: 12, right: 14, top: 2),
-                child: ElasticAnimatedSwitcher(
-                  // duration: 250.milliseconds,
+                padding: const EdgeInsets.only(left: 12, right: 18),
+                child: AnimatedSwitcher(
+                  duration: 250.milliseconds,
                   child: child,
                 ),
               );
             }),
           ],
-          // actions: [
-          //   Obx(() {
-          //     if (c.search.value != null) {
-          //       return Padding(
-          //         padding: const EdgeInsets.only(left: 12, right: 18),
-          //         child: WidgetButton(
-          //           key: const Key('CloseSearch'),
-          //           onPressed: () {
-          //             if (c.search.value?.query.isNotEmpty == true) {
-          //               c.toggleSearch(false);
-          //             }
-          //           },
-          //           child: SvgLoader.asset(
-          //             'assets/icons/close_primary.svg',
-          //             height: 15,
-          //           ),
-          //         ),
-          //       );
-          //     } else {
-          //       return Padding(
-          //         padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
-          //         child: WidgetButton(
-          //           onPressed: c.toggleSorting,
-          //           child: SvgLoader.asset(
-          //             'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-          //             width: 29.69,
-          //             height: 21,
-          //           ),
-          //         ),
-          //       );
-          //     }
-          //   }),
-          // ],
           leading: [
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 12),
