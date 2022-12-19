@@ -301,6 +301,7 @@ class SearchView extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ChatTile(
+          key: Key('Chat_${chat.id}'),
           chat: chat,
           selected: selected,
           height: 76,
