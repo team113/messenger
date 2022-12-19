@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -27,6 +26,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_size_and_fade.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
@@ -86,7 +86,7 @@ class ParticipantView extends StatelessWidget {
 
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
-              return Obx(() {
+              child = Obx(() {
                 return SearchView(
                   categories: const [
                     SearchCategory.recent,
@@ -102,6 +102,7 @@ class ParticipantView extends StatelessWidget {
                   chat: c.chat.value,
                 );
               });
+              break;
 
             case ParticipantsFlowStage.participants:
               List<Widget> children = [
