@@ -285,40 +285,43 @@ class ChatsTabView extends StatelessWidget {
                 } else {
                   child = AnimationLimiter(
                     key: const Key('Chats'),
-                    child: ListView.builder(
-                      controller: ScrollController(),
-                      itemCount: c.chats.length,
-                      itemBuilder: (_, i) {
-                        final RxChat chat = c.chats[i];
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: RecentChatTile(
-                                  chat,
-                                  key: Key('RecentChat_${chat.id}'),
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onJoin: () => c.joinCall(chat.id),
-                                  onDrop: () => c.dropCall(chat.id),
-                                  onLeave: () => c.leaveChat(chat.id),
-                                  onHide: () => c.hideChat(chat.id),
-                                  inCall: () => c.inCall(chat.id),
-                                  onMute: () => c.muteChat(chat.id),
-                                  onUnmute: () => c.unmuteChat(chat.id),
-                                  onFavorite: () => c.favoriteChat(chat.id),
-                                  onUnfavorite: () => c.unfavoriteChat(chat.id),
+                    child: SafeArea(
+                      child: ListView.builder(
+                        controller: ScrollController(),
+                        itemCount: c.chats.length,
+                        itemBuilder: (_, i) {
+                          final RxChat chat = c.chats[i];
+                          return AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50,
+                              child: FadeInAnimation(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: RecentChatTile(
+                                    chat,
+                                    key: Key('RecentChat_${chat.id}'),
+                                    me: c.me,
+                                    getUser: c.getUser,
+                                    onJoin: () => c.joinCall(chat.id),
+                                    onDrop: () => c.dropCall(chat.id),
+                                    onLeave: () => c.leaveChat(chat.id),
+                                    onHide: () => c.hideChat(chat.id),
+                                    inCall: () => c.inCall(chat.id),
+                                    onMute: () => c.muteChat(chat.id),
+                                    onUnmute: () => c.unmuteChat(chat.id),
+                                    onFavorite: () => c.favoriteChat(chat.id),
+                                    onUnfavorite: () =>
+                                        c.unfavoriteChat(chat.id),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   );
                 }
