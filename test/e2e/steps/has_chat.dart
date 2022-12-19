@@ -63,6 +63,7 @@ final StepDefinitionGeneric hasGroup =
       name: ChatName(name),
     );
 
+    context.world.groups[name] = group.id;
     context.world.sessions[user.name]!.groups[name] = group.id;
     context.world.sessions[withUser.name]!.groups[name] = group.id;
     provider.disconnect();
