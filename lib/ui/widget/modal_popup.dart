@@ -50,7 +50,7 @@ abstract class ModalPopup {
     final Style style = Theme.of(context).extension<Style>()!;
 
     if (context.isNarrow) {
-      return showModalBottomSheet<T>(
+      return showModalBottomSheet(
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
@@ -98,7 +98,7 @@ abstract class ModalPopup {
         },
       );
     } else {
-      return showDialog<T>(
+      return showDialog(
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,

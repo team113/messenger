@@ -268,9 +268,6 @@ class CallController extends GetxController {
   /// current frame.
   bool _secondaryRelocated = false;
 
-  /// Indicator whether a modal bounded to this [CallController] is opened.
-  bool _modalOpened = false;
-
   /// Height of the title bar.
   static const double titleHeight = 30;
 
@@ -517,7 +514,7 @@ class CallController extends GetxController {
 
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isAndroid) {
-      BackButtonInterceptor.add(_onBack);
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
     fullscreen = RxBool(false);
@@ -882,15 +879,7 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        _modalOpened = true;
-        String? deviceId =
-            await ScreenShareView.show<String>(context, _currentCall);
-        _modalOpened = false;
-
-        if (deviceId != null) {
-          await _currentCall.value
-              .setScreenShareEnabled(true, deviceId: deviceId);
-        }
+        await ScreenShareView.show(context, _currentCall);
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }
@@ -1144,7 +1133,6 @@ class CallController extends GetxController {
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
   Future<void> openSettings(BuildContext context) async {
-    _modalOpened = true;
     await showDialog(
       context: context,
       builder: (_) => CallSettingsView(
@@ -1158,19 +1146,16 @@ class CallController extends GetxController {
         onPanelChanged: (b) => panelUp.value = b ?? false,
       ),
     );
-    _modalOpened = false;
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
     keepUi(false);
-    _modalOpened = true;
     await ParticipantView.show(
       context,
       call: _currentCall,
       duration: duration,
     );
-    _modalOpened = false;
   }
 
   /// Removes [User] identified by the provided [userId] from the [chat].
@@ -1745,7 +1730,7 @@ class CallController extends GetxController {
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
   bool _onBack(bool _, RouteInfo __) {
-    if (!_modalOpened && minimized.isFalse) {
+    if (minimized.isFalse) {
       minimize();
       return true;
     }

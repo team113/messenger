@@ -60,12 +60,13 @@ class ScreenShareView extends StatelessWidget {
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
-          return ConfirmDialog<String>(
+          return ConfirmDialog(
             title: 'label_start_screen_sharing'.l10n,
             variants: call.value.displays
                 .map(
-                  (e) => ConfirmDialogVariant<String>(
-                    value: e.deviceId(),
+                  (e) => ConfirmDialogVariant(
+                    onProceed: () => call.value
+                        .setScreenShareEnabled(true, deviceId: e.deviceId()),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,

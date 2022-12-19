@@ -100,7 +100,7 @@ class ParticipantController extends GetxController {
   @override
   void onInit() {
     if (PlatformUtils.isMobile) {
-      BackButtonInterceptor.add(_onBack);
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
     _chatsSubscription = _chatService.chats.changes.listen((e) {
