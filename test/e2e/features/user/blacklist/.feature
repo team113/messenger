@@ -14,23 +14,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat muting and unmuting
+Feature: Blacklist
 
-  Background: User is in group chat with Bob
+  Scenario: Blacklisted user cannot send me a message
     Given I am Alice
     And user Bob
-    And I have "Alice and Bob" group with Bob
-    And I wait until text "Alice and Bob" is present
+    And Bob has dialog with me
+    And I wait until `HomeView` is present
 
-  Scenario: User mutes chat
-    When I long press "Alice and Bob" chat
-    And I tap `MuteChatButton` button
-    Then I see "Alice and Bob" chat as muted
+    When I go to Bob's page
+    And I tap `Block` button
+    Then Bob sends message to me and receives blacklisted exception
 
-  Scenario: User unmutes chat
-    Given "Alice and Bob" chat is muted
-    And I see "Alice and Bob" chat as muted
-
-    When I long press "Alice and Bob" chat
-    And I tap `UnmuteChatButton` button
-    Then I see "Alice and Bob" chat as unmuted
+    When I tap `Unblock` button
+    Then Bob sends message to me and receives no exception

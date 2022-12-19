@@ -32,6 +32,7 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
@@ -74,7 +75,7 @@ import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
-import 'steps/updates_bio.dart';
+import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -128,10 +129,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
-        seesAs,
         seeUserInSearchResults,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
+        sendsMessageWithException,
         signInAs,
         tapDropdownItem,
         tapText,
@@ -142,7 +144,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilAttachmentFetched,
         untilTextExists,
         untilTextExistsWithin,
-        updateBio,
+        updateName,
         user,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
@@ -169,6 +171,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         MutedStatusParameter(),

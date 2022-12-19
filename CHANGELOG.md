@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
     - Chats tab:
-        - Chat muting/unmuting. ([#172], [#63])
+        - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
         - Searching. ([#206], [#205])
     - Home page:
@@ -28,6 +28,8 @@ All user visible changes to this project will be documented in this file. This p
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
+    - User page:
+        - Blacklisting. ([#234], [#229])
 
 ### Changed
 
@@ -46,6 +48,10 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned desktop context menu. ([#245])
     - Auth page:
         - Redesigned login modal. ([#249])
+    - User page:
+        - Redesigned user page. ([#254], [#252])
+    - Contacts tab:
+        - Alphabetical and last seen sorting. ([#235], [#226])
 
 ### Fixed
 
@@ -84,15 +90,22 @@ All user visible changes to this project will be documented in this file. This p
 [#218]: /../../pull/218
 [#221]: /../../pull/221
 [#222]: /../../issues/222
-[#228]: /../../pull/228
-[#232]: /../../issues/232
 [#223]: /../../issues/223
+[#226]: /../../issues/226
+[#228]: /../../pull/228
+[#229]: /../../issues/229
+[#232]: /../../issues/232
 [#233]: /../../issues/233
+[#234]: /../../pull/234
+[#235]: /../../pull/235
 [#237]: /../../pull/237
 [#241]: /../../pull/241
 [#245]: /../../pull/245
 [#246]: /../../pull/246
 [#249]: /../../pull/249
+[#251]: /../../pull/251
+[#252]: /../../issues/252
+[#254]: /../../pull/254
 
 
 
