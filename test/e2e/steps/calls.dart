@@ -168,7 +168,11 @@ Future<OngoingCall> _startCall(
     me: byUser,
   );
 
-  Rx<OngoingCall> ongoingCall = await callRepository.start(chatId);
+  Rx<OngoingCall> ongoingCall = await callRepository.start(
+    chatId,
+    withAudio: false,
+    withVideo: false,
+  );
   await ongoingCall.value.init();
   await ongoingCall.value.connect(null, callRepository.heartbeat);
 
