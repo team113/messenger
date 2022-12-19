@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -389,10 +390,13 @@ class EventChatDirectLinkUsageCountUpdated extends ChatEvent {
 
 /// Event of a [ChatCall] being finished.
 class EventChatCallFinished extends ChatEvent {
-  const EventChatCallFinished(ChatId chatId, this.call) : super(chatId);
+  const EventChatCallFinished(ChatId chatId, this.call, this.reason) : super(chatId);
 
   /// Finished [ChatCall].
   final ChatCall call;
+
+  /// Reason of why the [call] was finished.
+  final ChatCallFinishReason reason;
 
   @override
   ChatEventKind get kind => ChatEventKind.callFinished;

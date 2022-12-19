@@ -36,7 +36,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    await Future.delayed(200.milliseconds);
+    await Future.delayed(500.milliseconds);
     var incomingCalls = await provider.incomingCalls();
 
     final callRepository = CallRepository(
