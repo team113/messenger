@@ -43,7 +43,7 @@ class ScreenShareController extends GetxController {
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Renderers of the [OngoingCall.displays].
+  /// [RtcVideoRenderer]s of the [OngoingCall.displays].
   final RxMap<MediaDisplayInfo, RtcVideoRenderer> renderers =
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
 
@@ -84,7 +84,7 @@ class ScreenShareController extends GetxController {
     });
 
     _displaysSubscription = call.value.displays.listen((e) {
-      for (var display in e) {
+      for (MediaDisplayInfo display in e) {
         if (renderers[display] == null) {
           initRenderer(display);
         }
@@ -93,7 +93,10 @@ class ScreenShareController extends GetxController {
 
     _jason = Jason();
     _mediaManager = _jason.mediaManager();
-    _initRenderers();
+
+    for (var e in call.value.displays) {
+      initRenderer(e);
+    }
 
     super.onInit();
   }
@@ -118,7 +121,7 @@ class ScreenShareController extends GetxController {
 
   /// Initializes a [RtcVideoRenderer] for the provided [display].
   Future<void> initRenderer(MediaDisplayInfo display) async {
-    List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
+    final List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
       _mediaStreamSettings(display.deviceId()),
     );
 
@@ -131,14 +134,7 @@ class ScreenShareController extends GetxController {
     renderers[display] = renderer;
   }
 
-  /// Initializes the [renderers].
-  void _initRenderers() {
-    for (var e in call.value.displays) {
-      initRenderer(e);
-    }
-  }
-
-  /// Returns [MediaStreamSettings] with enabled screen sharing.
+  /// Constructs the [MediaStreamSettings] with the provided [screenDevice].
   MediaStreamSettings _mediaStreamSettings(String screenDevice) {
     MediaStreamSettings settings = MediaStreamSettings();
 

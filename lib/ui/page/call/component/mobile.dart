@@ -556,28 +556,17 @@ Widget mobileCall(CallController c, BuildContext context) {
                                             : SpeakerButton(c)
                                                 .build(blur: true),
                                       ),
-                                    padding(
-                                      AudioButton(c).build(blur: true),
-                                    ),
-                                    padding(
-                                      VideoButton(c).build(blur: true),
-                                    ),
-                                    padding(
-                                      CancelButton(c).build(blur: true),
-                                    ),
+                                    padding(AudioButton(c).build(blur: true)),
+                                    padding(VideoButton(c).build(blur: true)),
+                                    padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
+                                    padding(AcceptAudioButton(c)
+                                        .build(expanded: true)),
+                                    padding(AcceptVideoButton(c)
+                                        .build(expanded: true)),
                                     padding(
-                                      AcceptAudioButton(c)
-                                          .build(expanded: true),
-                                    ),
-                                    padding(
-                                      AcceptVideoButton(c)
-                                          .build(expanded: true),
-                                    ),
-                                    padding(
-                                      DeclineButton(c).build(expanded: true),
-                                    ),
+                                        DeclineButton(c).build(expanded: true)),
                                   ],
                           ),
                         ),

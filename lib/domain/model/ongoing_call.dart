@@ -142,14 +142,13 @@ class OngoingCall {
     bool withScreen = false,
     MediaSettings? mediaSettings,
     OngoingCallState state = OngoingCallState.pending,
-    String? screenDeviceId,
     this.creds,
     this.deviceId,
   })  : chatId = Rx(chatId),
         _me = CallMemberId(me, null),
         audioDevice = RxnString(mediaSettings?.audioDevice),
         videoDevice = RxnString(mediaSettings?.videoDevice),
-        screenDevice = RxnString(screenDeviceId),
+        screenDevice = RxnString(mediaSettings?.screenDevice),
         outputDevice = RxnString(mediaSettings?.outputDevice) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
@@ -1228,7 +1227,7 @@ class OngoingCall {
   }
 
   /// Updates the local media settings with [audioDevice], [videoDevice] or
-  /// [screenShareDevice].
+  /// [screenDevice].
   Future<void> _updateSettings({
     String? audioDevice,
     String? videoDevice,

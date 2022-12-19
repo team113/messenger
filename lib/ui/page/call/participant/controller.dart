@@ -224,7 +224,6 @@ class ParticipantController extends GetxController {
   /// `true` to intercept back button.
   bool _onBack(bool _, RouteInfo __) {
     pop?.call();
-
     return true;
   }
 }

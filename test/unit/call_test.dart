@@ -466,6 +466,7 @@ void main() async {
       const ChatId('incoming'),
       withAudio: true,
       withVideo: false,
+      withScreen: false,
     );
 
     await Future.delayed(Duration.zero);
