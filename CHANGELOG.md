@@ -25,6 +25,7 @@ All user visible changes to this project will be documented in this file. This p
         - Quick status changing menu. ([#204], [#203])
     - Media panel:
         - Participants redialing. ([#241], [#233])
+        - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
     - User page:
@@ -88,8 +89,10 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
+[#222]: /../../issues/222
 [#223]: /../../issues/223
 [#226]: /../../issues/226
+[#228]: /../../pull/228
 [#229]: /../../issues/229
 [#232]: /../../issues/232
 [#233]: /../../issues/233

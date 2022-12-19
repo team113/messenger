@@ -81,6 +81,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   late ConfirmDialogVariant _variant;
 
   @override
+  void didUpdateWidget(ConfirmDialog oldWidget) {
+    if (!widget.variants.contains(_variant)) {
+      setState(() => _variant = widget.variants.first);
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void initState() {
     _variant = widget.variants.first;
     super.initState();
