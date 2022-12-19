@@ -61,7 +61,7 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// [SearchController] for searching the [User]s and [ChatContact]s.
+  /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
