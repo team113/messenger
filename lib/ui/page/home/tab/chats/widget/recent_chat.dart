@@ -195,8 +195,8 @@ class RecentChatTile extends StatelessWidget {
     if (chat.ongoingCall != null) {
       final Widget trailing = WidgetButton(
         key: inCall?.call() == true
-            ? const Key('JoinCallButton')
-            : const Key('DropCallButton'),
+            ? const Key('DropCallButton')
+            : const Key('JoinCallButton'),
         onPressed: inCall?.call() == true ? onDrop : onJoin,
         child: Container(
           padding: const EdgeInsets.all(4),

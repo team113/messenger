@@ -19,8 +19,8 @@ Feature: Favorite chats
   Background: User is in group chat with Bob and group chat with Charlie
     Given I am Alice
     And users Bob and Charlie
-    And I have "Alice and Bob" group with Bob
-    And I have "Alice and Charlie" group with Charlie
+    And Bob has "Alice and Bob" group with me
+    And Charlie has "Alice and Charlie" group with me
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat

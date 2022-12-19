@@ -22,9 +22,9 @@ Feature: Leave call tests
     And popup windows is disabled
 
   Scenario: Leave active dialog call
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
 
-    When Bob starts call
+    When Bob starts call in dialog with me
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
 
@@ -32,9 +32,9 @@ Feature: Leave call tests
     Then I wait until `Call` is absent
 
   Scenario: Leave active group call
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
 
-    When Bob starts call
+    When Bob starts call in "Test" group
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
 
@@ -42,7 +42,7 @@ Feature: Leave call tests
     Then I wait until `Call` is absent
 
   Scenario: Dialog call ends when user leaves
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
@@ -54,7 +54,7 @@ Feature: Leave call tests
     Then I wait until `Call` is absent
 
   Scenario: Group call doesn't ends when user leaves
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button

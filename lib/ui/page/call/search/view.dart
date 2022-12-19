@@ -83,6 +83,7 @@ class SearchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('SearchView'),
       init: SearchController(
         Get.find(),
         Get.find(),
@@ -98,6 +99,7 @@ class SearchView extends StatelessWidget {
           bool selected = false,
         }) {
           return Padding(
+            key: Key('FoundUser_${user?.id}'),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ContactTile(
               contact: contact,

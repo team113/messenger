@@ -22,7 +22,7 @@ Feature: Common call tests
     And popup windows is disabled
 
   Scenario: Outgoing dialog call changes state correctly
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
@@ -34,7 +34,7 @@ Feature: Common call tests
     And I wait until Bob is present in call
 
   Scenario: Outgoing group call changes state correctly
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
@@ -45,9 +45,9 @@ Feature: Common call tests
     Then I wait until Bob is present in call
 
   Scenario: Join to active group call
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
 
-    When Bob starts call
+    When Bob starts call in "Test" group
     And I tap `DeclineCall` button
     Then I wait until `Call` is absent
 
@@ -56,23 +56,23 @@ Feature: Common call tests
     And I wait until Bob is present in call
 
   Scenario: Incoming dialog call changes state correctly
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
 
-    When Bob starts call
+    When Bob starts call in dialog with me
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Incoming group call changes state correctly
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
 
-    When Bob starts call
+    When Bob starts call in "Test" group
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: More panel is opening and closing
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
@@ -83,7 +83,7 @@ Feature: Common call tests
     Then I wait until `MorePanel` is absent
 
   Scenario: Call settings is opening and closing
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button

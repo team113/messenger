@@ -16,9 +16,9 @@
 
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -26,26 +26,45 @@ import '../world/custom_world.dart';
 /// [User].
 ///
 /// Examples:
-/// - Given Bob has dialog with Alice
-/// - Given Bob has group with Charlie
-final StepDefinitionGeneric hasChat =
-    given3<TestUser, ChatType, TestUser, CustomWorld>(
-  '{user} has {chat} with {user}',
-  (TestUser user, ChatType chatType, TestUser withUser, context) async {
+/// - Given Bob has dialog with me
+/// - Given Bob has dialog with Charlie
+final StepDefinitionGeneric hasDialog = given2<TestUser, TestUser, CustomWorld>(
+  '{user} has dialog with {user}',
+  (TestUser user, TestUser withUser, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
-    ChatMixin chat;
 
-    if (chatType == ChatType.dialog) {
-      chat = await provider
-          .createDialogChat(context.world.sessions[withUser.name]!.userId);
-    } else {
-      chat = await provider
-          .createGroupChat([context.world.sessions[withUser.name]!.userId]);
-    }
+    ChatMixin dialog = await provider
+        .createDialogChat(context.world.sessions[withUser.name]!.userId);
 
-    context.world.sessions[user.name]!.chat = chat.id;
-    context.world.sessions[withUser.name]!.chat = chat.id;
+    context.world.sessions[user.name]!.dialogs[withUser] = dialog.id;
+    context.world.sessions[withUser.name]!.dialogs[user] = dialog.id;
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates a group of the provided [User] with provided type and the provided
+/// [User].
+///
+/// Examples:
+/// - Given Bob has "Name" group with me
+/// - Given Bob has "Name" group with Charlie
+final StepDefinitionGeneric hasGroup =
+    given3<TestUser, String, TestUser, CustomWorld>(
+  '{user} has {string} group with {user}',
+  (TestUser user, String name, TestUser withUser, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+
+    ChatMixin group = await provider.createGroupChat(
+      [context.world.sessions[withUser.name]!.userId],
+      name: ChatName(name),
+    );
+
+    context.world.sessions[user.name]!.groups[name] = group.id;
+    context.world.sessions[withUser.name]!.groups[name] = group.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

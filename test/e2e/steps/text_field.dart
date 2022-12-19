@@ -19,7 +19,6 @@ import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -50,8 +49,8 @@ StepDefinitionGeneric fillFieldWithUser = then1<TestUser, CustomWorld>(
   'I fill users search field with user {user}',
   (user, context) async {
     final finder = context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy('UserSearchBar', FindType.key),
-      context.world.appDriver.findBy(FloatingSearchAppBar, FindType.type),
+      context.world.appDriver.findBy('SearchView', FindType.key),
+      context.world.appDriver.findBy(TextField, FindType.type),
     );
 
     await _fillField(

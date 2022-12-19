@@ -16,11 +16,11 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat_call.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/store/call.dart';
-import 'package:uuid/uuid.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -38,23 +38,24 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
 
     await Future.delayed(200.milliseconds);
     var incomingCalls = await provider.incomingCalls();
-    var ongoingCall = OngoingCall(
-      incomingCalls.nodes.first.chatId,
-      customUser.userId,
-      withAudio: false,
-      withVideo: false,
-      withScreen: false,
-      creds: ChatCallCredentials(const Uuid().v4()),
-      state: OngoingCallState.joining,
+
+    final callRepository = CallRepository(
+      provider,
+      null,
+      null,
+      Get.find(),
+      me: customUser.userId,
     );
 
-    final callRepository = CallRepository(provider, null, null);
+    Rx<OngoingCall>? ongoingCall = await callRepository.join(
+      incomingCalls.nodes.first.chatId,
+      incomingCalls.nodes.first.id,
+      withAudio: false,
+    );
+    await ongoingCall?.value.init();
+    await ongoingCall?.value.connect(null, callRepository.heartbeat);
 
-    await callRepository.join(ongoingCall.obs);
-    await ongoingCall.init();
-    await ongoingCall.connect(null, callRepository.heartbeat);
-
-    customUser.call = ongoingCall;
+    customUser.call = ongoingCall?.value;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -79,34 +80,52 @@ final StepDefinitionGeneric userDeclineCall = when1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Starts call by the provided [TestUser] in the relative [CustomUser.chat].
+/// Starts call by the provided [TestUser] in the dialog with the provided
+/// [TestUser].
 ///
 /// Examples:
-/// - When Bob starts call
-final StepDefinitionGeneric userStartCall = when1<TestUser, CustomWorld>(
-  '{user} starts call',
-  (TestUser user, context) async {
+/// - When Bob starts call in dialog with me
+/// - When Bob starts call in dialog with Charlie
+final StepDefinitionGeneric userStartCallInDialog =
+    when2<TestUser, TestUser, CustomWorld>(
+  '{user} starts call in dialog with {user}',
+  (TestUser user, TestUser withUser, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    final OngoingCall ongoingCall = OngoingCall(
-      customUser.chat!,
+    customUser.call = await _startCall(
+      provider,
       customUser.userId,
-      withAudio: false,
-      withVideo: false,
-      withScreen: false,
-      creds: ChatCallCredentials(const Uuid().v4()),
-      state: OngoingCallState.joining,
+      customUser.dialogs[withUser]!,
     );
 
-    final CallRepository callRepository = CallRepository(provider, null, null);
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
 
-    await callRepository.start(ongoingCall.obs);
-    await ongoingCall.init();
-    await ongoingCall.connect(null, callRepository.heartbeat);
+/// Starts call by the provided [TestUser] in the dialog with the provided
+/// [TestUser].
+///
+/// Examples:
+/// - When Bob starts call in "Name" group
+/// - When Charlie starts call in "Name" group
+final StepDefinitionGeneric userStartCallInGroup =
+    when2<TestUser, String, CustomWorld>(
+  '{user} starts call in {string} group',
+  (TestUser user, String name, context) async {
+    CustomUser customUser = context.world.sessions[user.name]!;
+    final provider = GraphQlProvider();
+    provider.token = customUser.session.token;
 
-    customUser.call = ongoingCall;
+    customUser.call = await _startCall(
+      provider,
+      customUser.userId,
+      customUser.groups[name]!,
+    );
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -134,3 +153,25 @@ final StepDefinitionGeneric userEndCall = when1<TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Starts [ChatCall] by the [User] with the provided [UserId] in the [Chat]
+/// with the provided [ChatId].
+Future<OngoingCall> _startCall(
+  GraphQlProvider provider,
+  UserId byUser,
+  ChatId chatId,
+) async {
+  final CallRepository callRepository = CallRepository(
+    provider,
+    null,
+    null,
+    Get.find(),
+    me: byUser,
+  );
+
+  Rx<OngoingCall> ongoingCall = await callRepository.start(chatId);
+  await ongoingCall.value.init();
+  await ongoingCall.value.connect(null, callRepository.heartbeat);
+
+  return ongoingCall.value;
+}

@@ -38,7 +38,10 @@ final StepDefinitionGeneric sendsMessageToMe =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
     await provider.postChatMessage(
-      context.world.sessions[user.name]!.chat!,
+      [
+        ...context.world.sessions[user.name]!.dialogs.values,
+        ...context.world.sessions[user.name]!.groups.values,
+      ].first,
       text: ChatMessageText(msg),
     );
     provider.disconnect();
@@ -64,7 +67,10 @@ final StepDefinitionGeneric sendsMessageWithException =
 
     try {
       await provider.postChatMessage(
-        context.world.sessions[user.name]!.chat!,
+        [
+          ...context.world.sessions[user.name]!.dialogs.values,
+          ...context.world.sessions[user.name]!.groups.values,
+        ].first,
         text: const ChatMessageText('111'),
       );
     } catch (e) {

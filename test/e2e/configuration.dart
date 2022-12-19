@@ -55,7 +55,6 @@ import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_chat.dart';
-import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
@@ -82,7 +81,7 @@ import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_name.dart';
-import 'steps/user_call.dart';
+import 'steps/calls.dart';
 import 'steps/user_hand.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
@@ -116,8 +115,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         fillFieldWithUser,
         goToUserPage,
-        hasChat,
-        haveGroupNamed,
+        hasDialog,
+        hasGroup,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
@@ -167,7 +166,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         userDeclineCall,
         userEndCall,
         userJoinCall,
-        userStartCall,
+        userStartCallInDialog,
+        userStartCallInGroup,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,

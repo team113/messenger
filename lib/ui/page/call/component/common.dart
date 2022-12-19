@@ -221,7 +221,7 @@ class ParticipantsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
-      key: const Key('AddParticipant'),
+      key: const Key('Participants'),
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),

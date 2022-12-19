@@ -20,7 +20,7 @@ Feature: Chats searching
     Given I am Alice
     And users Bob and Charlie
     And contact Charlie
-    And I have "Example" group with Bob
+    And Bob has "Example" group with me
 
     When I tap `SearchButton` button
     And I fill `SearchField` field with "Example"

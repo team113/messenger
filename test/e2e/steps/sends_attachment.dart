@@ -56,7 +56,10 @@ final StepDefinitionGeneric sendsAttachmentToMe =
     );
 
     await provider.postChatMessage(
-      context.world.sessions[user.name]!.chat!,
+      [
+        ...context.world.sessions[user.name]!.dialogs.values,
+        ...context.world.sessions[user.name]!.groups.values,
+      ].first,
       text: null,
       attachments: [response.attachment.toModel().id],
     );

@@ -69,6 +69,7 @@ class ParticipantView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('ParticipantView'),
       init: ParticipantController(
         call,
         Get.find(),
@@ -85,7 +86,7 @@ class ParticipantView extends StatelessWidget {
 
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
-              child = Obx(() {
+              return Obx(() {
                 return SearchView(
                   categories: const [
                     SearchCategory.recent,
@@ -101,7 +102,6 @@ class ParticipantView extends StatelessWidget {
                   chat: c.chat.value,
                 );
               });
-              break;
 
             case ParticipantsFlowStage.participants:
               List<Widget> children = [
@@ -134,6 +134,7 @@ class ParticipantView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: OutlinedRoundedButton(
+                    key: const Key('AddParticipants'),
                     maxWidth: null,
                     title: Text(
                       'btn_add_participants'.l10n,

@@ -28,7 +28,12 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
-    router.chat(context.world.sessions[user.name]!.chat!);
+    router.chat(
+      [
+        ...context.world.sessions[user.name]!.dialogs.values,
+        ...context.world.sessions[user.name]!.groups.values,
+      ].first,
+    );
 
     await context.world.appDriver.waitUntil(
       () async {

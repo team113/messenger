@@ -19,7 +19,7 @@ Feature: Hand up/down in call tests
   Background:
     Given I am Alice
     And user Bob
-    And Bob has group with Alice
+    And Bob has "Test" group with me
     And I am in chat with Bob
     And popup windows is disabled
 

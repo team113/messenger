@@ -22,7 +22,7 @@ Feature: Cancel call tests
     And popup windows is disabled
 
   Scenario: Cancel outgoing dialog call
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
@@ -32,18 +32,18 @@ Feature: Cancel call tests
     Then I wait until `Call` is absent
 
   Scenario: User cancels outgoing dialog call
-    Given Bob has dialog with Alice
+    Given Bob has dialog with me
 
-    When Bob starts call
+    When Bob starts call in dialog with me
     Then I wait until `Call` is present
 
     When Bob cancels call
     Then I wait until `Call` is absent
 
   Scenario: User cancels outgoing group call
-    Given Bob has group with Alice
+    Given Bob has "Test" group with me
 
-    When Bob starts call
+    When Bob starts call in "Test" group
     Then I wait until `Call` is present
 
     When Bob cancels call

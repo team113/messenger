@@ -32,9 +32,15 @@ class UsersParameter extends CustomParameter<TestUser> {
       : super(
           'user',
           RegExp(
-            '(${TestUser.values.map((e) => e.name).join('|')})',
+            '(${TestUser.values.map((e) => e.name).join('|')}|me)',
             caseSensitive: true,
           ),
-          (c) => TestUser.values.firstWhere((e) => e.name == c),
+          (c) {
+            if (c == 'me') {
+              return TestUser.Alice;
+            }
+
+            return TestUser.values.firstWhere((e) => e.name == c);
+          },
         );
 }

@@ -22,6 +22,8 @@ import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 
+import '../parameters/users.dart';
+
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
@@ -50,8 +52,11 @@ class CustomUser {
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
-  /// ID of the [Chat] this [CustomUser] is a member.
-  ChatId? chat;
+  /// Map of the dialogs this [CustomUser] is a member.
+  Map<TestUser, ChatId> dialogs = {};
+
+  /// Map of the groups this [CustomUser] is a member.
+  Map<String, ChatId> groups = {};
 
   /// Current [OngoingCall] this [CustomUser] participates in.
   OngoingCall? call;

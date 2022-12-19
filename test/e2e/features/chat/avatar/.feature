@@ -19,7 +19,7 @@ Feature: Chat avatar
   Background: User is in group chat with Bob
     Given I am Alice
     And user Bob
-    And I have "Alice and Bob" group with Bob
+    And Bob has "Alice and Bob" group with me
     And I am in "Alice and Bob" chat
     And I open chat's info
 

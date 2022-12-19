@@ -21,52 +21,42 @@ Feature: Add participant in call tests
     And user Bob
     And popup windows is disabled
 
-  Scenario: Add participant dialog is opening and closing
-    Given Bob has group with Alice
-    And I am in chat with Bob
-
-    When I tap `StartAudioCall` button
-    And I tap `More` button
-    And I tap `AddParticipant` button
-    Then I wait until `AddGroupMembers` is present
-
-    When I tap `CloseButton` button
-    Then I wait until `AddGroupMembers` is absent
-
   Scenario: Add participant to dialog call
     Given user Charlie
-    And Bob has dialog with Alice
+    And Bob has dialog with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
     And Bob accepts call
     And I tap `More` button
-    And I tap `AddParticipant` button
+    And I tap `Participants` button
+    And I tap `AddParticipants` button
     And I fill users search field with user Charlie
     And I tap Charlie in search results
-    And I tap `AddDialogMembersButton` button
+    And I tap `SearchSubmitButton` button
     And Charlie accepts call
     Then I wait until Charlie is present in call
 
   Scenario: Add participant to group call
     Given user Charlie
-    And Bob has group with Alice
+    And Bob has "Test" group with me
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
     And Bob accepts call
     And I tap `More` button
-    And I tap `AddParticipant` button
+    And I tap `Participants` button
+    And I tap `AddParticipants` button
     And I fill users search field with user Charlie
     And I tap Charlie in search results
-    And I tap `AddGroupMembersButton` button
+    And I tap `SearchSubmitButton` button
     And Charlie accepts call
     Then I wait until Charlie is present in call
 
   Scenario: Add my user to call
     Given user Charlie
-    And Bob has group with Charlie
-    And Bob starts call
+    And Bob has "Test" group with Charlie
+    And Bob starts call in "Test" group
 
     When Charlie accepts call
     And Bob adds Alice to group call
