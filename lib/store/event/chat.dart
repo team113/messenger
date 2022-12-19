@@ -390,7 +390,8 @@ class EventChatDirectLinkUsageCountUpdated extends ChatEvent {
 
 /// Event of a [ChatCall] being finished.
 class EventChatCallFinished extends ChatEvent {
-  const EventChatCallFinished(ChatId chatId, this.call, this.reason) : super(chatId);
+  const EventChatCallFinished(ChatId chatId, this.call, this.reason)
+      : super(chatId);
 
   /// Finished [ChatCall].
   final ChatCall call;
