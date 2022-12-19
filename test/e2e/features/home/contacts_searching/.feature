@@ -20,6 +20,7 @@ Feature: Contacts searching
     Given I am Alice
     And users Bob and Charlie
     And contact Charlie
+    And I have "Example" group with Bob
 
     When I tap `ContactsButton` button
     Then I tap `SearchButton` button
