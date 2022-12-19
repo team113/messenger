@@ -51,6 +51,8 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
       incomingCalls.nodes.first.chatId,
       incomingCalls.nodes.first.id,
       withAudio: false,
+      withVideo: false,
+      withScreen: false,
     );
     await ongoingCall?.value.init();
     await ongoingCall?.value.connect(null, callRepository.heartbeat);
@@ -172,6 +174,7 @@ Future<OngoingCall> _startCall(
     chatId,
     withAudio: false,
     withVideo: false,
+    withScreen: false,
   );
   await ongoingCall.value.init();
   await ongoingCall.value.connect(null, callRepository.heartbeat);
