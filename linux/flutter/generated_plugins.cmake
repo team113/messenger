@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
   medea_flutter_webrtc
   medea_jason
+  pasteboard
   screen_retriever
   sentry_flutter
   url_launcher_linux

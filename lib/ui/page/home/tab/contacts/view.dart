@@ -164,55 +164,40 @@ class ContactsTabView extends StatelessWidget {
               );
             }),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
-                child: Obx(() {
-                  Widget child;
+              Obx(() {
+                Widget child;
 
-                  if (c.searching.value) {
-                    child = WidgetButton(
-                      key: const Key('CloseSearch'),
-                      onPressed: () {
-                        c.search.clear();
-                        c.query.value = null;
-                        c.searchResults.value = null;
-                        c.searchStatus.value = RxStatus.empty();
-                        c.searching.value = false;
-                      },
-                      child: SvgLoader.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 15,
-                        height: 15,
+                if (c.searching.value) {
+                  child = WidgetButton(
+                    key: const Key('CloseSearch'),
+                    onPressed: () {
+                      c.search.clear();
+                      c.query.value = null;
+                      c.searchResults.value = null;
+                      c.searchStatus.value = RxStatus.empty();
+                      c.searching.value = false;
+                    },
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(left: 12, right: 14, top: 2),
+                      child: SizedBox(
+                        width: 29.69,
+                        child: SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          width: 15,
+                          height: 15,
+                        ),
                       ),
-                    );
-                  } else {
-                    // child = WidgetButton(
-                    //   onPressed: () async {
-                    //     await ModalPopup.show(
-                    //       context: context,
-                    //       child: const CreateGroupView(),
-                    //       desktopConstraints: const BoxConstraints(
-                    //         maxWidth: double.infinity,
-                    //         maxHeight: double.infinity,
-                    //       ),
-                    //       modalConstraints: const BoxConstraints(maxWidth: 380),
-                    //       mobileConstraints: const BoxConstraints(
-                    //         maxWidth: double.infinity,
-                    //         maxHeight: double.infinity,
-                    //       ),
-                    //       mobilePadding: const EdgeInsets.all(0),
-                    //       desktopPadding: const EdgeInsets.all(0),
-                    //     );
-                    //   },
-                    //   child: SvgLoader.asset(
-                    //     'assets/icons/group.svg',
-                    //     height: 18.44,
-                    //   ),
-                    // );
-                    child = Obx(() {
-                      return WidgetButton(
-                        key: Key('${c.sorting.value}'),
-                        onPressed: c.sorting.toggle,
+                    ),
+                  );
+                } else {
+                  child = Obx(() {
+                    return WidgetButton(
+                      key: Key('${c.sorting.value}'),
+                      onPressed: c.sorting.toggle,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, right: 14, top: 2),
                         child: SizedBox(
                           width: 29.69,
                           height: 21,
@@ -228,43 +213,40 @@ class ContactsTabView extends StatelessWidget {
                                   height: 21,
                                 ),
                         ),
-                      );
-                    });
-                  }
+                      ),
+                    );
+                  });
+                }
 
-                  return SizedBox(
-                    width: 29.69,
-                    child: AnimatedSwitcher(
-                      duration: 250.milliseconds,
-                      child: child,
-                    ),
-                  );
-                }),
-              ),
+                return AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: child,
+                );
+              }),
             ],
             leading: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20, right: 12),
-                child: Obx(() {
-                  return WidgetButton(
-                    onPressed: c.searching.value
-                        ? null
-                        : () {
-                            if (c.searching.isFalse) {
-                              c.searching.value = true;
-                              Future.delayed(
-                                Duration.zero,
-                                c.search.focus.requestFocus,
-                              );
-                            }
-                          },
+              Obx(() {
+                return WidgetButton(
+                  onPressed: c.searching.value
+                      ? null
+                      : () {
+                          if (c.searching.isFalse) {
+                            c.searching.value = true;
+                            Future.delayed(
+                              Duration.zero,
+                              c.search.focus.requestFocus,
+                            );
+                          }
+                        },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 12),
                     child: SvgLoader.asset(
                       'assets/icons/search.svg',
                       width: 17.77,
                     ),
-                  );
-                }),
-              ),
+                  ),
+                );
+              }),
             ],
           ),
           body: Obx(() {

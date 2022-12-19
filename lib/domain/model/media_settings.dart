@@ -29,6 +29,7 @@ class MediaSettings extends HiveObject {
     this.videoDevice,
     this.audioDevice,
     this.outputDevice,
+    this.screenDevice,
   });
 
   /// ID of the video device to use by default.
@@ -42,4 +43,8 @@ class MediaSettings extends HiveObject {
   /// ID of the output device to use by default.
   @HiveField(2)
   String? outputDevice;
+
+  /// ID of the screen to use in screen sharing by default.
+  @HiveField(3)
+  String? screenDevice;
 }

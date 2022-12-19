@@ -490,79 +490,85 @@ class ChatsTabView extends StatelessWidget {
                   );
                 }),
                 leading: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    child: Obx(() {
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: WidgetButton(
-                          onPressed: c.searching.value
-                              ? null
-                              : () {
-                                  c.searching.value = true;
-                                  Future.delayed(
-                                    Duration.zero,
-                                    c.search2.focus.requestFocus,
-                                  );
-                                },
+                  Obx(() {
+                    return AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: WidgetButton(
+                        onPressed: c.searching.value
+                            ? null
+                            : () {
+                                c.searching.value = true;
+                                c.search2.focus.addListener(() {
+                                  if (c.search2.focus.hasFocus == false &&
+                                      c.search2.text.isEmpty == true) {
+                                    c.searching.value = false;
+                                  }
+                                });
+                                Future.delayed(
+                                  Duration.zero,
+                                  c.search2.focus.requestFocus,
+                                );
+                              },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 12),
                           child: SvgLoader.asset(
                             'assets/icons/search.svg',
                             width: 17.77,
                           ),
                         ),
-                      );
-                    }),
-                  ),
+                      ),
+                    );
+                  }),
                 ],
                 actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 18),
-                    child: Obx(() {
-                      Widget child;
+                  Obx(() {
+                    Widget child;
 
-                      if (c.searching.value || c.groupCreating.value) {
-                        child = WidgetButton(
-                          key: const Key('CloseSearch'),
-                          onPressed: () => c.closeSearch(false),
-                          child: SvgLoader.asset(
-                            'assets/icons/close_primary.svg',
-                            height: 15,
+                    if (c.searching.value || c.groupCreating.value) {
+                      child = WidgetButton(
+                        key: const Key('CloseSearch'),
+                        onPressed: () => c.closeSearch(false),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 12, right: 18),
+                          child: SizedBox(
+                            width: 21.77,
+                            child: SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              height: 15,
+                            ),
                           ),
-                        );
-                      } else {
-                        child = WidgetButton(
-                          onPressed: c.searching.value || c.groupCreating.value
-                              ? null
-                              : () {
-                                  if (c.groupCreating.value) {
-                                    if (c.selectedChats.isEmpty &&
-                                        c.selectedContacts.isEmpty &&
-                                        c.selectedUsers.isEmpty &&
-                                        c.query.value?.isEmpty != false) {
-                                      c.search2.clear();
-                                      c.query.value = null;
-                                      c.searchResults.value = null;
-                                      c.searchStatus.value = RxStatus.empty();
-                                      c.searching.value = false;
-                                      c.groupCreating.value = false;
-                                      router.navigation.value = null;
-                                      c.selectedChats.clear();
-                                      c.selectedUsers.clear();
-                                      c.selectedContacts.clear();
-                                      c.populate();
-                                    }
-                                  } else if (c.groupCreating.isFalse) {
-                                    c.groupCreating.value = true;
-                                    router.navigation.value = const SizedBox();
-                                    // router.navigation.value =
-                                    // createGroupButton();
-                                    // Future.delayed(
-                                    //   Duration.zero,
-                                    //   c.search.focus.requestFocus,
-                                    // );
+                        ),
+                      );
+                    } else {
+                      child = WidgetButton(
+                        onPressed: c.searching.value || c.groupCreating.value
+                            ? null
+                            : () {
+                                if (c.groupCreating.value) {
+                                  if (c.selectedChats.isEmpty &&
+                                      c.selectedContacts.isEmpty &&
+                                      c.selectedUsers.isEmpty &&
+                                      c.query.value?.isEmpty != false) {
+                                    c.search2.clear();
+                                    c.query.value = null;
+                                    c.searchResults.value = null;
+                                    c.searchStatus.value = RxStatus.empty();
+                                    c.searching.value = false;
+                                    c.groupCreating.value = false;
+                                    router.navigation.value = null;
+                                    c.selectedChats.clear();
+                                    c.selectedUsers.clear();
+                                    c.selectedContacts.clear();
                                     c.populate();
                                   }
-                                },
+                                } else if (c.groupCreating.isFalse) {
+                                  c.groupCreating.value = true;
+                                  router.navigation.value = const SizedBox();
+                                  c.populate();
+                                }
+                              },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 12, right: 18),
                           child: SizedBox(
                             width: 21.77,
                             child: c.groupCreating.value
@@ -577,23 +583,22 @@ class ChatsTabView extends StatelessWidget {
                                     height: 18.44,
                                   ),
                           ),
-                        );
-                      }
-
-                      return SizedBox(
-                        width: 21.77,
-                        child: AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: child,
                         ),
                       );
-                    }),
-                  ),
+                    }
+
+                    return AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: child,
+                    );
+                  }),
                 ],
               ),
               body: Obx(() {
                 if (c.chatsReady.value) {
                   final Widget? child;
+
+                  final ScrollController controller = ScrollController();
 
                   if (c.search.value?.search.isEmpty.value == false) {
                     if (c.search.value!.searchStatus.value.isLoading &&
@@ -993,41 +998,45 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = AnimationLimiter(
                         key: const Key('Chats'),
-                        child: ListView.builder(
-                          controller: ScrollController(),
-                          itemCount: c.chats.length,
-                          itemBuilder: (_, i) {
-                            final RxChat chat = c.chats[i];
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: RecentChatTile(
-                                      chat,
-                                      key: Key('RecentChat_${chat.id}'),
-                                      me: c.me,
-                                      getUser: c.getUser,
-                                      onJoin: () => c.joinCall(chat.id),
-                                      onDrop: () => c.dropCall(chat.id),
-                                      onLeave: () => c.leaveChat(chat.id),
-                                      onHide: () => c.hideChat(chat.id),
-                                      inCall: () => c.inCall(chat.id),
-                                      onMute: () => c.muteChat(chat.id),
-                                      onUnmute: () => c.unmuteChat(chat.id),
-                                      onFavorite: () => c.favoriteChat(chat.id),
-                                      onUnfavorite: () =>
-                                          c.unfavoriteChat(chat.id),
+                        child: Scrollbar(
+                          controller: controller,
+                          child: ListView.builder(
+                            controller: controller,
+                            itemCount: c.chats.length,
+                            itemBuilder: (_, i) {
+                              final RxChat chat = c.chats[i];
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: RecentChatTile(
+                                        chat,
+                                        key: Key('RecentChat_${chat.id}'),
+                                        me: c.me,
+                                        getUser: c.getUser,
+                                        onJoin: () => c.joinCall(chat.id),
+                                        onDrop: () => c.dropCall(chat.id),
+                                        onLeave: () => c.leaveChat(chat.id),
+                                        onHide: () => c.hideChat(chat.id),
+                                        inCall: () => c.inCall(chat.id),
+                                        onMute: () => c.muteChat(chat.id),
+                                        onUnmute: () => c.unmuteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
+                                        onUnfavorite: () =>
+                                            c.unfavoriteChat(chat.id),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       );
                     }

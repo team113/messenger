@@ -308,7 +308,7 @@ class ReactiveTextField extends StatelessWidget {
                     prefixIcon: prefixIcon,
                     prefixIconColor: prefixIconColor,
                     fillColor: fillColor,
-                    filled: true,
+                    filled: filled ?? true,
                     // fillColor: filled == false ? Colors.transparent : null,
                     contentPadding: contentPadding,
                     suffixIconConstraints: null,

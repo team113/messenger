@@ -232,13 +232,13 @@ class MyProfileView extends StatelessWidget {
                           ],
                         );
 
-                      case ProfileTab.privacy:
-                        return block(
-                          children: [
-                            _label(context, 'Приватность'),
-                            _privacy(context, c),
-                          ],
-                        );
+                      // case ProfileTab.privacy:
+                      //   return block(
+                      //     children: [
+                      //       _label(context, 'Приватность'),
+                      //       _privacy(context, c),
+                      //     ],
+                      //   );
 
                       case ProfileTab.link:
                         return block(
@@ -1704,9 +1704,7 @@ Widget _privacy(BuildContext context, MyProfileController c) {
                         scale: 0.7,
                         transformHitTests: false,
                         child: Theme(
-                          data: ThemeData(
-                            platform: TargetPlatform.macOS,
-                          ),
+                          data: ThemeData(platform: TargetPlatform.macOS),
                           child: Switch.adaptive(
                             activeColor:
                                 Theme.of(context).colorScheme.secondary,

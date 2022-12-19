@@ -104,19 +104,23 @@ class ChatService extends DisposableService {
       text ??= const ChatMessageText(' ');
     }
 
-    if (text != null && text.val.length > ChatMessageText.maxLength) {
-      final List<ChatMessageText> chunks = text.split();
-      int i = 0;
+    if (text != null) {
+      text = ChatMessageText(text.val.trim());
 
-      return Future.forEach<ChatMessageText>(
-        chunks,
-        (text) => _chatRepository.sendChatMessage(
-          chatId,
-          text: text,
-          attachments: i++ != chunks.length - 1 ? null : attachments,
-          repliesTo: repliesTo,
-        ),
-      );
+      if (text.val.length > ChatMessageText.maxLength) {
+        final List<ChatMessageText> chunks = text.split();
+        int i = 0;
+
+        return Future.forEach<ChatMessageText>(
+          chunks,
+          (text) => _chatRepository.sendChatMessage(
+            chatId,
+            text: text,
+            attachments: i++ != chunks.length - 1 ? null : attachments,
+            repliesTo: repliesTo,
+          ),
+        );
+      }
     }
 
     return _chatRepository.sendChatMessage(

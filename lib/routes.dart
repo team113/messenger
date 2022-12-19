@@ -108,7 +108,7 @@ enum HomeTab {
 enum ProfileTab {
   public,
   signing,
-  privacy,
+  // privacy,
   link,
   background,
   calls,

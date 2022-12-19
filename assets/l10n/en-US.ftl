@@ -130,6 +130,7 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_chat = Clear chat
 btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text
@@ -538,6 +539,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_start_screen_sharing = Start screen sharing
 label_status = Status
 label_subtitle_participants = participants
 label_tab_chats = Chats

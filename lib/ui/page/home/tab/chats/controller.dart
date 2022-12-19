@@ -248,6 +248,7 @@ class ChatsTabController extends GetxController {
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    search2.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
     for (var data in _sortingData.values) {
@@ -514,6 +515,8 @@ class ChatsTabController extends GetxController {
   void toggleSearch([bool enable = true]) {
     search.value?.onClose();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    search2.focus.removeListener(_disableSearchFocusListener);
+    searching.value = false;
     _searchSubscription?.cancel();
 
     if (enable) {
@@ -558,6 +561,7 @@ class ChatsTabController extends GetxController {
       });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);
+      search2.focus.addListener(_disableSearchFocusListener);
       search.value!.search.focus.requestFocus();
     } else {
       search.value = null;
@@ -594,6 +598,8 @@ class ChatsTabController extends GetxController {
 
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
+    print(
+        '${search.value?.search.focus.hasFocus} ${search.value?.search.text.isEmpty}');
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);

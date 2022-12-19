@@ -145,11 +145,11 @@ class _HomeViewState extends State<HomeView> {
                         onPointerSignal: (s) {
                           if (s is PointerScrollEvent) {
                             if (s.scrollDelta.dx.abs() < 3 &&
-                                (s.scrollDelta.dy.abs() > 0 ||
+                                (s.scrollDelta.dy.abs() > 3 ||
                                     c.verticalScrollTimer.value != null)) {
                               c.verticalScrollTimer.value?.cancel();
                               c.verticalScrollTimer.value = Timer(
-                                150.milliseconds,
+                                300.milliseconds,
                                 () => c.verticalScrollTimer.value = null,
                               );
                             }

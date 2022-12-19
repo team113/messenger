@@ -37,6 +37,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'accounts/view.dart';
 import 'controller.dart';
+import 'status/view.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
@@ -176,37 +177,7 @@ class MenuTabView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Flexible(
                   child: WidgetButton(
-                    onPressed: () async {
-                      await Selector.menu(
-                        context,
-                        actions: [
-                          ContextMenuButton(
-                            label: 'Online',
-                            onPressed: () => c.setPresence(Presence.present),
-                            leading: const CircleAvatar(
-                              radius: 8,
-                              backgroundColor: Colors.green,
-                            ),
-                          ),
-                          ContextMenuButton(
-                            label: 'Away',
-                            onPressed: () => c.setPresence(Presence.away),
-                            leading: const CircleAvatar(
-                              radius: 8,
-                              backgroundColor: Colors.orange,
-                            ),
-                          ),
-                          ContextMenuButton(
-                            label: 'Hidden',
-                            onPressed: () => c.setPresence(Presence.hidden),
-                            leading: const CircleAvatar(
-                              radius: 8,
-                              backgroundColor: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                    onPressed: () => StatusView.show(context),
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -270,10 +241,10 @@ class MenuTabView extends StatelessWidget {
                 ? const [StyledBackButton()]
                 : [const SizedBox(width: 30)],
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: WidgetButton(
-                  onPressed: () => AccountsView.show(context),
+              WidgetButton(
+                onPressed: () => AccountsView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
                   child: SvgLoader.asset(
                     'assets/icons/switch_account.svg',
                     width: 28.81,
@@ -326,13 +297,13 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.privacy:
-                    child = widget(
-                      icon: Icons.privacy_tip,
-                      title: 'Приватность'.l10n,
-                      subtitle: 'Кто видит Ваши данные'.l10n,
-                    );
-                    break;
+                  // case ProfileTab.privacy:
+                  //   child = widget(
+                  //     icon: Icons.privacy_tip,
+                  //     title: 'Приватность'.l10n,
+                  //     subtitle: 'Кто видит Ваши данные'.l10n,
+                  //   );
+                  //   break;
 
                   case ProfileTab.link:
                     child = widget(

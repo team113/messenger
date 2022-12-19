@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   just_audio_windows
   medea_flutter_webrtc
   medea_jason
+  pasteboard
   permission_handler_windows
   screen_retriever
   sentry_flutter

@@ -280,10 +280,10 @@ class CallController extends GetxController {
   static const double _maxHeight = 0.99;
 
   /// Min width of the minimized view in pixels.
-  static const double _minWidth = 500;
+  static const double _minWidth = 300;
 
   /// Min height of the minimized view in pixels.
-  static const double _minHeight = 500;
+  static const double _minHeight = 300;
 
   /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.80;

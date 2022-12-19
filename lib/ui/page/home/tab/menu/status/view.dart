@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
+import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -129,8 +131,7 @@ class StatusView extends StatelessWidget {
                     const SizedBox(height: 8),
                     header('label_presence'.l10n),
                   ],
-                  ...[Presence.present, Presence.away, Presence.hidden]
-                      .map((e) {
+                  ...[Presence.present, Presence.away].map((e) {
                     return Obx(() {
                       String? subtitle;
                       String? title;
@@ -273,135 +274,68 @@ class StatusView extends StatelessWidget {
                       );
                     });
                   }),
-                  if (false && !presenceOnly) ...[
-                    const SizedBox(height: 16),
-                    header('Звуковые уведомления'),
-                    Obx(() {
-                      return Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          IgnorePointer(
-                            child: ReactiveTextField(
-                              state: TextFieldState(
-                                text: c.muted.value ? 'Отключены' : 'Включены',
-                                editable: false,
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 5),
-                              child: Transform.scale(
-                                scale: 0.7,
-                                transformHitTests: false,
-                                child: Theme(
-                                  data: ThemeData(
-                                    platform: TargetPlatform.macOS,
-                                  ),
-                                  child: Switch.adaptive(
-                                    activeColor:
-                                        Theme.of(context).colorScheme.secondary,
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    value: !c.muted.value,
-                                    onChanged: (m) => c.muted.toggle(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.white.darken(0.05),
-                          child: Container(
-                            padding: const EdgeInsets.all(16.0),
-                            height: 52,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              c.muted.value
-                                                  ? 'Отключены'
-                                                  : 'Включены',
-                                              maxLines: 1,
-                                              style:
-                                                  const TextStyle(fontSize: 17),
-                                            ),
-                                          ),
-                                          Theme(
-                                            data: ThemeData(
-                                              platform: TargetPlatform.macOS,
-                                            ),
-                                            child: Transform.scale(
-                                              transformHitTests: false,
-                                              scale: 0.7,
-                                              child: SizedBox(
-                                                width: 30,
-                                                height: 20,
-                                                child: Switch.adaptive(
-                                                  activeColor: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                  materialTapTargetSize:
-                                                      MaterialTapTargetSize
-                                                          .shrinkWrap,
-                                                  value: !c.muted.value,
-                                                  onChanged: (m) =>
-                                                      c.muted.toggle(),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      // SizedBox(height: 4),
-                                      // Flexible(
-                                      //   child: Text(
-                                      //     'Вы не будете получать уведомления',
-                                      //     style: TextStyle(
-                                      //       color: Color(0xFF888888),
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                    ],
-                                  ),
-                                ),
-                                // const SizedBox(width: 8),
-                                // AnimatedSwitcher(
-                                //   duration: 200.milliseconds,
-                                //   child: selected
-                                //       ? SvgLoader.asset(
-                                //           'assets/icons/btn_mute.svg',
-                                //           width: 19.68,
-                                //           height: 15,
-                                //         )
-                                //       : SvgLoader.asset(
-                                //           'assets/icons/btn_unmute.svg',
-                                //           width: 17.86,
-                                //           height: 15,
-                                //         ),
-                                // ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
+                  // Padding(
+                  //   padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                  //   child: RichText(
+                  //     text: TextSpan(
+                  //       style: const TextStyle(
+                  //           fontSize: 11, fontWeight: FontWeight.normal),
+                  //       children: [
+                  //         const TextSpan(
+                  //           text: 'Ваше присутствие видят: ',
+                  //           style: TextStyle(color: Color(0xFF888888)),
+                  //         ),
+                  //         TextSpan(
+                  //           text: 'все.',
+                  //           style: const TextStyle(color: Color(0xFF00A3FF)),
+                  //           recognizer: TapGestureRecognizer()
+                  //             ..onTap = () async {
+                  //               await ConfirmDialog.show(
+                  //                 context,
+                  //                 title: 'Присутствие'.l10n,
+                  //                 // description:
+                  //                 //     'Unique login is an additional unique identifier for your account. \n\nVisible to: ',
+                  //                 additional: const [
+                  //                   Center(
+                  //                     child: Text(
+                  //                       'Unique login is an additional unique identifier for your account.\n',
+                  //                       style: TextStyle(
+                  //                         fontSize: 15,
+                  //                         color: Color(0xFF888888),
+                  //                       ),
+                  //                     ),
+                  //                   ),
+                  //                   Align(
+                  //                     alignment: Alignment.centerLeft,
+                  //                     child: Text(
+                  //                       'Visible to:',
+                  //                       style: TextStyle(
+                  //                           fontSize: 18, color: Colors.black),
+                  //                     ),
+                  //                   ),
+                  //                 ],
+                  //                 proceedLabel: 'Confirm',
+                  //                 variants: [
+                  //                   ConfirmDialogVariant(
+                  //                     onProceed: () {},
+                  //                     child: Text('Все'.l10n),
+                  //                   ),
+                  //                   ConfirmDialogVariant(
+                  //                     onProceed: () {},
+                  //                     child: Text('Мои контакты'.l10n),
+                  //                   ),
+                  //                   ConfirmDialogVariant(
+                  //                     onProceed: () {},
+                  //                     child: Text('Никто'.l10n),
+                  //                   ),
+                  //                 ],
+                  //               );
+                  //             },
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
