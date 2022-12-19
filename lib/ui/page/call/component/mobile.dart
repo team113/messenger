@@ -342,7 +342,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Populate the sliding panel height and its content.
         if (c.state.value == OngoingCallState.active ||
             c.state.value == OngoingCallState.joining) {
-          panelHeight = 360 + 34;
+          panelHeight = 360 + 36;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
