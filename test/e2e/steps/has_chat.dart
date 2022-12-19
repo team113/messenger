@@ -22,8 +22,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat] of the provided [User] with provided type and the provided
-/// [User].
+/// Creates a dialog by the provided [TestUser] with the provided [TestUser].
 ///
 /// Examples:
 /// - Given Bob has dialog with me
@@ -45,8 +44,8 @@ final StepDefinitionGeneric hasDialog = given2<TestUser, TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Creates a group of the provided [User] with provided type and the provided
-/// [User].
+/// Creates a group by the provided [TestUser] with provided name and the
+/// provided [TestUser].
 ///
 /// Examples:
 /// - Given Bob has "Name" group with me

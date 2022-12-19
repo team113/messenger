@@ -36,7 +36,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    await Future.delayed(500.milliseconds);
+    await Future.delayed(1.seconds);
     var incomingCalls = await provider.incomingCalls();
 
     final callRepository = CallRepository(
@@ -106,8 +106,7 @@ final StepDefinitionGeneric userStartCallInDialog =
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Starts call by the provided [TestUser] in the dialog with the provided
-/// [TestUser].
+/// Starts call by the provided [TestUser] in the group with the provided name.
 ///
 /// Examples:
 /// - When Bob starts call in "Name" group

@@ -21,9 +21,6 @@ import 'package:gherkin/gherkin.dart';
 enum WidgetKey {
   AcceptCallAudio,
   ActiveCall,
-  AddDialogMembers,
-  AddDialogMembersButton,
-  AddGroupMembersButton,
   AddParticipants,
   AlertDialog,
   AlertNoButton,
