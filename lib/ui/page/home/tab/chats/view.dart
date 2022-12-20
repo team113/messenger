@@ -66,7 +66,7 @@ class ChatsTabView extends StatelessWidget {
                 title: Obx(() {
                   final Widget child;
 
-                  if (c.searching.value || c.groupCreateSearching.value) {
+                  if (c.searching.value) {
                     child = Theme(
                       data: Theme.of(context).copyWith(
                         shadowColor: const Color(0x55000000),
@@ -115,22 +115,22 @@ class ChatsTabView extends StatelessWidget {
                           offset: const Offset(0, 1),
                           child: ReactiveTextField(
                             key: const Key('SearchField'),
-                            state: c.search.value.search,
+                            state: c.search.value!.search,
                             hint: 'label_search'.l10n,
                             maxLines: 1,
                             filled: false,
                             dense: true,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             style: style.boldBody.copyWith(fontSize: 17),
-                            onChanged: () => c.search.value.query.value =
-                                c.search.value.search.text,
+                            onChanged: () => c.search.value!.query.value =
+                                c.search.value!.search.text,
                           ),
                         ),
                       ),
                     );
                   } else if (c.groupCreating.value) {
                     child = WidgetButton(
-                      onPressed: c.startSearchCreationGroup,
+                      onPressed: c.startSearch,
                       child: SizedBox(
                         width: double.infinity,
                         height: double.infinity,
@@ -159,13 +159,7 @@ class ChatsTabView extends StatelessWidget {
                         duration: 250.milliseconds,
                         child: WidgetButton(
                           key: const Key('SearchButton'),
-                          onPressed: c.groupCreating.value
-                              ? c.groupCreateSearching.value
-                                  ? null
-                                  : c.startSearchCreationGroup
-                              : c.searching.value
-                                  ? null
-                                  : c.startSearch,
+                          onPressed: c.searching.value ? null : c.startSearch,
                           child: SvgLoader.asset(
                             'assets/icons/search.svg',
                             width: 17.77,
@@ -184,8 +178,8 @@ class ChatsTabView extends StatelessWidget {
                       if (c.groupCreating.value) {
                         child = WidgetButton(
                           key: const Key('CloseSearch'),
-                          onPressed: c.groupCreateSearching.value
-                              ? c.closeSearchCreationGroup
+                          onPressed: c.searching.value
+                              ? c.closeSearch
                               : c.closeGroupCreating,
                           child: SvgLoader.asset(
                             'assets/icons/close_primary.svg',
@@ -195,7 +189,7 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         child = WidgetButton(
                           onPressed: c.searching.value
-                              ? c.closeSearch
+                              ? () => c.closeSearch(true)
                               : c.startGroupCreating,
                           child: SizedBox(
                             width: 21.77,
@@ -228,9 +222,143 @@ class ChatsTabView extends StatelessWidget {
                 if (c.chatsReady.value) {
                   final Widget? child;
 
-                  if (c.searching.value &&
-                      !c.search.value.search.isEmpty.value) {
-                    if (c.search.value.searchStatus.value.isLoading &&
+                  if (c.groupCreating.value) {
+                    Widget? center;
+
+                    if (c.search.value?.query.isNotEmpty == true &&
+                        c.search.value?.recent.isEmpty == true &&
+                        c.search.value?.contacts.isEmpty == true &&
+                        c.search.value?.users.isEmpty == true) {
+                      if (c.search.value?.searchStatus.value.isSuccess ==
+                          true) {
+                        center =
+                            Center(child: Text('label_no_user_found'.l10n));
+                      } else {
+                        center =
+                            const Center(child: CircularProgressIndicator());
+                      }
+                    }
+
+                    if (center != null) {
+                      child = center;
+                    } else {
+                      child = ContextMenuInterceptor(
+                        child: FlutterListView(
+                          controller: c.search.value!.controller,
+                          delegate: FlutterListViewDelegate(
+                            (context, i) {
+                              final ListElement element = c.elements[i];
+                              Widget child = const SizedBox();
+
+                              if (element is RecentElement) {
+                                child = Obx(() {
+                                  return _selectedTile(
+                                    context: context,
+                                    user: element.user,
+                                    selected: c.search.value?.selectedRecent
+                                            .contains(element.user) ??
+                                        false,
+                                    onTap: () => c.search.value
+                                        ?.selectRecent(element.user),
+                                  );
+                                });
+                              } else if (element is ContactElement) {
+                                child = Obx(() {
+                                  return _selectedTile(
+                                    context: context,
+                                    contact: element.contact,
+                                    selected: c.search.value?.selectedContacts
+                                            .contains(element.contact) ??
+                                        false,
+                                    onTap: () => c.search.value
+                                        ?.selectContact(element.contact),
+                                  );
+                                });
+                              } else if (element is UserElement) {
+                                child = Obx(() {
+                                  return _selectedTile(
+                                    context: context,
+                                    user: element.user,
+                                    selected: c.search.value?.selectedUsers
+                                            .contains(element.user) ??
+                                        false,
+                                    onTap: () => c.search.value
+                                        ?.selectUser(element.user),
+                                  );
+                                });
+                              } else if (element is MyUserElement) {
+                                child = Obx(() {
+                                  return _selectedTile(
+                                    context: context,
+                                    myUser: c.myUser.value,
+                                    selected: true,
+                                    subtitle: [
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'label_required'.l10n,
+                                        style: const TextStyle(
+                                            color: Color(0xFF888888)),
+                                      ),
+                                    ],
+                                  );
+                                });
+                              } else if (element is DividerElement) {
+                                String text = '';
+                                if (element.category == SearchCategory.chat) {
+                                  text = 'label_chat'.l10n;
+                                } else if (element.category ==
+                                    SearchCategory.contact) {
+                                  text = 'label_contact'.l10n;
+                                } else if (element.category ==
+                                    SearchCategory.user) {
+                                  text = 'label_user'.l10n;
+                                }
+
+                                child = Center(
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(
+                                      10,
+                                      2,
+                                      10,
+                                      2,
+                                    ),
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      10,
+                                      12,
+                                      6,
+                                    ),
+                                    width: double.infinity,
+                                    child: Center(
+                                      child: Text(
+                                        text,
+                                        style:
+                                            style.systemMessageStyle.copyWith(
+                                          color: Colors.black,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  top: i == 0 ? 3 : 0,
+                                  bottom: i == c.elements.length - 1 ? 4 : 0,
+                                ),
+                                child: child,
+                              );
+                            },
+                            childCount: c.elements.length,
+                          ),
+                        ),
+                      );
+                    }
+                  } else if (c.searching.value &&
+                      !c.search.value!.search.isEmpty.value) {
+                    if (c.search.value!.searchStatus.value.isLoading &&
                         c.elements.isEmpty) {
                       child = const Center(
                         key: Key('Loading'),
@@ -315,136 +443,6 @@ class ChatsTabView extends StatelessWidget {
                       child = Center(
                         key: const Key('NothingFound'),
                         child: Text('label_nothing_found'.l10n),
-                      );
-                    }
-                  } else if (c.groupCreating.value) {
-                    Widget? center;
-
-                    if (c.search.value.query.isNotEmpty == true &&
-                        c.search.value.recent.isEmpty == true &&
-                        c.search.value.contacts.isEmpty == true &&
-                        c.search.value.users.isEmpty == true) {
-                      if (c.search.value.searchStatus.value.isSuccess) {
-                        center =
-                            Center(child: Text('label_no_user_found'.l10n));
-                      } else {
-                        center =
-                            const Center(child: CircularProgressIndicator());
-                      }
-                    }
-
-                    if (center != null) {
-                      child = center;
-                    } else {
-                      child = ContextMenuInterceptor(
-                        child: FlutterListView(
-                          controller: c.search.value.controller,
-                          delegate: FlutterListViewDelegate(
-                            (context, i) {
-                              final ListElement element = c.elements[i];
-                              Widget child = const SizedBox();
-
-                              if (element is RecentElement) {
-                                child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
-                                    user: element.user,
-                                    selected: c.search.value.selectedRecent
-                                        .contains(element.user),
-                                    onTap: () => c.search.value
-                                        .selectRecent(element.user),
-                                  );
-                                });
-                              } else if (element is ContactElement) {
-                                child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
-                                    contact: element.contact,
-                                    selected: c.search.value.selectedContacts
-                                        .contains(element.contact),
-                                    onTap: () => c.search.value
-                                        .selectContact(element.contact),
-                                  );
-                                });
-                              } else if (element is UserElement) {
-                                child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
-                                    user: element.user,
-                                    selected: c.search.value.selectedUsers
-                                        .contains(element.user),
-                                    onTap: () =>
-                                        c.search.value.selectUser(element.user),
-                                  );
-                                });
-                              } else if (element is MyUserElement) {
-                                child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
-                                    myUser: c.myUser.value,
-                                    selected: true,
-                                    subtitle: [
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        'label_required'.l10n,
-                                        style: const TextStyle(
-                                            color: Color(0xFF888888)),
-                                      ),
-                                    ],
-                                  );
-                                });
-                              } else if (element is DividerElement) {
-                                String text = '';
-                                if (element.category == SearchCategory.chat) {
-                                  text = 'label_chat'.l10n;
-                                } else if (element.category ==
-                                    SearchCategory.contact) {
-                                  text = 'label_contact'.l10n;
-                                } else if (element.category ==
-                                    SearchCategory.user) {
-                                  text = 'label_user'.l10n;
-                                }
-
-                                child = Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.fromLTRB(
-                                      10,
-                                      2,
-                                      10,
-                                      2,
-                                    ),
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      10,
-                                      12,
-                                      6,
-                                    ),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        text,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  top: i == 0 ? 3 : 0,
-                                  bottom: i == c.elements.length - 1 ? 4 : 0,
-                                ),
-                                child: child,
-                              );
-                            },
-                            childCount: c.elements.length,
-                          ),
-                        ),
                       );
                     }
                   } else {
