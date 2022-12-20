@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -155,29 +156,76 @@ class ChatInfoView extends StatelessWidget {
                     offset: const Offset(0, 1),
                     child: SvgLoader.asset(
                       'assets/icons/chat.svg',
-                      width: 20.12,
-                      height: 21.62,
+                      width: 20.12 * 1.45,
+                      height: 21.62 * 1.45,
                     ),
                   ),
                 ),
-                if (!context.isMobile) ...[
+                if (c.chat!.chat.value.ongoingCall == null) ...[
+                  if (!context.isMobile) ...[
+                    const SizedBox(width: 28),
+                    WidgetButton(
+                      onPressed: () => c.call(true),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ],
                   const SizedBox(width: 28),
                   WidgetButton(
-                    onPressed: () => c.call(true),
+                    onPressed: () => c.call(false),
                     child: SvgLoader.asset(
-                      'assets/icons/chat_video_call.svg',
-                      height: 17,
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
-                ],
-                const SizedBox(width: 28),
-                WidgetButton(
-                  onPressed: () => c.call(false),
-                  child: SvgLoader.asset(
-                    'assets/icons/chat_audio_call.svg',
-                    height: 19,
+                ] else ...[
+                  const SizedBox(width: 14),
+                  AnimatedSwitcher(
+                    key: const Key('ActiveCallButton'),
+                    duration: 300.milliseconds,
+                    child: c.inCall
+                        ? WidgetButton(
+                            key: const Key('Drop'),
+                            onPressed: c.dropCall,
+                            child: Container(
+                              height: 32,
+                              width: 32,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/call_end.svg',
+                                  width: 32,
+                                  height: 32,
+                                ),
+                              ),
+                            ),
+                          )
+                        : WidgetButton(
+                            key: const Key('Join'),
+                            onPressed: c.joinCall,
+                            child: Container(
+                              height: 32,
+                              width: 32,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/audio_call_start.svg',
+                                  width: 15,
+                                  height: 15,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
-                ),
+                ],
               ],
             ),
             body: ListView(
@@ -702,6 +750,30 @@ class ChatInfoView extends StatelessWidget {
               darken: 0.05,
               onTap: () => router.user(e.id, push: true),
               trailing: [
+                if (c.chat?.chat.value.ongoingCall?.members
+                        .none((u) => u.user.id == e.id) ==
+                    true) ...[
+                  Material(
+                    color: Theme.of(context).colorScheme.secondary,
+                    type: MaterialType.circle,
+                    child: InkWell(
+                      onTap: () => c.redialChatCallMember(e.id),
+                      borderRadius: BorderRadius.circular(60),
+                      child: SizedBox(
+                        width: 30,
+                        height: 30,
+                        child: Center(
+                          child: SvgLoader.asset(
+                            'assets/icons/audio_call_start.svg',
+                            width: 13,
+                            height: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
                 if (e.id == c.me)
                   WidgetButton(
                     onPressed: () => c.removeChatMember(e.id),

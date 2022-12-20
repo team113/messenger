@@ -172,7 +172,7 @@ class HomeController extends GetxController {
 
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
   void _displayIntroduction(MyUser myUser) {
-    if (!myUser.hasPassword) {
+    if (!myUser.hasPassword && !router.directLink) {
       IntroductionView.show(router.context!)
           .then((_) => _settings.setShowIntroduction(false));
     } else {

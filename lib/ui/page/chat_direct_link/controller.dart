@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -52,6 +53,7 @@ class ChatDirectLinkController extends GetxController {
     if (_auth.status.value.isSuccess) {
       await _useChatDirectLink();
     } else if (_auth.status.value.isEmpty) {
+      router.directLink = true;
       await _register();
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/call.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
 import '/config.dart';
@@ -96,6 +97,11 @@ class ChatInfoController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  bool get inCall =>
+      _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
   @override
   void onInit() {
@@ -392,6 +398,31 @@ class ChatInfoController extends GetxController {
       rethrow;
     }
   }
+
+  /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
+  Future<void> redialChatCallMember(UserId memberId) async {
+    if (memberId == me) {
+      _callService.join(chatId);
+      return;
+    }
+
+    MessagePopup.success('label_participant_redial_successfully'.l10n);
+
+    try {
+      await _callService.redialChatCallMember(chatId, memberId);
+    } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Joins the call in the [Chat] identified by the [id].
+  Future<void> joinCall() => _callService.join(chatId, withVideo: false);
+
+  /// Drops the call in the [Chat] identified by the [id].
+  Future<void> dropCall() => _callService.leave(chatId);
 
   /// Fetches the [chat].
   void _fetchChat() async {

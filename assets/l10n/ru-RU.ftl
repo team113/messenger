@@ -401,7 +401,8 @@ label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
-label_dialog_created = Диалог создан
+label_dialog_created = Чат создан по прямой ссылке
+# label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой

@@ -243,7 +243,7 @@ class _HomeViewState extends State<HomeView> {
                                       ? null
                                       : '${c.unreadChatsCount.value}',
                                   child: RmbDetector(
-                                    onSecondaryButton: () =>
+                                    onPressed: () =>
                                         ChatsMoreView.show(context),
                                     child: animated(
                                       tab: HomeTab.chats,
@@ -258,8 +258,7 @@ class _HomeViewState extends State<HomeView> {
                                 CustomNavigationBarItem(
                                   key: const Key('MenuButton'),
                                   child: RmbDetector(
-                                    onSecondaryButton: () =>
-                                        StatusView.show(context),
+                                    onPressed: () => StatusView.show(context),
                                     child: Padding(
                                       key: c.profileKey,
                                       padding: const EdgeInsets.only(bottom: 2),

@@ -144,6 +144,8 @@ class RouterState extends ChangeNotifier {
   /// This router's global [BuildContext] to use in contextless scenarios.
   BuildContext? context;
 
+  bool directLink = false;
+
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
       Rx<AppLifecycleState>(AppLifecycleState.resumed);

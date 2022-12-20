@@ -379,7 +379,8 @@ label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
-label_dialog_created = Dialog created
+label_dialog_created = Chat created via direct link
+# label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to

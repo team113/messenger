@@ -16,23 +16,30 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/menu_interceptor/menu_interceptor.dart';
 
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+
+/// Secondary button detector.
 class RmbDetector extends StatefulWidget {
   const RmbDetector({
     super.key,
     required this.child,
-    this.onSecondaryButton,
+    this.onPressed,
   });
 
+  /// [Widget] to wrap this [RmbDetector] over.
   final Widget child;
-  final void Function()? onSecondaryButton;
+
+  /// Callback, called when a secondary button is pressed.
+  final void Function()? onPressed;
 
   @override
   State<RmbDetector> createState() => _RmbDetectorState();
 }
 
+/// State of a [RmbDetector] keeping the [_buttons].
 class _RmbDetectorState extends State<RmbDetector> {
+  /// Bytes of the pressed button.
   int _buttons = 0;
 
   @override
@@ -42,13 +49,11 @@ class _RmbDetectorState extends State<RmbDetector> {
         onPointerDown: (d) => _buttons = d.buttons,
         onPointerUp: (d) {
           if (_buttons & kSecondaryButton != 0) {
-            widget.onSecondaryButton?.call();
+            widget.onPressed?.call();
           }
         },
-        child: GestureDetector(
-          onLongPress: widget.onSecondaryButton,
-          child: widget.child,
-        ),
+        child:
+            GestureDetector(onLongPress: widget.onPressed, child: widget.child),
       ),
     );
   }
