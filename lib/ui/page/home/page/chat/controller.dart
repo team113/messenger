@@ -27,7 +27,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pasteboard/pasteboard.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -339,25 +338,25 @@ class ChatController extends GetxController {
       },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
-          if (const SingleActivator(LogicalKeyboardKey.paste, control: true)
-                  .accepts(e, RawKeyboard.instance) ||
-              const SingleActivator(LogicalKeyboardKey.paste, meta: true)
-                  .accepts(e, RawKeyboard.instance)) {
-            Pasteboard.image.then((bytes) {
-              print(bytes);
-              if (bytes != null) {
-                addPlatformAttachment(
-                  PlatformFile(
-                    name: 'paste',
-                    size: bytes.length,
-                    bytes: bytes,
-                  ),
-                );
-              }
-            });
+          // if (const SingleActivator(LogicalKeyboardKey.paste, control: true)
+          //         .accepts(e, RawKeyboard.instance) ||
+          //     const SingleActivator(LogicalKeyboardKey.paste, meta: true)
+          //         .accepts(e, RawKeyboard.instance)) {
+          //   Pasteboard.image.then((bytes) {
+          //     print(bytes);
+          //     if (bytes != null) {
+          //       addPlatformAttachment(
+          //         PlatformFile(
+          //           name: 'paste',
+          //           size: bytes.length,
+          //           bytes: bytes,
+          //         ),
+          //       );
+          //     }
+          //   });
 
-            return KeyEventResult.handled;
-          }
+          //   return KeyEventResult.handled;
+          // }
 
           if ((e.logicalKey == LogicalKeyboardKey.enter ||
                   e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
@@ -1151,7 +1150,8 @@ class ChatController extends GetxController {
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
+  /// to the [attachments]
+  @visibleForTesting
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);

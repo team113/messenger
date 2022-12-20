@@ -21,6 +21,8 @@ PODS:
     - FlutterMacOS
   - package_info_plus_macos (0.0.1):
     - FlutterMacOS
+  - pasteboard (0.0.1):
+    - FlutterMacOS
   - path_provider_macos (0.0.1):
     - FlutterMacOS
   - ReachabilitySwift (5.0.0)
@@ -54,6 +56,7 @@ DEPENDENCIES:
   - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
   - medea_jason (from `Flutter/ephemeral/.symlinks/plugins/medea_jason/macos`)
   - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
+  - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
@@ -90,6 +93,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/medea_jason/macos
   package_info_plus_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
+  pasteboard:
+    :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
   screen_retriever:
@@ -117,6 +122,7 @@ SPEC CHECKSUMS:
   medea_flutter_webrtc: 028a81d72434f27a0004d2847055dfbb3be11d19
   medea_jason: 2ce5ea82a8352f8de793306d7e2df15f9c06588c
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
+  pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38

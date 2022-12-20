@@ -135,160 +135,155 @@ class _HomeViewState extends State<HomeView> {
                   constraints: BoxConstraints(
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
-                  child: ConditionalBackdropFilter(
-                    condition: context.isNarrow && !PlatformUtils.isIOS,
-                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    child: Scaffold(
-                      backgroundColor:
-                          Theme.of(context).extension<Style>()!.sidebarColor,
-                      body: Listener(
-                        onPointerSignal: (s) {
-                          if (s is PointerScrollEvent) {
-                            if (s.scrollDelta.dx.abs() < 3 &&
-                                (s.scrollDelta.dy.abs() > 3 ||
-                                    c.verticalScrollTimer.value != null)) {
-                              c.verticalScrollTimer.value?.cancel();
-                              c.verticalScrollTimer.value = Timer(
-                                300.milliseconds,
-                                () => c.verticalScrollTimer.value = null,
-                              );
-                            }
+                  child: Scaffold(
+                    backgroundColor:
+                        Theme.of(context).extension<Style>()!.sidebarColor,
+                    body: Listener(
+                      onPointerSignal: (s) {
+                        if (s is PointerScrollEvent) {
+                          if (s.scrollDelta.dx.abs() < 3 &&
+                              (s.scrollDelta.dy.abs() > 3 ||
+                                  c.verticalScrollTimer.value != null)) {
+                            c.verticalScrollTimer.value?.cancel();
+                            c.verticalScrollTimer.value = Timer(
+                              300.milliseconds,
+                              () => c.verticalScrollTimer.value = null,
+                            );
                           }
-                        },
-                        child: Obx(() {
-                          return PageView(
-                            physics: (c.verticalScrollTimer.value == null &&
-                                    router.navigation.value == null)
-                                ? null
-                                : const NeverScrollableScrollPhysics(),
-                            controller: c.pages,
-                            onPageChanged: (i) {
-                              router.tab = HomeTab.values[i];
-                              c.page.value = router.tab;
-                            },
+                        }
+                      },
+                      child: Obx(() {
+                        return PageView(
+                          physics: (c.verticalScrollTimer.value == null &&
+                                  router.navigation.value == null)
+                              ? null
+                              : const NeverScrollableScrollPhysics(),
+                          controller: c.pages,
+                          onPageChanged: (i) {
+                            router.tab = HomeTab.values[i];
+                            c.page.value = router.tab;
+                          },
 
-                            // [KeepAlivePage] used to keep the tabs' states.
-                            children: const [
-                              // KeepAlivePage(child: FinanceTabView()),
-                              KeepAlivePage(child: ContactsTabView()),
-                              // KeepAlivePage(child: PublicsTabView()),
-                              KeepAlivePage(child: ChatsTabView()),
-                              KeepAlivePage(child: MenuTabView()),
-                            ],
-                          );
-                        }),
-                      ),
-                      // extendBody: true,
-                      bottomNavigationBar: SafeArea(
-                        key: const Key('NavigationBar'),
-                        child: Obx(() {
-                          Widget animated({
-                            HomeTab tab = HomeTab.contacts,
-                            required Widget child,
-                          }) {
-                            return Obx(() {
-                              return AnimatedScale(
+                          // [KeepAlivePage] used to keep the tabs' states.
+                          children: const [
+                            // KeepAlivePage(child: FinanceTabView()),
+                            KeepAlivePage(child: ContactsTabView()),
+                            // KeepAlivePage(child: PublicsTabView()),
+                            KeepAlivePage(child: ChatsTabView()),
+                            KeepAlivePage(child: MenuTabView()),
+                          ],
+                        );
+                      }),
+                    ),
+                    // extendBody: true,
+                    bottomNavigationBar: SafeArea(
+                      key: const Key('NavigationBar'),
+                      child: Obx(() {
+                        Widget animated({
+                          HomeTab tab = HomeTab.contacts,
+                          required Widget child,
+                        }) {
+                          return Obx(() {
+                            return AnimatedScale(
+                              duration: 150.milliseconds,
+                              scale: c.page.value == tab ? 1.2 : 1,
+                              child: AnimatedOpacity(
                                 duration: 150.milliseconds,
-                                scale: c.page.value == tab ? 1.2 : 1,
-                                child: AnimatedOpacity(
-                                  duration: 150.milliseconds,
-                                  opacity: c.page.value == tab ? 1 : 0.7,
-                                  child: child,
-                                ),
-                              );
-                            });
-                          }
+                                opacity: c.page.value == tab ? 1 : 0.7,
+                                child: child,
+                              ),
+                            );
+                          });
+                        }
 
-                          Widget child = router.navigation.value ??
-                              CustomNavigationBar(
-                                items: [
-                                  // CustomNavigationBarItem(
-                                  //   key: const Key('FinanceButton'),
-                                  //   // icon: FontAwesomeIcons.solidCircleUser,
-                                  //   // label: 'label_tab_contacts'.l10n,
-                                  //   leading: animated(
-                                  //     tab: HomeTab.finance,
-                                  //     child: SvgLoader.asset(
-                                  //       'assets/icons/money.svg',
-                                  //       width: 30,
-                                  //       height: 30,
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  CustomNavigationBarItem(
-                                    key: const Key('ContactsButton'),
+                        Widget child = router.navigation.value ??
+                            CustomNavigationBar(
+                              items: [
+                                // CustomNavigationBarItem(
+                                //   key: const Key('FinanceButton'),
+                                //   // icon: FontAwesomeIcons.solidCircleUser,
+                                //   // label: 'label_tab_contacts'.l10n,
+                                //   leading: animated(
+                                //     tab: HomeTab.finance,
+                                //     child: SvgLoader.asset(
+                                //       'assets/icons/money.svg',
+                                //       width: 30,
+                                //       height: 30,
+                                //     ),
+                                //   ),
+                                // ),
+                                CustomNavigationBarItem(
+                                  key: const Key('ContactsButton'),
+                                  child: animated(
+                                    tab: HomeTab.contacts,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/contacts.svg',
+                                      width: 30,
+                                      height: 30,
+                                    ),
+                                  ),
+                                ),
+                                // CustomNavigationBarItem(
+                                //   key: const Key('PublicsButton'),
+                                //   badge: c.unreadChatsCount.value == 0
+                                //       ? null
+                                //       : '${c.unreadChatsCount.value}',
+                                //   leading: animated(
+                                //     tab: HomeTab.public,
+                                //     child: SvgLoader.asset(
+                                //       'assets/icons/publics.svg',
+                                //       width: 30,
+                                //       height: 30,
+                                //     ),
+                                //   ),
+                                // ),
+                                CustomNavigationBarItem(
+                                  key: const Key('ChatsButton'),
+                                  badge: c.unreadChatsCount.value == 0
+                                      ? null
+                                      : '${c.unreadChatsCount.value}',
+                                  child: RmbDetector(
+                                    onSecondaryButton: () =>
+                                        ChatsMoreView.show(context),
                                     child: animated(
-                                      tab: HomeTab.contacts,
+                                      tab: HomeTab.chats,
                                       child: SvgLoader.asset(
-                                        'assets/icons/contacts.svg',
-                                        width: 30,
+                                        'assets/icons/chats.svg',
+                                        width: 36.06,
                                         height: 30,
                                       ),
                                     ),
                                   ),
-                                  // CustomNavigationBarItem(
-                                  //   key: const Key('PublicsButton'),
-                                  //   badge: c.unreadChatsCount.value == 0
-                                  //       ? null
-                                  //       : '${c.unreadChatsCount.value}',
-                                  //   leading: animated(
-                                  //     tab: HomeTab.public,
-                                  //     child: SvgLoader.asset(
-                                  //       'assets/icons/publics.svg',
-                                  //       width: 30,
-                                  //       height: 30,
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  CustomNavigationBarItem(
-                                    key: const Key('ChatsButton'),
-                                    badge: c.unreadChatsCount.value == 0
-                                        ? null
-                                        : '${c.unreadChatsCount.value}',
-                                    child: RmbDetector(
-                                      onSecondaryButton: () =>
-                                          ChatsMoreView.show(context),
+                                ),
+                                CustomNavigationBarItem(
+                                  key: const Key('MenuButton'),
+                                  child: RmbDetector(
+                                    onSecondaryButton: () =>
+                                        StatusView.show(context),
+                                    child: Padding(
+                                      key: c.profileKey,
+                                      padding: const EdgeInsets.only(bottom: 2),
                                       child: animated(
-                                        tab: HomeTab.chats,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/chats.svg',
-                                          width: 36.06,
-                                          height: 30,
+                                        tab: HomeTab.menu,
+                                        child: AvatarWidget.fromMyUser(
+                                          c.myUser.value,
+                                          radius: 15,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  CustomNavigationBarItem(
-                                    key: const Key('MenuButton'),
-                                    child: RmbDetector(
-                                      onSecondaryButton: () =>
-                                          StatusView.show(context),
-                                      child: Padding(
-                                        key: c.profileKey,
-                                        padding:
-                                            const EdgeInsets.only(bottom: 2),
-                                        child: animated(
-                                          tab: HomeTab.menu,
-                                          child: AvatarWidget.fromMyUser(
-                                            c.myUser.value,
-                                            radius: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                currentIndex: router.tab.index,
-                                onTap: (i) => c.pages.jumpToPage(i),
-                              );
+                                ),
+                              ],
+                              currentIndex: router.tab.index,
+                              onTap: (i) => c.pages.jumpToPage(i),
+                            );
 
-                          return AnimatedSizeAndFade(
-                            fadeDuration: 250.milliseconds,
-                            sizeDuration: 250.milliseconds,
-                            child: child,
-                          );
-                        }),
-                      ),
+                        return AnimatedSizeAndFade(
+                          fadeDuration: 250.milliseconds,
+                          sizeDuration: 250.milliseconds,
+                          child: child,
+                        );
+                      }),
                     ),
                   ),
                 );

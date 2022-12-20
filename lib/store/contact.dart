@@ -422,7 +422,6 @@ class ContactRepository implements AbstractContactRepository {
             }
 
             contactEntity.save();
-            break;
           }
         }
     }
