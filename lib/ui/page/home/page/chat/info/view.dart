@@ -249,6 +249,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 5),
         Center(
           child: WidgetButton(
+            key: const Key('DeleteAvatar'),
             onPressed:
                 c.chat?.chat.value.avatar == null ? null : c.deleteAvatar,
             child: SizedBox(

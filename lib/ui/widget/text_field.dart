@@ -343,10 +343,10 @@ abstract class ReactiveFieldState {
   /// Reactive error message.
   final RxnString error = RxnString();
 
-  /// Indicator whether [controller.text] has changed or not.
+  /// Indicator whether controller text has changed or not.
   RxBool get changed;
 
-  /// Indicator whether [controller.text] changes can be saved or not.
+  /// Indicator whether controller text changes can be saved or not.
   bool get approvable;
 
   /// Submits this [ReactiveFieldState].
@@ -433,11 +433,11 @@ class TextFieldState extends ReactiveFieldState {
   @override
   late final FocusNode focus;
 
-  /// Indicator whether [controller.text] has changed or not.
+  /// Indicator whether controller text has changed or not.
   @override
   final RxBool changed = RxBool(false);
 
-  /// Indicator whether [controller.text] changes can be saved or not.
+  /// Indicator whether controller text changes can be saved or not.
   @override
   final bool approvable;
 

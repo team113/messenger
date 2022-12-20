@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
@@ -54,13 +53,6 @@ class AddChatMemberController extends GetxController {
   /// - `status.isEmpty`, meaning no [addMembers] is executing.
   /// - `status.isLoading`, meaning [addMembers] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
-
-  /// Worker for catching the [OngoingCallState.ended] state of the [_call] to
-  /// [pop] the view.
-  Worker? _stateWorker;
-
-  /// Worker performing a [_fetchChat] on the [chatId] changes.
-  Worker? _chatWorker;
 
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
@@ -103,15 +95,10 @@ class AddChatMemberController extends GetxController {
   @override
   void onClose() {
     _chatsSubscription?.cancel();
-    _stateWorker?.dispose();
-    _chatWorker?.dispose();
     super.onClose();
   }
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
-  ///
-  /// If this [chat] is a dialog, then transforms the [_call] into a
-  /// [Chat]-group call.
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
