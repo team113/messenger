@@ -324,12 +324,20 @@ class ChatsTabView extends StatelessWidget {
                 }
               }
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: ContextMenuInterceptor(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: child,
+              print(
+                  '${MediaQuery.of(context).size.height} - ${MediaQuery.of(context).padding.top}');
+              return Container(
+                padding:
+                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                height: MediaQuery.of(context).size.height +
+                    MediaQuery.of(context).padding.top,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: ContextMenuInterceptor(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: child,
+                    ),
                   ),
                 ),
               );
