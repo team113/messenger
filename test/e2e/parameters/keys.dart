@@ -19,6 +19,7 @@ import 'package:gherkin/gherkin.dart';
 
 /// [Key]s available in the [WidgetKeyParameter].
 enum WidgetKey {
+  AddMemberButton,
   AlertDialog,
   AlertNoButton,
   AlertYesButton,
@@ -42,6 +43,7 @@ enum WidgetKey {
   Delete,
   DeleteAccountButton,
   DeleteAvatar,
+  DeleteChatMember,
   DeleteForAll,
   EmailsExpandable,
   FavoriteChatButton,
@@ -81,6 +83,9 @@ enum WidgetKey {
   Resend,
   SearchButton,
   SearchField,
+  SearchSubmitButton,
+  SearchTextField,
+  SearchView,
   Send,
   SendForward,
   SetPasswordButton,

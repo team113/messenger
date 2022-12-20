@@ -360,7 +360,12 @@ class ChatInfoController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       chatName.unchecked = chat!.chat.value.name?.val;
-      link.unchecked = chat!.chat.value.directLink?.slug.val;
+
+      if (chat!.chat.value.directLink?.slug.val == null) {
+        link.text = ChatDirectLinkSlug.generate(10).val;
+      } else {
+        link.unchecked = chat!.chat.value.directLink?.slug.val;
+      }
 
       _worker = ever(
         chat!.chat,

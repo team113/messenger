@@ -147,6 +147,7 @@ class ChatInfoView extends StatelessWidget {
               ],
             ),
             body: ListView(
+              key: const Key('ChatInfoListView'),
               children: [
                 const SizedBox(height: 8),
                 Block(
@@ -416,7 +417,8 @@ class ChatInfoView extends StatelessWidget {
         bool selected = false,
       }) {
         return SizedBox(
-          height: 56, // 73,
+          key: key,
+          height: 56,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
@@ -468,6 +470,7 @@ class ChatInfoView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           bigButton(
+            key: const Key('AddMemberButton'),
             leading: Icon(
               Icons.people,
               color: Theme.of(context).colorScheme.secondary,
@@ -495,6 +498,7 @@ class ChatInfoView extends StatelessWidget {
                   )
                 else
                   WidgetButton(
+                    key: const Key('DeleteChatMember'),
                     onPressed: () => c.removeChatMember(e.id),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',

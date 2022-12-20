@@ -23,6 +23,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -101,6 +103,20 @@ void main() async {
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.incomingCallsTopEvents(3))
@@ -154,7 +170,7 @@ void main() async {
     );
   }
 
-  testWidgets('ChatInfoView successfully updates and deletes ChatDirectLink',
+  testWidgets('ChatInfoView successfully updates ChatDirectLink',
       (WidgetTester tester) async {
     BigInt ver = BigInt.one;
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
@@ -295,47 +311,28 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    await tester.tap(find.byKey(const Key('ChatDirectLinkExpandable')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    var linkField = find.byKey(const Key('LinkField'), skipOffstage: false);
+    await tester.dragUntilVisible(linkField,
+        find.byKey(const Key('ChatInfoListView')), const Offset(1, 0));
 
-    await tester.tap(find.byKey(const Key('GenerateChatDirectLink')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('RemoveChatDirectLink')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsNothing);
-
-    var field = find.byKey(const Key('DirectChatLinkTextField'));
-    expect(field, findsOneWidget);
-
-    await tester.tap(field);
     await tester.pumpAndSettle();
 
-    await tester.enterText(field, 'newlink');
+    await tester.tap(linkField);
     await tester.pumpAndSettle();
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.enterText(linkField, 'newlink');
+    await tester.pumpAndSettle();
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('RemoveChatDirectLink')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsNothing);
+    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(graphQlProvider.createChatDirectLink(
       any,
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(2);
-
-    verify(graphQlProvider.deleteChatDirectLink(
-      groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(2);
+    ));
 
     await Get.deleteAll(force: true);
   });

@@ -168,7 +168,6 @@ class ReactiveTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              key: key,
               controller: state.controller,
               style: style,
               focusNode: state.focus,

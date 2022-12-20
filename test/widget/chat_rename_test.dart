@@ -23,6 +23,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
@@ -52,6 +54,7 @@ import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -92,6 +95,22 @@ void main() async {
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
+  await sessionProvider.init();
+  await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
@@ -143,8 +162,12 @@ void main() async {
   ));
   await messagesProvider.init();
 
-  Widget createWidgetForTesting({required Widget child}) =>
-      MaterialApp(home: Scaffold(body: child));
+  Widget createWidgetForTesting({required Widget child}) {
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
+  }
 
   testWidgets('ChatView successfully changes chat name',
       (WidgetTester tester) async {
