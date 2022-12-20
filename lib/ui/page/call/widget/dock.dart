@@ -17,8 +17,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -187,7 +189,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
-                    return Draggable(
+                    return DelayedDraggable(
                       maxSimultaneousDrags: _entry == null ? 1 : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: Transform.translate(
@@ -525,4 +527,101 @@ class _DraggedItem<T> {
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
+}
+
+class DelayedDraggable<T extends Object> extends Draggable<T> {
+  /// Creates a widget that can be dragged starting from long press.
+  ///
+  /// The [child] and [feedback] arguments must not be null. If
+  /// [maxSimultaneousDrags] is non-null, it must be non-negative.
+  const DelayedDraggable({
+    super.key,
+    required super.child,
+    required super.feedback,
+    super.data,
+    super.axis,
+    super.childWhenDragging,
+    super.feedbackOffset,
+    @Deprecated(
+      'Use dragAnchorStrategy instead. '
+      'Replace "dragAnchor: DragAnchor.child" with "dragAnchorStrategy: childDragAnchorStrategy". '
+      'Replace "dragAnchor: DragAnchor.pointer" with "dragAnchorStrategy: pointerDragAnchorStrategy". '
+      'This feature was deprecated after v2.1.0-10.0.pre.',
+    )
+        super.dragAnchor,
+    super.dragAnchorStrategy,
+    super.maxSimultaneousDrags,
+    super.onDragStarted,
+    super.onDragUpdate,
+    super.onDraggableCanceled,
+    super.onDragEnd,
+    super.onDragCompleted,
+    this.hapticFeedbackOnStart = true,
+    super.ignoringFeedbackSemantics,
+    super.ignoringFeedbackPointer,
+  });
+
+  /// Whether haptic feedback should be triggered on drag start.
+  final bool hapticFeedbackOnStart;
+
+  @override
+  ImmediateDelayedMultiDragGestureRecognizer createRecognizer(
+      GestureMultiDragStartCallback onStart) {
+    return ImmediateDelayedMultiDragGestureRecognizer()
+      ..onStart = (Offset position) {
+        final Drag? result = onStart(position);
+        if (result != null && hapticFeedbackOnStart) {
+          HapticFeedback.selectionClick();
+        }
+        return result;
+      };
+  }
+}
+
+class ImmediateDelayedMultiDragGestureRecognizer
+    extends MultiDragGestureRecognizer {
+  /// Create a gesture recognizer for tracking multiple pointers at once.
+  ///
+  /// {@macro flutter.gestures.GestureRecognizer.supportedDevices}
+  ImmediateDelayedMultiDragGestureRecognizer({
+    super.debugOwner,
+    @Deprecated(
+      'Migrate to supportedDevices. '
+      'This feature was deprecated after v2.3.0-1.0.pre.',
+    )
+        super.kind,
+    super.supportedDevices,
+  });
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
+    return _ImmediateDelayedPointerState(
+      event.position,
+      event.kind,
+      gestureSettings,
+    );
+  }
+
+  @override
+  String get debugDescription => 'ImmediateDelayedMultiDragGestureRecognizer';
+}
+
+class _ImmediateDelayedPointerState extends MultiDragPointerState {
+  _ImmediateDelayedPointerState(
+    super.initialPosition,
+    super.kind,
+    super.deviceGestureSettings,
+  );
+
+  @override
+  void checkForResolutionAfterMove() {
+    if (pendingDelta!.distance > 25) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(GestureMultiDragStartCallback starter) {
+    starter(initialPosition);
+  }
 }
