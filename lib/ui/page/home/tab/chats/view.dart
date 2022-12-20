@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/custom_list_view.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -197,112 +198,86 @@ class ChatsTabView extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 } else if (c.elements.isNotEmpty) {
-                  child = Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + 10,
-                      bottom: MediaQuery.of(context).padding.bottom -
-                          kBottomNavigationBarHeight +
-                          5,
-                    ),
-                    child: CustomScrollView(
-                      controller: ScrollController(),
-                      scrollBehavior: const ScrollBehavior(
-                        androidOverscrollIndicator:
-                            AndroidOverscrollIndicator.stretch,
-                      ),
-                      slivers: [
-                        SliverList(
-                          key: const Key('Search'),
-                          delegate: SliverChildBuilderDelegate(
-                            (_, i) {
-                              final ListElement element = c.elements[i];
-                              final Widget child;
+                  child = customListView(
+                    key: const Key('Search'),
+                    context,
+                    (_, i) {
+                      final ListElement element = c.elements[i];
+                      final Widget child;
 
-                              if (element is ChatElement) {
-                                final RxChat chat = element.chat;
-                                child = Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, right: 10),
-                                  child: RecentChatTile(
-                                    chat,
-                                    key: Key('SearchChat_${chat.id}'),
-                                    me: c.me,
-                                    getUser: c.getUser,
-                                    onJoin: () => c.joinCall(chat.id),
-                                    onDrop: () => c.dropCall(chat.id),
-                                    inCall: () => c.inCall(chat.id),
-                                  ),
-                                );
-                              } else if (element is ContactElement) {
-                                child = SearchUserTile(
-                                  key: Key(
-                                      'SearchContact_${element.contact.id}'),
-                                  contact: element.contact,
-                                  onTap: () =>
-                                      c.openChat(contact: element.contact),
-                                );
-                              } else if (element is UserElement) {
-                                child = SearchUserTile(
-                                  key: Key('SearchUser_${element.user.id}'),
-                                  user: element.user,
-                                  onTap: () => c.openChat(user: element.user),
-                                );
-                              } else if (element is DividerElement) {
-                                child = Center(
-                                  child: Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12, 10, 12, 6),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        element.category.name.capitalizeFirst!,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                child = const SizedBox();
-                              }
-
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  top: i == 0 ? kToolbarHeight : 0,
-                                  bottom: i == c.elements.length - 1
-                                      ? kBottomNavigationBarHeight
-                                      : 0,
-                                ),
-                                child: AnimationConfiguration.staggeredList(
-                                  position: i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          top: i == 0 ? 3 : 0,
-                                          bottom: i == c.elements.length - 1
-                                              ? 4
-                                              : 0,
-                                        ),
-                                        child: child,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                            childCount: c.elements.length,
+                      if (element is ChatElement) {
+                        final RxChat chat = element.chat;
+                        child = Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: RecentChatTile(
+                            chat,
+                            key: Key('SearchChat_${chat.id}'),
+                            me: c.me,
+                            getUser: c.getUser,
+                            onJoin: () => c.joinCall(chat.id),
+                            onDrop: () => c.dropCall(chat.id),
+                            inCall: () => c.inCall(chat.id),
                           ),
-                        )
-                      ],
-                    ),
+                        );
+                      } else if (element is ContactElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchContact_${element.contact.id}'),
+                          contact: element.contact,
+                          onTap: () => c.openChat(contact: element.contact),
+                        );
+                      } else if (element is UserElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchUser_${element.user.id}'),
+                          user: element.user,
+                          onTap: () => c.openChat(user: element.user),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          top: i == 0 ? kToolbarHeight : 0,
+                          bottom: i == c.elements.length - 1
+                              ? kBottomNavigationBarHeight
+                              : 0,
+                        ),
+                        child: AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            horizontalOffset: 50,
+                            child: FadeInAnimation(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: i == 0 ? 3 : 0,
+                                  bottom: i == c.elements.length - 1 ? 4 : 0,
+                                ),
+                                child: child,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: c.elements.length,
                   );
                 } else {
                   child = Center(
@@ -319,69 +294,40 @@ class ChatsTabView extends StatelessWidget {
                 } else {
                   child = AnimationLimiter(
                     key: const Key('Chats'),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + 10,
-                        bottom: MediaQuery.of(context).padding.bottom -
-                            kBottomNavigationBarHeight +
-                            5,
-                      ),
-                      child: CustomScrollView(
-                        controller: ScrollController(),
-                        scrollBehavior: const ScrollBehavior(
-                          androidOverscrollIndicator:
-                              AndroidOverscrollIndicator.stretch,
-                        ),
-                        slivers: [
-                          SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (_, i) {
-                                final RxChat chat = c.chats[i];
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    top: i == 0 ? kToolbarHeight : 0,
-                                    bottom: i == c.chats.length - 1
-                                        ? kBottomNavigationBarHeight
-                                        : 0,
-                                  ),
-                                  child: AnimationConfiguration.staggeredList(
-                                    position: i,
-                                    duration: const Duration(milliseconds: 375),
-                                    child: SlideAnimation(
-                                      horizontalOffset: 50,
-                                      child: FadeInAnimation(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          child: RecentChatTile(
-                                            chat,
-                                            key: Key('RecentChat_${chat.id}'),
-                                            me: c.me,
-                                            getUser: c.getUser,
-                                            onJoin: () => c.joinCall(chat.id),
-                                            onDrop: () => c.dropCall(chat.id),
-                                            onLeave: () => c.leaveChat(chat.id),
-                                            onHide: () => c.hideChat(chat.id),
-                                            inCall: () => c.inCall(chat.id),
-                                            onMute: () => c.muteChat(chat.id),
-                                            onUnmute: () =>
-                                                c.unmuteChat(chat.id),
-                                            onFavorite: () =>
-                                                c.favoriteChat(chat.id),
-                                            onUnfavorite: () =>
-                                                c.unfavoriteChat(chat.id),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                              childCount: c.chats.length,
+                    child: customListView(
+                      context,
+                      (_, i) {
+                        final RxChat chat = c.chats[i];
+                        return AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            horizontalOffset: 50,
+                            child: FadeInAnimation(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: RecentChatTile(
+                                  chat,
+                                  key: Key('RecentChat_${chat.id}'),
+                                  me: c.me,
+                                  getUser: c.getUser,
+                                  onJoin: () => c.joinCall(chat.id),
+                                  onDrop: () => c.dropCall(chat.id),
+                                  onLeave: () => c.leaveChat(chat.id),
+                                  onHide: () => c.hideChat(chat.id),
+                                  inCall: () => c.inCall(chat.id),
+                                  onMute: () => c.muteChat(chat.id),
+                                  onUnmute: () => c.unmuteChat(chat.id),
+                                  onFavorite: () => c.favoriteChat(chat.id),
+                                  onUnfavorite: () => c.unfavoriteChat(chat.id),
+                                ),
+                              ),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        );
+                      },
+                      childCount: c.chats.length,
                     ),
                   );
                 }
@@ -401,4 +347,46 @@ class ChatsTabView extends StatelessWidget {
       },
     );
   }
+}
+
+Widget customListView(
+  BuildContext context,
+  NullableIndexedWidgetBuilder builder, {
+  required int childCount,
+  Key? key,
+}) {
+  return Padding(
+    padding: EdgeInsets.only(
+      top:
+          PlatformUtils.isAndroid ? MediaQuery.of(context).padding.top + 10 : 5,
+      bottom: PlatformUtils.isAndroid
+          ? MediaQuery.of(context).padding.bottom -
+              kBottomNavigationBarHeight +
+              5
+          : 5,
+    ),
+    child: CustomScrollView(
+      controller: ScrollController(),
+      scrollBehavior: const ScrollBehavior(
+        androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+      ),
+      slivers: [
+        SliverList(
+          key: key,
+          delegate: SliverChildBuilderDelegate(
+            (_, i) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  top: i == 0 ? kToolbarHeight : 0,
+                  bottom: i == childCount - 1 ? kBottomNavigationBarHeight : 0,
+                ),
+                child: builder(context, i),
+              );
+            },
+            childCount: childCount,
+          ),
+        )
+      ],
+    ),
+  );
 }
