@@ -348,7 +348,7 @@ class ChatsTabView extends StatelessWidget {
   }
 }
 
-/// Returns [child] wrapped with [CustomScrollView].
+/// Returns [builder] wrapped with [CustomScrollView].
 Widget customListView(
   BuildContext context,
   NullableIndexedWidgetBuilder builder, {
