@@ -43,9 +43,7 @@ class MainActivity: FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
