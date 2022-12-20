@@ -569,12 +569,16 @@ class OngoingCall {
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
-          } catch (e) {
-            if (!e.toString().contains('Permission denied')) {
-              screenShareState.value = LocalTrackState.disabled;
+          } on LocalMediaInitException catch (e) {
+            screenShareState.value = LocalTrackState.disabled;
+            if (!e.cause().contains('Permission denied')) {
               _errors.add('enableScreenShare() call failed with $e');
               rethrow;
             }
+          } catch (e) {
+            screenShareState.value = LocalTrackState.disabled;
+            _errors.add('enableScreenShare() call failed with $e');
+            rethrow;
           }
         }
         break;

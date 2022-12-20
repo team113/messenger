@@ -128,7 +128,7 @@ class ContactsTabView extends StatelessWidget {
           }),
           actions: [
             Obx(() {
-              Widget child;
+              final Widget child;
 
               if (c.search.value != null) {
                 child = WidgetButton(
@@ -187,126 +187,126 @@ class ContactsTabView extends StatelessWidget {
           ],
         ),
         body: Obx(() {
-          if (c.contactsReady.value) {
-            final Widget? child;
-
-            if (c.search.value?.search.isEmpty.value == false) {
-              if (c.search.value!.searchStatus.value.isLoading &&
-                  c.elements.isEmpty) {
-                child = const Center(
-                  key: Key('Loading'),
-                  child: CircularProgressIndicator(),
-                );
-              } else if (c.elements.isNotEmpty) {
-                child = ListView.builder(
-                  key: const Key('Search'),
-                  controller: ScrollController(),
-                  itemCount: c.elements.length,
-                  itemBuilder: (_, i) {
-                    final ListElement element = c.elements[i];
-                    final Widget child;
-
-                    if (element is ContactElement) {
-                      child = SearchUserTile(
-                        key: Key('SearchContact_${element.contact.id}'),
-                        contact: element.contact,
-                        onTap: () =>
-                            router.user(element.contact.user.value!.id),
-                      );
-                    } else if (element is UserElement) {
-                      child = SearchUserTile(
-                        key: Key('SearchUser_${element.user.id}'),
-                        user: element.user,
-                        onTap: () => router.user(element.user.id),
-                      );
-                    } else if (element is DividerElement) {
-                      child = Center(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                          width: double.infinity,
-                          child: Center(
-                            child: Text(
-                              element.category.name.capitalizeFirst!,
-                              style: style.systemMessageStyle.copyWith(
-                                color: Colors.black,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      child = const SizedBox();
-                    }
-
-                    return AnimationConfiguration.staggeredList(
-                      position: i,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        horizontalOffset: 50,
-                        child: FadeInAnimation(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: i == 0 ? 3 : 0,
-                              bottom: i == c.elements.length - 1 ? 4 : 0,
-                            ),
-                            child: child,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              } else {
-                child = Center(
-                  key: const Key('NothingFound'),
-                  child: Text('label_nothing_found'.l10n),
-                );
-              }
-            } else {
-              if (c.contacts.isEmpty && c.favorites.isEmpty) {
-                child = Center(
-                  key: const Key('NoContacts'),
-                  child: Text('label_no_contacts'.l10n),
-                );
-              } else {
-                final List<RxChatContact> contacts = [
-                  ...c.favorites,
-                  ...c.contacts,
-                ];
-                child = ListView.builder(
-                  controller: ScrollController(),
-                  itemCount: c.favorites.length + c.contacts.length,
-                  itemBuilder: (_, i) {
-                    final RxChatContact contact = contacts[i];
-                    return AnimationConfiguration.staggeredList(
-                      position: i,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        horizontalOffset: 50,
-                        child: FadeInAnimation(
-                          child: Obx(() => _contact(context, contact, c)),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: ContextMenuInterceptor(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: child,
-                ),
-              ),
-            );
+          if (!c.contactsReady.value) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          return const Center(child: CircularProgressIndicator());
+          final Widget? child;
+
+          if (c.search.value?.search.isEmpty.value == false) {
+            if (c.search.value!.searchStatus.value.isLoading &&
+                c.elements.isEmpty) {
+              child = const Center(
+                key: Key('Loading'),
+                child: CircularProgressIndicator(),
+              );
+            } else if (c.elements.isNotEmpty) {
+              child = ListView.builder(
+                key: const Key('Search'),
+                controller: ScrollController(),
+                itemCount: c.elements.length,
+                itemBuilder: (_, i) {
+                  final ListElement element = c.elements[i];
+                  final Widget child;
+
+                  if (element is ContactElement) {
+                    child = SearchUserTile(
+                      key: Key('SearchContact_${element.contact.id}'),
+                      contact: element.contact,
+                      onTap: () => router.user(element.contact.user.value!.id),
+                    );
+                  } else if (element is UserElement) {
+                    child = SearchUserTile(
+                      key: Key('SearchUser_${element.user.id}'),
+                      user: element.user,
+                      onTap: () => router.user(element.user.id),
+                    );
+                  } else if (element is DividerElement) {
+                    child = Center(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                        width: double.infinity,
+                        child: Center(
+                          child: Text(
+                            element.category.name.capitalizeFirst!,
+                            style: style.systemMessageStyle.copyWith(
+                              color: Colors.black,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    child = const SizedBox();
+                  }
+
+                  return AnimationConfiguration.staggeredList(
+                    position: i,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      horizontalOffset: 50,
+                      child: FadeInAnimation(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            top: i == 0 ? 3 : 0,
+                            bottom: i == c.elements.length - 1 ? 4 : 0,
+                          ),
+                          child: child,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              child = Center(
+                key: const Key('NothingFound'),
+                child: Text('label_nothing_found'.l10n),
+              );
+            }
+          } else {
+            if (c.contacts.isEmpty && c.favorites.isEmpty) {
+              child = Center(
+                key: const Key('NoContacts'),
+                child: Text('label_no_contacts'.l10n),
+              );
+            } else {
+              final List<RxChatContact> contacts = [
+                ...c.favorites,
+                ...c.contacts,
+              ];
+
+              child = ListView.builder(
+                controller: ScrollController(),
+                itemCount: c.favorites.length + c.contacts.length,
+                itemBuilder: (_, i) {
+                  final RxChatContact contact = contacts[i];
+                  return AnimationConfiguration.staggeredList(
+                    position: i,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      horizontalOffset: 50,
+                      child: FadeInAnimation(
+                        child: Obx(() => _contact(context, contact, c)),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: ContextMenuInterceptor(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: child,
+              ),
+            ),
+          );
         }),
       ),
     );
