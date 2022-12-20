@@ -347,7 +347,7 @@ label_ago_date = { $years ->
 }
 label_all = Все
 label_app_background = Фон приложения
-label_application = приложение
+label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_want_to_log_out = Вы действительно хотите выйти из аккаунта{" "}
 label_are_you_sure_yes = Да
@@ -482,6 +482,7 @@ label_introduction_description =
     Чтобы не потерять доступ к аккаунту, задайте пароль.
 label_kb = {$amount} КБ
 label_language = Язык
+label_language_entry = {$code}, {$name}
 label_last_seen = Был(а)
 label_link_to_chat = Ссылка на чат
 label_login = Логин

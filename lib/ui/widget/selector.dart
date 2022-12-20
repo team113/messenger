@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
-import 'context_menu/menu.dart';
 
 /// Dropdown selecting the provided [items].
 ///
@@ -132,58 +131,6 @@ class Selector<T> extends StatefulWidget {
         builder: builder,
       );
     }
-  }
-
-  /// Displays a [Selector] from the provided [ContextMenuButton]s.
-  static Future<ContextMenuButton?> menu<T extends Object>(
-    BuildContext context, {
-    required List<ContextMenuButton> actions,
-    GlobalKey<State<StatefulWidget>>? key,
-    Alignment alignment = Alignment.bottomRight,
-    double width = 220,
-    EdgeInsets margin = const EdgeInsets.only(top: 13),
-    double fontSize = 15,
-  }) {
-    return Selector.show<ContextMenuButton>(
-      context: context,
-      items: actions,
-      width: width,
-      margin: margin,
-      buttonBuilder: (int i, ContextMenuButton b) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            b,
-            if (i < 3)
-              Container(
-                color: const Color(0x11000000),
-                height: 1,
-                width: double.infinity,
-              ),
-          ],
-        );
-      },
-      itemBuilder: (ContextMenuButton b) {
-        final TextStyle? thin =
-            Theme.of(context).textTheme.caption?.copyWith(color: Colors.black);
-        return Row(
-          children: [
-            if (b.leading != null) ...[
-              b.leading!,
-              const SizedBox(width: 12),
-            ],
-            Text(b.label, style: thin?.copyWith(fontSize: fontSize)),
-            if (b.trailing != null) ...[
-              const SizedBox(width: 12),
-              b.trailing!,
-            ],
-          ],
-        );
-      },
-      onSelected: (ContextMenuButton b) => b.onPressed?.call(),
-      buttonKey: key,
-      alignment: alignment,
-    );
   }
 
   @override

@@ -79,13 +79,11 @@ class MyProfileView extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 WidgetButton(
-                                  onPressed: () async {
-                                    await c.uploadAvatar();
-                                  },
+                                  onPressed: () async => await c.uploadAvatar(),
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     radius: 100,
-                                    showBadge: false,
+                                    badge: false,
                                   ),
                                 ),
                                 Positioned.fill(
@@ -325,7 +323,9 @@ Widget _link(BuildContext context, MyProfileController c) {
                     ),
                     TextSpan(
                       text: 'label_details'.l10n,
-                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       recognizer: TapGestureRecognizer(),
                     ),
                   ],
@@ -386,7 +386,9 @@ Widget _login(MyProfileController c, BuildContext context) {
                 ),
                 TextSpan(
                   text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: const TextStyle(color: Color(0xFF00A3FF)),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
                       await ConfirmDialog.show(
@@ -461,7 +463,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
               onTrailingPressed: () {
-                // TODO: show a delete email popup.
+                // TODO: Show a delete email popup.
               },
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
@@ -491,7 +493,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -563,10 +567,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ),
             ),
             onPressed: () {
-              // TODO: show an add email popup.
+              // TODO: Show an add email popup.
             },
             onTrailingPressed: () {
-              // TODO: show a delete email popup.
+              // TODO: Show a delete email popup.
             },
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
@@ -582,7 +586,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () {
-            // TODO: show an add email popup.
+            // TODO: Show an add email popup.
           },
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
@@ -634,7 +638,9 @@ Widget _emails(MyProfileController c, BuildContext context) {
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: const TextStyle(color: Color(0xFF00A3FF)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -699,10 +705,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
+                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () {
@@ -722,7 +725,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.add(
         FieldButton(
           onPressed: () {
-            // TODO: show a add phone popup.
+            // TODO: Show an add phone popup.
           },
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
@@ -741,7 +744,8 @@ Widget _emails(MyProfileController c, BuildContext context) {
   });
 }
 
-/// Returns button for changing [MyUser.password].
+/// Returns the buttons changing or setting the password of the currently
+/// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,7 +756,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
           onPressed: () {
-            // TODO: show a change password popup.
+            // TODO: Show a change password popup.
           },
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
@@ -766,7 +770,7 @@ Widget _password(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns button to delete the account.
+/// Returns the contents of a [ProfileTab.danger] section.
 Widget _deleteAccount(BuildContext context, MyProfileController c) {
   return _dense(
     FieldButton(
@@ -779,14 +783,14 @@ Widget _deleteAccount(BuildContext context, MyProfileController c) {
         ),
       ),
       onPressed: () {
-        // TODO: show a delete account popup.
+        // TODO: Show a delete account popup.
       },
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
 }
 
-/// Returns [Widget] for changing background image.
+/// Returns the contents of a [ProfileTab.background] section.
 Widget _background(BuildContext context, MyProfileController c) {
   final Style style = Theme.of(context).extension<Style>()!;
 
@@ -909,7 +913,7 @@ Widget _background(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns button for changing calls opening.
+/// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -921,7 +925,7 @@ Widget _call(BuildContext context, MyProfileController c) {
               : 'label_open_calls_in_app'.l10n,
           maxLines: null,
           onPressed: () {
-            // TODO: show a call window switch popup.
+            // TODO: Show a call window switch popup.
           },
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
@@ -930,7 +934,7 @@ Widget _call(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns buttons for changing media settings.
+/// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
@@ -944,7 +948,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               'label_media_no_device_available'.l10n,
           hint: 'label_media_camera'.l10n,
           onPressed: () {
-            // TODO: show a camera switch popup.
+            // TODO: Show a camera switch popup.
           },
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
@@ -959,7 +963,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               'label_media_no_device_available'.l10n,
           hint: 'label_media_microphone'.l10n,
           onPressed: () {
-            // TODO: show a microphone switch popup.
+            // TODO: Show a microphone switch popup.
           },
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
@@ -974,7 +978,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               'label_media_no_device_available'.l10n,
           hint: 'label_media_output'.l10n,
           onPressed: () {
-            // TODO: show a output switch popup.
+            // TODO: Show a output switch popup.
           },
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
@@ -983,7 +987,7 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns buttons for downloading application.
+/// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   Widget button({
     required String asset,
@@ -1080,15 +1084,17 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns button for changing language.
+/// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
     FieldButton(
       onPressed: () async {
-        // TODO: show a language selector popup.
+        // TODO: Show a language selector popup.
       },
-      text:
-          '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+      text: 'label_language_entry'.l10nfmt({
+        'code': L10n.chosen.value!.locale.countryCode,
+        'name': L10n.chosen.value!.name,
+      }),
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );

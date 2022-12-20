@@ -324,7 +324,7 @@ class ChatsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 5),
                 child: ContextMenuInterceptor(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),

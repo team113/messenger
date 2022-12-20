@@ -331,7 +331,7 @@ label_ago_date = { $years ->
 }
 label_all = All
 label_app_background = Application background
-label_application = application
+label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_want_to_log_out = Are you sure you want to log out from account{" "}
 label_are_you_sure_yes = Yes
@@ -463,8 +463,9 @@ label_introduction_description =
     In order not to lose access to your account, set a password.
 label_kb = {$amount} KB
 label_language = Language
+label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
-label_link_to_chat = Link to chat
+label_link_to_chat = Chat link
 label_login = Login
 label_login_hint = Your unique login
 label_login_options = Login options

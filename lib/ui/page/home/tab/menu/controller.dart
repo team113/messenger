@@ -16,21 +16,13 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/native_file.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
-import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/util/message_popup.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
@@ -39,18 +31,8 @@ export 'view.dart';
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
 
-  /// Status of a [uploadAvatar] completion.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning no [uploadAvatar] is executing.
-  /// - `status.isLoading`, meaning [uploadAvatar] is executing.
-  final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
-
   /// Auth service used for logout.
   final AuthService _authService;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
-  Timer? _avatarTimer;
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
@@ -76,72 +58,5 @@ class MenuTabController extends GetxController {
   /// Sets the [MyUser.presence].
   Future<void> setPresence(Presence presence) async {
     await _myUserService.updateUserPresence(presence);
-  }
-
-  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
-  Future<void> uploadAvatar() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-        withReadStream: true,
-      );
-
-      if (result != null) {
-        avatarUpload.value = RxStatus.loading();
-
-        List<GalleryItemId> deleted = [];
-
-        for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-          deleted.add(item.id);
-        }
-
-        for (var e in deleted) {
-          _myUserService.deleteGalleryItem(e);
-        }
-
-        List<Future<ImageGalleryItem?>> futures = result.files
-            .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e))
-            .toList();
-        ImageGalleryItem? item = (await Future.wait(futures)).firstOrNull;
-        if (item != null) {
-          _updateAvatar(item.id);
-        }
-      }
-    } on DioError catch (e) {
-      if (e.response?.data != null) {
-        MessagePopup.error(e.response?.data);
-      } else {
-        MessagePopup.error(e);
-      }
-
-      rethrow;
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      avatarUpload.value = RxStatus.empty();
-    }
-  }
-
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
-  /// with the provided [id].
-  ///
-  /// If [id] is `null`, then deletes the [MyUser.avatar] and
-  /// [MyUser.callCover].
-  Future<void> _updateAvatar(GalleryItemId? id) async {
-    try {
-      _avatarTimer?.cancel();
-      await _myUserService.updateAvatar(id);
-      await _myUserService.updateCallCover(id);
-    } on UpdateUserAvatarException catch (e) {
-      MessagePopup.error(e);
-    } on UpdateUserCallCoverException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
   }
 }
