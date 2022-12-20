@@ -529,40 +529,22 @@ class _DraggedItem<T> {
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
 }
 
+/// Creates a widget that can be dragged starting with some delay of pixels.
+///
+/// The [child] and [feedback] arguments must not be null. If
+/// [maxSimultaneousDrags] is non-null, it must be non-negative.
 class DelayedDraggable<T extends Object> extends Draggable<T> {
-  /// Creates a widget that can be dragged starting from long press.
-  ///
-  /// The [child] and [feedback] arguments must not be null. If
-  /// [maxSimultaneousDrags] is non-null, it must be non-negative.
   const DelayedDraggable({
     super.key,
     required super.child,
     required super.feedback,
     super.data,
-    super.axis,
-    super.childWhenDragging,
-    super.feedbackOffset,
-    @Deprecated(
-      'Use dragAnchorStrategy instead. '
-      'Replace "dragAnchor: DragAnchor.child" with "dragAnchorStrategy: childDragAnchorStrategy". '
-      'Replace "dragAnchor: DragAnchor.pointer" with "dragAnchorStrategy: pointerDragAnchorStrategy". '
-      'This feature was deprecated after v2.1.0-10.0.pre.',
-    )
-        super.dragAnchor,
     super.dragAnchorStrategy,
     super.maxSimultaneousDrags,
     super.onDragStarted,
-    super.onDragUpdate,
     super.onDraggableCanceled,
-    super.onDragEnd,
     super.onDragCompleted,
-    this.hapticFeedbackOnStart = true,
-    super.ignoringFeedbackSemantics,
-    super.ignoringFeedbackPointer,
   });
-
-  /// Whether haptic feedback should be triggered on drag start.
-  final bool hapticFeedbackOnStart;
 
   @override
   ImmediateDelayedMultiDragGestureRecognizer createRecognizer(
@@ -570,7 +552,7 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     return ImmediateDelayedMultiDragGestureRecognizer()
       ..onStart = (Offset position) {
         final Drag? result = onStart(position);
-        if (result != null && hapticFeedbackOnStart) {
+        if (result != null) {
           HapticFeedback.selectionClick();
         }
         return result;
@@ -578,20 +560,10 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
   }
 }
 
+/// Create a gesture recognizer for tracking multiple pointers at once.
 class ImmediateDelayedMultiDragGestureRecognizer
     extends MultiDragGestureRecognizer {
-  /// Create a gesture recognizer for tracking multiple pointers at once.
-  ///
-  /// {@macro flutter.gestures.GestureRecognizer.supportedDevices}
-  ImmediateDelayedMultiDragGestureRecognizer({
-    super.debugOwner,
-    @Deprecated(
-      'Migrate to supportedDevices. '
-      'This feature was deprecated after v2.3.0-1.0.pre.',
-    )
-        super.kind,
-    super.supportedDevices,
-  });
+  ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
 
   @override
   MultiDragPointerState createNewPointerState(PointerDownEvent event) {
@@ -606,6 +578,7 @@ class ImmediateDelayedMultiDragGestureRecognizer
   String get debugDescription => 'ImmediateDelayedMultiDragGestureRecognizer';
 }
 
+/// [MultiDragPointerState] for [ImmediateDelayedMultiDragGestureRecognizer].
 class _ImmediateDelayedPointerState extends MultiDragPointerState {
   _ImmediateDelayedPointerState(
     super.initialPosition,
@@ -615,13 +588,11 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 25) {
+    if (pendingDelta!.distance > 20) {
       resolve(GestureDisposition.accepted);
     }
   }
 
   @override
-  void accepted(GestureMultiDragStartCallback starter) {
-    starter(initialPosition);
-  }
+  void accepted(starter) => starter(initialPosition);
 }
