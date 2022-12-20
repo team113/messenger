@@ -1153,7 +1153,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                   onTap: WebUtils.isPopup
                       ? null
                       : () {
-                          router.chat(c.chatId);
+                          router.chat(c.chatId.value);
                           if (c.fullscreen.value) {
                             c.toggleFullscreen();
                           }
@@ -1227,7 +1227,7 @@ Widget _primaryView(CallController c) {
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
-            if (d?.chatId == c.chatId) {
+            if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
                       MediaSourceKind.Display) {
@@ -1440,7 +1440,7 @@ Widget _primaryView(CallController c) {
               );
             });
           },
-          children: c.primary.map((e) => _DragData(e, c.chatId)).toList(),
+          children: c.primary.map((e) => _DragData(e, c.chatId.value)).toList(),
         ),
         IgnorePointer(
           child: Obx(() {
@@ -1804,7 +1804,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {
-              if (d?.chatId == c.chatId) {
+              if (d?.chatId == c.chatId.value) {
                 c.secondaryTargets.value = 1;
                 return true;
               }
@@ -1972,7 +1972,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 ),
               );
             },
-            children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
+            children:
+                c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
           ),
 
           // Discards the pointer when hovered over videos.
@@ -2282,7 +2283,7 @@ Widget _secondaryTarget(CallController c) {
                     ? double.infinity
                     : panelSize / 1.6,
                 child: DragTarget<_DragData>(
-                  onWillAccept: (d) => d?.chatId == c.chatId,
+                  onWillAccept: (d) => d?.chatId == c.chatId.value,
                   onAccept: (_DragData d) {
                     if (secondaryAxis == Axis.horizontal) {
                       c.secondaryAlignment.value = Alignment.centerRight;
