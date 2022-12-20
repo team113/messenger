@@ -24,6 +24,7 @@ import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import 'my_user.dart' show BlacklistEvent;
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {
@@ -119,43 +120,6 @@ class BlacklistEventsVersioned extends UserEvents {
 
   @override
   UserEventsKind get kind => UserEventsKind.blacklistEvent;
-}
-
-/// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
-abstract class BlacklistEvent {
-  /// [BlacklistEventsKind] of this event.
-  BlacklistEventsKind get kind;
-}
-
-/// Event of a blacklist record being added.
-class EventBlacklistRecordAdded extends BlacklistEvent {
-  EventBlacklistRecordAdded(this.userId, this.user, this.at);
-
-  /// [UserId] of the [User] this [BlacklistEvent] is about.
-  final UserId userId;
-
-  /// [User] this [BlacklistEvent] is about.
-  final HiveUser user;
-
-  /// [PreciseDateTime] when this [BlacklistEvent] happened.
-  final PreciseDateTime at;
-
-  @override
-  BlacklistEventsKind get kind => BlacklistEventsKind.recordAdded;
-}
-
-/// Event of a blacklist record being removed.
-class EventBlacklistRecordRemoved extends BlacklistEvent {
-  EventBlacklistRecordRemoved(this.userId, this.at);
-
-  /// [UserId] of the [User] this [BlacklistEvent] is about.
-  final UserId userId;
-
-  /// [PreciseDateTime] when this [BlacklistEvent] happened.
-  final PreciseDateTime at;
-
-  @override
-  BlacklistEventsKind get kind => BlacklistEventsKind.recordRemoved;
 }
 
 class UserEventsBlacklistEventsEvent extends UserEvents {

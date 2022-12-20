@@ -204,10 +204,13 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
         if (widget.renderer.inner.videoHeight == 0) {
           _waitTilSizeDetermined();
+          if (widget.framelessBuilder != null) {
+            return widget.framelessBuilder!();
+          }
+
           return Stack(
             children: [
               Offstage(child: video),
-              if (widget.framelessBuilder != null) widget.framelessBuilder!(),
               const Center(child: CircularProgressIndicator())
             ],
           );
