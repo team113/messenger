@@ -187,6 +187,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
+btn_unblock = Разблокировать
 btn_unmute_chat = Включить уведомления
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -297,8 +298,8 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] недавно
-                                            [1] недавно
+                                            [0] только что
+                                            [1] 1 минуту назад
                                             [few] {$minutes} минуты назад
                                             *[other] {$minutes} минут назад
                                         }
@@ -559,6 +560,7 @@ label_short_weekday =
     }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_start_screen_sharing = Начать демонстрацию экрана
 label_status = Статус
 label_subtitle_participants = участников
 label_tab_chats = Чаты

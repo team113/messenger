@@ -32,6 +32,7 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
@@ -129,10 +130,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
-        seesAs,
         seeUserInSearchResults,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
+        sendsMessageWithException,
         signInAs,
         tapDropdownItem,
         tapText,
@@ -171,6 +173,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         MutedStatusParameter(),

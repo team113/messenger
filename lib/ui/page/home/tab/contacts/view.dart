@@ -23,9 +23,12 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -40,17 +43,34 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
-        appBar: AppBar(
+        appBar: CustomAppBar(
           title: Text('label_contacts'.l10n),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.5),
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              height: 0.5,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
+              child: WidgetButton(
+                onPressed: c.toggleSorting,
+                child: Obx(() {
+                  return SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                    width: 29.69,
+                    height: 21,
+                  );
+                }),
+              ),
             ),
-          ),
+          ],
+          leading: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 12),
+              child: WidgetButton(
+                child: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
+              ),
+            ),
+          ],
         ),
         body: Obx(
           () => UserSearchBar(
@@ -67,8 +87,7 @@ class ContactsTabView extends StatelessWidget {
                           controller: ScrollController(),
                           children: [
                             ...c.favorites.map((e) => _contact(context, e, c)),
-                            ...c.contacts.entries
-                                .map((e) => _contact(context, e.value, c))
+                            ...c.contacts.map((e) => _contact(context, e, c))
                           ],
                         ),
                       )

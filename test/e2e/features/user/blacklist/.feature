@@ -14,15 +14,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
-    events {
-        __typename
-        userId
-        user {
-            ...User
-            __typename
-        }
-        at
-    }
-    myVer: ver
-}
+Feature: Blacklist
+
+  Scenario: Blacklisted user cannot send me a message
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And I wait until `HomeView` is present
+
+    When I go to Bob's page
+    And I tap `Block` button
+    Then Bob sends message to me and receives blacklisted exception
+
+    When I tap `Unblock` button
+    Then Bob sends message to me and receives no exception
