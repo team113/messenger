@@ -144,6 +144,7 @@ class MyProfileView extends StatelessWidget {
                             _login(c, context),
                             const SizedBox(height: 10),
                             _emails(c, context),
+                            _phones(c, context),
                             _password(context, c),
                           ],
                         );
@@ -594,6 +595,19 @@ Widget _emails(MyProfileController c, BuildContext context) {
       widgets.add(const SizedBox(height: 10));
     }
 
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => _dense(e)).toList(),
+    );
+  });
+}
+
+/// Returns addable list of [MyUser.emails].
+Widget _phones(MyProfileController c, BuildContext context) {
+  return Obx(() {
+    final List<Widget> widgets = [];
+
     for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
       widgets.add(
         Column(
@@ -998,6 +1012,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   }) {
     return FieldButton(
       text: 'space'.l10n * 4 + title,
+      textAlign: TextAlign.center,
       onPressed: link == null
           ? null
           : () {

@@ -24,6 +24,7 @@ class FieldButton extends StatelessWidget {
   const FieldButton({
     Key? key,
     this.text,
+    this.textAlign = TextAlign.start,
     this.hint,
     this.maxLines = 1,
     this.onPressed,
@@ -35,6 +36,9 @@ class FieldButton extends StatelessWidget {
 
   /// Optional label of this [FieldButton].
   final String? text;
+
+  /// [TextAlign] of the [text].
+  final TextAlign textAlign;
 
   /// Optional hint of this [FieldButton].
   final String? hint;
@@ -61,11 +65,12 @@ class FieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WidgetButton(
+    Widget widget = WidgetButton(
       behavior: HitTestBehavior.deferToChild,
       onPressed: onPressed,
       child: IgnorePointer(
         child: ReactiveTextField(
+          textAlign: textAlign,
           state: TextFieldState(
             text: text,
             editable: false,
@@ -75,9 +80,27 @@ class FieldButton extends StatelessWidget {
           trailing: trailing,
           prefix: prefix,
           style: style,
-          onSuffixPressed: onTrailingPressed,
         ),
       ),
+    );
+
+    if (trailing == null || onTrailingPressed == null) {
+      return widget;
+    }
+
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        widget,
+        WidgetButton(
+          onPressed: onTrailingPressed,
+          child: Container(
+            margin: const EdgeInsets.only(right: 10),
+            width: 30,
+            height: 30,
+          ),
+        ),
+      ],
     );
   }
 }
