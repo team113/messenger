@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -25,8 +24,6 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/selector.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
