@@ -294,95 +294,59 @@ class ChatsTabView extends StatelessWidget {
                           SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (_, i) {
-                                if (i == c.chats.length + 1) {
-                                  return SizedBox(
-                                    height:
-                                        MediaQuery.of(context).padding.bottom,
-                                  );
-                                } else if (i == 0) {
-                                  return SizedBox(
-                                    height: kToolbarHeight + 5,
-                                  );
-                                }
-                                final RxChat chat = c.chats[i - 1];
-                                return AnimationConfiguration.staggeredList(
-                                  position: i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: RecentChatTile(
-                                          chat,
-                                          key: Key('RecentChat_${chat.id}'),
-                                          me: c.me,
-                                          getUser: c.getUser,
-                                          onJoin: () => c.joinCall(chat.id),
-                                          onDrop: () => c.dropCall(chat.id),
-                                          onLeave: () => c.leaveChat(chat.id),
-                                          onHide: () => c.hideChat(chat.id),
-                                          inCall: () => c.inCall(chat.id),
-                                          onMute: () => c.muteChat(chat.id),
-                                          onUnmute: () => c.unmuteChat(chat.id),
-                                          onFavorite: () =>
-                                              c.favoriteChat(chat.id),
-                                          onUnfavorite: () =>
-                                              c.unfavoriteChat(chat.id),
+                                final RxChat chat = c.chats[i];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                      top: i == 0 ? kToolbarHeight + 5 : 0,
+                                      bottom: i == c.chats.length - 1
+                                          ? MediaQuery.of(context)
+                                                  .padding
+                                                  .bottom +
+                                              5
+                                          : 0),
+                                  child: AnimationConfiguration.staggeredList(
+                                    position: i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: RecentChatTile(
+                                            chat,
+                                            key: Key('RecentChat_${chat.id}'),
+                                            me: c.me,
+                                            getUser: c.getUser,
+                                            onJoin: () => c.joinCall(chat.id),
+                                            onDrop: () => c.dropCall(chat.id),
+                                            onLeave: () => c.leaveChat(chat.id),
+                                            onHide: () => c.hideChat(chat.id),
+                                            inCall: () => c.inCall(chat.id),
+                                            onMute: () => c.muteChat(chat.id),
+                                            onUnmute: () =>
+                                                c.unmuteChat(chat.id),
+                                            onFavorite: () =>
+                                                c.favoriteChat(chat.id),
+                                            onUnfavorite: () =>
+                                                c.unfavoriteChat(chat.id),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 );
                               },
-                              childCount: c.chats.length + 2,
+                              childCount: c.chats.length,
                             ),
                           )
                         ],
                       ),
                     ),
-                    // child: ListView.builder(
-                    //   controller: ScrollController(),
-                    //   itemCount: c.chats.length,
-                    //   itemBuilder: (_, i) {
-                    //     final RxChat chat = c.chats[i];
-                    //     return AnimationConfiguration.staggeredList(
-                    //       position: i,
-                    //       duration: const Duration(milliseconds: 375),
-                    //       child: SlideAnimation(
-                    //         horizontalOffset: 50,
-                    //         child: FadeInAnimation(
-                    //           child: Padding(
-                    //             padding:
-                    //                 const EdgeInsets.symmetric(horizontal: 10),
-                    //             child: RecentChatTile(
-                    //               chat,
-                    //               key: Key('RecentChat_${chat.id}'),
-                    //               me: c.me,
-                    //               getUser: c.getUser,
-                    //               onJoin: () => c.joinCall(chat.id),
-                    //               onDrop: () => c.dropCall(chat.id),
-                    //               onLeave: () => c.leaveChat(chat.id),
-                    //               onHide: () => c.hideChat(chat.id),
-                    //               inCall: () => c.inCall(chat.id),
-                    //               onMute: () => c.muteChat(chat.id),
-                    //               onUnmute: () => c.unmuteChat(chat.id),
-                    //               onFavorite: () => c.favoriteChat(chat.id),
-                    //               onUnfavorite: () => c.unfavoriteChat(chat.id),
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
                   );
                 }
               }
 
-              print(
-                  '${MediaQuery.of(context).size.height} - ${MediaQuery.of(context).padding.top}');
               return ContextMenuInterceptor(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
