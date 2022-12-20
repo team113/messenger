@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/custom_list_view.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -201,6 +200,7 @@ class ChatsTabView extends StatelessWidget {
                   child = customListView(
                     key: const Key('Search'),
                     context,
+                    childCount: c.elements.length,
                     (_, i) {
                       final ListElement element = c.elements[i];
                       final Widget child;
@@ -277,7 +277,6 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     },
-                    childCount: c.elements.length,
                   );
                 } else {
                   child = Center(
@@ -296,6 +295,7 @@ class ChatsTabView extends StatelessWidget {
                     key: const Key('Chats'),
                     child: customListView(
                       context,
+                      childCount: c.chats.length,
                       (_, i) {
                         final RxChat chat = c.chats[i];
                         return AnimationConfiguration.staggeredList(
@@ -327,7 +327,6 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         );
                       },
-                      childCount: c.chats.length,
                     ),
                   );
                 }
@@ -349,6 +348,7 @@ class ChatsTabView extends StatelessWidget {
   }
 }
 
+/// Returns [child] wrapped with [CustomScrollView].
 Widget customListView(
   BuildContext context,
   NullableIndexedWidgetBuilder builder, {
@@ -367,9 +367,6 @@ Widget customListView(
     ),
     child: CustomScrollView(
       controller: ScrollController(),
-      scrollBehavior: const ScrollBehavior(
-        androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
-      ),
       slivers: [
         SliverList(
           key: key,
