@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -312,4 +313,7 @@ class ChatService extends DisposableService {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
+
+  Future<void> updateCallSize(ChatId id, Size size) =>
+      _chatRepository.updateCallSize(id, size);
 }

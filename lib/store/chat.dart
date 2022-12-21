@@ -17,7 +17,9 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -244,6 +246,16 @@ class ChatRepository implements AbstractChatRepository {
         attachments: attachments,
         repliesTo: repliesTo,
       );
+
+  @override
+  Future<void> updateCallSize(ChatId id, Size size) async {
+    HiveChat? entry =
+        _chatLocal.chats.firstWhereOrNull((e) => e.value.id == id);
+    if (entry != null) {
+      entry.value.callSize = HiveSize(size.width, size.height);
+      _chatLocal.put(entry);
+    }
+  }
 
   @override
   Future<void> resendChatItem(ChatItem item) async {
@@ -954,6 +966,7 @@ class ChatRepository implements AbstractChatRepository {
           entry.init();
           entry.subscribe();
         } else {
+          chat.callSize.value = (event.value as HiveChat).value.callSize.val;
           chat.chat.value = event.value.value;
           chat.chat.refresh();
         }

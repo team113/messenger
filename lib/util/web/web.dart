@@ -359,14 +359,15 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
+    Size? size,
   }) {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
     WebCallPreferences? prefs = getCallPreferences(chatId);
 
-    final width = min(prefs?.width ?? 500, screenW);
-    final height = min(prefs?.height ?? 500, screenH);
+    final width = size?.width.toInt() ?? min(prefs?.width ?? 500, screenW);
+    final height = size?.height.toInt() ?? min(prefs?.height ?? 500, screenH);
 
     var left = prefs?.left ?? screenW - 50 - width;
     if (left < 0) {

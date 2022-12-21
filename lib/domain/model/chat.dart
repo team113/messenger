@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -54,9 +55,11 @@ class Chat extends HiveObject {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
+    HiveSize? callSize,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
-        lastDelivery = lastDelivery ?? PreciseDateTime.now();
+        lastDelivery = lastDelivery ?? PreciseDateTime.now(),
+        callSize = callSize ?? HiveSize(500, 500);
 
   /// Unique ID of this [Chat].
   @HiveField(0)
@@ -153,6 +156,11 @@ class Chat extends HiveObject {
   /// [MyUser].
   @HiveField(17)
   ChatFavoritePosition? favoritePosition;
+
+  /// Position of this [Chat] in the favorites list of the authenticated
+  /// [MyUser].
+  @HiveField(18)
+  HiveSize callSize;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
@@ -276,4 +284,19 @@ class ChatFavoritePosition extends NewType<double>
 
   @override
   int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
+}
+
+@HiveType(typeId: ModelTypeId.size)
+class HiveSize {
+  /// X coordinate of this [CropPoint] in pixels.
+  @HiveField(0)
+  double x;
+
+  /// Y coordinate of this [CropPoint] in pixels.
+  @HiveField(1)
+  double y;
+
+  Size get val => Size(x, y);
+
+  HiveSize(this.x, this.y);
 }

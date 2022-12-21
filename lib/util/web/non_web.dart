@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 
@@ -117,6 +118,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
+    Size? size,
   }) =>
       false;
 
