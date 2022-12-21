@@ -52,6 +52,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned user page. ([#254], [#252])
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
+    - Call:
+        - Delay to draggable buttons. ([#268], [#261])
 
 ### Fixed
 
@@ -106,6 +108,8 @@ All user visible changes to this project will be documented in this file. This p
 [#251]: /../../pull/251
 [#252]: /../../issues/252
 [#254]: /../../pull/254
+[#261]: /../../issues/261
+[#268]: /../../pull/268
 
 
 

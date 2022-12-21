@@ -566,13 +566,12 @@ class ImmediateDelayedMultiDragGestureRecognizer
   ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
 
   @override
-  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
-    return _ImmediateDelayedPointerState(
-      event.position,
-      event.kind,
-      gestureSettings,
-    );
-  }
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
+      _ImmediateDelayedPointerState(
+        event.position,
+        event.kind,
+        gestureSettings,
+      );
 
   @override
   String get debugDescription => 'ImmediateDelayedMultiDragGestureRecognizer';
@@ -588,7 +587,7 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 20) {
+    if (pendingDelta!.distance > 10) {
       resolve(GestureDisposition.accepted);
     }
   }
