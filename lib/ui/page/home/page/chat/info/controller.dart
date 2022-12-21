@@ -406,7 +406,7 @@ class ChatInfoController extends GetxController {
       return;
     }
 
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
+    // MessagePopup.success('label_participant_redial_successfully'.l10n);
 
     try {
       await _callService.redialChatCallMember(chatId, memberId);

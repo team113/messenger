@@ -17,6 +17,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -319,7 +320,28 @@ class ParticipantView extends StatelessWidget {
               );
             }
 
-            return Container();
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: WidgetButton(
+                key: const Key('Drop'),
+                onPressed: () {},
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: SvgLoader.asset(
+                      'assets/icons/call_end.svg',
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                ),
+              ),
+            );
           }),
         ],
       ),

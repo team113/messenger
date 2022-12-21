@@ -156,8 +156,8 @@ class ChatInfoView extends StatelessWidget {
                     offset: const Offset(0, 1),
                     child: SvgLoader.asset(
                       'assets/icons/chat.svg',
-                      width: 20.12 * 1.45,
-                      height: 21.62 * 1.45,
+                      width: 20.12,
+                      height: 21.62,
                     ),
                   ),
                 ),
@@ -190,8 +190,8 @@ class ChatInfoView extends StatelessWidget {
                             key: const Key('Drop'),
                             onPressed: c.dropCall,
                             child: Container(
-                              height: 32,
-                              width: 32,
+                              height: 22,
+                              width: 22,
                               decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
@@ -199,8 +199,8 @@ class ChatInfoView extends StatelessWidget {
                               child: Center(
                                 child: SvgLoader.asset(
                                   'assets/icons/call_end.svg',
-                                  width: 32,
-                                  height: 32,
+                                  width: 22,
+                                  height: 22,
                                 ),
                               ),
                             ),
@@ -209,8 +209,8 @@ class ChatInfoView extends StatelessWidget {
                             key: const Key('Join'),
                             onPressed: c.joinCall,
                             child: Container(
-                              height: 32,
-                              width: 32,
+                              height: 22,
+                              width: 22,
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.secondary,
                                 shape: BoxShape.circle,
@@ -218,8 +218,8 @@ class ChatInfoView extends StatelessWidget {
                               child: Center(
                                 child: SvgLoader.asset(
                                   'assets/icons/audio_call_start.svg',
-                                  width: 15,
-                                  height: 15,
+                                  width: 10,
+                                  height: 10,
                                 ),
                               ),
                             ),
@@ -745,34 +745,57 @@ class ChatInfoView extends StatelessWidget {
           // ),
           // const SizedBox(height: 10),
           ...members.map((e) {
+            final bool inCall = c.chat?.chat.value.ongoingCall?.members
+                    .none((u) => u.user.id == e.id) ==
+                false;
+
             return ContactTile(
               user: e,
               darken: 0.05,
               onTap: () => router.user(e.id, push: true),
               trailing: [
-                if (c.chat?.chat.value.ongoingCall?.members
-                        .none((u) => u.user.id == e.id) ==
-                    true) ...[
-                  Material(
-                    color: Theme.of(context).colorScheme.secondary,
-                    type: MaterialType.circle,
-                    child: InkWell(
-                      onTap: () => c.redialChatCallMember(e.id),
-                      borderRadius: BorderRadius.circular(60),
-                      child: SizedBox(
-                        width: 30,
-                        height: 30,
+                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
+                  if (inCall)
+                    WidgetButton(
+                      key: const Key('Drop'),
+                      onPressed: c.dropCall,
+                      child: Container(
+                        height: 22,
+                        width: 22,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
                         child: Center(
                           child: SvgLoader.asset(
-                            'assets/icons/audio_call_start.svg',
-                            width: 13,
-                            height: 13,
+                            'assets/icons/call_end.svg',
+                            width: 22,
+                            height: 22,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Material(
+                      color: Theme.of(context).colorScheme.secondary,
+                      type: MaterialType.circle,
+                      child: InkWell(
+                        onTap: () => c.redialChatCallMember(e.id),
+                        borderRadius: BorderRadius.circular(60),
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/audio_call_start.svg',
+                              width: 10,
+                              height: 10,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                 ],
                 if (e.id == c.me)
                   WidgetButton(

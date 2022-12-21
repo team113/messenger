@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/image_gallery_item.dart';
 import 'package:mutex/mutex.dart';
 
 import '../model/my_user.dart';
@@ -25,6 +24,7 @@ import '../model/user.dart';
 import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/routes.dart';
 import 'auth.dart';

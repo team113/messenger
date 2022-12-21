@@ -310,8 +310,25 @@ class CallRepository extends DisposableInterface
       _graphQlProvider.toggleChatCallHand(chatId, raised);
 
   @override
-  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) =>
-      _graphQlProvider.redialChatCallMember(chatId, memberId);
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    final Rx<OngoingCall>? ongoing = calls[chatId];
+    final CallMemberId id = CallMemberId(memberId, null);
+
+    if (ongoing != null) {
+      if (!ongoing.value.members.containsKey(id)) {
+        ongoing.value.members[id] =
+            CallMember(id, null, isConnected: false, isRedialing: true);
+      }
+    }
+
+    try {
+      await _graphQlProvider.redialChatCallMember(chatId, memberId);
+    } catch (_) {
+      if (ongoing != null) {
+        ongoing.value.members.remove(id);
+      }
+    }
+  }
 
   @override
   Future<void> transformDialogCallIntoGroupCall(

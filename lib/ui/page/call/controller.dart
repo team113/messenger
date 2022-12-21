@@ -371,7 +371,7 @@ class CallController extends GetxController {
   late final Worker _chatWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
-   Rx<ChatId> get chatId => _currentCall.value.chatId;
+  Rx<ChatId> get chatId => _currentCall.value.chatId;
 
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
@@ -817,6 +817,8 @@ class CallController extends GetxController {
           break;
       }
     });
+
+
   }
 
   @override

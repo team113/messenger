@@ -161,7 +161,7 @@ class AddMemberController extends GetxController {
 
   /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
   Future<void> redialChatCallMember(UserId memberId) async {
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
+    // MessagePopup.success('label_participant_redial_successfully'.l10n);
 
     try {
       await _callService.redialChatCallMember(chatId, memberId);

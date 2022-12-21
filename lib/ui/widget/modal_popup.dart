@@ -50,9 +50,9 @@ abstract class ModalPopup {
     Widget? header,
     void Function()? onBack,
   }) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    if (context.isNarrow /*context.isMobile && PlatformUtils.isMobile*/) {
+    if (context.isMobile) {
       return showModalBottomSheet(
         context: context,
         barrierColor: style.barrierColor,

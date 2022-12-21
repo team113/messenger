@@ -259,6 +259,16 @@ Widget desktopCall(CallController c, BuildContext context) {
             return Container();
           }),
         );
+
+        content.add(
+          // Makes UI disappear on click.
+          Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerUp: (d) {
+              c.displayMore.value = false;
+            },
+          ),
+        );
       }
 
       Widget padding(Widget child) => Padding(
@@ -355,10 +365,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           child: ConditionalBackdropFilter(
                             key: c.dockKey,
                             borderRadius: BorderRadius.circular(30),
-                            filter: ImageFilter.blur(
-                              sigmaX: 15,
-                              sigmaY: 15,
-                            ),
+                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: const Color(0x301D6AAE),
