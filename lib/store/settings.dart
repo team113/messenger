@@ -19,6 +19,7 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/model/chat.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
@@ -67,6 +68,7 @@ class SettingsRepository extends DisposableInterface
   void onInit() {
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
+    print('settings from local: ${_settingsLocal.settings?.callsPreferences}');
     background.value = _backgroundLocal.bytes;
     _initMediaSubscription();
     _initSettingsSubscription();
@@ -129,6 +131,13 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setSortContactsByName(bool enabled) =>
       _settingsLocal.setSortContactsByName(enabled);
+
+  @override
+  Future<void> setCallPreferences(
+    ChatId id,
+    CallPreferences preferences,
+  ) =>
+      _settingsLocal.setCallPreferences(id, preferences);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {

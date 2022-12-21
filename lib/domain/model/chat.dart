@@ -290,16 +290,16 @@ class CallPreferences {
   CallPreferences({this.width, this.height, this.left, this.top});
 
   /// Width of the popup window these [CallPreferences] are about.
-  final int? width;
+  int? width;
 
   /// Height of the popup window these [CallPreferences] are about.
-  final int? height;
+  int? height;
 
   /// Left position of the popup window these [CallPreferences] are about.
-  final int? left;
+  int? left;
 
   /// Top position of the popup window these [CallPreferences] are about.
-  final int? top;
+  int? top;
 
   /// Constructs a [CallPreferences] from the provided [data].
   factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {

@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/domain/model/chat.dart';
 
 import '/domain/model/application_settings.dart';
 import 'base.dart';
@@ -31,6 +32,8 @@ class ApplicationSettingsHiveProvider
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
+    Hive.maybeRegisterAdapter(CallPreferencesAdapter());
+    Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -84,4 +87,17 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
       );
+
+  /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
+  /// to [Hive].
+  Future<void> setCallPreferences(
+    ChatId id,
+    CallPreferences preferences,
+  ) async {
+    print('setCallPreferences');
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..callsPreferences[id] = preferences,
+    );
+  }
 }

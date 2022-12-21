@@ -17,6 +17,7 @@
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
+import 'chat.dart';
 
 part 'application_settings.g.dart';
 
@@ -67,4 +68,7 @@ class ApplicationSettings extends HiveObject {
   /// Indicator whether [ChatContact]s should be sorted by their names.
   @HiveField(7)
   bool sortContactsByName;
+
+  @HiveField(8)
+  Map<ChatId, CallPreferences> callsPreferences = {};
 }

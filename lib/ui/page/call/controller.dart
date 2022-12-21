@@ -510,6 +510,8 @@ class CallController extends GetxController {
 
     _currentCall.value.init();
 
+    print('my id: ${_currentCall.value.chatId.value}');
+
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
@@ -521,24 +523,59 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
+    CallPreferences? prefs = _settingsRepository.applicationSettings.value
+        ?.callsPreferences[_currentCall.value.chatId.value];
+    print('prefs: ${prefs}');
+    print('prefs: ${prefs?.top}');
+
+    // if (_settingsRepository
+    //         .applicationSettings.value?.callsPreferences[v?.id]?.top !=
+    //     null) {
+    //   top.value = _settingsRepository
+    //       .applicationSettings.value!.callsPreferences[v!.id]!.top!
+    //       .toDouble();
+    // }
+    // if (_settingsRepository
+    //         .applicationSettings.value?.callsPreferences[v?.id]?.left !=
+    //     null) {
+    //   left.value = _settingsRepository
+    //       .applicationSettings.value!.callsPreferences[v!.id]!.left!
+    //       .toDouble();
+    // }
+    // if (_settingsRepository
+    //         .applicationSettings.value?.callsPreferences[v?.id]?.width !=
+    //     null) {
+    //   width.value = _settingsRepository
+    //       .applicationSettings.value!.callsPreferences[v!.id]!.width!
+    //       .toDouble();
+    // }
+    // if (_settingsRepository
+    //         .applicationSettings.value?.callsPreferences[v?.id]?.height !=
+    //     null) {
+    //   height.value = _settingsRepository
+    //       .applicationSettings.value!.callsPreferences[v!.id]!.height!
+    //       .toDouble();
+    // }
+
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
-      width = RxDouble(size.width);
-      height = RxDouble(size.height);
+      width = RxDouble(prefs?.width?.toDouble() ?? size.width);
+      height = RxDouble(prefs?.height?.toDouble() ?? size.height);
     } else {
       width = RxDouble(
-        min(
-          max(
+        prefs?.width?.toDouble() ??
             min(
-              500,
-              size.shortestSide * _maxWidth,
+              max(
+                min(
+                  500,
+                  size.shortestSide * _maxWidth,
+                ),
+                _minWidth,
+              ),
+              size.height * _maxHeight,
             ),
-            _minWidth,
-          ),
-          size.height * _maxHeight,
-        ),
       );
-      height = RxDouble(width.value);
+      height = RxDouble(prefs?.height?.toDouble() ?? width.value);
     }
 
     double secondarySize = (this.size.shortestSide *
@@ -550,11 +587,12 @@ class CallController extends GetxController {
     secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
-        ? RxDouble(size.width - width.value - 50)
-        : RxDouble(size.width / 2 - width.value / 2);
+        ? RxDouble(prefs?.left?.toDouble() ?? size.width - width.value - 50)
+        : RxDouble(prefs?.left?.toDouble() ?? size.width / 2 - width.value / 2);
     top = height.value + 50 < size.height
-        ? RxDouble(50)
-        : RxDouble(size.height / 2 - height.value / 2);
+        ? RxDouble(prefs?.top?.toDouble() ?? 50)
+        : RxDouble(
+            prefs?.top?.toDouble() ?? size.height / 2 - height.value / 2);
 
     void onChat(RxChat? v) {
       chat.value = v;
@@ -567,18 +605,7 @@ class CallController extends GetxController {
         secondaryBottomShifted = secondaryBottom.value;
       }
 
-      if (chat.value?.callPrefs.value?.top != null) {
-        top.value = chat.value!.callPrefs.value!.top!.toDouble();
-      }
-      if (chat.value?.callPrefs.value?.left != null) {
-        left.value = chat.value!.callPrefs.value!.left!.toDouble();
-      }
-      if (chat.value?.callPrefs.value?.width != null) {
-        width.value = chat.value!.callPrefs.value!.width!.toDouble();
-      }
-      if (chat.value?.callPrefs.value?.height != null) {
-        height.value = chat.value!.callPrefs.value!.height!.toDouble();
-      }
+      print(_settingsRepository.applicationSettings.value!.callsPreferences);
 
       // Update the [WebUtils.title] if this call is in a popup.
       if (WebUtils.isPopup) {
@@ -850,7 +877,7 @@ class CallController extends GetxController {
 
     secondaryEntry?.remove();
 
-    _chatService.updateCallPreferences(
+    _settingsRepository.setCallPreferences(
       chat.value!.id,
       CallPreferences(
         top: top.value.toInt(),
