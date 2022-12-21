@@ -103,7 +103,7 @@ class AddPhoneView extends StatelessWidget {
                               Expanded(
                                 child: OutlinedRoundedButton(
                                   key: const Key('Resend'),
-                                  maxWidth: null,
+                                  maxWidth: double.infinity,
                                   title: Text(
                                     c.resendPhoneTimeout.value == 0
                                         ? 'label_resend'.l10n
@@ -129,7 +129,7 @@ class AddPhoneView extends StatelessWidget {
                               Expanded(
                                 child: OutlinedRoundedButton(
                                   key: const Key('Proceed'),
-                                  maxWidth: null,
+                                  maxWidth: double.infinity,
                                   title: Text(
                                     'btn_proceed'.l10n,
                                     style: thin?.copyWith(
@@ -183,7 +183,7 @@ class AddPhoneView extends StatelessWidget {
                         Obx(() {
                           return OutlinedRoundedButton(
                             key: const Key('Proceed'),
-                            maxWidth: null,
+                            maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
                               style: thin?.copyWith(

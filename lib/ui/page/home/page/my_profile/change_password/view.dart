@@ -87,7 +87,7 @@ class ChangePasswordView extends StatelessWidget {
                         const SizedBox(height: 25),
                         OutlinedRoundedButton(
                           key: const Key('Close'),
-                          maxWidth: null,
+                          maxWidth: double.infinity,
                           title: Text(
                             'btn_close'.l10n,
                             style: thin?.copyWith(color: Colors.white),
@@ -183,7 +183,7 @@ class ChangePasswordView extends StatelessWidget {
 
                           return OutlinedRoundedButton(
                             key: const Key('Proceed'),
-                            maxWidth: null,
+                            maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
                               style: thin?.copyWith(

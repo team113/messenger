@@ -103,7 +103,7 @@ class AddEmailView extends StatelessWidget {
                               Expanded(
                                 child: OutlinedRoundedButton(
                                   key: const Key('Resend'),
-                                  maxWidth: null,
+                                  maxWidth: double.infinity,
                                   title: Text(
                                     c.resendEmailTimeout.value == 0
                                         ? 'label_resend'.l10n
@@ -129,7 +129,7 @@ class AddEmailView extends StatelessWidget {
                               Expanded(
                                 child: OutlinedRoundedButton(
                                   key: const Key('Proceed'),
-                                  maxWidth: null,
+                                  maxWidth: double.infinity,
                                   title: Text(
                                     'btn_proceed'.l10n,
                                     style: thin?.copyWith(
@@ -182,7 +182,7 @@ class AddEmailView extends StatelessWidget {
                         Obx(() {
                           return OutlinedRoundedButton(
                             key: const Key('Proceed'),
-                            maxWidth: null,
+                            maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
                               style: thin?.copyWith(
