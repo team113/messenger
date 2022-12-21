@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
@@ -51,6 +52,7 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
+import '/store/pagination.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -740,7 +742,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
   /// posting time with pagination.
-  Future<ChatItemsQuery> messages(
+  Future<ChatItemsQuery?> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -755,15 +757,13 @@ class ChatRepository implements AbstractChatRepository {
       before: before,
     );
 
-    query.chat?.items.pageInfo;
+    if (query.chat == null) {
+      return null;
+    }
 
     return ChatItemsQuery(
-      query.chat?.items.edges
-              .map((e) => e.toHive())
-              .expand((e) => e)
-              .toList() ??
-          [],
-      query.chat?.items.pageInfo,
+      query.chat!.items.edges.map((e) => e.toHive()).expand((e) => e).toList(),
+      query.chat!.items.pageInfo,
     );
   }
 
@@ -1184,7 +1184,7 @@ class ChatRepository implements AbstractChatRepository {
     return entry;
   }
 
-  /// Constructs a new [ChatData] from the given [ChatMixin] fragment.
+  /// Constructs a new [HiveChat] from the given [ChatMixin] fragment.
   HiveChat _chat(ChatMixin q, {RecentChatsCursor? cursor}) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
@@ -1359,23 +1359,25 @@ class ChatRepository implements AbstractChatRepository {
 }
 
 /// Result of a [ChatItem]s fetching.
-class ChatItemsQuery {
+class ChatItemsQuery implements ItemsPage<HiveChatItem> {
   const ChatItemsQuery(this.items, this.pageInfo);
 
   /// [HiveChat] returned from the [Chat] fetching.
+  @override
   final List<HiveChatItem> items;
 
   /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
-  final GetMessages$Query$Chat$Items$PageInfo? pageInfo;
+  @override
+  final PageInfoMixin pageInfo;
 }
 
 /// Result of a [Chat]s fetching.
 class ChatsQuery {
   const ChatsQuery(this.items, this.pageInfo);
 
-  /// Fetched [ChatData]s.
+  /// Fetched [HiveChat]s.
   final List<HiveChat> items;
 
   /// Page info of this [ChatsQuery].
-  final RecentChats$Query$RecentChats$PageInfo pageInfo;
+  final PageInfoMixin pageInfo;
 }

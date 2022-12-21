@@ -234,9 +234,6 @@ class ChatController extends GetxController {
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
-  /// Currently displayed [FetchingElement] in the [elements] list.
-  FetchingElement? _fetchingElement;
-
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
@@ -1241,46 +1238,39 @@ class ChatController extends GetxController {
   /// Fetches next page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
   void _fetchNextMessages() async {
-    if (listController.hasClients &&
-        !_ignorePositionChanges &&
-        !_isFetchingMore) {
-      if (chat?.hasNextPage == true &&
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height * 2 + 200) {
+    if (listController.hasClients && !_ignorePositionChanges) {
+      if (listController.position.pixels <
+          MediaQuery.of(router.context!).size.height * 2 + 200) {
         _isFetchingMore = true;
 
-        _fetchingElement = FetchingElement.top();
-        elements[_fetchingElement!.id] = _fetchingElement!;
+        LoadingElement fetchingElement = LoadingElement.top();
+        elements[fetchingElement.id] = fetchingElement;
 
-        await chat?.fetchNextPage(
-          () {
-            elements.remove(_fetchingElement!.id);
-            _fetchingElement = null;
-          },
-        );
+        await chat?.fetchNextPage();
+        elements.remove(fetchingElement.id);
 
-        // Wait for fetched messages to be added to the [elements].
-        await Future.delayed(1.milliseconds, () => _isFetchingMore = false);
+        return;
+        // _isFetchingMore = false;
+        // // Wait for fetched messages to be added to the [elements].
+        // await Future.delayed(100.milliseconds, () => _isFetchingMore = false);
       }
 
-      if (chat?.hasPreviousPage == true &&
-          listController.position.pixels >
-              listController.position.maxScrollExtent -
-                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+      if (listController.position.pixels >
+          listController.position.maxScrollExtent -
+              (MediaQuery.of(router.context!).size.height * 2 + 200)) {
         _isFetchingMore = true;
 
-        _fetchingElement = FetchingElement.bottom();
-        elements[_fetchingElement!.id] = _fetchingElement!;
+        LoadingElement fetchingElement = LoadingElement.bottom();
+        elements[fetchingElement.id] = fetchingElement;
 
-        await chat?.fetchPreviousPage(
-          () {
-            elements.remove(_fetchingElement!.id);
-            _fetchingElement = null;
-          },
-        );
+        await chat?.fetchPreviousPage();
 
-        // Wait for fetched messages to be added to the [elements].
-        await Future.delayed(1.milliseconds, () => _isFetchingMore = false);
+        elements.remove(fetchingElement.id);
+
+        // _isFetchingMore = false;
+        // // Wait for fetched messages to be added to the [elements].
+        // await Future.delayed(100.milliseconds, () => _isFetchingMore = false);
+        return;
       }
     }
   }
@@ -1513,9 +1503,9 @@ class UnreadMessagesElement extends ListElement {
       : super(ListElementId(at, const ChatItemId('1')));
 }
 
-/// [ListElement] representing a fetching indicator.
-class FetchingElement extends ListElement {
-  FetchingElement.bottom()
+/// [ListElement] representing a loading indicator.
+class LoadingElement extends ListElement {
+  LoadingElement.bottom()
       : super(
           ListElementId(
             PreciseDateTime.now().add(1.days),
@@ -1523,7 +1513,7 @@ class FetchingElement extends ListElement {
           ),
         );
 
-  FetchingElement.top()
+  LoadingElement.top()
       : super(
           ListElementId(
             PreciseDateTime.fromMillisecondsSinceEpoch(0),

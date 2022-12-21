@@ -111,7 +111,7 @@ abstract class HiveChatItem extends HiveObject {
 
   /// Cursor of a [ChatItem] this [HiveChatItem] represents.
   @HiveField(1)
-  ChatItemsCursor cursor;
+  ChatItemsCursor? cursor;
 
   /// Version of a [ChatItem]'s state.
   ///
@@ -146,7 +146,7 @@ class HiveChatCall extends HiveChatItem {
 class HiveChatMessage extends HiveChatItem {
   HiveChatMessage(
     ChatMessage value,
-    ChatItemsCursor cursor,
+    ChatItemsCursor? cursor,
     ChatItemVersion ver,
     this.repliesToCursor,
   ) : super(value, cursor, ver);
@@ -172,7 +172,7 @@ class HiveChatMessage extends HiveChatItem {
           attachments: attachments,
           status: SendingStatus.sending,
         ),
-        const ChatItemsCursor(''),
+        null,
         ChatItemVersion('0'),
         [],
       );

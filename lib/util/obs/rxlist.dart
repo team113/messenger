@@ -152,6 +152,12 @@ class RxObsList<E> extends ListMixin<E>
   }
 
   @override
+  void insert(int index, E element) {
+    _value.insert(index, element);
+    refresh();
+  }
+
+  @override
   Iterable<E> get reversed => value.reversed;
 
   @override
@@ -168,5 +174,21 @@ class RxObsList<E> extends ListMixin<E>
   void sort([int Function(E a, E b)? compare]) {
     _value.sort(compare);
     refresh();
+  }
+
+  /// Replaces an item based on the [equal].
+  ///
+  /// If an item was replaced then returns `true` elsewhere returns `false`.
+  bool replace(E item, bool Function(E a, E b) equal) {
+    int i = _value.indexWhere((e) => equal(e, item));
+
+    if (i != -1) {
+      _value[i] = item;
+
+      refresh();
+      return true;
+    }
+
+    return false;
   }
 }

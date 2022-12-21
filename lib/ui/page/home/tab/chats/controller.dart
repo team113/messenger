@@ -93,7 +93,10 @@ class ChatsTabController extends GetxController {
   final ContactService _contactService;
 
   /// Indicator whether a next page of [Chat]s is fetching.
-  bool _isFetchingMore = false;
+  bool _isFetchingNextPage = false;
+
+  /// Indicator whether a loading indicator should be showed.
+  RxBool isLoadingNextPage = RxBool(false);
 
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
@@ -109,7 +112,7 @@ class ChatsTabController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
-  /// Indicates whether [ContactService] is ready to be used.
+  /// Indicates whether [ChatService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
   @override
@@ -386,15 +389,19 @@ class ChatsTabController extends GetxController {
 
   /// Uploads next page of [Chat]s based on the [ScrollController.position]
   /// value.
-  void _scrollListener() {
+  void _scrollListener() async {
     if (listController.hasClients) {
-      if (!_isFetchingMore &&
+      if (!_isFetchingNextPage &&
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        _isFetchingMore = true;
-        _chatService
-            .fetchNextChats()
-            .whenComplete(() => _isFetchingMore = false);
+        _isFetchingNextPage = true;
+        isLoadingNextPage.value = true;
+
+        await Future.delayed(2.seconds);
+
+        await _chatService.fetchNextPage(() => isLoadingNextPage.value = false);
+
+        _isFetchingNextPage = false;
       }
     }
   }

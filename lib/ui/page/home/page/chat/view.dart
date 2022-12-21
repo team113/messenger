@@ -662,8 +662,8 @@ class _ChatViewState extends State<ChatView>
       return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
-    } else if (element is FetchingElement) {
-      return _fetchingIndicator(context);
+    } else if (element is LoadingElement) {
+      return _loadingIndicator();
     }
 
     return const SizedBox();
@@ -2079,8 +2079,8 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Builds a visual representation of an [FetchingElement].
-  Widget _fetchingIndicator(BuildContext context) {
+  /// Builds a visual representation of an [LoadingElement].
+  Widget _loadingIndicator() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),

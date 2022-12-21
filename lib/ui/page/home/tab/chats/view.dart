@@ -288,8 +288,13 @@ class ChatsTabView extends StatelessWidget {
                     key: const Key('Chats'),
                     child: ListView.builder(
                       controller: c.listController,
-                      itemCount: c.chats.length,
+                      itemCount:
+                          c.chats.length + (c.isLoadingNextPage.isTrue ? 1 : 0),
                       itemBuilder: (_, i) {
+                        if (c.chats.length == i) {
+                          return _loadingIndicator();
+                        }
+
                         final RxChat chat = c.chats[i];
                         return AnimationConfiguration.staggeredList(
                           position: i,
@@ -347,6 +352,18 @@ class ChatsTabView extends StatelessWidget {
           }),
         );
       },
+    );
+  }
+
+  /// Builds a visual representation of a loading indicator.
+  Widget _loadingIndicator() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }
