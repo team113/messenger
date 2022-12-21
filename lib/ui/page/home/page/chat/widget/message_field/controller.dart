@@ -178,6 +178,13 @@ class MessageFieldController extends GetxController {
   /// [attachments].
   Future<void> pickFile() => _pickAttachment(FileType.any);
 
+  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
+  /// to the [attachments].
+  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
+    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    await _addAttachment(nativeFile);
+  }
+
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
@@ -192,13 +199,6 @@ class MessageFieldController extends GetxController {
         addPlatformAttachment(e);
       }
     }
-  }
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
   }
 
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the

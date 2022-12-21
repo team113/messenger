@@ -201,8 +201,6 @@ class SearchController extends GetxController {
 
   /// Selects or unselects the specified [contact], [user] or [chat].
   void select({RxChatContact? contact, RxUser? user, RxChat? chat}) {
-    if (contact == null && user == null && chat == null) return;
-
     if (contact != null) {
       if (selectedContacts.contains(contact)) {
         selectedContacts.remove(contact);

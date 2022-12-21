@@ -49,11 +49,11 @@ final StepDefinitionGeneric attachFile =
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.sendController.addPlatformAttachment(file);
+          controller.send.addPlatformAttachment(file);
         } else {
           final controller =
               Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.sendController.addPlatformAttachment(file);
+          controller.send.addPlatformAttachment(file);
         }
         break;
 
@@ -68,11 +68,11 @@ final StepDefinitionGeneric attachFile =
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.sendController.addPlatformAttachment(image);
+          controller.send.addPlatformAttachment(image);
         } else {
           final controller =
               Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.sendController.addPlatformAttachment(image);
+          controller.send.addPlatformAttachment(image);
         }
         break;
     }

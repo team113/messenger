@@ -15,13 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/ui/page/call/search/view.dart';
 
 import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Taps a chat with the provided user inside a [SearchView] widget.
+/// Taps on a [Chat]-dialog with the provided [User].
 ///
 /// Examples:
 /// - When I tap on chat with Bob
@@ -47,6 +46,7 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
         await context.world.appDriver.waitForAppToSettle();
         return true;
       }
+
       return false;
     });
   },

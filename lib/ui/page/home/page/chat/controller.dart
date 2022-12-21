@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -62,6 +63,7 @@ import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'forward/view.dart';
 
 export 'view.dart';
 
@@ -110,11 +112,11 @@ class ChatController extends GetxController {
   /// [RxSplayTreeMap] of the [ListElement]s to display.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
-  /// [MessageFieldController] controller of sending message.
-  late final MessageFieldController sendController;
+  /// [MessageFieldController] for sending the [ChatMessage].
+  late final MessageFieldController send;
 
-  /// [MessageFieldController] controller of editing message.
-  late final MessageFieldController editController;
+  /// [MessageFieldController] for editing the [ChatMessage].
+  late final MessageFieldController edit;
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -284,36 +286,58 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
-    sendController = MessageFieldController(
+    send = MessageFieldController(
       _chatService,
       _userService,
       updateDraft: updateDraft,
+      onSubmit: () async {
+        if (send.forwarding.value) {
+          if (send.repliedMessages.isNotEmpty) {
+            bool? result = await ChatForwardView.show(
+              router.context!,
+              id,
+              send.repliedMessages.map((e) => ChatItemQuote(item: e)).toList(),
+              text: send.send.text,
+              attachments: send.attachments.map((e) => e.value).toList(),
+            );
+
+            if (result == true) {
+              send.repliedMessages.clear();
+              send.forwarding.value = false;
+              send.attachments.clear();
+              send.send.clear();
+            }
+          }
+        } else {
+          sendMessage();
+        }
+      },
     )..onInit();
-    editController = MessageFieldController(
+
+    edit = MessageFieldController(
       _chatService,
       _userService,
       onSubmit: () async {
-        ChatMessage item = editController.editedMessage.value as ChatMessage;
-        if (editController.send.text == item.text?.val) {
-          editController.editedMessage.value = null;
-        } else if (editController.send.text.isNotEmpty ||
-            item.attachments.isNotEmpty) {
+        ChatMessage item = edit.editedMessage.value as ChatMessage;
+        if (edit.send.text == item.text?.val) {
+          edit.editedMessage.value = null;
+        } else if (edit.send.text.isNotEmpty || item.attachments.isNotEmpty) {
           ChatMessageText? text;
-          if (editController.send.text.isNotEmpty) {
-            text = ChatMessageText(editController.send.text);
+          if (edit.send.text.isNotEmpty) {
+            text = ChatMessageText(edit.send.text);
           }
 
           try {
             await _chatService.editChatMessage(item, text);
-            editController.editedMessage.value = null;
-            editController.editedMessage.value = null;
+            edit.editedMessage.value = null;
+            edit.editedMessage.value = null;
 
             _typingSubscription?.cancel();
             _typingSubscription = null;
             _typingTimer?.cancel();
 
-            if (sendController.send.isEmpty.isFalse) {
-              sendController.send.focus.requestFocus();
+            if (send.send.isEmpty.isFalse) {
+              send.send.focus.requestFocus();
             }
           } on EditChatMessageException catch (e) {
             MessagePopup.error(e);
@@ -323,7 +347,7 @@ class ChatController extends GetxController {
           }
         }
       },
-    );
+    )..onInit();
 
     super.onInit();
   }
@@ -364,28 +388,27 @@ class ChatController extends GetxController {
 
   /// Sends chat message.
   void sendMessage() {
-    if (sendController.send.text.trim().isNotEmpty ||
-        sendController.attachments.isNotEmpty ||
-        sendController.repliedMessages.isNotEmpty) {
+    if (send.send.text.trim().isNotEmpty ||
+        send.attachments.isNotEmpty ||
+        send.repliedMessages.isNotEmpty) {
       _chatService
           .sendChatMessage(
             chat!.chat.value.id,
-            text: sendController.send.text.trim().isEmpty
+            text: send.send.text.trim().isEmpty
                 ? null
-                : ChatMessageText(sendController.send.text.trim()),
-            repliesTo: sendController.repliedMessages.reversed.toList(),
-            attachments:
-                sendController.attachments.map((e) => e.value).toList(),
+                : ChatMessageText(send.send.text.trim()),
+            repliesTo: send.repliedMessages.reversed.toList(),
+            attachments: send.attachments.map((e) => e.value).toList(),
           )
           .then((_) => _playMessageSent())
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((e, _) {});
 
-      sendController.repliedMessages.clear();
-      sendController.attachments.clear();
-      sendController.send.clear();
-      sendController.send.unsubmit();
+      send.repliedMessages.clear();
+      send.attachments.clear();
+      send.send.clear();
+      send.send.unsubmit();
 
       chat?.setDraft();
 
@@ -394,8 +417,7 @@ class ChatController extends GetxController {
       _typingTimer?.cancel();
 
       if (!PlatformUtils.isMobile) {
-        Future.delayed(
-            Duration.zero, () => sendController.send.focus.requestFocus());
+        Future.delayed(Duration.zero, () => send.send.focus.requestFocus());
       }
     }
   }
@@ -457,10 +479,10 @@ class ChatController extends GetxController {
     }
 
     if (item is ChatMessage) {
-      editController.editedMessage.value = item;
+      edit.editedMessage.value = item;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        editController.send.text = item.text?.val ?? '';
-        editController.send.focus.requestFocus();
+        edit.send.text = item.text?.val ?? '';
+        edit.send.focus.requestFocus();
       });
     }
   }
@@ -474,22 +496,17 @@ class ChatController extends GetxController {
 
     // Only persist uploaded [Attachment]s on Web to minimize byte writing lags.
     if (PlatformUtils.isWeb) {
-      persisted = sendController.attachments.where(
+      persisted = send.attachments.where(
         (e) => e.value is ImageAttachment || e.value is FileAttachment,
       );
     } else {
-      persisted = List.from(sendController.attachments, growable: false);
+      persisted = List.from(send.attachments, growable: false);
     }
 
     chat?.setDraft(
-      text: sendController.send.text.isEmpty
-          ? null
-          : ChatMessageText(sendController.send.text),
+      text: send.send.text.isEmpty ? null : ChatMessageText(send.send.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: List.from(
-        sendController.repliedMessages,
-        growable: false,
-      ),
+      repliesTo: List.from(send.repliedMessages, growable: false),
     );
   }
 
@@ -504,17 +521,15 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      sendController.send.text = draft?.text?.val ?? '';
-      sendController.repliedMessages.value = List.from(draft?.repliesTo ?? []);
+      send.send.text = draft?.text?.val ?? '';
+      send.repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
-        sendController.attachments.add(MapEntry(GlobalKey(), e));
+        send.attachments.add(MapEntry(GlobalKey(), e));
       }
 
-      _repliesWorker ??=
-          ever(sendController.repliedMessages, (_) => updateDraft());
-      _attachmentsWorker ??=
-          ever(sendController.attachments, (_) => updateDraft());
+      _repliesWorker ??= ever(send.repliedMessages, (_) => updateDraft());
+      _attachmentsWorker ??= ever(send.attachments, (_) => updateDraft());
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -974,7 +989,7 @@ class ChatController extends GetxController {
   /// [MessageFieldController.attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      sendController.addPlatformAttachment(PlatformFile(
+      send.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),

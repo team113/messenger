@@ -68,15 +68,8 @@ class ChatForwardView extends StatelessWidget {
     });
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: 650,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
+      desktopConstraints:
+          const BoxConstraints(maxWidth: double.infinity, maxHeight: 650),
       mobilePadding: const EdgeInsets.all(0),
       desktopPadding: const EdgeInsets.all(0),
       child: ChatForwardView(
@@ -131,9 +124,9 @@ class ChatForwardView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
                         child: MessageFieldView(
-                          messageFieldKey: const Key('ForwardField'),
-                          messageSendButtonKey: const Key('SendForward'),
-                          controller: c.sendController,
+                          fieldKey: const Key('ForwardField'),
+                          sendKey: const Key('SendForward'),
+                          controller: c.send,
                         ),
                       ),
                     ],

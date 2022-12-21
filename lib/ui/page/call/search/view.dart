@@ -123,36 +123,7 @@ class SearchView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25),
-              SizedBox(
-                height: 17,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        children: categories
-                            .map((e) => _category(context, c, e))
-                            .toList(),
-                      ),
-                    ),
-                    Obx(() {
-                      return Text(
-                        'label_selected'.l10nfmt({
-                          'count': c.selectedContacts.length +
-                              c.selectedUsers.length +
-                              c.selectedChats.length
-                        }),
-                        style: thin?.copyWith(fontSize: 15),
-                      );
-                    }),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 6),
               Expanded(
                 child: Obx(() {
                   if (c.recent.isEmpty &&

@@ -28,7 +28,6 @@ import 'package:intl/intl.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -36,8 +35,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
-import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -47,10 +44,11 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'forward/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
+import 'widget/custom_drop_target.dart';
+import 'widget/message_field/view.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -541,10 +539,10 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.sendController.repliedMessages.contains(e.value)) {
-                c.sendController.repliedMessages.remove(e.value);
+              if (c.send.repliedMessages.contains(e.value)) {
+                c.send.repliedMessages.remove(e.value);
               } else {
-                c.sendController.repliedMessages.insert(0, e.value);
+                c.send.repliedMessages.insert(0, e.value);
               }
             },
             onCopy: c.copyText,
@@ -603,26 +601,23 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards.any((e) =>
-                      c.sendController.repliedMessages.contains(e.value)) ||
-                  c.sendController.repliedMessages
-                      .contains(element.note.value?.value)) {
+              if (element.forwards
+                      .any((e) => c.send.repliedMessages.contains(e.value)) ||
+                  c.send.repliedMessages.contains(element.note.value?.value)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.sendController.repliedMessages.remove(e.value);
+                  c.send.repliedMessages.remove(e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.sendController.repliedMessages
-                      .remove(element.note.value!.value);
+                  c.send.repliedMessages.remove(element.note.value!.value);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.sendController.repliedMessages.insert(0, e.value);
+                  c.send.repliedMessages.insert(0, e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.sendController.repliedMessages
-                      .insert(0, element.note.value!.value);
+                  c.send.repliedMessages.insert(0, element.note.value!.value);
                 }
               }
             },
@@ -821,46 +816,22 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
-    return c.editController.editedMessage.value == null
-        ? MessageFieldView(
-            key: const Key('SendMessageField'),
-            controller: c.sendController
-              ..onSubmit = () async {
-                if (c.sendController.forwarding.value) {
-                  if (c.sendController.repliedMessages.isNotEmpty) {
-                    bool? result = await ChatForwardView.show(
-                      context,
-                      c.id,
-                      c.sendController.repliedMessages
-                          .map((e) => ChatItemQuote(item: e))
-                          .toList(),
-                      text: c.sendController.send.text,
-                      attachments: c.sendController.attachments
-                          .map((e) => e.value)
-                          .toList(),
-                    );
+    if (c.edit.editedMessage.value != null) {
+      return MessageFieldView(
+        key: const Key('EditMessageFieldView'),
+        controller: c.edit,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canAttach: false,
+      );
+    }
 
-                    if (result == true) {
-                      c.sendController.repliedMessages.clear();
-                      c.sendController.forwarding.value = false;
-                      c.sendController.attachments.clear();
-                      c.sendController.send.clear();
-                    }
-                  }
-                } else {
-                  c.sendMessage();
-                }
-              },
-            keepTyping: c.keepTyping,
-            onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-            enabledForwarding: true,
-          )
-        : MessageFieldView(
-            key: const Key('EditMessageFieldView'),
-            controller: c.editController,
-            onChatItemTap: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-            canAttachFile: false,
-          );
+    return MessageFieldView(
+      key: const Key('SendMessageField'),
+      controller: c.send,
+      onChanged: c.keepTyping,
+      onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+      canForward: true,
+    );
   }
 
   /// Cancels a [_horizontalScrollTimer] and starts it again with the provided

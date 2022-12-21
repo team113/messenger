@@ -47,210 +47,295 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the [MessageFieldView] widget.
+/// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
   const MessageFieldView({
-    Key? key,
-    this.keepTyping,
-    this.onChatItemTap,
-    this.messageFieldKey,
-    this.messageSendButtonKey,
-    this.enabledForwarding = false,
-    this.canAttachFile = true,
-    required this.controller,
-  }) : super(key: key);
+    super.key,
+    this.onChanged,
+    this.onItemPressed,
+    this.fieldKey,
+    this.sendKey,
+    this.canForward = false,
+    this.canAttach = true,
+    this.controller,
+  });
 
-  /// [Key] of message field.
-  final Key? messageFieldKey;
+  /// Optionally provided external [MessageFieldController].
+  final MessageFieldController? controller;
 
-  /// [Key] of message send button.
-  final Key? messageSendButtonKey;
+  /// [Key] of a [ReactiveTextField] this [MessageFieldView] has.
+  final Key? fieldKey;
 
-  /// Indicator whether forwarding message is enabled or not.
-  final bool enabledForwarding;
+  /// [Key] of a send button this [MessageFieldView] has.
+  final Key? sendKey;
 
-  /// Indicator whether can attach files to message or not.
-  final bool canAttachFile;
+  /// Indicator whether forwarding is possible within this [MessageFieldView].
+  final bool canForward;
 
-  /// [MessageFieldController] controller.
-  final MessageFieldController controller;
+  /// Indicator whether [Attachment]s can be attached to this
+  /// [MessageFieldView].
+  final bool canAttach;
 
-  /// Callback, animated to the [ChatMessage] with the provided [ChatItemId].
-  final Future<void> Function(ChatItemId id)? onChatItemTap;
+  /// Callback, called when a [ChatItem] being a reply or forward of this
+  /// [MessageFieldView] is pressed.
+  final Future<void> Function(ChatItemId id)? onItemPressed;
 
-  /// Callback, called when user typing in message field.
-  final void Function()? keepTyping;
+  /// Callback, called when the contents of this [MessageFieldView] changes.
+  final void Function()? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    Widget sendButton(MessageFieldController c) {
-      return WidgetButton(
-        onPressed: c.send.submit,
-        child: SizedBox(
-          width: 56,
-          height: 56,
-          child: Center(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: SizedBox(
-                key: messageSendButtonKey ?? const Key('Send'),
-                width: 25.18,
-                height: 22.85,
-                child: SvgLoader.asset(
-                  'assets/icons/send.svg',
-                  height: 22.85,
+    return GetBuilder(
+      init: controller ?? MessageFieldController(Get.find(), Get.find()),
+      builder: (MessageFieldController c) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            shadowColor: const Color(0x55000000),
+            iconTheme: const IconThemeData(color: Colors.blue),
+            inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              focusColor: Colors.white,
+              fillColor: Colors.white,
+              hoverColor: Colors.transparent,
+              filled: true,
+              isDense: true,
+              contentPadding: EdgeInsets.fromLTRB(
+                15,
+                PlatformUtils.isDesktop ? 30 : 23,
+                15,
+                0,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            child: Container(
+              key: const Key('SendField'),
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                boxShadow: const [
+                  CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+                ],
+              ),
+              child: ConditionalBackdropFilter(
+                condition: style.cardBlur > 0,
+                filter: ImageFilter.blur(
+                  sigmaX: style.cardBlur,
+                  sigmaY: style.cardBlur,
                 ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+                borderRadius: style.cardRadius,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LayoutBuilder(builder: (context, constraints) {
+                      bool grab = false;
+                      if (c.attachments.isNotEmpty) {
+                        grab = (125 + 2) * c.attachments.length >
+                            constraints.maxWidth - 16;
+                      }
 
-    return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          hoverColor: Colors.transparent,
-          filled: true,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
-      child: GetBuilder<MessageFieldController>(
-        init: controller,
-        global: false,
-        builder: (c) => SafeArea(
-          child: Container(
-            key: const Key('SendField'),
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              boxShadow: const [
-                CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-              ],
-            ),
-            child: ConditionalBackdropFilter(
-              condition: style.cardBlur > 0,
-              filter: ImageFilter.blur(
-                sigmaX: style.cardBlur,
-                sigmaY: style.cardBlur,
-              ),
-              borderRadius: style.cardRadius,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LayoutBuilder(builder: (context, constraints) {
-                    bool grab = false;
-                    if (c.attachments.isNotEmpty) {
-                      grab = (125 + 2) * c.attachments.length >
-                          constraints.maxWidth - 16;
-                    }
-
-                    return ConditionalBackdropFilter(
-                      condition: style.cardBlur > 0,
-                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                      borderRadius: BorderRadius.only(
-                        topLeft: style.cardRadius.topLeft,
-                        topRight: style.cardRadius.topRight,
-                      ),
-                      child: Container(
-                        color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                        child: AnimatedSize(
-                          duration: 400.milliseconds,
-                          curve: Curves.ease,
-                          child: Obx(() {
-                            return Container(
-                              width: double.infinity,
-                              padding: c.repliedMessages.isNotEmpty ||
-                                      c.attachments.isNotEmpty
-                                  ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                  : EdgeInsets.zero,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Obx(() {
-                                    if (c.editedMessage.value != null) {
-                                      return ConstrainedBox(
+                      return ConditionalBackdropFilter(
+                        condition: style.cardBlur > 0,
+                        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                        borderRadius: BorderRadius.only(
+                          topLeft: style.cardRadius.topLeft,
+                          topRight: style.cardRadius.topRight,
+                        ),
+                        child: Container(
+                          color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                          child: AnimatedSize(
+                            duration: 400.milliseconds,
+                            curve: Curves.ease,
+                            child: Obx(() {
+                              return Container(
+                                width: double.infinity,
+                                padding: c.repliedMessages.isNotEmpty ||
+                                        c.attachments.isNotEmpty
+                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                                    : EdgeInsets.zero,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Obx(() {
+                                      if (c.editedMessage.value != null) {
+                                        return ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                3,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                              4,
+                                              4,
+                                              4,
+                                              4,
+                                            ),
+                                            child: Dismissible(
+                                              key: Key(
+                                                  '${c.editedMessage.value?.id}'),
+                                              direction:
+                                                  DismissDirection.horizontal,
+                                              onDismissed: (_) =>
+                                                  c.editedMessage.value = null,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 2,
+                                                ),
+                                                child: buildEditedMessage(
+                                                  context,
+                                                  c,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return Container();
+                                      }
+                                    }),
+                                    if (c.quotes.isNotEmpty)
+                                      ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxHeight: MediaQuery.of(context)
                                                   .size
                                                   .height /
                                               3,
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            4,
-                                            4,
-                                            4,
-                                            4,
-                                          ),
-                                          child: Dismissible(
-                                            key: Key(
-                                                '${c.editedMessage.value?.id}'),
-                                            direction:
-                                                DismissDirection.horizontal,
-                                            onDismissed: (_) =>
-                                                c.editedMessage.value = null,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                              ),
-                                              child: buildEditedMessage(
-                                                context,
-                                                c,
-                                              ),
+                                        child: Obx(() {
+                                          return ReorderableListView(
+                                            shrinkWrap: true,
+                                            buildDefaultDragHandles:
+                                                PlatformUtils.isMobile,
+                                            onReorder: (int old, int to) {
+                                              if (old < to) {
+                                                --to;
+                                              }
+
+                                              final ChatItemQuote item =
+                                                  c.quotes.removeAt(old);
+                                              c.quotes.insert(to, item);
+
+                                              HapticFeedback.lightImpact();
+                                            },
+                                            proxyDecorator:
+                                                (child, i, animation) {
+                                              return AnimatedBuilder(
+                                                animation: animation,
+                                                builder: (
+                                                  BuildContext context,
+                                                  Widget? child,
+                                                ) {
+                                                  final double t = Curves
+                                                      .easeInOut
+                                                      .transform(
+                                                          animation.value);
+                                                  final double elevation =
+                                                      lerpDouble(0, 6, t)!;
+                                                  final Color color =
+                                                      Color.lerp(
+                                                    const Color(0x00000000),
+                                                    const Color(0x33000000),
+                                                    t,
+                                                  )!;
+
+                                                  return InitCallback(
+                                                    callback: HapticFeedback
+                                                        .selectionClick,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        boxShadow: [
+                                                          CustomBoxShadow(
+                                                            color: color,
+                                                            blurRadius:
+                                                                elevation,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: child,
+                                                    ),
+                                                  );
+                                                },
+                                                child: child,
+                                              );
+                                            },
+                                            reverse: true,
+                                            padding: const EdgeInsets.fromLTRB(
+                                              1,
+                                              0,
+                                              1,
+                                              0,
                                             ),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return Container();
-                                    }
-                                  }),
-                                  if (c.quotes.isNotEmpty)
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxHeight:
-                                            MediaQuery.of(context).size.height /
-                                                3,
+                                            children: c.quotes.map((e) {
+                                              return ReorderableDragStartListener(
+                                                key: Key('Handle_${e.item.id}'),
+                                                enabled:
+                                                    !PlatformUtils.isMobile,
+                                                index: c.quotes.indexOf(e),
+                                                child: Dismissible(
+                                                  key: Key('${e.item.id}'),
+                                                  direction: DismissDirection
+                                                      .horizontal,
+                                                  onDismissed: (_) {
+                                                    c.quotes.remove(e);
+                                                    if (c.quotes.isEmpty) {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }
+                                                  },
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      vertical: 2,
+                                                    ),
+                                                    child:
+                                                        buildForwardedMessage(
+                                                      context,
+                                                      e.item,
+                                                      c,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          );
+                                        }),
                                       ),
-                                      child: Obx(() {
-                                        return ReorderableListView(
+                                    if (c.repliedMessages.isNotEmpty)
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
+                                        ),
+                                        child: ReorderableListView(
                                           shrinkWrap: true,
                                           buildDefaultDragHandles:
                                               PlatformUtils.isMobile,
@@ -259,9 +344,9 @@ class MessageFieldView extends StatelessWidget {
                                               --to;
                                             }
 
-                                            final ChatItemQuote item =
-                                                c.quotes.removeAt(old);
-                                            c.quotes.insert(to, item);
+                                            final ChatItem item =
+                                                c.repliedMessages.removeAt(old);
+                                            c.repliedMessages.insert(to, item);
 
                                             HapticFeedback.lightImpact();
                                           },
@@ -310,298 +395,215 @@ class MessageFieldView extends StatelessWidget {
                                             1,
                                             0,
                                           ),
-                                          children: c.quotes.map((e) {
+                                          children: c.repliedMessages.map((e) {
                                             return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.item.id}'),
+                                              key: Key('Handle_${e.id}'),
                                               enabled: !PlatformUtils.isMobile,
-                                              index: c.quotes.indexOf(e),
+                                              index:
+                                                  c.repliedMessages.indexOf(e),
                                               child: Dismissible(
-                                                key: Key('${e.item.id}'),
+                                                key: Key('${e.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
                                                 onDismissed: (_) {
-                                                  c.quotes.remove(e);
-                                                  if (c.quotes.isEmpty) {
-                                                    Navigator.of(context).pop();
-                                                  }
+                                                  c.repliedMessages.remove(e);
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(
                                                     vertical: 2,
                                                   ),
-                                                  child: buildForwardedMessage(
+                                                  child: repliedMessage(
                                                     context,
-                                                    e.item,
+                                                    e,
                                                     c,
                                                   ),
                                                 ),
                                               ),
                                             );
                                           }).toList(),
-                                        );
-                                      }),
-                                    ),
-                                  if (c.repliedMessages.isNotEmpty)
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxHeight:
-                                            MediaQuery.of(context).size.height /
-                                                3,
-                                      ),
-                                      child: ReorderableListView(
-                                        shrinkWrap: true,
-                                        buildDefaultDragHandles:
-                                            PlatformUtils.isMobile,
-                                        onReorder: (int old, int to) {
-                                          if (old < to) {
-                                            --to;
-                                          }
-
-                                          final ChatItem item =
-                                              c.repliedMessages.removeAt(old);
-                                          c.repliedMessages.insert(to, item);
-
-                                          HapticFeedback.lightImpact();
-                                        },
-                                        proxyDecorator: (child, i, animation) {
-                                          return AnimatedBuilder(
-                                            animation: animation,
-                                            builder: (
-                                              BuildContext context,
-                                              Widget? child,
-                                            ) {
-                                              final double t = Curves.easeInOut
-                                                  .transform(animation.value);
-                                              final double elevation =
-                                                  lerpDouble(0, 6, t)!;
-                                              final Color color = Color.lerp(
-                                                const Color(0x00000000),
-                                                const Color(0x33000000),
-                                                t,
-                                              )!;
-
-                                              return InitCallback(
-                                                callback: HapticFeedback
-                                                    .selectionClick,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    boxShadow: [
-                                                      CustomBoxShadow(
-                                                        color: color,
-                                                        blurRadius: elevation,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: child,
-                                                ),
-                                              );
-                                            },
-                                            child: child,
-                                          );
-                                        },
-                                        reverse: true,
-                                        padding: const EdgeInsets.fromLTRB(
-                                          1,
-                                          0,
-                                          1,
-                                          0,
                                         ),
-                                        children: c.repliedMessages.map((e) {
-                                          return ReorderableDragStartListener(
-                                            key: Key('Handle_${e.id}'),
-                                            enabled: !PlatformUtils.isMobile,
-                                            index: c.repliedMessages.indexOf(e),
-                                            child: Dismissible(
-                                              key: Key('${e.id}'),
-                                              direction:
-                                                  DismissDirection.horizontal,
-                                              onDismissed: (_) {
-                                                c.repliedMessages.remove(e);
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  vertical: 2,
-                                                ),
-                                                child: repliedMessage(
-                                                  context,
-                                                  e,
-                                                  c,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
                                       ),
-                                    ),
-                                  if (c.attachments.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: MouseRegion(
-                                        cursor: grab
-                                            ? SystemMouseCursors.grab
-                                            : MouseCursor.defer,
-                                        opaque: false,
-                                        child: ScrollConfiguration(
-                                          behavior: CustomScrollBehavior(),
-                                          child: SingleChildScrollView(
-                                            clipBehavior: Clip.none,
-                                            physics: grab
-                                                ? null
-                                                : const NeverScrollableScrollPhysics(),
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: c.attachments
-                                                  .map(
-                                                    (e) => buildAttachment(
-                                                      context,
-                                                      e.value,
-                                                      e.key,
-                                                      c,
-                                                    ),
-                                                  )
-                                                  .toList(),
+                                    if (c.attachments.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: MouseRegion(
+                                          cursor: grab
+                                              ? SystemMouseCursors.grab
+                                              : MouseCursor.defer,
+                                          opaque: false,
+                                          child: ScrollConfiguration(
+                                            behavior: CustomScrollBehavior(),
+                                            child: SingleChildScrollView(
+                                              clipBehavior: Clip.none,
+                                              physics: grab
+                                                  ? null
+                                                  : const NeverScrollableScrollPhysics(),
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: c.attachments
+                                                    .map(
+                                                      (e) => buildAttachment(
+                                                        context,
+                                                        e.value,
+                                                        e.key,
+                                                        c,
+                                                      ),
+                                                    )
+                                                    .toList(),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
+                                    ]
+                                  ],
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      );
+                    }),
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 56),
+                      decoration: BoxDecoration(color: style.cardColor),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
+                            WidgetButton(
+                              onPressed: canAttach ? c.pickFile : null,
+                              child: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/attach.svg',
+                                      height: 22,
                                     ),
-                                  ]
-                                ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            WidgetButton(
+                              onPressed: canAttach
+                                  ? () => AttachmentSourceSelector.show(
+                                        context,
+                                        onPickFile: c.pickFile,
+                                        onTakePhoto: c.pickImageFromCamera,
+                                        onPickMedia: c.pickMedia,
+                                        onTakeVideo: c.pickVideoFromCamera,
+                                      )
+                                  : null,
+                              child: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/attach.svg',
+                                      height: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                                bottom: 13,
+                              ),
+                              child: Transform.translate(
+                                offset:
+                                    Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                                child: ReactiveTextField(
+                                  onChanged: onChanged,
+                                  key: fieldKey ?? const Key('MessageField'),
+                                  state: c.send,
+                                  hint: 'label_send_message_hint'.l10n,
+                                  minLines: 1,
+                                  maxLines: 7,
+                                  filled: false,
+                                  dense: true,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  style: style.boldBody.copyWith(fontSize: 17),
+                                  type: TextInputType.multiline,
+                                  textInputAction: TextInputAction.newline,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Obx(() {
+                            final Widget child;
+
+                            if (c.forwarding.value) {
+                              child = SizedBox(
+                                width: 26,
+                                height: 22,
+                                child: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  width: 26,
+                                  height: 22,
+                                ),
+                              );
+                            } else {
+                              child = SizedBox(
+                                key: sendKey ?? const Key('Send'),
+                                width: 25.18,
+                                height: 22.85,
+                                child: SvgLoader.asset(
+                                  'assets/icons/send.svg',
+                                  height: 22.85,
+                                ),
+                              );
+                            }
+
+                            return GestureDetector(
+                              onLongPress:
+                                  canForward ? c.forwarding.toggle : null,
+                              child: WidgetButton(
+                                onPressed: c.send.submit,
+                                child: SizedBox(
+                                  width: 56,
+                                  height: 56,
+                                  child: Center(
+                                    child: AnimatedSwitcher(
+                                      duration:
+                                          const Duration(milliseconds: 150),
+                                      child: AnimatedSwitcher(
+                                        duration: 300.milliseconds,
+                                        child: child,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             );
                           }),
-                        ),
+                        ],
                       ),
-                    );
-                  }),
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 56),
-                    decoration: BoxDecoration(color: style.cardColor),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
-                          WidgetButton(
-                            onPressed: canAttachFile ? c.pickFile : null,
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/attach.svg',
-                                    height: 22,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          WidgetButton(
-                            onPressed: canAttachFile
-                                ? () => AttachmentSourceSelector.show(
-                                      context,
-                                      onPickFile: c.pickFile,
-                                      onTakePhoto: c.pickImageFromCamera,
-                                      onPickMedia: c.pickMedia,
-                                      onTakeVideo: c.pickVideoFromCamera,
-                                    )
-                                : null,
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/attach.svg',
-                                    height: 22,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                              bottom: 13,
-                            ),
-                            child: Transform.translate(
-                              offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                              child: ReactiveTextField(
-                                onChanged: keepTyping,
-                                key: messageFieldKey ??
-                                    const Key('MessageField'),
-                                state: c.send,
-                                hint: 'label_send_message_hint'.l10n,
-                                minLines: 1,
-                                maxLines: 7,
-                                filled: false,
-                                dense: true,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                style: style.boldBody.copyWith(fontSize: 17),
-                                type: TextInputType.multiline,
-                                textInputAction: TextInputAction.newline,
-                              ),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onLongPress: c.forwarding.toggle,
-                          child: enabledForwarding
-                              ? Obx(
-                                  () => AnimatedSwitcher(
-                                    duration: 300.milliseconds,
-                                    child: c.forwarding.value == true
-                                        ? WidgetButton(
-                                            onPressed: c.send.submit,
-                                            child: SizedBox(
-                                              width: 56,
-                                              height: 56,
-                                              child: Center(
-                                                child: AnimatedSwitcher(
-                                                  duration: const Duration(
-                                                    milliseconds: 150,
-                                                  ),
-                                                  child: SizedBox(
-                                                    width: 26,
-                                                    height: 22,
-                                                    child: SvgLoader.asset(
-                                                      'assets/icons/forward.svg',
-                                                      width: 26,
-                                                      height: 22,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : sendButton(c),
-                                  ),
-                                )
-                              : sendButton(c),
-                        ),
-                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1454,7 +1456,7 @@ class MessageFieldView extends StatelessWidget {
         }
 
         return WidgetButton(
-          onPressed: () => onChatItemTap?.call(item.id),
+          onPressed: () => onItemPressed?.call(item.id),
           child: MouseRegion(
             opaque: false,
             onEnter: (d) => c.hoveredReply.value = item,

@@ -19,36 +19,36 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Wraps [DropTarget] widget with enabling only last [DropTarget].
+/// [DropTarget] allowed to be stacked over each other.
 class CustomDropTarget extends StatefulWidget {
   const CustomDropTarget({
-    required Key key,
+    required super.key,
     this.onDragDone,
     this.onDragEntered,
     this.onDragExited,
     required this.child,
-  }) : super(key: key);
+  });
 
-  /// Child [Widget].
+  /// [Widget] to wrap this [CustomDropTarget] around.
   final Widget child;
 
-  /// Callback called on [DropTarget.onDragDone].
+  /// Callback, called when [DropTarget.onDragDone].
   final void Function(DropDoneDetails)? onDragDone;
 
-  /// Callback called on [DropTarget.onDragEntered].
+  /// Callback, called when [DropTarget.onDragEntered].
   final void Function(DropEventDetails)? onDragEntered;
 
-  /// Callback called on [DropTarget.onDragExited].
+  /// Callback, called when [DropTarget.onDragExited].
   final void Function(DropEventDetails)? onDragExited;
 
   @override
   State<CustomDropTarget> createState() => _CustomDropTargetState();
 }
 
-/// State of [CustomDropTarget].
+/// State of a [CustomDropTarget].
 class _CustomDropTargetState extends State<CustomDropTarget> {
   /// List of [CustomDropTarget]s [Key]s.
-  static final RxList<Key> keys = RxList<Key>([]);
+  static final RxList<Key> keys = RxList();
 
   @override
   void initState() {

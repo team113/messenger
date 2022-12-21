@@ -83,27 +83,28 @@ class ChatForwardController extends GetxController {
   /// [Worker] to react on the [quotes] updates.
   late final Worker quotesChanges;
 
-  /// [MessageFieldController] controller.
-  late final MessageFieldController sendController;
+  /// [MessageFieldController] controller sending the [ChatMessage].
+  late final MessageFieldController send;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    sendController = MessageFieldController(
+    send = MessageFieldController(
       _chatService,
       _userService,
       onSubmit: () async {
         if (searchResults.value?.isEmpty != false) {
-          sendController.send.unsubmit();
+          send.send.unsubmit();
           return;
         }
-        sendController.send.status.value = RxStatus.loading();
-        sendController.send.editable.value = false;
+
+        send.send.status.value = RxStatus.loading();
+        send.send.editable.value = false;
 
         try {
-          List<Future> uploads = sendController.attachments
+          List<Future> uploads = send.attachments
               .whereType<LocalAttachment>()
               .map((e) => e.upload.value?.future)
               .whereNotNull()
@@ -112,26 +113,27 @@ class ChatForwardController extends GetxController {
             await Future.wait(uploads);
           }
 
-          if (sendController.attachments
-              .whereType<LocalAttachment>()
-              .isNotEmpty) {
-            throw const ConnectionException(ForwardChatItemsException(
-              ForwardChatItemsErrorCode.unknownAttachment,
-            ));
+          if (send.attachments.whereType<LocalAttachment>().isNotEmpty) {
+            throw const ConnectionException(
+              ForwardChatItemsException(
+                ForwardChatItemsErrorCode.unknownAttachment,
+              ),
+            );
           }
-          List<AttachmentId>? attachments = sendController.attachments.isEmpty
+
+          final List<AttachmentId>? attachments = send.attachments.isEmpty
               ? null
-              : sendController.attachments.map((a) => a.value.id).toList();
-          ChatMessageText? text = sendController.send.text.trim().isEmpty
-              ? null
-              : ChatMessageText(sendController.send.text.trim());
+              : send.attachments.map((a) => a.value.id).toList();
+
+          final ChatMessageText? text =
+              send.send.text.isEmpty ? null : ChatMessageText(send.send.text);
 
           List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {
               return _chatService.forwardChatItems(
                 from,
                 e.chat.value.id,
-                sendController.quotes,
+                send.quotes,
                 text: text,
                 attachments: attachments,
               );
@@ -139,10 +141,11 @@ class ChatForwardController extends GetxController {
             ...searchResults.value!.users.map((e) async {
               Chat? dialog = e.user.value.dialog;
               dialog ??= (await _chatService.createDialogChat(e.id)).chat.value;
+
               return _chatService.forwardChatItems(
                 from,
                 dialog.id,
-                sendController.quotes,
+                send.quotes,
                 text: text,
                 attachments: attachments,
               );
@@ -152,10 +155,11 @@ class ChatForwardController extends GetxController {
               dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
                   .chat
                   .value;
+
               return _chatService.forwardChatItems(
                 from,
                 dialog.id,
-                sendController.quotes,
+                send.quotes,
                 text: text,
                 attachments: attachments,
               );
@@ -170,12 +174,13 @@ class ChatForwardController extends GetxController {
           MessagePopup.error(e);
           rethrow;
         } finally {
-          sendController.send.unsubmit();
+          send.send.unsubmit();
         }
       },
-    );
-    sendController.quotes.addAll(quotes);
-    sendController.attachments.addAll(attachments);
+    )..onInit();
+
+    send.quotes.addAll(quotes);
+    send.attachments.addAll(attachments);
 
     quotesChanges = ever(quotes, (_) {
       if (quotes.isEmpty) {
@@ -189,7 +194,6 @@ class ChatForwardController extends GetxController {
   @override
   void onClose() {
     quotesChanges.dispose();
-
     super.onClose();
   }
 
@@ -199,7 +203,7 @@ class ChatForwardController extends GetxController {
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      sendController.addPlatformAttachment(PlatformFile(
+      send.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),
