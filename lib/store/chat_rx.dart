@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -62,7 +61,7 @@ class HiveRxChat extends RxChat {
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        callSize = Rx<Size?>(hiveChat.value.callSize.val);
+        callPrefs = Rx<CallPreferences?>(hiveChat.value.callPrefs);
 
   @override
   final Rx<Chat> chat;
@@ -89,7 +88,7 @@ class HiveRxChat extends RxChat {
   final Rx<ChatMessage?> draft;
 
   @override
-  final Rx<Size?> callSize;
+  final Rx<CallPreferences?> callPrefs;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;

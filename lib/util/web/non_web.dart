@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 
@@ -118,7 +117,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-    Size? size,
+    CallPreferences? localPrefs,
   }) =>
       false;
 
@@ -165,12 +164,12 @@ class WebUtils {
   static bool containsCalls() => false;
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, WebCallPreferences prefs) {
+  static void setCallPreferences(ChatId chatId, CallPreferences prefs) {
     // No-op.
   }
 
-  /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
-  static WebCallPreferences? getCallPreferences(ChatId chatId) => null;
+  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
+  static CallPreferences? getCallPreferences(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {

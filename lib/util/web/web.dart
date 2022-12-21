@@ -359,24 +359,24 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-    Size? size,
+    CallPreferences? localPrefs,
   }) {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    WebCallPreferences? prefs = getCallPreferences(chatId);
+    CallPreferences? prefs = getCallPreferences(chatId);
 
-    final width = size?.width.toInt() ?? min(prefs?.width ?? 500, screenW);
-    final height = size?.height.toInt() ?? min(prefs?.height ?? 500, screenH);
+    final width = localPrefs?.width ?? min(prefs?.width ?? 500, screenW);
+    final height = localPrefs?.height ?? min(prefs?.height ?? 500, screenH);
 
-    var left = prefs?.left ?? screenW - 50 - width;
+    var left = localPrefs?.left ?? prefs?.left ?? screenW - 50 - width;
     if (left < 0) {
       left = 0;
     } else if (left + width > screenW) {
       left = screenW - width;
     }
 
-    var top = prefs?.top ?? 50;
+    var top = localPrefs?.top ?? prefs?.top ?? 50;
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {
@@ -471,15 +471,15 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, WebCallPreferences prefs) =>
+  static void setCallPreferences(ChatId chatId, CallPreferences prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.toJson());
 
-  /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
-  static WebCallPreferences? getCallPreferences(ChatId chatId) {
+  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
+  static CallPreferences? getCallPreferences(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return WebCallPreferences.fromJson(json.decode(data));
+      return CallPreferences.fromJson(json.decode(data));
     }
 
     return null;

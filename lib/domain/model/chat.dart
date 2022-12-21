@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -55,11 +54,11 @@ class Chat extends HiveObject {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
-    HiveSize? callSize,
+    CallPreferences? callPrefs,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now(),
-        callSize = callSize ?? HiveSize(500, 500);
+        callPrefs = callPrefs ?? CallPreferences();
 
   /// Unique ID of this [Chat].
   @HiveField(0)
@@ -160,7 +159,7 @@ class Chat extends HiveObject {
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
   @HiveField(18)
-  HiveSize callSize;
+  CallPreferences callPrefs;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
@@ -286,17 +285,34 @@ class ChatFavoritePosition extends NewType<double>
   int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
 }
 
-@HiveType(typeId: ModelTypeId.size)
-class HiveSize {
-  /// X coordinate of this [CropPoint] in pixels.
-  @HiveField(0)
-  double x;
+@HiveType(typeId: ModelTypeId.callPreferences)
+class CallPreferences {
+  CallPreferences({this.width, this.height, this.left, this.top});
 
-  /// Y coordinate of this [CropPoint] in pixels.
-  @HiveField(1)
-  double y;
+  /// Width of the popup window these [CallPreferences] are about.
+  final int? width;
 
-  Size get val => Size(x, y);
+  /// Height of the popup window these [CallPreferences] are about.
+  final int? height;
 
-  HiveSize(this.x, this.y);
+  /// Left position of the popup window these [CallPreferences] are about.
+  final int? left;
+
+  /// Top position of the popup window these [CallPreferences] are about.
+  final int? top;
+
+  /// Constructs a [CallPreferences] from the provided [data].
+  factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {
+    return CallPreferences(
+      width: data['width'],
+      height: data['height'],
+      left: data['left'],
+      top: data['top'],
+    );
+  }
+
+  /// Returns a [Map] containing data of these [CallPreferences].
+  Map<String, dynamic> toJson() {
+    return {'width': width, 'height': height, 'left': left, 'top': top};
+  }
 }

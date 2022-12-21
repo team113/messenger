@@ -87,8 +87,7 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
-    Hive.maybeRegisterAdapter(HiveSizeAdapter());
-    Hive.maybeRegisterAdapter(HiveSizeAdapter());
+    Hive.maybeRegisterAdapter(CallPreferencesAdapter());
   }
 
   /// Returns a list of [Chat]s from [Hive].

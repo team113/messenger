@@ -376,9 +376,8 @@ class CallWorker extends DisposableService {
         }
       } else if (s.key?.startsWith('prefs_call_') == true) {
         ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
-        var call = WebCallPreferences.fromJson(json.decode(s.newValue!));
-        _callService.updateCallSize(
-            chatId, Size(call.width!.toDouble(), call.height!.toDouble()));
+        var prefs = CallPreferences.fromJson(json.decode(s.newValue!));
+        _callService.updateCallPreferences(chatId, prefs);
       }
     });
   }

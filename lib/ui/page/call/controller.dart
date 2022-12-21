@@ -567,6 +567,19 @@ class CallController extends GetxController {
         secondaryBottomShifted = secondaryBottom.value;
       }
 
+      if (chat.value?.callPrefs.value?.top != null) {
+        top.value = chat.value!.callPrefs.value!.top!.toDouble();
+      }
+      if (chat.value?.callPrefs.value?.left != null) {
+        left.value = chat.value!.callPrefs.value!.left!.toDouble();
+      }
+      if (chat.value?.callPrefs.value?.width != null) {
+        width.value = chat.value!.callPrefs.value!.width!.toDouble();
+      }
+      if (chat.value?.callPrefs.value?.height != null) {
+        height.value = chat.value!.callPrefs.value!.height!.toDouble();
+      }
+
       // Update the [WebUtils.title] if this call is in a popup.
       if (WebUtils.isPopup) {
         _titleSubscription?.cancel();
@@ -836,6 +849,16 @@ class CallController extends GetxController {
     _settingsWorker?.dispose();
 
     secondaryEntry?.remove();
+
+    _chatService.updateCallPreferences(
+      chat.value!.id,
+      CallPreferences(
+        top: top.value.toInt(),
+        left: left.value.toInt(),
+        width: width.value.toInt(),
+        height: height.value.toInt(),
+      ),
+    );
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();

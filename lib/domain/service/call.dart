@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -62,8 +61,8 @@ class CallService extends DisposableService {
   Future<RxChat?> getChat(ChatId chatId) async =>
       await _chatService.get(chatId);
 
-  Future<void> updateCallSize(ChatId id, Size size) =>
-      _chatService.updateCallSize(id, size);
+  Future<void> updateCallPreferences(ChatId id, CallPreferences prefs) =>
+      _chatService.updateCallPreferences(id, prefs);
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(
