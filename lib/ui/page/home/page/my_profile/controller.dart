@@ -46,10 +46,7 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(
-    this._myUserService,
-    this._settingsRepo,
-  );
+  MyProfileController(this._myUserService, this._settingsRepo);
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -58,14 +55,10 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [CarouselController] of the [MyUser.gallery] used to jump between gallery
-  /// items on [MyUser] updates.
-  CarouselController? galleryController;
-
-  /// [FlutterListViewController] of the profile sections [FlutterListView].
+  /// [FlutterListViewController] of the profile's [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
-  /// Index of the initial profile page section.
+  /// Index of the initial profile page section to show in a [FlutterListView].
   int listInitIndex = 0;
 
   /// [OngoingCall] used for getting local media devices.
@@ -388,24 +381,21 @@ class MyProfileController extends GetxController {
       if (result != null) {
         avatarUpload.value = RxStatus.loading();
 
-        List<GalleryItemId> deleted = [];
-
-        for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-          deleted.add(item.id);
+        final List<Future> futures = [];
+        for (var e in (myUser.value?.gallery ?? []).map((e) => e.id)) {
+          futures.add(_myUserService.deleteGalleryItem(e));
         }
 
-        for (var e in deleted) {
-          _myUserService.deleteGalleryItem(e);
-        }
-
-        List<Future<ImageGalleryItem?>> futures = result.files
+        List<Future<ImageGalleryItem?>> uploads = result.files
             .map((e) => NativeFile.fromPlatformFile(e))
             .map((e) => _myUserService.uploadGalleryItem(e))
             .toList();
-        ImageGalleryItem? item = (await Future.wait(futures)).firstOrNull;
+        ImageGalleryItem? item = (await Future.wait(uploads)).firstOrNull;
         if (item != null) {
-          _updateAvatar(item.id);
+          futures.add(_updateAvatar(item.id));
         }
+
+        await Future.wait(futures);
       }
     } finally {
       avatarUpload.value = RxStatus.empty();

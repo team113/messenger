@@ -31,7 +31,7 @@ export 'view.dart';
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
 
-  /// Auth service used for logout.
+  /// [AuthService] used in a [logout].
   final AuthService _authService;
 
   /// Service managing [MyUser].
@@ -54,9 +54,4 @@ class MenuTabController extends GetxController {
 
   /// Logs out the current session and go to the [Routes.auth] page.
   Future<String> logout() => _authService.logout();
-
-  /// Sets the [MyUser.presence].
-  Future<void> setPresence(Presence presence) async {
-    await _myUserService.updateUserPresence(presence);
-  }
 }

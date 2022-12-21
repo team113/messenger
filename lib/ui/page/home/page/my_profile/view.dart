@@ -79,7 +79,7 @@ class MyProfileView extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 WidgetButton(
-                                  onPressed: () async => await c.uploadAvatar(),
+                                  onPressed: c.uploadAvatar,
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     radius: 100,
@@ -478,7 +478,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
                   style: const TextStyle(
@@ -636,7 +636,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               },
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
+              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
               child: RichText(
                 text: TextSpan(
                   style: const TextStyle(

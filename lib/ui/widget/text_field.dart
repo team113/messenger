@@ -160,10 +160,13 @@ class ReactiveTextField extends StatelessWidget {
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
     }
 
+    // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
       return Obx(() {
         return WidgetButton(
-          onPressed: onSuffixPressed,
+          onPressed: state.approvable && state.changed.value
+              ? state.submit
+              : onSuffixPressed,
           child: ElasticAnimatedSwitcher(
             child: (state.approvable ||
                     suffix != null ||
@@ -206,23 +209,16 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            constraints: BoxConstraints.tight(
-                                              const Size(76, 24),
-                                            ),
+                                        ? UnconstrainedBox(
                                             key: const ValueKey('Approve'),
-                                            onPressed: state.submit,
-                                            icon: UnconstrainedBox(
-                                              child: Text(
-                                                'btn_save'.l10n,
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
+                                            child: Text(
+                                              'btn_save'.l10n,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                                fontWeight: FontWeight.normal,
                                               ),
                                             ),
                                           )
@@ -238,17 +234,14 @@ class ReactiveTextField extends StatelessWidget {
                       ),
                     ),
                   )
-                : const SizedBox(
-                    width: 1,
-                    height: 0,
-                  ),
+                : const SizedBox(width: 1, height: 0),
           ),
         );
       });
     }
 
-    return Obx(
-      () => Theme(
+    return Obx(() {
+      return Theme(
         data: Theme.of(context).copyWith(
           platform: TargetPlatform.macOS,
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
@@ -315,11 +308,7 @@ class ReactiveTextField extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            top: 4,
-                          ),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
                             style: (style ?? const TextStyle()).copyWith(
@@ -333,8 +322,8 @@ class ReactiveTextField extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

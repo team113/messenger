@@ -15,11 +15,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 
-/// Button based on the [ReactiveTextField].
+/// [ReactiveTextField]-styled button.
 class FieldButton extends StatelessWidget {
   const FieldButton({
     Key? key,
@@ -46,12 +46,12 @@ class FieldButton extends StatelessWidget {
   /// Maximum number of lines to show at one time, wrapping if necessary.
   final int? maxLines;
 
-  /// Callback called when this [FieldButton] is pressed.
+  /// Callback, called when this [FieldButton] is pressed.
   final VoidCallback? onPressed;
 
-  /// Callback called when the [trailing] is pressed.
+  /// Callback, called when the [trailing] is pressed.
   ///
-  /// Does nothing if the [trailing] is `null`.
+  /// Only meaningful if the [trailing] is `null`.
   final VoidCallback? onTrailingPressed;
 
   /// Optional trailing [Widget].
@@ -65,16 +65,13 @@ class FieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget widget = WidgetButton(
+    final Widget widget = WidgetButton(
       behavior: HitTestBehavior.deferToChild,
       onPressed: onPressed,
       child: IgnorePointer(
         child: ReactiveTextField(
           textAlign: textAlign,
-          state: TextFieldState(
-            text: text,
-            editable: false,
-          ),
+          state: TextFieldState(text: text, editable: false),
           label: hint,
           maxLines: maxLines,
           trailing: trailing,
@@ -92,12 +89,13 @@ class FieldButton extends StatelessWidget {
       alignment: Alignment.centerRight,
       children: [
         widget,
-        WidgetButton(
-          onPressed: onTrailingPressed,
-          child: Container(
-            margin: const EdgeInsets.only(right: 10),
-            width: 30,
-            height: 30,
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: WidgetButton(
+              onPressed: onTrailingPressed,
+              child: const SizedBox(width: 50, height: double.infinity),
+            ),
           ),
         ),
       ],
