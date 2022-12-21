@@ -382,7 +382,10 @@ class MyProfileController extends GetxController {
         avatarUpload.value = RxStatus.loading();
 
         final List<Future> futures = [];
-        for (var e in (myUser.value?.gallery ?? []).map((e) => e.id)) {
+        for (var e in List.from(
+          myUser.value?.gallery ?? [].map((e) => e.id),
+          growable: false,
+        )) {
           futures.add(_myUserService.deleteGalleryItem(e));
         }
 
