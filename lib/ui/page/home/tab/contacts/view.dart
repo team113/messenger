@@ -186,6 +186,7 @@ class ContactsTabView extends StatelessWidget {
             ),
           ],
         ),
+        extendBodyBehindAppBar: true,
         body: Obx(() {
           if (!c.contactsReady.value) {
             return const Center(child: CircularProgressIndicator());
@@ -202,8 +203,8 @@ class ContactsTabView extends StatelessWidget {
               );
             } else if (c.elements.isNotEmpty) {
               child = AnimationLimiter(
+                key: const Key('Search'),
                 child: ListView.builder(
-                  key: const Key('Search'),
                   controller: ScrollController(),
                   itemCount: c.elements.length,
                   itemBuilder: (_, i) {
@@ -249,15 +250,7 @@ class ContactsTabView extends StatelessWidget {
                       duration: const Duration(milliseconds: 375),
                       child: SlideAnimation(
                         horizontalOffset: 50,
-                        child: FadeInAnimation(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: i == 0 ? 3 : 0,
-                              bottom: i == c.elements.length - 1 ? 4 : 0,
-                            ),
-                            child: child,
-                          ),
-                        ),
+                        child: FadeInAnimation(child: child),
                       ),
                     );
                   },

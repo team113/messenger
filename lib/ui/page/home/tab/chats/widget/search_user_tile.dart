@@ -59,7 +59,7 @@ class SearchUserTile extends StatelessWidget {
           null;
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
           key: key,
           contact: contact,

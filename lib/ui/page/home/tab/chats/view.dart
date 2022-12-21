@@ -186,158 +186,158 @@ class ChatsTabView extends StatelessWidget {
             ],
           ),
           body: Obx(() {
-            if (c.chatsReady.value) {
-              final Widget? child;
-
-              if (c.search.value?.search.isEmpty.value == false) {
-                if (c.search.value!.searchStatus.value.isLoading &&
-                    c.elements.isEmpty) {
-                  child = const Center(
-                    key: Key('Loading'),
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (c.elements.isNotEmpty) {
-                  child = AnimationLimiter(
-                    child: ListView.builder(
-                      key: const Key('Search'),
-                      controller: ScrollController(),
-                      itemCount: c.elements.length,
-                      itemBuilder: (_, i) {
-                        final ListElement element = c.elements[i];
-                        final Widget child;
-
-                        if (element is ChatElement) {
-                          final RxChat chat = element.chat;
-                          child = Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: RecentChatTile(
-                              chat,
-                              key: Key('SearchChat_${chat.id}'),
-                              me: c.me,
-                              getUser: c.getUser,
-                              onJoin: () => c.joinCall(chat.id),
-                              onDrop: () => c.dropCall(chat.id),
-                              inCall: () => c.inCall(chat.id),
-                            ),
-                          );
-                        } else if (element is ContactElement) {
-                          child = SearchUserTile(
-                            key: Key('SearchContact_${element.contact.id}'),
-                            contact: element.contact,
-                            onTap: () => c.openChat(contact: element.contact),
-                          );
-                        } else if (element is UserElement) {
-                          child = SearchUserTile(
-                            key: Key('SearchUser_${element.user.id}'),
-                            user: element.user,
-                            onTap: () => c.openChat(user: element.user),
-                          );
-                        } else if (element is DividerElement) {
-                          child = Center(
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                              width: double.infinity,
-                              child: Center(
-                                child: Text(
-                                  element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          child = const SizedBox();
-                        }
-
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  top: i == 0 ? 3 : 0,
-                                  bottom: i == c.elements.length - 1 ? 4 : 0,
-                                ),
-                                child: child,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                } else {
-                  child = Center(
-                    key: const Key('NothingFound'),
-                    child: Text('label_nothing_found'.l10n),
-                  );
-                }
-              } else {
-                if (c.chats.isEmpty) {
-                  child = Center(
-                    key: const Key('NoChats'),
-                    child: Text('label_no_chats'.l10n),
-                  );
-                } else {
-                  child = AnimationLimiter(
-                    key: const Key('Chats'),
-                    child: ListView.builder(
-                      controller: ScrollController(),
-                      itemCount: c.chats.length,
-                      itemBuilder: (_, i) {
-                        final RxChat chat = c.chats[i];
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: RecentChatTile(
-                                  chat,
-                                  key: Key('RecentChat_${chat.id}'),
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onJoin: () => c.joinCall(chat.id),
-                                  onDrop: () => c.dropCall(chat.id),
-                                  onLeave: () => c.leaveChat(chat.id),
-                                  onHide: () => c.hideChat(chat.id),
-                                  inCall: () => c.inCall(chat.id),
-                                  onMute: () => c.muteChat(chat.id),
-                                  onUnmute: () => c.unmuteChat(chat.id),
-                                  onFavorite: () => c.favoriteChat(chat.id),
-                                  onUnfavorite: () => c.unfavoriteChat(chat.id),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: ContextMenuInterceptor(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: child,
-                  ),
-                ),
-              );
+            if (!c.chatsReady.value) {
+              return const Center(child: CircularProgressIndicator());
             }
 
-            return const Center(child: CircularProgressIndicator());
+            final Widget? child;
+
+            if (c.search.value?.search.isEmpty.value == false) {
+              if (c.search.value!.searchStatus.value.isLoading &&
+                  c.elements.isEmpty) {
+                child = const Center(
+                  key: Key('Loading'),
+                  child: CircularProgressIndicator(),
+                );
+              } else if (c.elements.isNotEmpty) {
+                child = AnimationLimiter(
+                  child: ListView.builder(
+                    key: const Key('Search'),
+                    controller: ScrollController(),
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      final ListElement element = c.elements[i];
+                      final Widget child;
+
+                      if (element is ChatElement) {
+                        final RxChat chat = element.chat;
+                        child = Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: RecentChatTile(
+                            chat,
+                            key: Key('SearchChat_${chat.id}'),
+                            me: c.me,
+                            getUser: c.getUser,
+                            onJoin: () => c.joinCall(chat.id),
+                            onDrop: () => c.dropCall(chat.id),
+                            inCall: () => c.inCall(chat.id),
+                          ),
+                        );
+                      } else if (element is ContactElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchContact_${element.contact.id}'),
+                          contact: element.contact,
+                          onTap: () => c.openChat(contact: element.contact),
+                        );
+                      } else if (element is UserElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchUser_${element.user.id}'),
+                          user: element.user,
+                          onTap: () => c.openChat(user: element.user),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: i == 0 ? 3 : 0,
+                                bottom: i == c.elements.length - 1 ? 4 : 0,
+                              ),
+                              child: child,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              } else {
+                child = Center(
+                  key: const Key('NothingFound'),
+                  child: Text('label_nothing_found'.l10n),
+                );
+              }
+            } else {
+              if (c.chats.isEmpty) {
+                child = Center(
+                  key: const Key('NoChats'),
+                  child: Text('label_no_chats'.l10n),
+                );
+              } else {
+                child = AnimationLimiter(
+                  key: const Key('Chats'),
+                  child: ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: c.chats.length,
+                    itemBuilder: (_, i) {
+                      final RxChat chat = c.chats[i];
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: RecentChatTile(
+                                chat,
+                                key: Key('RecentChat_${chat.id}'),
+                                me: c.me,
+                                getUser: c.getUser,
+                                onJoin: () => c.joinCall(chat.id),
+                                onDrop: () => c.dropCall(chat.id),
+                                onLeave: () => c.leaveChat(chat.id),
+                                onHide: () => c.hideChat(chat.id),
+                                inCall: () => c.inCall(chat.id),
+                                onMute: () => c.muteChat(chat.id),
+                                onUnmute: () => c.unmuteChat(chat.id),
+                                onFavorite: () => c.favoriteChat(chat.id),
+                                onUnfavorite: () => c.unfavoriteChat(chat.id),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            }
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: ContextMenuInterceptor(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                ),
+              ),
+            );
           }),
         );
       },
