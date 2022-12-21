@@ -57,7 +57,7 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
-    this.onChanged,
+    this.onSelected,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -119,8 +119,9 @@ class SearchController extends GetxController {
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
 
-  /// Callback, called when selected items was changed.
-  final void Function(SearchViewResults? results)? onChanged;
+  /// Callback, called every time the [selectedContacts], [selectedChats] and
+  /// [selectedUsers] change.
+  final void Function(SearchViewResults? results)? onSelected;
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -208,6 +209,7 @@ class SearchController extends GetxController {
         selectedContacts.add(contact);
       }
     }
+
     if (user != null) {
       if (selectedUsers.contains(user)) {
         selectedUsers.remove(user);
@@ -215,6 +217,7 @@ class SearchController extends GetxController {
         selectedUsers.add(user);
       }
     }
+
     if (chat != null) {
       if (selectedChats.contains(chat)) {
         selectedChats.remove(chat);
@@ -223,13 +226,11 @@ class SearchController extends GetxController {
       }
     }
 
-    onChanged?.call(
-      SearchViewResults(
-        selectedChats,
-        selectedUsers,
-        selectedContacts,
-      ),
-    );
+    if (contact != null || user != null || chat != null) {
+      onSelected?.call(
+        SearchViewResults(selectedChats, selectedUsers, selectedContacts),
+      );
+    }
   }
 
   /// Searches the [User]s based on the provided [query].
@@ -347,7 +348,7 @@ class SearchController extends GetxController {
       ...chats.values,
       ...recent.values,
       ...contacts.values,
-      ...users.values
+      ...users.values,
     ].elementAt(i);
   }
 
@@ -553,19 +554,19 @@ class SearchController extends GetxController {
   }
 }
 
-/// [SearchView] selected items.
+/// Combined [List]s of [RxChat]s, [RxUser]s and [RxChatContact]s.
 class SearchViewResults {
   const SearchViewResults(this.chats, this.users, this.contacts);
 
-  /// Selected [Chat]s.
+  /// [RxChat]s themselves.
   final List<RxChat> chats;
 
-  /// Selected [User]s.
+  /// [RxUser]s themselves.
   final List<RxUser> users;
 
-  /// Selected [ChatContact]s.
+  /// [RxChatContact]s themselves.
   final List<RxChatContact> contacts;
 
-  /// Indicates whether [chats], [users] and [contacts] are empty or not.
+  /// Indicates whether [chats], [users] and [contacts] are empty.
   bool get isEmpty => chats.isEmpty && users.isEmpty && contacts.isEmpty;
 }
