@@ -614,11 +614,6 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
-fcm_user_added_user = {$author} добавил {$user}
-fcm_user_added_you_to_group  = {$user} добавил Вас в группу
-fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
-fcm_user_left_group = {$user} покинул группу
-fcm_user_removed_user = {$author} удалил {$user}
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_users = Пользователи
 label_video = Видео
