@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
