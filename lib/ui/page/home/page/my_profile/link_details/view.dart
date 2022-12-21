@@ -59,7 +59,7 @@ class LinkDetailsView extends StatelessWidget {
           ModalPopupHeader(
             header: Center(
               child: Text(
-                'label_your_chat_link'.l10n,
+                'label_your_direct_link'.l10n,
                 style: thin?.copyWith(fontSize: 18),
               ),
             ),

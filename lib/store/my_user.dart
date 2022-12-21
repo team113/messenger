@@ -357,7 +357,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -390,10 +390,19 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
+
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
+      if (e is EventUserGalleryItemAdded) {
+        return e.galleryItem;
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -698,6 +707,14 @@ class MyUserRepository implements AbstractMyUserRepository {
           event as EventUserDirectLinkUpdated;
           userEntity.value.chatDirectLink = event.directLink;
           break;
+
+        case MyUserEventKind.blacklistRecordAdded:
+          // TODO: Handle this case.
+          break;
+
+        case MyUserEventKind.blacklistRecordRemoved:
+          // TODO: Handle this case.
+          break;
       }
     }
 
@@ -882,6 +899,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

@@ -134,6 +134,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.3.0"
+  build_cli_annotations:
+    dependency: transitive
+    description:
+      name: build_cli_annotations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
   build_config:
     dependency: transitive
     description:
@@ -253,6 +260,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.16.0"
+  colorize:
+    dependency: transitive
+    description:
+      name: colorize
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   connectivity_plus:
     dependency: transitive
     description:
@@ -526,7 +540,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b2e0bb6c15c524555413a3c4b1cc184ffb0fb231
+      resolved-ref: "894c183b4e0410667dfd7ad62e75dc4d72850aa9"
       url: "https://github.com/krida2000/flutter_list_view.git"
     source: git
     version: "1.1.18"
@@ -564,7 +578,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.44.0"
+    version: "1.48.1"
   flutter_staggered_animations:
     dependency: "direct main"
     description:
@@ -917,16 +931,14 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.a909030f9a6378036bb0571611fc9a3fe44fe917"
+    version: "0.8.0-dev+rev.1117c353c5d8ccc7287ffeaa39ac058f40fbaf37"
   medea_jason:
     dependency: "direct main"
     description:
-      path: flutter
-      ref: HEAD
-      resolved-ref: "34f37e9e3c3a5657445a2412070e3db4a49e01bc"
-      url: "https://github.com/instrumentisto/medea-jason.git"
-    source: git
-    version: "0.3.0-dev"
+      name: medea_jason
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3"
   meta:
     dependency: transitive
     description:
@@ -1223,6 +1235,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1"
+  puppeteer:
+    dependency: transitive
+    description:
+      name: puppeteer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.15.0"
   recase:
     dependency: transitive
     description:
@@ -1328,6 +1347,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.2"
+  shelf_static:
+    dependency: transitive
+    description:
+      name: shelf_static
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   shelf_web_socket:
     dependency: transitive
     description:
@@ -1445,6 +1471,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.13.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   typed_data:
     dependency: transitive
     description:
@@ -1670,5 +1703,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.0 <3.0.0"
+  dart: ">=2.18.0 <3.0.0"
   flutter: ">=3.3.0"

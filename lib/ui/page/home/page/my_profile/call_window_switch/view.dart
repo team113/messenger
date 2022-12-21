@@ -105,8 +105,8 @@ class CallWindowSwitchView extends StatelessWidget {
                                   Expanded(
                                     child: Text(
                                       i == 0
-                                          ? 'label_open_calls_in_popup'
-                                          : 'label_open_calls_in_main_app',
+                                          ? 'label_open_calls_in_window'.l10n
+                                          : 'label_open_calls_in_app'.l10n,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(fontSize: 15),
