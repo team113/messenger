@@ -186,18 +186,22 @@ class ChatsTabView extends StatelessWidget {
             ],
           ),
           body: Obx(() {
-            if (c.chatsReady.value) {
-              final Widget? child;
+            if (!c.chatsReady.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              if (c.search.value?.search.isEmpty.value == false) {
-                if (c.search.value!.searchStatus.value.isLoading &&
-                    c.elements.isEmpty) {
-                  child = const Center(
-                    key: Key('Loading'),
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (c.elements.isNotEmpty) {
-                  child = ListView.builder(
+            final Widget? child;
+
+            if (c.search.value?.search.isEmpty.value == false) {
+              if (c.search.value!.searchStatus.value.isLoading &&
+                  c.elements.isEmpty) {
+                child = const Center(
+                  key: Key('Loading'),
+                  child: CircularProgressIndicator(),
+                );
+              } else if (c.elements.isNotEmpty) {
+                child = AnimationLimiter(
+                  child: ListView.builder(
                     key: const Key('Search'),
                     controller: ScrollController(),
                     itemCount: c.elements.length,
@@ -269,72 +273,70 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     },
-                  );
-                } else {
-                  child = Center(
-                    key: const Key('NothingFound'),
-                    child: Text('label_nothing_found'.l10n),
-                  );
-                }
+                  ),
+                );
               } else {
-                if (c.chats.isEmpty) {
-                  child = Center(
-                    key: const Key('NoChats'),
-                    child: Text('label_no_chats'.l10n),
-                  );
-                } else {
-                  child = AnimationLimiter(
-                    key: const Key('Chats'),
-                    child: ListView.builder(
-                      itemCount: c.chats.length,
-                      itemBuilder: (_, i) {
-                        final RxChat chat = c.chats[i];
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: RecentChatTile(
-                                  chat,
-                                  key: Key('RecentChat_${chat.id}'),
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onJoin: () => c.joinCall(chat.id),
-                                  onDrop: () => c.dropCall(chat.id),
-                                  onLeave: () => c.leaveChat(chat.id),
-                                  onHide: () => c.hideChat(chat.id),
-                                  inCall: () => c.inCall(chat.id),
-                                  onMute: () => c.muteChat(chat.id),
-                                  onUnmute: () => c.unmuteChat(chat.id),
-                                  onFavorite: () => c.favoriteChat(chat.id),
-                                  onUnfavorite: () => c.unfavoriteChat(chat.id),
-                                ),
+                child = Center(
+                  key: const Key('NothingFound'),
+                  child: Text('label_nothing_found'.l10n),
+                );
+              }
+            } else {
+              if (c.chats.isEmpty) {
+                child = Center(
+                  key: const Key('NoChats'),
+                  child: Text('label_no_chats'.l10n),
+                );
+              } else {
+                child = AnimationLimiter(
+                  key: const Key('Chats'),
+                  child: ListView.builder(
+                    itemCount: c.chats.length,
+                    itemBuilder: (_, i) {
+                      final RxChat chat = c.chats[i];
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: RecentChatTile(
+                                chat,
+                                key: Key('RecentChat_${chat.id}'),
+                                me: c.me,
+                                getUser: c.getUser,
+                                onJoin: () => c.joinCall(chat.id),
+                                onDrop: () => c.dropCall(chat.id),
+                                onLeave: () => c.leaveChat(chat.id),
+                                onHide: () => c.hideChat(chat.id),
+                                inCall: () => c.inCall(chat.id),
+                                onMute: () => c.muteChat(chat.id),
+                                onUnmute: () => c.unmuteChat(chat.id),
+                                onFavorite: () => c.favoriteChat(chat.id),
+                                onUnfavorite: () => c.unfavoriteChat(chat.id),
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: ContextMenuInterceptor(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: child,
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
+                );
+              }
             }
 
-            return const Center(child: CircularProgressIndicator());
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: ContextMenuInterceptor(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                ),
+              ),
+            );
           }),
         );
       },

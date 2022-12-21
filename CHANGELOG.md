@@ -28,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
+        - Searching. ([#260], [#259])
     - User page:
         - Blacklisting. ([#234], [#229])
 
@@ -111,6 +112,8 @@ All user visible changes to this project will be documented in this file. This p
 [#251]: /../../pull/251
 [#252]: /../../issues/252
 [#254]: /../../pull/254
+[#252]: /../../issues/259
+[#254]: /../../pull/260
 
 
 
