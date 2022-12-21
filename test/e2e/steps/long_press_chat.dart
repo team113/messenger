@@ -27,13 +27,22 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   'I long press {string} chat',
   (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(
-      'Chat_${context.world.groups[name]}',
-      FindType.key,
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
+      try {
+        final finder = context.world.appDriver.findBy(
+          'Chat_${context.world.groups[name]}',
+          FindType.key,
+        );
+
+        await context.world.appDriver.nativeDriver.longPress(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
   },
 );

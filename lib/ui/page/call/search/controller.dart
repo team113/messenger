@@ -411,7 +411,10 @@ class SearchController extends GetxController {
 
     if (categories.contains(SearchCategory.contact)) {
       Map<UserId, RxChatContact> allContacts = {
-        for (var u in _contactService.contacts.values.where((e) {
+        for (var u in {
+          ..._contactService.favorites,
+          ..._contactService.contacts,
+        }.values.where((e) {
           if (e.contact.value.users.length == 1) {
             RxUser? user = e.user.value;
 
