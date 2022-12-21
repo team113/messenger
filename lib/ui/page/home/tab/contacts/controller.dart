@@ -16,36 +16,30 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:async/async.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
         CallAlreadyJoinedException,
         CallAlreadyExistsException,
         CallIsInPopupException;
-import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ToggleChatMuteException,
-        FavoriteChatContactException,
-        UnfavoriteChatContactException;
-import '/ui/widget/text_field.dart';
+    show FavoriteChatContactException, UnfavoriteChatContactException;
+import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -56,129 +50,68 @@ class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,
     this._contactService,
+    this._calls,
+    this._settingsRepository,
     this._userService,
-    this._callService,
-    this._myUserService,
   );
 
-  final RxBool searching = RxBool(false);
-  late final TextFieldState search;
+  /// Reactive list of sorted [ChatContact]s.
+  final RxList<RxChatContact> contacts = RxList();
 
-  final RxMap<ChatContactId, RxChatContact> favorites = RxMap();
-  final RxMap<ChatContactId, RxChatContact> contacts = RxMap();
-  final RxMap<UserId, RxUser> users = RxMap();
+  /// Reactive list of favorited [ChatContact]s.
+  final RxList<RxChatContact> favorites = RxList();
 
-  final RxBool sorting = RxBool(false);
+  /// [SearchController] for searching [User]s and [ChatContact]s.
+  final Rx<SearchController?> search = Rx(null);
 
-  final RxnString query = RxnString();
-  final Rx<RxList<RxUser>?> searchResults = Rx(null);
-  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+  /// [ListElement]s representing the [search] results visually.
+  final RxList<ListElement> elements = RxList([]);
 
-  /// [Chat] repository used to create a dialog [Chat].
+  /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
 
+  /// [User]s service used in [SearchController].
   final UserService _userService;
 
   /// Call service used to start a [ChatCall].
-  final CallService _callService;
+  final CallService _calls;
 
-  /// Service managing [MyUser].
-  final MyUserService _myUserService;
+  /// Settings repository maintaining the [ApplicationSettings].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
-  final Map<ChatContactId, Worker> _userWorkers = {};
+  final Map<ChatContactId, Worker> _rxUserWorkers = {};
 
-  /// Worker to react on [SearchResult.status] changes.
-  Worker? _searchStatusWorker;
-  Worker? _searchWorker;
-  Worker? _searchDebounce;
+  /// [Worker]s to [RxUser.user] reacting on its changes.
+  final Map<UserId, Worker> _userWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
-  /// Returns current reactive [ChatContact]s map.
-  RxObsMap<ChatContactId, RxChatContact> get allContacts =>
-      _contactService.contacts;
+  /// [StreamSubscription]s to the [favorites] updates.
+  StreamSubscription? _favoritesSubscription;
 
-  /// Returns the current reactive favorite [ChatContact]s map.
-  RxObsMap<ChatContactId, RxChatContact> get allFavorites =>
-      _contactService.favorites;
+  /// Subscription for [SearchController.users] and [SearchController.contacts]
+  /// changes updating the [elements].
+  StreamSubscription? _searchSubscription;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
-  Rx<MyUser?> get myUser => _myUserService.myUser;
+  /// Indicates whether [contacts] should be sorted by their names or otherwise
+  /// by their [User.lastSeenAt] dates.
+  bool get sortByName =>
+      _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
   @override
   void onInit() {
-    _searchWorker = ever(
-      query,
-      (String? q) {
-        if (q == null || q.isEmpty) {
-          searchResults.value = null;
-          searchStatus.value = RxStatus.empty();
-          query.value = null;
-          search.clear();
-          _populate();
-        } else {
-          searchStatus.value = RxStatus.loading();
-          _populate();
-        }
-      },
-    );
-
-    search = TextFieldState(
-      onChanged: (d) {
-        query.value = d.text;
-        if (d.text.isEmpty) {
-          query.value = null;
-          searchResults.value = null;
-          searchStatus.value = RxStatus.empty();
-          users.clear();
-          contacts.clear();
-          favorites.clear();
-          _populate();
-        } else {
-          searchStatus.value = RxStatus.loading();
-          _populate();
-        }
-      },
-    );
-
-    search.focus.addListener(() {
-      if (search.focus.hasFocus == false) {
-        if (search.text.isEmpty) {
-          searching.value = false;
-          query.value = null;
-          search.clear();
-          searchResults.value = null;
-          searchStatus.value = RxStatus.empty();
-          _populate();
-        }
-      }
-    });
-
-    _searchDebounce = debounce(query, (String? v) {
-      if (v != null) {
-        _search(v);
-      }
-    });
-
-    controller.sliverController.onPaintItemPositionsCallback = (d, list) {
-      int? first = list.firstOrNull?.index;
-      if (first != null) {
-        if (first >= contacts.length) {
-          selected.value = 1;
-        } else {
-          selected.value = 0;
-        }
-      }
-    };
-
-    _populate();
+    contacts.value = _contactService.contacts.values.toList();
+    favorites.value = _contactService.favorites.values.toList();
+    _sortContacts();
+    _sortFavorites();
 
     _initUsersUpdates();
 
@@ -187,8 +120,13 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    contacts.forEach((_, c) => c.user.value?.stopUpdates());
+    for (RxChatContact contact in [...contacts, ...favorites]) {
+      contact.user.value?.stopUpdates();
+    }
+
     _contactsSubscription?.cancel();
+    _favoritesSubscription?.cancel();
+    _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
     super.onClose();
   }
@@ -211,36 +149,11 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  Future<void> favorite(RxChatContact contact) => _contactService
-      .favoriteChatContact(contact.id, const ChatContactPosition(1000000));
-
-  Future<void> unfavorite(RxChatContact contact) =>
-      _contactService.unfavoriteChatContact(contact.id);
-
-  final RxInt selected = RxInt(0);
-  final FlutterListViewController controller = FlutterListViewController();
-
-  void jumpTo(int i) {
-    if (i == 0) {
-      controller.jumpTo(0);
-    } else if (i == 1) {
-      double to = users.length * (84 + 10);
-      if (to > controller.position.maxScrollExtent) {
-        controller.jumpTo(controller.position.maxScrollExtent);
-      } else {
-        controller.jumpTo(to);
-      }
-    }
-  }
-
-  Future<RxChat?> getChat(ChatId? id) async =>
-      id == null ? null : await _chatService.get(id);
-
-  /// Unmutes a [Chat] identified by the provided [id].
-  Future<void> unmuteChat(ChatId id) async {
+  /// Marks the specified [ChatContact] identified by its [id] as favorited.
+  Future<void> favoriteContact(ChatContactId id) async {
     try {
-      await _chatService.toggleChatMute(id, null);
-    } on ToggleChatMuteException catch (e) {
+      await _contactService.favoriteChatContact(id);
+    } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -248,23 +161,68 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+  /// Removes the specified [ChatContact] identified by its [id] from the
+  /// favorites.
+  Future<void> unfavoriteContact(ChatContactId id) async {
     try {
-      PreciseDateTime? until;
-      if (duration != null) {
-        until = PreciseDateTime.now().add(duration);
-      }
-
-      await _chatService.toggleChatMute(
-        id,
-        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
-      );
-    } on ToggleChatMuteException catch (e) {
+      await _contactService.unfavoriteChatContact(id);
+    } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Toggles the [sortByName] sorting the [contacts].
+  void toggleSorting() {
+    _settingsRepository.setSortContactsByName(!sortByName);
+    _sortContacts();
+  }
+
+  /// Enables and initializes or disables and disposes the [search].
+  void toggleSearch([bool enable = true]) {
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    _searchSubscription?.cancel();
+
+    if (enable) {
+      search.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _searchSubscription = StreamGroup.merge([
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
+      search.value!.search.focus.requestFocus();
+    } else {
+      search.value = null;
+      elements.clear();
     }
   }
 
@@ -275,7 +233,7 @@ class ContactsTabController extends GetxController {
     Chat? dialog = user.dialog;
     dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
     try {
-      await _callService.call(dialog.id, withVideo: withVideo);
+      await _calls.call(dialog.id, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {
@@ -285,149 +243,134 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  void _populate() {
-    if (query.value?.isNotEmpty != true) {
-      contacts.value = {
-        for (var c in allContacts.entries) c.key: c.value,
-      };
-
-      users.clear();
-      favorites.clear();
-      return;
-    }
-
-    favorites.value = {
-      for (var u in allFavorites.values.where((e) {
-        if (e.user.value != null && e.contact.value.users.length == 1) {
-          if (e.contact.value.name.val.contains(query.value!) == true) {
-            return true;
-          }
-        }
-
-        return false;
-      }))
-        u.id: u,
-    };
-
-    contacts.value = {
-      for (var u in allContacts.values.where((e) {
-        if (e.user.value != null && e.contact.value.users.length == 1) {
-          if (e.contact.value.name.val.contains(query.value!) == true) {
-            return true;
-          }
-        }
-
-        return false;
-      }))
-        u.id: u,
-    };
-
-    if (searchResults.value?.isNotEmpty == true) {
-      users.value = {
-        for (var u in searchResults.value!.where((e) {
-          if (contacts.values
-                      .firstWhereOrNull((c) => c.user.value?.id == e.id) ==
-                  null &&
-              favorites.values
-                      .firstWhereOrNull((c) => c.user.value?.id == e.id) ==
-                  null) {
-            return true;
-          }
-
-          return false;
-        }))
-          u.id: u,
-      };
-    } else {
-      users.value = {};
-    }
-
-    print(
-      '_populate, contact: ${contacts.length}, user: ${users.length}',
-    );
-  }
-
-  Future<void> _search(String query) async {
-    _searchStatusWorker?.dispose();
-    _searchStatusWorker = null;
-
-    if (query.isNotEmpty) {
-      UserNum? num;
-      UserName? name;
-      UserLogin? login;
-
-      try {
-        num = UserNum(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        login = UserLogin(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      if (num != null || name != null || login != null) {
-        searchStatus.value = searchStatus.value.isSuccess
-            ? RxStatus.loadingMore()
-            : RxStatus.loading();
-        final SearchResult result =
-            _userService.search(num: num, name: name, login: login);
-
-        searchResults.value = result.users;
-        searchStatus.value = result.status.value;
-        _searchStatusWorker = ever(result.status, (RxStatus s) {
-          searchStatus.value = s;
-          _populate();
-        });
-
-        _populate();
-
-        searchStatus.value = RxStatus.success();
-      }
-    } else {
-      searchStatus.value = RxStatus.empty();
-      searchResults.value = null;
-    }
-  }
-
   /// Maintains an interest in updates of every [RxChatContact.user] in the
   /// [contacts] list.
   void _initUsersUpdates() {
     /// States an interest in updates of the specified [RxChatContact.user].
-    void _listen(RxChatContact c) {
+    void listen(RxChatContact c) {
       RxUser? rxUser = c.user.value?..listenUpdates();
-      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+      _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
         if (rxUser?.id != user?.id) {
           rxUser?.stopUpdates();
           rxUser = user?..listenUpdates();
+          _userWorkers.remove(user?.id)?.dispose();
+        }
+
+        if (user != null) {
+          _populateSortingWorker(user.user);
+          _sortContacts();
         }
       });
+
+      if (c.user.value != null) {
+        _populateSortingWorker(c.user.value!.user);
+      }
     }
 
-    contacts.forEach((_, c) => _listen(c));
-    _contactsSubscription = allContacts.changes.listen((e) {
+    contacts.forEach(listen);
+
+    _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _listen(e.value!);
+          contacts.add(e.value!);
+          _sortContacts();
+          listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          contacts.removeWhere((c) => c.id == e.key);
+          _userWorkers.remove(e.key)?.dispose();
+          _rxUserWorkers.remove(e.key)?.dispose();
+          break;
+
+        case OperationKind.updated:
+          _sortContacts();
+          break;
+      }
+    });
+
+    favorites.forEach(listen);
+
+    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          favorites.add(e.value!);
+          _sortFavorites();
+          listen(e.value!);
           break;
 
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
           _userWorkers.remove(e.key)?.dispose();
+          _rxUserWorkers.remove(e.key)?.dispose();
+          favorites.removeWhere((c) => c.contact.value.id == e.key);
           break;
 
         case OperationKind.updated:
-          // No-op.
+          _sortFavorites();
           break;
       }
     });
+  }
+
+  /// Populates a [Worker] sorting the [contacts] on the [User.online] and
+  /// [User.lastSeenAt] changes of the provided [user].
+  void _populateSortingWorker(Rx<User> user) {
+    final User u = user.value;
+
+    if (_userWorkers[u.id] == null) {
+      bool online = u.online;
+      PreciseDateTime? lastSeenAt = u.lastSeenAt;
+
+      _userWorkers[u.id] = ever(user, (User u) {
+        if (!sortByName && (online != u.online || lastSeenAt != u.lastSeenAt)) {
+          online = u.online;
+          lastSeenAt = u.lastSeenAt;
+          _sortContacts();
+        }
+      });
+    }
+  }
+
+  /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
+  /// the [sortByName] indicator.
+  void _sortContacts() {
+    contacts.sort((a, b) {
+      if (sortByName == true) {
+        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
+      } else {
+        final User? userA = a.user.value?.user.value;
+        final User? userB = b.user.value?.user.value;
+
+        if (userA?.online == true && userB?.online == false) {
+          return -1;
+        } else if (userA?.online == false && userB?.online == true) {
+          return 1;
+        } else {
+          if (userB?.lastSeenAt == null || userA?.lastSeenAt == null) {
+            return 0;
+          } else {
+            return userB!.lastSeenAt!.compareTo(userA!.lastSeenAt!);
+          }
+        }
+      }
+    });
+  }
+
+  /// Sorts the [favorites] by the [ChatContact.favoritePosition].
+  void _sortFavorites() {
+    favorites.sort(
+      (a, b) => a.contact.value.favoritePosition!
+          .compareTo(b.contact.value.favoritePosition!),
+    );
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      toggleSearch(false);
+    }
   }
 }
