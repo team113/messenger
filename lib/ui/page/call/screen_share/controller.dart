@@ -48,7 +48,7 @@ class ScreenShareController extends GetxController {
       RxMap<MediaDisplayInfo, RtcVideoRenderer>();
 
   /// Subscription for the [CallService.calls] changes.
-  late final StreamSubscription? _chatsSubscription;
+  late final StreamSubscription? _callsSubscription;
 
   /// Subscription for the [OngoingCall.displays] updating the [renderers].
   late final StreamSubscription? _displaysSubscription;
@@ -68,7 +68,7 @@ class ScreenShareController extends GetxController {
 
   @override
   void onInit() {
-    _chatsSubscription = _callService.calls.changes.listen((e) {
+    _callsSubscription = _callService.calls.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
           if (call.value.chatId.value == e.key) {
@@ -103,7 +103,7 @@ class ScreenShareController extends GetxController {
 
   @override
   void onClose() {
-    _chatsSubscription?.cancel();
+    _callsSubscription?.cancel();
     _displaysSubscription?.cancel();
     _mediaManager.free();
     _jason.free();
