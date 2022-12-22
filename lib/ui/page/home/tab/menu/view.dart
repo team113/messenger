@@ -259,7 +259,7 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.media:
-                    if (PlatformUtils.isMobile) {
+                    if (PlatformUtils.isMobile || !PlatformUtils.isWeb) {
                       return const SizedBox();
                     } else {
                       child = card(

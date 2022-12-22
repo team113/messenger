@@ -457,7 +457,6 @@ label_email = E-mail
 label_email_example = example@gmail.com
 label_email_visible = Ваш E-mail видят:{" "}
 label_empty_message = Пустое сообщение
-label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -585,8 +584,8 @@ label_replies = [{$count} { $count ->
     [few] ответа
     *[other] ответов
     }]
-label_resend = Повторить отправку
-label_resend_timeout = Повторить отправку ({$timeout})
+label_resend = Повторить
+label_resend_timeout = Повторить ({$timeout})
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено

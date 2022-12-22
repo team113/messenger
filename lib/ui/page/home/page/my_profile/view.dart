@@ -40,7 +40,18 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'add_email/view.dart';
+import 'add_phone/view.dart';
+import 'call_window_switch/view.dart';
+import 'camera_switch/view.dart';
+import 'change_password/view.dart';
 import 'controller.dart';
+import 'delete_account/view.dart';
+import 'delete_email/view.dart';
+import 'delete_phone/view.dart';
+import 'language/view.dart';
+import 'microphone_switch/view.dart';
+import 'output_switch/view.dart';
 import 'widget/copyable.dart';
 
 /// View of the [Routes.me] page.
@@ -162,7 +173,7 @@ class MyProfileView extends StatelessWidget {
                         );
 
                       case ProfileTab.calls:
-                        if (!PlatformUtils.isMobile) {
+                        if (!PlatformUtils.isMobile && PlatformUtils.isWeb) {
                           return Block(
                             title: 'label_calls'.l10n,
                             children: [_call(context, c)],
@@ -463,9 +474,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 Clipboard.setData(ClipboardData(text: e.val));
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
-              onTrailingPressed: () {
-                // TODO: Show a delete email popup.
-              },
+              onTrailingPressed: () => DeleteEmailView.show(context, email: e),
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: Transform.scale(
@@ -567,12 +576,14 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 ),
               ),
             ),
-            onPressed: () {
-              // TODO: Show an add email popup.
-            },
-            onTrailingPressed: () {
-              // TODO: Show a delete email popup.
-            },
+            onPressed: () => AddEmailView.show(
+              context,
+              email: c.myUser.value!.emails.unconfirmed!,
+            ),
+            onTrailingPressed: () => DeleteEmailView.show(
+              context,
+              email: c.myUser.value!.emails.unconfirmed!,
+            ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -586,9 +597,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.emails.confirmed.isNotEmpty == true
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
-          onPressed: () {
-            // TODO: Show an add email popup.
-          },
+          onPressed: () => AddEmailView.show(context),
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       );
@@ -631,9 +640,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 Clipboard.setData(ClipboardData(text: e.val));
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
-              onTrailingPressed: () {
-                // TODO: show a delete phone popup.
-              },
+              onTrailingPressed: () => DeletePhoneView.show(context, phone: e),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
@@ -722,12 +729,14 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
-            onPressed: () {
-              // TODO: show a add phone popup.
-            },
-            onTrailingPressed: () {
-              // TODO: show a delete phone popup.
-            },
+            onPressed: () => AddPhoneView.show(
+              context,
+              phone: c.myUser.value!.phones.unconfirmed!,
+            ),
+            onTrailingPressed: () => DeletePhoneView.show(
+              context,
+              phone: c.myUser.value!.phones.unconfirmed!,
+            ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -738,9 +747,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
         FieldButton(
-          onPressed: () {
-            // TODO: Show an add phone popup.
-          },
+          onPressed: () => AddPhoneView.show(context),
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
@@ -769,9 +776,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           text: c.myUser.value?.hasPassword == true
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
-          onPressed: () {
-            // TODO: Show a change password popup.
-          },
+          onPressed: () => ChangePasswordView.show(context),
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
                 ? Colors.red
@@ -796,9 +801,7 @@ Widget _deleteAccount(BuildContext context, MyProfileController c) {
           child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
         ),
       ),
-      onPressed: () {
-        // TODO: Show a delete account popup.
-      },
+      onPressed: () => DeleteAccountView.show(context),
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
@@ -933,16 +936,16 @@ Widget _call(BuildContext context, MyProfileController c) {
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
-        FieldButton(
-          text: (c.settings.value?.enablePopups ?? true)
-              ? 'label_open_calls_in_window'.l10n
-              : 'label_open_calls_in_app'.l10n,
-          maxLines: null,
-          onPressed: () {
-            // TODO: Show a call window switch popup.
-          },
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.enablePopups ?? true)
+                ? 'label_open_calls_in_window'.l10n
+                : 'label_open_calls_in_app'.l10n,
+            maxLines: null,
+            onPressed: () => CallWindowSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
       ),
     ],
   );
@@ -954,48 +957,48 @@ Widget _media(BuildContext context, MyProfileController c) {
     mainAxisSize: MainAxisSize.min,
     children: [
       _dense(
-        FieldButton(
-          text: (c.devices.video().firstWhereOrNull(
-                          (e) => e.deviceId() == c.camera.value) ??
-                      c.devices.video().firstOrNull)
-                  ?.label() ??
-              'label_media_no_device_available'.l10n,
-          hint: 'label_media_camera'.l10n,
-          onPressed: () {
-            // TODO: Show a camera switch popup.
-          },
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.video().firstWhereOrNull(
+                            (e) => e.deviceId() == c.camera.value) ??
+                        c.devices.video().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_camera'.l10n,
+            onPressed: () => CameraSwitchView.show(context, call: c.call),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
       ),
       const SizedBox(height: 16),
       _dense(
-        FieldButton(
-          text: (c.devices.audio().firstWhereOrNull(
-                          (e) => e.deviceId() == c.mic.value) ??
-                      c.devices.audio().firstOrNull)
-                  ?.label() ??
-              'label_media_no_device_available'.l10n,
-          hint: 'label_media_microphone'.l10n,
-          onPressed: () {
-            // TODO: Show a microphone switch popup.
-          },
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.audio().firstWhereOrNull(
+                            (e) => e.deviceId() == c.mic.value) ??
+                        c.devices.audio().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_microphone'.l10n,
+            onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
       ),
       const SizedBox(height: 16),
       _dense(
-        FieldButton(
-          text: (c.devices.output().firstWhereOrNull(
-                          (e) => e.deviceId() == c.output.value) ??
-                      c.devices.output().firstOrNull)
-                  ?.label() ??
-              'label_media_no_device_available'.l10n,
-          hint: 'label_media_output'.l10n,
-          onPressed: () {
-            // TODO: Show a output switch popup.
-          },
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
+        Obx(() {
+          return FieldButton(
+            text: (c.devices.output().firstWhereOrNull(
+                            (e) => e.deviceId() == c.output.value) ??
+                        c.devices.output().firstOrNull)
+                    ?.label() ??
+                'label_media_no_device_available'.l10n,
+            hint: 'label_media_output'.l10n,
+            onPressed: () => OutputSwitchView.show(context, call: c.call),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          );
+        }),
       ),
     ],
   );
@@ -1103,9 +1106,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
     FieldButton(
-      onPressed: () async {
-        // TODO: Show a language selector popup.
-      },
+      onPressed: () => LanguageSelectionView.show(context),
       text: 'label_language_entry'.l10nfmt({
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
