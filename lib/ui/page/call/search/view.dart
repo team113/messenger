@@ -89,6 +89,7 @@ class SearchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('SearchView'),
       init: SearchController(
         Get.find(),
         Get.find(),
@@ -115,6 +116,7 @@ class SearchView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Center(
                   child: ReactiveTextField(
+                    key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
                     style: thin,
@@ -122,7 +124,7 @@ class SearchView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 18),
               Expanded(
                 child: Obx(() {
                   if (c.recent.isEmpty &&
@@ -153,6 +155,7 @@ class SearchView extends StatelessWidget {
                         if (e is RxUser) {
                           child = Obx(() {
                             return tile(
+                              key: Key('SearchUser_${e.id}'),
                               context: context,
                               user: e,
                               selected: c.selectedUsers.contains(e),
@@ -166,6 +169,7 @@ class SearchView extends StatelessWidget {
                         } else if (e is RxChatContact) {
                           child = Obx(() {
                             return tile(
+                              key: Key('SearchContact_${e.id}'),
                               context: context,
                               contact: e,
                               selected: c.selectedContacts.contains(e),
@@ -245,6 +249,7 @@ class SearchView extends StatelessWidget {
     RxChat? chat,
     void Function()? onTap,
     bool selected = false,
+    Key? key,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -292,6 +297,7 @@ class SearchView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ContactTile(
+        key: key,
         contact: contact,
         user: user,
         onTap: onTap,
