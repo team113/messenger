@@ -438,7 +438,6 @@ label_edit = Edit
 label_email = E-mail
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
-label_emails = Emails
 label_empty_message = Empty message
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code

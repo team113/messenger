@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User can add, confirm and deletes emails
+Feature: User can add, confirm and delete emails
 
   Scenario: User adds, confirms and deletes email
     Given I am Alice

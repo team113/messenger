@@ -27,10 +27,10 @@ import '/ui/widget/text_field.dart';
 
 export 'view.dart';
 
-/// Possible [ChangePasswordView] flow stage.
+/// Possible [PasswordView] flow stage.
 enum ChangePasswordFlowStage { set, changed }
 
-/// Controller of a [ChangePasswordView].
+/// Controller of a [PasswordView].
 class ChangePasswordController extends GetxController {
   ChangePasswordController(this._myUserService);
 
