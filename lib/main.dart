@@ -136,8 +136,40 @@ void onNotificationResponse(NotificationResponse response) {
 }
 
 /// Implementation of this application.
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> with WindowListener {
+  @override
+  // void initState() {
+  //   windowManager.addListener(this);
+  //   _init();
+  //   super.initState();
+  // }
+  //
+  // @override
+  // void dispose() async {
+  //   windowManager.removeListener(this);
+  //   super.dispose();
+  // }
+  //
+  // void _init() async {
+  //   // Add this line to override the default close handler
+  //   await windowManager.setPreventClose(true);
+  //   setState(() {});
+  // }
+  //
+  // @override
+  // void onWindowClose() async {
+  //   print('onWindowClose');
+  //   print(await windowManager.getSize());
+  //   print(await windowManager.getPosition());
+  //   await windowManager.destroy();
+  // }
 
   @override
   Widget build(BuildContext context) {

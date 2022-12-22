@@ -18,6 +18,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -304,10 +305,27 @@ class AppRouteInformationParser
 /// Application's router delegate that builds the root [Navigator] based on
 /// the [_state].
 class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteConfiguration> {
+    with
+        ChangeNotifier,
+        PopNavigatorRouterDelegateMixin<RouteConfiguration>,
+        WindowListener {
   AppRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
     _prefixWorker = ever(_state.prefix, (_) => _updateTabTitle());
+    _init();
+  }
+
+  void _init() async {
+    windowManager.addListener(this);
+    await windowManager.setPreventClose(true);
+  }
+
+  @override
+  void onWindowClose() async {
+    print('onWindowClose');
+    print(await windowManager.getSize());
+    print(await windowManager.getPosition());
+    await windowManager.destroy();
   }
 
   @override
@@ -342,6 +360,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   void dispose() {
     _prefixWorker.dispose();
+    windowManager.removeListener(this);
     super.dispose();
   }
 
