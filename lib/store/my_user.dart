@@ -357,7 +357,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -390,10 +390,19 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
+
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
+      if (e is EventUserGalleryItemAdded) {
+        return e.galleryItem;
+      }
+    }
+
+    return null;
   }
 
   @override

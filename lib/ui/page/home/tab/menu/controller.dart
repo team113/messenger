@@ -28,10 +28,10 @@ export 'view.dart';
 
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._auth, this._myUserService);
+  MenuTabController(this._authService, this._myUserService);
 
-  /// Authorization service.
-  final AuthService _auth;
+  /// [AuthService] used in a [logout].
+  final AuthService _authService;
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
@@ -52,5 +52,5 @@ class MenuTabController extends GetxController {
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _auth.logout();
+  Future<String> logout() => _authService.logout();
 }

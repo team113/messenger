@@ -291,7 +291,6 @@ class ChatsTabView extends StatelessWidget {
                 child = AnimationLimiter(
                   key: const Key('Chats'),
                   child: ListView.builder(
-                    controller: ScrollController(),
                     itemCount: c.chats.length,
                     itemBuilder: (_, i) {
                       final RxChat chat = c.chats[i];
