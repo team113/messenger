@@ -191,9 +191,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
+  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
-  return Future.sync(app.main).whenComplete(() => FlutterError.onError = ignoreOverflowErrors);
+  return Future.sync(app.main);
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].

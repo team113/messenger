@@ -121,25 +121,25 @@ class MyProfileView extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 5),
-                            if(c.myUser.value?.avatar != null)
-                            Center(
-                              child: WidgetButton(
-                                key: const Key('DeleteAvatar'),
-                                onPressed: c.deleteAvatar,
-                                child: SizedBox(
-                                  height: 20,
-                                  child: Text(
-                                          'btn_delete'.l10n,
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            fontSize: 11,
-                                          ),
-                                        ),
+                            if (c.myUser.value?.avatar != null)
+                              Center(
+                                child: WidgetButton(
+                                  key: const Key('DeleteAvatar'),
+                                  onPressed: c.deleteAvatar,
+                                  child: SizedBox(
+                                    height: 20,
+                                    child: Text(
+                                      'btn_delete'.l10n,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
                             const SizedBox(height: 10),
                             _name(c),
                           ],
