@@ -42,8 +42,6 @@ class ContactTile extends StatelessWidget {
     this.selected = false,
     this.subtitle = const [],
     this.darken = 0,
-    this.height = 86,
-    this.radius = 30,
     this.actions,
     this.folded = false,
     this.preventContextMenu = false,
@@ -94,12 +92,6 @@ class ContactTile extends StatelessWidget {
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
-  /// Height of this [ContactTile].
-  final double height;
-
-  /// Radius of an [AvatarWidget] this [ContactTile] displays.
-  final double radius;
-
   /// Background color of unselected this [ContactTile].
   final Color? unselectedColor;
 
@@ -132,7 +124,7 @@ class ContactTile extends StatelessWidget {
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
       child: SizedBox(
-        height: height,
+        height: 86,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
@@ -149,23 +141,22 @@ class ContactTile extends StatelessWidget {
                 unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
             selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
             folded: contact?.contact.value.favoritePosition != null,
-            child: Container(
+            child: Padding(
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                   : null,
-              height: height,
               padding: padding,
               child: Row(
                 children: [
                   ...leading,
                   if (contact != null)
-                    AvatarWidget.fromRxContact(contact, radius: radius)
+                    AvatarWidget.fromRxContact(contact, radius: 30)
                   else if (user != null)
-                    AvatarWidget.fromRxUser(user, radius: radius)
+                    AvatarWidget.fromRxUser(user, radius: 30)
                   else
                     AvatarWidget.fromMyUser(
                       myUser,
-                      radius: radius,
+                      radius: 30,
                     ),
                   const SizedBox(width: 12),
                   Expanded(

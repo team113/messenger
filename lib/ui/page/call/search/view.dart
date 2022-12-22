@@ -297,8 +297,6 @@ class SearchView extends StatelessWidget {
         onTap: onTap,
         selected: selected,
         darken: 0.05,
-        height: 76,
-        radius: 26,
         selectedColor: style.cardSelectedColor,
         unselectedColor: style.cardColor.darken(0.05),
         selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
