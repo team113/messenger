@@ -529,10 +529,7 @@ class _DraggedItem<T> {
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
 }
 
-/// Creates a widget that can be dragged starting with some delay of pixels.
-///
-/// The [child] and [feedback] arguments must not be null. If
-/// [maxSimultaneousDrags] is non-null, it must be non-negative.
+/// [Draggable] starting its dragging after some distance threshold is reached.
 class DelayedDraggable<T extends Object> extends Draggable<T> {
   const DelayedDraggable({
     super.key,
@@ -548,9 +545,10 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
   });
 
   @override
-  ImmediateDelayedMultiDragGestureRecognizer createRecognizer(
-      GestureMultiDragStartCallback onStart) {
-    return ImmediateDelayedMultiDragGestureRecognizer()
+  MultiDragGestureRecognizer createRecognizer(
+    GestureMultiDragStartCallback onStart,
+  ) {
+    return _ImmediateDelayedMultiDragGestureRecognizer()
       ..onStart = (Offset position) {
         final Drag? result = onStart(position);
         if (result != null) {
@@ -561,10 +559,11 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
   }
 }
 
-/// Create a gesture recognizer for tracking multiple pointers at once.
-class ImmediateDelayedMultiDragGestureRecognizer
+/// [MultiDragGestureRecognizer] recognizing a drag gesture after some distance
+/// threshold is reached.
+class _ImmediateDelayedMultiDragGestureRecognizer
     extends MultiDragGestureRecognizer {
-  ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
+  _ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
 
   @override
   MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
@@ -578,7 +577,7 @@ class ImmediateDelayedMultiDragGestureRecognizer
   String get debugDescription => 'ImmediateDelayedMultiDragGestureRecognizer';
 }
 
-/// [MultiDragPointerState] for [ImmediateDelayedMultiDragGestureRecognizer].
+/// [MultiDragPointerState] of a [_ImmediateDelayedMultiDragGestureRecognizer].
 class _ImmediateDelayedPointerState extends MultiDragPointerState {
   _ImmediateDelayedPointerState(
     super.initialPosition,
@@ -588,7 +587,7 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 5) {
+    if (pendingDelta!.distance > 6) {
       resolve(GestureDisposition.accepted);
     }
   }
