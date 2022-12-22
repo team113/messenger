@@ -427,8 +427,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> updateAvatar(GalleryItemId? id) =>
-      _graphQlProvider.updateUserAvatar(id, null);
+  Future<void> updateAvatar(GalleryItemId? id) async {
+    UserAvatar? avatar = myUser.value?.avatar;
+
+    if (id == null) {
+      myUser.update((u) => u?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateUserAvatar(id, null);
+    } catch (e) {
+      if (id == null) {
+        myUser.update((u) => u?.avatar = avatar);
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<void> updateCallCover(GalleryItemId? id) =>
