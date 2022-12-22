@@ -645,7 +645,6 @@ class ChatsTabView extends StatelessWidget {
               ),
               child: OutlinedRoundedButton(
                 key: key,
-                maxWidth: null,
                 leading: leading,
                 title: child,
                 onPressed: onPressed,

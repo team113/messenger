@@ -28,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
+        - Searching. ([#260], [#259])
     - User page:
         - Blacklisting. ([#234], [#229])
 
@@ -37,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
         - Redesigned introduction and logout modals. ([#249])
+        - Redesigned menu tab. ([#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned chat tile in mobile interface. ([#246], [#232])
@@ -45,6 +47,8 @@ All user visible changes to this project will be documented in this file. This p
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Profile page:
+        - Redesigned profile page. ([#244], [#243])
     - Redesigned desktop context menu. ([#245])
     - Auth page:
         - Redesigned login modal. ([#249])
@@ -100,12 +104,16 @@ All user visible changes to this project will be documented in this file. This p
 [#235]: /../../pull/235
 [#237]: /../../pull/237
 [#241]: /../../pull/241
+[#243]: /../../issues/243
+[#244]: /../../pull/244
 [#245]: /../../pull/245
 [#246]: /../../pull/246
 [#249]: /../../pull/249
 [#251]: /../../pull/251
 [#252]: /../../issues/252
 [#254]: /../../pull/254
+[#252]: /../../issues/259
+[#254]: /../../pull/260
 
 
 

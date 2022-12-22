@@ -69,7 +69,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   final double elevation;
 
   /// Maximum width this button is allowed to occupy.
-  final double? maxWidth;
+  final double maxWidth;
 
   /// Height of this button.
   final double? height;
@@ -78,7 +78,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxWidth: maxWidth ?? double.infinity,
+        maxWidth: maxWidth,
         minHeight: height ?? 0,
         maxHeight: height ?? double.infinity,
       ),

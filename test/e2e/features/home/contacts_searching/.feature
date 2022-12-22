@@ -14,18 +14,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-# TODO: Uncomment when `MyProfile` modals are implemented.
-#Feature: Application localization changes correctly
-#
-#  Scenario: User changes localization
-#    Given I am Alice
-#    And I wait until `HomeView` is present
-#
-#    Then I tap `MenuButton` button
-#    And I tap `SettingsButton` button
-#
-#    Then I tap `Language_enUS` within `LanguageDropdown` dropdown
-#    And I wait until text "Settings" is present
-#
-#    Then I tap `Language_ruRU` within `LanguageDropdown` dropdown
-#    And I wait until text "Настройки" is present
+Feature: Contacts searching
+
+  Scenario: User and contact can be found
+    Given I am Alice
+    And users Bob and Charlie
+    And contact Charlie
+    And I have "Example" group with Bob
+
+    When I tap `ContactsButton` button
+    Then I tap `SearchButton` button
+
+    When I fill `SearchField` field with "Bob"
+    Then I see user Bob in search results
+
+    When I fill `SearchField` field with "Charlie"
+    Then I see contact Charlie in search results
