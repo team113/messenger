@@ -25,8 +25,7 @@ import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided [User] or [ChatContact] is found and displayed in
-/// the ongoing search results. After finding it, it clicks on the found result.
+/// Taps on the provided [User] or [ChatContact] found in an ongoing search.
 ///
 /// Examples:
 /// - Then I tap user Bob in search results

@@ -23,28 +23,19 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// [Chat.members] enumeration and administration view.
+/// [Chat.members] addition view.
 ///
 /// Intended to be displayed with the [show] method.
 class AddChatMemberView extends StatelessWidget {
   const AddChatMemberView({super.key, required this.chatId});
 
-  /// ID of the [Chat] to which new members adds.
+  /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
   /// Displays a [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       mobilePadding: const EdgeInsets.all(0),
       child: AddChatMemberView(chatId: chatId),
     );

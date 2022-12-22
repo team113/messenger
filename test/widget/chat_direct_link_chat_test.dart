@@ -311,16 +311,19 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    var linkField = find.byKey(const Key('LinkField'), skipOffstage: false);
-    await tester.dragUntilVisible(linkField,
-        find.byKey(const Key('ChatInfoListView')), const Offset(1, 0));
+    final link = find.byKey(const Key('LinkField'), skipOffstage: false);
+    await tester.dragUntilVisible(
+      link,
+      find.byKey(const Key('ChatInfoListView')),
+      const Offset(1, 0),
+    );
 
     await tester.pumpAndSettle();
 
-    await tester.tap(linkField);
+    await tester.tap(link);
     await tester.pumpAndSettle();
 
-    await tester.enterText(linkField, 'newlink');
+    await tester.enterText(link, 'newlink');
     await tester.pumpAndSettle();
 
     await tester.testTextInput.receiveAction(TextInputAction.done);

@@ -70,12 +70,7 @@ class ChatInfoView extends StatelessWidget {
             appBar: CustomAppBar(
               title: Row(
                 children: [
-                  Center(
-                    child: AvatarWidget.fromRxChat(
-                      c.chat,
-                      radius: 17,
-                    ),
-                  ),
+                  Center(child: AvatarWidget.fromRxChat(c.chat, radius: 17)),
                   const SizedBox(width: 10),
                   Flexible(
                     child: DefaultTextStyle.merge(
@@ -126,24 +121,71 @@ class ChatInfoView extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (!context.isMobile) ...[
+                if (c.chat!.chat.value.ongoingCall == null) ...[
+                  if (!context.isMobile) ...[
+                    const SizedBox(width: 28),
+                    WidgetButton(
+                      onPressed: () => c.call(true),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ],
                   const SizedBox(width: 28),
                   WidgetButton(
-                    onPressed: () => c.call(true),
+                    onPressed: () => c.call(false),
                     child: SvgLoader.asset(
-                      'assets/icons/chat_video_call.svg',
-                      height: 17,
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
-                ],
-                const SizedBox(width: 28),
-                WidgetButton(
-                  onPressed: () => c.call(false),
-                  child: SvgLoader.asset(
-                    'assets/icons/chat_audio_call.svg',
-                    height: 19,
+                ] else ...[
+                  const SizedBox(width: 14),
+                  AnimatedSwitcher(
+                    key: const Key('ActiveCallButton'),
+                    duration: 300.milliseconds,
+                    child: c.inCall
+                        ? WidgetButton(
+                            key: const Key('Drop'),
+                            onPressed: c.dropCall,
+                            child: Container(
+                              height: 22,
+                              width: 22,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/call_end.svg',
+                                  width: 22,
+                                  height: 22,
+                                ),
+                              ),
+                            ),
+                          )
+                        : WidgetButton(
+                            key: const Key('Join'),
+                            onPressed: c.joinCall,
+                            child: Container(
+                              height: 22,
+                              width: 22,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/audio_call_start.svg',
+                                  width: 10,
+                                  height: 10,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
-                ),
+                ],
               ],
             ),
             body: ListView(
@@ -151,30 +193,24 @@ class ChatInfoView extends StatelessWidget {
               children: [
                 const SizedBox(height: 8),
                 Block(
+                  title: 'label_public_information'.l10n,
                   children: [
-                    _label(context, 'label_public_information'.l10n),
                     _avatar(c, context),
                     const SizedBox(height: 15),
                     _name(c, context),
                   ],
                 ),
                 Block(
-                  children: [
-                    _label(context, 'label_chat_members'.l10n),
-                    _members(c, context),
-                  ],
+                  title: 'label_chat_members'.l10n,
+                  children: [_members(c, context)],
                 ),
                 Block(
-                  children: [
-                    _label(context, 'label_direct_chat_link'.l10n),
-                    _link(c, context),
-                  ],
+                  title: 'label_direct_chat_link'.l10n,
+                  children: [_link(c, context)],
                 ),
                 Block(
-                  children: [
-                    _label(context, 'label_actions'.l10n),
-                    _actions(c, context),
-                  ],
+                  title: 'label_actions'.l10n,
+                  children: [_actions(c, context)],
                 ),
                 const SizedBox(height: 8),
               ],
@@ -185,7 +221,7 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Returns a header subtitle of the [Chat].
+  /// Returns a subtitle to display under the [Chat]'s title.
   Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
     final TextStyle? style = Theme.of(context).textTheme.caption;
 
@@ -216,13 +252,8 @@ class ChatInfoView extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             WidgetButton(
-              onPressed: () async {
-                await c.pickAvatar();
-              },
-              child: AvatarWidget.fromRxChat(
-                c.chat,
-                radius: 100,
-              ),
+              onPressed: c.pickAvatar,
+              child: AvatarWidget.fromRxChat(c.chat, radius: 100),
             ),
             Positioned.fill(
               child: Obx(() {
@@ -257,7 +288,7 @@ class ChatInfoView extends StatelessWidget {
               child: c.chat?.chat.value.avatar == null
                   ? null
                   : Text(
-                      'btn_delete_avatar'.l10n,
+                      'btn_delete'.l10n,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 11,
@@ -276,27 +307,24 @@ class ChatInfoView extends StatelessWidget {
       return _padding(
         ReactiveTextField(
           key: const Key('RenameChatField'),
-          state: c.chatName,
+          state: c.name,
           label: c.chat?.chat.value.name == null
               ? c.chat?.title.value
               : 'label_name'.l10n,
           hint: 'label_name_hint'.l10n,
-          onSuffixPressed: c.chatName.text.isEmpty
+          onSuffixPressed: c.name.text.isEmpty
               ? null
               : () {
-                  Clipboard.setData(ClipboardData(text: c.chatName.text));
+                  Clipboard.setData(ClipboardData(text: c.name.text));
                   MessagePopup.success('label_copied_to_clipboard'.l10n);
                 },
-          trailing: c.chatName.text.isEmpty
+          trailing: c.name.text.isEmpty
               ? null
               : Transform.translate(
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
+                    child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
                   ),
                 ),
         ),
@@ -352,12 +380,17 @@ class ChatInfoView extends StatelessWidget {
                     ),
                     children: [
                       TextSpan(
-                        text:
-                            '${'label_transition_count'.l10n}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}. ',
-                        style: const TextStyle(color: Color(0xFF888888)),
+                        text: 'label_transition_count'.l10nfmt({
+                              'count':
+                                  c.chat?.chat.value.directLink?.usageCount ?? 0
+                            }) +
+                            'dot_space'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                       TextSpan(
-                        text: 'btn_more_detailed'.l10n,
+                        text: 'label_details'.l10n,
                         style: const TextStyle(color: Color(0xFF00A3FF)),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
@@ -370,25 +403,6 @@ class ChatInfoView extends StatelessWidget {
         ],
       );
     });
-  }
-
-  /// Returns label for [Block]
-  Widget _label(BuildContext context, String text) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            text,
-            style: style.systemMessageStyle
-                .copyWith(color: Colors.black, fontSize: 18),
-          ),
-        ),
-      ),
-    );
   }
 
   /// Returns a list of [Chat.members].
@@ -481,11 +495,58 @@ class ChatInfoView extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           ...members.map((e) {
+            final bool inCall = c.chat?.chat.value.ongoingCall?.members
+                    .any((u) => u.user.id == e.id) ==
+                true;
+
             return ContactTile(
               user: e,
               darken: 0.05,
               onTap: () => router.user(e.id, push: true),
               trailing: [
+                if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
+                  if (inCall)
+                    WidgetButton(
+                      key: const Key('Drop'),
+                      onPressed: c.dropCall,
+                      child: Container(
+                        height: 22,
+                        width: 22,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: SvgLoader.asset(
+                            'assets/icons/call_end.svg',
+                            width: 22,
+                            height: 22,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Material(
+                      color: Theme.of(context).colorScheme.secondary,
+                      type: MaterialType.circle,
+                      child: InkWell(
+                        onTap: () => c.redialChatCallMember(e.id),
+                        borderRadius: BorderRadius.circular(60),
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/audio_call_start.svg',
+                              width: 10,
+                              height: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 12),
+                ],
                 if (e.id == c.me)
                   WidgetButton(
                     onPressed: () => c.removeChatMember(e.id),
@@ -555,14 +616,13 @@ class ChatInfoView extends StatelessWidget {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
 
             return WidgetButton(
-              onPressed: () =>
-                  favorited ? c.unfavoriteChat(id) : c.favoriteChat(id),
+              onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
                     text: favorited
-                        ? 'btn_delete_from_favorites_action'.l10n
-                        : 'btn_add_to_favorites_action'.l10n,
+                        ? 'btn_delete_from_favorites'.l10n
+                        : 'btn_add_to_favorites'.l10n,
                     editable: false,
                   ),
                   trailing: Transform.translate(
@@ -588,7 +648,7 @@ class ChatInfoView extends StatelessWidget {
             final bool muted = c.chat?.chat.value.muted != null;
 
             return WidgetButton(
-              onPressed: () => muted ? c.unmuteChat(id) : c.muteChat(id),
+              onPressed: muted ? c.unmuteChat : c.muteChat,
               child: IgnorePointer(
                 child: ReactiveTextField(
                   state: TextFieldState(
@@ -622,7 +682,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
-            onPressed: () => c.hideChat(id),
+            onPressed: c.hideChat,
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
@@ -674,7 +734,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
-            onPressed: c.me != null ? () => c.removeChatMember(c.me!) : () {},
+            onPressed: () => c.removeChatMember(c.me!),
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(

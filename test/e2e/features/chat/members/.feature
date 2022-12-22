@@ -24,15 +24,16 @@ Feature: Chat members
     And I open chat's info
 
   Scenario: User removes a member
-    Given I wait until text "Bob" is present
+    When I wait until text "Bob" is present
     And I tap `DeleteChatMember` button
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member
     When I tap `AddMemberButton` button
-    And I wait until `SearchView` is present
-    Then I fill `SearchTextField` field with "Charlie"
+    Then I wait until `SearchView` is present
+
+    When I fill `SearchTextField` field with "Charlie"
     And I tap user Charlie in search results
-    Then I tap `SearchSubmitButton` button
+    And I tap `SearchSubmitButton` button
     And I tap `CloseButton` button
     Then I wait until text "Charlie" is present

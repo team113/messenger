@@ -29,7 +29,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 export 'view.dart';
 
-/// Controller of a [AddChatMemberView].
+/// Controller of an [AddChatMemberView].
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
     this.chatId,
@@ -37,7 +37,7 @@ class AddChatMemberController extends GetxController {
     this.pop,
   });
 
-  /// ID of the [Chat] to which new members adds.
+  /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
   /// Reactive [RxChat] this modal is about.
@@ -47,7 +47,7 @@ class AddChatMemberController extends GetxController {
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Status of a [addMembers] completion.
+  /// Status of an [addMembers] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [addMembers] is executing.
@@ -108,7 +108,7 @@ class AddChatMemberController extends GetxController {
 
       await Future.wait(futures);
 
-      MessagePopup.success('label_participants_added_successfully'.l10n);
+      pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {

@@ -42,8 +42,6 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned chat tile in mobile interface. ([#246], [#232])
-    - Chat info page:
-        - Redesigned chat info page. ([#265], [#256])    
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
@@ -58,6 +56,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned user page. ([#254], [#252])
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
+    - Chat info page:
+        - Redesigned chat info page. ([#265], [#256])    
 
 ### Fixed
 
@@ -114,9 +114,9 @@ All user visible changes to this project will be documented in this file. This p
 [#251]: /../../pull/251
 [#252]: /../../issues/252
 [#254]: /../../pull/254
-[#252]: /../../issues/259
-[#254]: /../../pull/260
 [#256]: /../../issues/256
+[#259]: /../../issues/259
+[#260]: /../../pull/260
 [#265]: /../../pull/265
 
 

@@ -33,6 +33,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -68,14 +69,14 @@ class ChatInfoController extends GetxController {
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
 
-  /// [CallService] used to start the call in the [chat].
+  /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
 
   /// [Chat.name] field state.
-  late final TextFieldState chatName;
+  late final TextFieldState name;
 
   /// [Chat.directLink] field state.
   late final TextFieldState link;
@@ -95,14 +96,17 @@ class ChatInfoController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  bool get inCall =>
+      _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
+
   @override
   void onInit() {
-    chatName = TextFieldState(
+    name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) {
-        s.error.value = null;
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
@@ -156,9 +160,7 @@ class ChatInfoController extends GetxController {
       text: chat?.chat.value.directLink?.slug.val ??
           ChatDirectLinkSlug.generate(10).val,
       submitted: chat?.chat.value.directLink != null,
-      onChanged: (s) {
-        s.error.value = null;
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         ChatDirectLinkSlug? slug;
         try {
@@ -289,10 +291,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Unmutes a [Chat] identified by the provided [id].
-  Future<void> unmuteChat(ChatId id) async {
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
     try {
-      await _chatService.toggleChatMute(id, null);
+      await _chatService.toggleChatMute(chatId, null);
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -301,10 +303,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id) async {
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
     try {
-      await _chatService.toggleChatMute(id, MuteDuration.forever());
+      await _chatService.toggleChatMute(chatId, MuteDuration.forever());
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -313,10 +315,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(ChatId id) async {
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
     try {
-      await _chatService.favoriteChat(id);
+      await _chatService.favoriteChat(chatId);
     } on FavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -325,10 +327,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Removes the specified [Chat] identified by its [id] from the favorites.
-  Future<void> unfavoriteChat(ChatId id) async {
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
     try {
-      await _chatService.unfavoriteChat(id);
+      await _chatService.unfavoriteChat(chatId);
     } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -337,14 +339,39 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id].
-  Future<void> hideChat(ChatId id) async {
+  /// Hides the [chat].
+  Future<void> hideChat() async {
     try {
-      await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
+      await _chatService.hideChat(chatId);
+      if (router.route == '${Routes.chat}/$chatId') {
         router.go('/');
       }
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Joins an [OngoingCall] happening in the [chat].
+  Future<void> joinCall() => _callService.join(chatId, withVideo: false);
+
+  /// Drops the [OngoingCall] happening in the [chat].
+  Future<void> dropCall() => _callService.leave(chatId);
+
+  /// Redials the [User] identified by its [userId].
+  Future<void> redialChatCallMember(UserId userId) async {
+    if (userId == me) {
+      await _callService.join(chatId);
+      return;
+    }
+
+    MessagePopup.success('label_participant_redial_successfully'.l10n);
+
+    try {
+      await _callService.redialChatCallMember(chatId, userId);
+    } on RedialChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -359,7 +386,7 @@ class ChatInfoController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      chatName.unchecked = chat!.chat.value.name?.val;
+      name.unchecked = chat!.chat.value.name?.val;
 
       if (chat!.chat.value.directLink?.slug.val == null) {
         link.text = ChatDirectLinkSlug.generate(10).val;
@@ -370,10 +397,10 @@ class ChatInfoController extends GetxController {
       _worker = ever(
         chat!.chat,
         (Chat chat) {
-          if (!chatName.focus.hasFocus) {
-            chatName.unchecked = chat.name?.val;
+          if (!name.focus.hasFocus && !name.changed.value) {
+            name.unchecked = chat.name?.val;
           }
-          if (!link.focus.hasFocus) {
+          if (!link.focus.hasFocus && !link.changed.value) {
             link.unchecked = chat.directLink?.slug.val;
           }
         },
