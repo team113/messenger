@@ -548,7 +548,7 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
   MultiDragGestureRecognizer createRecognizer(
     GestureMultiDragStartCallback onStart,
   ) {
-    return _ImmediateDelayedMultiDragGestureRecognizer()
+    return _ImmediateDelayedMultiDragGestureRecognizer(debugOwner: '$hashCode')
       ..onStart = (Offset position) {
         final Drag? result = onStart(position);
         if (result != null) {
