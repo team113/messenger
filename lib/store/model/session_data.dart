@@ -38,6 +38,10 @@ class SessionData extends HiveObject {
   /// Persisted [FavoriteChatsListVersion] data.
   @HiveField(2)
   FavoriteChatsListVersion? favoriteChatsListVersion;
+
+  /// Persisted [FavoriteChatsListVersion] data.
+  // @HiveField(3)
+  // WindowPreferences? windowPreferences;
 }
 
 /// Version of [Session]'s state.
@@ -62,3 +66,24 @@ class RememberedSessionVersion extends NewType<BigInt> {
   factory RememberedSessionVersion.parse(String val) =>
       RememberedSessionVersion(BigInt.parse(val));
 }
+
+/// Version of [RememberedSession]'s state.
+///
+/// It increases monotonically, so may be used (and is intended to) for
+/// tracking state's actuality.
+// @HiveType(typeId: ModelTypeId.windowPreferences)
+// class WindowPreferences {
+//   WindowPreferences({this.width, this.height, this.dx, this.dy});
+//
+//   @HiveField(0)
+//   double? width;
+//
+//   @HiveField(1)
+//   double? height;
+//
+//   @HiveField(2)
+//   double? dx;
+//
+//   @HiveField(3)
+//   double? dy;
+// }

@@ -28,6 +28,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/store/model/preferences.dart';
+import 'package:messenger/store/model/session_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -39,6 +41,7 @@ import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/preferences.dart';
 import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -144,34 +147,55 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> with WindowListener {
+  late PreferencesHiveProvider preferencesProvider;
   @override
-  // void initState() {
-  //   _init();
-  //   super.initState();
-  // }
+  void initState() {
+    _init();
+    super.initState();
+  }
 
-  //
-  // @override
-  // void dispose() async {
-  //   windowManager.removeListener(this);
-  //   super.dispose();
-  // }
-  //
-  // void _init() async {
-  //   // Add this line to override the default close handler
-  //   // await windowManager.setPreventClose(true);
-  //   await windowManager.setSize(Size(100, 100));
-  //   await windowManager.setPosition(Offset(0, 25));
-  //   setState(() {});
-  // }
-  //
-  // @override
-  // void onWindowClose() async {
-  //   print('onWindowClose');
-  //   print(await windowManager.getSize());
-  //   print(await windowManager.getPosition());
-  //   await windowManager.destroy();
-  // }
+  @override
+  void dispose() async {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  void _init() async {
+    await windowManager.ensureInitialized();
+    windowManager.addListener(this);
+    preferencesProvider = PreferencesHiveProvider();
+    await preferencesProvider.init();
+    // Add this line to override the default close handler
+    // await windowManager.setPreventClose(true);
+    WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
+    print(prefs?.height);
+    if (prefs?.width != null && prefs?.height != null) {
+      await windowManager.setSize(Size(prefs!.width!, prefs.height!));
+    }
+    if (prefs?.dx != null && prefs?.dy != null) {
+      await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!));
+    }
+    await windowManager.setPreventClose(true);
+    setState(() {});
+  }
+
+  @override
+  void onWindowClose() async {
+    Size size = await windowManager.getSize();
+    Offset position = await windowManager.getPosition();
+    await preferencesProvider.setWindowPreferences(
+      WindowPreferences(
+        width: size.width,
+        height: size.height,
+        dx: position.dx,
+        dy: position.dy,
+      ),
+    );
+    print('onWindowClose');
+    print(await windowManager.getSize());
+    print(await windowManager.getPosition());
+    await windowManager.destroy();
+  }
 
   @override
   Widget build(BuildContext context) {

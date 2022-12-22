@@ -46,10 +46,12 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
+import 'provider/hive/preferences.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
+import 'store/model/preferences.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
@@ -312,21 +314,51 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   AppRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
     _prefixWorker = ever(_state.prefix, (_) => _updateTabTitle());
+    _init();
   }
+  late PreferencesHiveProvider preferencesProvider;
 
   void _init() async {
-    windowManager.addListener(this);
-    await windowManager.setPreventClose(true);
-    await windowManager.setSize(Size(100, 100));
-    await windowManager.setPosition(Offset(0, 25));
+    // await windowManager.ensureInitialized();
+    // windowManager.addListener(this);
+    // preferencesProvider = PreferencesHiveProvider();
+    // await preferencesProvider.init();
+    // // Add this line to override the default close handler
+    // // await windowManager.setPreventClose(true);
+    // WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
+    // print(prefs?.height);
+    // if (prefs?.width != null && prefs?.height != null) {
+    //   await windowManager.setSize(Size(prefs!.width!, prefs.height!));
+    // }
+    // if (prefs?.dx != null && prefs?.dy != null) {
+    //   await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!),
+    //       animate: true);
+    // }
+    // await windowManager.setPreventClose(true);
+    // setState(() {});
   }
+
+  // @override
+  // void onWindowEvent(String eventName) {
+  //   print('[WindowManager] onWindowEvent: $eventName');
+  // }
 
   @override
   void onWindowClose() async {
-    print('onWindowClose');
-    print(await windowManager.getSize());
-    print(await windowManager.getPosition());
-    await windowManager.destroy();
+    // Size size = await windowManager.getSize();
+    // Offset position = await windowManager.getPosition();
+    // await preferencesProvider.setWindowPreferences(
+    //   WindowPreferences(
+    //     width: size.width,
+    //     height: size.height,
+    //     dx: position.dx,
+    //     dy: position.dy,
+    //   ),
+    // );
+    // print('onWindowClose');
+    // print(await windowManager.getSize());
+    // print(await windowManager.getPosition());
+    // await windowManager.destroy();
   }
 
   @override
@@ -524,8 +556,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
             ]);
-
-            _init();
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
