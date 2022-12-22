@@ -23,8 +23,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart'
-    show AddChatMemberException, TransformDialogCallIntoGroupCallException;
+import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 export 'view.dart';
@@ -43,7 +42,7 @@ class AddChatMemberController extends GetxController {
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Callback, called when a [AddChatMemberView] this controller is bound to
+  /// Callback, called when an [AddChatMemberView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
@@ -111,8 +110,6 @@ class AddChatMemberController extends GetxController {
       pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
-    } on TransformDialogCallIntoGroupCallException catch (e) {
-      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -124,7 +121,7 @@ class AddChatMemberController extends GetxController {
   /// Fetches the [chat].
   void _fetchChat() async {
     chat.value = null;
-    chat.value = (await _chatService.get(chatId));
+    chat.value = await _chatService.get(chatId);
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

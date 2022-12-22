@@ -23,7 +23,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -59,6 +59,7 @@ import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/overflow_error.dart';
 import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -163,6 +164,7 @@ void main() async {
   await messagesProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
+    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
       theme: Themes.light(),
       home: Scaffold(body: child),

@@ -32,7 +32,7 @@ class AddChatMemberView extends StatelessWidget {
   /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
-  /// Displays a [AddChatMemberView] wrapped in a [ModalPopup].
+  /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
     return ModalPopup.show(
       context: context,

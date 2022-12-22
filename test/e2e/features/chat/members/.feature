@@ -25,7 +25,7 @@ Feature: Chat members
 
   Scenario: User removes a member
     When I wait until text "Bob" is present
-    And I tap `DeleteChatMember` button
+    And I tap `DeleteMemberButton` button
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member

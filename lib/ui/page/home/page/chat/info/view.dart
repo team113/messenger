@@ -560,7 +560,7 @@ class ChatInfoView extends StatelessWidget {
                   )
                 else
                   WidgetButton(
-                    key: const Key('DeleteChatMember'),
+                    key: const Key('DeleteMemberButton'),
                     onPressed: () => c.removeChatMember(e.id),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',
