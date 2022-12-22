@@ -35,6 +35,7 @@ alert_popup_permissions_description =
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
 btn_add_participant = Add participant
+btn_add_participants = Add participants
 btn_add_participant_desc =
     Add
     participant
@@ -621,3 +622,6 @@ label_add_phone_confirmation_sent = A confirmation code has been sent to the ind
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_language = Language
 err_incorrect_status = Status can't be longer that 25 symbols
+label_participants_of = Participants: {$a} of {$b}
+alert_user_will_be_removed1 = User{" "}
+alert_user_will_be_removed2 = {" "}will be removed from the group.

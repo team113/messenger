@@ -639,3 +639,6 @@ label_add_phone_confirmation_sent_again = На указанный Вам ном�
 label_language = Язык
 label_status = Cтатус
 err_incorrect_status = Статус не может быть больше 25 символов
+label_participants_of = Участников: {$a} из {$b}
+alert_user_will_be_removed1 = Пользователь{" "}
+alert_user_will_be_removed2 = {" "}будет удалён из группы.

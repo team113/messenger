@@ -14,9 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/ongoing_call.dart';
@@ -105,20 +106,22 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
+              final Set<UserId> actualMembers =
+                  call.value.members.keys.map((k) => k.userId).toSet();
+
               List<Widget> children = [
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: _chat(context, c.chat.value),
-                ),
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    'label_participants'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'label_participants_of'.l10nfmt({
+                        'a': actualMembers.length,
+                        'b': c.chat.value?.members.length ?? 1,
+                      }),
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 Expanded(
                   child: ListView(
                     controller: ScrollController(),
@@ -175,96 +178,6 @@ class ParticipantView extends StatelessWidget {
           );
         });
       },
-    );
-  }
-
-  /// Returns a visual representation of the provided [chat].
-  Widget _chat(BuildContext context, RxChat? chat) {
-    Style style = Theme.of(context).extension<Style>()!;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          color: Colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: style.cardColor.darken(0.05),
-          child: InkWell(
-            borderRadius: style.cardRadius,
-            onTap: () {
-              // TODO: Open the [Routes.chat] page.
-            },
-            hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Obx(() {
-                                return Text(
-                                  chat?.title.value ?? '',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Row(
-                            children: [
-                              Obx(() {
-                                return Text(
-                                  'label_a_of_b'.l10nfmt({
-                                    'a':
-                                        '${call.value.members.keys.map((k) => k.userId).toSet().length}',
-                                    'b': '${chat?.members.length}',
-                                  }),
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                );
-                              }),
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                width: 1,
-                                height: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .subtitle2
-                                    ?.color,
-                              ),
-                              Obx(() {
-                                return Text(
-                                  duration.value.hhMmSs(),
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 

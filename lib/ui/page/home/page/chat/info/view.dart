@@ -39,6 +39,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
+import 'remove_member/view.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
@@ -799,7 +800,12 @@ class ChatInfoView extends StatelessWidget {
                 ],
                 if (e.id == c.me)
                   WidgetButton(
-                    onPressed: () => c.removeChatMember(e.id),
+                    // onPressed: () => c.removeChatMember(e.id),
+                    onPressed: () => RemoveMemberView.show(
+                      context,
+                      chatId: c.chatId,
+                      user: e,
+                    ),
                     child: Text(
                       'Leave',
                       style: TextStyle(
@@ -810,7 +816,12 @@ class ChatInfoView extends StatelessWidget {
                   )
                 else
                   WidgetButton(
-                    onPressed: () => c.removeChatMember(e.id),
+                    // onPressed: () => c.removeChatMember(e.id),
+                    onPressed: () => RemoveMemberView.show(
+                      context,
+                      chatId: c.chatId,
+                      user: e,
+                    ),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',
                       height: 14 * 1.5,
