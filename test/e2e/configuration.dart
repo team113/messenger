@@ -72,6 +72,7 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
@@ -137,6 +138,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         signInAs,
         tapDropdownItem,
         tapText,
+        tapUserInSearchResults,
         tapWidget,
         twoContacts,
         twoUsers,
