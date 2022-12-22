@@ -565,6 +565,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService,
               chatService,
               Get.find(),
+              Get.find(),
             ));
 
             deps.put(ChatWorker(

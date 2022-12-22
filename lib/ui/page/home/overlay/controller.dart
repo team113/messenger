@@ -57,7 +57,7 @@ class CallOverlayController extends GetxController {
 
   @override
   void onInit() {
-    _subscription = _callService.calls.changes.listen((event) async {
+    _subscription = _callService.calls.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           bool window = false;
@@ -66,8 +66,6 @@ class CallOverlayController extends GetxController {
           if (PlatformUtils.isWeb &&
               !PlatformUtils.isMobile &&
               _settings.value?.enablePopups != false) {
-            var chat = await _callService.getChat(ongoingCall.chatId.value);
-
             window = WebUtils.openPopupCall(
               event.key!,
               withAudio:
@@ -79,7 +77,6 @@ class CallOverlayController extends GetxController {
               withScreen: ongoingCall.screenShareState.value ==
                       LocalTrackState.enabling ||
                   ongoingCall.screenShareState.value == LocalTrackState.enabled,
-              localPrefs: chat?.callPrefs.value,
             );
 
             // If [window] is `true`, then a new popup window is created, so

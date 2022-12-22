@@ -366,8 +366,10 @@ class WebUtils {
 
     CallPreferences? prefs = getCallPreferences(chatId);
 
-    final width = localPrefs?.width ?? min(prefs?.width ?? 500, screenW);
-    final height = localPrefs?.height ?? min(prefs?.height ?? 500, screenH);
+    final width =
+        localPrefs?.width ?? min(prefs?.width ?? 500, screenW.toDouble());
+    final height =
+        localPrefs?.height ?? min(prefs?.height ?? 500, screenH.toDouble());
 
     var left = localPrefs?.left ?? prefs?.left ?? screenW - 50 - width;
     if (left < 0) {

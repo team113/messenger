@@ -181,10 +181,6 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
-
-  /// Removes the specified [Chat] from the favorites list of the authenticated
-  /// [MyUser].
-  Future<void> updateCallPreferences(ChatId id, CallPreferences prefs);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -232,8 +228,6 @@ abstract class RxChat {
 
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
-
-  Rx<CallPreferences?> get callPrefs;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();

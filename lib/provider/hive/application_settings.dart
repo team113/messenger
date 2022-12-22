@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/domain/model/chat.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/chat.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ApplicationSettings].
@@ -33,7 +33,6 @@ class ApplicationSettingsHiveProvider
   void registerAdapters() {
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
     Hive.maybeRegisterAdapter(CallPreferencesAdapter());
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -93,11 +92,10 @@ class ApplicationSettingsHiveProvider
   Future<void> setCallPreferences(
     ChatId id,
     CallPreferences preferences,
-  ) async {
-    print('setCallPreferences');
-    putSafe(
-      0,
-      (box.get(0) ?? ApplicationSettings())..callsPreferences[id] = preferences,
-    );
-  }
+  ) =>
+      putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())
+          ..callsPreferences[id] = preferences,
+      );
 }

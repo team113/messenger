@@ -312,7 +312,4 @@ class ChatService extends DisposableService {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
-
-  Future<void> updateCallPreferences(ChatId id, CallPreferences prefs) =>
-      _chatRepository.updateCallPreferences(id, prefs);
 }

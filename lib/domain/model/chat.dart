@@ -54,11 +54,9 @@ class Chat extends HiveObject {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
-    CallPreferences? callPrefs,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
-        lastDelivery = lastDelivery ?? PreciseDateTime.now(),
-        callPrefs = callPrefs ?? CallPreferences();
+        lastDelivery = lastDelivery ?? PreciseDateTime.now();
 
   /// Unique ID of this [Chat].
   @HiveField(0)
@@ -155,11 +153,6 @@ class Chat extends HiveObject {
   /// [MyUser].
   @HiveField(17)
   ChatFavoritePosition? favoritePosition;
-
-  /// Position of this [Chat] in the favorites list of the authenticated
-  /// [MyUser].
-  @HiveField(18)
-  CallPreferences callPrefs;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
@@ -290,16 +283,20 @@ class CallPreferences {
   CallPreferences({this.width, this.height, this.left, this.top});
 
   /// Width of the popup window these [CallPreferences] are about.
-  int? width;
+  @HiveField(0)
+  double? width;
 
   /// Height of the popup window these [CallPreferences] are about.
-  int? height;
+  @HiveField(1)
+  double? height;
 
   /// Left position of the popup window these [CallPreferences] are about.
-  int? left;
+  @HiveField(2)
+  double? left;
 
   /// Top position of the popup window these [CallPreferences] are about.
-  int? top;
+  @HiveField(3)
+  double? top;
 
   /// Constructs a [CallPreferences] from the provided [data].
   factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {

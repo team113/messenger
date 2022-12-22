@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -50,6 +51,7 @@ class CallWorker extends DisposableService {
     this._callService,
     this._chatService,
     this._notificationService,
+    this._settingsRepository,
   );
 
   /// [BackgroundWorker] used to get data from its service.
@@ -63,6 +65,7 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -377,7 +380,7 @@ class CallWorker extends DisposableService {
       } else if (s.key?.startsWith('prefs_call_') == true) {
         ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
         var prefs = CallPreferences.fromJson(json.decode(s.newValue!));
-        _callService.updateCallPreferences(chatId, prefs);
+        _settingsRepository.setCallPreferences(chatId, prefs);
       }
     });
   }

@@ -60,8 +60,7 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        callPrefs = Rx<CallPreferences?>(hiveChat.value.callPrefs);
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
   @override
   final Rx<Chat> chat;
@@ -86,9 +85,6 @@ class HiveRxChat extends RxChat {
 
   @override
   final Rx<ChatMessage?> draft;
-
-  @override
-  final Rx<CallPreferences?> callPrefs;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;

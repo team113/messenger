@@ -61,8 +61,8 @@ class CallService extends DisposableService {
   Future<RxChat?> getChat(ChatId chatId) async =>
       await _chatService.get(chatId);
 
-  Future<void> updateCallPreferences(ChatId id, CallPreferences prefs) =>
-      _chatService.updateCallPreferences(id, prefs);
+  // Future<void> updateCallPreferences(ChatId id, CallPreferences prefs) =>
+  //     _chatService.updateCallPreferences(id, prefs);
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(

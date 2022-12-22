@@ -19,9 +19,9 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/model/chat.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
@@ -68,7 +68,6 @@ class SettingsRepository extends DisposableInterface
   void onInit() {
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
-    print('settings from local: ${_settingsLocal.settings?.callsPreferences}');
     background.value = _backgroundLocal.bytes;
     _initMediaSubscription();
     _initSettingsSubscription();

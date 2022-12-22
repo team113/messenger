@@ -510,8 +510,6 @@ class CallController extends GetxController {
 
     _currentCall.value.init();
 
-    print('my id: ${_currentCall.value.chatId.value}');
-
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
@@ -525,37 +523,6 @@ class CallController extends GetxController {
 
     CallPreferences? prefs = _settingsRepository.applicationSettings.value
         ?.callsPreferences[_currentCall.value.chatId.value];
-    print('prefs: ${prefs}');
-    print('prefs: ${prefs?.top}');
-
-    // if (_settingsRepository
-    //         .applicationSettings.value?.callsPreferences[v?.id]?.top !=
-    //     null) {
-    //   top.value = _settingsRepository
-    //       .applicationSettings.value!.callsPreferences[v!.id]!.top!
-    //       .toDouble();
-    // }
-    // if (_settingsRepository
-    //         .applicationSettings.value?.callsPreferences[v?.id]?.left !=
-    //     null) {
-    //   left.value = _settingsRepository
-    //       .applicationSettings.value!.callsPreferences[v!.id]!.left!
-    //       .toDouble();
-    // }
-    // if (_settingsRepository
-    //         .applicationSettings.value?.callsPreferences[v?.id]?.width !=
-    //     null) {
-    //   width.value = _settingsRepository
-    //       .applicationSettings.value!.callsPreferences[v!.id]!.width!
-    //       .toDouble();
-    // }
-    // if (_settingsRepository
-    //         .applicationSettings.value?.callsPreferences[v?.id]?.height !=
-    //     null) {
-    //   height.value = _settingsRepository
-    //       .applicationSettings.value!.callsPreferences[v!.id]!.height!
-    //       .toDouble();
-    // }
 
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
@@ -604,8 +571,6 @@ class CallController extends GetxController {
         secondaryBottom.value = 10;
         secondaryBottomShifted = secondaryBottom.value;
       }
-
-      print(_settingsRepository.applicationSettings.value!.callsPreferences);
 
       // Update the [WebUtils.title] if this call is in a popup.
       if (WebUtils.isPopup) {
@@ -880,10 +845,10 @@ class CallController extends GetxController {
     _settingsRepository.setCallPreferences(
       chat.value!.id,
       CallPreferences(
-        top: top.value.toInt(),
-        left: left.value.toInt(),
-        width: width.value.toInt(),
-        height: height.value.toInt(),
+        top: top.value,
+        left: left.value,
+        width: width.value,
+        height: height.value,
       ),
     );
 
