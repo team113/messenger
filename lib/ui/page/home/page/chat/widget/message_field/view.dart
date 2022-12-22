@@ -89,6 +89,7 @@ class MessageFieldView extends StatelessWidget {
 
     return GetBuilder(
       init: controller ?? MessageFieldController(Get.find(), Get.find()),
+      global: false,
       builder: (MessageFieldController c) {
         return Theme(
           data: Theme.of(context).copyWith(

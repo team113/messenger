@@ -61,11 +61,6 @@ class ChatForwardView extends StatelessWidget {
     String? text,
     List<Attachment>? attachments,
   }) {
-    RxList<MapEntry<GlobalKey, Attachment>> attachmentsToSend =
-        RxList<MapEntry<GlobalKey, Attachment>>();
-    attachments?.forEach((e) {
-      attachmentsToSend.add(MapEntry(GlobalKey(), e));
-    });
     return ModalPopup.show(
       context: context,
       desktopConstraints:
@@ -76,7 +71,9 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachmentsToSend,
+        attachments: attachments == null
+            ? null
+            : RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()),
         text: text,
       ),
     );

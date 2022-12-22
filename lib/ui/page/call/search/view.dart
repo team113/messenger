@@ -30,7 +30,6 @@ import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the [User]s search.
@@ -133,7 +132,12 @@ class SearchView extends StatelessWidget {
                     if (c.searchStatus.value.isSuccess) {
                       return Center(child: Text('label_nothing_found'.l10n));
                     } else if (c.searchStatus.value.isEmpty) {
-                      return Center(child: Text('label_use_search'.l10n));
+                      return Center(
+                        child: Text(
+                          'label_use_search'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
                     }
 
                     return const Center(child: CircularProgressIndicator());
@@ -232,30 +236,6 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Builds a [WidgetButton] of the provided [category].
-  Widget _category(
-    BuildContext context,
-    SearchController c,
-    SearchCategory category,
-  ) {
-    return WidgetButton(
-      onPressed: () => c.jumpTo(category),
-      child: Obx(() {
-        final TextStyle? thin = Theme.of(context).textTheme.bodyText1?.copyWith(
-              fontSize: 15,
-              color: c.category.value == category
-                  ? Theme.of(context).colorScheme.secondary
-                  : null,
-            );
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: Text(category.l10n, style: thin),
-        );
-      }),
-    );
-  }
-
   /// Builds a visual representation of the provided [user], [contact] or
   /// [chat].
   Widget tile({
@@ -275,9 +255,7 @@ class SearchView extends StatelessWidget {
           key: Key('Chat_${chat.id}'),
           chat: chat,
           selected: selected,
-          height: 76,
           onTap: onTap,
-          radius: 26,
           selectedColor: style.cardSelectedColor,
           unselectedColor: style.cardColor.darken(0.05),
           selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
@@ -355,22 +333,5 @@ class SearchView extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-/// Extension adding [L10n] to a [SearchCategory].
-extension _SearchCategoryL10n on SearchCategory {
-  /// Returns a localized [String] of this [SearchCategory].
-  String get l10n {
-    switch (this) {
-      case SearchCategory.recent:
-        return 'label_recent'.l10n;
-      case SearchCategory.contact:
-        return 'label_contacts'.l10n;
-      case SearchCategory.user:
-        return 'label_users'.l10n;
-      case SearchCategory.chat:
-        return 'label_chats'.l10n;
-    }
   }
 }

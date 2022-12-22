@@ -38,8 +38,6 @@ class ChatTile extends StatelessWidget {
     this.actions = const [],
     this.selected = false,
     this.onTap,
-    this.height = 94,
-    this.radius = 30,
     this.unselectedColor,
     this.selectedColor,
     this.selectedHoverColor,
@@ -75,12 +73,6 @@ class ChatTile extends StatelessWidget {
   /// Callback, called when this [ChatTile] is pressed.
   final void Function()? onTap;
 
-  /// Height of this [ChatTile].
-  final double height;
-
-  /// Radius of an [AvatarWidget] this [ChatTile] displays.
-  final double radius;
-
   /// Background color of unselected this [ChatTile].
   final Color? unselectedColor;
 
@@ -108,7 +100,7 @@ class ChatTile extends StatelessWidget {
       preventContextMenu: false,
       actions: actions,
       child: SizedBox(
-        height: height,
+        height: 94,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
@@ -132,7 +124,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: radius),
+                  AvatarWidget.fromRxChat(chat, radius: 30),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

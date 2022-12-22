@@ -480,10 +480,8 @@ class ChatController extends GetxController {
 
     if (item is ChatMessage) {
       edit.editedMessage.value = item;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        edit.send.text = item.text?.val ?? '';
-        edit.send.focus.requestFocus();
-      });
+      edit.send.text = item.text?.val ?? '';
+      edit.send.focus.requestFocus();
     }
   }
 
