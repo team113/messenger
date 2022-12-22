@@ -146,7 +146,7 @@ class AddMemberController extends GetxController {
 
       await Future.wait(futures);
 
-      MessagePopup.success('label_participants_added_successfully'.l10n);
+      pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {
