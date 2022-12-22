@@ -86,6 +86,9 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
+  @override
+  final List<LastChatRead> lastReads = <LastChatRead>[];
+
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
@@ -175,6 +178,13 @@ class HiveRxChat extends RxChat {
         for (HiveChatItem i in _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
         }
+
+        for (LastChatRead i in chat.value.lastReads) {
+          final lastReadAt = _lastReadAt(i.memberId, i.at);
+          if (lastReadAt != null) {
+            lastReads.add(LastChatRead(i.memberId, lastReadAt));
+          }
+        }
       }
 
       _initLocalSubscription();
@@ -209,6 +219,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
       messages.clear();
+      lastReads.clear();
       _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
@@ -658,6 +669,72 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  @override
+  void updateLastReadsByDeleting(ChatItemId itemId) {
+    final hiddenMessage =
+        messages.firstWhereOrNull((e) => e.value.id == itemId);
+
+    if (hiddenMessage != null) {
+      for (LastChatRead i in lastReads) {
+        if (hiddenMessage.value.at == i.at) {
+          final lastReadAt = _lastReadAt(i.memberId, i.at, false);
+          if (lastReadAt != null) {
+            i.at = lastReadAt;
+          }
+        }
+      }
+    }
+  }
+
+  /// Updates [lastReads] with a new [ChatEventKind.read].
+  void _updateLastReadsByAdding(EventChatRead event) {
+    final lastReadAt = _lastReadAt(event.byUser.id, event.at);
+
+    if (lastReadAt != null) {
+      LastChatRead? lastRead =
+          lastReads.firstWhereOrNull((e) => e.memberId == event.byUser.id);
+
+      if (lastRead == null) {
+        lastReads.add(LastChatRead(event.byUser.id, lastReadAt));
+      } else {
+        lastRead.at = lastReadAt;
+      }
+    }
+  }
+
+  @override
+  void backLastReads(List<LastChatRead> oldLastReads) {
+    for (LastChatRead i in oldLastReads) {
+      final LastChatRead? lastRead =
+          lastReads.firstWhereOrNull((e) => e.memberId == i.memberId);
+      if (lastRead != null && i.at > lastRead.at) {
+        lastRead.at = i.at;
+      }
+    }
+  }
+
+  /// Returns optional [PreciseDateTime] of the last read of [ChatItem].
+  PreciseDateTime? _lastReadAt(
+    UserId id,
+    PreciseDateTime at, [
+    bool adding = true,
+  ]) {
+    final previousMessages = adding
+        ? messages.where((e) =>
+            e.value is! ChatMemberInfo &&
+            e.value.at <= at &&
+            e.value.authorId != id)
+        : messages.where((e) =>
+            e.value is! ChatMemberInfo &&
+            e.value.at < at &&
+            e.value.authorId != id);
+
+    final sorted =
+        previousMessages.sorted((a, b) => a.value.at.compareTo(b.value.at));
+
+    return sorted.isNotEmpty ? sorted.last.value.at : null;
+  }
+
   /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_local.boxEvents);
@@ -932,6 +1009,7 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.read:
               event as EventChatRead;
+              _updateLastReadsByAdding(event);
               LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {

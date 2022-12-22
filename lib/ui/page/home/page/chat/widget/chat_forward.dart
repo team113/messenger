@@ -40,6 +40,7 @@ import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/chat_item_reads.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -59,6 +60,8 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    required this.lastReads,
+    required this.at,
     this.user,
     this.getUser,
     this.animation,
@@ -94,6 +97,13 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [User] posted these [forwards].
   final RxUser? user;
+
+  /// List of this [Chat]'s members which have read it, along with the
+  /// corresponding [LastChatRead]s.
+  final List<LastChatRead> lastReads;
+
+  /// [PreciseDateTime] when this [ChatForward] was posted.
+  final PreciseDateTime at;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -665,6 +675,41 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    const int maxAvatars = 4;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final Iterable<LastChatRead> reads = widget.lastReads
+          .where((e) => e.at == widget.at && e.memberId != widget.me);
+
+      final int take = reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in reads.take(take)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget.fromUser(user, radius: 10),
+          ),
+        );
+      }
+
+      if (reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(
+              title: '+${reads.length - take}',
+              radius: 10,
+            ),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       asStack: !_fromMe,
@@ -870,7 +915,30 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: child,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child,
+                              Transform.translate(
+                                offset: const Offset(-12, -4),
+                                child: WidgetButton(
+                                  onPressed: () => ChatItemReads.show(
+                                    context,
+                                    at: widget.at,
+                                    lastReads: widget.lastReads,
+                                    getUser: widget.getUser,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: avatars,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

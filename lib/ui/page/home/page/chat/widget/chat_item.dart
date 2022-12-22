@@ -65,6 +65,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.item,
     required this.me,
+    required this.lastReads,
     this.user,
     this.getUser,
     this.animation,
@@ -92,6 +93,10 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// List of this [Chat]'s members which have read it, along with the
+  /// corresponding [LastChatRead]s.
+  final List<LastChatRead> lastReads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -1231,16 +1236,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     const int maxAvatars = 4;
     final List<Widget> avatars = [];
 
-    if (widget.chat.value?.isGroup == true &&
-        widget.chat.value?.lastItem?.id == widget.item.value.id) {
-      widget.chat.value?.lastReads.removeWhere((e) => e.memberId == widget.me);
-
-      final Iterable<LastChatRead> reads = (widget.chat.value?.lastReads ?? [])
-          .where((e) =>
-              e.at == widget.item.value.at ||
-              e.at.isAfter(widget.item.value.at));
+    if (widget.chat.value?.isGroup == true) {
+      final Iterable<LastChatRead> reads = widget.lastReads
+          .where((e) => e.at == item.at && e.memberId != widget.me);
 
       final int take = reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
       for (LastChatRead m in reads.take(take)) {
         final User? user = widget.chat.value?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
@@ -1525,8 +1526,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               child: WidgetButton(
                                 onPressed: () => ChatItemReads.show(
                                   context,
-                                  item: widget.item,
-                                  chat: widget.chat,
+                                  at: item.at,
+                                  lastReads: widget.lastReads,
                                   getUser: widget.getUser,
                                 ),
                                 child: Row(

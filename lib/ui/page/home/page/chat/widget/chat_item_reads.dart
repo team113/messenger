@@ -15,10 +15,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -26,16 +25,21 @@ import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 
+/// Displays a list of [User]s for whom [ChatItem] is the last read.
 class ChatItemReads extends StatelessWidget {
   const ChatItemReads({
     super.key,
-    required this.item,
-    required this.chat,
+    required this.at,
+    required this.lastReads,
     this.getUser,
   });
 
-  final Rx<ChatItem> item;
-  final Rx<Chat?> chat;
+  /// [PreciseDateTime] when [ChatItem] was posted.
+  final PreciseDateTime at;
+
+  /// List of this [Chat]'s members which have read it, along with the
+  /// corresponding [LastChatRead]s.
+  final List<LastChatRead> lastReads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -44,8 +48,8 @@ class ChatItemReads extends StatelessWidget {
   /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<ChatItem> item,
-    required Rx<Chat?> chat,
+    required PreciseDateTime at,
+    required List<LastChatRead> lastReads,
     Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
@@ -60,7 +64,11 @@ class ChatItemReads extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      child: ChatItemReads(item: item, chat: chat, getUser: getUser),
+      child: ChatItemReads(
+        at: at,
+        lastReads: lastReads,
+        getUser: getUser,
+      ),
     );
   }
 
@@ -82,8 +90,8 @@ class ChatItemReads extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 25 - 12),
-        ...(chat.value?.lastReads ?? []).map((e) {
-          if (e.at == item.value.at || e.at.isAfter(item.value.at)) {
+        ...(lastReads).map((e) {
+          if (e.at == at) {
             return Padding(
               padding: ModalPopup.padding(context),
               child: FutureBuilder<RxUser?>(

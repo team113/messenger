@@ -229,6 +229,10 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
+  /// List of this [Chat]'s members which have read it, along with the
+  /// corresponding [LastChatRead]s.
+  List<LastChatRead> get lastReads;
+
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
 
@@ -249,4 +253,11 @@ abstract class RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  /// Updates [lastReads] when hiding [ChatItem].
+  void updateLastReadsByDeleting(ChatItemId itemId);
+
+  /// Updates [lastReads] to the previous value if an error occurred during the
+  /// mutation of hiding [ChatItem].
+  void backLastReads(List<LastChatRead> oldLastReads);
 }
