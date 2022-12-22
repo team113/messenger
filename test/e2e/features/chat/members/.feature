@@ -35,5 +35,4 @@ Feature: Chat members
     When I fill `SearchTextField` field with "Charlie"
     And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
-    And I tap `CloseButton` button
     Then I wait until text "Charlie" is present
