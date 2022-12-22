@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import 'web_utils.dart';

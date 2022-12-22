@@ -73,8 +73,5 @@ abstract class AbstractSettingsRepository {
   Future<void> setSortContactsByName(bool enabled);
 
   /// Updates the [ApplicationSettings.callsPreferences] map value.
-  Future<void> setCallPreferences(
-    ChatId id,
-    CallPreferences preferences,
-  );
+  Future<void> setCallPreferences(ChatId id, CallPreferences preferences);
 }

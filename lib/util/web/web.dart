@@ -37,6 +37,7 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';

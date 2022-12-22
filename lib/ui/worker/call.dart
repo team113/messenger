@@ -24,13 +24,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/settings.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
@@ -65,6 +66,8 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// Settings repository, used to store [CallPreferences].
   final AbstractSettingsRepository _settingsRepository;
 
   /// [NotificationService] used to show an incoming call notification.
@@ -379,8 +382,10 @@ class CallWorker extends DisposableService {
         }
       } else if (s.key?.startsWith('prefs_call_') == true) {
         ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
-        var prefs = CallPreferences.fromJson(json.decode(s.newValue!));
-        _settingsRepository.setCallPreferences(chatId, prefs);
+        _settingsRepository.setCallPreferences(
+          chatId,
+          CallPreferences.fromJson(json.decode(s.newValue!)),
+        );
       }
     });
   }

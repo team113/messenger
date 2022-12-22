@@ -526,11 +526,11 @@ class CallController extends GetxController {
 
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
-      width = RxDouble(prefs?.width?.toDouble() ?? size.width);
-      height = RxDouble(prefs?.height?.toDouble() ?? size.height);
+      width = RxDouble(prefs?.width ?? size.width);
+      height = RxDouble(prefs?.height ?? size.height);
     } else {
       width = RxDouble(
-        prefs?.width?.toDouble() ??
+        prefs?.width ??
             min(
               max(
                 min(
@@ -542,7 +542,7 @@ class CallController extends GetxController {
               size.height * _maxHeight,
             ),
       );
-      height = RxDouble(prefs?.height?.toDouble() ?? width.value);
+      height = RxDouble(prefs?.height ?? width.value);
     }
 
     double secondarySize = (this.size.shortestSide *
@@ -554,12 +554,11 @@ class CallController extends GetxController {
     secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
-        ? RxDouble(prefs?.left?.toDouble() ?? size.width - width.value - 50)
-        : RxDouble(prefs?.left?.toDouble() ?? size.width / 2 - width.value / 2);
+        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
+        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
     top = height.value + 50 < size.height
-        ? RxDouble(prefs?.top?.toDouble() ?? 50)
-        : RxDouble(
-            prefs?.top?.toDouble() ?? size.height / 2 - height.value / 2);
+        ? RxDouble(prefs?.top ?? 50)
+        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
     void onChat(RxChat? v) {
       chat.value = v;

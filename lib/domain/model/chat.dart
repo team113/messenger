@@ -277,39 +277,3 @@ class ChatFavoritePosition extends NewType<double>
   @override
   int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
 }
-
-@HiveType(typeId: ModelTypeId.callPreferences)
-class CallPreferences {
-  CallPreferences({this.width, this.height, this.left, this.top});
-
-  /// Width of the popup window these [CallPreferences] are about.
-  @HiveField(0)
-  double? width;
-
-  /// Height of the popup window these [CallPreferences] are about.
-  @HiveField(1)
-  double? height;
-
-  /// Left position of the popup window these [CallPreferences] are about.
-  @HiveField(2)
-  double? left;
-
-  /// Top position of the popup window these [CallPreferences] are about.
-  @HiveField(3)
-  double? top;
-
-  /// Constructs a [CallPreferences] from the provided [data].
-  factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {
-    return CallPreferences(
-      width: data['width'],
-      height: data['height'],
-      left: data['left'],
-      top: data['top'],
-    );
-  }
-
-  /// Returns a [Map] containing data of these [CallPreferences].
-  Map<String, dynamic> toJson() {
-    return {'width': width, 'height': height, 'left': left, 'top': top};
-  }
-}

@@ -132,10 +132,7 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
-  Future<void> setCallPreferences(
-    ChatId id,
-    CallPreferences preferences,
-  ) =>
+  Future<void> setCallPreferences(ChatId id, CallPreferences preferences) =>
       _settingsLocal.setCallPreferences(id, preferences);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.

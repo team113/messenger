@@ -87,12 +87,9 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
       );
 
-  /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
-  /// to [Hive].
-  Future<void> setCallPreferences(
-    ChatId id,
-    CallPreferences preferences,
-  ) =>
+  /// Stores calls [preferences] value in to
+  /// [ApplicationSettings.sortContactsByName] to [Hive].
+  Future<void> setCallPreferences(ChatId id, CallPreferences preferences) =>
       putSafe(
         0,
         (box.get(0) ?? ApplicationSettings())
