@@ -77,6 +77,7 @@ class CallOverlayController extends GetxController {
               withScreen: ongoingCall.screenShareState.value ==
                       LocalTrackState.enabling ||
                   ongoingCall.screenShareState.value == LocalTrackState.enabled,
+              localPrefs: _settings.value?.callsPreferences[event.key],
             );
 
             // If [window] is `true`, then a new popup window is created, so
