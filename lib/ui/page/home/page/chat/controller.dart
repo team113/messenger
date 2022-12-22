@@ -485,7 +485,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Updates [RxChat.draft] with the current [sendController] values,
+  /// Updates [RxChat.draft] with the current [send] values,
   /// [MessageFieldController.attachments] and
   /// [MessageFieldController.repliedMessages] fields.
   void updateDraft() {
