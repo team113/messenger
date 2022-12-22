@@ -18,63 +18,49 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/contact.dart';
-import '/domain/repository/contact.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/contact.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
+import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-
 export 'view.dart';
 
-/// Controller of the chat member addition modal.
+/// Controller of an [AddChatMemberView].
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
-    this.pop,
     this.chatId,
-    this._chatService,
-    this._contactService,
-  );
+    this._chatService, {
+    this.pop,
+  });
 
-  /// ID of the [Chat] this modal is about.
+  /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
-  /// Reactive state of the [Chat] this modal is about.
-  Rx<Rx<Chat>?> chat = Rx<Rx<Chat>?>(null);
+  /// Reactive [RxChat] this modal is about.
+  Rx<RxChat?> chat = Rx(null);
 
-  /// Status of an [addChatMembers] completion.
+  /// Callback, called when an [AddChatMemberView] this controller is bound to
+  /// should be popped from the [Navigator].
+  final void Function()? pop;
+
+  /// Status of an [addMembers] completion.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning no [addChatMembers] is executing.
-  /// - `status.isLoading`, meaning [addChatMembers] is executing.
-  /// - `status.isError`, meaning [addChatMembers] got an error.
+  /// - `status.isEmpty`, meaning no [addMembers] is executing.
+  /// - `status.isLoading`, meaning [addMembers] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [ChatContact]s.
-  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
-
-  /// Reactive list of the selected [User]s.
-  final RxList<User> selectedUsers = RxList<User>([]);
-
-  /// Pops the [AddChatMemberView] this controller is bound to.
-  final Function() pop;
-
-  /// [Chat]s service used to add members to a [Chat].
+  /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
 
-  /// [ChatContact]s service used to get [contacts] list.
-  final ContactService _contactService;
-
-  /// Returns the current reactive observable map of [RxChatContact]s.
-  RxObsMap<ChatContactId, RxChatContact> get contacts =>
-      _contactService.contacts;
-
   /// Subscription for the [ChatService.chats] changes.
-  late final StreamSubscription _chatsSubscription;
+  StreamSubscription? _chatsSubscription;
+
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _chatService.me;
 
   @override
   void onInit() {
@@ -86,7 +72,7 @@ class AddChatMemberController extends GetxController {
 
         case OperationKind.removed:
           if (e.key == chatId) {
-            pop();
+            pop?.call();
           }
           break;
 
@@ -107,65 +93,38 @@ class AddChatMemberController extends GetxController {
 
   @override
   void onClose() {
-    _chatsSubscription.cancel();
+    _chatsSubscription?.cancel();
     super.onClose();
   }
 
-  /// Adds [User]s of [selectedContacts] to a [Chat]-group.
-  Future<void> addChatMembers() async {
+  /// Adds the [User]s identified by the provided [UserId]s to this [chat].
+  Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
+
     try {
-      List<Future> futures = [];
-      for (var id in [
-        ...selectedContacts
-            .expand((e) => e.contact.value.users.map((u) => u.id)),
-        ...selectedUsers.map((u) => u.id),
-      ]) {
-        futures.add(_chatService.addChatMember(chatId, id));
-      }
+      List<Future> futures =
+          ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
 
       await Future.wait(futures);
 
-      selectedContacts.clear();
-      pop();
+      pop?.call();
     } on AddChatMemberException catch (e) {
-      status.value = RxStatus.error(e.toMessage());
+      MessagePopup.error(e);
     } catch (e) {
-      status.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
-    }
-  }
-
-  /// Selects or unselects the specified [contact].
-  void selectContact(RxChatContact contact) {
-    if (selectedContacts.contains(contact)) {
-      selectedContacts.remove(contact);
-    } else {
-      selectedContacts.add(contact);
-    }
-  }
-
-  /// Selects the specified [user].
-  void selectUser(User user) {
-    if (!selectedUsers.any((u) => u.id.val == user.id.val)) {
-      selectedUsers.add(user);
-    }
-  }
-
-  /// Unselects the specified [user].
-  void unselectUser(User user) {
-    if (selectedUsers.contains(user)) {
-      selectedUsers.remove(user);
+    } finally {
+      status.value = RxStatus.empty();
     }
   }
 
   /// Fetches the [chat].
   void _fetchChat() async {
-    chat.value = (await _chatService.get(chatId))?.chat;
+    chat.value = null;
+    chat.value = await _chatService.get(chatId);
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
-      pop();
+      pop?.call();
     }
   }
 }
