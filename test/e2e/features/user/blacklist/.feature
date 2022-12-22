@@ -14,18 +14,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-# TODO: Uncomment when `MyProfile` modals are implemented.
-#Feature: Application localization changes correctly
-#
-#  Scenario: User changes localization
-#    Given I am Alice
-#    And I wait until `HomeView` is present
-#
-#    Then I tap `MenuButton` button
-#    And I tap `SettingsButton` button
-#
-#    Then I tap `Language_enUS` within `LanguageDropdown` dropdown
-#    And I wait until text "Settings" is present
-#
-#    Then I tap `Language_ruRU` within `LanguageDropdown` dropdown
-#    And I wait until text "Настройки" is present
+Feature: Blacklist
+
+  Scenario: Blacklisted user cannot send me a message
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And I wait until `HomeView` is present
+
+    When I go to Bob's page
+    And I tap `Block` button
+    Then Bob sends message to me and receives blacklisted exception
+
+    When I tap `Unblock` button
+    Then Bob sends message to me and receives no exception
