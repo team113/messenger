@@ -82,6 +82,7 @@ class LanguageSelectionView extends StatelessWidget {
                     return Obx(() {
                       final bool selected = c.selected.value == e;
                       return SizedBox(
+                        key: Key('Language_${e.locale.languageCode}'),
                         child: Material(
                           borderRadius: BorderRadius.circular(10),
                           color: selected

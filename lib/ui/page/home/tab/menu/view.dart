@@ -216,6 +216,7 @@ class MenuTabView extends StatelessWidget {
                 switch (ProfileTab.values[i]) {
                   case ProfileTab.public:
                     child = card(
+                      key: const Key('PublicInformation'),
                       icon: Icons.person,
                       title: 'label_public_information'.l10n,
                       subtitle: 'label_public_section_hint'.l10n,
@@ -224,6 +225,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.signing:
                     child = card(
+                      key: const Key('Signing'),
                       icon: Icons.lock,
                       title: 'label_login_options'.l10n,
                       subtitle: 'label_login_section_hint'.l10n,
@@ -272,6 +274,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.language:
                     child = card(
+                      key: const Key('Language'),
                       icon: Icons.language,
                       title: 'label_language'.l10n,
                       subtitle: L10n.chosen.value?.name ??
@@ -294,6 +297,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.danger:
                     child = card(
+                      key: const Key('DangerZone'),
                       icon: Icons.dangerous,
                       title: 'label_danger_zone'.l10n,
                       subtitle: 'label_delete_account'.l10n,

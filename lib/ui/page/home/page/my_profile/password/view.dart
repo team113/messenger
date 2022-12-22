@@ -30,10 +30,10 @@ import 'controller.dart';
 /// View for updating the [MyUser]'s password.
 ///
 /// Intended to be displayed with the [show] method.
-class ChangePasswordView extends StatelessWidget {
-  const ChangePasswordView({Key? key}) : super(key: key);
+class PasswordView extends StatelessWidget {
+  const PasswordView({Key? key}) : super(key: key);
 
-  /// Displays a [ChangePasswordView] wrapped in a [ModalPopup].
+  /// Displays a [PasswordView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
     return ModalPopup.show(
       context: context,
@@ -47,7 +47,7 @@ class ChangePasswordView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: double.infinity,
       ),
-      child: const ChangePasswordView(),
+      child: const PasswordView(),
     );
   }
 
@@ -147,6 +147,7 @@ class ChangePasswordView extends StatelessWidget {
                           return const SizedBox();
                         }),
                         ReactiveTextField(
+                          key: const Key('NewPasswordField'),
                           state: c.newPassword,
                           label: 'label_new_password'.l10n,
                           obscure: c.obscureNewPassword.value,
@@ -159,6 +160,7 @@ class ChangePasswordView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         ReactiveTextField(
+                          key: const Key('RepeatPasswordField'),
                           state: c.repeatPassword,
                           label: 'label_repeat_password'.l10n,
                           obscure: c.obscureRepeatPassword.value,

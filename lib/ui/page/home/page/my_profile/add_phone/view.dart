@@ -93,6 +93,7 @@ class AddPhoneView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
+                          key: const Key('ConfirmationCode'),
                           state: c.phoneCode,
                           label: 'label_confirmation_code'.l10n,
                         ),
@@ -174,9 +175,10 @@ class AddPhoneView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
+                          key: const Key('Phone'),
                           state: c.phone,
                           label: 'label_phone_number',
-                          // TODO: make phone hint region dependent
+                          // TODO: Make phone hint region dependent.
                           hint: '+34 123 123 53 53',
                         ),
                         const SizedBox(height: 25),

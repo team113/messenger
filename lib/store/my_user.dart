@@ -305,7 +305,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           !u.phones.confirmed.contains(unconfirmed),
           unconfirmed!,
         );
-        u?.emails.unconfirmed = null;
+        u?.phones.unconfirmed = null;
       },
     );
 

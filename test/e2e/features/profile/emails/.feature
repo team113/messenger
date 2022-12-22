@@ -14,16 +14,27 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User subscription
+Feature: User can add, confirm and deletes emails
 
-  Scenario: User sees Bob changing his name
+  Scenario: User adds, confirms and deletes email
     Given I am Alice
-    And user Bob
     And I wait until `HomeView` is present
-    And I go to Bob's page
 
-    When Bob updates his name with "Hello world!"
-    Then I wait until text "Hello world!" is present
+    When I tap `MenuButton` button
+    And I tap `Signing` button
+    And I tap `AddEmail` button
+    And I wait until `Email` is present
+    And I fill `Email` field with "example@gmail.com"
+    And I tap `Proceed` button
+    And I tap `CloseButton` button
+    Then I wait until `UnconfirmedEmail` is present
 
-    When Bob updates his name with "Me Bob, me funny, haha"
-    Then I wait until text "Me Bob, me funny, haha" is present
+    When I tap `UnconfirmedEmail` widget
+    And I wait until `ConfirmationCode` is present
+    And I fill `ConfirmationCode` field with "1234"
+    And I tap `Proceed` button
+    Then I wait until `ConfirmedEmail` is present
+
+    When I tap `DeleteEmail` widget
+    And I tap `Proceed` button
+    Then I wait until `AddEmail` is present

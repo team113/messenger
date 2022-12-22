@@ -93,6 +93,7 @@ class AddEmailView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
+                          key: const Key('ConfirmationCode'),
                           state: c.emailCode,
                           label: 'label_confirmation_code'.l10n,
                         ),
@@ -174,6 +175,7 @@ class AddEmailView extends StatelessWidget {
                         ),
                         const SizedBox(height: 25),
                         ReactiveTextField(
+                          key: const Key('Email'),
                           state: c.email,
                           label: 'label_email'.l10n,
                           hint: 'label_email_example'.l10n,

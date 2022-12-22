@@ -14,17 +14,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: User can set and delete avatar
 
-  Scenario: Blacklisted user cannot send me a message
+  Scenario: User sets and deletes avatar
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
     And I wait until `HomeView` is present
 
-    When I go to Bob's page
-    And I tap `Block` button
-    Then Bob sends message to me and receives blacklisted exception
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    And I update my avatar
+    Then I wait until `DeleteAvatar` is present
 
-    When I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    When I tap `DeleteAvatar` button
+    Then I wait until `DeleteAvatar` is absent
