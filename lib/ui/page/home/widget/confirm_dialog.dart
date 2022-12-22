@@ -42,6 +42,9 @@ class ConfirmDialog extends StatefulWidget {
     this.description,
     required this.title,
     required this.variants,
+    this.initial = 0,
+    this.label,
+    this.additional = const [],
   })  : assert(variants.isNotEmpty),
         super(key: key);
 
@@ -54,12 +57,24 @@ class ConfirmDialog extends StatefulWidget {
   /// Optional description to display above the [variants].
   final String? description;
 
+  /// Label of the submit button.
+  final String? label;
+
+  /// [Widget]s to put above the [description].
+  final List<Widget> additional;
+
+  /// Index of the [variants] to be initially selected.
+  final int initial;
+
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
     BuildContext context, {
     String? description,
     required String title,
     required List<ConfirmDialogVariant> variants,
+    String? label,
+    List<Widget> additional = const [],
+    int initial = 0,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
@@ -67,6 +82,9 @@ class ConfirmDialog extends StatefulWidget {
         description: description,
         title: title,
         variants: variants,
+        additional: additional,
+        label: label,
+        initial: initial,
       ),
     );
   }
@@ -91,7 +109,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _variant = widget.variants.first;
+    _variant = widget.variants[widget.initial];
     super.initState();
   }
 
@@ -152,6 +170,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           ),
         ),
         const SizedBox(height: 12),
+        ...widget.additional.map((e) {
+          return Padding(padding: ModalPopup.padding(context), child: e);
+        }),
+        if (widget.additional.isNotEmpty &&
+            (widget.variants.length > 1 || widget.description != null))
+          const SizedBox(height: 15),
         if (widget.description != null)
           Padding(
             padding: ModalPopup.padding(context),
@@ -183,9 +207,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           padding: ModalPopup.padding(context),
           child: OutlinedRoundedButton(
             key: const Key('Proceed'),
-            maxWidth: null,
+            maxWidth: double.infinity,
             title: Text(
-              'btn_proceed'.l10n,
+              widget.label ?? 'btn_proceed'.l10n,
               style: thin?.copyWith(color: Colors.white),
             ),
             onPressed: () {
