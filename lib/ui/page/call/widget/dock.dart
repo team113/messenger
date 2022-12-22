@@ -542,6 +542,7 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     super.dragAnchorStrategy,
     super.maxSimultaneousDrags,
     super.onDragStarted,
+    super.onDragEnd,
     super.onDraggableCanceled,
     super.onDragCompleted,
   });
@@ -587,7 +588,7 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 10) {
+    if (pendingDelta!.distance > 5) {
       resolve(GestureDisposition.accepted);
     }
   }
