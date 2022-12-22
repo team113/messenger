@@ -26,8 +26,12 @@ All user visible changes to this project will be documented in this file. This p
         - Quick status changing menu. ([#204], [#203])
     - Media panel:
         - Participants redialing. ([#241], [#233])
+        - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
+        - Searching. ([#260], [#259])
+    - User page:
+        - Blacklisting. ([#234], [#229])
 
 ### Changed
 
@@ -35,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned chats tab. ([#142])
         - Redesigned introduction and logout modals. ([#249])
+        - Redesigned menu tab. ([#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned chat tile in mobile interface. ([#246], [#232])
@@ -43,11 +48,15 @@ All user visible changes to this project will be documented in this file. This p
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+    - Profile page:
+        - Redesigned profile page. ([#244], [#243])
     - Redesigned desktop context menu. ([#245])
     - Auth page:
         - Redesigned login modal. ([#249])
     - User page:
         - Redesigned user page. ([#254], [#252])
+    - Contacts tab:
+        - Alphabetical and last seen sorting. ([#235], [#226])
 
 ### Fixed
 
@@ -85,11 +94,19 @@ All user visible changes to this project will be documented in this file. This p
 [#217]: /../../pull/217
 [#218]: /../../pull/218
 [#221]: /../../pull/221
-[#232]: /../../issues/232
+[#222]: /../../issues/222
 [#223]: /../../issues/223
+[#226]: /../../issues/226
+[#228]: /../../pull/228
+[#229]: /../../issues/229
+[#232]: /../../issues/232
 [#233]: /../../issues/233
+[#234]: /../../pull/234
+[#235]: /../../pull/235
 [#237]: /../../pull/237
 [#241]: /../../pull/241
+[#243]: /../../issues/243
+[#244]: /../../pull/244
 [#245]: /../../pull/245
 [#246]: /../../pull/246
 [#249]: /../../pull/249
@@ -98,6 +115,8 @@ All user visible changes to this project will be documented in this file. This p
 [#253]: /../../issues/253
 [#254]: /../../pull/254
 [#255]: /../../pull/255
+[#259]: /../../issues/259
+[#260]: /../../pull/260
 
 
 

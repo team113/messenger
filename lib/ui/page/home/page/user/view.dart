@@ -266,7 +266,12 @@ class UserView extends StatelessWidget {
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             onPressed: () {},
           ),
-          action(text: 'btn_blacklist'.l10n, onPressed: () {}),
+          action(
+            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
+            text:
+                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlacklisted == true ? c.unblacklist : c.blacklist,
+          ),
           action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
       );

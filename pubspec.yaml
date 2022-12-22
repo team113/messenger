@@ -55,11 +55,8 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.a909030f9a6378036bb0571611fc9a3fe44fe917
-  medea_jason:
-    git:
-      url: https://github.com/instrumentisto/medea-jason.git
-      path: flutter/
+  medea_flutter_webrtc: 0.8.0-dev+rev.1117c353c5d8ccc7287ffeaa39ac058f40fbaf37
+  medea_jason: 0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3
   mime: ^1.0.2
   mutex: ^3.0.0
   # TODO: Switch to pub.dev version when the following pull request is merged

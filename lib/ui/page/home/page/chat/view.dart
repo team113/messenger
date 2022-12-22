@@ -861,9 +861,9 @@ class _ChatViewState extends State<ChatView>
             borderSide: BorderSide.none,
           ),
           focusColor: Colors.white,
-          fillColor: Colors.white,
+          fillColor: Colors.transparent,
           hoverColor: Colors.transparent,
-          filled: true,
+          filled: false,
           isDense: true,
           contentPadding: EdgeInsets.fromLTRB(
             15,

@@ -20,6 +20,7 @@ import '../model/my_user.dart';
 import '../model/user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 
 /// [MyUser] repository interface.
@@ -120,7 +121,7 @@ abstract class AbstractMyUserRepository {
   Future<void> deleteChatDirectLink();
 
   /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile galleryItem, {
     void Function(int count, int total)? onSendProgress,
   });
