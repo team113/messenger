@@ -255,7 +255,7 @@ class SearchView extends StatelessWidget {
 
                   return OutlinedRoundedButton(
                     key: const Key('SearchSubmitButton'),
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       submit ?? 'btn_submit'.l10n,
                       overflow: TextOverflow.ellipsis,
