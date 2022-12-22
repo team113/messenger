@@ -69,7 +69,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(7)
   bool sortContactsByName;
 
-  /// [Map] of [CallPreferences].
+  /// [Map] of [CallPreferences] containing its width, height and position.
   @HiveField(8)
   Map<ChatId, CallPreferences> callsPreferences = {};
 }
