@@ -146,10 +146,10 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WindowListener {
   @override
   // void initState() {
-  //   windowManager.addListener(this);
   //   _init();
   //   super.initState();
   // }
+
   //
   // @override
   // void dispose() async {
@@ -159,7 +159,9 @@ class _AppState extends State<App> with WindowListener {
   //
   // void _init() async {
   //   // Add this line to override the default close handler
-  //   await windowManager.setPreventClose(true);
+  //   // await windowManager.setPreventClose(true);
+  //   await windowManager.setSize(Size(100, 100));
+  //   await windowManager.setPosition(Offset(0, 25));
   //   setState(() {});
   // }
   //

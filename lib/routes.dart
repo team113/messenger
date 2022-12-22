@@ -312,12 +312,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   AppRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
     _prefixWorker = ever(_state.prefix, (_) => _updateTabTitle());
-    _init();
   }
 
   void _init() async {
     windowManager.addListener(this);
     await windowManager.setPreventClose(true);
+    await windowManager.setSize(Size(100, 100));
+    await windowManager.setPosition(Offset(0, 25));
   }
 
   @override
@@ -523,6 +524,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
             ]);
+
+            _init();
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
