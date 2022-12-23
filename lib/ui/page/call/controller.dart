@@ -817,8 +817,6 @@ class CallController extends GetxController {
           break;
       }
     });
-
-
   }
 
   @override
@@ -880,11 +878,11 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
-      if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
-      } else {
-        await _currentCall.value.setScreenShareEnabled(true);
-      }
+      // if (_currentCall.value.displays.length > 1) {
+      //   await ScreenShareView.show(context, _currentCall);
+      // } else {
+      await _currentCall.value.setScreenShareEnabled(true);
+      // }
     }
   }
 
