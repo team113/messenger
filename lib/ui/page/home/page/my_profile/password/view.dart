@@ -30,25 +30,12 @@ import 'controller.dart';
 /// View for updating the [MyUser]'s password.
 ///
 /// Intended to be displayed with the [show] method.
-class PasswordView extends StatelessWidget {
-  const PasswordView({Key? key}) : super(key: key);
+class ChangePasswordView extends StatelessWidget {
+  const ChangePasswordView({Key? key}) : super(key: key);
 
-  /// Displays a [PasswordView] wrapped in a [ModalPopup].
+  /// Displays a [ChangePasswordView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const PasswordView(),
-    );
+    return ModalPopup.show(context: context, child: const ChangePasswordView());
   }
 
   @override
@@ -60,147 +47,133 @@ class PasswordView extends StatelessWidget {
       init: ChangePasswordController(Get.find()),
       builder: (ChangePasswordController c) {
         return Obx(() {
-          final List<Widget> children;
+          final Widget child;
 
           switch (c.stage.value) {
             case ChangePasswordFlowStage.set:
             case ChangePasswordFlowStage.changed:
-              children = [
-                Flexible(
-                  child: Padding(
-                    padding: ModalPopup.padding(context),
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            c.stage.value == ChangePasswordFlowStage.set
-                                ? 'label_password_set'.l10n
-                                : 'label_password_changed'.l10n,
-                            style: thin?.copyWith(
-                              fontSize: 15,
-                              color: const Color(0xFF888888),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        OutlinedRoundedButton(
-                          key: const Key('Close'),
-                          maxWidth: double.infinity,
-                          title: Text(
-                            'btn_close'.l10n,
-                            style: thin?.copyWith(color: Colors.white),
-                          ),
-                          onPressed: Navigator.of(context).pop,
-                          color: const Color(0xFF63B4FF),
-                        ),
-                      ],
+              child = ListView(
+                shrinkWrap: true,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      c.stage.value == ChangePasswordFlowStage.set
+                          ? 'label_password_set'.l10n
+                          : 'label_password_changed'.l10n,
+                      style: thin?.copyWith(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
-                ),
-              ];
+                  const SizedBox(height: 25),
+                  OutlinedRoundedButton(
+                    key: const Key('Close'),
+                    maxWidth: double.infinity,
+                    title: Text(
+                      'btn_close'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
+                    onPressed: Navigator.of(context).pop,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ],
+              );
               break;
 
             default:
-              children = [
-                Flexible(
-                  child: Padding(
-                    padding: ModalPopup.padding(context),
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Obx(() {
-                          if (c.myUser.value?.hasPassword != true) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 25),
-                              child: Text(
-                                'label_password_not_set_info'.l10n,
-                                style: thin?.copyWith(
-                                  fontSize: 15,
-                                  color: const Color(0xFF888888),
-                                ),
-                              ),
-                            );
-                          }
+              child = ListView(
+                shrinkWrap: true,
+                children: [
+                  Obx(() {
+                    if (c.myUser.value?.hasPassword != true) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: Text(
+                          'label_password_not_set_info'.l10n,
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      );
+                    }
 
-                          return const SizedBox();
-                        }),
-                        Obx(() {
-                          if (c.myUser.value?.hasPassword == true) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: ReactiveTextField(
-                                state: c.oldPassword,
-                                label: 'label_current_password'.l10n,
-                                obscure: c.obscurePassword.value,
-                                onSuffixPressed: c.obscurePassword.toggle,
-                                treatErrorAsStatus: false,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                                  width: 17.07,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return const SizedBox();
-                        }),
-                        ReactiveTextField(
-                          key: const Key('NewPasswordField'),
-                          state: c.newPassword,
-                          label: 'label_new_password'.l10n,
-                          obscure: c.obscureNewPassword.value,
-                          onSuffixPressed: c.obscureNewPassword.toggle,
+                    return const SizedBox();
+                  }),
+                  Obx(() {
+                    if (c.myUser.value?.hasPassword == true) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ReactiveTextField(
+                          state: c.oldPassword,
+                          label: 'label_current_password'.l10n,
+                          obscure: c.obscurePassword.value,
+                          onSuffixPressed: c.obscurePassword.toggle,
                           treatErrorAsStatus: false,
                           trailing: SvgLoader.asset(
-                            'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                            'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                             width: 17.07,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        ReactiveTextField(
-                          key: const Key('RepeatPasswordField'),
-                          state: c.repeatPassword,
-                          label: 'label_repeat_password'.l10n,
-                          obscure: c.obscureRepeatPassword.value,
-                          onSuffixPressed: c.obscureRepeatPassword.toggle,
-                          treatErrorAsStatus: false,
-                          trailing: SvgLoader.asset(
-                            'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                            width: 17.07,
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        Obx(() {
-                          final bool enabled;
-                          if (c.myUser.value?.hasPassword == true) {
-                            enabled = !c.oldPassword.isEmpty.value &&
-                                !c.newPassword.isEmpty.value &&
-                                !c.repeatPassword.isEmpty.value;
-                          } else {
-                            enabled = !c.newPassword.isEmpty.value &&
-                                !c.repeatPassword.isEmpty.value;
-                          }
+                      );
+                    }
 
-                          return OutlinedRoundedButton(
-                            key: const Key('Proceed'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              'btn_proceed'.l10n,
-                              style: thin?.copyWith(
-                                color: enabled ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            onPressed: enabled ? c.changePassword : null,
-                            color: const Color(0xFF63B4FF),
-                          );
-                        }),
-                      ],
+                    return const SizedBox();
+                  }),
+                  ReactiveTextField(
+                    key: const Key('NewPasswordField'),
+                    state: c.newPassword,
+                    label: 'label_new_password'.l10n,
+                    obscure: c.obscureNewPassword.value,
+                    onSuffixPressed: c.obscureNewPassword.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgLoader.asset(
+                      'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                      width: 17.07,
                     ),
                   ),
-                ),
-              ];
+                  const SizedBox(height: 16),
+                  ReactiveTextField(
+                    key: const Key('RepeatPasswordField'),
+                    state: c.repeatPassword,
+                    label: 'label_repeat_password'.l10n,
+                    obscure: c.obscureRepeatPassword.value,
+                    onSuffixPressed: c.obscureRepeatPassword.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgLoader.asset(
+                      'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                      width: 17.07,
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Obx(() {
+                    final bool enabled;
+                    if (c.myUser.value?.hasPassword == true) {
+                      enabled = !c.oldPassword.isEmpty.value &&
+                          !c.newPassword.isEmpty.value &&
+                          !c.repeatPassword.isEmpty.value;
+                    } else {
+                      enabled = !c.newPassword.isEmpty.value &&
+                          !c.repeatPassword.isEmpty.value;
+                    }
+
+                    return OutlinedRoundedButton(
+                      key: const Key('Proceed'),
+                      maxWidth: double.infinity,
+                      title: Text(
+                        'btn_proceed'.l10n,
+                        style: thin?.copyWith(
+                          color: enabled ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      onPressed: enabled ? c.changePassword : null,
+                      color: Theme.of(context).colorScheme.secondary,
+                    );
+                  }),
+                ],
+              );
               break;
           }
 
@@ -221,8 +194,13 @@ class PasswordView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25 - 12),
-                ...children,
+                const SizedBox(height: 13),
+                Flexible(
+                  child: Padding(
+                    padding: ModalPopup.padding(context),
+                    child: child,
+                  ),
+                ),
                 const SizedBox(height: 16),
               ],
             ),

@@ -19,6 +19,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/language/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -137,31 +138,13 @@ class AuthView extends StatelessWidget {
         Widget language = CupertinoButton(
           key: c.languageKey,
           child: Text(
-            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => Selector.show<Language>(
-            context: context,
-            buttonKey: c.languageKey,
-            initial: L10n.chosen.value!,
-            items: L10n.languages,
-            onSelected: (l) => L10n.set(l),
-            debounce:
-                context.isMobile ? const Duration(milliseconds: 500) : null,
-            itemBuilder: (Language e) => Row(
-              children: [
-                Text(
-                  e.name,
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-                const Spacer(),
-                Text(
-                  e.locale.languageCode.toUpperCase(),
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-              ],
-            ),
-          ),
+          onPressed: () => LanguageSelectionView.show(context),
         );
 
         // Footer part of the page.
@@ -180,7 +163,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: const Color(0xFF63B4FF),
+            color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(

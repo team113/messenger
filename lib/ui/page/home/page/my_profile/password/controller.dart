@@ -27,23 +27,23 @@ import '/ui/widget/text_field.dart';
 
 export 'view.dart';
 
-/// Possible [PasswordView] flow stage.
+/// Possible [ChangePasswordView] flow stage.
 enum ChangePasswordFlowStage { set, changed }
 
-/// Controller of a [PasswordView].
+/// Controller of a [ChangePasswordView].
 class ChangePasswordController extends GetxController {
   ChangePasswordController(this._myUserService);
 
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
 
-  /// State of a current [myUser]'s password field.
+  /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;
 
-  /// State of a new [myUser]'s password field.
+  /// [TextFieldState] of the new password.
   late final TextFieldState newPassword;
 
-  /// State of a repeated new [myUser]'s password field.
+  /// [TextFieldState] for repeating the new password.
   late final TextFieldState repeatPassword;
 
   /// Indicator whether the [oldPassword] should be obscured.
@@ -58,7 +58,7 @@ class ChangePasswordController extends GetxController {
   /// [MyUserService] updating the [MyUser]'s password.
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -79,6 +79,7 @@ class ChangePasswordController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         repeatPassword.error.value = null;
+
         try {
           UserPassword(s.text);
         } on FormatException catch (_) {
@@ -113,27 +114,12 @@ class ChangePasswordController extends GetxController {
     repeatPassword.submit();
 
     if (myUser.value?.hasPassword == true) {
-      if (!oldPassword.isValidated || oldPassword.text.isEmpty) {
-        oldPassword.error.value = 'err_current_password_empty'.l10n;
-        return;
-      }
-
       if (oldPassword.error.value != null) {
         return;
       }
     }
 
     if (newPassword.error.value == null && repeatPassword.error.value == null) {
-      if (!newPassword.isValidated || newPassword.text.isEmpty) {
-        newPassword.error.value = 'err_new_password_empty'.l10n;
-        return;
-      }
-
-      if (!repeatPassword.isValidated || repeatPassword.text.isEmpty) {
-        repeatPassword.error.value = 'err_repeat_password_empty'.l10n;
-        return;
-      }
-
       if (repeatPassword.text != newPassword.text) {
         repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
         return;
@@ -156,7 +142,7 @@ class ChangePasswordController extends GetxController {
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {
-        repeatPassword.error.value = e.toString();
+        repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
         repeatPassword.status.value = RxStatus.empty();

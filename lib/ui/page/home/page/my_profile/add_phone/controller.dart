@@ -29,9 +29,7 @@ import '/util/message_popup.dart';
 export 'view.dart';
 
 /// Possible [AddPhoneView] flow stage.
-enum AddPhoneFlowStage {
-  code,
-}
+enum AddPhoneFlowStage { code }
 
 /// Controller of a [AddPhoneView].
 class AddPhoneController extends GetxController {
@@ -50,10 +48,10 @@ class AddPhoneController extends GetxController {
   /// [TextFieldState] for the [UserPhone] confirmation code.
   late final TextFieldState phoneCode;
 
-  /// Indicator whether [UserPhone] confirmation code was resended.
+  /// Indicator whether [UserPhone] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
-  /// Timeout of a [resendPhone] action.
+  /// Timeout of a [resendPhone].
   final RxInt resendPhoneTimeout = RxInt(0);
 
   /// [AddPhoneFlowStage] currently being displayed.
@@ -65,7 +63,7 @@ class AddPhoneController extends GetxController {
   /// [Timer] to decrease [resendPhoneTimeout].
   Timer? _resendPhoneTimer;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -120,7 +118,7 @@ class AddPhoneController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
+          s.error.value = 'err_wrong_recovery_code'.l10n;
         }
 
         if (s.error.value == null) {
@@ -159,7 +157,7 @@ class AddPhoneController extends GetxController {
     super.onClose();
   }
 
-  /// Resend [ConfirmationCode] to [UserPhone] specified in the [phone] field.
+  /// Resends a [ConfirmationCode] to the specified [phone].
   Future<void> resendPhone() async {
     try {
       await _myUserService.resendPhone();
@@ -173,12 +171,12 @@ class AddPhoneController extends GetxController {
     }
   }
 
-  /// Starts or stops [_resendPhoneTimer] based on [enabled] value.
+  /// Starts or stops the [_resendPhoneTimer] based on [enabled] value.
   void _setResendPhoneTimer([bool enabled = true]) {
     if (enabled) {
       resendPhoneTimeout.value = 30;
       _resendPhoneTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
+        const Duration(seconds: 1),
         (_) {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {

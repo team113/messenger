@@ -123,6 +123,7 @@ class MenuTabView extends StatelessWidget {
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: ListView.builder(
+              key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {
                 final Widget child;

@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User can set and delete avatar
+Feature: User avatar
 
   Scenario: User sets and deletes avatar
     Given I am Alice

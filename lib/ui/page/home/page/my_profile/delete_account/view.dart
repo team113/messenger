@@ -32,20 +32,7 @@ class DeleteAccountView extends StatelessWidget {
 
   /// Displays a [DeleteAccountView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const DeleteAccountView(),
-    );
+    return ModalPopup.show(context: context, child: const DeleteAccountView());
   }
 
   @override
@@ -62,7 +49,7 @@ class DeleteAccountView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
@@ -71,7 +58,7 @@ class DeleteAccountView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25 - 12),
+              const SizedBox(height: 13),
               Padding(
                 padding: ModalPopup.padding(context),
                 child: RichText(
@@ -89,7 +76,7 @@ class DeleteAccountView extends StatelessWidget {
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,
-                      color: const Color(0xFF888888),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -108,7 +95,7 @@ class DeleteAccountView extends StatelessWidget {
                     c.deleteAccount();
                     Navigator.of(context).pop();
                   },
-                  color: const Color(0xFF63B4FF),
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 16),

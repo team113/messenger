@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -34,22 +35,13 @@ class CallWindowSwitchView extends StatelessWidget {
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       child: const CallWindowSwitchView(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
@@ -62,7 +54,7 @@ class CallWindowSwitchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
@@ -71,7 +63,7 @@ class CallWindowSwitchView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25 - 12),
+              const SizedBox(height: 13),
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -93,7 +85,7 @@ class CallWindowSwitchView extends StatelessWidget {
                         child: Material(
                           borderRadius: BorderRadius.circular(10),
                           color: selected
-                              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                              ? style.cardSelectedColor.withOpacity(0.8)
                               : Colors.white.darken(0.05),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(10),
@@ -116,24 +108,22 @@ class CallWindowSwitchView extends StatelessWidget {
                                   AnimatedSwitcher(
                                     duration: 200.milliseconds,
                                     child: selected
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             width: 20,
                                             height: 20,
                                             child: CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFF63B4FF),
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
                                               radius: 12,
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.check,
                                                 color: Colors.white,
                                                 size: 12,
                                               ),
                                             ),
                                           )
-                                        : const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                          ),
+                                        : const SizedBox(width: 20, height: 20),
                                   ),
                                 ],
                               ),

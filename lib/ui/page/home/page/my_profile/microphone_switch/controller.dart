@@ -32,7 +32,7 @@ class MicrophoneSwitchController extends GetxController {
   /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  /// Settings repository, used to update the [MediaSettings.audioDevice] value.
+  /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
@@ -53,7 +53,7 @@ class MicrophoneSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default micropfone device.
+  /// Sets device with [id] as a used by default microphone device.
   Future<void> setAudioDevice(String id) async {
     await Future.wait([
       _call.value.setAudioDevice(id),

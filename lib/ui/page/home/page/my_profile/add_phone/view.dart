@@ -36,20 +36,7 @@ class AddPhoneView extends StatelessWidget {
 
   /// Displays a [AddPhoneView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {UserPhone? phone}) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: AddPhoneView(phone: phone),
-    );
+    return ModalPopup.show(context: context, child: AddPhoneView(phone: phone));
   }
 
   @override
@@ -65,145 +52,126 @@ class AddPhoneView extends StatelessWidget {
       ),
       builder: (AddPhoneController c) {
         return Obx(() {
-          final List<Widget> children;
+          final Widget child;
 
           switch (c.stage.value) {
             case AddPhoneFlowStage.code:
-              children = [
-                Flexible(
-                  child: Padding(
-                    padding: ModalPopup.padding(context),
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Obx(() {
-                            return Text(
-                              c.resent.value
-                                  ? 'label_add_phone_confirmation_sent_again'
-                                      .l10n
-                                  : 'label_add_phone_confirmation_sent'.l10n,
-                              style: thin?.copyWith(
-                                fontSize: 15,
-                                color: const Color(0xFF888888),
-                              ),
-                            );
-                          }),
+              child = ListView(
+                shrinkWrap: true,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Obx(() {
+                      return Text(
+                        c.resent.value
+                            ? 'label_add_phone_confirmation_sent_again'.l10n
+                            : 'label_add_phone_confirmation_sent'.l10n,
+                        style: thin?.copyWith(
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                        const SizedBox(height: 25),
-                        ReactiveTextField(
-                          key: const Key('ConfirmationCode'),
-                          state: c.phoneCode,
-                          label: 'label_confirmation_code'.l10n,
-                        ),
-                        const SizedBox(height: 25),
-                        Obx(() {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedRoundedButton(
-                                  key: const Key('Resend'),
-                                  maxWidth: double.infinity,
-                                  title: Text(
-                                    c.resendPhoneTimeout.value == 0
-                                        ? 'label_resend'.l10n
-                                        : 'label_resend_timeout'.l10nfmt(
-                                            {
-                                              'timeout':
-                                                  c.resendPhoneTimeout.value,
-                                            },
-                                          ),
-                                    style: thin?.copyWith(
-                                      color: c.resendPhoneTimeout.value == 0
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                  onPressed: c.resendPhoneTimeout.value == 0
-                                      ? c.resendPhone
-                                      : null,
-                                  color: const Color(0xFF63B4FF),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: OutlinedRoundedButton(
-                                  key: const Key('Proceed'),
-                                  maxWidth: double.infinity,
-                                  title: Text(
-                                    'btn_proceed'.l10n,
-                                    style: thin?.copyWith(
-                                      color: c.phoneCode.isEmpty.value
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  onPressed: c.phoneCode.isEmpty.value
-                                      ? null
-                                      : c.phoneCode.submit,
-                                  color: const Color(0xFF63B4FF),
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
+                      );
+                    }),
                   ),
-                ),
-              ];
-              break;
-
-            default:
-              children = [
-                Flexible(
-                  child: Padding(
-                    padding: ModalPopup.padding(context),
-                    child: ListView(
-                      shrinkWrap: true,
+                  const SizedBox(height: 25),
+                  ReactiveTextField(
+                    key: const Key('ConfirmationCode'),
+                    state: c.phoneCode,
+                    label: 'label_confirmation_code'.l10n,
+                  ),
+                  const SizedBox(height: 25),
+                  Obx(() {
+                    return Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            'label_add_phone_description'.l10n,
-                            style: thin?.copyWith(
-                              fontSize: 15,
-                              color: const Color(0xFF888888),
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            key: const Key('Resend'),
+                            maxWidth: double.infinity,
+                            title: Text(
+                              c.resendPhoneTimeout.value == 0
+                                  ? 'label_resend'.l10n
+                                  : 'label_resend_timeout'.l10nfmt(
+                                      {'timeout': c.resendPhoneTimeout.value},
+                                    ),
+                              style: thin?.copyWith(
+                                color: c.resendPhoneTimeout.value == 0
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
                             ),
+                            onPressed: c.resendPhoneTimeout.value == 0
+                                ? c.resendPhone
+                                : null,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                        const SizedBox(height: 25),
-                        ReactiveTextField(
-                          key: const Key('Phone'),
-                          state: c.phone,
-                          label: 'label_phone_number',
-                          // TODO: Make phone hint region dependent.
-                          hint: '+34 123 123 53 53',
-                        ),
-                        const SizedBox(height: 25),
-                        Obx(() {
-                          return OutlinedRoundedButton(
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedRoundedButton(
                             key: const Key('Proceed'),
                             maxWidth: double.infinity,
                             title: Text(
                               'btn_proceed'.l10n,
                               style: thin?.copyWith(
-                                color: c.phone.isEmpty.value
+                                color: c.phoneCode.isEmpty.value
                                     ? Colors.black
                                     : Colors.white,
                               ),
                             ),
-                            onPressed:
-                                c.phone.isEmpty.value ? null : c.phone.submit,
-                            color: const Color(0xFF63B4FF),
-                          );
-                        }),
+                            onPressed: c.phoneCode.isEmpty.value
+                                ? null
+                                : c.phoneCode.submit,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
                       ],
+                    );
+                  }),
+                ],
+              );
+              break;
+
+            default:
+              child = ListView(
+                shrinkWrap: true,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      'label_add_phone_description'.l10n,
+                      style: thin?.copyWith(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
-                ),
-              ];
+                  const SizedBox(height: 25),
+                  ReactiveTextField(
+                    key: const Key('Phone'),
+                    state: c.phone,
+                    label: 'label_phone_number'.l10n,
+                    // TODO: Improve hint to account user's region.
+                    hint: '+34 123 123 53 53',
+                  ),
+                  const SizedBox(height: 25),
+                  Obx(() {
+                    return OutlinedRoundedButton(
+                      key: const Key('Proceed'),
+                      maxWidth: double.infinity,
+                      title: Text(
+                        'btn_proceed'.l10n,
+                        style: thin?.copyWith(
+                          color: c.phone.isEmpty.value
+                              ? Colors.black
+                              : Colors.white,
+                        ),
+                      ),
+                      onPressed: c.phone.isEmpty.value ? null : c.phone.submit,
+                      color: Theme.of(context).colorScheme.secondary,
+                    );
+                  }),
+                ],
+              );
               break;
           }
 
@@ -211,9 +179,10 @@ class AddPhoneView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Column(
+              key: Key('${c.stage.value}'),
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 16 - 12),
+                const SizedBox(height: 4),
                 ModalPopupHeader(
                   header: Center(
                     child: Text(
@@ -222,8 +191,13 @@ class AddPhoneView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 25 - 12),
-                ...children,
+                const SizedBox(height: 13),
+                Flexible(
+                  child: Padding(
+                    padding: ModalPopup.padding(context),
+                    child: child,
+                  ),
+                ),
                 const SizedBox(height: 16),
               ],
             ),

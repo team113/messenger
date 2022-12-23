@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User can add, confirm and delete emails
+Feature: User email
 
   Scenario: User adds, confirms and deletes email
     Given I am Alice
@@ -23,8 +23,9 @@ Feature: User can add, confirm and delete emails
     When I tap `MenuButton` button
     And I tap `Signing` button
     And I tap `AddEmail` button
-    And I wait until `Email` is present
-    And I fill `Email` field with "example@gmail.com"
+    Then I wait until `Email` is present
+
+    When I fill `Email` field with "example@gmail.com"
     And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until `UnconfirmedEmail` is present

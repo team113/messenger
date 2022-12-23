@@ -27,8 +27,7 @@ export 'view.dart';
 class CallWindowSwitchController extends GetxController {
   CallWindowSwitchController(this._settingsRepository);
 
-  /// Settings repository, used to update the [ApplicationSettings.enablePopups]
-  /// value.
+  /// Settings repository updating the [ApplicationSettings.enablePopups].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.

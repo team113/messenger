@@ -792,7 +792,7 @@ Widget _password(BuildContext context, MyProfileController c) {
           text: c.myUser.value?.hasPassword == true
               ? 'btn_change_password'.l10n
               : 'btn_set_password'.l10n,
-          onPressed: () => PasswordView.show(context),
+          onPressed: () => ChangePasswordView.show(context),
           style: TextStyle(
             color: c.myUser.value?.hasPassword != true
                 ? Colors.red

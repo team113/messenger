@@ -30,18 +30,19 @@ export 'view.dart';
 class DeleteAccountController extends GetxController {
   DeleteAccountController(this._authService, this._myUserService);
 
-  /// [AuthService] used for logout.
+  /// [AuthService] for logging out.
   final AuthService _authService;
 
-  /// [MyUserService] used to get the [MyUser].
+  /// [MyUserService] maintaining the [MyUser].
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Deletes [myUser]'s account.
   Future<void> deleteAccount() async {
     try {
+      // TODO: Delete account for real.
       router.go(await _authService.logout());
       router.tab = HomeTab.chats;
     } catch (e) {

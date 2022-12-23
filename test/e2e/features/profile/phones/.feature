@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
- Feature: User can add, confirm and delete phones
+ Feature: User phones
 
    Scenario: User adds, confirms and deletes phone
      Given I am Alice
@@ -23,8 +23,9 @@
      When I tap `MenuButton` button
      And I tap `Signing` button
      And I tap `AddPhone` button
-     And I wait until `Phone` is present
-     And I fill `Phone` field with "+380971234567"
+     Then I wait until `Phone` is present
+
+     When I fill `Phone` field with "+380971234567"
      And I tap `Proceed` button
      And I tap `CloseButton` button
      Then I wait until `UnconfirmedPhone` is present

@@ -26,19 +26,19 @@ import 'package:messenger/domain/service/my_user.dart';
 
 import '../world/custom_world.dart';
 
-/// Updates the [MyUser.avatar] with mocked image.
+/// Updates the [MyUser.avatar] with a mocked image.
 final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
   RegExp(r'I update my avatar$'),
   (context) async {
     final MyUserService service = Get.find();
 
-    Uint8List bytes = base64Decode(
+    final Uint8List bytes = base64Decode(
       '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
     );
-    NativeFile file =
+    final NativeFile file =
         NativeFile(name: 'avatar.png', size: bytes.length, bytes: bytes);
 
-    ImageGalleryItem? galleryItem = await service.uploadGalleryItem(file);
+    final ImageGalleryItem? galleryItem = await service.uploadGalleryItem(file);
     await service.updateAvatar(galleryItem?.id);
   },
   configuration: StepDefinitionConfiguration()

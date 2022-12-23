@@ -35,18 +35,13 @@ class DeletePhoneController extends GetxController {
   /// [MyUserService] deleting the [phone].
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Deletes [phone] from [MyUser.phones].
   Future<void> deletePhone() async {
     try {
-      if (myUser.value?.phones.unconfirmed != null) {
-        await _myUserService.deleteUserPhone(phone);
-      } else {
-        myUser.value?.phones.confirmed.removeWhere((e) => e == phone);
-        myUser.refresh();
-      }
+      await _myUserService.deleteUserPhone(phone);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

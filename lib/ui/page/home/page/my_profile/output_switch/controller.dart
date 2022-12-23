@@ -32,8 +32,7 @@ class OutputSwitchController extends GetxController {
   /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  /// Settings repository, used to update the [MediaSettings.outputDevice]
-  /// value.
+  /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.

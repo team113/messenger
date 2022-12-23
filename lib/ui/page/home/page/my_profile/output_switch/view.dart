@@ -22,11 +22,12 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for updating the [MediaSettings.outputDevice] value.
+/// View for updating the [MediaSettings.outputDevice].
 ///
 /// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
@@ -40,24 +41,12 @@ class OutputSwitchView extends StatelessWidget {
     BuildContext context, {
     required Rx<OngoingCall> call,
   }) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: OutputSwitchView(call),
-    );
+    return ModalPopup.show(context: context, child: OutputSwitchView(call));
   }
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
@@ -70,7 +59,7 @@ class OutputSwitchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
@@ -83,7 +72,7 @@ class OutputSwitchView extends StatelessWidget {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    const SizedBox(height: 25 - 12),
+                    const SizedBox(height: 13),
                     Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,
@@ -103,7 +92,7 @@ class OutputSwitchView extends StatelessWidget {
                               child: Material(
                                 borderRadius: BorderRadius.circular(10),
                                 color: selected
-                                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                                    ? style.cardSelectedColor.withOpacity(0.8)
                                     : Colors.white.darken(0.05),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(10),
@@ -122,27 +111,26 @@ class OutputSwitchView extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        AnimatedSwitcher(
-                                          duration: 200.milliseconds,
-                                          child: selected
-                                              ? const SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child: CircleAvatar(
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: AnimatedSwitcher(
+                                            duration: 200.milliseconds,
+                                            child: selected
+                                                ? CircleAvatar(
                                                     backgroundColor:
-                                                        Color(0xFF63B4FF),
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .secondary,
                                                     radius: 12,
-                                                    child: Icon(
+                                                    child: const Icon(
                                                       Icons.check,
                                                       color: Colors.white,
                                                       size: 12,
                                                     ),
-                                                  ),
-                                                )
-                                              : const SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                ),
+                                                  )
+                                                : const SizedBox(),
+                                          ),
                                         ),
                                       ],
                                     ),

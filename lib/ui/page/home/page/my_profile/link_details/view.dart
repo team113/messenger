@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 
-/// View showing details about a direct link.
+/// View showing details about a [MyUser.chatDirectLink].
 ///
 /// Intended to be displayed with the [show] method.
 class LinkDetailsView extends StatelessWidget {
@@ -28,20 +28,7 @@ class LinkDetailsView extends StatelessWidget {
 
   /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const LinkDetailsView(),
-    );
+    return ModalPopup.show(context: context, child: const LinkDetailsView());
   }
 
   @override
@@ -55,7 +42,7 @@ class LinkDetailsView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16 - 12),
+          const SizedBox(height: 4),
           ModalPopupHeader(
             header: Center(
               child: Text(
@@ -64,7 +51,7 @@ class LinkDetailsView extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 25 - 12),
+          const SizedBox(height: 13),
           Padding(
             padding: ModalPopup.padding(context),
             child: RichText(
@@ -74,7 +61,7 @@ class LinkDetailsView extends StatelessWidget {
                 ],
                 style: thin?.copyWith(
                   fontSize: 15,
-                  color: const Color(0xFF888888),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),

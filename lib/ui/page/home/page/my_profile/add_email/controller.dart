@@ -29,9 +29,7 @@ import '/util/message_popup.dart';
 export 'view.dart';
 
 /// Possible [AddEmailView] flow stage.
-enum AddEmailFlowStage {
-  code,
-}
+enum AddEmailFlowStage { code }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
@@ -50,10 +48,10 @@ class AddEmailController extends GetxController {
   /// [TextFieldState] for the [UserEmail] confirmation code.
   late final TextFieldState emailCode;
 
-  /// Indicator whether [UserEmail] confirmation code was resended.
+  /// Indicator whether [UserEmail] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
-  /// Timeout of a [resendEmail] action.
+  /// Timeout of a [resendEmail].
   final RxInt resendEmailTimeout = RxInt(0);
 
   /// [AddEmailFlowStage] currently being displayed.
@@ -62,10 +60,10 @@ class AddEmailController extends GetxController {
   /// [MyUserService] used for confirming an [UserEmail].
   final MyUserService _myUserService;
 
-  /// [Timer] to decrease [resendEmailTimeout].
+  /// [Timer] decreasing the [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -120,7 +118,7 @@ class AddEmailController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
+          s.error.value = 'err_wrong_recovery_code'.l10n;
         }
 
         if (s.error.value == null) {
@@ -159,7 +157,7 @@ class AddEmailController extends GetxController {
     super.onClose();
   }
 
-  /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field.
+  /// Resends a [ConfirmationCode] to the specified [email].
   Future<void> resendEmail() async {
     try {
       await _myUserService.resendEmail();
@@ -173,12 +171,12 @@ class AddEmailController extends GetxController {
     }
   }
 
-  /// Starts or stops [_resendEmailTimer] based on [enabled] value.
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
       _resendEmailTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
+        const Duration(seconds: 1),
         (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {

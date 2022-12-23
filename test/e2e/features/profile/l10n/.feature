@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Application localization changes correctly
+Feature: Localization
 
   Scenario: User changes localization
     Given I am Alice

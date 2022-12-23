@@ -25,7 +25,7 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [DeleteEmailView].
 class DeleteEmailController extends GetxController {
   DeleteEmailController(this._myUserService, {required this.email});
 
@@ -35,7 +35,7 @@ class DeleteEmailController extends GetxController {
   /// [MyUserService] deleting the [email].
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Deletes [email] address from [MyUser.emails].
