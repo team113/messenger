@@ -70,60 +70,77 @@ Widget mobileCall(CallController c, BuildContext context) {
     // Active call.
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
-        _primaryView(c, context),
-
-        // Secondary panel itself.
         Obx(() {
-          if (c.minimized.value) {
-            return Container();
-          }
+          return AnimatedSwitcher(
+            duration: 250.milliseconds,
+            child: Column(
+              // key: Key('${c.primary.length}${c.secondary.length}'),
+              children: [
+                Obx(() {
+                  if (c.secondary.isEmpty || c.minimized.value) {
+                    return const SizedBox();
+                  }
 
-          return Listener(
-            onPointerDown: (_) => c.secondaryManipulated.value = true,
-            onPointerUp: (_) => c.secondaryManipulated.value = false,
-            child: GestureDetector(
-              onScaleStart: (d) {
-                c.secondaryBottomShifted = null;
-
-                c.secondaryLeft.value ??= c.size.width -
-                    c.secondaryWidth.value -
-                    (c.secondaryRight.value ?? 0);
-                c.secondaryTop.value ??= c.size.height -
-                    c.secondaryHeight.value -
-                    (c.secondaryBottom.value ?? 0);
-
-                c.secondaryRight.value = null;
-                c.secondaryBottom.value = null;
-
-                if (d.pointerCount == 1) {
-                  c.secondaryDragged.value = true;
-                  c.calculateSecondaryPanning(d.focalPoint);
-                  c.applySecondaryConstraints();
-                } else if (d.pointerCount == 2) {
-                  c.secondaryUnscaledSize =
-                      max(c.secondaryWidth.value, c.secondaryHeight.value);
-                  c.secondaryScaled.value = true;
-                  c.calculateSecondaryPanning(d.focalPoint);
-                }
-              },
-              onScaleUpdate: (d) {
-                c.updateSecondaryOffset(d.focalPoint);
-                if (d.pointerCount == 2) {
-                  c.scaleSecondary(d.scale);
-                }
-
-                c.applySecondaryConstraints();
-              },
-              onScaleEnd: (d) {
-                c.secondaryDragged.value = false;
-                c.secondaryScaled.value = false;
-                c.secondaryUnscaledSize = null;
-                c.updateSecondaryAttach();
-              },
-              child: _secondaryView(c, context),
+                  return _secondaryView(c, context, constraints);
+                }),
+                Expanded(child: _primaryView(c, context)),
+              ],
             ),
           );
         }),
+
+        // Secondary panel itself.
+        // Obx(() {
+        //   if (c.minimized.value) {
+        //     return Container();
+        //   }
+
+        //   return Listener(
+        //     onPointerDown: (_) => c.secondaryManipulated.value = true,
+        //     onPointerUp: (_) => c.secondaryManipulated.value = false,
+        //     child: GestureDetector(
+        //       onScaleStart: (d) {
+        //         c.secondaryBottomShifted = null;
+
+        //         c.secondaryLeft.value ??= c.size.width -
+        //             c.secondaryWidth.value -
+        //             (c.secondaryRight.value ?? 0);
+        //         c.secondaryTop.value ??= c.size.height -
+        //             c.secondaryHeight.value -
+        //             (c.secondaryBottom.value ?? 0);
+
+        //         c.secondaryRight.value = null;
+        //         c.secondaryBottom.value = null;
+
+        //         if (d.pointerCount == 1) {
+        //           c.secondaryDragged.value = true;
+        //           c.calculateSecondaryPanning(d.focalPoint);
+        //           c.applySecondaryConstraints();
+        //         } else if (d.pointerCount == 2) {
+        //           c.secondaryUnscaledSize =
+        //               max(c.secondaryWidth.value, c.secondaryHeight.value);
+        //           c.secondaryScaled.value = true;
+        //           c.calculateSecondaryPanning(d.focalPoint);
+        //         }
+        //       },
+        //       onScaleUpdate: (d) {
+        //         c.updateSecondaryOffset(d.focalPoint);
+        //         if (d.pointerCount == 2) {
+        //           c.scaleSecondary(d.scale);
+        //         }
+
+        //         c.applySecondaryConstraints();
+        //       },
+        //       onScaleEnd: (d) {
+        //         c.secondaryDragged.value = false;
+        //         c.secondaryScaled.value = false;
+        //         c.secondaryUnscaledSize = null;
+        //         c.updateSecondaryAttach();
+        //       },
+        //       child: _secondaryView(c, context),
+        //     ),
+        //   );
+        // }),
       ]);
     } else {
       // Call is not active.
@@ -335,6 +352,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         bool showUi =
             (c.showUi.isTrue || c.state.value != OngoingCallState.active) &&
                 !c.minimized.value;
+        print('c.showUi.isTrue: ${c.showUi.isTrue}, $showUi');
 
         double panelHeight = 0;
         List<Widget> panelChildren = [];
@@ -744,6 +762,44 @@ Widget _primaryView(CallController c, BuildContext context) {
       primary = List<Participant>.from(c.primary);
     }
 
+    return FitView(
+      children: primary.mapIndexed((i, e) {
+        return Obx(() {
+          bool muted = e.member.owner == MediaOwnerKind.local
+              ? !c.audioState.value.isEnabled
+              : e.audio.value?.isMuted.value ?? false;
+
+          bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+              c.primaryDrags.value != 0 ||
+              c.secondaryDragged.value;
+
+          bool isHovered = c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+          return GestureDetector(
+            onLongPress: () {
+              if (c.secondary.isNotEmpty) {
+                c.focusAll();
+              } else {
+                c.center(e);
+              }
+            },
+            child: Stack(
+              children: [
+                const ParticipantDecoratorWidget(),
+                ParticipantWidget(e),
+                ParticipantOverlayWidget(
+                  e,
+                  muted: muted,
+                  hovered: isHovered,
+                  preferBackdrop: !c.minimized.value,
+                ),
+              ],
+            ),
+          );
+        });
+      }).toList(),
+    );
+
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
       c.draggedRenderer.value = null;
@@ -901,7 +957,77 @@ Widget _primaryView(CallController c, BuildContext context) {
 }
 
 /// [FitWrap] of the [CallController.secondary] widgets.
-Widget _secondaryView(CallController c, BuildContext context) {
+Widget _secondaryView(
+  CallController c,
+  BuildContext context,
+  BoxConstraints constraints,
+) {
+  return Obx(() {
+    final double size = constraints.maxHeight / 6;
+
+    return SizedBox(
+      height: size,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: c.secondary.map((e) {
+          bool muted = e.member.owner == MediaOwnerKind.local
+              ? !c.audioState.value.isEnabled
+              : e.audio.value?.isMuted.value ?? false;
+
+          bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+              c.primaryDrags.value != 0 ||
+              c.secondaryDragged.value;
+
+          bool isHovered = c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+          return Obx(() {
+            return SizedBox(
+              width: size,
+              height: size,
+              child: GestureDetector(
+                onLongPress: () {
+                  c.center(e);
+                },
+                child: Stack(
+                  children: [
+                    const ParticipantDecoratorWidget(),
+                    ParticipantWidget(e),
+                    ParticipantOverlayWidget(
+                      e,
+                      muted: muted,
+                      hovered: isHovered,
+                      preferBackdrop: !c.minimized.value,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        }).toList(),
+      ),
+    );
+
+    // return FitWrap(
+    //   axis: Axis.vertical,
+    //   maxSize: constraints.maxHeight / 6,
+    //   children: c.secondary.map((e) {
+    //     return GestureDetector(
+    //       onLongPress: () {
+    //         c.unfocusAll();
+    //         c.focus(e);
+    //       },
+    //       child: Stack(
+    //         children: [
+    //           const ParticipantDecoratorWidget(),
+    //           ParticipantWidget(e),
+    //           ParticipantOverlayWidget(e),
+    //         ],
+    //       ),
+    //     );
+    //   }).toList(),
+    // );
+  });
+
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {

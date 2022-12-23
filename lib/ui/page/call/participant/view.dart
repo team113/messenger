@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/ui/page/home/page/chat/info/remove_member/controller.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -183,81 +184,106 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    return ContextMenuRegion(
-      actions: [
-        ContextMenuButton(
-          label: user.id != c.me ? 'btn_remove'.l10n : 'btn_leave'.l10n,
-          onPressed: () => c.removeChatMember(user.id),
-          trailing: SvgLoader.asset(
-            'assets/icons/delete_small.svg',
-            width: 17.75,
-            height: 17,
-          ),
-        ),
-      ],
-      moveDownwards: false,
-      child: ContactTile(
-        user: user,
-        onTap: () {
-          // TODO: Open the [Routes.user] page.
-        },
-        darken: 0.05,
-        trailing: [
-          Obx(() {
-            bool inCall = call.value.members.keys
-                .where((e) => e.userId == user.id)
-                .isNotEmpty;
+    return Obx(() {
+      bool inCall =
+          call.value.members.keys.where((e) => e.userId == user.id).isNotEmpty;
 
-            if (!inCall) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Material(
-                  color: Theme.of(context).colorScheme.secondary,
-                  type: MaterialType.circle,
-                  child: InkWell(
-                    onTap: () => c.redialChatCallMember(user.id),
-                    borderRadius: BorderRadius.circular(60),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Center(
-                        child: SvgLoader.asset(
-                          'assets/icons/audio_call_start.svg',
-                          width: 13,
-                          height: 13,
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: user.id != c.me ? 'btn_remove'.l10n : 'btn_leave'.l10n,
+            onPressed: () => c.removeChatMember(user.id),
+            trailing: SvgLoader.asset(
+              'assets/icons/delete_small.svg',
+              width: 17.75,
+              height: 17,
+            ),
+          ),
+        ],
+        moveDownwards: false,
+        child: ContactTile(
+          user: user,
+          onTap: () {
+            // TODO: Open the [Routes.user] page.
+          },
+          darken: 0.05,
+          trailing: [
+            if (user.id != c.me)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+                child: inCall
+                    ? WidgetButton(
+                        key: const Key('Drop'),
+                        onPressed: () {},
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/call_end.svg',
+                              width: 30,
+                              height: 30,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Material(
+                        color: Theme.of(context).colorScheme.secondary,
+                        type: MaterialType.circle,
+                        child: InkWell(
+                          onTap: () => c.redialChatCallMember(user.id),
+                          borderRadius: BorderRadius.circular(60),
+                          child: SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: Center(
+                              child: SvgLoader.asset(
+                                'assets/icons/audio_call_start.svg',
+                                width: 13,
+                                height: 13,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+              ),
+            if (user.id == c.me)
+              WidgetButton(
+                // onPressed: () => c.removeChatMember(e.id),
+                onPressed: () => RemoveMemberView.show(
+                  context,
+                  chatId: c.chatId.value,
+                  user: user,
+                ),
+                child: Text(
+                  'Leave',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 15,
                   ),
                 ),
-              );
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: WidgetButton(
-                key: const Key('Drop'),
-                onPressed: () {},
-                child: Container(
-                  height: 30,
-                  width: 30,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgLoader.asset(
-                      'assets/icons/call_end.svg',
-                      width: 30,
-                      height: 30,
-                    ),
-                  ),
+              )
+            else
+              WidgetButton(
+                // onPressed: () => c.removeChatMember(e.id),
+                onPressed: () => RemoveMemberView.show(
+                  context,
+                  chatId: c.chatId.value,
+                  user: user,
+                ),
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14 * 1.5,
                 ),
               ),
-            );
-          }),
-        ],
-      ),
-    );
+            const SizedBox(width: 6),
+          ],
+        ),
+      );
+    });
   }
 }
