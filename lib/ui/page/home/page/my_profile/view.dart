@@ -399,7 +399,10 @@ Widget _link(BuildContext context, MyProfileController c) {
                   ),
                   children: [
                     TextSpan(
-                      text: 'label_transition_count'.l10nfmt({'count': 0}) +
+                      text: 'label_transition_count'.l10nfmt({
+                            'count':
+                                c.myUser.value?.chatDirectLink?.usageCount ?? 0
+                          }) +
                           'dot_space'.l10n,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
