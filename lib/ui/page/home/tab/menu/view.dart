@@ -22,6 +22,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/widget_button.dart';
@@ -70,9 +71,7 @@ class MenuTabView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Flexible(
                   child: WidgetButton(
-                    onPressed: () {
-                      // TODO: Display status changing modal.
-                    },
+                    onPressed: () => StatusView.show(context),
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

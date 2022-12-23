@@ -139,6 +139,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    final UserTextStatus? oldStatus = myUser.value?.status;
+
+    myUser.update((u) => u?.status = status);
+
+    try {
+      await _graphQlProvider.updateUserStatus(status);
+    } catch (_) {
+      myUser.update((u) => u?.status = oldStatus);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateUserLogin(UserLogin login) async {
     final UserLogin? oldLogin = myUser.value?.login;
 

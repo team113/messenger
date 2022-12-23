@@ -21,14 +21,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
+import '/ui/page/home/widget/rmb_detector.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -210,46 +208,8 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             CustomNavigationBarItem(
                               key: const Key('MenuButton'),
-                              child: ContextMenuRegion(
-                                alignment: Alignment.bottomRight,
-                                moveDownwards: false,
-                                selector: c.profileKey,
-                                width: 220,
-                                margin: PlatformUtils.isMobile
-                                    ? const EdgeInsets.only(bottom: 54)
-                                    : const EdgeInsets.only(
-                                        bottom: 17,
-                                        left: 26,
-                                      ),
-                                actions: [
-                                  ContextMenuButton(
-                                    label: 'btn_online'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.present),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_away'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.away),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_hidden'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.hidden),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                  ),
-                                ],
+                              child: RmbDetector(
+                                onPressed: () => StatusView.show(context),
                                 child: Padding(
                                   key: c.profileKey,
                                   padding: const EdgeInsets.only(bottom: 2),
