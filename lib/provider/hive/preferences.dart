@@ -15,18 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/adapters.dart';
-import 'package:messenger/store/model/preferences.dart';
 
-import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/session.dart';
-import '/domain/model/user.dart';
-import '/store/model/chat.dart';
-import '/store/model/contact.dart';
-import '/store/model/session_data.dart';
+import '/store/model/preferences.dart';
 import 'base.dart';
 
 // TODO: Encrypt stored data.
-/// [Hive] storage for a [SessionData].
+/// [Hive] storage for a [PreferencesData].
 class PreferencesHiveProvider extends HiveBaseProvider<PreferencesData> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch(key: 0);
@@ -40,13 +34,10 @@ class PreferencesHiveProvider extends HiveBaseProvider<PreferencesData> {
     Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
-  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
+  /// Returns the stored [WindowPreferences] from [Hive].
   WindowPreferences? getWindowPreferences() => getSafe(0)?.windowPreferences;
 
-  /// Stores a new [FavoriteChatsListVersion] to [Hive].
-  Future<void> setWindowPreferences(WindowPreferences prefs) async {
-    print('set window preferences');
-    await putSafe(
-        0, (box.get(0) ?? PreferencesData())..windowPreferences = prefs);
-  }
+  /// Stores a new [WindowPreferences] to [Hive].
+  Future<void> setWindowPreferences(WindowPreferences prefs) =>
+      putSafe(0, (box.get(0) ?? PreferencesData())..windowPreferences = prefs);
 }

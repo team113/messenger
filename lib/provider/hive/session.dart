@@ -45,7 +45,6 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     Hive.maybeRegisterAdapter(SessionAdapter());
     Hive.maybeRegisterAdapter(SessionDataAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
-    // Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
   /// Returns the stored [Credentials] from [Hive].
@@ -59,9 +58,6 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   FavoriteChatsListVersion? getFavoriteChatsListVersion() =>
       getSafe(0)?.favoriteChatsListVersion;
 
-  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
-  // WindowPreferences? getWindowPreferences() => getSafe(0)?.windowPreferences;
-
   /// Stores new [Credentials] to [Hive].
   Future<void> setCredentials(Credentials credentials) =>
       putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
@@ -73,10 +69,4 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
       putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
-
-  /// Stores a new [FavoriteChatsListVersion] to [Hive].
-  // Future<void> setWindowPreferences(WindowPreferences prefs) async {
-  //   print('set window preferences');
-  //   await putSafe(0, (box.get(0) ?? SessionData())..windowPreferences = prefs);
-  // }
 }

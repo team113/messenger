@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:window_manager/window_manager.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -46,12 +45,10 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
-import 'provider/hive/preferences.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
-import 'store/model/preferences.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
@@ -307,58 +304,10 @@ class AppRouteInformationParser
 /// Application's router delegate that builds the root [Navigator] based on
 /// the [_state].
 class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
-    with
-        ChangeNotifier,
-        PopNavigatorRouterDelegateMixin<RouteConfiguration>,
-        WindowListener {
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteConfiguration> {
   AppRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
     _prefixWorker = ever(_state.prefix, (_) => _updateTabTitle());
-    _init();
-  }
-  late PreferencesHiveProvider preferencesProvider;
-
-  void _init() async {
-    // await windowManager.ensureInitialized();
-    // windowManager.addListener(this);
-    // preferencesProvider = PreferencesHiveProvider();
-    // await preferencesProvider.init();
-    // // Add this line to override the default close handler
-    // // await windowManager.setPreventClose(true);
-    // WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
-    // print(prefs?.height);
-    // if (prefs?.width != null && prefs?.height != null) {
-    //   await windowManager.setSize(Size(prefs!.width!, prefs.height!));
-    // }
-    // if (prefs?.dx != null && prefs?.dy != null) {
-    //   await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!),
-    //       animate: true);
-    // }
-    // await windowManager.setPreventClose(true);
-    // setState(() {});
-  }
-
-  // @override
-  // void onWindowEvent(String eventName) {
-  //   print('[WindowManager] onWindowEvent: $eventName');
-  // }
-
-  @override
-  void onWindowClose() async {
-    // Size size = await windowManager.getSize();
-    // Offset position = await windowManager.getPosition();
-    // await preferencesProvider.setWindowPreferences(
-    //   WindowPreferences(
-    //     width: size.width,
-    //     height: size.height,
-    //     dx: position.dx,
-    //     dy: position.dy,
-    //   ),
-    // );
-    // print('onWindowClose');
-    // print(await windowManager.getSize());
-    // print(await windowManager.getPosition());
-    // await windowManager.destroy();
   }
 
   @override
@@ -393,7 +342,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   void dispose() {
     _prefixWorker.dispose();
-    windowManager.removeListener(this);
     super.dispose();
   }
 

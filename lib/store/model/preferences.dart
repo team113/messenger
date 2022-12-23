@@ -14,39 +14,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
-import '/domain/model/session.dart';
-import '/store/model/chat.dart';
-import '/util/new_type.dart';
-import 'contact.dart';
 
 part 'preferences.g.dart';
 
-/// [Session] relative preferences.
+/// Preferences of application.
 @HiveType(typeId: ModelTypeId.preferencesData)
 class PreferencesData extends HiveObject {
-  /// Persisted [Credentials] data.
+  /// Persisted [WindowPreferences] data.
   @HiveField(0)
   WindowPreferences? windowPreferences;
 }
 
-/// Version of [RememberedSession]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
+/// Information about windows position and size.
 @HiveType(typeId: ModelTypeId.windowPreferences)
 class WindowPreferences {
   WindowPreferences({this.width, this.height, this.dx, this.dy});
 
+  /// Windows width.
   @HiveField(0)
   double? width;
 
+  /// Windows height.
   @HiveField(1)
   double? height;
 
+  /// Windows
   @HiveField(2)
   double? dx;
 

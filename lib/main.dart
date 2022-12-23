@@ -28,13 +28,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/store/model/preferences.dart';
-import 'package:messenger/store/model/session_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/store/model/preferences.dart';
 import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
@@ -158,10 +157,11 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> with WindowListener {
-  late PreferencesHiveProvider preferencesProvider;
+  final PreferencesHiveProvider preferencesProvider = Get.find();
+
   @override
   void initState() {
-    _init();
+    windowManager.addListener(this);
     super.initState();
   }
 
@@ -171,47 +171,13 @@ class _AppState extends State<App> with WindowListener {
     super.dispose();
   }
 
-  void _init() async {
-    await windowManager.ensureInitialized();
-    windowManager.addListener(this);
-    preferencesProvider = Get.find();
-    // Add this line to override the default close handler
-    // await windowManager.setPreventClose(true);
-
-    await windowManager.setPreventClose(true);
-    setState(() {});
-  }
+  @override
+  void onWindowResized() => storeWindowData();
 
   @override
-  void onWindowClose() async {
-    storeWindowData();
-    await windowManager.destroy();
-  }
+  void onWindowMoved() => storeWindowData();
 
-  @override
-  void onWindowResize() async {
-    print('onWindowResize');
-    storeWindowData();
-  }
-
-  @override
-  void onWindowResized() async {
-    print('onWindowResized');
-    storeWindowData();
-  }
-
-  @override
-  void onWindowMove() async {
-    print('onWindowMove');
-    storeWindowData();
-  }
-
-  @override
-  void onWindowMoved() async {
-    print('onWindowMoved');
-    storeWindowData();
-  }
-
+  /// Stores window's size and position to hive.
   void storeWindowData() async {
     Size size = await windowManager.getSize();
     Offset position = await windowManager.getPosition();
