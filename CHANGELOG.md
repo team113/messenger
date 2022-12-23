@@ -58,6 +58,8 @@ All user visible changes to this project will be documented in this file. This p
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])    
+- Desktop:
+    - Persist window's size and position ([#274], [#263])
 
 ### Fixed
 
@@ -117,7 +119,9 @@ All user visible changes to this project will be documented in this file. This p
 [#256]: /../../issues/256
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#263]: /../../issues/263
 [#265]: /../../pull/265
+[#274]: /../../pull/274
 
 
 

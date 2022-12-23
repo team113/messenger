@@ -28,23 +28,24 @@ class PreferencesData extends HiveObject {
   WindowPreferences? windowPreferences;
 }
 
-/// Information about windows position and size.
+/// Information about window's position and size.
 @HiveType(typeId: ModelTypeId.windowPreferences)
 class WindowPreferences {
   WindowPreferences({this.width, this.height, this.dx, this.dy});
 
-  /// Windows width.
+  /// Window's width.
   @HiveField(0)
   double? width;
 
-  /// Windows height.
+  /// Window's height.
   @HiveField(1)
   double? height;
 
-  /// Windows
+  /// Window's x coordinate position.
   @HiveField(2)
   double? dx;
 
+  /// Window's y coordinate position.
   @HiveField(3)
   double? dy;
 }

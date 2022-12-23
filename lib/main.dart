@@ -178,18 +178,10 @@ class _AppState extends State<App> with WindowListener {
   void onWindowMoved() => storeWindowData();
 
   /// Stores window's size and position to hive.
-  void storeWindowData() async {
-    Size size = await windowManager.getSize();
-    Offset position = await windowManager.getPosition();
-    await preferencesProvider.setWindowPreferences(
-      WindowPreferences(
-        width: size.width,
-        height: size.height,
-        dx: position.dx,
-        dy: position.dy,
-      ),
-    );
-  }
+  void storeWindowData() async => preferencesProvider.setWindowPreferences(
+        size: await windowManager.getSize(),
+        position: await windowManager.getPosition(),
+      );
 
   @override
   Widget build(BuildContext context) {
