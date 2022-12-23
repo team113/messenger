@@ -156,6 +156,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
+/// [State] of [App] with [WindowListener].
 class _AppState extends State<App> with WindowListener {
   final PreferencesHiveProvider preferencesProvider = Get.find();
 
