@@ -93,7 +93,7 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
-  /// [MyUserService] used to get [myUser] value.
+  /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
   /// Subscription for [ChatService.chats] changes.
@@ -107,19 +107,23 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
-  // Indicator whether search.
+  /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
-  /// Indicator whether group creation mode is enabled.
+  /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
-  /// Group creation mutation status.
+  /// Status of the [createGroup] progression.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
-  /// Returns [MyUser].
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether [ContactService] is ready to be used.
@@ -542,12 +546,12 @@ class DividerElement extends ListElement {
   final SearchCategory category;
 }
 
-/// [ListElement] representing [MyUser].
+/// [ListElement] representing a [MyUser].
 class MyUserElement extends ListElement {
   const MyUserElement();
 }
 
-/// [ListElement] representing a [RxUser].
+/// [ListElement] representing a recent [RxUser].
 class RecentElement extends ListElement {
   const RecentElement(this.user);
 

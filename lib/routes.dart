@@ -139,7 +139,8 @@ class RouterState extends ChangeNotifier {
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
 
-  /// Used instead of [CustomNavigationBar]
+  /// Reactive optional [Widget] to display instead of the [Home] page
+  /// navigation.
   final Rx<Widget?> navigation = Rx(null);
 
   /// Dynamic arguments of the [route].

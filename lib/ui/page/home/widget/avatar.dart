@@ -344,85 +344,84 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        Color gradient;
+    return LayoutBuilder(builder: (context, constraints) {
+      Color gradient;
 
-        if (color != null) {
-          gradient = colors[color! % colors.length];
-        } else if (title != null) {
-          gradient = colors[(title!.hashCode) % colors.length];
-        } else {
-          gradient = const Color(0xFF555555);
-        }
+      if (color != null) {
+        gradient = colors[color! % colors.length];
+      } else if (title != null) {
+        gradient = colors[(title!.hashCode) % colors.length];
+      } else {
+        gradient = const Color(0xFF555555);
+      }
 
-        double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-        double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-        double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-        double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+      double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
+      double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
+      double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+      double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-        double badgeSize = max(5, maxWidth / 12);
-        if (maxWidth < 40) {
-          badgeSize = maxWidth / 8;
-        }
+      double badgeSize = max(5, maxWidth / 12);
+      if (maxWidth < 40) {
+        badgeSize = maxWidth / 8;
+      }
 
-        return Badge(
-          showBadge: isOnline,
-          badgeContent: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isAway ? Colors.orange : Colors.green,
-            ),
-            padding: EdgeInsets.all(badgeSize),
+      return Badge(
+        showBadge: isOnline,
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
           ),
-          padding: EdgeInsets.all(badgeSize / 3),
-          badgeColor: Colors.white,
-          animationType: BadgeAnimationType.scale,
-          position: BadgePosition.bottomEnd(
-            bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
-            end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+          padding: EdgeInsets.all(badgeSize),
+        ),
+        padding: EdgeInsets.all(badgeSize / 3),
+        badgeColor: Colors.white,
+        animationType: BadgeAnimationType.scale,
+        position: BadgePosition.bottomEnd(
+          bottom: -badgeSize / 5,
+          end: -badgeSize / 5,
+        ),
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
           ),
-          elevation: 0,
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: minHeight,
-              minWidth: minWidth,
-              maxWidth: maxWidth,
-              maxHeight: maxHeight,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
             ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [gradient.lighten(), gradient],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: avatar == null
-                ? Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40.0),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                      // Disable the accessibility size settings for this [Text].
-                      textScaleFactor: 1,
-                    ),
-                  )
-                : ClipOval(
-                    child: RetryImage(
-                      avatar!.original.url,
-                      fit: BoxFit.cover,
-                      height: double.infinity,
-                      width: double.infinity,
-                    ),
+            shape: BoxShape.circle,
+          ),
+          child: avatar == null
+              ? Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
                   ),
-          ),
-        );
-      },
-    );
+                )
+              : ClipOval(
+                  child: RetryImage(
+                    avatar!.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                  ),
+                ),
+        ),
+      );
+    });
   }
 }
 

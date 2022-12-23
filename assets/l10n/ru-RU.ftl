@@ -629,3 +629,4 @@ label_your_direct_link = Прямая ссылка на чат с Вами
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
+label_recent = Недавние

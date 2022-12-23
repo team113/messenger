@@ -19,16 +19,11 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -38,6 +33,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
+import 'widget/selected_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -61,6 +57,7 @@ class ChatsTabView extends StatelessWidget {
         return Stack(
           children: [
             Scaffold(
+              extendBodyBehindAppBar: true,
               resizeToAvoidBottomInset: false,
               appBar: CustomAppBar(
                 title: Obx(() {
@@ -173,7 +170,7 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 12, right: 18),
                     child: Obx(() {
-                      Widget child;
+                      final Widget child;
 
                       if (c.groupCreating.value) {
                         child = WidgetButton(
@@ -248,12 +245,11 @@ class ChatsTabView extends StatelessWidget {
                           delegate: FlutterListViewDelegate(
                             (context, i) {
                               final ListElement element = c.elements[i];
-                              Widget child = const SizedBox();
+                              final Widget child;
 
                               if (element is RecentElement) {
                                 child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
+                                  return SelectedUserTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedRecent
                                             .contains(element.user) ??
@@ -264,8 +260,7 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is ContactElement) {
                                 child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
+                                  return SelectedUserTile(
                                     contact: element.contact,
                                     selected: c.search.value?.selectedContacts
                                             .contains(element.contact) ??
@@ -276,8 +271,7 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is UserElement) {
                                 child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
+                                  return SelectedUserTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedUsers
                                             .contains(element.user) ??
@@ -288,40 +282,47 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is MyUserElement) {
                                 child = Obx(() {
-                                  return _selectedTile(
-                                    context: context,
+                                  return SelectedUserTile(
                                     myUser: c.myUser.value,
                                     selected: true,
                                     subtitle: [
                                       const SizedBox(height: 5),
                                       Text(
                                         'label_required'.l10n,
-                                        style: const TextStyle(
-                                            color: Color(0xFF888888)),
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
                                       ),
                                     ],
                                   );
                                 });
                               } else if (element is DividerElement) {
-                                String text = '';
-                                if (element.category == SearchCategory.chat) {
-                                  text = 'label_chat'.l10n;
-                                } else if (element.category ==
-                                    SearchCategory.contact) {
-                                  text = 'label_contact'.l10n;
-                                } else if (element.category ==
-                                    SearchCategory.user) {
-                                  text = 'label_user'.l10n;
+                                final String text;
+
+                                switch (element.category) {
+                                  case SearchCategory.recent:
+                                    text = 'label_recent'.l10n;
+                                    break;
+
+                                  case SearchCategory.contact:
+                                    text = 'label_contact'.l10n;
+                                    break;
+
+                                  case SearchCategory.user:
+                                    text = 'label_user'.l10n;
+                                    break;
+
+                                  case SearchCategory.chat:
+                                    text = 'label_chat'.l10n;
+                                    break;
                                 }
 
                                 child = Center(
                                   child: Container(
-                                    margin: const EdgeInsets.fromLTRB(
-                                      10,
-                                      2,
-                                      10,
-                                      2,
-                                    ),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
                                     padding: const EdgeInsets.fromLTRB(
                                       12,
                                       10,
@@ -341,15 +342,11 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                   ),
                                 );
+                              } else {
+                                child = const SizedBox();
                               }
 
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  top: i == 0 ? 3 : 0,
-                                  bottom: i == c.elements.length - 1 ? 4 : 0,
-                                ),
-                                child: child,
-                              );
+                              return child;
                             },
                             childCount: c.elements.length,
                           ),
@@ -461,7 +458,8 @@ class ChatsTabView extends StatelessWidget {
                               child: FadeInAnimation(
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
+                                    horizontal: 10,
+                                  ),
                                   child: RecentChatTile(
                                     chat,
                                     key: Key('RecentChat_${chat.id}'),
@@ -537,91 +535,10 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Returns a visual representation of the provided selectable [user],
-  /// [contact] or [myUser].
-  Widget _selectedTile({
-    required BuildContext context,
-    RxUser? user,
-    RxChatContact? contact,
-    MyUser? myUser,
-    void Function()? onTap,
-    bool selected = false,
-    List<Widget> subtitle = const [],
-  }) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: Stack(
-        children: [
-          ContactTile(
-            contact: contact,
-            user: user,
-            myUser: myUser,
-            darken: 0,
-            selected: selected,
-            subtitle: subtitle,
-            trailing: [
-              if (myUser == null)
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: selected
-                        ? CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                            radius: 12,
-                            child: const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFD7D7D7),
-                                width: 1,
-                              ),
-                            ),
-                            width: 24,
-                            height: 24,
-                          ),
-                  ),
-                ),
-            ],
-          ),
-          Positioned.fill(
-            child: Row(
-              children: [
-                WidgetButton(
-                  onPressed: () => router.user(
-                    user?.id ?? contact?.user.value?.id ?? myUser!.id,
-                  ),
-                  child: const SizedBox(
-                    width: 60,
-                    height: double.infinity,
-                  ),
-                ),
-                Expanded(
-                  child: WidgetButton(
-                    onPressed: onTap,
-                    child: Container(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Returns an animated [OutlinedRoundedButton]s for creating a group.
   Widget _createGroup(BuildContext context, ChatsTabController c) {
     return Obx(() {
-      Widget child = const SizedBox();
+      final Widget child;
 
       if (c.groupCreating.value) {
         Widget button({
@@ -682,12 +599,11 @@ class ChatsTabView extends StatelessWidget {
             ],
           ),
         );
+      } else {
+        child = const SizedBox();
       }
 
-      return AnimatedSwitcher(
-        duration: 250.milliseconds,
-        child: child,
-      );
+      return AnimatedSwitcher(duration: 250.milliseconds, child: child);
     });
   }
 }
