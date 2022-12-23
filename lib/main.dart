@@ -59,11 +59,22 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-    }
 
     await _initHive();
+
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      await windowManager.ensureInitialized();
+
+      PreferencesHiveProvider preferencesProvider = Get.find();
+
+      WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
+      if (prefs?.width != null && prefs?.height != null) {
+        await windowManager.setSize(Size(prefs!.width!, prefs.height!));
+      }
+      if (prefs?.dx != null && prefs?.dy != null) {
+        await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!));
+      }
+    }
 
     var graphQlProvider = Get.put(GraphQlProvider());
 
@@ -163,24 +174,45 @@ class _AppState extends State<App> with WindowListener {
   void _init() async {
     await windowManager.ensureInitialized();
     windowManager.addListener(this);
-    preferencesProvider = PreferencesHiveProvider();
-    await preferencesProvider.init();
+    preferencesProvider = Get.find();
     // Add this line to override the default close handler
     // await windowManager.setPreventClose(true);
-    WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
-    print(prefs?.height);
-    if (prefs?.width != null && prefs?.height != null) {
-      await windowManager.setSize(Size(prefs!.width!, prefs.height!));
-    }
-    if (prefs?.dx != null && prefs?.dy != null) {
-      await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!));
-    }
+
     await windowManager.setPreventClose(true);
     setState(() {});
   }
 
   @override
   void onWindowClose() async {
+    storeWindowData();
+    await windowManager.destroy();
+  }
+
+  @override
+  void onWindowResize() async {
+    print('onWindowResize');
+    storeWindowData();
+  }
+
+  @override
+  void onWindowResized() async {
+    print('onWindowResized');
+    storeWindowData();
+  }
+
+  @override
+  void onWindowMove() async {
+    print('onWindowMove');
+    storeWindowData();
+  }
+
+  @override
+  void onWindowMoved() async {
+    print('onWindowMoved');
+    storeWindowData();
+  }
+
+  void storeWindowData() async {
     Size size = await windowManager.getSize();
     Offset position = await windowManager.getPosition();
     await preferencesProvider.setWindowPreferences(
@@ -191,10 +223,6 @@ class _AppState extends State<App> with WindowListener {
         dy: position.dy,
       ),
     );
-    print('onWindowClose');
-    print(await windowManager.getSize());
-    print(await windowManager.getPosition());
-    await windowManager.destroy();
   }
 
   @override
@@ -234,6 +262,7 @@ Future<void> _initHive() async {
   }
 
   await Get.put(SessionDataHiveProvider()).init();
+  await Get.put(PreferencesHiveProvider()).init();
 }
 
 /// Extension adding an ability to clean [Hive].
