@@ -19,6 +19,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/swappable_fit.dart';
 import 'package:messenger/ui/page/download/view.dart';
 import 'package:messenger/ui/page/home/page/my_profile/language/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
@@ -39,6 +40,18 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // return SwappableFit<int>(
+    //   children: List.generate(5, (i) => i),
+    //   itemBuilder: (i) {
+    //     return Container(
+    //       color: Colors.primaries[i % Colors.primaries.length],
+    //       width: double.infinity,
+    //       height: double.infinity,
+    //       child: Text('$i'),
+    //     );
+    //   },
+    // );
+
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {

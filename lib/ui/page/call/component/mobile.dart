@@ -20,6 +20,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/page/call/widget/swappable_fit.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -71,23 +73,113 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
-          return AnimatedSwitcher(
-            duration: 250.milliseconds,
-            child: Column(
-              // key: Key('${c.primary.length}${c.secondary.length}'),
-              children: [
-                Obx(() {
-                  if (c.secondary.isEmpty || c.minimized.value) {
-                    return const SizedBox();
-                  }
+          return SwappableFit<Participant>(
+            children: [...c.primary, ...c.secondary],
+            center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
+            itemBuilder: (e) {
+              return Obx(() {
+                bool muted = e.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : e.audio.value?.isMuted.value ?? false;
 
-                  return _secondaryView(c, context, constraints);
-                }),
-                Expanded(child: _primaryView(c, context)),
-              ],
-            ),
+                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                    c.primaryDrags.value != 0 ||
+                    c.secondaryDragged.value;
+
+                bool isHovered =
+                    c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+                return Stack(
+                  children: [
+                    const ParticipantDecoratorWidget(),
+                    IgnorePointer(
+                      child: ParticipantWidget(
+                        e,
+                        offstageUntilDetermined: true,
+                      ),
+                    ),
+                    ParticipantOverlayWidget(
+                      e,
+                      muted: muted,
+                      hovered: isHovered,
+                      preferBackdrop: !c.minimized.value,
+                    ),
+                  ],
+                );
+              });
+            },
           );
         }),
+        // Obx(() {
+        //   return SwappableFit<Participant>(
+        //     children: [...c.primary, ...c.secondary],
+        //     center: c.primary.firstOrNull,
+        //     itemBuilder: (e) {
+        //       return Stack(
+        //         children: [
+        //           const ParticipantDecoratorWidget(),
+        //           ParticipantWidget(e),
+        //           ParticipantOverlayWidget(
+        //             e,
+        //             preferBackdrop: !c.minimized.value,
+        //           ),
+        //         ],
+        //       );
+
+        //       return Obx(() {
+        // bool muted = e.member.owner == MediaOwnerKind.local
+        //     ? !c.audioState.value.isEnabled
+        //     : e.audio.value?.isMuted.value ?? false;
+
+        // bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+        //     c.primaryDrags.value != 0 ||
+        //     c.secondaryDragged.value;
+
+        // bool isHovered =
+        //     c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+        //         return GestureDetector(
+        //           // onLongPress: () {
+        //           //   if (c.secondary.isNotEmpty) {
+        //           //     c.focusAll();
+        //           //   } else {
+        //           //     c.center(e);
+        //           //   }
+        //           // },
+        //           child: Stack(
+        //             children: [
+        //               const ParticipantDecoratorWidget(),
+        //               ParticipantWidget(e),
+        //               ParticipantOverlayWidget(
+        //                 e,
+        //                 muted: muted,
+        //                 hovered: isHovered,
+        //                 preferBackdrop: !c.minimized.value,
+        //               ),
+        //             ],
+        //           ),
+        //         );
+        //       });
+        //     },
+        //   );
+
+        //   return AnimatedSwitcher(
+        //     duration: 250.milliseconds,
+        //     child: Column(
+        //       // key: Key('${c.primary.length}${c.secondary.length}'),
+        //       children: [
+        //         Obx(() {
+        //           if (c.secondary.isEmpty || c.minimized.value) {
+        //             return const SizedBox();
+        //           }
+
+        //           return _secondaryView(c, context, constraints);
+        //         }),
+        //         Expanded(child: _primaryView(c, context)),
+        //       ],
+        //     ),
+        //   );
+        // }),
 
         // Secondary panel itself.
         // Obx(() {
