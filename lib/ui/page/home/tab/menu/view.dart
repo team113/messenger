@@ -250,19 +250,19 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.calls:
-                    if (PlatformUtils.isMobile) {
-                      return const SizedBox();
-                    } else {
+                    if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                       child = card(
                         icon: Icons.call,
                         title: 'label_calls'.l10n,
                         subtitle: 'label_calls_displaying'.l10n,
                       );
+                    } else {
+                      return const SizedBox();
                     }
                     break;
 
                   case ProfileTab.media:
-                    if (PlatformUtils.isMobile || !PlatformUtils.isWeb) {
+                    if (PlatformUtils.isMobile) {
                       return const SizedBox();
                     } else {
                       child = card(
