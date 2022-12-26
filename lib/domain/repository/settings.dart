@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
+// import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 
 /// Application settings repository interface.
@@ -72,6 +72,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
 
-  /// Updates the [ApplicationSettings.callsPreferences] map value.
-  Future<void> setCallPreferences(ChatId id, CallPreferences preferences);
+  // /// Updates the [ApplicationSettings.callsPreferences] map value.
+  // Future<void> setCallPreferences(ChatId id, CallPreferences preferences);
 }

@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/application_settings.dart';
@@ -521,8 +522,8 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
-    CallPreferences? prefs = _settingsRepository.applicationSettings.value
-        ?.callsPreferences[_currentCall.value.chatId.value];
+    _calls.prefs[_currentCall.value.chatId.value];
+    CallPreferences? prefs = _calls.prefs[_currentCall.value.chatId.value];
 
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
@@ -841,15 +842,24 @@ class CallController extends GetxController {
 
     secondaryEntry?.remove();
 
-    _settingsRepository.setCallPreferences(
-      chat.value!.id,
+    _calls.setCallPrefs(
       CallPreferences(
+        chat.value!.id,
         top: top.value,
         left: left.value,
         width: width.value,
         height: height.value,
       ),
     );
+    // _settingsRepository.setCallPreferences(
+    //   chat.value!.id,
+    //   CallPreferences(
+    //     top: top.value,
+    //     left: left.value,
+    //     width: width.value,
+    //     height: height.value,
+    //   ),
+    // );
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();

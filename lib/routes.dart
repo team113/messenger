@@ -18,6 +18,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/calls_settings.dart';
+import 'package:messenger/provider/hive/calls_settings.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -47,6 +49,7 @@ import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
+import 'store/calls_settings.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
 import 'store/my_user.dart';
@@ -403,6 +406,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
+                deps.put(CallsSettingsHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -430,6 +434,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   settingsRepository,
                   me: me,
                 ),
+              );
+              AbstractCallsSettingsRepository callsSettingsRepository =
+                  deps.put<AbstractCallsSettingsRepository>(
+                CallsSettingsRepository(Get.find()),
               );
               AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
@@ -471,6 +479,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 chatService,
                 callRepository,
+                callsSettingsRepository,
               ));
 
               return deps;
@@ -503,11 +512,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
+              deps.put(CallsSettingsHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(Get.find(), Get.find(), Get.find()),
+            );
+
+            AbstractCallsSettingsRepository callsSettingsRepository =
+                deps.put<AbstractCallsSettingsRepository>(
+              CallsSettingsRepository(Get.find()),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -572,13 +587,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
               chatService,
               callRepository,
+              callsSettingsRepository,
             ));
 
             deps.put(CallWorker(
               Get.find(),
               callService,
               chatService,
-              Get.find(),
               Get.find(),
             ));
 

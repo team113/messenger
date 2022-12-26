@@ -17,7 +17,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
+// import '/domain/model/chat.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ApplicationSettings].
@@ -32,7 +32,7 @@ class ApplicationSettingsHiveProvider
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
-    Hive.maybeRegisterAdapter(CallPreferencesAdapter());
+    // Hive.maybeRegisterAdapter(CallPreferencesAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -87,12 +87,12 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
       );
 
-  /// Stores calls [preferences] value in to
-  /// [ApplicationSettings.sortContactsByName] to [Hive].
-  Future<void> setCallPreferences(ChatId id, CallPreferences preferences) =>
-      putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())
-          ..callsPreferences[id] = preferences,
-      );
+  // /// Stores calls [preferences] value in to
+  // /// [ApplicationSettings.sortContactsByName] to [Hive].
+  // Future<void> setCallPreferences(ChatId id, CallPreferences preferences) =>
+  //     putSafe(
+  //       0,
+  //       (box.get(0) ?? ApplicationSettings())
+  //         ..callsPreferences[id] = preferences,
+  //     );
 }

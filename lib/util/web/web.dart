@@ -33,11 +33,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
-import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
@@ -482,7 +482,7 @@ class WebUtils {
   static CallPreferences? getCallPreferences(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return CallPreferences.fromJson(json.decode(data));
+      return CallPreferences.fromJson(chatId, json.decode(data));
     }
 
     return null;

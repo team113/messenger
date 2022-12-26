@@ -17,6 +17,8 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/calls_settings.dart';
+import 'package:messenger/provider/hive/calls_settings.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -41,10 +43,14 @@ class CallService extends DisposableService {
     this._authService,
     this._chatService,
     this._callsRepo,
+    this._callsSettingsRepo,
   );
 
   /// Unmodifiable map of the current [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
+
+  /// Unmodifiable map of the current [OngoingCall]s.
+  RxObsMap<ChatId, CallPreferences> get prefs => _callsSettingsRepo.prefs;
 
   /// [AuthService] to get the authenticated [MyUser].
   final AuthService _authService;
@@ -54,6 +60,7 @@ class CallService extends DisposableService {
 
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
+  final AbstractCallsSettingsRepository _callsSettingsRepo;
 
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
@@ -262,4 +269,7 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callsRepo.removeCredentials(id);
+
+  Future<void> setCallPrefs(CallPreferences prefs) =>
+      _callsSettingsRepo.put(prefs);
 }

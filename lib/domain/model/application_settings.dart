@@ -17,7 +17,7 @@
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
-import 'chat.dart';
+// import 'chat.dart';
 
 part 'application_settings.g.dart';
 
@@ -70,43 +70,43 @@ class ApplicationSettings extends HiveObject {
   bool sortContactsByName;
 
   /// [Map] of [CallPreferences] containing its width, height and position.
-  @HiveField(8)
-  Map<ChatId, CallPreferences> callsPreferences = {};
+  // @HiveField(8)
+  // Map<ChatId, CallPreferences> callsPreferences = {};
 }
 
-/// Preferences of a call containing its [width], [height] and position.
-@HiveType(typeId: ModelTypeId.callPreferences)
-class CallPreferences {
-  CallPreferences({this.width, this.height, this.left, this.top});
-
-  /// Width of the call these [CallPreferences] are about.
-  @HiveField(0)
-  double? width;
-
-  /// Height of the call these [CallPreferences] are about.
-  @HiveField(1)
-  double? height;
-
-  /// Left position of the call these [CallPreferences] are about.
-  @HiveField(2)
-  double? left;
-
-  /// Top position of the call these [CallPreferences] are about.
-  @HiveField(3)
-  double? top;
-
-  /// Constructs a [CallPreferences] from the provided [data].
-  factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {
-    return CallPreferences(
-      width: data['width'],
-      height: data['height'],
-      left: data['left'],
-      top: data['top'],
-    );
-  }
-
-  /// Returns a [Map] containing data of these [CallPreferences].
-  Map<String, dynamic> toJson() {
-    return {'width': width, 'height': height, 'left': left, 'top': top};
-  }
-}
+// /// Preferences of a call containing its [width], [height] and position.
+// @HiveType(typeId: ModelTypeId.callPreferences)
+// class CallPreferences {
+//   CallPreferences({this.width, this.height, this.left, this.top});
+//
+//   /// Width of the call these [CallPreferences] are about.
+//   @HiveField(0)
+//   double? width;
+//
+//   /// Height of the call these [CallPreferences] are about.
+//   @HiveField(1)
+//   double? height;
+//
+//   /// Left position of the call these [CallPreferences] are about.
+//   @HiveField(2)
+//   double? left;
+//
+//   /// Top position of the call these [CallPreferences] are about.
+//   @HiveField(3)
+//   double? top;
+//
+//   /// Constructs a [CallPreferences] from the provided [data].
+//   factory CallPreferences.fromJson(Map<dynamic, dynamic> data) {
+//     return CallPreferences(
+//       width: data['width'],
+//       height: data['height'],
+//       left: data['left'],
+//       top: data['top'],
+//     );
+//   }
+//
+//   /// Returns a [Map] containing data of these [CallPreferences].
+//   Map<String, dynamic> toJson() {
+//     return {'width': width, 'height': height, 'left': left, 'top': top};
+//   }
+// }
