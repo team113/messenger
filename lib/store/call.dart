@@ -17,6 +17,8 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
@@ -48,7 +50,8 @@ class CallRepository extends DisposableInterface
     this._graphQlProvider,
     this._userRepo,
     this._credentialsProvider,
-    this._settingsRepo, {
+    this._settingsRepo,
+    this._callsSettingsProvider, {
     required this.me,
   });
 
@@ -66,6 +69,8 @@ class CallRepository extends DisposableInterface
 
   /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
   final ChatCallCredentialsHiveProvider _credentialsProvider;
+
+  final CallsSettingsHiveProvider _callsSettingsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -369,6 +374,13 @@ class CallRepository extends DisposableInterface
   Future<void> removeCredentials(ChatItemId id) {
     return _credentialsProvider.remove(id);
   }
+
+  @override
+  Future<void> setPrefs(CallPreferences prefs) =>
+      _callsSettingsProvider.put(prefs);
+
+  @override
+  CallPreferences? getPrefs(ChatId id) => _callsSettingsProvider.get(id);
 
   @override
   Future<Stream<ChatCallEvents>> heartbeat(

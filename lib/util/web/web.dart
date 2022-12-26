@@ -367,19 +367,20 @@ class WebUtils {
 
     CallPreferences? prefs = getCallPreferences(chatId);
 
-    final width =
-        localPrefs?.width ?? min(prefs?.width ?? 500, screenW.toDouble());
-    final height =
-        localPrefs?.height ?? min(prefs?.height ?? 500, screenH.toDouble());
+    final width = localPrefs?.popupWidth ??
+        min(prefs?.popupWidth ?? 500, screenW.toDouble());
+    final height = localPrefs?.popupHeight ??
+        min(prefs?.popupHeight ?? 500, screenH.toDouble());
 
-    var left = localPrefs?.left ?? prefs?.left ?? screenW - 50 - width;
+    var left =
+        localPrefs?.popupLeft ?? prefs?.popupLeft ?? screenW - 50 - width;
     if (left < 0) {
       left = 0;
     } else if (left + width > screenW) {
       left = screenW - width;
     }
 
-    var top = localPrefs?.top ?? prefs?.top ?? 50;
+    var top = localPrefs?.popupTop ?? prefs?.popupTop ?? 50;
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {

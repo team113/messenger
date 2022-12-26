@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../../provider/hive/calls_settings.dart';
 import '../model/chat.dart';
 import '../model/chat_call.dart';
 import '../model/chat_item.dart';
@@ -130,6 +131,12 @@ abstract class AbstractCallRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
+
+  /// Removes a [Chat] identified by the provided [id] from the [chats].
+  Future<void> setPrefs(CallPreferences prefs);
+
+  /// Removes a [Chat] identified by the provided [id] from the [chats].
+  CallPreferences? getPrefs(ChatId id);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///

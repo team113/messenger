@@ -53,12 +53,21 @@ class CallsSettingsHiveProvider extends HiveBaseProvider<CallPreferences> {
 /// Preferences of a call containing its [width], [height] and position.
 @HiveType(typeId: ModelTypeId.callPreferences)
 class CallPreferences extends HiveObject {
-  CallPreferences(this.chatId, {this.width, this.height, this.left, this.top});
+  CallPreferences(
+    this.chatId, {
+    this.width,
+    this.height,
+    this.left,
+    this.top,
+    this.popupWidth,
+    this.popupHeight,
+    this.popupLeft,
+    this.popupTop,
+  });
 
   @HiveField(0)
   final ChatId chatId;
 
-  /// Width of the call these [CallPreferences] are about.
   @HiveField(1)
   double? width;
 
@@ -74,19 +83,38 @@ class CallPreferences extends HiveObject {
   @HiveField(4)
   double? top;
 
-  /// Constructs a [CallPreferences] from the provided [data].
-  factory CallPreferences.fromJson(ChatId chatId, Map<dynamic, dynamic> data) {
+  @HiveField(5)
+  double? popupWidth;
+
+  /// Height of the call these [CallPreferences] are about.
+  @HiveField(6)
+  double? popupHeight;
+
+  /// Left position of the call these [CallPreferences] are about.
+  @HiveField(7)
+  double? popupLeft;
+
+  /// Top position of the call these [CallPreferences] are about.
+  @HiveField(8)
+  double? popupTop;
+
+  factory CallPreferences.fromJson(ChatId id, Map<dynamic, dynamic> data) {
     return CallPreferences(
-      chatId,
-      width: data['width'],
-      height: data['height'],
-      left: data['left'],
-      top: data['top'],
+      id,
+      popupWidth: data['width'],
+      popupHeight: data['height'],
+      popupLeft: data['left'],
+      popupTop: data['top'],
     );
   }
 
   /// Returns a [Map] containing data of these [CallPreferences].
   Map<String, dynamic> toJson() {
-    return {'width': width, 'height': height, 'left': left, 'top': top};
+    return {
+      'width': popupWidth,
+      'height': popupHeight,
+      'left': popupLeft,
+      'top': popupTop,
+    };
   }
 }
