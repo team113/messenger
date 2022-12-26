@@ -14,6 +14,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:messenger/provider/hive/chat_item.dart';
+
 import '/api/backend/schema.dart' show PageInfoMixin;
 import '/store/chat_rx.dart';
 import '/util/obs/rxlist.dart';
@@ -26,21 +31,23 @@ class PaginatedFragment<T> {
     required this.equal,
     required this.cache,
     required this.onFetchPage,
+    required this.onDelete,
     this.ignore,
   });
 
+  /// Page size of this [PaginatedFragment].
   final int pageSize;
 
+  /// Initial cursor of this [PaginatedFragment].
   final String? initialCursor;
 
+  /// Callback, called to compare items.
   final int Function(T a, T b) compare;
 
+  /// Indicated whether items are equal.
   final bool Function(T a, T b) equal;
 
-  final List<T> cache;
-
-  final List<T> _synced = [];
-
+  /// Callback, called to fetch new page.
   final Future<ItemsPage<T>?> Function({
     int? first,
     String? after,
@@ -48,23 +55,38 @@ class PaginatedFragment<T> {
     String? before,
   }) onFetchPage;
 
+  /// Callback, called when an item deleted from the [cache].
+  final void Function(T item) onDelete;
+
+  /// [List] of the cached items.
+  final List<T> cache;
+
+  /// Indicated whether item should not be deleted from the [cache].
   final bool Function(T)? ignore;
 
   final RxObsList<T> elements = RxObsList<T>();
 
-  bool isPrevPageLoading = false;
+  final List<T> _synced = [];
 
-  bool isNextPageLoading = false;
+  /// Indicator whether next page is loading.
+  bool _isNextPageLoading = false;
 
-  bool hasNextPage = true;
+  /// Indicator whether previous page is loading.
+  bool _isPrevPageLoading = false;
 
-  bool hasPreviousPage = true;
+  /// Indicator whether next page is exist.
+  bool _hasNextPage = true;
 
-  String? lastItemCursor;
+  /// Indicator whether previous page is exist.
+  bool _hasPreviousPage = true;
 
-  String? firstItemCursor;
+  /// Cursor of the last element in the [_synced].
+  String? _lastItemCursor;
 
-  /// Gets initial elements from the [cache].
+  /// Cursor of the first element in the [_synced].
+  String? _firstItemCursor;
+
+  /// Gets initial elements page from the [cache].
   void init() {
     if (initialCursor != null) {
       elements.addAll(cache.take(pageSize ~/ 2));
@@ -73,45 +95,53 @@ class PaginatedFragment<T> {
     }
   }
 
+  /// Loads the initial page ot the [elements].
   Future<void> loadInitialPage() async {
-    print('loadInitialPage');
+    ItemsPage<T>? fetched;
     if (initialCursor != null) {
-      ItemsPage<T>? fetched = await onFetchPage(
+      fetched = await onFetchPage(
         first: pageSize ~/ 2 - 1,
         after: initialCursor,
         last: pageSize ~/ 2 - 1,
         before: initialCursor,
       );
-
-      if (fetched == null) {
-        return;
-      }
-
-      hasNextPage = fetched.pageInfo.hasNextPage;
-      hasPreviousPage = fetched.pageInfo.hasPreviousPage;
-      lastItemCursor = fetched.pageInfo.endCursor;
-      firstItemCursor = fetched.pageInfo.startCursor;
-
-      syncItems(
-        fetched.items,
-        List<T>.from(elements),
-      );
-
-      for (T i in fetched.items) {
-        _synced.insertAfter(i, (e) => compare(i, e) == 1);
-        if (!elements.replace(i, equal)) {
-          elements.insertAfter(i, (e) => compare(i, e) == 1);
-        }
-      }
     } else {
-      hasPreviousPage = false;
-      loadNextPage();
+      fetched = await onFetchPage(first: pageSize);
+    }
+
+    if (fetched == null) {
+      return;
+    }
+
+    _hasNextPage = fetched.pageInfo.hasNextPage;
+    _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
+    _lastItemCursor = fetched.pageInfo.startCursor;
+    _firstItemCursor = fetched.pageInfo.endCursor;
+
+    syncItems(
+      fetched.items,
+      List<T>.from(elements),
+    );
+
+    print(fetched.items.length);
+
+    for (T i in fetched.items) {
+      _synced.insertAfter(i, (e) => compare(i, e) == 1);
+      if (elements.none((e) => equal(e, i))) {
+        elements.insertAfter(i, (e) => compare(i, e) == 1);
+      }
+      if (cache.none((e) => equal(e, i))) {
+        cache.insertAfter(i, (e) => compare(i, e) == 1);
+      }
     }
   }
 
+  /// Count of the pages loaded from the [cache] and not sync.
+  int _overloadedPageCount = 0;
+
   /// Loads next page of the [elements].
-  Future<void> loadNextPage() async {
-    if (!hasNextPage) {
+  FutureOr<void> loadNextPage() async {
+    if (!_hasNextPage) {
       return;
     }
 
@@ -122,62 +152,63 @@ class PaginatedFragment<T> {
       }
     }
 
-    if (!isNextPageLoading) {
+    if (!_isNextPageLoading) {
       print('loadNextPage start');
-      isNextPageLoading = true;
+      _isNextPageLoading = true;
 
       ItemsPage<T>? fetched = await onFetchPage(
         first: pageSize,
-        after: firstItemCursor,
+        after: _firstItemCursor,
       );
-      print(lastItemCursor);
 
       if (fetched == null) {
         return;
       }
 
-      hasNextPage = fetched.pageInfo.hasNextPage;
-      firstItemCursor = fetched.pageInfo.endCursor;
+      _hasNextPage = fetched.pageInfo.hasNextPage;
+      _firstItemCursor = fetched.pageInfo.endCursor;
 
-      Iterable<T> cache =
-          elements.skip(_synced.length).take(pageSize).map((e) => e);
+      List<T> cached =
+          cache.skip(_synced.length).take(pageSize).map((e) => e).toList();
 
-      syncItems(fetched.items, cache);
+      syncItems(fetched.items, cached);
 
       for (T i in fetched.items) {
         _synced.insertAfter(i, (e) => compare(i, e) == 1);
-        if (!elements.replace(i, equal)) {
+        if (elements.none((e) => equal(e, i))) {
           elements.insertAfter(i, (e) => compare(i, e) == 1);
+        }
+        if (cache.none((e) => equal(e, i))) {
+          cache.insertAfter(i, (e) => compare(i, e) == 1);
         }
       }
 
       if (_synced.length < elements.length) {
-        isNextPageLoading = false;
+        _isNextPageLoading = false;
         await loadNextPage();
-        print('loadNextPage end');
       }
 
-      isNextPageLoading = false;
+      _isNextPageLoading = false;
     }
   }
 
   /// Loads previous page of the [elements].
-  Future<void> loadPreviousPage() async {
-    if (isPrevPageLoading || !hasPreviousPage) {
+  FutureOr<void> loadPreviousPage() async {
+    if (_isPrevPageLoading || !_hasPreviousPage) {
       return;
     }
 
-    isPrevPageLoading = true;
+    _isPrevPageLoading = true;
 
     ItemsPage<T>? fetched =
-        await onFetchPage(last: pageSize, before: lastItemCursor);
+        await onFetchPage(last: pageSize, before: _lastItemCursor);
 
     if (fetched == null) {
       return;
     }
 
-    hasPreviousPage = fetched.pageInfo.hasPreviousPage;
-    lastItemCursor = fetched.pageInfo.startCursor;
+    _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
+    _lastItemCursor = fetched.pageInfo.startCursor;
 
     for (T i in fetched.items) {
       _synced.insertAfter(i, (e) => compare(i, e) == 1);
@@ -187,12 +218,12 @@ class PaginatedFragment<T> {
       }
     }
 
-    isPrevPageLoading = false;
+    _isPrevPageLoading = false;
   }
 
   void syncItems(
     List<T> main,
-    Iterable<T> secondary,
+    List<T> secondary,
   ) {
     if (main.isEmpty || secondary.isEmpty) {
       return;
@@ -204,12 +235,12 @@ class PaginatedFragment<T> {
       } else {
         if (main.indexWhere((e) => equal(i, e)) == -1) {
           if (compare(i, main.last) != -1) {
-            // TODO: remove
+            onDelete(i);
             cache.remove(i);
             elements.remove(i);
             print('remove1');
           } else {
-            elements.remove(i);
+            //elements.remove(i);
             print('remove2');
           }
         }
@@ -218,7 +249,7 @@ class PaginatedFragment<T> {
   }
 }
 
-/// An
+/// Page loading result.
 abstract class ItemsPage<T> {
   List<T> get items;
 

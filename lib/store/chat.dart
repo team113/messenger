@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
@@ -80,9 +79,6 @@ class ChatRepository implements AbstractChatRepository {
   /// [UserId] of the currently authenticated [MyUser].
   final UserId? me;
 
-  /// Size of the [Chat]s page.
-  final int _pageSize = 120;
-
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -100,9 +96,6 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
-
-  /// Indicator whether next page of the [chats] is exist.
-  bool _hasNextPage = true;
 
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
@@ -126,11 +119,16 @@ class ChatRepository implements AbstractChatRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _favoriteChatsSubscription;
 
+  /// Subscription to the [PaginatedFragment.elements] changes.
+  StreamSubscription? _fragmentSubscription;
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
   RxBool get isReady => _isReady;
+
+  late final PaginatedFragment<HiveChat> fragment;
 
   @override
   Future<void> init({
@@ -138,48 +136,73 @@ class ChatRepository implements AbstractChatRepository {
   }) async {
     this.onMemberRemoved = onMemberRemoved;
 
-    if (!_chatLocal.isEmpty) {
-      for (HiveChat c in _chatLocal.chats
-          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
-          .take(_pageSize)) {
-        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
-        _chats[c.value.id] = entry;
-        entry.init();
-      }
-      _isReady.value = true;
-    }
-
     _initLocalSubscription();
     _initDraftSubscription();
 
-    ChatsQuery fetched = await _fetchChats(first: _pageSize);
-
-    if (!fetched.pageInfo.hasNextPage) {
-      _hasNextPage = false;
-    }
-
-    List<HiveRxChat> removed = <HiveRxChat>[];
-    for (HiveRxChat e in _chats.values) {
-      int i =
-          fetched.items.indexWhere((item) => item.value.id == e.chat.value.id);
-      if (i == -1) {
-        if (!e.chat.value.updatedAt
-            .isBefore(fetched.items.last.value.updatedAt)) {
-          _chatLocal.remove(e.id);
-        } else {
-          removed.add(e);
+    fragment = PaginatedFragment<HiveChat>(
+      cache: _chatLocal.chats
+          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
+          .toList(),
+      compare: (a, b) => a.value.updatedAt.compareTo(b.value.updatedAt),
+      equal: (a, b) => a.value.id == b.value.id,
+      onDelete: (e) => _chatLocal.remove(e.value.id),
+      onFetchPage: ({
+        int? first,
+        String? after,
+        int? last,
+        String? before,
+      }) async {
+        RecentChatsCursor? afterCursor;
+        if (after != null) {
+          afterCursor = RecentChatsCursor(after);
         }
+
+        RecentChatsCursor? beforeCursor;
+        if (before != null) {
+          beforeCursor = RecentChatsCursor(before);
+        }
+
+        ChatsQuery query = await _fetchChats(
+          after: afterCursor,
+          first: first,
+          before: beforeCursor,
+          last: last,
+        );
+
+        for (HiveChat item in query.items) {
+          _putEntry(item);
+        }
+
+        return query;
+      },
+      pageSize: 10,
+    );
+
+    _fragmentSubscription = fragment.elements.changes.listen((event) {
+      //print('ment.elements.changes.lis');
+
+      switch (event.op) {
+        case OperationKind.added:
+          _chats[event.element.value.id] =
+              HiveRxChat(this, _chatLocal, _draftLocal, event.element)..init();
+          break;
+        case OperationKind.removed:
+          _chats.remove(event.element.value.id)?.dispose();
+          break;
+        case OperationKind.updated:
+          // No-op.
+          break;
       }
+      // _chats.refresh();
+    });
+
+    fragment.init();
+
+    if (!_chatLocal.isEmpty) {
+      _isReady.value = true;
     }
 
-    for (HiveRxChat item in removed) {
-      _chats.remove(item.chat.value.id);
-    }
-
-    for (HiveChat c in fetched.items) {
-      _chats[c.value.id]?.subscribe();
-      _putEntry(c);
-    }
+    await fragment.loadInitialPage();
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
@@ -197,6 +220,7 @@ class ChatRepository implements AbstractChatRepository {
     _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
     _favoriteChatsSubscription?.cancel();
+    _fragmentSubscription?.cancel();
   }
 
   @override
@@ -248,53 +272,8 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> fetchNextPage() async {
-    if (chats.isEmpty || !_hasNextPage) {
-      return;
-    }
-
-    RecentChatsCursor? cursor = chats.values
-        .sorted(
-            (a, b) => b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt))
-        .lastWhereOrNull((e) => e.cursor != null)
-        ?.cursor;
-
-    List<HiveChat>? localChats;
-    if (!_chatLocal.isEmpty && _chatLocal.chats.length > _chats.length) {
-      localChats = _chatLocal.chats
-          .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
-          .skip(_chats.length)
-          .take(_pageSize)
-          .toList();
-      for (HiveChat c in localChats) {
-        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
-        _chats[c.value.id] = entry;
-        entry.init();
-      }
-    }
-
-    ChatsQuery fetched = await _fetchChats(first: _pageSize, after: cursor);
-
-    if (!fetched.pageInfo.hasNextPage) {
-      _hasNextPage = false;
-    }
-
-    if (localChats != null) {
-      for (HiveChat e in localChats) {
-        int i = fetched.items.indexWhere((item) => item.value.id == e.value.id);
-        if (i == -1) {
-          if (!e.value.updatedAt.isBefore(fetched.items.last.value.updatedAt)) {
-            _chatLocal.remove(e.value.id);
-          } else {
-            _chats.remove(e.value.id);
-          }
-        }
-      }
-    }
-
-    for (HiveChat c in fetched.items) {
-      _putEntry(c);
-    }
+  FutureOr<void> loadNextPage() async {
+    await fragment.loadNextPage();
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -1372,12 +1351,14 @@ class ChatItemsQuery implements ItemsPage<HiveChatItem> {
 }
 
 /// Result of a [Chat]s fetching.
-class ChatsQuery {
+class ChatsQuery implements ItemsPage<HiveChat> {
   const ChatsQuery(this.items, this.pageInfo);
 
   /// Fetched [HiveChat]s.
+  @override
   final List<HiveChat> items;
 
   /// Page info of this [ChatsQuery].
+  @override
   final PageInfoMixin pageInfo;
 }

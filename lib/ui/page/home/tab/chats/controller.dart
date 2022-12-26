@@ -92,9 +92,6 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
-  /// Indicator whether a next page of [Chat]s is fetching.
-  bool _isFetchingNextPage = false;
-
   /// Indicator whether a loading indicator should be showed.
   RxBool isLoadingNextPage = RxBool(false);
 
@@ -387,21 +384,25 @@ class ChatsTabController extends GetxController {
     });
   }
 
+  final List<FutureOr> _nextPageLoadings = [];
+
   /// Uploads next page of [Chat]s based on the [ScrollController.position]
   /// value.
   void _scrollListener() async {
     if (listController.hasClients) {
-      if (!_isFetchingNextPage &&
+      if (
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        _isFetchingNextPage = true;
         isLoadingNextPage.value = true;
 
-        await Future.delayed(2.seconds);
+        FutureOr future = _chatService.loadNextPage();
+        _nextPageLoadings.add(future);
+        await future;
+        _nextPageLoadings.remove(future);
 
-        await _chatService.fetchNextPage(() => isLoadingNextPage.value = false);
-
-        _isFetchingNextPage = false;
+        if(_nextPageLoadings.isEmpty) {
+          isLoadingNextPage.value = false;
+        }
       }
     }
   }

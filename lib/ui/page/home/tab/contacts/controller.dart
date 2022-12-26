@@ -68,14 +68,14 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Indicator whether a next page of [ChatContact]s is fetching.
-  bool _isFetchingMore = false;
-
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
+
+  /// Indicator whether a loading indicator should be showed.
+  RxBool isLoadingNextPage = RxBool(false);
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -231,17 +231,25 @@ class ContactsTabController extends GetxController {
     });
   }
 
+  final List<FutureOr> _nextPageLoadings = [];
+
   /// Uploads next page of [ChatContact]s based on the
   /// [ScrollController.position] value.
-  void _scrollListener() {
+  void _scrollListener() async {
     if (listController.hasClients) {
-      if (!_isFetchingMore &&
+      if (
           listController.position.pixels <
               MediaQuery.of(router.context!).size.height + 200) {
-        _isFetchingMore = true;
-        _contactService
-            .fetchNextContacts()
-            .whenComplete(() => _isFetchingMore = false);
+        isLoadingNextPage.value = true;
+
+        FutureOr future = _contactService.loadNextPage();
+        _nextPageLoadings.add(future);
+        await future;
+        _nextPageLoadings.remove(future);
+
+        if(_nextPageLoadings.isEmpty) {
+          isLoadingNextPage.value = false;
+        }
       }
     }
   }

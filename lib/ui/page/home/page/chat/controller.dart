@@ -189,8 +189,8 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
-  /// Indicator whether a new page of [RxChat.messages] is fetching.
-  bool _isFetchingMore = false;
+  /// Indicator whether a next page of [RxChat.messages] is fetching.
+  bool _isNextPageLoading = false;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -778,7 +778,7 @@ class ChatController extends GetxController {
           if (atBottom &&
               status.value.isSuccess &&
               !status.value.isLoadingMore &&
-              !_isFetchingMore) {
+              !_isNextPageLoading) {
             Future.delayed(
               Duration.zero,
               () => SchedulerBinding.instance.addPostFrameCallback(
@@ -1195,7 +1195,7 @@ class ChatController extends GetxController {
     if (listController.hasClients) {
       _updateSticky();
       _updateFabStates();
-      _fetchNextMessages();
+      _loadMessages();
     }
   }
 
@@ -1235,42 +1235,55 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Fetches next page of the [RxChat.messages] based on the
+  final List<FutureOr> _nextPageLoadings = [];
+
+  final List<FutureOr> _prevPageLoadings = [];
+
+  LoadingElement? _topLoadingElement;
+
+  LoadingElement? _bottomLoadingElement;
+
+  /// Loads next or previous page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.
-  void _fetchNextMessages() async {
+  void _loadMessages() async {
     if (listController.hasClients && !_ignorePositionChanges) {
       if (listController.position.pixels <
           MediaQuery.of(router.context!).size.height * 2 + 200) {
-        _isFetchingMore = true;
+        _isNextPageLoading = true;
 
-        LoadingElement fetchingElement = LoadingElement.top();
-        elements[fetchingElement.id] = fetchingElement;
+        if(_nextPageLoadings.isEmpty) {
+          _topLoadingElement = LoadingElement.top();
+          elements[_topLoadingElement!.id] = _topLoadingElement!;
+        }
 
-        await chat?.fetchNextPage();
-        elements.remove(fetchingElement.id);
+        FutureOr future = chat!.loadNextPage();
+        _nextPageLoadings.add(future);
+        await future;
+        _nextPageLoadings.remove(future);
 
+        if (_nextPageLoadings.isEmpty) {
+          elements.remove(_topLoadingElement!.id);
+          await Future.delayed(10.milliseconds, () => _isNextPageLoading = false);
+        }
         return;
-        // _isFetchingMore = false;
-        // // Wait for fetched messages to be added to the [elements].
-        // await Future.delayed(100.milliseconds, () => _isFetchingMore = false);
       }
 
       if (listController.position.pixels >
           listController.position.maxScrollExtent -
               (MediaQuery.of(router.context!).size.height * 2 + 200)) {
-        _isFetchingMore = true;
+        if(_prevPageLoadings.isEmpty) {
+          _bottomLoadingElement = LoadingElement.bottom();
+          elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
+        }
 
-        LoadingElement fetchingElement = LoadingElement.bottom();
-        elements[fetchingElement.id] = fetchingElement;
+        FutureOr future = chat!.loadPreviousPage();
+        _prevPageLoadings.add(future);
+        await future;
+        _prevPageLoadings.remove(future);
 
-        await chat?.fetchPreviousPage();
-
-        elements.remove(fetchingElement.id);
-
-        // _isFetchingMore = false;
-        // // Wait for fetched messages to be added to the [elements].
-        // await Future.delayed(100.milliseconds, () => _isFetchingMore = false);
-        return;
+        if (_prevPageLoadings.isEmpty) {
+          elements.remove(_bottomLoadingElement!.id);
+        }
       }
     }
   }

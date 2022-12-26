@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/store/pagination.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
@@ -75,68 +76,87 @@ class ContactRepository implements AbstractContactRepository {
   /// [SessionDataHiveProvider] used to store [ChatContactsEventsCursor].
   final SessionDataHiveProvider _sessionLocal;
 
-  /// Size of the [ChatContacts]s page.
-  final int _pageSize = 120;
-
-  /// Indicator whether the [contacts] has next page.
-  bool _hasNextPage = true;
-
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
+
+  /// Subscription to the [PaginatedFragment.elements] changes.
+  StreamSubscription? _fragmentSubscription;
 
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
 
+  late final PaginatedFragment<HiveChatContact> fragment;
+
   @override
   Future<void> init() async {
-    if (!_contactLocal.isEmpty) {
-      for (HiveChatContact c in _contactLocal.contacts
-          .sortedBy((a) => a.value.name.val)
-          .take(_pageSize)) {
-        HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
-        if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = entry;
-        } else {
-          favorites[c.value.id] = entry;
-        }
-      }
+    _initLocalSubscription();
 
+    fragment = PaginatedFragment<HiveChatContact>(
+      cache: _contactLocal.contacts.sortedBy((a) => a.value.name.val).toList(),
+      compare: (a, b) => a.value.name.val.compareTo(b.value.name.val),
+      equal: (a, b) => a.value.id == b.value.id,
+      onDelete: (e) => _contactLocal.remove(e.value.id),
+      onFetchPage: ({
+        int? first,
+        String? after,
+        int? last,
+        String? before,
+      }) async {
+        ChatContactsCursor? afterCursor;
+        if (after != null) {
+          afterCursor = ChatContactsCursor(after);
+        }
+
+        ChatContactsCursor? beforeCursor;
+        if (before != null) {
+          beforeCursor = ChatContactsCursor(before);
+        }
+
+        ContactsQuery query = await _chatContacts(
+          after: afterCursor,
+          first: first,
+          before: beforeCursor,
+          last: last,
+        );
+
+        for (HiveChatContact item in query.items) {
+          _putChatContact(item);
+        }
+
+        return query;
+      },
+      pageSize: 10,
+    );
+
+    _fragmentSubscription = fragment.elements.changes.listen((event) {
+      //print('ment.elements.changes.lis');
+
+      switch (event.op) {
+        case OperationKind.added:
+          contacts[event.element.value.id] =
+              HiveRxChatContact(_userRepo, event.element)..init();
+          break;
+        case OperationKind.removed:
+          contacts.remove(event.element.value.id)?.dispose();
+          break;
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+      // _chats.refresh();
+    });
+
+    fragment.init();
+
+    if (!_contactLocal.isEmpty) {
       isReady.value = true;
     }
 
-    _initLocalSubscription();
+    await fragment.loadInitialPage();
+
     _initRemoteSubscription();
-
-    ContactsQuery fetched = await _chatContacts(first: _pageSize);
-
-    if (!fetched.pageInfo.hasNextPage) {
-      _hasNextPage = false;
-    }
-
-    List<HiveRxChatContact> removed = <HiveRxChatContact>[];
-    for (HiveRxChatContact e in contacts.values) {
-      int i = fetched.items
-          .indexWhere((item) => item.value.id == e.contact.value.id);
-      if (i == -1) {
-        if (e.contact.value.name.val
-                .compareTo(fetched.items.last.value.name.val) !=
-            -1) {
-          _contactLocal.remove(e.contact.value.id);
-        } else {
-          removed.add(e);
-        }
-      }
-    }
-
-    for (HiveRxChatContact item in removed) {
-      contacts.remove(item.contact.value.id);
-    }
-
-    for (HiveChatContact c in fetched.items) {
-      _putChatContact(c);
-    }
 
     isReady.value = true;
   }
@@ -147,6 +167,7 @@ class ContactRepository implements AbstractContactRepository {
     favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _fragmentSubscription?.cancel();
   }
 
   @override
@@ -194,55 +215,8 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   @override
-  Future<void> fetchNextPage() async {
-    if (contacts.isEmpty || !_hasNextPage) {
-      return;
-    }
-
-    ChatContactsCursor? cursor = contacts.values
-        .sortedBy((a) => a.contact.value.name.val)
-        .lastWhereOrNull((e) => e.cursor != null)
-        ?.cursor;
-
-    List<HiveChatContact>? localContacts;
-    if (!_contactLocal.isEmpty &&
-        _contactLocal.contacts.length > contacts.length) {
-      localContacts = _contactLocal.contacts
-          .sortedBy((a) => a.value.name.val)
-          .skip(contacts.length)
-          .take(_pageSize)
-          .toList();
-      for (HiveChatContact c in localContacts) {
-        final HiveRxChatContact entry = HiveRxChatContact(_userRepo, c);
-        contacts[c.value.id] = entry;
-        entry.init();
-      }
-    }
-
-    ContactsQuery fetched =
-        await _chatContacts(first: _pageSize, after: cursor);
-
-    if (!fetched.pageInfo.hasNextPage) {
-      _hasNextPage = false;
-    }
-
-    if (localContacts != null) {
-      for (HiveChatContact e in localContacts) {
-        int i = fetched.items.indexWhere((item) => item.value.id == e.value.id);
-        if (i == -1) {
-          if (e.value.name.val.compareTo(fetched.items.last.value.name.val) !=
-              -1) {
-            _contactLocal.remove(e.value.id);
-          } else {
-            contacts.remove(e.value.id);
-          }
-        }
-      }
-    }
-
-    for (HiveChatContact c in fetched.items) {
-      _putChatContact(c);
-    }
+  Future<void> loadNextPage() async {
+    await fragment.loadNextPage();
   }
 
   /// Puts the provided [contact] to [Hive].
@@ -448,7 +422,7 @@ class ContactRepository implements AbstractContactRepository {
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _chatContacts(first: _pageSize))
+    var contact = (await _chatContacts(first: 120))
         .items
         .firstWhereOrNull((e) => e.value.id == id);
     if (contact != null) {
@@ -602,12 +576,14 @@ class ContactRepository implements AbstractContactRepository {
 }
 
 /// Result of a [ChatContact]s fetching.
-class ContactsQuery {
+class ContactsQuery implements ItemsPage<HiveChatContact> {
   const ContactsQuery(this.items, this.pageInfo);
 
   /// Fetched [HiveChatContact]s.
+  @override
   final List<HiveChatContact> items;
 
   /// Page info of this [ContactsQuery].
+  @override
   final Contacts$Query$ChatContacts$PageInfo pageInfo;
 }

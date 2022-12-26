@@ -124,7 +124,8 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
-  StreamSubscription? fragmentSubscription;
+  /// Subscription to the [PaginatedFragment.elements] changes.
+  StreamSubscription? _fragmentSubscription;
 
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
@@ -192,26 +193,14 @@ class HiveRxChat extends RxChat {
 
     return _guard.protect(() async {
       await _local.init(userId: me);
-      // if (!_local.isEmpty) {
-      //   Iterable<HiveChatItem> localMessages;
-      //   if (_local.messages.length > _pageSize ~/ 2) {
-      //     localMessages = _local.takeLast(_pageSize ~/ 2);
-      //   } else {
-      //     localMessages = _local.messages;
-      //   }
-      //   for (HiveChatItem i in localMessages) {
-      //     messages.insertAfter(
-      //       Rx<ChatItem>(i.value),
-      //       (e) => i.value.at.compareTo(e.value.at) == 1,
-      //     );
-      //   }
-      // }
 
       fragment = PaginatedFragment<HiveChatItem>(
         cache: _local.messages.toList().reversed.toList(),
         compare: (a, b) => a.value.at.compareTo(b.value.at),
         equal: (a, b) => a.value.id == b.value.id,
         ignore: (e) => e.value.status.value != SendingStatus.sent,
+        onDelete: (e) =>
+            _guard.protect(() async => _local.remove(e.value.timestamp)),
         onFetchPage: ({
           int? first,
           String? after,
@@ -235,18 +224,28 @@ class HiveRxChat extends RxChat {
             before: beforeCursor,
             last: last,
           );
+
+          _guard.protect(() async {
+            for (HiveChatItem item in query!.items) {
+              if (item.value.chatId == id) {
+                put(item);
+              } else {
+                _chatRepository.putChatItem(item);
+              }
+            }
+          });
+
           return query;
         },
         initialCursor: lastReadItemCursor?.val,
-        pageSize: 20,
+        pageSize: 50,
       );
 
-      fragmentSubscription = fragment.elements.changes.listen((event) {
+      _fragmentSubscription = fragment.elements.changes.listen((event) {
         //print('ment.elements.changes.lis');
 
         switch (event.op) {
           case OperationKind.added:
-            //print('added');
             messages.insertAfter(
               Rx<ChatItem>(event.element.value),
               (e) => event.element.value.at.compareTo(e.value.at) == 1,
@@ -280,7 +279,7 @@ class HiveRxChat extends RxChat {
       _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
-      fragmentSubscription?.cancel();
+      _fragmentSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
       status.value = RxStatus.empty();
@@ -345,155 +344,16 @@ class HiveRxChat extends RxChat {
 
     await fragment.loadInitialPage();
 
-    // ChatItemsQuery? itemsQuery;
-    // if (lastReadItemCursor != null) {
-    //   itemsQuery = await _chatRepository.messages(
-    //     chat.value.id,
-    //     after: lastReadItemCursor,
-    //     first: _pageSize ~/ 2 - 1,
-    //     before: lastReadItemCursor,
-    //     last: _pageSize ~/ 2 - 1,
-    //   );
-    //
-    //   if (itemsQuery != null) {
-    //     hasNextPage = itemsQuery.pageInfo.hasNextPage;
-    //     hasPreviousPage = itemsQuery.pageInfo.hasPreviousPage;
-    //   }
-    // } else {
-    //   itemsQuery = await _chatRepository.messages(
-    //     chat.value.id,
-    //     first: _pageSize,
-    //   );
-    //   if (itemsQuery != null) {
-    //     hasNextPage = itemsQuery.pageInfo.hasNextPage;
-    //   }
-    //   hasPreviousPage = false;
-    // }
-    // print('startCursor: ${itemsQuery?.pageInfo.startCursor}');
-    // print('endCursor: ${itemsQuery?.pageInfo.endCursor}');
-    //
-    // if (itemsQuery == null) {
-    //   return;
-    // }
-
-    return _guard.protect(() async {
-      // List<Rx<ChatItem>> removed = <Rx<ChatItem>>[];
-      // for (Rx<ChatItem> item in messages) {
-      //   if (item.value.status.value == SendingStatus.sent) {
-      //     int i =
-      //         itemsQuery!.items.indexWhere((e) => e.value.id == item.value.id);
-      //     if (i == -1) {
-      //       if (!item.value.at.isBefore(itemsQuery.items.last.value.at)) {
-      //         _local.remove(item.value.timestamp);
-      //       } else {
-      //         removed.add(item);
-      //       }
-      //     }
-      //   }
-      // }
-      //
-      // for (Rx<ChatItem> item in removed) {
-      //   messages.remove(item);
-      // }
-      //
-      // for (HiveChatItem item in itemsQuery!.items) {
-      //   if (item.value.chatId == id) {
-      //     put(item);
-      //   } else {
-      //     _chatRepository.putChatItem(item);
-      //   }
-      // }
-
-      status.value = RxStatus.success();
-    });
+    status.value = RxStatus.success();
   }
 
   @override
-  FutureOr<void> fetchNextPage() async {
+  FutureOr<void> loadNextPage() async {
     await fragment.loadNextPage();
-
-    // if (messages.isEmpty || !hasNextPage) {
-    //   return;
-    // }
-    //
-    // ChatItem firstMessage = messages.first.value;
-    //
-    // Iterable<HiveChatItem>? localMessages;
-    // if (_local.messages.length > messages.length) {
-    //   localMessages =
-    //       _local.takeBefore(messages.first.value.timestamp, _pageSize);
-    //
-    //   for (HiveChatItem i in localMessages) {
-    //     messages.insertAfter(
-    //       Rx<ChatItem>(i.value),
-    //       (e) => i.value.at.compareTo(e.value.at) == 1,
-    //     );
-    //   }
-    //
-    //   _initAttachments(localMessages.map((e) => e.value));
-    //
-    //   if (localMessages.length == _pageSize) {
-    //     onMessagesAdded();
-    //   }
-    // }
-    //
-    // HiveChatItem? item = await get(
-    //   firstMessage.id,
-    //   timestamp: firstMessage.timestamp,
-    // );
-    //
-    // if (item == null) {
-    //   return;
-    // }
-    //
-    // ChatItemsQuery? itemsQuery = await _chatRepository.messages(
-    //   chat.value.id,
-    //   after: item.cursor,
-    //   first: _pageSize,
-    // );
-    //
-    // if (itemsQuery == null) {
-    //   return;
-    // }
-    //
-    // hasNextPage = itemsQuery.pageInfo.hasNextPage;
-    // print('startCursor: ${itemsQuery.pageInfo.startCursor}');
-    // print('endCursor: ${itemsQuery.pageInfo.endCursor}');
-    //
-    // return _guard.protect(() async {
-    //   if (localMessages != null) {
-    //     for (HiveChatItem item in localMessages) {
-    //       if (item.value.status.value == SendingStatus.sent) {
-    //         int i =
-    //             itemsQuery.items.indexWhere((e) => e.value.id == item.value.id);
-    //         if (i == -1) {
-    //           if (itemsQuery.items.isNotEmpty &&
-    //               !item.value.at.isBefore(itemsQuery.items.last.value.at)) {
-    //             _local.remove(item.value.timestamp);
-    //           } else {
-    //             messages.removeWhere((e) => e.value.id == item.value.id);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    //
-    //   for (HiveChatItem item in itemsQuery.items) {
-    //     if (item.value.chatId == id) {
-    //       put(item);
-    //     } else {
-    //       _chatRepository.putChatItem(item);
-    //     }
-    //   }
-    //
-    //   if (localMessages?.length != _pageSize) {
-    //     onMessagesAdded();
-    //   }
-    // });
   }
 
   @override
-  FutureOr<void> fetchPreviousPage() async {
+  FutureOr<void> loadPreviousPage() async {
     await fragment.loadPreviousPage();
   }
 

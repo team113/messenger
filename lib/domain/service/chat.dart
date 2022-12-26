@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -128,7 +130,8 @@ class ChatService extends DisposableService {
   }
 
   /// Fetches next page of a [Chat]s.
-  Future<void> fetchNextChats() => _chatRepository.fetchNextPage();
+  FutureOr<void> loadNextPage() =>
+      _chatRepository.loadNextPage();
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
