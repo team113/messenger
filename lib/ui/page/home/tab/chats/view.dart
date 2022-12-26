@@ -200,10 +200,13 @@ class ChatsTabView extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 );
               } else if (c.elements.isNotEmpty) {
+                final ScrollController scroll = ScrollController();
                 child = AnimationLimiter(
                   child: Scrollbar(
+                    controller: scroll,
                     child: ListView.builder(
                       key: const Key('Search'),
+                      controller: scroll,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
                         final ListElement element = c.elements[i];
@@ -289,11 +292,13 @@ class ChatsTabView extends StatelessWidget {
                   child: Text('label_no_chats'.l10n),
                 );
               } else {
+                final ScrollController scroll = ScrollController();
                 child = AnimationLimiter(
                   key: const Key('Chats'),
                   child: Scrollbar(
-                    controller: ScrollController(),
+                    controller: scroll,
                     child: ListView.builder(
+                      controller: scroll,
                       itemCount: c.chats.length,
                       itemBuilder: (_, i) {
                         final RxChat chat = c.chats[i];

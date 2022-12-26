@@ -372,30 +372,33 @@ class _ChatViewState extends State<ChatView>
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
-                            Obx(() {
-                              return FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isFalse
-                                    ? const BouncingScrollPhysics()
-                                    : const NeverScrollableScrollPhysics(),
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  keepPosition: true,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                ),
-                              );
-                            }),
+                            Scrollbar(
+                              controller: c.listController,
+                              child: Obx(() {
+                                return FlutterListView(
+                                  key: const Key('MessagesList'),
+                                  controller: c.listController,
+                                  physics: c.isHorizontalScroll.isFalse
+                                      ? const BouncingScrollPhysics()
+                                      : const NeverScrollableScrollPhysics(),
+                                  delegate: FlutterListViewDelegate(
+                                    (context, i) => _listElement(context, c, i),
+                                    // ignore: invalid_use_of_protected_member
+                                    childCount: c.elements.value.length,
+                                    keepPosition: true,
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
+                                    onItemSticky: (i) => c.elements.values
+                                        .elementAt(i) is DateTimeElement,
+                                    initIndex: c.initIndex,
+                                    initOffset: c.initOffset,
+                                    initOffsetBasedOnBottom: false,
+                                  ),
+                                );
+                              }),
+                            ),
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&

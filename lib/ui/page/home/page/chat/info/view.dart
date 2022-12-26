@@ -53,6 +53,7 @@ class ChatInfoView extends StatelessWidget {
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
       builder: (c) {
+        final ScrollController scroll = ScrollController();
         return Obx(() {
           if (c.status.value.isLoading) {
             return Scaffold(
@@ -188,32 +189,36 @@ class ChatInfoView extends StatelessWidget {
                 ],
               ],
             ),
-            body: ListView(
-              key: const Key('ChatInfoListView'),
-              children: [
-                const SizedBox(height: 8),
-                Block(
-                  title: 'label_public_information'.l10n,
-                  children: [
-                    _avatar(c, context),
-                    const SizedBox(height: 15),
-                    _name(c, context),
-                  ],
-                ),
-                Block(
-                  title: 'label_chat_members'.l10n,
-                  children: [_members(c, context)],
-                ),
-                Block(
-                  title: 'label_direct_chat_link'.l10n,
-                  children: [_link(c, context)],
-                ),
-                Block(
-                  title: 'label_actions'.l10n,
-                  children: [_actions(c, context)],
-                ),
-                const SizedBox(height: 8),
-              ],
+            body: Scrollbar(
+              controller: scroll,
+              child: ListView(
+                controller: scroll,
+                key: const Key('ChatInfoListView'),
+                children: [
+                  const SizedBox(height: 8),
+                  Block(
+                    title: 'label_public_information'.l10n,
+                    children: [
+                      _avatar(c, context),
+                      const SizedBox(height: 15),
+                      _name(c, context),
+                    ],
+                  ),
+                  Block(
+                    title: 'label_chat_members'.l10n,
+                    children: [_members(c, context)],
+                  ),
+                  Block(
+                    title: 'label_direct_chat_link'.l10n,
+                    children: [_link(c, context)],
+                  ),
+                  Block(
+                    title: 'label_actions'.l10n,
+                    children: [_actions(c, context)],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           );
         });

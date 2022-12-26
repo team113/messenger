@@ -45,6 +45,7 @@ class UserView extends StatelessWidget {
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
       builder: (UserController c) {
+        final ScrollController scroll = ScrollController();
         return Obx(() {
           if (c.status.value.isSuccess) {
             return Scaffold(
@@ -127,36 +128,40 @@ class UserView extends StatelessWidget {
                   ),
                 ],
               ),
-              body: Obx(() {
-                return ListView(
-                  key: const Key('UserColumn'),
-                  children: [
-                    const SizedBox(height: 8),
-                    Block(
-                      title: 'label_public_information'.l10n,
-                      children: [
-                        AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 100,
-                          showBadge: false,
-                        ),
-                        const SizedBox(height: 15),
-                        _name(c, context),
-                        _status(c, context),
-                        _presence(c, context),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_contact_information'.l10n,
-                      children: [_num(c, context)],
-                    ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
-                  ],
-                );
-              }),
+              body: Scrollbar(
+                controller: scroll,
+                child: Obx(() {
+                  return ListView(
+                    key: const Key('UserColumn'),
+                    controller: scroll,
+                    children: [
+                      const SizedBox(height: 8),
+                      Block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          AvatarWidget.fromRxUser(
+                            c.user,
+                            radius: 100,
+                            showBadge: false,
+                          ),
+                          const SizedBox(height: 15),
+                          _name(c, context),
+                          _status(c, context),
+                          _presence(c, context),
+                        ],
+                      ),
+                      Block(
+                        title: 'label_contact_information'.l10n,
+                        children: [_num(c, context)],
+                      ),
+                      Block(
+                        title: 'label_actions'.l10n,
+                        children: [_actions(c, context)],
+                      ),
+                    ],
+                  );
+                }),
+              ),
             );
           }
 

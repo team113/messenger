@@ -202,11 +202,14 @@ class ContactsTabView extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             } else if (c.elements.isNotEmpty) {
+              final ScrollController scroll = ScrollController();
               child = AnimationLimiter(
                 key: const Key('Search'),
                 child: Scrollbar(
+                  controller: scroll,
                   child: ListView.builder(
                     itemCount: c.elements.length,
+                    controller: scroll,
                     itemBuilder: (_, i) {
                       final ListElement element = c.elements[i];
                       final Widget child;
@@ -275,9 +278,12 @@ class ContactsTabView extends StatelessWidget {
                 ...c.contacts,
               ];
 
+              final ScrollController scroll = ScrollController();
               child = AnimationLimiter(
                 child: Scrollbar(
+                  controller: scroll,
                   child: ListView.builder(
+                    controller: scroll,
                     itemCount: c.favorites.length + c.contacts.length,
                     itemBuilder: (_, i) {
                       final RxChatContact contact = contacts[i];
