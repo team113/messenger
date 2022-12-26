@@ -172,25 +172,28 @@ class ChatsTabView extends StatelessWidget {
                     child: Obx(() {
                       final Widget child;
 
-                      if (c.groupCreating.value) {
+                      if (c.searching.value) {
                         child = WidgetButton(
                           key: const Key('CloseSearch'),
-                          onPressed: c.searching.value
-                              ? c.closeSearch
-                              : c.closeGroupCreating,
-                          child: SvgLoader.asset(
-                            'assets/icons/close_primary.svg',
-                            height: 15,
+                          onPressed: c.groupCreating.value
+                              ? () => c.closeSearch(false)
+                              : () => c.closeSearch(true),
+                          child: SizedBox(
+                            width: 21.77,
+                            child: SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              height: 15,
+                            ),
                           ),
                         );
                       } else {
                         child = WidgetButton(
-                          onPressed: c.searching.value
-                              ? () => c.closeSearch(true)
+                          onPressed: c.groupCreating.value
+                              ? c.closeGroupCreating
                               : c.startGroupCreating,
                           child: SizedBox(
                             width: 21.77,
-                            child: c.searching.value
+                            child: c.groupCreating.value
                                 ? SvgLoader.asset(
                                     'assets/icons/close_primary.svg',
                                     height: 15,
@@ -342,6 +345,8 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                   ),
                                 );
+                              } else if (element is EmptyElement) {
+                                child = const SizedBox(height: 60);
                               } else {
                                 child = const SizedBox();
                               }

@@ -78,6 +78,19 @@ class ChatsTabController extends GetxController {
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
+  /// Indicator whether [search]ing is active.
+  final RxBool searching = RxBool(false);
+
+  /// Indicator whether group creation is active.
+  final RxBool groupCreating = RxBool(false);
+
+  /// Status of the [createGroup] progression.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isLoading`, meaning the [createGroup] is executing.
+  final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -106,19 +119,6 @@ class ChatsTabController extends GetxController {
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
-
-  /// Indicator whether [search]ing is active.
-  final RxBool searching = RxBool(false);
-
-  /// Indicator whether group creation is active.
-  final RxBool groupCreating = RxBool(false);
-
-  /// Status of the [createGroup] progression.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning the query is not yet started.
-  /// - `status.isLoading`, meaning the [createGroup] is executing.
-  final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -170,6 +170,7 @@ class ChatsTabController extends GetxController {
     _chatsSubscription.cancel();
 
     _searchSubscription?.cancel();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
     router.navigation.value = null;
@@ -310,104 +311,6 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Enables and initializes or disables and disposes the [search].
-  void _toggleSearch([bool enable = true]) {
-    if (search.value != null && enable) {
-      return;
-    }
-
-    search.value?.onClose();
-    _searchSubscription?.cancel();
-
-    if (enable) {
-      search.value = SearchController(
-        _chatService,
-        _userService,
-        _contactService,
-        categories: const [
-          SearchCategory.recent,
-          SearchCategory.chat,
-          SearchCategory.contact,
-          SearchCategory.user,
-        ],
-      )..onInit();
-
-      _searchSubscription = StreamGroup.merge([
-        search.value!.recent.stream,
-        search.value!.chats.stream,
-        search.value!.contacts.stream,
-        search.value!.users.stream,
-      ]).listen((_) {
-        elements.clear();
-
-        if (groupCreating.value) {
-          if (search.value?.query.isEmpty == true) {
-            elements.add(const MyUserElement());
-          }
-
-          search.value?.users.removeWhere((k, v) => me == k);
-
-          if (search.value?.recent.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.chat));
-            for (RxUser c in search.value!.recent.values) {
-              elements.add(RecentElement(c));
-            }
-          }
-        } else {
-          if (search.value?.chats.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.chat));
-            for (RxChat c in search.value!.chats.values) {
-              elements.add(ChatElement(c));
-            }
-          }
-        }
-
-        if (search.value?.contacts.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.contact));
-          for (RxChatContact c in search.value!.contacts.values) {
-            elements.add(ContactElement(c));
-          }
-        }
-
-        if (search.value?.users.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.user));
-          for (RxUser c in search.value!.users.values) {
-            elements.add(UserElement(c));
-          }
-        }
-      });
-    } else {
-      search.value = null;
-    }
-  }
-
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
-        return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-  }
-
   /// Enable searching mode.
   void startSearch() {
     _toggleSearch();
@@ -471,6 +374,117 @@ class ChatsTabController extends GetxController {
     } finally {
       creatingStatus.value = RxStatus.empty();
     }
+  }
+
+  /// Enables and initializes or disables and disposes the [search].
+  void _toggleSearch([bool enable = true]) {
+    if (search.value != null && enable) {
+      return;
+    }
+
+    search.value?.onClose();
+    search.value?.search.focus.removeListener(_disableSearchFocusListener);
+    _searchSubscription?.cancel();
+
+    if (enable) {
+      search.value = SearchController(
+        _chatService,
+        _userService,
+        _contactService,
+        categories: const [
+          SearchCategory.recent,
+          SearchCategory.chat,
+          SearchCategory.contact,
+          SearchCategory.user,
+        ],
+      )..onInit();
+
+      _searchSubscription = StreamGroup.merge([
+        search.value!.recent.stream,
+        search.value!.chats.stream,
+        search.value!.contacts.stream,
+        search.value!.users.stream,
+      ]).listen((_) {
+        elements.clear();
+
+        elements.add(const EmptyElement());
+
+        if (groupCreating.value) {
+          if (search.value?.query.isEmpty == true) {
+            elements.add(const MyUserElement());
+          }
+
+          search.value?.users.removeWhere((k, v) => me == k);
+
+          if (search.value?.recent.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.chat));
+            for (RxUser c in search.value!.recent.values) {
+              elements.add(RecentElement(c));
+            }
+          }
+        } else {
+          if (search.value?.chats.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.chat));
+            for (RxChat c in search.value!.chats.values) {
+              elements.add(ChatElement(c));
+            }
+          }
+        }
+
+        if (search.value?.contacts.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.contact));
+          for (RxChatContact c in search.value!.contacts.values) {
+            elements.add(ContactElement(c));
+          }
+        }
+
+        if (search.value?.users.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.user));
+          for (RxUser c in search.value!.users.values) {
+            elements.add(UserElement(c));
+          }
+        }
+      });
+
+      search.value!.search.focus.addListener(_disableSearchFocusListener);
+    } else {
+      search.value = null;
+    }
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      groupCreating.value ? closeSearch(false) : closeSearch(true);
+    }
+  }
+
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
+  void _sortChats() {
+    chats.sort((a, b) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
+      if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition == null) {
+        return -1;
+      } else if (a.chat.value.favoritePosition == null &&
+          b.chat.value.favoritePosition != null) {
+        return 1;
+      } else if (a.chat.value.favoritePosition != null &&
+          b.chat.value.favoritePosition != null) {
+        return a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!);
+      }
+
+      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+    });
   }
 }
 
@@ -557,4 +571,9 @@ class RecentElement extends ListElement {
 
   /// [RxUser] itself.
   final RxUser user;
+}
+
+/// [ListElement] is used as an indent.
+class EmptyElement extends ListElement {
+  const EmptyElement();
 }
