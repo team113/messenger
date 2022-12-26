@@ -175,20 +175,4 @@ class RxObsList<E> extends ListMixin<E>
     _value.sort(compare);
     refresh();
   }
-
-  /// Replaces an item based on the [equal].
-  ///
-  /// If an item was replaced then returns `true` elsewhere returns `false`.
-  bool replace(E item, bool Function(E a, E b) equal) {
-    int i = _value.indexWhere((e) => equal(e, item));
-
-    if (i != -1) {
-      _value[i] = item;
-
-      refresh();
-      return true;
-    }
-
-    return false;
-  }
 }

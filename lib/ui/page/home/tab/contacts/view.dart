@@ -277,9 +277,15 @@ class ContactsTabView extends StatelessWidget {
 
               child = AnimationLimiter(
                 child: ListView.builder(
-                  controller: ScrollController(),
-                  itemCount: c.favorites.length + c.contacts.length,
+                  controller: c.listController,
+                  itemCount: c.favorites.length +
+                      c.contacts.length +
+                      (c.isLoadingNextPage.isTrue ? 1 : 0),
                   itemBuilder: (_, i) {
+                    if (c.favorites.length + c.contacts.length == i) {
+                      return _loadingIndicator();
+                    }
+
                     final RxChatContact contact = contacts[i];
                     return AnimationConfiguration.staggeredList(
                       position: i,
@@ -370,6 +376,18 @@ class ContactsTabView extends StatelessWidget {
             }),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Builds a visual representation of a loading indicator.
+  Widget _loadingIndicator() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: const Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }

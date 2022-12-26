@@ -50,6 +50,9 @@ class ChatService extends DisposableService {
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
+  /// Indicates whether the [chats] has next page.
+  bool get hasNextPage => _chatRepository.hasNextPage;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -129,7 +132,7 @@ class ChatService extends DisposableService {
     );
   }
 
-  /// Fetches next page of a [Chat]s.
+  /// Loads next page of a [Chat]s.
   FutureOr<void> loadNextPage() => _chatRepository.loadNextPage();
 
   /// Resends the specified [item].

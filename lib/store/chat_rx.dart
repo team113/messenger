@@ -92,10 +92,10 @@ class HiveRxChat extends RxChat {
   final Rx<ChatMessage?> draft;
 
   @override
-  bool hasNextPage = true;
+  bool get hasNextPage => _fragment.hasNextPage;
 
   @override
-  bool hasPreviousPage = true;
+  bool get hasPreviousPage => _fragment.hasPreviousPage;
 
   /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
@@ -114,6 +114,9 @@ class HiveRxChat extends RxChat {
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
+
+  /// [PaginatedFragment] loading [messages] with pagination.
+  late final PaginatedFragment<HiveChatItem> _fragment;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -177,8 +180,6 @@ class HiveRxChat extends RxChat {
     return callCover;
   }
 
-  late final PaginatedFragment<HiveChatItem> fragment;
-
   /// Initializes this [HiveRxChat].
   Future<void> init() {
     if (status.value.isSuccess) {
@@ -194,7 +195,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       await _local.init(userId: me);
 
-      fragment = PaginatedFragment<HiveChatItem>(
+      _fragment = PaginatedFragment<HiveChatItem>(
         cache: _local.messages.toList().reversed.toList(),
         compare: (a, b) => a.value.at.compareTo(b.value.at),
         equal: (a, b) => a.value.id == b.value.id,
@@ -241,9 +242,7 @@ class HiveRxChat extends RxChat {
         pageSize: 50,
       );
 
-      _fragmentSubscription = fragment.elements.changes.listen((event) {
-        //print('ment.elements.changes.lis');
-
+      _fragmentSubscription = _fragment.elements.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
             messages.insertAfter(
@@ -262,7 +261,7 @@ class HiveRxChat extends RxChat {
         messages.refresh();
       });
 
-      fragment.init();
+      _fragment.init();
 
       _initLocalSubscription();
       await _initAttachments(messages.map((e) => e.value));
@@ -342,19 +341,19 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await fragment.loadInitialPage();
+    await _fragment.loadInitialPage();
 
     status.value = RxStatus.success();
   }
 
   @override
   FutureOr<void> loadNextPage() async {
-    await fragment.loadNextPage();
+    await _fragment.loadNextPage();
   }
 
   @override
   FutureOr<void> loadPreviousPage() async {
-    await fragment.loadPreviousPage();
+    await _fragment.loadPreviousPage();
   }
 
   @override
@@ -1027,11 +1026,6 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.itemPosted:
               event as EventChatItemPosted;
               for (var item in event.item) {
-                if (item.value.authorId == me) {
-                  chatEntity.lastReadItemCursor = item.cursor;
-                  lastReadItemCursor = item.cursor;
-                }
-
                 if (item.value is ChatMessage && item.value.authorId == me) {
                   ChatMessage? pending =
                       _pending.whereType<ChatMessage>().firstWhereOrNull(

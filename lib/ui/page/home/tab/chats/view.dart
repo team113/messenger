@@ -293,6 +293,7 @@ class ChatsTabView extends StatelessWidget {
                   child: ListView.builder(
                     itemCount:
                         c.chats.length + (c.isLoadingNextPage.isTrue ? 1 : 0),
+                    controller: c.listController,
                     itemBuilder: (_, i) {
                       if (c.chats.length == i) {
                         return _loadingIndicator();

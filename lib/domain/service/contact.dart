@@ -41,6 +41,9 @@ class ContactService extends DisposableService {
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
+  /// Indicates whether the [contacts] has next page.
+  bool get hasNextPage => _contactRepository.hasNextPage;
+
   @override
   void onInit() {
     _contactRepository.init();
@@ -67,7 +70,7 @@ class ContactService extends DisposableService {
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _contactRepository.changeContactName(id, name);
 
-  /// Fetches next page of a [ChatContact]s.
+  /// Loads next page of a [ChatContact]s.
   Future<void> loadNextPage() => _contactRepository.loadNextPage();
 
   /// Marks the specified [ChatContact] as favorited for the authenticated

@@ -382,8 +382,9 @@ class ChatsTabController extends GetxController {
   /// value.
   void _scrollListener() async {
     if (listController.hasClients) {
-      if (listController.position.pixels <
-          MediaQuery.of(router.context!).size.height + 200) {
+      if (_chatService.hasNextPage &&
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height + 200) {
         isLoadingNextPage.value = true;
 
         FutureOr future = _chatService.loadNextPage();

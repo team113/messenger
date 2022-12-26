@@ -393,6 +393,7 @@ class _ChatViewState extends State<ChatView>
                                   initIndex: c.initIndex,
                                   initOffset: c.initOffset,
                                   initOffsetBasedOnBottom: false,
+                                  disableCacheItems: true,
                                 ),
                               );
                             }),

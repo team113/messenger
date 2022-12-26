@@ -189,8 +189,8 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
-  /// Indicator whether a next page of [RxChat.messages] is fetching.
-  bool _isNextPageLoading = false;
+  /// Indicator whether a previous page of [RxChat.messages] is loading.
+  bool _isPrevPageLoading = false;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -778,7 +778,7 @@ class ChatController extends GetxController {
           if (atBottom &&
               status.value.isSuccess &&
               !status.value.isLoadingMore &&
-              !_isNextPageLoading) {
+              !_isPrevPageLoading) {
             Future.delayed(
               Duration.zero,
               () => SchedulerBinding.instance.addPostFrameCallback(
@@ -1247,10 +1247,9 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _loadMessages() async {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (listController.position.pixels <
-          MediaQuery.of(router.context!).size.height * 2 + 200) {
-        _isNextPageLoading = true;
-
+      if (chat!.hasNextPage &&
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height * 2 + 200) {
         if (_nextPageLoadings.isEmpty) {
           _topLoadingElement = LoadingElement.top();
           elements[_topLoadingElement!.id] = _topLoadingElement!;
@@ -1263,14 +1262,16 @@ class ChatController extends GetxController {
 
         if (_nextPageLoadings.isEmpty) {
           elements.remove(_topLoadingElement!.id);
-          await Future.delayed(10.milliseconds, () => _isNextPageLoading = false);
         }
         return;
       }
 
-      if (listController.position.pixels >
-          listController.position.maxScrollExtent -
-              (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+      if (chat!.hasPreviousPage &&
+          listController.position.pixels >
+              listController.position.maxScrollExtent -
+                  (MediaQuery.of(router.context!).size.height * 2 + 200)) {
+        _isPrevPageLoading = true;
+
         if (_prevPageLoadings.isEmpty) {
           _bottomLoadingElement = LoadingElement.bottom();
           elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
@@ -1283,6 +1284,10 @@ class ChatController extends GetxController {
 
         if (_prevPageLoadings.isEmpty) {
           elements.remove(_bottomLoadingElement!.id);
+          await Future.delayed(
+            10.milliseconds,
+            () => _isPrevPageLoading = false,
+          );
         }
       }
     }

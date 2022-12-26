@@ -38,9 +38,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        FavoriteChatContactException,
-        UnfavoriteChatContactException;
+    show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
@@ -333,8 +331,9 @@ class ContactsTabController extends GetxController {
   /// [ScrollController.position] value.
   void _scrollListener() async {
     if (listController.hasClients) {
-      if (listController.position.pixels <
-          MediaQuery.of(router.context!).size.height + 200) {
+      if (_contactService.hasNextPage &&
+          listController.position.pixels <
+              MediaQuery.of(router.context!).size.height + 200) {
         isLoadingNextPage.value = true;
 
         FutureOr future = _contactService.loadNextPage();

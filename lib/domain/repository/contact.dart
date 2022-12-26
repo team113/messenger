@@ -31,6 +31,9 @@ abstract class AbstractContactRepository {
   /// Returns reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites;
 
+  /// Indicates whether the [contacts] has next page.
+  bool get hasNextPage;
+
   /// Indicates whether this repository was initialized and [contacts] can be
   /// used.
   RxBool get isReady;
@@ -58,7 +61,7 @@ abstract class AbstractContactRepository {
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
 
-  /// Fetches next page of a [ChatContact]s.
+  /// Loads next page of a [ChatContact]s.
   Future<void> loadNextPage();
 
   /// Marks the specified [ChatContact] as favorited for the authenticated

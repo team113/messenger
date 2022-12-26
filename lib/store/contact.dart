@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/store/pagination.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
@@ -39,6 +38,7 @@ import '/provider/hive/gallery_item.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
+import '/store/pagination.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'event/contact.dart';
@@ -76,6 +76,9 @@ class ContactRepository implements AbstractContactRepository {
   /// [SessionDataHiveProvider] used to store [ChatContactsEventsCursor].
   final SessionDataHiveProvider _sessionLocal;
 
+  /// [PaginatedFragment] loading [contacts] with pagination.
+  late final PaginatedFragment<HiveChatContact> _fragment;
+
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
@@ -87,13 +90,14 @@ class ContactRepository implements AbstractContactRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
 
-  late final PaginatedFragment<HiveChatContact> fragment;
+  @override
+  bool get hasNextPage => _fragment.hasNextPage;
 
   @override
   Future<void> init() async {
     _initLocalSubscription();
 
-    fragment = PaginatedFragment<HiveChatContact>(
+    _fragment = PaginatedFragment<HiveChatContact>(
       cache: _contactLocal.contacts.sortedBy((a) => a.value.name.val).toList(),
       compare: (a, b) => a.value.name.val.compareTo(b.value.name.val),
       equal: (a, b) => a.value.id == b.value.id,
@@ -114,7 +118,7 @@ class ContactRepository implements AbstractContactRepository {
           beforeCursor = ChatContactsCursor(before);
         }
 
-        ContactsQuery query = await _chatContacts(
+        ContactsQuery query = await _fetchContacts(
           after: afterCursor,
           first: first,
           before: beforeCursor,
@@ -122,7 +126,7 @@ class ContactRepository implements AbstractContactRepository {
         );
 
         for (HiveChatContact item in query.items) {
-          _putChatContact(item);
+          _putEntry(item);
         }
 
         return query;
@@ -130,9 +134,7 @@ class ContactRepository implements AbstractContactRepository {
       pageSize: 10,
     );
 
-    _fragmentSubscription = fragment.elements.changes.listen((event) {
-      //print('ment.elements.changes.lis');
-
+    _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           contacts[event.element.value.id] =
@@ -145,16 +147,15 @@ class ContactRepository implements AbstractContactRepository {
           // No-op.
           break;
       }
-      // _chats.refresh();
     });
 
-    fragment.init();
+    _fragment.init();
 
     if (!_contactLocal.isEmpty) {
       isReady.value = true;
     }
 
-    await fragment.loadInitialPage();
+    await _fragment.loadInitialPage();
 
     _initRemoteSubscription();
 
@@ -216,7 +217,7 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> loadNextPage() async {
-    await fragment.loadNextPage();
+    await _fragment.loadNextPage();
   }
 
   @override
@@ -297,7 +298,7 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   /// Puts the provided [contact] to [Hive].
-  Future<void> _putChatContact(HiveChatContact contact) async {
+  Future<void> _putEntry(HiveChatContact contact) async {
     var saved = _contactLocal.get(contact.value.id);
     // TODO: Version should not be zero at all.
     if (saved == null ||
@@ -382,7 +383,7 @@ class ContactRepository implements AbstractContactRepository {
         }
 
         for (HiveChatContact c in chatContacts) {
-          _putChatContact(c);
+          _putEntry(c);
         }
 
         isReady.value = true;
@@ -396,7 +397,7 @@ class ContactRepository implements AbstractContactRepository {
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
-              _putChatContact(
+              _putEntry(
                 HiveChatContact(
                   ChatContact(
                     node.contactId,
@@ -498,11 +499,11 @@ class ContactRepository implements AbstractContactRepository {
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-    var contact = (await _chatContacts(first: 120))
+    var contact = (await _fetchContacts(first: 120))
         .items
         .firstWhereOrNull((e) => e.value.id == id);
     if (contact != null) {
-      _putChatContact(contact);
+      _putEntry(contact);
     }
     return contact;
   }
@@ -511,7 +512,7 @@ class ContactRepository implements AbstractContactRepository {
   ///
   /// Saves all [ChatContact.users] to the [UserHiveProvider] and whole
   /// [User.gallery] to the [GalleryItemHiveProvider].
-  Future<ContactsQuery> _chatContacts({
+  Future<ContactsQuery> _fetchContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,

@@ -81,24 +81,6 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
 
   /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
   Future<void> remove(String timestamp) => deleteSafe(timestamp);
-
-  /// Returns the last [count] of [ChatItem]s from [Hive].
-  Iterable<HiveChatItem> takeLast(int count) =>
-      valuesSafe.toList().reversed.take(count);
-
-  /// Returns [count] of [ChatItem]s from [Hive] before the [ChatItem] with the
-  /// provided [timestamp].
-  Iterable<HiveChatItem> takeBefore(String timestamp, int count) {
-    List<HiveChatItem> list = valuesSafe.toList().reversed.toList();
-    HiveChatItem? item = getSafe(timestamp);
-
-    var index = list.indexWhere((e) => e == item);
-    if (index == -1) {
-      return [];
-    } else {
-      return list.skip(index + 1).take(count);
-    }
-  }
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].

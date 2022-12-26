@@ -104,6 +104,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
   final SessionDataHiveProvider _sessionLocal;
 
+  /// [PaginatedFragment] loading [chats] with pagination.
+  late final PaginatedFragment<HiveChat> _fragment;
+
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
@@ -127,9 +130,10 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  RxBool get isReady => _isReady;
+  bool get hasNextPage => _fragment.hasNextPage;
 
-  late final PaginatedFragment<HiveChat> fragment;
+  @override
+  RxBool get isReady => _isReady;
 
   @override
   Future<void> init({
@@ -140,7 +144,7 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
-    fragment = PaginatedFragment<HiveChat>(
+    _fragment = PaginatedFragment<HiveChat>(
       cache: _chatLocal.chats
           .sorted((a, b) => b.value.updatedAt.compareTo(a.value.updatedAt))
           .toList(),
@@ -179,9 +183,7 @@ class ChatRepository implements AbstractChatRepository {
       pageSize: 10,
     );
 
-    _fragmentSubscription = fragment.elements.changes.listen((event) {
-      //print('ment.elements.changes.lis');
-
+    _fragmentSubscription = _fragment.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           _chats[event.element.value.id] =
@@ -194,16 +196,15 @@ class ChatRepository implements AbstractChatRepository {
           // No-op.
           break;
       }
-      // _chats.refresh();
     });
 
-    fragment.init();
+    _fragment.init();
 
     if (!_chatLocal.isEmpty) {
       _isReady.value = true;
     }
 
-    await fragment.loadInitialPage();
+    await _fragment.loadInitialPage();
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
@@ -274,7 +275,7 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   FutureOr<void> loadNextPage() async {
-    await fragment.loadNextPage();
+    await _fragment.loadNextPage();
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -1362,7 +1363,7 @@ class ChatItemsQuery implements ItemsPage<HiveChatItem> {
 
   /// [HiveChatItem]s of a [Chat.lastItem] returned from the [Chat] fetching.
   @override
-  final PageInfoMixin pageInfo;
+  final GetMessages$Query$Chat$Items$PageInfo pageInfo;
 }
 
 /// Result of a [Chat]s fetching.
@@ -1375,5 +1376,5 @@ class ChatsQuery implements ItemsPage<HiveChat> {
 
   /// Page info of this [ChatsQuery].
   @override
-  final PageInfoMixin pageInfo;
+  final RecentChats$Query$RecentChats$PageInfo pageInfo;
 }

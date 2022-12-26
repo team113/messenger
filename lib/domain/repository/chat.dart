@@ -39,6 +39,9 @@ abstract class AbstractChatRepository {
   /// used.
   RxBool get isReady;
 
+  /// Indicates whether the [chats] has next page.
+  bool get hasNextPage;
+
   /// Initializes this repository.
   ///
   /// Callback [onMemberRemoved] should be called once an [User] is removed from
@@ -89,7 +92,7 @@ abstract class AbstractChatRepository {
     List<ChatItem> repliesTo = const [],
   });
 
-  /// Fetches next page of a [Chat]s.
+  /// Loads next page of a [Chat]s.
   FutureOr<void> loadNextPage();
 
   /// Resends the specified [item].
@@ -232,16 +235,16 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
-  /// Returns indicator whether the [messages] has next page.
+  /// Indicates whether the [messages] has next page.
   bool get hasNextPage;
 
-  /// Returns indicator whether the [messages] has previous page.
+  /// Indicates whether the [messages] has previous page.
   bool get hasPreviousPage;
 
-  /// Fetches initial page of the [messages] from the service.
+  /// Loads initial page of the [messages] from the service.
   Future<void> fetchMessages();
 
-  /// Fetches next page of the [messages] from the service.
+  /// Loads next page of the [messages] from the service.
   FutureOr<void> loadNextPage();
 
   /// Fetches previous page of the [messages] from the service.
