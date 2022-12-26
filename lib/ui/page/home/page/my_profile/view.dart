@@ -21,7 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -316,19 +316,12 @@ Widget _presence(MyProfileController c, BuildContext context) {
     }
 
     return _padding(
-      WidgetButton(
+      FieldButton(
         onPressed: () => StatusView.show(context, presenceOnly: true),
-        child: IgnorePointer(
-          child: ReactiveTextField(
-            label: 'label_presence'.l10n,
-            state: TextFieldState(
-              text: presence?.localizedString(),
-              editable: false,
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            trailing: CircleAvatar(backgroundColor: color, radius: 7),
-          ),
-        ),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing: CircleAvatar(backgroundColor: color, radius: 7),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );
   });

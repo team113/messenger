@@ -29,7 +29,7 @@ import '/ui/widget/text_field.dart';
 class StatusViewController extends GetxController {
   StatusViewController(this._myUserService);
 
-  /// Used to change [MyUser.presenceIndex].
+  /// [Presence] visible on the screen.
   final Rx<Presence?> presence = Rx(null);
 
   /// [MyUser.status]'s field state.
@@ -98,7 +98,7 @@ class StatusViewController extends GetxController {
               () => s.status.value = RxStatus.empty(),
             );
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {

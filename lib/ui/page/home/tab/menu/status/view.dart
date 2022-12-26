@@ -21,15 +21,17 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 
 import 'controller.dart';
 
-/// Used to change [MyUser.status] and [MyUser.presenceIndex].
+/// View for changing [MyUser.status] and [MyUser.presenceIndex].
+///
+/// /// Intended to be displayed with the [show] method.
 class StatusView extends StatelessWidget {
   const StatusView({super.key, this.presenceOnly = false});
 
@@ -40,16 +42,6 @@ class StatusView extends StatelessWidget {
   static Future<T?> show<T>(BuildContext context, {bool presenceOnly = false}) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       child: StatusView(presenceOnly: presenceOnly),
     );
   }
@@ -84,7 +76,7 @@ class StatusView extends StatelessWidget {
                       ReactiveTextField(
                         key: const Key('StatusField'),
                         state: c.status,
-                        label: 'Status'.l10n,
+                        label: 'label_status'.l10n,
                         filled: true,
                         onSuffixPressed: c.status.text.isEmpty
                             ? null
@@ -113,15 +105,12 @@ class StatusView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 18),
                       child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                          child: Text(
-                            'label_presence'.l10n,
-                            style: style.systemMessageStyle
-                                .copyWith(color: Colors.black, fontSize: 18),
-                          ),
+                        child: Text(
+                          'label_presence'.l10n,
+                          style: style.systemMessageStyle
+                              .copyWith(color: Colors.black, fontSize: 18),
                         ),
                       ),
                     ),
@@ -154,35 +143,30 @@ class StatusView extends StatelessWidget {
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: WidgetButton(
+                        child: FieldButton(
                           onPressed: () => c.presence.value = e,
-                          child: IgnorePointer(
-                            child: ReactiveTextField(
-                              fillColor: c.presence.value == e
-                                  ? style.cardSelectedColor
-                                  : Colors.white,
-                              state:
-                                  TextFieldState(text: title, editable: false),
-                              trailing: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircleAvatar(
-                                  backgroundColor: color,
-                                  radius: 12,
-                                  child: AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: c.presence.value == e
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 12,
-                                          )
-                                        : const SizedBox(key: Key('None')),
-                                  ),
-                                ),
+                          text: title,
+                          trailing: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircleAvatar(
+                              backgroundColor: color,
+                              radius: 12,
+                              child: AnimatedSwitcher(
+                                duration: 200.milliseconds,
+                                child: c.presence.value == e
+                                    ? const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 12,
+                                      )
+                                    : const SizedBox(key: Key('None')),
                               ),
                             ),
                           ),
+                          fillColor: c.presence.value == e
+                              ? style.cardSelectedColor
+                              : Colors.white,
                         ),
                       );
                     });

@@ -206,7 +206,7 @@ class MyProfileController extends GetxController {
                 .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
             s.status.value = RxStatus.empty();
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {
@@ -330,7 +330,7 @@ class MyProfileController extends GetxController {
             UserTextStatus(s.text);
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_status'.l10n;
+          s.error.value = 'err_incorrect_input'.l10n;
         }
       },
       onSubmitted: (s) async {
@@ -339,7 +339,7 @@ class MyProfileController extends GetxController {
             UserTextStatus(s.text);
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_status'.l10n;
+          s.error.value = 'err_incorrect_input'.l10n;
         }
 
         if (s.error.value == null) {
@@ -356,7 +356,7 @@ class MyProfileController extends GetxController {
               () => s.status.value = RxStatus.empty(),
             );
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {
