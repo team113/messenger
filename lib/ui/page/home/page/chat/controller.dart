@@ -1251,7 +1251,7 @@ class ChatController extends GetxController {
           MediaQuery.of(router.context!).size.height * 2 + 200) {
         _isNextPageLoading = true;
 
-        if(_nextPageLoadings.isEmpty) {
+        if (_nextPageLoadings.isEmpty) {
           _topLoadingElement = LoadingElement.top();
           elements[_topLoadingElement!.id] = _topLoadingElement!;
         }
@@ -1271,7 +1271,7 @@ class ChatController extends GetxController {
       if (listController.position.pixels >
           listController.position.maxScrollExtent -
               (MediaQuery.of(router.context!).size.height * 2 + 200)) {
-        if(_prevPageLoadings.isEmpty) {
+        if (_prevPageLoadings.isEmpty) {
           _bottomLoadingElement = LoadingElement.bottom();
           elements[_bottomLoadingElement!.id] = _bottomLoadingElement!;
         }

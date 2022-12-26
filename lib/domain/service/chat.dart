@@ -130,8 +130,7 @@ class ChatService extends DisposableService {
   }
 
   /// Fetches next page of a [Chat]s.
-  FutureOr<void> loadNextPage() =>
-      _chatRepository.loadNextPage();
+  FutureOr<void> loadNextPage() => _chatRepository.loadNextPage();
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>

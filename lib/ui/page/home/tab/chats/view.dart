@@ -291,12 +291,13 @@ class ChatsTabView extends StatelessWidget {
                 child = AnimationLimiter(
                   key: const Key('Chats'),
                   child: ListView.builder(
-                    itemCount: c.chats.length + (c.isLoadingNextPage.isTrue ? 1 : 0),
+                    itemCount:
+                        c.chats.length + (c.isLoadingNextPage.isTrue ? 1 : 0),
                     itemBuilder: (_, i) {
                       if (c.chats.length == i) {
-                          return _loadingIndicator();
-                        }
-                        
+                        return _loadingIndicator();
+                      }
+
                       final RxChat chat = c.chats[i];
                       return AnimationConfiguration.staggeredList(
                         position: i,

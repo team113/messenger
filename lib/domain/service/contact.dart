@@ -69,7 +69,7 @@ class ContactService extends DisposableService {
 
   /// Fetches next page of a [ChatContact]s.
   Future<void> loadNextPage() => _contactRepository.loadNextPage();
-  
+
   /// Marks the specified [ChatContact] as favorited for the authenticated
   /// [MyUser] and sets its position in the favorites list.
   Future<void> favoriteChatContact(

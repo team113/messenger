@@ -217,9 +217,9 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> loadNextPage() async {
     await fragment.loadNextPage();
-    }
+  }
 
-    @override
+  @override
   Future<void> favoriteChatContact(
     ChatContactId id,
     ChatContactPosition? position,

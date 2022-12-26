@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -38,11 +37,13 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show UpdateChatContactNameException, FavoriteChatContactException, UnfavoriteChatContactException;
+import '/provider/gql/exceptions.dart'
+    show
+        FavoriteChatContactException,
+        UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -72,9 +73,6 @@ class ContactsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
-
-  /// [Chat] repository used to create a dialog [Chat].
-  final AbstractChatRepository _chatRepository;
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -110,10 +108,6 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Returns current reactive [ChatContact]s map.
-  RxObsMap<ChatContactId, RxChatContact> get contacts =>
-      _contactService.contacts;
-
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
@@ -124,7 +118,7 @@ class ContactsTabController extends GetxController {
 
   @override
   void onInit() {
-listController.addListener(_scrollListener);
+    listController.addListener(_scrollListener);
 
     contacts.value = _contactService.contacts.values.toList();
     favorites.value = _contactService.favorites.values.toList();
@@ -339,9 +333,8 @@ listController.addListener(_scrollListener);
   /// [ScrollController.position] value.
   void _scrollListener() async {
     if (listController.hasClients) {
-      if (
-          listController.position.pixels <
-              MediaQuery.of(router.context!).size.height + 200) {
+      if (listController.position.pixels <
+          MediaQuery.of(router.context!).size.height + 200) {
         isLoadingNextPage.value = true;
 
         FutureOr future = _contactService.loadNextPage();
@@ -349,13 +342,13 @@ listController.addListener(_scrollListener);
         await future;
         _nextPageLoadings.remove(future);
 
-        if(_nextPageLoadings.isEmpty) {
+        if (_nextPageLoadings.isEmpty) {
           isLoadingNextPage.value = false;
         }
       }
     }
   }
-  
+
   /// Populates a [Worker] sorting the [contacts] on the [User.online] and
   /// [User.lastSeenAt] changes of the provided [user].
   void _populateSortingWorker(Rx<User> user) {
