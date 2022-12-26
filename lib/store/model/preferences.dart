@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -48,4 +49,11 @@ class WindowPreferences {
   /// Window's y coordinate position.
   @HiveField(3)
   double? dy;
+
+  /// Returns window's size;
+  Size? get size =>
+      width == null || height == null ? null : Size(width!, height!);
+
+  /// Returns window's position.
+  Offset? get position => dx == null || dy == null ? null : Offset(dx!, dy!);
 }

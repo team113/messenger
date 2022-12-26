@@ -33,7 +33,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '/store/model/preferences.dart';
 import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
@@ -45,6 +44,7 @@ import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
+import 'store/model/preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'util/log.dart';
@@ -67,11 +67,11 @@ Future<void> main() async {
       PreferencesHiveProvider preferencesProvider = Get.find();
 
       WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
-      if (prefs?.width != null && prefs?.height != null) {
-        await windowManager.setSize(Size(prefs!.width!, prefs.height!));
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
       }
-      if (prefs?.dx != null && prefs?.dy != null) {
-        await windowManager.setPosition(Offset(prefs!.dx!, prefs.dy!));
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
       }
     }
 
