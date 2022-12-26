@@ -139,7 +139,7 @@ class RouterState extends ChangeNotifier {
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
 
-  /// Reactive optional [Widget] to display instead of the [Home] page
+  /// Reactive optional [Widget] to display instead of the [HomeView] page
   /// navigation.
   final Rx<Widget?> navigation = Rx(null);
 
