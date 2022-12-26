@@ -67,23 +67,21 @@ class UserView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         child: Obx(() {
                           final String? status = c.user?.user.value.getStatus();
-
-                          final UserTextStatus? textStatus =
+                          final UserTextStatus? text =
                               c.user?.user.value.status;
+                          final StringBuffer buffer = StringBuffer();
 
-                          final StringBuffer subtitleBuffer = StringBuffer();
+                          if (status != null || text != null) {
+                            buffer.write(text ?? '');
 
-                          if (status != null || textStatus != null) {
-                            subtitleBuffer.write(textStatus ?? '');
-
-                            if (status != null && textStatus != null) {
-                              subtitleBuffer.write(' | ');
+                            if (status != null && text != null) {
+                              buffer.write('space_vertical_space'.l10n);
                             }
 
-                            subtitleBuffer.write(status ?? '');
+                            buffer.write(status ?? '');
                           }
 
-                          final String subtitle = subtitleBuffer.toString();
+                          final String subtitle = buffer.toString();
 
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,

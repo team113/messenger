@@ -21,7 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.graphql.dart';
+import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -290,11 +290,11 @@ Widget _status(MyProfileController c) {
   );
 }
 
-/// Returns [WidgetButton] that opens a [StatusView].
+/// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(MyProfileController c, BuildContext context) {
   return Obx(() {
-    Presence? presence = c.myUser.value?.presence;
-    Color? color;
+    final Presence? presence = c.myUser.value?.presence;
+    final Color? color;
 
     switch (presence) {
       case Presence.present:
@@ -310,9 +310,8 @@ Widget _presence(MyProfileController c, BuildContext context) {
         break;
 
       case Presence.artemisUnknown:
-        break;
-
       default:
+        color = null;
         break;
     }
 
@@ -327,10 +326,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
               editable: false,
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            trailing: CircleAvatar(
-              backgroundColor: color,
-              radius: 7,
-            ),
+            trailing: CircleAvatar(backgroundColor: color, radius: 7),
           ),
         ),
       ),

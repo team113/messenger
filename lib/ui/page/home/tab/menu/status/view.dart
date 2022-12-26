@@ -90,7 +90,9 @@ class StatusView extends StatelessWidget {
                             ? null
                             : () {
                                 Clipboard.setData(
-                                    ClipboardData(text: c.status.text));
+                                  ClipboardData(text: c.status.text),
+                                );
+
                                 MessagePopup.success(
                                   'label_copied_to_clipboard'.l10n,
                                 );
@@ -114,8 +116,7 @@ class StatusView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
                       child: Center(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
                           child: Text(
                             'label_presence'.l10n,
                             style: style.systemMessageStyle
@@ -151,10 +152,6 @@ class StatusView extends StatelessWidget {
                           break;
                       }
 
-                      final Style style = Theme.of(context).extension<Style>()!;
-
-                      final bool selected = c.presence.value == e;
-
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: WidgetButton(
@@ -174,7 +171,7 @@ class StatusView extends StatelessWidget {
                                   radius: 12,
                                   child: AnimatedSwitcher(
                                     duration: 200.milliseconds,
-                                    child: selected
+                                    child: c.presence.value == e
                                         ? const Icon(
                                             Icons.check,
                                             color: Colors.white,

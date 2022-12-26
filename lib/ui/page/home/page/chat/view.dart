@@ -771,7 +771,7 @@ class _ChatViewState extends State<ChatView>
                     final StringBuffer buffer = StringBuffer(status ?? '');
 
                     if (status != null && subtitle != null) {
-                      buffer.write(' | ');
+                      buffer.write('space_vertical_space'.l10n);
                     }
 
                     buffer.write(subtitle ?? '');
@@ -779,17 +779,17 @@ class _ChatViewState extends State<ChatView>
                     return Text(buffer.toString(), style: style);
                   }
 
-                  return Container();
+                  return const SizedBox();
                 });
               }
 
-              return Container();
+              return const SizedBox();
             },
           );
         }
       }
 
-      return Container();
+      return const SizedBox();
     });
   }
 

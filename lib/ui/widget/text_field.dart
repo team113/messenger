@@ -136,10 +136,10 @@ class ReactiveTextField extends StatelessWidget {
   /// [TextAlign] of this [ReactiveTextField].
   final TextAlign textAlign;
 
-  /// The base fill color of the [TextField.decoration]'s container color.
+  /// Fill color of the [TextField].
   final Color fillColor;
 
-  /// The maximum number of characters to allow in [TextField].
+  /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
 
   @override

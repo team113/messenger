@@ -25,8 +25,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/page/home/tab/menu/status/view.dart';
-import '/ui/page/home/widget/rmb_detector.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -36,9 +34,11 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/menu/status/view.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
+import 'widget/rmb_detector.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {

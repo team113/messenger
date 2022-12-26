@@ -178,7 +178,8 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] has the provided [text] as his `status` value already.
   Future<MyUserEventsVersionedMixin?> updateUserStatus(
-      UserTextStatus? text) async {
+    UserTextStatus? text,
+  ) async {
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(

@@ -25,7 +25,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
-/// Controller of the [StatusView].
+/// Controller of a [StatusView].
 class StatusViewController extends GetxController {
   StatusViewController(this._myUserService);
 
@@ -38,7 +38,7 @@ class StatusViewController extends GetxController {
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [status] field.
+  /// [Timer] to set a `RxStatus.empty` status of the [status] field.
   Timer? _statusTimer;
 
   /// Worker to react on [presence] changes.
@@ -46,10 +46,6 @@ class StatusViewController extends GetxController {
 
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
-
-  /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
-      _myUserService.updateUserPresence(presence);
 
   @override
   void onInit() {
@@ -62,13 +58,23 @@ class StatusViewController extends GetxController {
           setPresence(presence);
         }
       },
-      time: 250.milliseconds,
+      time: 350.milliseconds,
     );
 
     status = TextFieldState(
       text: myUser.value?.status?.val ?? '',
       approvable: true,
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
       onSubmitted: (s) async {
         try {
           if (s.text.isNotEmpty) {
@@ -110,4 +116,8 @@ class StatusViewController extends GetxController {
     _worker?.dispose();
     super.onClose();
   }
+
+  /// Sets the [MyUser.presence] to the provided value.
+  Future<void> setPresence(Presence presence) =>
+      _myUserService.updateUserPresence(presence);
 }

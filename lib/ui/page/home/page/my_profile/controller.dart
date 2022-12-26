@@ -322,7 +322,17 @@ class MyProfileController extends GetxController {
     status = TextFieldState(
       text: myUser.value?.status?.val ?? '',
       approvable: true,
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_status'.l10n;
+        }
+      },
       onSubmitted: (s) async {
         try {
           if (s.text.isNotEmpty) {
