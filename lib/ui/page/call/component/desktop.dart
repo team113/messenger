@@ -198,9 +198,32 @@ Widget desktopCall(CallController c, BuildContext context) {
                   as RtcVideoRenderer?;
           var callCover = c.chat.value?.callCover;
 
-          return c.videoState.value == LocalTrackState.disabled || local == null
-              ? CallCoverWidget(callCover)
-              : RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+          return ContextMenuRegion(
+            preventContextMenu: true,
+            actions: [
+              ContextMenuButton(
+                label: c.videoState.value.isEnabled
+                    ? 'btn_call_video_off'.l10n
+                    : 'btn_call_video_on'.l10n,
+                onPressed: c.toggleVideo,
+              ),
+              ContextMenuButton(
+                label: c.audioState.value.isEnabled
+                    ? 'btn_call_audio_off'.l10n
+                    : 'btn_call_audio_on'.l10n,
+                onPressed: c.toggleAudio,
+              ),
+            ],
+            child:
+                c.videoState.value == LocalTrackState.disabled || local == null
+                    ? CallCoverWidget(callCover)
+                    : RtcVideoView(
+                        local,
+                        mirror: true,
+                        fit: BoxFit.cover,
+                        enableContextMenu: false,
+                      ),
+          );
         }));
 
         // Display a caller's name if the call is not outgoing and the chat is
@@ -440,7 +463,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   height: 100,
                                   child: Column(
                                     children: [
-                                      Draggable(
+                                      DelayedDraggable(
                                         feedback: Transform.translate(
                                           offset: const Offset(
                                             CallController.buttonSize / 2 * -1,
@@ -1130,7 +1153,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                   onTap: WebUtils.isPopup
                       ? null
                       : () {
-                          router.chat(c.chatId);
+                          router.chat(c.chatId.value);
                           if (c.fullscreen.value) {
                             c.toggleFullscreen();
                           }
@@ -1204,7 +1227,7 @@ Widget _primaryView(CallController c) {
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
-            if (d?.chatId == c.chatId) {
+            if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
                       MediaSourceKind.Display) {
@@ -1317,23 +1340,62 @@ Widget _primaryView(CallController c) {
                                       }
                                     },
                                   ),
+                              ],
+                              if (c.primary.length == 1)
                                 ContextMenuButton(
-                                  label: 'btn_call_center_video'.l10n,
+                                  label: 'btn_call_uncenter'.l10n,
+                                  onPressed: c.focusAll,
+                                )
+                              else
+                                ContextMenuButton(
+                                  label: 'btn_call_center'.l10n,
                                   onPressed: () => c.center(participant),
                                 ),
-                              ],
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
                                 ContextMenuButton(
-                                  label: (participant
-                                              .video.value?.renderer.value !=
-                                          null)
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
+                                  label: 'btn_call_remove_participant'.l10n,
+                                  onPressed: () => c.removeChatMember(
+                                    participant.member.id.userId,
+                                  ),
                                 ),
+                              ] else ...[
+                                ContextMenuButton(
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: c.toggleVideo,
+                                ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: c.toggleAudio,
+                                ),
+                              ],
                             ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
@@ -1378,7 +1440,7 @@ Widget _primaryView(CallController c) {
               );
             });
           },
-          children: c.primary.map((e) => _DragData(e, c.chatId)).toList(),
+          children: c.primary.map((e) => _DragData(e, c.chatId.value)).toList(),
         ),
         IgnorePointer(
           child: Obx(() {
@@ -1742,7 +1804,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {
-              if (d?.chatId == c.chatId) {
+              if (d?.chatId == c.chatId.value) {
                 c.secondaryTargets.value = 1;
                 return true;
               }
@@ -1821,28 +1883,55 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             key: ObjectKey(participant),
                             preventContextMenu: true,
                             actions: [
-                              if ((participant.member.owner !=
-                                          MediaOwnerKind.local ||
-                                      participant.source !=
-                                          MediaSourceKind.Display) &&
-                                  participant.video.value?.renderer.value !=
-                                      null)
+                              ContextMenuButton(
+                                label: 'btn_call_center'.l10n,
+                                onPressed: () => c.center(participant),
+                              ),
+                              if (participant.member.id != c.me.id) ...[
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: participant
+                                                .video.value?.renderer.value !=
+                                            null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
+                                if (participant.audio.value?.direction.value
+                                        .isEmitting ??
+                                    false)
+                                  ContextMenuButton(
+                                    label: (participant.audio.value?.direction
+                                                .value.isEnabled ==
+                                            true)
+                                        ? 'btn_call_disable_audio'.l10n
+                                        : 'btn_call_enable_audio'.l10n,
+                                    onPressed: () =>
+                                        c.toggleAudioEnabled(participant),
+                                  ),
                                 ContextMenuButton(
-                                  label: 'btn_call_center_video'.l10n,
-                                  onPressed: () => c.center(participant),
+                                  label: 'btn_call_remove_participant'.l10n,
+                                  onPressed: () => c.removeChatMember(
+                                    participant.member.id.userId,
+                                  ),
                                 ),
-                              if (participant.video.value?.direction.value
-                                      .isEmitting ??
-                                  false)
+                              ] else ...[
                                 ContextMenuButton(
-                                  label: (participant
-                                              .video.value?.renderer.value !=
-                                          null)
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                )
+                                  label: c.videoState.value.isEnabled
+                                      ? 'btn_call_video_off'.l10n
+                                      : 'btn_call_video_on'.l10n,
+                                  onPressed: c.toggleVideo,
+                                ),
+                                ContextMenuButton(
+                                  label: c.audioState.value.isEnabled
+                                      ? 'btn_call_audio_off'.l10n
+                                      : 'btn_call_audio_on'.l10n,
+                                  onPressed: c.toggleAudio,
+                                ),
+                              ],
                             ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
@@ -1883,7 +1972,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 ),
               );
             },
-            children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
+            children:
+                c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
           ),
 
           // Discards the pointer when hovered over videos.
@@ -1967,8 +2057,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           key: const ValueKey('TitleBar'),
                           opacity: c.secondaryHovered.value ? 1 : 0,
                           child: ConditionalBackdropFilter(
+                            condition: PlatformUtils.isWeb,
                             child: Container(
-                              color: const Color(0x9D165084),
+                              color: PlatformUtils.isWeb
+                                  ? const Color(0x9D165084)
+                                  : const Color(0xE9165084),
                               child: Row(
                                 children: [
                                   const SizedBox(width: 7),
@@ -2101,7 +2194,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
                           decoration: BoxDecoration(
-                            border: c.secondaryHovered.value
+                            border: (c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0)
                                 ? c.secondaryAlignment.value == null
                                     ? Border.all(
                                         color: const Color(0xFF888888),
@@ -2189,7 +2283,7 @@ Widget _secondaryTarget(CallController c) {
                     ? double.infinity
                     : panelSize / 1.6,
                 child: DragTarget<_DragData>(
-                  onWillAccept: (d) => d?.chatId == c.chatId,
+                  onWillAccept: (d) => d?.chatId == c.chatId.value,
                   onAccept: (_DragData d) {
                     if (secondaryAxis == Axis.horizontal) {
                       c.secondaryAlignment.value = Alignment.centerRight;
@@ -2206,8 +2300,29 @@ Widget _secondaryTarget(CallController c) {
                           duration: 200.milliseconds,
                           child: c.primaryDrags.value >= 1
                               ? Container(
-                                  decoration: const BoxDecoration(
-                                    boxShadow: [
+                                  padding: EdgeInsets.only(
+                                    left: secondaryAxis == Axis.horizontal
+                                        ? 1
+                                        : 0,
+                                    bottom:
+                                        secondaryAxis == Axis.vertical ? 1 : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      left: secondaryAxis == Axis.horizontal
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                      bottom: secondaryAxis == Axis.vertical
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                    ),
+                                    boxShadow: const [
                                       CustomBoxShadow(
                                         color: Color(0x33000000),
                                         blurRadius: 8,
@@ -2216,8 +2331,11 @@ Widget _secondaryTarget(CallController c) {
                                     ],
                                   ),
                                   child: ConditionalBackdropFilter(
-                                    child: Container(
-                                      color: const Color(0x30000000),
+                                    child: AnimatedContainer(
+                                      duration: 300.milliseconds,
+                                      color: candidate.isNotEmpty
+                                          ? const Color(0x10FFFFFF)
+                                          : const Color(0x00FFFFFF),
                                       child: Center(
                                         child: SizedBox(
                                           width:

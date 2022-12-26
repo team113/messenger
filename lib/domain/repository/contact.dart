@@ -29,7 +29,7 @@ abstract class AbstractContactRepository {
   RxObsMap<ChatContactId, RxChatContact> get contacts;
 
   /// Returns reactive map of favorite [ChatContact]s.
-  RxMap<ChatContactId, RxChatContact> get favorites;
+  RxObsMap<ChatContactId, RxChatContact> get favorites;
 
   /// Indicates whether this repository was initialized and [contacts] can be
   /// used.
@@ -60,6 +60,17 @@ abstract class AbstractContactRepository {
 
   /// Fetches next page of a [ChatContact]s.
   Future<void> loadNextPage();
+  
+  /// Marks the specified [ChatContact] as favorited for the authenticated
+  /// [MyUser] and sets its position in the favorites list.
+  Future<void> favoriteChatContact(
+    ChatContactId id,
+    ChatContactPosition? position,
+  );
+
+  /// Removes the specified [ChatContact] from the favorites list of the
+  /// authenticated [MyUser].
+  Future<void> unfavoriteChatContact(ChatContactId id);
 }
 
 /// Unified reactive [ChatContact] entity.

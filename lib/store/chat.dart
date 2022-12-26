@@ -26,6 +26,7 @@ import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -693,11 +694,25 @@ class ChatRepository implements AbstractChatRepository {
       }
     }
 
-    await _graphQlProvider.updateChatAvatar(
-      id,
-      file: file == null ? null : upload,
-      onSendProgress: onSendProgress,
-    );
+    HiveRxChat? chat = _chats[id];
+    ChatAvatar? avatar = chat?.chat.value.avatar;
+
+    if (file == null) {
+      chat?.chat.update((c) => c?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateChatAvatar(
+        id,
+        file: file == null ? null : upload,
+        onSendProgress: onSendProgress,
+      );
+    } catch (e) {
+      if (file == null) {
+        chat?.chat.update((c) => c?.avatar = avatar);
+      }
+      rethrow;
+    }
   }
 
   @override

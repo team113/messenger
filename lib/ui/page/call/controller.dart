@@ -39,14 +39,17 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'participant/view.dart';
+import 'screen_share/view.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -368,7 +371,7 @@ class CallController extends GetxController {
   late final Worker _chatWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
-  ChatId get chatId => _currentCall.value.chatId.value;
+  Rx<ChatId> get chatId => _currentCall.value.chatId;
 
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
@@ -511,7 +514,7 @@ class CallController extends GetxController {
 
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isAndroid) {
-      BackButtonInterceptor.add(_onBack);
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
     fullscreen = RxBool(false);
@@ -839,7 +842,7 @@ class CallController extends GetxController {
     }
 
     HardwareKeyboard.instance.removeHandler(_onKey);
-    if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -867,9 +870,20 @@ class CallController extends GetxController {
       );
 
   /// Toggles local screen-sharing stream on and off.
-  Future<void> toggleScreenShare() async {
+  Future<void> toggleScreenShare(BuildContext context) async {
     keepUi();
-    await _currentCall.value.toggleScreenShare();
+
+    final LocalTrackState state = _currentCall.value.screenShareState.value;
+
+    if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
+      await _currentCall.value.setScreenShareEnabled(false);
+    } else {
+      if (_currentCall.value.displays.length > 1) {
+        await ScreenShareView.show(context, _currentCall);
+      } else {
+        await _currentCall.value.setScreenShareEnabled(true);
+      }
+    }
   }
 
   /// Toggles local audio stream on and off.
@@ -907,7 +921,8 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
+        !PlatformUtils.isWeb) {
       List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
@@ -963,6 +978,17 @@ class CallController extends GetxController {
       await participant.member.setVideoEnabled(
         !participant.video.value!.direction.value.isEnabled,
         source: participant.video.value!.source,
+      );
+    }
+  }
+
+  /// Toggles the provided [participant]'s incoming audio on and off.
+  Future<void> toggleAudioEnabled(Participant participant) async {
+    if (participant.member.id == me.id) {
+      await toggleAudio();
+    } else if (participant.audio.value?.direction.value.isEmitting ?? false) {
+      await participant.member.setAudioEnabled(
+        !participant.audio.value!.direction.value.isEnabled,
       );
     }
   }
@@ -1106,8 +1132,8 @@ class CallController extends GetxController {
   }
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
-  Future<dynamic> openSettings(BuildContext context) {
-    return showDialog(
+  Future<void> openSettings(BuildContext context) async {
+    await showDialog(
       context: context,
       builder: (_) => CallSettingsView(
         _currentCall,
@@ -1123,13 +1149,25 @@ class CallController extends GetxController {
   }
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
-  Future<dynamic> openAddMember(BuildContext context) {
+  Future<void> openAddMember(BuildContext context) async {
     keepUi(false);
-    return ParticipantView.show(
+    await ParticipantView.show(
       context,
       call: _currentCall,
       duration: duration,
     );
+  }
+
+  /// Removes [User] identified by the provided [userId] from the [chat].
+  Future<void> removeChatMember(UserId userId) async {
+    try {
+      await _chatService.removeChatMember(chatId.value, userId);
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].

@@ -38,7 +38,7 @@ class ContactService extends DisposableService {
       _contactRepository.contacts;
 
   /// Returns the current reactive map of favorite [ChatContact]s.
-  RxMap<ChatContactId, RxChatContact> get favorites =>
+  RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
   @override
@@ -69,4 +69,17 @@ class ContactService extends DisposableService {
 
   /// Fetches next page of a [ChatContact]s.
   Future<void> loadNextPage() => _contactRepository.loadNextPage();
+  
+  /// Marks the specified [ChatContact] as favorited for the authenticated
+  /// [MyUser] and sets its position in the favorites list.
+  Future<void> favoriteChatContact(
+    ChatContactId id, [
+    ChatContactPosition? position,
+  ]) =>
+      _contactRepository.favoriteChatContact(id, position);
+
+  /// Removes the specified [ChatContact] from the favorites list of the
+  /// authenticated [MyUser].
+  Future<void> unfavoriteChatContact(ChatContactId id) =>
+      _contactRepository.unfavoriteChatContact(id);
 }

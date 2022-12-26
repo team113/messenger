@@ -14,19 +14,26 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/user_search_bar/view.dart';
+import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/tab/chats/controller.dart';
+import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -35,15 +42,7 @@ class ContactsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> divider = [
-      const SizedBox(height: 10),
-      Container(
-        width: double.infinity,
-        color: const Color(0xFFE0E0E0),
-        height: 0.5,
-      ),
-      const SizedBox(height: 10),
-    ];
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -51,134 +50,326 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
-        appBar: AppBar(
-          title: Text('label_contacts'.l10n),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.5),
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              height: 0.5,
+        appBar: CustomAppBar(
+          title: Obx(() {
+            final Widget child;
+
+            if (c.search.value != null) {
+              child = Theme(
+                data: Theme.of(context).copyWith(
+                  shadowColor: const Color(0x55000000),
+                  iconTheme: const IconThemeData(color: Colors.blue),
+                  inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusColor: Colors.white,
+                    fillColor: Colors.white,
+                    hoverColor: Colors.transparent,
+                    filled: true,
+                    isDense: true,
+                    contentPadding: EdgeInsets.fromLTRB(
+                      15,
+                      PlatformUtils.isDesktop ? 30 : 23,
+                      15,
+                      0,
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: ReactiveTextField(
+                      key: const Key('SearchField'),
+                      state: c.search.value!.search,
+                      hint: 'label_search'.l10n,
+                      maxLines: 1,
+                      filled: false,
+                      dense: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      style: style.boldBody.copyWith(fontSize: 17),
+                      onChanged: () => c.search.value?.query.value =
+                          c.search.value?.search.text ?? '',
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              child = Text('label_contacts'.l10n);
+            }
+
+            return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+          }),
+          actions: [
+            Obx(() {
+              final Widget child;
+
+              if (c.search.value != null) {
+                child = WidgetButton(
+                  key: const Key('CloseSearch'),
+                  onPressed: () {
+                    if (c.search.value?.query.isNotEmpty == true) {
+                      c.toggleSearch(false);
+                    }
+                  },
+                  child: SvgLoader.asset(
+                    'assets/icons/close_primary.svg',
+                    height: 15,
+                    width: 15,
+                  ),
+                );
+              } else {
+                child = WidgetButton(
+                  key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
+                  onPressed: c.toggleSorting,
+                  child: SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+                    width: 29.69,
+                    height: 21,
+                  ),
+                );
+              }
+              return Container(
+                alignment: Alignment.center,
+                width: 29.69,
+                height: 21,
+                margin: const EdgeInsets.only(left: 12, right: 18),
+                child: AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: child,
+                ),
+              );
+            }),
+          ],
+          leading: [
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 12),
+              child: Obx(() {
+                return AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: WidgetButton(
+                    key: const Key('SearchButton'),
+                    onPressed: c.search.value != null ? null : c.toggleSearch,
+                    child: SvgLoader.asset(
+                      'assets/icons/search.svg',
+                      width: 17.77,
+                    ),
+                  ),
+                );
+              }),
             ),
-          ),
+          ],
         ),
-        body: Obx(
-          () => UserSearchBar(
-            onUserTap: (user) => router.user(user.id),
-            // TODO: Show an `add` icon only if user is not in contacts already.
-            //       E.g. by looking if `MyUser.contacts` field is empty or not.
-            trailingIcon: const Icon(Icons.person_add),
-            onTrailingTap: c.addToContacts,
-            body: c.contactsReady.value
-                ? c.favorites.isEmpty && c.contacts.isEmpty
-                    ? Center(child: Text('label_no_contacts'.l10n))
-                    : ContextMenuInterceptor(
-                        child: ListView(
-                          controller: c.listController,
-                          children: [
-                            if (c.favorites.isNotEmpty) ...[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.l10n),
+        extendBodyBehindAppBar: true,
+        body: Obx(() {
+          if (!c.contactsReady.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final Widget? child;
+
+          if (c.search.value?.search.isEmpty.value == false) {
+            if (c.search.value!.searchStatus.value.isLoading &&
+                c.elements.isEmpty) {
+              child = const Center(
+                key: Key('Loading'),
+                child: CircularProgressIndicator(),
+              );
+            } else if (c.elements.isNotEmpty) {
+              child = AnimationLimiter(
+                key: const Key('Search'),
+                child: ListView.builder(
+                  controller: ScrollController(),
+                  itemCount: c.elements.length,
+                  itemBuilder: (_, i) {
+                    // TODO: add loading indicator
+                    final ListElement element = c.elements[i];
+                    final Widget child;
+
+                    if (element is ContactElement) {
+                      child = SearchUserTile(
+                        key: Key('SearchContact_${element.contact.id}'),
+                        contact: element.contact,
+                        onTap: () =>
+                            router.user(element.contact.user.value!.id),
+                      );
+                    } else if (element is UserElement) {
+                      child = SearchUserTile(
+                        key: Key('SearchUser_${element.user.id}'),
+                        user: element.user,
+                        onTap: () => router.user(element.user.id),
+                      );
+                    } else if (element is DividerElement) {
+                      child = Center(
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                          width: double.infinity,
+                          child: Center(
+                            child: Text(
+                              element.category.name.capitalizeFirst!,
+                              style: style.systemMessageStyle.copyWith(
+                                color: Colors.black,
+                                fontSize: 15,
                               ),
-                              ...c.favorites.entries
-                                  .map((e) => _contact(e.value, c))
-                            ],
-                            if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
-                              ...divider,
-                            ...c.contacts.entries
-                                .map((e) => _contact(e.value, c)),
-                            if (c.isLoadingNextPage.isTrue) _loadingIndicator(),
-                          ],
+                            ),
+                          ),
                         ),
-                      )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-        ),
+                      );
+                    } else {
+                      child = const SizedBox();
+                    }
+
+                    return AnimationConfiguration.staggeredList(
+                      position: i,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        horizontalOffset: 50,
+                        child: FadeInAnimation(child: child),
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              child = Center(
+                key: const Key('NothingFound'),
+                child: Text('label_nothing_found'.l10n),
+              );
+            }
+          } else {
+            if (c.contacts.isEmpty && c.favorites.isEmpty) {
+              child = Center(
+                key: const Key('NoContacts'),
+                child: Text('label_no_contacts'.l10n),
+              );
+            } else {
+              final List<RxChatContact> contacts = [
+                ...c.favorites,
+                ...c.contacts,
+              ];
+
+              child = AnimationLimiter(
+                child: ListView.builder(
+                  controller: ScrollController(),
+                  itemCount: c.favorites.length + c.contacts.length,
+                  itemBuilder: (_, i) {
+                    final RxChatContact contact = contacts[i];
+                    return AnimationConfiguration.staggeredList(
+                      position: i,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        horizontalOffset: 50,
+                        child: FadeInAnimation(
+                          child: Obx(() => _contact(context, contact, c)),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: ContextMenuInterceptor(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: child,
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(RxChatContact contact, ContactsTabController c) =>
-      ContextMenuRegion(
-        preventContextMenu: false,
+  Widget _contact(
+    BuildContext context,
+    RxChatContact contact,
+    ContactsTabController c,
+  ) {
+    bool favorite = c.favorites.contains(contact);
+
+    final bool selected = router.routes
+            .lastWhereOrNull((e) => e.startsWith(Routes.user))
+            ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
+        true;
+
+    return Padding(
+      key: Key('Contact_${contact.id}'),
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: ContactTile(
+        contact: contact,
+        folded: favorite,
+        selected: selected,
+        onTap: contact.contact.value.users.isNotEmpty
+            // TODO: Open [Routes.contact] page when it's implemented.
+            ? () => router.user(contact.user.value!.id)
+            : null,
         actions: [
-          ContextMenuButton(
-            label: 'btn_rename'.l10n,
-            onPressed: () {
-              c.contactToChangeNameOf.value = contact.contact.value.id;
-              c.contactName.clear();
-              c.contactName.unchecked = contact.contact.value.name.val;
-              SchedulerBinding.instance.addPostFrameCallback(
-                  (_) => c.contactName.focus.requestFocus());
-            },
-          ),
+          favorite
+              ? ContextMenuButton(
+                  key: const Key('UnfavoriteContactButton'),
+                  label: 'btn_delete_from_favorites'.l10n,
+                  onPressed: () =>
+                      c.unfavoriteContact(contact.contact.value.id),
+                )
+              : ContextMenuButton(
+                  key: const Key('FavoriteContactButton'),
+                  label: 'btn_add_to_favorites'.l10n,
+                  onPressed: () => c.favoriteContact(contact.contact.value.id),
+                ),
           ContextMenuButton(
             label: 'btn_delete_from_contacts'.l10n,
             onPressed: () => c.deleteFromContacts(contact.contact.value),
           ),
         ],
-        child: c.contactToChangeNameOf.value == contact.contact.value.id
-            ? Container(
-                key: Key(contact.contact.value.id.val),
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  children: [
-                    IconButton(
-                      key: const Key('CancelSaveNewContactName'),
-                      onPressed: () => c.contactToChangeNameOf.value = null,
-                      icon: const Icon(Icons.close),
-                    ),
-                    Expanded(
-                      child: ReactiveTextField(
-                        dense: true,
-                        key: const Key('NewContactNameInput'),
-                        state: c.contactName,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : ListTile(
-                key: Key(contact.contact.value.id.val),
-                leading: AvatarWidget.fromRxContact(contact),
-                title: Text(contact.contact.value.name.val),
-                trailing: contact.contact.value.users.isNotEmpty
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () => c.startAudioCall(
-                                contact.contact.value.users.first),
-                            icon: const Icon(Icons.call),
-                          ),
-                          IconButton(
-                            onPressed: () => c.startVideoCall(
-                                contact.contact.value.users.first),
-                            icon: const Icon(Icons.video_call),
-                          )
-                        ],
-                      )
-                    : null,
-                onTap: contact.contact.value.users.isNotEmpty
-                    // TODO: Open [Routes.contact] page when it's implemented.
-                    ? () => router.user(contact.contact.value.users.first.id)
-                    : null,
-              ),
-      );
+        subtitle: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Obx(() {
+              final subtitle = contact.user.value?.user.value.getStatus();
+              if (subtitle != null) {
+                return Text(
+                  subtitle,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                );
+              }
 
-  /// Builds a visual representation of a loading indicator.
-  Widget _loadingIndicator() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: const Center(
-        child: CircularProgressIndicator(),
+              return Container();
+            }),
+          ),
+        ],
       ),
     );
   }

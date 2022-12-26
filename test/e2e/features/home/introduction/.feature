@@ -33,6 +33,7 @@ Feature: Introduction
 
     When I tap `MenuButton` button
     Then I tap `LogoutButton` button
+    And I tap `ConfirmLogoutButton` button
     And I wait until `AuthView` is present
 
     Then I tap `SignInButton` button

@@ -21,11 +21,15 @@ class WidgetButton extends StatelessWidget {
   const WidgetButton({
     Key? key,
     required this.child,
+    this.behavior,
     this.onPressed,
   }) : super(key: key);
 
   /// [Widget] to press.
   final Widget child;
+
+  /// [HitTestBehavior] of this [WidgetButton].
+  final HitTestBehavior? behavior;
 
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
@@ -36,6 +40,7 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        behavior: behavior,
         child: Container(
           color: Colors.transparent,
           child: child,

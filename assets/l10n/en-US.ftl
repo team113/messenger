@@ -19,9 +19,8 @@ alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
 alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
-alert_are_you_sure_want_to_log_out =
-    Are you sure you want to log out?
-    Your active calls will be ended.
+alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
+alert_are_you_sure_want_to_log_out2 = ?
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
@@ -35,6 +34,7 @@ alert_popup_permissions_description =
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
+btn_add_member = Add member
 btn_add_participant = Add participant
 btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
@@ -43,7 +43,7 @@ btn_allow = Allow
 btn_audio_call = Audio call
 btn_away = Away
 btn_back = Back
-btn_blacklist = Add to blacklist
+btn_block = Block
 btn_call_answer_with_audio =
     Answer
     audio only
@@ -59,13 +59,15 @@ btn_call_audio_on_desc =
     Unmute
     microphone
 btn_call_cancel = Cancel call
-btn_call_center_video = Center video
+btn_call_center = Center
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
+btn_call_disable_audio = Disable audio
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
+btn_call_enable_audio = Enable audio
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_end_desc =
@@ -96,6 +98,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
+btn_call_remove_participant = Kick participant
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,6 +116,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
+btn_call_uncenter = Uncenter
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
@@ -125,22 +129,23 @@ btn_call_video_on_desc =
 btn_change = Change
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_clear_chat = Clear chat
 btn_close = Close
 btn_confirm = Confirm
-btn_copy = Copy
+btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
-btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Unfavorite
+btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
-btn_forward = Forward
+btn_forward = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -148,7 +153,9 @@ btn_hidden = Hidden
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
+btn_leave = Leave
 btn_leave_chat = Leave chat
+btn_leave_group = Leave group
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
@@ -164,7 +171,8 @@ btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
-btn_reply = Reply
+btn_reply = Reply to message
+btn_report = Report
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
@@ -175,6 +183,7 @@ btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
+btn_unblock = Unblock
 btn_unmute_chat = Unmute chat
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -182,6 +191,7 @@ btn_your_profile = Your profile
 colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
+dot_space = .{" "}
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
@@ -207,9 +217,10 @@ err_data_transfer =
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
-err_incorrect_input = Incorrect input
+err_incorrect_input = Incorrect input.
+err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_password = Incorrect Password
-err_input_empty = Must not be empty
+err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
 err_login_occupied = Login already occupied
@@ -266,10 +277,13 @@ err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
+label_actions = Actions
+label_add_additional_email = Add additional E-mail
+label_add_additional_number = Add additional number
 label_add_chat_member = Add member
-label_add_email = Add an email
+label_add_email = Add E-mail
 label_add_email_hint = Write your email address
-label_add_number = Add a number
+label_add_number = Add phone number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_add_participants = Add participants
 label_account_access_will_be_lost = Account access will be lost
@@ -280,8 +294,8 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] recently
-                                            [1] recently
+                                            [0] just now
+                                            [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
                                         }
                                     [1] an hour ago
@@ -316,8 +330,11 @@ label_ago_date = { $years ->
     [1] An year ago
     *[other] {$years} years ago
 }
-label_application = application
+label_all = All
+label_app_background = Application background
+label_application = Application
 label_are_you_sure_no = No
+label_are_you_sure_want_to_log_out = Are you sure you want to log out from account{" "}
 label_are_you_sure_yes = Yes
 label_attachments = [{$count} { $count ->
     [1] attachment
@@ -325,6 +342,7 @@ label_attachments = [{$count} { $count ->
     }]
 label_audio_call = Audio call
 label_away = Away
+label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
 label_call_active = Active call
@@ -343,6 +361,8 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_calls = Calls
+label_calls_displaying = Calls displaying
 label_camera = Camera
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -354,18 +374,24 @@ label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
+label_confirm = Confirm
 label_contact = Contact
+label_contact_information = Contact information
 label_contacts = Contacts
 label_copied_to_clipboard = Copied to the clipboard
 label_copy = Copy
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
+label_current_language = Current language
 label_current_password = Current password
+label_danger_zone = Danger zone
+label_delete_account = Delete account
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
+label_details = Details.
 label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
@@ -385,6 +411,8 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_download = Download
+label_download_application = Download application
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -393,11 +421,13 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
+label_email = E-mail
+label_email_visible = Yor E-mail visible to:{" "}
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
-label_emails = Emails
 label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
+label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
 label_entrance = Login
@@ -407,6 +437,8 @@ label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
+label_hello = Hello!
+label_hello_reply = Yay, hello :)
 label_hidden = Status is hidden
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
@@ -431,13 +463,22 @@ label_introduction_description =
 
     In order not to lose access to your account, set a password.
 label_kb = {$amount} KB
+label_language = Language
+label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
+label_link_to_chat = Chat link
 label_login = Login
 label_login_hint = Your unique login
+label_login_options = Login options
+label_login_section_hint = Login, e-mail, phone, password
+label_login_visibility_hint = Unique login is an additional unique identifier for your account.
+label_login_visible = Your login is visible to:{" "}
+label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Output
+label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
@@ -455,6 +496,7 @@ label_mute_for = { $days ->
     *[other] {$days} days
 }
 label_mute_chat_for = Mute chat for
+label_my_contacts = My contacts
 label_name = Name
 label_name_hint = Your publicly visible name
 label_new_password = New password
@@ -463,32 +505,43 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
+label_nobody = No one
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
+label_open_calls_in_app = Display calls in the application window.
+label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_participant_redial_successfully = Participant redialed
 label_participants = Participants
 label_participants_added_successfully = Participants successfully added
 label_password = Password
-label_password_not_set = Password not set
-label_password_set_successfully = Password successfully set
-label_password_was_changed = Password was changed
+label_password_changed = Password has been changed.
+label_password_not_set = Password not set. Access to the account will be lost.
+label_password_set = Password has been set.
 label_personalization = Personalization
+label_phone = Phone
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
-label_phones = Phones
+label_phone_number = Phone number
+label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
 label_presence_hidden = Hidden
-label_presence_present = Last visit information
+label_presence_present = Online
+label_profile = Profile
+label_public_information = Public information
+label_public_section_hint = Avatar and name
 label_read_by = Read by
 label_recent = Recent
 label_recover_account = Access recovery
+label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
+label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
+label_recovery_enter_new_password = Please enter the new password below.
 label_repeat_password = Repeat password
 label_replies = [{$count} { $count ->
     [1] reply
@@ -517,12 +570,14 @@ label_short_weekday =
         *[other] Sun
     }
 label_sign_in = Log In
-label_sign_in_input = Gapopa ID, Login, Email or Phone
+label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_start_screen_sharing = Start screen sharing
+label_status = Status
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_transition_count = Transitions
+label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
@@ -532,14 +587,18 @@ label_unread_messages = { $quantity ->
 }
 label_use_search = Use search to find an user
 label_users = Users
+label_verify_email = Verify E-mail
+label_verify_number = Verify phone number
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
+label_visible_to = Visible to:
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_your_direct_link = Direct link to chat with you
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}

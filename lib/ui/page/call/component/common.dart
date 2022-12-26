@@ -162,7 +162,7 @@ class ScreenButton extends CallButton {
       return _common(
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
-        onPressed: c.toggleScreenShare,
+        onPressed: () => c.toggleScreenShare(router.context!),
       );
     });
   }

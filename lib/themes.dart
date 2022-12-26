@@ -142,28 +142,34 @@ class Themes {
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
-              hoverColor: colors.secondary,
+              hoverColor: Colors.transparent,
               fillColor: colors.secondary,
-              hintStyle: GoogleFonts.roboto(color: colors.primary),
-              labelStyle: GoogleFonts.roboto(color: colors.primary),
+              hintStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              labelStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
+              helperStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              prefixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              suffixStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              counterStyle: GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
+              floatingLabelStyle:
+                  GoogleFonts.roboto(color: const Color(0xFFC4C4C4)),
               errorMaxLines: 5,
-              floatingLabelStyle: GoogleFonts.roboto(color: colors.primary),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.secondary),
+                borderSide:
+                    const BorderSide(width: 2, color: Color(0xFFD0D0D0)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: colors.primary),
+                borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
               ),
             ),
         textSelectionTheme: ThemeData.light().textSelectionTheme.copyWith(

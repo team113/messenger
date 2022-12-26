@@ -24,9 +24,9 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the [User]s search.
@@ -82,6 +82,7 @@ class SearchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('SearchView'),
       init: SearchController(
         Get.find(),
         Get.find(),
@@ -91,6 +92,7 @@ class SearchView extends StatelessWidget {
       ),
       builder: (SearchController c) {
         Widget tile({
+          Key? key,
           RxUser? user,
           RxChatContact? contact,
           void Function()? onTap,
@@ -99,6 +101,7 @@ class SearchView extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ContactTile(
+              key: key,
               contact: contact,
               user: user,
               onTap: onTap,
@@ -139,51 +142,23 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  title,
-                  style: thin?.copyWith(fontSize: 18),
+              ModalPopupHeader(
+                onBack: onBack,
+                header: Center(
+                  child: Text(title, style: thin?.copyWith(fontSize: 18)),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Center(
                   child: ReactiveTextField(
+                    key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
                     style: thin,
                     onChanged: () => c.query.value = c.search.text,
                   ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                height: 17,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        shrinkWrap: true,
-                        children: categories
-                            .map((e) => _category(context, c, e))
-                            .toList(),
-                      ),
-                    ),
-                    Obx(() {
-                      return Text(
-                        'label_selected'.l10nfmt({
-                          'count':
-                              c.selectedContacts.length + c.selectedUsers.length
-                        }),
-                        style: thin?.copyWith(fontSize: 15),
-                      );
-                    }),
-                    const SizedBox(width: 10),
-                  ],
                 ),
               ),
               const SizedBox(height: 18),
@@ -211,6 +186,7 @@ class SearchView extends StatelessWidget {
                         if (e is RxUser) {
                           child = Obx(() {
                             return tile(
+                              key: Key('SearchUser_${e.id}'),
                               user: e,
                               selected: c.selectedUsers.contains(e),
                               onTap: selectable
@@ -223,6 +199,7 @@ class SearchView extends StatelessWidget {
                         } else if (e is RxChatContact) {
                           child = Obx(() {
                             return tile(
+                              key: Key('SearchContact_${e.id}'),
                               contact: e,
                               selected: c.selectedContacts.contains(e),
                               onTap: selectable
@@ -234,10 +211,7 @@ class SearchView extends StatelessWidget {
                           });
                         }
 
-                        return Padding(
-                          padding: EdgeInsets.only(top: i > 0 ? 7 : 0),
-                          child: child,
-                        );
+                        return child;
                       },
                       childCount:
                           c.contacts.length + c.users.length + c.recent.length,
@@ -248,98 +222,33 @@ class SearchView extends StatelessWidget {
               const SizedBox(height: 18),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    if (onBack != null) ...[
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('BackButton'),
-                          maxWidth: null,
-                          title: Text(
-                            'btn_back'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          onPressed: onBack,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Expanded(
-                      child: Obx(() {
-                        bool enabled = this.enabled &&
-                            (c.selectedContacts.isNotEmpty ||
-                                c.selectedUsers.isNotEmpty);
+                child: Obx(() {
+                  bool enabled = this.enabled &&
+                      (c.selectedContacts.isNotEmpty ||
+                          c.selectedUsers.isNotEmpty);
 
-                        return OutlinedRoundedButton(
-                          key: const Key('SearchSubmitButton'),
-                          maxWidth: null,
-                          title: Text(
-                            submit ?? 'btn_submit'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: enabled ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          onPressed: enabled
-                              ? () => onSubmit?.call(c.selected())
-                              : null,
-                          color: Theme.of(context).colorScheme.secondary,
-                        );
-                      }),
+                  return OutlinedRoundedButton(
+                    key: const Key('SearchSubmitButton'),
+                    maxWidth: double.infinity,
+                    title: Text(
+                      submit ?? 'btn_submit'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: enabled ? Colors.white : Colors.black,
+                      ),
                     ),
-                  ],
-                ),
+                    onPressed:
+                        enabled ? () => onSubmit?.call(c.selected()) : null,
+                    color: Theme.of(context).colorScheme.secondary,
+                  );
+                }),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
           ),
         );
       },
     );
-  }
-
-  /// Builds a [WidgetButton] of the provided [category].
-  Widget _category(
-    BuildContext context,
-    SearchController c,
-    SearchCategory category,
-  ) {
-    return WidgetButton(
-      onPressed: () => c.jumpTo(category),
-      child: Obx(() {
-        final TextStyle? thin = Theme.of(context).textTheme.bodyText1?.copyWith(
-              fontSize: 15,
-              color: c.category.value == category
-                  ? Theme.of(context).colorScheme.secondary
-                  : null,
-            );
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: Text(category.l10n, style: thin),
-        );
-      }),
-    );
-  }
-}
-
-/// Extension adding [L10n] to a [SearchCategory].
-extension _SearchCategoryL10n on SearchCategory {
-  /// Returns a localized [String] of this [SearchCategory].
-  String get l10n {
-    switch (this) {
-      case SearchCategory.recent:
-        return 'label_recent'.l10n;
-      case SearchCategory.contact:
-        return 'label_contacts'.l10n;
-      case SearchCategory.user:
-        return 'label_users'.l10n;
-      case SearchCategory.chat:
-        return 'label_chats'.l10n;
-    }
   }
 }

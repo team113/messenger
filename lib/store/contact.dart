@@ -62,7 +62,7 @@ class ContactRepository implements AbstractContactRepository {
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
-  final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
+  final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -217,6 +217,83 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> loadNextPage() async {
     await fragment.loadNextPage();
+    }
+
+    @override
+  Future<void> favoriteChatContact(
+    ChatContactId id,
+    ChatContactPosition? position,
+  ) async {
+    final bool fromContacts = contacts[id] != null;
+    final HiveRxChatContact? contact =
+        fromContacts ? contacts[id] : favorites[id];
+
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+    final ChatContactPosition newPosition;
+
+    if (position == null) {
+      final List<HiveRxChatContact> sorted = favorites.values.toList()
+        ..sort(
+          (a, b) => a.contact.value.favoritePosition!
+              .compareTo(b.contact.value.favoritePosition!),
+        );
+
+      final double? lowestFavorite = sorted.isEmpty
+          ? null
+          : sorted.first.contact.value.favoritePosition!.val;
+
+      newPosition = ChatContactPosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    contact?.contact.update((c) => c?.favoritePosition = newPosition);
+    if (fromContacts) {
+      contacts.remove(id);
+      favorites.addIf(contact != null, id, contact!);
+    } else {
+      favorites.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+    }
+
+    try {
+      await _graphQlProvider.favoriteChatContact(id, newPosition);
+    } catch (e) {
+      contact?.contact.update((c) => c?.favoritePosition = oldPosition);
+      if (fromContacts) {
+        favorites.remove(id);
+        contacts.addIf(contact != null, id, contact!);
+      } else {
+        favorites.emit(
+          MapChangeNotification.updated(contact?.id, contact?.id, contact),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChatContact(ChatContactId id) async {
+    final HiveRxChatContact? contact = favorites[id];
+    final ChatContactPosition? oldPosition =
+        contact?.contact.value.favoritePosition;
+
+    contact?.contact.update((c) => c?.favoritePosition = null);
+    favorites.remove(id);
+    contacts.addIf(contact != null, id, contact!);
+
+    try {
+      await _graphQlProvider.unfavoriteChatContact(id);
+    } catch (e) {
+      contact.contact.update((c) => c?.favoritePosition = oldPosition);
+      contacts.remove(id);
+      favorites[id] = contact;
+      rethrow;
+    }
   }
 
   /// Puts the provided [contact] to [Hive].
@@ -412,7 +489,6 @@ class ContactRepository implements AbstractContactRepository {
             }
 
             contactEntity.save();
-            break;
           }
         }
     }
