@@ -335,22 +335,22 @@ class ContactsTabView extends StatelessWidget {
             ? () => router.user(contact.user.value!.id)
             : null,
         actions: [
-          favorite
-              ? ContextMenuButton(
-                  key: const Key('UnfavoriteContactButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: () =>
-                      c.unfavoriteContact(contact.contact.value.id),
-                )
-              : ContextMenuButton(
-                  key: const Key('FavoriteContactButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: () => c.favoriteContact(contact.contact.value.id),
-                ),
-          ContextMenuButton(
-            label: 'btn_delete_from_contacts'.l10n,
-            onPressed: () => c.deleteFromContacts(contact.contact.value),
-          ),
+          // favorite
+          //     ? ContextMenuButton(
+          //         key: const Key('UnfavoriteContactButton'),
+          //         label: 'btn_delete_from_favorites'.l10n,
+          //         onPressed: () =>
+          //             c.unfavoriteContact(contact.contact.value.id),
+          //       )
+          //     : ContextMenuButton(
+          //         key: const Key('FavoriteContactButton'),
+          //         label: 'btn_add_to_favorites'.l10n,
+          //         onPressed: () => c.favoriteContact(contact.contact.value.id),
+          //       ),
+          // ContextMenuButton(
+          //   label: 'btn_delete_from_contacts'.l10n,
+          //   onPressed: () => c.deleteFromContacts(contact.contact.value),
+          // ),
         ],
         subtitle: [
           Padding(

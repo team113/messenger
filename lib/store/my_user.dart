@@ -404,14 +404,13 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    MyUserEventsVersionedMixin? events =
-        await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
 
-    for (var event in events?.events ?? []) {
-      MyUserEvent e = _myUserEvent(event);
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
       if (e is EventUserGalleryItemAdded) {
         return e.galleryItem;
       }
@@ -442,8 +441,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> updateAvatar(GalleryItemId? id) =>
-      _graphQlProvider.updateUserAvatar(id, null);
+  Future<void> updateAvatar(GalleryItemId? id) async {
+    UserAvatar? avatar = myUser.value?.avatar;
+
+    if (id == null) {
+      myUser.update((u) => u?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateUserAvatar(id, null);
+    } catch (e) {
+      if (id == null) {
+        myUser.update((u) => u?.avatar = avatar);
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<void> updateCallCover(GalleryItemId? id) =>

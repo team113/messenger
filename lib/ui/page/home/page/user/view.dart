@@ -238,7 +238,8 @@ class UserView extends StatelessWidget {
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            onPressed: c.inFavorites,
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           ),
           action(
             text:

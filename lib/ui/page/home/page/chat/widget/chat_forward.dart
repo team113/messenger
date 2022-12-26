@@ -765,31 +765,31 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
                                 label: 'btn_copy_text'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/copy_small.svg',
-                                  width: 14.82,
-                                  height: 17,
-                                ),
+                                // trailing: SvgLoader.asset(
+                                //   'assets/icons/copy_small.svg',
+                                //   width: 14.82,
+                                //   height: 17,
+                                // ),
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: 'btn_reply'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
-                              ),
+                              // trailing: SvgLoader.asset(
+                              //   'assets/icons/reply.svg',
+                              //   width: 18.8,
+                              //   height: 16,
+                              // ),
                               onPressed: widget.onReply,
                             ),
                             ContextMenuButton(
                               key: const Key('ForwardButton'),
                               label: 'btn_forward'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/forward.svg',
-                                width: 18.8,
-                                height: 16,
-                              ),
+                              // trailing: SvgLoader.asset(
+                              //   'assets/icons/forward.svg',
+                              //   width: 18.8,
+                              //   height: 16,
+                              // ),
                               onPressed: () async {
                                 final List<ChatItemQuote> quotes = [];
 
@@ -821,20 +821,20 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
-                                ),
+                                // trailing: SvgLoader.asset(
+                                //   'assets/icons/edit.svg',
+                                //   width: 17,
+                                //   height: 17,
+                                // ),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
                               label: 'btn_delete_message'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
-                              ),
+                              // trailing: SvgLoader.asset(
+                              //   'assets/icons/delete_small.svg',
+                              //   width: 17.75,
+                              //   height: 17,
+                              // ),
                               onPressed: () async {
                                 bool deletable = widget.authorId == widget.me &&
                                     !widget.chat.value!.isRead(

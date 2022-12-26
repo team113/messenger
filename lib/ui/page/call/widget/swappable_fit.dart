@@ -109,7 +109,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
       ignoring: _locked != 0,
       child: LayoutBuilder(builder: (context, constraints) {
         this.constraints = constraints;
-        final double size = constraints.maxHeight / 6;
+        final double size = constraints.maxHeight / 8;
 
         return Column(
           children: [
@@ -202,9 +202,9 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
             beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
             endRect: Rect.fromLTWH(
               0,
-              layout.height / 6,
+              layout.height / 8,
               layout.width,
-              layout.height * 5 / 6,
+              layout.height * 7 / 8,
             ),
             curve: Curves.ease,
             onEnd: () {
@@ -221,10 +221,10 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
           return AnimatedTransition(
             beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
             endRect: Rect.fromLTWH(
-              (j > index ? (j - 1) : j) * (layout.height / 6),
+              (j > index ? (j - 1) : j) * (layout.height / 8),
               0,
-              layout.height / 6,
-              layout.height / 6,
+              layout.height / 8,
+              layout.height / 8,
             ),
             curve: Curves.ease,
             onEnd: () {

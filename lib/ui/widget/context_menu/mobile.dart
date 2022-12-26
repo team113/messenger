@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -31,11 +32,12 @@ import '/ui/widget/context_menu/menu.dart';
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
     Key? key,
-    this.alignment = Alignment.bottomCenter,
+    this.alignment = Alignment.bottomRight,
     required this.actions,
     required this.child,
     this.moveDownwards = true,
     this.margin = EdgeInsets.zero,
+    this.id,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -53,6 +55,8 @@ class FloatingContextMenu extends StatefulWidget {
 
   /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
+
+  final String? id;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -97,6 +101,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   Future<void> _populateEntry(BuildContext context) async {
     HapticFeedback.selectionClick();
 
+    ContextMenuRegion.displayed.value = widget.id;
     _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
@@ -106,6 +111,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         showAbove: !widget.moveDownwards,
         margin: widget.margin,
         onClosed: () {
+          ContextMenuRegion.displayed.value = null;
           _entry?.remove();
           _entry = null;
 
@@ -250,19 +256,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!widget.showAbove)
-                            IgnorePointer(
-                              child: SafeArea(
-                                right: false,
-                                top: true,
-                                left: false,
-                                bottom: false,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: _bounds.left),
-                                  child: SizedBox(
-                                    width: _bounds.width,
-                                    height: _bounds.height,
-                                    child: widget.child,
-                                  ),
+                            SafeArea(
+                              right: false,
+                              top: true,
+                              left: false,
+                              bottom: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: _bounds.left),
+                                child: SizedBox(
+                                  width: _bounds.width,
+                                  height: _bounds.height,
+                                  child: widget.child,
                                 ),
                               ),
                             ),
@@ -306,7 +310,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         padding: widget.margin.add(
           EdgeInsets.only(
             left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
-            right: widget.alignment == Alignment.bottomRight ? 10 : 0,
+            right: widget.alignment == Alignment.bottomRight ? 12 : 0,
           ),
         ),
         child: SlideTransition(
@@ -351,6 +355,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(
+          constraints: const BoxConstraints(minWidth: 240),
           decoration: BoxDecoration(
             color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,

@@ -188,7 +188,7 @@ class MenuTabView extends StatelessWidget {
                           Text(
                             c.myUser.value?.name?.val ??
                                 c.myUser.value?.num.val ??
-                                '...',
+                                'dot'.l10n,
                             style: const TextStyle(color: Colors.black),
                           ),
                           Row(
@@ -197,36 +197,38 @@ class MenuTabView extends StatelessWidget {
                             children: [
                               Obx(() {
                                 final String status;
+                                final Color? color;
 
                                 switch (c.myUser.value?.presence) {
                                   case Presence.hidden:
-                                    status = 'Hidden';
+                                    status = 'label_hidden'.l10n;
+                                    color = Colors.grey;
                                     break;
 
                                   case Presence.away:
-                                    status = 'Away';
+                                    status = 'label_away'.l10n;
+                                    color = Colors.orange;
                                     break;
 
                                   case Presence.present:
-                                    status = 'Online';
+                                    status = 'label_online'.l10n;
+                                    color = Colors.green;
                                     break;
 
                                   default:
-                                    status = '...';
+                                    status = 'dot'.l10n;
+                                    color = null;
                                     break;
                                 }
 
                                 return Text(
                                   status,
-                                  style: Theme.of(context).textTheme.caption,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .caption
+                                      ?.copyWith(color: color),
                                 );
                               }),
-                              const SizedBox(width: 2),
-                              Icon(
-                                Icons.expand_more,
-                                size: 18,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
                             ],
                           ),
                         ],

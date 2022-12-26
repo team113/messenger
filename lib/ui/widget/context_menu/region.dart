@@ -16,6 +16,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/selector.dart';
@@ -36,12 +37,13 @@ class ContextMenuRegion extends StatelessWidget {
     this.enabled = true,
     this.moveDownwards = true,
     this.preventContextMenu = true,
-    this.enableLongTap = true,
-    this.alignment = Alignment.bottomCenter,
+    this.enableLongTap,
+    this.alignment = Alignment.bottomRight,
     this.actions = const [],
     this.selector,
     this.width = 260,
     this.margin = EdgeInsets.zero,
+    this.id,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -66,7 +68,7 @@ class ContextMenuRegion extends StatelessWidget {
   final bool preventContextMenu;
 
   /// Indicator whether context menu should be displayed on a long tap.
-  final bool enableLongTap;
+  final bool? enableLongTap;
 
   /// [GlobalKey] of a [Selector.buttonKey].
   ///
@@ -82,6 +84,10 @@ class ContextMenuRegion extends StatelessWidget {
   /// Margin to apply to a [Selector] on desktop or to [FloatingContextMenu] on
   /// mobile.
   final EdgeInsets margin;
+
+  final String? id;
+
+  static RxnString displayed = RxnString();
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +107,12 @@ class ContextMenuRegion extends StatelessWidget {
                   moveDownwards: moveDownwards,
                   actions: actions,
                   margin: margin,
+                  id: id,
                   child: child,
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: enableLongTap
+                  onLongPressStart: (enableLongTap ?? PlatformUtils.isMobile)
                       ? (d) => _show(context, d.globalPosition)
                       : null,
                   child: child,
@@ -122,6 +129,8 @@ class ContextMenuRegion extends StatelessWidget {
     if (actions.isEmpty) {
       return;
     }
+
+    displayed.value = id;
 
     if (selector != null) {
       await Selector.show<ContextMenuButton>(
@@ -192,5 +201,7 @@ class ContextMenuRegion extends StatelessWidget {
         },
       );
     }
+
+    displayed.value = null;
   }
 }

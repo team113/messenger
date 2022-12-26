@@ -162,6 +162,7 @@ btn_info = Информация
 btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
+btn_leave_group = Покинуть группу
 btn_login = Войти
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
@@ -364,7 +365,7 @@ label_attachments = [{$count} { $count ->
     *[other] прикреплений
     }]
 label_audio_call = Аудиозвонок
-label_away = Нет на месте
+label_away = Отошёл
 label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас

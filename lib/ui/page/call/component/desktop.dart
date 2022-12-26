@@ -471,7 +471,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   height: 100,
                                   child: Column(
                                     children: [
-                                      Draggable(
+                                      DelayedDraggable(
                                         feedback: Transform.translate(
                                           offset: const Offset(
                                             CallController.buttonSize / 2 * -1,
