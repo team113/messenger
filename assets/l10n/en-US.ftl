@@ -14,6 +14,8 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+alert_account_will_be_deleted1 = Account{" "}
+alert_account_will_be_deleted2 = {" "}will be deleted.
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
@@ -21,6 +23,10 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_email_will_be_deleted1 = E-mail{" "}
+alert_email_will_be_deleted2 = {" "}will be deleted.
+alert_phone_will_be_deleted1 = Phone{" "}
+alert_phone_will_be_deleted2 = {" "}will be deleted.
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
@@ -210,7 +216,7 @@ err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
-err_could_not_download = An error ocurred while downloading
+err_could_not_download = An error occurred while downloading
 err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dimensions_too_big = Dimensions too big
@@ -220,7 +226,7 @@ err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
 err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_password = Incorrect password.
-err_incorrect_phone = Incorrect phone numberю
+err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
@@ -611,7 +617,6 @@ label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
-label_will_be_deleted = {" "}will be deleted.
 label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_direct_link = Direct link to chat with you

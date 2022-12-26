@@ -96,7 +96,7 @@ class MyProfileController extends GetxController {
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the current [ApplicationSettings] value.

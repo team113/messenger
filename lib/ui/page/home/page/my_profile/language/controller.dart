@@ -16,12 +16,19 @@
 
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 
 export 'view.dart';
 
 /// Controller of a [LanguageSelectionView].
 class LanguageSelectionController extends GetxController {
+  LanguageSelectionController(this._settingsRepository);
+
+  /// Settings repository updating the [ApplicationSettings.locale].
+  final AbstractSettingsRepository? _settingsRepository;
+
   /// Currently selected [Language].
   late final Rx<Language?> selected;
 
@@ -29,5 +36,11 @@ class LanguageSelectionController extends GetxController {
   void onInit() {
     selected = Rx(L10n.chosen.value);
     super.onInit();
+  }
+
+  /// Sets the provided [language] as a used by default.
+  void setLocalization(Language language) {
+    L10n.set(language);
+    _settingsRepository?.setLocale(language.toString());
   }
 }

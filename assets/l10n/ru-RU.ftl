@@ -14,6 +14,8 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+alert_account_will_be_deleted1 = Аккаунт{" "}
+alert_account_will_be_deleted2 = {" "}будет удалён.
 alert_are_you_sure = Вы уверены?
 alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
@@ -21,6 +23,10 @@ alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
 alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_email_will_be_deleted1 = E-mail{" "}
+alert_email_will_be_deleted2 = {" "}будет удалён.
+alert_phone_will_be_deleted1 = Телефон{" "}
+alert_phone_will_be_deleted2 = {" "}будет удалён.
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока
@@ -278,7 +284,7 @@ err_you_already_has_unconfirmed_phone = Вы имеете неподтвержд
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 label_a_of_b = {$a} из {$b}
-label_account = Account{" "}
+label_account = Аккаунт{" "}
 label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
 label_actions = Действия
@@ -632,7 +638,6 @@ label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Виден для:
 label_was_added = {$who} был(а) добавлен(а)
 label_was_removed = {$who} был(а) удален(а)
-label_will_be_deleted = {" "}будет удалён.
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_direct_link = Прямая ссылка на чат с Вами

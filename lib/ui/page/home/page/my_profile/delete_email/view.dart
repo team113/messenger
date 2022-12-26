@@ -68,12 +68,12 @@ class DeleteEmailView extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(text: 'label_email'.l10n + 'space'.l10n),
+                      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
                       TextSpan(
                         text: c.email.val,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      TextSpan(text: 'label_will_be_deleted'.l10n),
+                      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,

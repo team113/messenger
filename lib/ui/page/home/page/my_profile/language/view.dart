@@ -18,6 +18,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -45,8 +46,15 @@ class LanguageSelectionView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
+    AbstractSettingsRepository? settings;
+    try {
+      settings = Get.find<AbstractSettingsRepository>();
+    } catch (_) {
+      // No-op.
+    }
+
     return GetBuilder(
-      init: LanguageSelectionController(),
+      init: LanguageSelectionController(settings),
       builder: (LanguageSelectionController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -139,8 +147,8 @@ class LanguageSelectionView extends StatelessWidget {
                     style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: () {
-                    if (c.selected.value != L10n.chosen.value) {
-                      L10n.set(c.selected.value);
+                    if (c.selected.value != null) {
+                      c.setLocalization(c.selected.value!);
                     }
 
                     Navigator.of(context).pop();

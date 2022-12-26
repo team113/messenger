@@ -68,12 +68,12 @@ class DeletePhoneView extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(text: 'label_phone_number'.l10n + 'space'.l10n),
+                      TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
                       TextSpan(
                         text: c.phone.val,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      TextSpan(text: 'label_will_be_deleted'.l10n),
+                      TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,

@@ -64,7 +64,7 @@ class DeleteAccountView extends StatelessWidget {
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(text: 'label_account'.l10n),
+                      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
                       TextSpan(
                         text: c.myUser.value?.name?.val ??
                             c.myUser.value?.login?.val ??
@@ -72,7 +72,7 @@ class DeleteAccountView extends StatelessWidget {
                             'dot'.l10n * 3,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      TextSpan(text: 'label_will_be_deleted'.l10n),
+                      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,
