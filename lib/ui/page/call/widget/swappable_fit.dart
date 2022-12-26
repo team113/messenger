@@ -1,3 +1,19 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/routes.dart';
@@ -14,6 +30,8 @@ class SwappableFit<T> extends StatefulWidget {
     this.center,
     this.onReorder,
     this.onCenter,
+    this.fit = false,
+    this.longPress = true,
   });
 
   /// Builder building the provided item.
@@ -26,6 +44,9 @@ class SwappableFit<T> extends StatefulWidget {
 
   final void Function(List<T>)? onReorder;
   final void Function(T?)? onCenter;
+
+  final bool fit;
+  final bool longPress;
 
   @override
   State<SwappableFit> createState() => _SwappableFitState<T>();
@@ -57,17 +78,19 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
     _items.removeWhere((e) => widget.children.none((p) => p == e.item));
 
-    Future.delayed(Duration.zero, () {
-      if (center != widget.center) {
-        if (center == null && widget.center != null) {
-          _center(widget.center as T);
-        } else if (center != null && widget.center != null) {
-          _swap(center as T, widget.center as T);
-        } else if (center != null && widget.center == null) {
-          _uncenter();
+    if (!widget.fit) {
+      Future.delayed(Duration.zero, () {
+        if (center != widget.center) {
+          if (center == null && widget.center != null) {
+            _center(widget.center as T);
+          } else if (center != null && widget.center != null) {
+            _swap(center as T, widget.center as T);
+          } else if (center != null && widget.center == null) {
+            _uncenter();
+          }
         }
-      }
-    });
+      });
+    }
 
     super.didUpdateWidget(oldWidget);
   }
@@ -90,7 +113,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
         return Column(
           children: [
-            if (center != null)
+            if (center != null && !widget.fit)
               SizedBox(
                 height: size,
                 child: ListView(
@@ -104,7 +127,12 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                       width: size,
                       height: size,
                       child: GestureDetector(
-                        onTap: () => _swap(center as T, e.item),
+                        onTap: widget.longPress
+                            ? null
+                            : () => _swap(center as T, e.item),
+                        onLongPress: widget.longPress
+                            ? () => _swap(center as T, e.item)
+                            : null,
                         child: e.entry == null
                             ? KeyedSubtree(
                                 key: e.itemKey,
@@ -119,20 +147,31 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
             Expanded(
               child: FitView(
                 children: _items.where((e) {
-                  if (center != null) {
+                  if (center != null && !widget.fit) {
                     return e.item == center;
                   }
 
                   return true;
                 }).map((e) {
                   return GestureDetector(
-                    onTap: () {
-                      if (center == e.item) {
-                        _uncenter();
-                      } else {
-                        _center(e.item);
-                      }
-                    },
+                    onTap: widget.longPress
+                        ? null
+                        : () {
+                            if (center == e.item) {
+                              _uncenter();
+                            } else {
+                              _center(e.item);
+                            }
+                          },
+                    onLongPress: widget.longPress
+                        ? () {
+                            if (center == e.item) {
+                              _uncenter();
+                            } else {
+                              _center(e.item);
+                            }
+                          }
+                        : null,
                     child: e.entry == null
                         ? KeyedSubtree(
                             key: e.itemKey,

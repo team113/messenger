@@ -76,6 +76,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           return SwappableFit<Participant>(
             children: [...c.primary, ...c.secondary],
             center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
+            fit: c.minimized.value,
             itemBuilder: (e) {
               return Obx(() {
                 bool muted = e.member.owner == MediaOwnerKind.local
@@ -392,6 +393,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             : Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: (d) {
+                  c.tappedAt = DateTime.now();
                   c.downPosition = d.localPosition;
                   c.downButtons = d.buttons;
                 },
@@ -400,10 +402,17 @@ Widget mobileCall(CallController c, BuildContext context) {
                   if (c.secondaryDragged.value) return;
                   if (c.downButtons & kPrimaryButton != 0) {
                     if (c.state.value == OngoingCallState.active) {
-                      if ((d.localPosition.distanceSquared -
+                      final distance = (d.localPosition.distanceSquared -
                                   c.downPosition.distanceSquared)
                               .abs() <=
-                          80000) {
+                          80000;
+
+                      final time = DateTime.now()
+                              .difference(c.tappedAt!)
+                              .inMilliseconds <
+                          340;
+
+                      if (distance && time) {
                         if (c.showUi.isFalse) {
                           c.keepUi();
                         } else {

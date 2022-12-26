@@ -264,6 +264,8 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
+  DateTime? tappedAt;
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
