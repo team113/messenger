@@ -328,7 +328,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    while(_fragment == null) {
+    while (_fragment == null) {
       await Future.delayed(1.milliseconds);
     }
 
@@ -340,7 +340,7 @@ class HiveRxChat extends RxChat {
   @override
   FutureOr<void> loadNextPage(
       {Future<void> Function(List<ChatItem>)? onItemsLoaded}) async {
-    while(_fragment == null) {
+    while (_fragment == null) {
       await Future.delayed(1.milliseconds);
     }
 
@@ -363,7 +363,7 @@ class HiveRxChat extends RxChat {
 
   @override
   FutureOr<void> loadPreviousPage() async {
-    while(_fragment == null) {
+    while (_fragment == null) {
       await Future.delayed(1.milliseconds);
     }
 
