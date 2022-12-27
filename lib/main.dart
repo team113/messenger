@@ -44,7 +44,6 @@ import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
-import 'store/model/preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'util/log.dart';
@@ -58,22 +57,11 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-
-    await _initHive();
-
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-
-      PreferencesHiveProvider preferencesProvider = Get.find();
-
-      WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
-      if (prefs?.size != null) {
-        await windowManager.setSize(prefs!.size!);
-      }
-      if (prefs?.position != null) {
-        await windowManager.setPosition(prefs!.position!);
-      }
     }
+
+    await _initHive();
 
     var graphQlProvider = Get.put(GraphQlProvider());
 
@@ -149,40 +137,8 @@ void onNotificationResponse(NotificationResponse response) {
 }
 
 /// Implementation of this application.
-class App extends StatefulWidget {
+class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-/// [State] of [App] with [WindowListener].
-class _AppState extends State<App> with WindowListener {
-  final PreferencesHiveProvider preferencesProvider = Get.find();
-
-  @override
-  void initState() {
-    windowManager.addListener(this);
-    super.initState();
-  }
-
-  @override
-  void dispose() async {
-    windowManager.removeListener(this);
-    super.dispose();
-  }
-
-  @override
-  void onWindowResized() => storeWindowData();
-
-  @override
-  void onWindowMoved() => storeWindowData();
-
-  /// Stores window's size and position to hive.
-  void storeWindowData() async => preferencesProvider.setWindowPreferences(
-        size: await windowManager.getSize(),
-        position: await windowManager.getPosition(),
-      );
 
   @override
   Widget build(BuildContext context) {
