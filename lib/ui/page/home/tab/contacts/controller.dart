@@ -72,6 +72,9 @@ class ContactsTabController extends GetxController {
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
+  /// Indicator whether a loading indicator should be showed.
+  RxBool isLoadingNextPage = RxBool(false);
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
@@ -87,6 +90,9 @@ class ContactsTabController extends GetxController {
   /// Settings repository maintaining the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
 
+  /// [List] ot the [Future]s representing ongoing next page loadings.
+  final List<FutureOr> _nextPageLoadings = [];
+
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _rxUserWorkers = {};
 
@@ -95,9 +101,6 @@ class ContactsTabController extends GetxController {
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
-
-  /// Indicator whether a loading indicator should be showed.
-  RxBool isLoadingNextPage = RxBool(false);
 
   /// [StreamSubscription]s to the [favorites] updates.
   StreamSubscription? _favoritesSubscription;
@@ -324,8 +327,6 @@ class ContactsTabController extends GetxController {
       }
     });
   }
-
-  final List<FutureOr> _nextPageLoadings = [];
 
   /// Uploads next page of [ChatContact]s based on the
   /// [ScrollController.position] value.

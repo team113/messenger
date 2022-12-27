@@ -234,6 +234,18 @@ class ChatController extends GetxController {
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
+  /// [List] ot the [Future]s representing ongoing next page loadings.
+  final List<FutureOr> _nextPageLoadings = [];
+
+  /// [List] ot the [Future]s representing ongoing previous page loadings.
+  final List<FutureOr> _prevPageLoadings = [];
+
+  /// [LoadingElement] currently displayed on the top of the chat.
+  LoadingElement? _topLoadingElement;
+
+  /// [LoadingElement] currently displayed on the bottom of the chat.
+  LoadingElement? _bottomLoadingElement;
+
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
@@ -375,9 +387,7 @@ class ChatController extends GetxController {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     _ignorePositionChanges = true;
-    _fetchChat().whenComplete(() {
-      _ignorePositionChanges = false;
-    });
+    _fetchChat().whenComplete(() => _ignorePositionChanges = false);
     _initAudio();
     super.onReady();
   }
@@ -1234,14 +1244,6 @@ class ChatController extends GetxController {
       }
     });
   }
-
-  final List<FutureOr> _nextPageLoadings = [];
-
-  final List<FutureOr> _prevPageLoadings = [];
-
-  LoadingElement? _topLoadingElement;
-
-  LoadingElement? _bottomLoadingElement;
 
   /// Loads next or previous page of the [RxChat.messages] based on the
   /// [FlutterListViewController.position] value.

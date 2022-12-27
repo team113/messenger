@@ -2080,7 +2080,7 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Builds a visual representation of an [LoadingElement].
+  /// Builds a visual representation of a [LoadingElement].
   Widget _loadingIndicator() {
     return Container(
       width: double.infinity,

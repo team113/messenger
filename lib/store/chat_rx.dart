@@ -254,8 +254,7 @@ class HiveRxChat extends RxChat {
             messages.removeWhere((e) => e.value.id == event.element.value.id);
             break;
           case OperationKind.updated:
-            messages.replace(Rx<ChatItem>(event.element.value),
-                (a, b) => a.value.id == b.value.id);
+            // No-op.
             break;
         }
         messages.refresh();

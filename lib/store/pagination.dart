@@ -243,7 +243,9 @@ class PaginatedFragment<T> {
 
 /// Page loading result.
 abstract class ItemsPage<T> {
+  /// Loaded items.
   List<T> get items;
 
+  /// Page info of this [ItemsPage].
   PageInfoMixin get pageInfo;
 }

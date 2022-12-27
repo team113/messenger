@@ -208,7 +208,6 @@ class ContactsTabView extends StatelessWidget {
                   controller: ScrollController(),
                   itemCount: c.elements.length,
                   itemBuilder: (_, i) {
-                    // TODO: add loading indicator
                     final ListElement element = c.elements[i];
                     final Widget child;
 
