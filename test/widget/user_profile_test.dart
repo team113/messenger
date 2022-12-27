@@ -68,7 +68,15 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
   var recentChats = {
-    'recentChats': {'edges': []}
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
+    }
   };
 
   var userData = {
@@ -110,7 +118,16 @@ void main() async {
   };
 
   var chatContactsData = {
-    'chatContacts': {'edges': [], 'ver': '0'}
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0'
+    }
   };
 
   var sessionProvider = SessionDataHiveProvider();

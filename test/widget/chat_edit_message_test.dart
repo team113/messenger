@@ -98,7 +98,13 @@ void main() async {
           'node': chatData,
           'cursor': 'cursor',
         }
-      ]
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
     }
   };
 

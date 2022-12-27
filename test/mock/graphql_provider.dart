@@ -63,7 +63,16 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     bool noFavorite = false,
   }) async =>
       Contacts$Query.fromJson({
-        'chatContacts': {'edges': [], 'ver': '0'}
+        'chatContacts': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'endCursor',
+            'hasPreviousPage': false,
+          },
+          'ver': '0'
+        }
       }).chatContacts;
 
   @override
@@ -74,7 +83,15 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     RecentChatsCursor? before,
   }) async =>
       RecentChats$Query.fromJson({
-        'recentChats': {'edges': []}
+        'recentChats': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'endCursor',
+            'hasPreviousPage': false,
+          }
+        }
       });
 
   @override

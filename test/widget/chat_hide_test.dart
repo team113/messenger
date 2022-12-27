@@ -95,12 +95,27 @@ void main() async {
           'node': chatData,
           'cursor': 'cursor',
         }
-      ]
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
     }
   };
 
   var chatContacts = {
-    'chatContacts': {'edges': [], 'ver': '0'}
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0'
+    }
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -115,6 +130,9 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+  when(graphQlProvider.contactsEvents(any)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
   );
 

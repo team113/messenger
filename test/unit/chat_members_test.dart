@@ -78,7 +78,15 @@ void main() async {
   await backgroundProvider.init();
 
   var recentChats = {
-    'recentChats': {'edges': []}
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
+    }
   };
 
   var chatData = {

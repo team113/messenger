@@ -85,6 +85,23 @@ var chatData = {
   'ver': '0'
 };
 
+var chatsQuery = {
+  'recentChats': {
+    'edges': [
+      {
+        'node': chatData,
+        'cursor': 'cursor',
+      }
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'endCursor',
+      'hasPreviousPage': false,
+    },
+  }
+};
+
 void main() async {
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
@@ -611,11 +628,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     int? last,
     RecentChatsCursor? before,
   }) async {
-    return RecentChats$Query.fromJson({
-      'recentChats': {
-        'nodes': [chatData]
-      }
-    });
+    return RecentChats$Query.fromJson(chatsQuery);
   }
 
   @override
@@ -716,7 +729,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
-    return GetChat$Query.fromJson(chatData);
+    return GetChat$Query.fromJson(chatsQuery);
   }
 
   Map<String, dynamic> userData = {

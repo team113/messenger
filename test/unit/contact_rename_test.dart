@@ -57,6 +57,9 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
   );
+  when(graphQlProvider.contactsEvents(any)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   setUp(() async {
     Get.reset();
@@ -84,6 +87,12 @@ void main() async {
           'cursor': 'cursor',
         }
       ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'endCursor',
+        'hasPreviousPage': false,
+      },
       'ver': '0'
     }
   };
