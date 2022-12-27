@@ -180,7 +180,7 @@ class ChatRepository implements AbstractChatRepository {
 
         return query;
       },
-      pageSize: 10,
+      pageSize: 120,
     );
 
     _fragmentSubscription = _fragment.elements.changes.listen((event) {

@@ -239,7 +239,7 @@ class HiveRxChat extends RxChat {
           return query;
         },
         initialCursor: lastReadItemCursor?.val,
-        pageSize: 50,
+        pageSize: 120,
       );
 
       _fragmentSubscription = _fragment.elements.changes.listen((event) {
