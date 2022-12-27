@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:window_manager/window_manager.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -46,12 +45,10 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
-import 'provider/hive/preferences.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
-import 'store/model/preferences.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
@@ -65,7 +62,6 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
-import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -308,31 +304,11 @@ class AppRouteInformationParser
 /// Application's router delegate that builds the root [Navigator] based on
 /// the [_state].
 class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
-    with
-        ChangeNotifier,
-        PopNavigatorRouterDelegateMixin<RouteConfiguration>,
-        WindowListener {
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteConfiguration> {
   AppRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
     _prefixWorker = ever(_state.prefix, (_) => _updateTabTitle());
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      _preferencesProvider = Get.find();
-      WindowPreferences? prefs = _preferencesProvider.getWindowPreferences();
-      if (prefs?.size != null) {
-        windowManager.setSize(prefs!.size!);
-      }
-      if (prefs?.position != null) {
-        windowManager.setPosition(prefs!.position!);
-      }
-      windowManager.addListener(this);
-    }
   }
-
-  @override
-  void onWindowResized() => _storeWindowData();
-
-  @override
-  void onWindowMoved() => _storeWindowData();
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -342,9 +318,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// Worker to react on the [RouterState.prefix] changes.
   late final Worker _prefixWorker;
-
-  /// [PreferencesHiveProvider] used to store window's size and position.
-  late final PreferencesHiveProvider _preferencesProvider;
 
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) {
@@ -369,7 +342,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   void dispose() {
     _prefixWorker.dispose();
-    windowManager.removeListener(this);
     super.dispose();
   }
 
@@ -683,12 +655,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       WebUtils.title('Gapopa');
     }
   }
-
-  /// Stores window's size and position to [PreferencesHiveProvider].
-  void _storeWindowData() async => _preferencesProvider.setWindowPreferences(
-        size: await windowManager.getSize(),
-        position: await windowManager.getPosition(),
-      );
 }
 
 /// [RouterState]'s extension shortcuts on [Routes] constants.

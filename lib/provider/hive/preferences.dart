@@ -38,14 +38,18 @@ class PreferencesHiveProvider extends HiveBaseProvider<PreferencesData> {
   WindowPreferences? getWindowPreferences() => getSafe(0)?.windowPreferences;
 
   /// Stores a new [WindowPreferences] to [Hive].
-  Future<void> setWindowPreferences({Size? size, Offset? position}) => putSafe(
-        0,
-        (box.get(0) ?? PreferencesData())
-          ..windowPreferences = WindowPreferences(
-            width: size?.width,
-            height: size?.height,
-            dx: position?.dx,
-            dy: position?.dy,
-          ),
-      );
+  Future<void> setWindowPreferences({Size? size, Offset? position}) async {
+    WindowPreferences? prefs =
+        getSafe(0)?.windowPreferences ?? WindowPreferences();
+    await putSafe(
+      0,
+      PreferencesData()
+        ..windowPreferences = WindowPreferences(
+          width: size?.width ?? prefs.width,
+          height: size?.height ?? prefs.height,
+          dx: position?.dx ?? prefs.dx,
+          dy: position?.dy ?? prefs.dy,
+        ),
+    );
+  }
 }

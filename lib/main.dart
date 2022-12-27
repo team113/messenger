@@ -37,6 +37,7 @@ import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
+import 'domain/service/window.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/preferences.dart';
@@ -44,6 +45,7 @@ import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
+import 'store/model/preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'util/log.dart';
@@ -57,11 +59,23 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-    }
 
     await _initHive();
+
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      await windowManager.ensureInitialized();
+      PreferencesHiveProvider preferencesProvider = Get.find();
+
+      WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
+      }
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
+      }
+
+      Get.put(WindowService());
+    }
 
     var graphQlProvider = Get.put(GraphQlProvider());
 
