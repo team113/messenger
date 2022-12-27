@@ -26,10 +26,10 @@ import 'disposable_service.dart';
 /// Service responsible for listening window's size and position.
 class WindowService extends DisposableService {
   /// Subscription to the [PlatformUtils.onResized] updating the local data.
-  StreamSubscription? _onResized;
+  late final StreamSubscription? _onResized;
 
   /// Subscription to the [PlatformUtils.onMoved] updating the local data.
-  StreamSubscription? _onMoved;
+  late final StreamSubscription? _onMoved;
 
   /// [PreferencesHiveProvider] used to store window's position and size.
   late final PreferencesHiveProvider _preferencesProvider;

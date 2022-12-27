@@ -43,7 +43,6 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/preferences.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -114,6 +113,9 @@ void main() async {
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
   await authService.init();
 
+  router = RouterState(authService);
+  router.provider = MockPlatformRouteInformationProvider();
+
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -138,11 +140,6 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var preferences = Get.put(PreferencesHiveProvider());
-  await preferences.init();
-
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

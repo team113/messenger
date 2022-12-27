@@ -32,7 +32,6 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/preferences.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -69,8 +68,6 @@ void main() async {
   await userProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
-  var preferences = PreferencesHiveProvider();
-  await preferences.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -88,7 +85,6 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(sessionProvider);
     Get.put(chatProvider);
-    Get.put(preferences);
 
     AuthService authService = Get.put(
       AuthService(

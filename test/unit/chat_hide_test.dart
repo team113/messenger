@@ -34,7 +34,6 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/preferences.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -60,8 +59,6 @@ void main() async {
 
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var preferences = Get.put(PreferencesHiveProvider());
-  await preferences.init();
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());

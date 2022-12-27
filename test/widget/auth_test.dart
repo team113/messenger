@@ -39,7 +39,6 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/preferences.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -65,8 +64,6 @@ void main() async {
   await authService.init();
   await sessionProvider.clear();
 
-  var preferencesProvider = PreferencesHiveProvider();
-  await preferencesProvider.init();
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init(userId: const UserId('me'));
   var galleryItemProvider = GalleryItemHiveProvider();
@@ -90,7 +87,6 @@ void main() async {
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
-    Get.put(preferencesProvider);
     Get.put(myUserProvider);
     Get.put(galleryItemProvider);
     Get.put(contactProvider);
