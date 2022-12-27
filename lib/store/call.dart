@@ -360,14 +360,14 @@ class CallRepository extends DisposableInterface
   void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
-      _credentialsProvider.put(newCallId, creds);
       _credentialsProvider.remove(callId);
+      _credentialsProvider.put(newCallId, creds);
     }
   }
 
   @override
-  Future<void> removeCredentials(ChatItemId id) {
-    return _credentialsProvider.remove(id);
+  Future<void> removeCredentials(ChatItemId id) async {
+    await _credentialsProvider.remove(id);
   }
 
   @override

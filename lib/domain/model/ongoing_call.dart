@@ -25,6 +25,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/call.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
@@ -337,10 +338,21 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(CallService calls) async {
+  Future<void> connect(
+    CallService? calls, [
+    Future<Stream<ChatCallEvents>> Function(ChatItemId, ChatCallDeviceId)?
+        heartbeat,
+  ]) async {
+    assert(
+      calls != null || heartbeat != null,
+      'At least one of calls and heartbeat must not be null',
+    );
+
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
+
+    heartbeat ??= calls!.heartbeat;
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members.move(_me, id);
@@ -348,7 +360,7 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
+    _heartbeat = (await heartbeat(callChatItemId!, deviceId!)).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
@@ -360,8 +372,8 @@ class OngoingCall {
 
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
-              calls.remove(chatId.value);
-              calls.removeCredentials(node.call.id);
+              calls?.remove(chatId.value);
+              calls?.removeCredentials(node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -402,15 +414,15 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
-                    calls.removeCredentials(node.call.id);
-                    calls.remove(chatId.value);
+                    calls?.removeCredentials(node.call.id);
+                    calls?.remove(chatId.value);
                   }
                   break;
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
-                  if (calls.me == node.user.id) {
-                    calls.remove(chatId.value);
+                  if (calls?.me == node.user.id) {
+                    calls?.remove(chatId.value);
                   }
 
                   final CallMemberId id =
@@ -476,9 +488,9 @@ class OngoingCall {
                   call.value = node.newCall;
 
                   connected = false;
-                  connect(calls);
+                  connect(calls, heartbeat);
 
-                  calls.moveCall(
+                  calls?.moveCall(
                     chatId: node.chatId,
                     newChatId: node.newChatId,
                     callId: node.callId,
@@ -497,14 +509,14 @@ class OngoingCall {
       onError: (e) {
         if (e is ResubscriptionRequiredException) {
           connected = false;
-          connect(calls);
+          connect(calls, heartbeat);
         } else {
           Log.print(e.toString(), 'CALL');
-          calls.remove(chatId.value);
+          calls?.remove(chatId.value);
           throw e;
         }
       },
-      onDone: () => calls.remove(chatId.value),
+      onDone: () => calls?.remove(chatId.value),
     );
   }
 
