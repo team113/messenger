@@ -55,81 +55,86 @@ class UserSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
     return GetBuilder(
       key: const Key('UserSearchBarView'),
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
-        () => FloatingSearchBar(
-          hint: 'label_search'.l10n,
-          controller: searchController,
-          scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
-          transitionDuration: const Duration(milliseconds: 500),
-          transitionCurve: Curves.easeInOut,
-          physics: const BouncingScrollPhysics(),
-          axisAlignment: 0.0,
-          openAxisAlignment: 0.0,
-          borderRadius: const BorderRadius.all(Radius.circular(32)),
-          width: 600,
-          progress: c.searchStatus.value.isLoading ||
-              c.searchStatus.value.isLoadingMore,
-          debounceDelay: const Duration(milliseconds: 400),
-          onQueryChanged: (query) => c.search(query),
-          transition: CircularFloatingSearchBarTransition(),
-          automaticallyImplyBackButton: false,
-          actions: [
-            FloatingSearchBarAction.searchToClear(showIfClosed: false),
-          ],
-          builder: (context, transition) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Material(
-                elevation: 4.0,
-                child: Obx(
-                  () => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: c.searchStatus.value.isSuccess
-                        ? [
-                            const SizedBox(height: 10),
-                            ...c.searchResults.value?.isEmpty != false
-                                ? [
-                                    ListTile(
-                                      title:
-                                          Text('label_search_not_found'.l10n),
-                                    )
-                                  ]
-                                : (c.searchResults.value ?? [])
-                                    .map((e) => _user(e, c))
-                                    .toList(),
-                            const SizedBox(height: 10),
-                          ]
-                        : c.recentSearchResults.isEmpty
-                            ? [
-                                SizedBox(
-                                  height: 100,
-                                  child: Center(
-                                    child: Text('label_search_hint'.l10n),
-                                  ),
-                                )
-                              ]
-                            : [
-                                ListTile(
-                                    title: Text('label_search_recent'.l10n)),
-                                ...c.recentSearchResults
-                                    .map((e) => _user(e, c))
-                                    .toList()
-                                    .reversed,
-                                const SizedBox(height: 10),
-                              ],
+        () => Scrollbar(
+          controller: scrollController,
+          child: FloatingSearchBar(
+            scrollController: scrollController,
+            hint: 'label_search'.l10n,
+            controller: searchController,
+            scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+            transitionDuration: const Duration(milliseconds: 500),
+            transitionCurve: Curves.easeInOut,
+            physics: const BouncingScrollPhysics(),
+            axisAlignment: 0.0,
+            openAxisAlignment: 0.0,
+            borderRadius: const BorderRadius.all(Radius.circular(32)),
+            width: 600,
+            progress: c.searchStatus.value.isLoading ||
+                c.searchStatus.value.isLoadingMore,
+            debounceDelay: const Duration(milliseconds: 400),
+            onQueryChanged: (query) => c.search(query),
+            transition: CircularFloatingSearchBarTransition(),
+            automaticallyImplyBackButton: false,
+            actions: [
+              FloatingSearchBarAction.searchToClear(showIfClosed: false),
+            ],
+            builder: (context, transition) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Material(
+                  elevation: 4.0,
+                  child: Obx(
+                    () => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: c.searchStatus.value.isSuccess
+                          ? [
+                              const SizedBox(height: 10),
+                              ...c.searchResults.value?.isEmpty != false
+                                  ? [
+                                      ListTile(
+                                        title:
+                                            Text('label_search_not_found'.l10n),
+                                      )
+                                    ]
+                                  : (c.searchResults.value ?? [])
+                                      .map((e) => _user(e, c))
+                                      .toList(),
+                              const SizedBox(height: 10),
+                            ]
+                          : c.recentSearchResults.isEmpty
+                              ? [
+                                  SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text('label_search_hint'.l10n),
+                                    ),
+                                  )
+                                ]
+                              : [
+                                  ListTile(
+                                      title: Text('label_search_recent'.l10n)),
+                                  ...c.recentSearchResults
+                                      .map((e) => _user(e, c))
+                                      .toList()
+                                      .reversed,
+                                  const SizedBox(height: 10),
+                                ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-          body: Column(
-            children: [
-              const SizedBox(height: 60),
-              Expanded(child: body),
-            ],
+              );
+            },
+            body: Column(
+              children: [
+                const SizedBox(height: 60),
+                Expanded(child: body),
+              ],
+            ),
           ),
         ),
       ),

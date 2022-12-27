@@ -42,6 +42,8 @@ class CreateGroupView extends StatelessWidget {
       width: double.infinity,
     );
 
+    final ScrollController scrollController = ScrollController();
+
     return MediaQuery.removeViewInsets(
       removeLeft: true,
       removeTop: true,
@@ -96,29 +98,33 @@ class CreateGroupView extends StatelessWidget {
                               body: Column(
                                 children: [
                                   Expanded(
-                                    child: ListView(
-                                      children: [
-                                        ...c.selectedUsers.map(
-                                          (e) => AddUserListTile(
-                                            e,
-                                            () => c.unselectUser(e),
+                                    child: Scrollbar(
+                                      controller: scrollController,
+                                      child: ListView(
+                                        controller: scrollController,
+                                        children: [
+                                          ...c.selectedUsers.map(
+                                            (e) => AddUserListTile(
+                                              e,
+                                              () => c.unselectUser(e),
+                                            ),
                                           ),
-                                        ),
-                                        ...c.contacts.entries
-                                            .where((e) => e.value.contact.value
-                                                .users.isNotEmpty)
-                                            .map(
-                                          (e) {
-                                            bool selected = c.selectedContacts
-                                                .contains(e.value);
-                                            return AddContactListTile(
-                                              selected,
-                                              e.value,
-                                              () => c.selectContact(e.value),
-                                            );
-                                          },
-                                        ),
-                                      ],
+                                          ...c.contacts.entries
+                                              .where((e) => e.value.contact
+                                                  .value.users.isNotEmpty)
+                                              .map(
+                                            (e) {
+                                              bool selected = c.selectedContacts
+                                                  .contains(e.value);
+                                              return AddContactListTile(
+                                                selected,
+                                                e.value,
+                                                () => c.selectContact(e.value),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   divider,

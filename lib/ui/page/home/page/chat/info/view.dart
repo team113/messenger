@@ -48,12 +48,12 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
       tag: id.val,
       builder: (c) {
-        final ScrollController scroll = ScrollController();
         return Obx(() {
           if (c.status.value.isLoading) {
             return Scaffold(
@@ -190,9 +190,9 @@ class ChatInfoView extends StatelessWidget {
               ],
             ),
             body: Scrollbar(
-              controller: scroll,
+              controller: scrollController,
               child: ListView(
-                controller: scroll,
+                controller: scrollController,
                 key: const Key('ChatInfoListView'),
                 children: [
                   const SizedBox(height: 8),

@@ -57,7 +57,8 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
-        - Redesigned chat info page. ([#265], [#256])    
+        - Redesigned chat info page. ([#265], [#256])
+    - Scrollbars to mobile. ([#276], [#262])
 
 ### Fixed
 
@@ -117,7 +118,9 @@ All user visible changes to this project will be documented in this file. This p
 [#256]: /../../issues/256
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#262]: /../../issues/262
 [#265]: /../../pull/265
+[#276]: /../../pull/276
 
 
 

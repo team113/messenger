@@ -118,6 +118,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
+    final ScrollController scrollController = ScrollController();
+
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
       final Style style = Theme.of(context).extension<Style>()!;
@@ -193,12 +195,16 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            child: ListView.separated(
-              physics: const ClampingScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (c, i) => button(widget.variants[i]),
-              separatorBuilder: (c, i) => const SizedBox(height: 10),
-              itemCount: widget.variants.length,
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (c, i) => button(widget.variants[i]),
+                separatorBuilder: (c, i) => const SizedBox(height: 10),
+                itemCount: widget.variants.length,
+              ),
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)

@@ -880,6 +880,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [ReactiveTextField] for sending a message in this [Chat].
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
+    final ScrollController scrollController = ScrollController();
 
     return SafeArea(
       child: Container(
@@ -935,85 +936,90 @@ class _ChatViewState extends State<ChatView>
                                     maxHeight:
                                         MediaQuery.of(context).size.height / 3,
                                   ),
-                                  child: ReorderableListView(
-                                    shrinkWrap: true,
-                                    buildDefaultDragHandles:
-                                        PlatformUtils.isMobile,
-                                    onReorder: (int old, int to) {
-                                      if (old < to) {
-                                        --to;
-                                      }
+                                  child: Scrollbar(
+                                    controller: scrollController,
+                                    child: ReorderableListView(
+                                      scrollController: scrollController,
+                                      shrinkWrap: true,
+                                      buildDefaultDragHandles:
+                                          PlatformUtils.isMobile,
+                                      onReorder: (int old, int to) {
+                                        if (old < to) {
+                                          --to;
+                                        }
 
-                                      final ChatItem item =
-                                          c.repliedMessages.removeAt(old);
-                                      c.repliedMessages.insert(to, item);
+                                        final ChatItem item =
+                                            c.repliedMessages.removeAt(old);
+                                        c.repliedMessages.insert(to, item);
 
-                                      HapticFeedback.lightImpact();
-                                    },
-                                    proxyDecorator: (child, i, animation) {
-                                      return AnimatedBuilder(
-                                        animation: animation,
-                                        builder: (
-                                          BuildContext context,
-                                          Widget? child,
-                                        ) {
-                                          final double t = Curves.easeInOut
-                                              .transform(animation.value);
-                                          final double elevation =
-                                              lerpDouble(0, 6, t)!;
-                                          final Color color = Color.lerp(
-                                            const Color(0x00000000),
-                                            const Color(0x33000000),
-                                            t,
-                                          )!;
+                                        HapticFeedback.lightImpact();
+                                      },
+                                      proxyDecorator: (child, i, animation) {
+                                        return AnimatedBuilder(
+                                          animation: animation,
+                                          builder: (
+                                            BuildContext context,
+                                            Widget? child,
+                                          ) {
+                                            final double t = Curves.easeInOut
+                                                .transform(animation.value);
+                                            final double elevation =
+                                                lerpDouble(0, 6, t)!;
+                                            final Color color = Color.lerp(
+                                              const Color(0x00000000),
+                                              const Color(0x33000000),
+                                              t,
+                                            )!;
 
-                                          return InitCallback(
-                                            callback:
-                                                HapticFeedback.selectionClick,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                boxShadow: [
-                                                  CustomBoxShadow(
-                                                    color: color,
-                                                    blurRadius: elevation,
-                                                  ),
-                                                ],
+                                            return InitCallback(
+                                              callback:
+                                                  HapticFeedback.selectionClick,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    CustomBoxShadow(
+                                                      color: color,
+                                                      blurRadius: elevation,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: child,
                                               ),
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-                                        child: child,
-                                      );
-                                    },
-                                    reverse: true,
-                                    padding: const EdgeInsets.fromLTRB(
-                                      1,
-                                      0,
-                                      1,
-                                      0,
-                                    ),
-                                    children: c.repliedMessages.map((e) {
-                                      return ReorderableDragStartListener(
-                                        key: Key('Handle_${e.id}'),
-                                        enabled: !PlatformUtils.isMobile,
-                                        index: c.repliedMessages.indexOf(e),
-                                        child: Dismissible(
-                                          key: Key('${e.id}'),
-                                          direction:
-                                              DismissDirection.horizontal,
-                                          onDismissed: (_) {
-                                            c.repliedMessages.remove(e);
+                                            );
                                           },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 2,
+                                          child: child,
+                                        );
+                                      },
+                                      reverse: true,
+                                      padding: const EdgeInsets.fromLTRB(
+                                        1,
+                                        0,
+                                        1,
+                                        0,
+                                      ),
+                                      children: c.repliedMessages.map((e) {
+                                        return ReorderableDragStartListener(
+                                          key: Key('Handle_${e.id}'),
+                                          enabled: !PlatformUtils.isMobile,
+                                          index: c.repliedMessages.indexOf(e),
+                                          child: Dismissible(
+                                            key: Key('${e.id}'),
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            onDismissed: (_) {
+                                              c.repliedMessages.remove(e);
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 2,
+                                              ),
+                                              child: _repliedMessage(c, e),
                                             ),
-                                            child: _repliedMessage(c, e),
                                           ),
-                                        ),
-                                      );
-                                    }).toList(),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
                                 ),
                               if (c.attachments.isNotEmpty &&
