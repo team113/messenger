@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show PageInfoMixin;
 import '/store/chat_rx.dart';
