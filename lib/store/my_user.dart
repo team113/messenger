@@ -272,6 +272,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> confirmEmailCode(ConfirmationCode code) async {
     final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
+    await _graphQlProvider.confirmEmailCode(code);
+
     myUser.update(
       (u) {
         u?.emails.confirmed.addIf(
@@ -281,23 +283,13 @@ class MyUserRepository implements AbstractMyUserRepository {
         u?.emails.unconfirmed = null;
       },
     );
-
-    try {
-      await _graphQlProvider.confirmEmailCode(code);
-    } catch (_) {
-      myUser.update(
-        (u) {
-          u?.emails.confirmed.removeWhere((e) => e == unconfirmed);
-          u?.emails.unconfirmed = unconfirmed;
-        },
-      );
-      rethrow;
-    }
   }
 
   @override
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
     final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+
+    await _graphQlProvider.confirmPhoneCode(code);
 
     myUser.update(
       (u) {
@@ -305,21 +297,9 @@ class MyUserRepository implements AbstractMyUserRepository {
           !u.phones.confirmed.contains(unconfirmed),
           unconfirmed!,
         );
-        u?.emails.unconfirmed = null;
+        u?.phones.unconfirmed = null;
       },
     );
-
-    try {
-      await _graphQlProvider.confirmPhoneCode(code);
-    } catch (_) {
-      myUser.update(
-        (u) {
-          u?.phones.confirmed.removeWhere((e) => e == unconfirmed);
-          u?.phones.unconfirmed = unconfirmed;
-        },
-      );
-      rethrow;
-    }
   }
 
   @override
