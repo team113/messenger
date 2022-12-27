@@ -17,6 +17,7 @@
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
+import '/util/new_type.dart';
 import 'version.dart';
 
 part 'my_user.g.dart';
@@ -31,4 +32,10 @@ class MyUserVersion extends Version {
 @HiveType(typeId: ModelTypeId.chatDirectLinkVersion)
 class ChatDirectLinkVersion extends Version {
   ChatDirectLinkVersion(String val) : super(val);
+}
+
+/// Cursor used for recent [Chat]s pagination.
+@HiveType(typeId: ModelTypeId.blacklistCursor)
+class BlacklistCursor extends NewType<String> {
+  BlacklistCursor(String val) : super(val);
 }

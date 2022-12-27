@@ -1025,4 +1025,47 @@ abstract class UserGraphQlMixin {
     return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
         as BlacklistEventsVersionedMixin?;
   }
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
+  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both first and last counts at the same time,
+  /// provided that after and before cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify first or last count as 0.
+  Future<GetBlacklist$Query> getBlacklist({
+    int? first,
+    BlacklistCursor? after,
+    int? last,
+    BlacklistCursor? before,
+  }) async {
+    final variables = GetBlacklistArguments(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetBlacklist',
+        document: GetBlacklistQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetBlacklist$Query.fromJson(result.data!);
+  }
 }
