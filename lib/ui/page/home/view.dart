@@ -247,11 +247,19 @@ class _HomeViewState extends State<HomeView> {
                                         ChatsMoreView.show(context),
                                     child: animated(
                                       tab: HomeTab.chats,
-                                      child: SvgLoader.asset(
-                                        'assets/icons/chats.svg',
-                                        width: 36.06,
-                                        height: 30,
-                                      ),
+                                      child: Obx(() {
+                                        return AnimatedSwitcher(
+                                          duration: 200.milliseconds,
+                                          child: SvgLoader.asset(
+                                            router.muted.value
+                                                ? 'assets/icons/chats_grey.svg'
+                                                : 'assets/icons/chats.svg',
+                                            key: Key('${router.muted.value}'),
+                                            width: 36.06,
+                                            height: 30,
+                                          ),
+                                        );
+                                      }),
                                     ),
                                   ),
                                 ),

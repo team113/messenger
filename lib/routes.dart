@@ -163,6 +163,8 @@ class RouterState extends ChangeNotifier {
 
   final Rx<ProfileTab?> profileTab = Rx(null);
 
+  final RxBool muted = RxBool(false);
+
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 

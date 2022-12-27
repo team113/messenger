@@ -309,8 +309,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       child: Padding(
         padding: widget.margin.add(
           EdgeInsets.only(
-            left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
-            right: widget.alignment == Alignment.bottomRight ? 12 : 0,
+            left: widget.alignment == Alignment.bottomLeft
+                ? _bounds.left - 2
+                : 68,
+            right: widget.alignment == Alignment.bottomRight ? 4 : 68,
           ),
         ),
         child: SlideTransition(
@@ -355,18 +357,20 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(
+          width: double.infinity,
           constraints: const BoxConstraints(minWidth: 240),
+          margin: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,
           ),
-          child: IntrinsicWidth(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
+          // child: IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
           ),
+          // ),
         ),
       ),
     );

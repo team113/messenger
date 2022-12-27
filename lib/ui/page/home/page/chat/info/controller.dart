@@ -320,7 +320,7 @@ class ChatInfoController extends GetxController {
       ),
     );
 
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+    // MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected

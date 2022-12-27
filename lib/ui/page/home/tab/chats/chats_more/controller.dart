@@ -35,7 +35,7 @@ class ChatsMoreController extends GetxController {
 
   late final TextFieldState status;
 
-  final RxBool muted = RxBool(false);
+
 
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;

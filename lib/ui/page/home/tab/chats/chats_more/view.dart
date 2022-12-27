@@ -108,7 +108,7 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: c.muted.value ? 'Отключены' : 'Включены',
+                text: router.muted.value ? 'Отключены' : 'Включены',
                 editable: false,
               ),
             ),
@@ -127,8 +127,8 @@ class ChatsMoreView extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: !c.muted.value,
-                    onChanged: (m) => c.muted.toggle(),
+                    value: !router.muted.value,
+                    onChanged: (m) => router.muted.toggle(),
                   ),
                 ),
               ),
@@ -169,7 +169,7 @@ class ChatsMoreView extends StatelessWidget {
                     //   ),
                     // );
 
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    // MessagePopup.success('label_copied_to_clipboard'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null

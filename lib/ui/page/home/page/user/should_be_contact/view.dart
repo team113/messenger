@@ -392,7 +392,7 @@ class UserView extends StatelessWidget {
             WidgetButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                // MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
               child: IgnorePointer(
                 child: ReactiveTextField(
@@ -465,7 +465,7 @@ class UserView extends StatelessWidget {
             WidgetButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                // MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
               child: IgnorePointer(
                 child: ReactiveTextField(
@@ -1043,7 +1043,7 @@ class UserView extends StatelessWidget {
                 Clipboard.setData(
                   ClipboardData(text: c.user?.user.value.name?.val),
                 );
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                // MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
       ),
     );
@@ -1263,7 +1263,7 @@ class UserView extends StatelessWidget {
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(String copy) {
     Clipboard.setData(ClipboardData(text: copy));
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+    // MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Returns the vertically centered [widget].

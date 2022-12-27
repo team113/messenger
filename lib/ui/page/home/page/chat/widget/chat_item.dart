@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:path/path.dart' as p;
 
 import '../controller.dart'
@@ -1387,31 +1388,37 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),
-                              label: 'btn_copy_text'.l10n,
-                              // trailing: SvgLoader.asset(
-                              //   'assets/icons/copy_small.svg',
-                              //   height: 12,
-                              // ),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_copy_text_short'.l10n
+                                  : 'btn_copy_text'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                height: 18,
+                              ),
                               onPressed: () => widget.onCopy?.call(copyable!),
                             ),
                           if (item.status.value == SendingStatus.sent) ...[
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
-                              // trailing: SvgLoader.asset(
-                              //   'assets/icons/reply.svg',
-                              //   height: 12,
-                              // ),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_reply_short'.l10n
+                                  : 'btn_reply'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/reply.svg',
+                                height: 18,
+                              ),
                               onPressed: widget.onReply,
                             ),
                             if (item is ChatMessage)
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
-                                label: 'btn_forward'.l10n,
-                                // trailing: SvgLoader.asset(
-                                //   'assets/icons/forward.svg',
-                                //   height: 12,
-                                // ),
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_forward_short'.l10n
+                                    : 'btn_forward'.l10n,
+                                trailing: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  height: 18,
+                                ),
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                     context,
@@ -1429,19 +1436,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                // trailing: SvgLoader.asset(
-                                //   'assets/icons/edit.svg',
-                                //   height: 12,
-                                // ),
+                                trailing: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  height: 18,
+                                ),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete_message'.l10n,
-                              // trailing: SvgLoader.asset(
-                              //   'assets/icons/delete_small.svg',
-                              //   height: 12,
-                              // ),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete_message_short'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                height: 18,
+                              ),
                               onPressed: () async {
                                 bool deletable = _fromMe &&
                                     !widget.chat.value!
@@ -1479,22 +1488,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           if (item.status.value == SendingStatus.error) ...[
                             ContextMenuButton(
                               key: const Key('Resend'),
-                              label: 'btn_resend_message'.l10n,
-                              // trailing: SvgLoader.asset(
-                              //   'assets/icons/send_small.svg',
-                              //   width: 18.37,
-                              //   height: 16,
-                              // ),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_resend_message_short'.l10n
+                                  : 'btn_resend_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
                               onPressed: widget.onResend,
                             ),
                             ContextMenuButton(
                               key: const Key('Delete'),
-                              label: 'btn_delete_message'.l10n,
-                              // trailing: SvgLoader.asset(
-                              //   'assets/icons/delete_small.svg',
-                              //   width: 17.75,
-                              //   height: 17,
-                              // ),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete_message_short'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
                               onPressed: () async {
                                 await ConfirmDialog.show(
                                   context,
@@ -1510,6 +1523,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ],
                                 );
                               },
+                            ),
+                            ContextMenuButton(
+                              label: 'btn_select'.l10n,
+                              trailing: const Icon(Icons.select_all),
                             ),
                           ],
                         ],

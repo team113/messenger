@@ -616,7 +616,7 @@ Widget _name(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              // MessagePopup.success('label_copied_to_clipboard'.l10n);
             },
       trailing: c.login.text.isEmpty
           ? null
@@ -649,7 +649,7 @@ Widget _bio(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              // MessagePopup.success('label_copied_to_clipboard'.l10n);
             },
       trailing: c.login.text.isEmpty
           ? null
@@ -680,7 +680,7 @@ Widget _status(MyProfileController c) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.status.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              // MessagePopup.success('label_copied_to_clipboard'.l10n);
             },
       trailing: c.status.text.isEmpty
           ? null
@@ -789,7 +789,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                   //   ),
                   // );
 
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  // MessagePopup.success('label_copied_to_clipboard'.l10n);
                 },
           trailing: c.link.isEmpty.value
               ? null
@@ -854,7 +854,7 @@ Widget _login(MyProfileController c, BuildContext context) {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.login.text));
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  // MessagePopup.success('label_copied_to_clipboard'.l10n);
                 },
           trailing: c.login.text.isEmpty
               ? null
@@ -1085,7 +1085,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 WidgetButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: e.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    // MessagePopup.success('label_copied_to_clipboard'.l10n);
                   },
                   child: IgnorePointer(
                     child: ReactiveTextField(
@@ -1267,7 +1267,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 WidgetButton(
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: e.val));
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    // MessagePopup.success('label_copied_to_clipboard'.l10n);
                   },
                   child: IgnorePointer(
                     child: ReactiveTextField(
@@ -2115,7 +2115,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
               Clipboard.setData(
                 ClipboardData(text: '${Config.origin}/artifacts/$link'),
               );
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
+              // MessagePopup.success('label_copied_to_clipboard'.l10n);
             }
           },
           child: Container(

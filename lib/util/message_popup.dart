@@ -65,15 +65,20 @@ class MessagePopup {
       );
 
   /// Shows a [SnackBar] with the [title] message.
-  static void success(String title) =>
-      ScaffoldMessenger.of(router.context!).showSnackBar(
-        SnackBar(
-          content: Text(title),
-          width: 250,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+  static void success(String title) {
+    ScaffoldMessenger.of(router.context!).showSnackBar(
+      SnackBar(
+        elevation: 6,
+        width: 240,
+        content: Text(title, style: const TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          // side: BorderSide(color: const Color(0xFFB0B0B0)),
         ),
-      );
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 }
