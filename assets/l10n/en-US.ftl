@@ -282,8 +282,6 @@ err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
-label_account = Account{" "}
-label_account_access_will_be_lost = Account access will be lost
 label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail
@@ -536,8 +534,10 @@ label_password = Password
 label_password_changed = Password has been changed.
 label_password_not_set = Password not set. Access to the account will be lost.
 label_password_not_set_info = No password has been set for your account. Consequently:
-    - access to your account will be lost forever when you close the current window;
-    - if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
+
+    • access to your account will be lost forever when you close the current window;
+
+    • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
 label_personalization = Personalization
 label_phone = Phone
