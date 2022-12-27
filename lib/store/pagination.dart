@@ -141,7 +141,9 @@ class PaginatedFragment<T> {
   }
 
   /// Loads next page of the [elements].
-  FutureOr<void> loadNextPage() async {
+  FutureOr<void> loadNextPage({
+    Future<void> Function(List<T>)? onItemsLoaded,
+  }) async {
     if (!_hasNextPage) {
       return;
     }
@@ -166,6 +168,8 @@ class PaginatedFragment<T> {
         _firstItemCursor = fetched.pageInfo.endCursor;
 
         syncItems(fetched.items);
+
+        await onItemsLoaded?.call(fetched.items);
 
         for (T i in fetched.items) {
           _synced.insertAfter(i, (e) => compare(i, e) == 1);

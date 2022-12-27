@@ -1257,13 +1257,32 @@ class ChatController extends GetxController {
           elements[_topLoadingElement!.id] = _topLoadingElement!;
         }
 
-        FutureOr future = chat!.loadNextPage();
+        FutureOr future = chat!.loadNextPage(
+          onItemsLoaded: (items) async {
+            if (items.isEmpty) {
+              return;
+            }
+
+            elements.remove(DateTimeElement(items.first.at.toDay()).id);
+            elements.remove(_topLoadingElement!.id);
+            _topLoadingElement = null;
+
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              if (_nextPageLoadings.isNotEmpty) {
+                _topLoadingElement = LoadingElement.top();
+                elements[_topLoadingElement!.id] = _topLoadingElement!;
+              }
+            });
+            await Future.delayed(1.milliseconds);
+          },
+        );
+
         _nextPageLoadings.add(future);
         await future;
         _nextPageLoadings.remove(future);
 
         if (_nextPageLoadings.isEmpty) {
-          elements.remove(_topLoadingElement!.id);
+          elements.remove(_topLoadingElement?.id);
         }
         return;
       }

@@ -245,7 +245,9 @@ abstract class RxChat {
   Future<void> fetchMessages();
 
   /// Loads next page of the [messages] from the service.
-  FutureOr<void> loadNextPage();
+  FutureOr<void> loadNextPage({
+    Future<void> Function(List<ChatItem>)? onItemsLoaded,
+  });
 
   /// Fetches previous page of the [messages] from the service.
   FutureOr<void> loadPreviousPage();

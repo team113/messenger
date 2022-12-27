@@ -218,25 +218,13 @@ class HiveRxChat extends RxChat {
             beforeCursor = ChatItemsCursor(before);
           }
 
-          ChatItemsQuery? query = await _chatRepository.messages(
+          return await _chatRepository.messages(
             chat.value.id,
             after: afterCursor,
             first: first,
             before: beforeCursor,
             last: last,
           );
-
-          _guard.protect(() async {
-            for (HiveChatItem item in query!.items) {
-              if (item.value.chatId == id) {
-                put(item);
-              } else {
-                _chatRepository.putChatItem(item);
-              }
-            }
-          });
-
-          return query;
         },
         initialCursor: lastReadItemCursor?.val,
         pageSize: 120,
@@ -346,8 +334,23 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  FutureOr<void> loadNextPage() async {
-    await _fragment.loadNextPage();
+  FutureOr<void> loadNextPage(
+      {Future<void> Function(List<ChatItem>)? onItemsLoaded}) async {
+    await _fragment.loadNextPage(
+      onItemsLoaded: (items) async {
+        await onItemsLoaded?.call(items.map((e) => e.value).toList());
+
+        _guard.protect(() async {
+          for (HiveChatItem item in items) {
+            if (item.value.chatId == id) {
+              put(item);
+            } else {
+              _chatRepository.putChatItem(item);
+            }
+          }
+        });
+      },
+    );
   }
 
   @override
