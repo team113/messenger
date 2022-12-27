@@ -42,6 +42,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
+import 'package:messenger/provider/hive/preferences.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -124,9 +125,6 @@ void main() async {
   await authService.init();
   await sessionProvider.init();
 
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
@@ -153,6 +151,8 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var preferences = PreferencesHiveProvider();
+  await preferences.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -162,6 +162,10 @@ void main() async {
   Get.put(sessionProvider);
   Get.put(chatProvider);
   Get.put(credentialsProvider);
+  Get.put(preferences);
+
+  router = RouterState(authService);
+  router.provider = MockPlatformRouteInformationProvider();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
