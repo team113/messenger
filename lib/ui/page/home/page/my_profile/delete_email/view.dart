@@ -29,7 +29,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteEmailView extends StatelessWidget {
-  const DeleteEmailView(this.email, {Key? key}) : super(key: key);
+  const DeleteEmailView(this.email, {super.key});
 
   /// [UserEmail] to delete.
   final UserEmail email;

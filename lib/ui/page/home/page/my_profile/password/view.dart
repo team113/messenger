@@ -31,7 +31,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class ChangePasswordView extends StatelessWidget {
-  const ChangePasswordView({Key? key}) : super(key: key);
+  const ChangePasswordView({super.key});
 
   /// Displays a [ChangePasswordView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {

@@ -88,52 +88,49 @@ class MicrophoneSwitchView extends StatelessWidget {
                                 (c.mic.value == null && i == 0) ||
                                     c.mic.value == e.deviceId();
 
-                            return SizedBox(
-                              child: Material(
+                            return Material(
+                              borderRadius: BorderRadius.circular(10),
+                              color: selected
+                                  ? style.cardSelectedColor.withOpacity(0.8)
+                                  : Colors.white.darken(0.05),
+                              child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                color: selected
-                                    ? style.cardSelectedColor.withOpacity(0.8)
-                                    : Colors.white.darken(0.05),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(10),
-                                  onTap: () => c.setAudioDevice(e.deviceId()),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            e.label(),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style:
-                                                const TextStyle(fontSize: 15),
-                                          ),
+                                onTap: () => c.setAudioDevice(e.deviceId()),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          e.label(),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 15),
                                         ),
-                                        const SizedBox(width: 12),
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: AnimatedSwitcher(
-                                            duration: 200.milliseconds,
-                                            child: selected
-                                                ? CircleAvatar(
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary,
-                                                    radius: 12,
-                                                    child: const Icon(
-                                                      Icons.check,
-                                                      color: Colors.white,
-                                                      size: 12,
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                          ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: AnimatedSwitcher(
+                                          duration: 200.milliseconds,
+                                          child: selected
+                                              ? CircleAvatar(
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                  radius: 12,
+                                                  child: const Icon(
+                                                    Icons.check,
+                                                    color: Colors.white,
+                                                    size: 12,
+                                                  ),
+                                                )
+                                              : const SizedBox(),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

@@ -81,52 +81,50 @@ class CallWindowSwitchView extends StatelessWidget {
                             (c.settings.value?.enablePopups ?? true) == false;
                       }
 
-                      return SizedBox(
-                        child: Material(
+                      return Material(
+                        borderRadius: BorderRadius.circular(10),
+                        color: selected
+                            ? style.cardSelectedColor.withOpacity(0.8)
+                            : Colors.white.darken(0.05),
+                        child: InkWell(
                           borderRadius: BorderRadius.circular(10),
-                          color: selected
-                              ? style.cardSelectedColor.withOpacity(0.8)
-                              : Colors.white.darken(0.05),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () => c.setPopupsEnabled(i == 0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      i == 0
-                                          ? 'label_open_calls_in_window'.l10n
-                                          : 'label_open_calls_in_app'.l10n,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 15),
-                                    ),
+                          onTap: () => c.setPopupsEnabled(i == 0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    i == 0
+                                        ? 'label_open_calls_in_window'.l10n
+                                        : 'label_open_calls_in_app'.l10n,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 15),
                                   ),
-                                  const SizedBox(width: 12),
-                                  AnimatedSwitcher(
+                                ),
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: AnimatedSwitcher(
                                     duration: 200.milliseconds,
                                     child: selected
-                                        ? SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircleAvatar(
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                              radius: 12,
-                                              child: const Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 12,
-                                              ),
+                                        ? CircleAvatar(
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            radius: 12,
+                                            child: const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 12,
                                             ),
                                           )
-                                        : const SizedBox(width: 20, height: 20),
+                                        : const SizedBox(),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

@@ -143,7 +143,7 @@ class AuthView extends StatelessWidget {
             }),
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => LanguageSelectionView.show(context),
+          onPressed: () => LanguageSelectionView.show(context, null),
         );
 
         // Footer part of the page.

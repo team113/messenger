@@ -29,7 +29,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class DeletePhoneView extends StatelessWidget {
-  const DeletePhoneView(this.phone, {Key? key}) : super(key: key);
+  const DeletePhoneView(this.phone, {super.key});
 
   /// [UserPhone] to delete.
   final UserPhone phone;

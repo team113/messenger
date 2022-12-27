@@ -30,13 +30,19 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LanguageSelectionView extends StatelessWidget {
-  const LanguageSelectionView({Key? key}) : super(key: key);
+  const LanguageSelectionView(this.settingsRepository, {super.key});
+
+  /// [AbstractSettingsRepository] persisting the selected [Language].
+  final AbstractSettingsRepository? settingsRepository;
 
   /// Displays a [LanguageSelectionView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  static Future<T?> show<T>(
+    BuildContext context,
+    AbstractSettingsRepository? settingsRepository,
+  ) {
     return ModalPopup.show(
       context: context,
-      child: const LanguageSelectionView(),
+      child: LanguageSelectionView(settingsRepository),
     );
   }
 
@@ -46,15 +52,8 @@ class LanguageSelectionView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
-    AbstractSettingsRepository? settings;
-    try {
-      settings = Get.find<AbstractSettingsRepository>();
-    } catch (_) {
-      // No-op.
-    }
-
     return GetBuilder(
-      init: LanguageSelectionController(settings),
+      init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),

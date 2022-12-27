@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -42,8 +43,8 @@ class DeleteEmailController extends GetxController {
   Future<void> deleteEmail() async {
     try {
       await _myUserService.deleteUserEmail(email);
-    } catch (e) {
-      MessagePopup.error(e);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }

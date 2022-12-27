@@ -28,7 +28,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteAccountView extends StatelessWidget {
-  const DeleteAccountView({Key? key}) : super(key: key);
+  const DeleteAccountView({super.key});
 
   /// Displays a [DeleteAccountView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
@@ -41,7 +41,7 @@ class DeleteAccountView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: DeleteAccountController(Get.find(), Get.find()),
+      init: DeleteAccountController(Get.find()),
       builder: (DeleteAccountController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),

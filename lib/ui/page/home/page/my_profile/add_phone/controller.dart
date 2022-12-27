@@ -60,7 +60,7 @@ class AddPhoneController extends GetxController {
   /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
 
-  /// [Timer] to decrease [resendPhoneTimeout].
+  /// [Timer] decreasing the [resendPhoneTimeout].
   Timer? _resendPhoneTimer;
 
   /// Returns the currently authenticated [MyUser].

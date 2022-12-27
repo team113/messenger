@@ -29,7 +29,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {
-  const AddEmailView({Key? key, this.email}) : super(key: key);
+  const AddEmailView({super.key, this.email});
 
   /// [UserEmail] to confirm.
   final UserEmail? email;

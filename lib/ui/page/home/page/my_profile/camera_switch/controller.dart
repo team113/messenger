@@ -56,8 +56,10 @@ class CameraSwitchController extends GetxController {
   }
 
   /// Sets device with [id] as a used by default camera device.
-  void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
-    _settingsRepository.setVideoDevice(id);
+  Future<void> setVideoDevice(String id) async {
+    await Future.wait([
+      _call.value.setVideoDevice(id),
+      _settingsRepository.setVideoDevice(id),
+    ]);
   }
 }

@@ -24,7 +24,7 @@ import '/ui/widget/modal_popup.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LinkDetailsView extends StatelessWidget {
-  const LinkDetailsView({Key? key}) : super(key: key);
+  const LinkDetailsView({super.key});
 
   /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {

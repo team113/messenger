@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -38,9 +39,11 @@ class LanguageSelectionController extends GetxController {
     super.onInit();
   }
 
-  /// Sets the provided [language] as a used by default.
-  void setLocalization(Language language) {
-    L10n.set(language);
-    _settingsRepository?.setLocale(language.toString());
+  /// Sets the provided [language] to be [L10n.chosen].
+  Future<void> setLocalization(Language language) async {
+    await Future.wait([
+      L10n.set(language),
+      _settingsRepository?.setLocale(language.toString()),
+    ].whereNotNull());
   }
 }

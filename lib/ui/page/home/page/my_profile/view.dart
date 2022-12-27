@@ -25,6 +25,7 @@ import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -49,6 +50,7 @@ import 'delete_account/view.dart';
 import 'delete_email/view.dart';
 import 'delete_phone/view.dart';
 import 'language/view.dart';
+import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
@@ -56,7 +58,7 @@ import 'widget/copyable.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
-  const MyProfileView({Key? key}) : super(key: key);
+  const MyProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +123,12 @@ class MyProfileView extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 5),
-                            if (c.myUser.value?.avatar != null)
-                              Center(
+                            Obx(() {
+                              if (c.myUser.value?.avatar == null) {
+                                return const SizedBox();
+                              }
+
+                              return Center(
                                 child: WidgetButton(
                                   key: const Key('DeleteAvatar'),
                                   onPressed: c.deleteAvatar,
@@ -139,7 +145,8 @@ class MyProfileView extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              ),
+                              );
+                            }),
                             const SizedBox(height: 10),
                             _name(c),
                           ],
@@ -339,7 +346,10 @@ Widget _link(BuildContext context, MyProfileController c) {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
-                      recognizer: TapGestureRecognizer(),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await LinkDetailsView.show(context);
+                        },
                     ),
                   ],
                 ),
@@ -927,21 +937,28 @@ Widget _background(BuildContext context, MyProfileController c) {
             }),
           ),
         ),
-        if (c.background.value != null) ...[
-          const SizedBox(height: 10),
-          Center(
-            child: WidgetButton(
-              onPressed: c.background.value == null ? null : c.removeBackground,
-              child: Text(
-                'btn_delete'.l10n,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 11,
+        Obx(() {
+          if (c.background.value == null) {
+            return const SizedBox();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Center(
+              child: WidgetButton(
+                onPressed:
+                    c.background.value == null ? null : c.removeBackground,
+                child: Text(
+                  'btn_delete'.l10n,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          );
+        }),
       ],
     ),
   );
@@ -1124,7 +1141,10 @@ Widget _language(BuildContext context, MyProfileController c) {
   return _dense(
     FieldButton(
       key: const Key('ChangeLanguage'),
-      onPressed: () => LanguageSelectionView.show(context),
+      onPressed: () => LanguageSelectionView.show(
+        context,
+        Get.find<AbstractSettingsRepository>(),
+      ),
       text: 'label_language_entry'.l10nfmt({
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,

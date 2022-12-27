@@ -29,7 +29,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({Key? key, this.phone}) : super(key: key);
+  const AddPhoneView({super.key, this.phone});
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? phone;
