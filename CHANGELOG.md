@@ -31,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#260], [#259])
     - User page:
         - Blacklisting. ([#234], [#229])
+    - Scrollbars to mobile. ([#276], [#262])
 
 ### Changed
 
@@ -58,7 +59,6 @@ All user visible changes to this project will be documented in this file. This p
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])
-    - Scrollbars to mobile. ([#276], [#262])
 
 ### Fixed
 
