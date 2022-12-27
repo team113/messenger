@@ -478,7 +478,7 @@ class WebUtils {
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.popupPrefs?.toJson());
 
-  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
+  /// Returns the [CallPreference] stored by the provided [chatId], if any.
   static CallPreference? getCallPreference(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {

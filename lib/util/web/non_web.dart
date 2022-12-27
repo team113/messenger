@@ -169,7 +169,7 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
+  /// Returns the [CallPreference] stored by the provided [chatId], if any.
   static CallPreference? getCallPreference(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
