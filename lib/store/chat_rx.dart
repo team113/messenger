@@ -92,10 +92,10 @@ class HiveRxChat extends RxChat {
   final Rx<ChatMessage?> draft;
 
   @override
-  bool get hasNextPage => _fragment.hasNextPage;
+  bool get hasNextPage => _fragment?.hasNextPage ?? true;
 
   @override
-  bool get hasPreviousPage => _fragment.hasPreviousPage;
+  bool get hasPreviousPage => _fragment?.hasPreviousPage ?? true;
 
   /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
@@ -116,7 +116,7 @@ class HiveRxChat extends RxChat {
   final ChatItemHiveProvider _local;
 
   /// [PaginatedFragment] loading [messages] with pagination.
-  late final PaginatedFragment<HiveChatItem> _fragment;
+  PaginatedFragment<HiveChatItem>? _fragment;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -230,7 +230,7 @@ class HiveRxChat extends RxChat {
         pageSize: 120,
       );
 
-      _fragmentSubscription = _fragment.elements.changes.listen((event) {
+      _fragmentSubscription = _fragment!.elements.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
             messages.insertAfter(
@@ -248,7 +248,7 @@ class HiveRxChat extends RxChat {
         messages.refresh();
       });
 
-      _fragment.init();
+      _fragment!.init();
 
       _initLocalSubscription();
       await _initAttachments(messages.map((e) => e.value));
@@ -328,7 +328,11 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _fragment.loadInitialPage();
+    while(_fragment == null) {
+      await Future.delayed(1.milliseconds);
+    }
+
+    await _fragment!.loadInitialPage();
 
     status.value = RxStatus.success();
   }
@@ -336,7 +340,11 @@ class HiveRxChat extends RxChat {
   @override
   FutureOr<void> loadNextPage(
       {Future<void> Function(List<ChatItem>)? onItemsLoaded}) async {
-    await _fragment.loadNextPage(
+    while(_fragment == null) {
+      await Future.delayed(1.milliseconds);
+    }
+
+    await _fragment!.loadNextPage(
       onItemsLoaded: (items) async {
         await onItemsLoaded?.call(items.map((e) => e.value).toList());
 
@@ -355,7 +363,11 @@ class HiveRxChat extends RxChat {
 
   @override
   FutureOr<void> loadPreviousPage() async {
-    await _fragment.loadPreviousPage();
+    while(_fragment == null) {
+      await Future.delayed(1.milliseconds);
+    }
+
+    await _fragment!.loadPreviousPage();
   }
 
   @override

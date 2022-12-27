@@ -33,9 +33,9 @@ import '../parameters/keys.dart';
 /// - When I tap `WidgetKey` widget
 final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
-      (key, context) async {
+  (key, context) async {
     await context.world.appDriver.waitUntil(
-          () async {
+      () async {
         await context.world.appDriver.waitForAppToSettle();
 
         try {

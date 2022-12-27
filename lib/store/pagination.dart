@@ -83,10 +83,10 @@ class PaginatedFragment<T> {
   bool _hasPreviousPage = true;
 
   /// Cursor of the last element in the [_synced].
-  String? _lastItemCursor;
+  String? _firstItemCursor;
 
   /// Cursor of the first element in the [_synced].
-  String? _firstItemCursor;
+  String? _lastItemCursor;
 
   /// Indicates whether next page is exist.
   bool get hasNextPage => _hasNextPage;
@@ -123,8 +123,8 @@ class PaginatedFragment<T> {
 
     _hasNextPage = fetched.pageInfo.hasNextPage;
     _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
-    _lastItemCursor = fetched.pageInfo.startCursor;
-    _firstItemCursor = fetched.pageInfo.endCursor;
+    _firstItemCursor = fetched.pageInfo.startCursor;
+    _lastItemCursor = fetched.pageInfo.endCursor;
 
     syncItems(fetched.items);
 
@@ -159,12 +159,12 @@ class PaginatedFragment<T> {
 
       ItemsPage<T>? fetched = await onFetchPage(
         first: pageSize,
-        after: _firstItemCursor,
+        after: _lastItemCursor,
       );
 
       if (fetched != null) {
         _hasNextPage = fetched.pageInfo.hasNextPage;
-        _firstItemCursor = fetched.pageInfo.endCursor;
+        _lastItemCursor = fetched.pageInfo.endCursor;
 
         syncItems(fetched.items);
 
@@ -199,11 +199,11 @@ class PaginatedFragment<T> {
     _isPrevPageLoading = true;
 
     ItemsPage<T>? fetched =
-        await onFetchPage(last: pageSize, before: _lastItemCursor);
+        await onFetchPage(last: pageSize, before: _firstItemCursor);
 
     if (fetched != null) {
       _hasPreviousPage = fetched.pageInfo.hasPreviousPage;
-      _lastItemCursor = fetched.pageInfo.startCursor;
+      _firstItemCursor = fetched.pageInfo.startCursor;
 
       for (T i in fetched.items) {
         _synced.insertAfter(i, (e) => compare(i, e) == 1);
