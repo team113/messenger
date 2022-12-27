@@ -44,7 +44,7 @@ class MyUserService extends DisposableService {
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
-  /// Returns the current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
   @override

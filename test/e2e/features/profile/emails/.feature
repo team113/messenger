@@ -14,28 +14,28 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Account creation
+Feature: User email
 
-  Scenario: User creates a new account and deletes it
-    When I tap `StartButton` button
-    And I wait until `IntroductionView` is present
-    And I tap `CloseButton` button
+  Scenario: User adds, confirms and deletes email
+    Given I am Alice
+    And I wait until `HomeView` is present
 
     When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I wait until `MyProfileView` is present
-    And I wait until `NameField` is present
-    And I fill `NameField` field with "Alice"
-    And I tap `Approve` button
+    And I tap `Signing` button
+    And I tap `AddEmail` button
+    Then I wait until `Email` is present
 
-    When I tap `SetPassword` button
-    And I fill `NewPasswordField` field with "123"
-    And I fill `RepeatPasswordField` field with "123"
+    When I fill `Email` field with "example@gmail.com"
     And I tap `Proceed` button
     And I tap `CloseButton` button
-    Then I wait until `ChangePassword` is present
+    Then I wait until `UnconfirmedEmail` is present
 
-    When I tap `DangerZone` button
-    And I tap `DeleteAccount` button
+    When I tap `UnconfirmedEmail` widget
+    And I wait until `ConfirmationCode` is present
+    And I fill `ConfirmationCode` field with "1234"
     And I tap `Proceed` button
-    Then I wait until `AuthView` is present
+    Then I wait until `ConfirmedEmail` is present
+
+    When I tap `DeleteEmail` widget
+    And I tap `Proceed` button
+    Then I wait until `AddEmail` is present
