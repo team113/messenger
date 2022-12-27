@@ -14,8 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
@@ -41,7 +43,15 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
         if (await context.world.appDriver.isPresent(finder)) {
-          await context.world.appDriver.scrollIntoView(finder);
+          Offset? position =
+              (finder.evaluate().first.renderObject as RenderBox?)
+                  ?.localToGlobal(Offset.zero);
+
+          if ((position?.dy ?? 0) + 200 >
+              MediaQuery.of(router.context!).size.height) {
+            await context.world.appDriver.scrollIntoView(finder);
+          }
+
           await context.world.appDriver.waitForAppToSettle();
           await context.world.appDriver.tap(
             finder,
@@ -55,6 +65,6 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
       }
 
       return false;
-    });
+    }, timeout: const Duration(seconds: 20));
   },
 );

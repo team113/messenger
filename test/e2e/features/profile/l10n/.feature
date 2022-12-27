@@ -14,28 +14,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Account creation
+Feature: Localization
 
-  Scenario: User creates a new account and deletes it
-    When I tap `StartButton` button
-    And I wait until `IntroductionView` is present
-    And I tap `CloseButton` button
+  Scenario: User changes localization
+    Given I am Alice
+    And I wait until `HomeView` is present
 
     When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I wait until `MyProfileView` is present
-    And I wait until `NameField` is present
-    And I fill `NameField` field with "Alice"
-    And I tap `Approve` button
-
-    When I tap `SetPassword` button
-    And I fill `NewPasswordField` field with "123"
-    And I fill `RepeatPasswordField` field with "123"
+    And I tap `Language` button
+    And I tap `ChangeLanguage` button
+    And I tap `Language_ru` button
     And I tap `Proceed` button
-    And I tap `CloseButton` button
-    Then I wait until `ChangePassword` is present
+    Then I wait until text "Профиль" is present
 
-    When I tap `DangerZone` button
-    And I tap `DeleteAccount` button
+    When I tap `ChangeLanguage` button
+    And I tap `Language_en` button
     And I tap `Proceed` button
-    Then I wait until `AuthView` is present
+    Then I wait until text "Profile" is present

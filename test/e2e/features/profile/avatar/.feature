@@ -14,18 +14,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-# TODO: Uncomment when `MyProfile` modals are implemented.
-#Feature: Application localization changes correctly
-#
-#  Scenario: User changes localization
-#    Given I am Alice
-#    And I wait until `HomeView` is present
-#
-#    Then I tap `MenuButton` button
-#    And I tap `SettingsButton` button
-#
-#    Then I tap `Language_enUS` within `LanguageDropdown` dropdown
-#    And I wait until text "Settings" is present
-#
-#    Then I tap `Language_ruRU` within `LanguageDropdown` dropdown
-#    And I wait until text "Настройки" is present
+Feature: User avatar
+
+  Scenario: User sets and deletes avatar
+    Given I am Alice
+    And I wait until `HomeView` is present
+
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    And I update my avatar
+    Then I wait until `DeleteAvatar` is present
+
+    When I tap `DeleteAvatar` button
+    Then I wait until `DeleteAvatar` is absent

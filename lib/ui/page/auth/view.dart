@@ -24,7 +24,7 @@ import 'package:rive/rive.dart' hide LinearGradient;
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/widget/selector.dart';
+import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -137,31 +137,13 @@ class AuthView extends StatelessWidget {
         Widget language = CupertinoButton(
           key: c.languageKey,
           child: Text(
-            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => Selector.show<Language>(
-            context: context,
-            buttonKey: c.languageKey,
-            initial: L10n.chosen.value!,
-            items: L10n.languages,
-            onSelected: (l) => L10n.set(l),
-            debounce:
-                context.isMobile ? const Duration(milliseconds: 500) : null,
-            itemBuilder: (Language e) => Row(
-              children: [
-                Text(
-                  e.name,
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-                const Spacer(),
-                Text(
-                  e.locale.languageCode.toUpperCase(),
-                  style: thin?.copyWith(fontSize: 15),
-                ),
-              ],
-            ),
-          ),
+          onPressed: () => LanguageSelectionView.show(context, null),
         );
 
         // Footer part of the page.
@@ -180,7 +162,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: const Color(0xFF63B4FF),
+            color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
