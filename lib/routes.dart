@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/hive/calls_settings.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -39,6 +38,7 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
+import 'provider/hive/calls_preferences.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
@@ -404,7 +404,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
-                deps.put(CallsSettingsHiveProvider()).init(userId: me),
+                deps.put(CallsPreferencesHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -506,7 +506,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
-              deps.put(CallsSettingsHiveProvider()).init(userId: me),
+              deps.put(CallsPreferencesHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =

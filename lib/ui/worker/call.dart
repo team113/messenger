@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -36,6 +35,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
+import '/provider/hive/calls_preferences.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
 import '/util/obs/obs.dart';
@@ -378,7 +378,8 @@ class CallWorker extends DisposableService {
       } else if (s.key?.startsWith('prefs_call_') == true) {
         ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
         _callService.setCallPrefs(
-          CallPreferences.fromJson(chatId, json.decode(s.newValue!)),
+          chatId,
+          popupPrefs: CallPreference.fromJson(json.decode(s.newValue!)),
         );
       }
     });

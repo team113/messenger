@@ -17,8 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
-import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
@@ -35,6 +33,7 @@ import '/domain/repository/call.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/calls_preferences.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
 import '/util/log.dart';
@@ -70,7 +69,9 @@ class CallRepository extends DisposableInterface
   /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
   final ChatCallCredentialsHiveProvider _credentialsProvider;
 
-  final CallsSettingsHiveProvider _callsSettingsProvider;
+  /// [CallsPreferencesHiveProvider] persisting and returns chats
+  /// [CallPreferences].
+  final CallsPreferencesHiveProvider _callsSettingsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -376,8 +377,16 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setPrefs(CallPreferences prefs) =>
-      _callsSettingsProvider.put(prefs);
+  Future<void> setPrefs(
+    ChatId chatId, {
+    CallPreference? inAppPrefs,
+    CallPreference? popupPrefs,
+  }) =>
+      _callsSettingsProvider.put(
+        chatId,
+        inAppPrefs: inAppPrefs,
+        popupPrefs: popupPrefs,
+      );
 
   @override
   CallPreferences? getPrefs(ChatId id) => _callsSettingsProvider.get(id);

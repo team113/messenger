@@ -33,13 +33,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
-import 'package:messenger/provider/hive/calls_settings.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/provider/hive/calls_preferences.dart';
 import '/routes.dart';
 import 'web_utils.dart';
 
@@ -360,27 +360,26 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-    CallPreferences? localPrefs,
+    CallPreference? popupPrefs,
   }) {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    CallPreferences? prefs = getCallPreferences(chatId);
+    CallPreference? prefs = getCallPreference(chatId);
 
-    final width = localPrefs?.popupWidth ??
-        min(prefs?.popupWidth ?? 500, screenW.toDouble());
-    final height = localPrefs?.popupHeight ??
-        min(prefs?.popupHeight ?? 500, screenH.toDouble());
+    final width =
+        popupPrefs?.width ?? min(prefs?.width ?? 500, screenW.toDouble());
+    final height =
+        popupPrefs?.height ?? min(prefs?.height ?? 500, screenH.toDouble());
 
-    var left =
-        localPrefs?.popupLeft ?? prefs?.popupLeft ?? screenW - 50 - width;
+    var left = popupPrefs?.left ?? prefs?.left ?? screenW - 50 - width;
     if (left < 0) {
       left = 0;
     } else if (left + width > screenW) {
       left = screenW - width;
     }
 
-    var top = localPrefs?.popupTop ?? prefs?.popupTop ?? 50;
+    var top = popupPrefs?.top ?? prefs?.top ?? 50;
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {
@@ -477,13 +476,13 @@ class WebUtils {
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallPreferences(ChatId chatId, CallPreferences prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
-          json.encode(prefs.toJson());
+          json.encode(prefs.popupPrefs?.toJson());
 
   /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static CallPreferences? getCallPreferences(ChatId chatId) {
+  static CallPreference? getCallPreference(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return CallPreferences.fromJson(chatId, json.decode(data));
+      return CallPreference.fromJson(json.decode(data));
     }
 
     return null;

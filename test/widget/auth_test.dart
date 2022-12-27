@@ -32,6 +32,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/calls_preferences.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -84,6 +85,8 @@ void main() async {
   await backgroundProvider.init(userId: const UserId('me'));
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init(userId: const UserId('me'));
+  var callsPreferences = CallsPreferencesHiveProvider();
+  await callsPreferences.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {

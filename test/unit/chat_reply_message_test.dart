@@ -31,6 +31,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/calls_preferences.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -77,6 +78,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callsPreferences = CallsPreferencesHiveProvider();
+  await callsPreferences.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -217,6 +220,7 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
+        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -295,6 +299,7 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
+        callsPreferences,
         me: const UserId('me'),
       ),
     );

@@ -18,10 +18,10 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
-import 'package:messenger/provider/hive/calls_settings.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/provider/hive/calls_preferences.dart';
 import 'web_utils.dart';
 
 /// Helper providing direct access to browser-only features.
@@ -118,7 +118,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-    CallPreferences? localPrefs,
+    CallPreference? popupPrefs,
   }) =>
       false;
 
@@ -170,7 +170,7 @@ class WebUtils {
   }
 
   /// Returns the [CallPreferences] stored by the provided [chatId], if any.
-  static CallPreferences? getCallPreferences(ChatId chatId) => null;
+  static CallPreference? getCallPreference(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
