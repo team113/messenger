@@ -40,6 +40,7 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme theme = Theme.of(context).textTheme;
+    final ScrollController scrollController = ScrollController();
 
     return GetBuilder(
       key: const Key('LoginView'),
@@ -285,16 +286,20 @@ class LoginView extends StatelessWidget {
             fadeInCurve: Curves.easeOut,
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
-            child: ListView(
-              key: Key('${c.stage.value}'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 12),
-              ],
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView(
+                controller: scrollController,
+                key: Key('${c.stage.value}'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });

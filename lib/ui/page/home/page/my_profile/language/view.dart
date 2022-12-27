@@ -51,6 +51,7 @@ class LanguageSelectionView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final ScrollController scrollController = ScrollController();
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -72,67 +73,72 @@ class LanguageSelectionView extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: ModalPopup.padding(context),
-                  itemBuilder: (context, i) {
-                    final Language e = L10n.languages[i];
+                child: Scrollbar(
+                  controller: scrollController,
+                  child: ListView.separated(
+                    controller: scrollController,
+                    shrinkWrap: true,
+                    padding: ModalPopup.padding(context),
+                    itemBuilder: (context, i) {
+                      final Language e = L10n.languages[i];
 
-                    return Obx(() {
-                      final bool selected = c.selected.value == e;
-                      return SizedBox(
-                        key: Key('Language_${e.locale.languageCode}'),
-                        child: Material(
-                          borderRadius: BorderRadius.circular(10),
-                          color: selected
-                              ? style.cardSelectedColor.withOpacity(0.8)
-                              : Colors.white.darken(0.05),
-                          child: InkWell(
+                      return Obx(() {
+                        final bool selected = c.selected.value == e;
+                        return SizedBox(
+                          key: Key('Language_${e.locale.languageCode}'),
+                          child: Material(
                             borderRadius: BorderRadius.circular(10),
-                            onTap: () => c.selected.value = e,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'label_language_entry'.l10nfmt({
-                                      'code':
-                                          e.locale.languageCode.toUpperCase(),
-                                      'name': e.name,
-                                    }),
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
-                                  const Spacer(),
-                                  SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: selected
-                                          ? CircleAvatar(
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                              radius: 12,
-                                              child: const Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 12,
-                                              ),
-                                            )
-                                          : const SizedBox(),
+                            color: selected
+                                ? style.cardSelectedColor.withOpacity(0.8)
+                                : Colors.white.darken(0.05),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(10),
+                              onTap: () => c.selected.value = e,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'label_language_entry'.l10nfmt({
+                                        'code':
+                                            e.locale.languageCode.toUpperCase(),
+                                        'name': e.name,
+                                      }),
+                                      style: const TextStyle(fontSize: 17),
                                     ),
-                                  ),
-                                ],
+                                    const Spacer(),
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: selected
+                                            ? CircleAvatar(
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary,
+                                                radius: 12,
+                                                child: const Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 12,
+                                                ),
+                                              )
+                                            : const SizedBox(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    });
-                  },
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemCount: L10n.languages.length,
+                        );
+                      });
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    itemCount: L10n.languages.length,
+                  ),
                 ),
               ),
               const SizedBox(height: 25),

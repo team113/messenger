@@ -56,121 +56,132 @@ class AddPhoneView extends StatelessWidget {
 
           switch (c.stage.value) {
             case AddPhoneFlowStage.code:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Obx(() {
-                      return Text(
-                        c.resent.value
-                            ? 'label_add_phone_confirmation_sent_again'.l10n
-                            : 'label_add_phone_confirmation_sent'.l10n,
-                        style: thin?.copyWith(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+              final ScrollController scrollController = ScrollController();
+              child = Scrollbar(
+                controller: scrollController,
+                child: ListView(
+                  controller: scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Obx(() {
+                        return Text(
+                          c.resent.value
+                              ? 'label_add_phone_confirmation_sent_again'.l10n
+                              : 'label_add_phone_confirmation_sent'.l10n,
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('ConfirmationCode'),
+                      state: c.phoneCode,
+                      label: 'label_confirmation_code'.l10n,
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Resend'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                c.resendPhoneTimeout.value == 0
+                                    ? 'label_resend'.l10n
+                                    : 'label_resend_timeout'.l10nfmt(
+                                        {'timeout': c.resendPhoneTimeout.value},
+                                      ),
+                                style: thin?.copyWith(
+                                  color: c.resendPhoneTimeout.value == 0
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                              onPressed: c.resendPhoneTimeout.value == 0
+                                  ? c.resendPhone
+                                  : null,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Proceed'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                'btn_proceed'.l10n,
+                                style: thin?.copyWith(
+                                  color: c.phoneCode.isEmpty.value
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                              ),
+                              onPressed: c.phoneCode.isEmpty.value
+                                  ? null
+                                  : c.phoneCode.submit,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
                       );
                     }),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('ConfirmationCode'),
-                    state: c.phoneCode,
-                    label: 'label_confirmation_code'.l10n,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Resend'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              c.resendPhoneTimeout.value == 0
-                                  ? 'label_resend'.l10n
-                                  : 'label_resend_timeout'.l10nfmt(
-                                      {'timeout': c.resendPhoneTimeout.value},
-                                    ),
-                              style: thin?.copyWith(
-                                color: c.resendPhoneTimeout.value == 0
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
-                            ),
-                            onPressed: c.resendPhoneTimeout.value == 0
-                                ? c.resendPhone
-                                : null,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Proceed'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              'btn_proceed'.l10n,
-                              style: thin?.copyWith(
-                                color: c.phoneCode.isEmpty.value
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
-                            ),
-                            onPressed: c.phoneCode.isEmpty.value
-                                ? null
-                                : c.phoneCode.submit,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
+                  ],
+                ),
               );
               break;
 
             default:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'label_add_phone_description'.l10n,
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('Phone'),
-                    state: c.phone,
-                    label: 'label_phone_number'.l10n,
-                    // TODO: Improve hint to account user's region.
-                    hint: '+34 123 123 53 53',
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return OutlinedRoundedButton(
-                      key: const Key('Proceed'),
-                      maxWidth: double.infinity,
-                      title: Text(
-                        'btn_proceed'.l10n,
+              final ScrollController scrollController = ScrollController();
+              child = Scrollbar(
+                controller: scrollController,
+                child: ListView(
+                  controller: scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        'label_add_phone_description'.l10n,
                         style: thin?.copyWith(
-                          color: c.phone.isEmpty.value
-                              ? Colors.black
-                              : Colors.white,
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      onPressed: c.phone.isEmpty.value ? null : c.phone.submit,
-                      color: Theme.of(context).colorScheme.secondary,
-                    );
-                  }),
-                ],
+                    ),
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('Phone'),
+                      state: c.phone,
+                      label: 'label_phone_number'.l10n,
+                      // TODO: Improve hint to account user's region.
+                      hint: '+34 123 123 53 53',
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return OutlinedRoundedButton(
+                        key: const Key('Proceed'),
+                        maxWidth: double.infinity,
+                        title: Text(
+                          'btn_proceed'.l10n,
+                          style: thin?.copyWith(
+                            color: c.phone.isEmpty.value
+                                ? Colors.black
+                                : Colors.white,
+                          ),
+                        ),
+                        onPressed:
+                            c.phone.isEmpty.value ? null : c.phone.submit,
+                        color: Theme.of(context).colorScheme.secondary,
+                      );
+                    }),
+                  ],
+                ),
               );
               break;
           }

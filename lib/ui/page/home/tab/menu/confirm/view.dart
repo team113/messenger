@@ -41,6 +41,7 @@ class ConfirmLogoutView extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+    final ScrollController scrollController = ScrollController();
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -240,16 +241,20 @@ class ConfirmLogoutView extends StatelessWidget {
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: ListView(
-              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 16),
-              ],
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView(
+                controller: scrollController,
+                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           );
         });

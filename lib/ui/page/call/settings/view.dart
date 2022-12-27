@@ -82,6 +82,8 @@ class _CallSettingsViewState extends State<CallSettingsView> {
       width: double.infinity,
     );
 
+    final ScrollController scrollController = ScrollController();
+
     Widget row(Widget left, Widget right, [bool flexible = false]) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Row(
@@ -219,91 +221,101 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                     const SizedBox(height: 5),
                     divider,
                     Expanded(
-                      child: ListView(
-                        children: [
-                          const SizedBox(height: 25),
-                          row(
-                            Text('label_media_camera'.l10n, style: font17),
-                            dropdown(
-                              value: c.devices.video().firstWhereOrNull((e) =>
-                                      e.deviceId() == c.videoDevice.value) ??
-                                  c.devices.video().firstOrNull,
-                              devices: c.devices.video(),
-                              onChanged: (d) => c.setVideoDevice(d!.deviceId()),
+                      child: Scrollbar(
+                        controller: scrollController,
+                        child: ListView(
+                          controller: scrollController,
+                          children: [
+                            const SizedBox(height: 25),
+                            row(
+                              Text('label_media_camera'.l10n, style: font17),
+                              dropdown(
+                                value: c.devices.video().firstWhereOrNull((e) =>
+                                        e.deviceId() == c.videoDevice.value) ??
+                                    c.devices.video().firstOrNull,
+                                devices: c.devices.video(),
+                                onChanged: (d) =>
+                                    c.setVideoDevice(d!.deviceId()),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 25),
-                          StreamBuilder(
-                            stream: c.localTracks?.changes,
-                            builder: (context, snapshot) {
-                              RtcVideoRenderer? local = c.localTracks
-                                  ?.firstWhereOrNull((t) =>
-                                      t.source == MediaSourceKind.Device &&
-                                      t.renderer.value is RtcVideoRenderer)
-                                  ?.renderer
-                                  .value as RtcVideoRenderer?;
-                              return row(
-                                Container(),
-                                Center(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Container(
-                                      height: 250,
-                                      width: 370,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: local == null
-                                          ? const Center(
-                                              child: Icon(
-                                                Icons.videocam_off,
-                                                color: Colors.white,
-                                                size: 40,
+                            const SizedBox(height: 25),
+                            StreamBuilder(
+                              stream: c.localTracks?.changes,
+                              builder: (context, snapshot) {
+                                RtcVideoRenderer? local = c.localTracks
+                                    ?.firstWhereOrNull((t) =>
+                                        t.source == MediaSourceKind.Device &&
+                                        t.renderer.value is RtcVideoRenderer)
+                                    ?.renderer
+                                    .value as RtcVideoRenderer?;
+                                return row(
+                                  Container(),
+                                  Center(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        height: 250,
+                                        width: 370,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: local == null
+                                            ? const Center(
+                                                child: Icon(
+                                                  Icons.videocam_off,
+                                                  color: Colors.white,
+                                                  size: 40,
+                                                ),
+                                              )
+                                            : webrtc.VideoView(
+                                                local.inner,
+                                                objectFit: webrtc
+                                                    .VideoViewObjectFit.cover,
+                                                mirror: true,
                                               ),
-                                            )
-                                          : webrtc.VideoView(
-                                              local.inner,
-                                              objectFit: webrtc
-                                                  .VideoViewObjectFit.cover,
-                                              mirror: true,
-                                            ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                true,
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 25),
-                          divider,
-                          const SizedBox(height: 25),
-                          row(
-                            Text('label_media_microphone'.l10n, style: font17),
-                            dropdown(
-                              value: c.devices.audio().firstWhereOrNull((e) =>
-                                      e.deviceId() == c.audioDevice.value) ??
-                                  c.devices.audio().firstOrNull,
-                              devices: c.devices.audio(),
-                              onChanged: (d) => c.setAudioDevice(d!.deviceId()),
+                                  true,
+                                );
+                              },
                             ),
-                          ),
-                          const SizedBox(height: 25),
-                          divider,
-                          const SizedBox(height: 25),
-                          row(
-                            Text('label_media_output'.l10n, style: font17),
-                            dropdown(
-                              value: c.devices.output().firstWhereOrNull((e) =>
-                                      e.deviceId() == c.outputDevice.value) ??
-                                  c.devices.output().firstOrNull,
-                              devices: c.devices.output(),
-                              onChanged: (d) =>
-                                  c.setOutputDevice(d!.deviceId()),
+                            const SizedBox(height: 25),
+                            divider,
+                            const SizedBox(height: 25),
+                            row(
+                              Text('label_media_microphone'.l10n,
+                                  style: font17),
+                              dropdown(
+                                value: c.devices.audio().firstWhereOrNull((e) =>
+                                        e.deviceId() == c.audioDevice.value) ??
+                                    c.devices.audio().firstOrNull,
+                                devices: c.devices.audio(),
+                                onChanged: (d) =>
+                                    c.setAudioDevice(d!.deviceId()),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 25),
-                        ],
+                            const SizedBox(height: 25),
+                            divider,
+                            const SizedBox(height: 25),
+                            row(
+                              Text('label_media_output'.l10n, style: font17),
+                              dropdown(
+                                value: c.devices.output().firstWhereOrNull(
+                                        (e) =>
+                                            e.deviceId() ==
+                                            c.outputDevice.value) ??
+                                    c.devices.output().firstOrNull,
+                                devices: c.devices.output(),
+                                onChanged: (d) =>
+                                    c.setOutputDevice(d!.deviceId()),
+                              ),
+                            ),
+                            const SizedBox(height: 25),
+                          ],
+                        ),
                       ),
                     ),
                   ],

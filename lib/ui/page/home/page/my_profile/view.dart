@@ -126,25 +126,26 @@ class MyProfileView extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Obx(() {
-                                  if (c.myUser.value?.avatar == null) {
-                                      return const SizedBox();
-                              }
+                                if (c.myUser.value?.avatar == null) {
+                                  return const SizedBox();
+                                }
 
-                              return Center(
-                                child: WidgetButton(
-                                      key: const Key('DeleteAvatar'),
-                                  onPressed: c.deleteAvatar,
-                                  child: SizedBox(
-                                    height: 20,
-                                    child:  Text(
-                                            'btn_delete'.l10n,
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                              fontSize: 11,),
-                                            ),
-                                          ),
+                                return Center(
+                                  child: WidgetButton(
+                                    key: const Key('DeleteAvatar'),
+                                    onPressed: c.deleteAvatar,
+                                    child: SizedBox(
+                                      height: 20,
+                                      child: Text(
+                                        'btn_delete'.l10n,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 );
                               }),
