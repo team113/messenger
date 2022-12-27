@@ -77,7 +77,7 @@ class ContactRepository implements AbstractContactRepository {
   final SessionDataHiveProvider _sessionLocal;
 
   /// [PaginatedFragment] loading [contacts] with pagination.
-  late final PaginatedFragment<HiveChatContact> _fragment;
+  PaginatedFragment<HiveChatContact>? _fragment;
 
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -91,7 +91,7 @@ class ContactRepository implements AbstractContactRepository {
   StreamIterator? _remoteSubscription;
 
   @override
-  bool get hasNextPage => _fragment.hasNextPage;
+  bool get hasNextPage => _fragment?.hasNextPage ?? true;
 
   @override
   Future<void> init() async {
@@ -134,7 +134,7 @@ class ContactRepository implements AbstractContactRepository {
       pageSize: 120,
     );
 
-    _fragmentSubscription = _fragment.elements.changes.listen((event) {
+    _fragmentSubscription = _fragment!.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           contacts[event.element.value.id] =
@@ -149,13 +149,13 @@ class ContactRepository implements AbstractContactRepository {
       }
     });
 
-    _fragment.init();
+    _fragment!.init();
 
     if (!_contactLocal.isEmpty) {
       isReady.value = true;
     }
 
-    await _fragment.loadInitialPage();
+    await _fragment!.loadInitialPage();
 
     _initRemoteSubscription();
 
@@ -217,7 +217,7 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   Future<void> loadNextPage() async {
-    await _fragment.loadNextPage();
+    await _fragment?.loadNextPage();
   }
 
   @override

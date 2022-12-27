@@ -105,7 +105,7 @@ class ChatRepository implements AbstractChatRepository {
   final SessionDataHiveProvider _sessionLocal;
 
   /// [PaginatedFragment] loading [chats] with pagination.
-  late final PaginatedFragment<HiveChat> _fragment;
+  PaginatedFragment<HiveChat>? _fragment;
 
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -130,7 +130,7 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  bool get hasNextPage => _fragment.hasNextPage;
+  bool get hasNextPage => _fragment?.hasNextPage ?? true;
 
   @override
   RxBool get isReady => _isReady;
@@ -183,7 +183,7 @@ class ChatRepository implements AbstractChatRepository {
       pageSize: 120,
     );
 
-    _fragmentSubscription = _fragment.elements.changes.listen((event) {
+    _fragmentSubscription = _fragment!.elements.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           _chats[event.element.value.id] =
@@ -198,13 +198,13 @@ class ChatRepository implements AbstractChatRepository {
       }
     });
 
-    _fragment.init();
+    _fragment!.init();
 
     if (!_chatLocal.isEmpty) {
       _isReady.value = true;
     }
 
-    await _fragment.loadInitialPage();
+    await _fragment!.loadInitialPage();
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
@@ -275,7 +275,7 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   FutureOr<void> loadNextPage() async {
-    await _fragment.loadNextPage();
+    await _fragment?.loadNextPage();
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
