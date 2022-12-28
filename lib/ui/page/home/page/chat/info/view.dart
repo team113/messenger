@@ -18,6 +18,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -37,7 +38,6 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'remove_member/view.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
@@ -549,11 +549,7 @@ class ChatInfoView extends StatelessWidget {
                 ],
                 if (e.id == c.me)
                   WidgetButton(
-                    onPressed: () => RemoveMemberView.show(
-                      context,
-                      chatId: c.chatId,
-                      user: e,
-                    ),
+                    onPressed: () => _removeChatMember(c, context, e),
                     child: Text(
                       'btn_leave'.l10n,
                       style: TextStyle(
@@ -564,11 +560,7 @@ class ChatInfoView extends StatelessWidget {
                   )
                 else
                   WidgetButton(
-                    onPressed: () => RemoveMemberView.show(
-                      context,
-                      chatId: c.chatId,
-                      user: e,
-                    ),
+                    onPressed: () => _removeChatMember(c, context, e),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',
                       height: 14 * 1.5,
@@ -689,7 +681,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
-            onPressed: c.hideChat,
+            onPressed: () => _hideChat(c, context),
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
@@ -715,7 +707,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
-            onPressed: () {},
+            onPressed: () => _clearChat(c, context),
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
@@ -767,7 +759,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 10),
         _dense(
           WidgetButton(
-            onPressed: () {},
+            onPressed: () => _blacklistChat(c, context),
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
@@ -818,5 +810,90 @@ class ChatInfoView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _removeChatMember(
+    ChatInfoController c,
+    BuildContext context,
+    RxUser user,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.me == user.id ? 'Leave group'.l10n : 'Remove member'.l10n,
+      description: [
+        if (c.me == user.id)
+          const TextSpan(text: 'Вы покидаете группу.')
+        else ...[
+          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+          TextSpan(
+            text: user.user.value.name?.val ?? user.user.value.num.val,
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+        ],
+      ],
+    );
+
+    if (result == true) {
+      await c.removeChatMember(user.id);
+    }
+  }
+
+  Future<void> _blacklistChat(
+    ChatInfoController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Block'.l10n,
+      description: [
+        TextSpan(text: 'Чат '.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет заблокирован.'.l10n),
+      ],
+    );
+
+    if (result == true) {}
+  }
+
+  Future<void> _clearChat(
+    ChatInfoController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Clear chat'.l10n,
+      description: [
+        TextSpan(text: 'Чат '.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет очищен.'.l10n),
+      ],
+    );
+
+    if (result == true) {}
+  }
+
+  Future<void> _hideChat(
+    ChatInfoController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Hide chat'.l10n,
+      description: [
+        TextSpan(text: 'Чат '.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет скрыт.'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
   }
 }

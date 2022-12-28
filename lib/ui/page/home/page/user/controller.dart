@@ -190,26 +190,24 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-        status.value = RxStatus.loadingMore();
-        try {
-          RxChatContact? contact =
-              _contactService.contacts.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  ) ??
-                  _contactService.favorites.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  );
-          if (contact != null) {
-            await _contactService.deleteContact(contact.contact.value.id);
-          }
-          inContacts.value = false;
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        } finally {
-          status.value = RxStatus.success();
+      status.value = RxStatus.loadingMore();
+      try {
+        RxChatContact? contact =
+            _contactService.contacts.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                ) ??
+                _contactService.favorites.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                );
+        if (contact != null) {
+          await _contactService.deleteContact(contact.contact.value.id);
         }
+        inContacts.value = false;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.success();
       }
     }
   }

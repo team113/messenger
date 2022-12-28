@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
@@ -248,7 +249,7 @@ class UserView extends StatelessWidget {
             onPressed: c.status.value.isLoadingMore
                 ? null
                 : c.inContacts.value
-                    ? c.removeFromContacts
+                    ? () => _removeFromContacts(c, context)
                     : c.addToContacts,
           ),
           action(
@@ -277,18 +278,20 @@ class UserView extends StatelessWidget {
           action(
             text: 'btn_hide_chat'.l10n,
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () {},
+            onPressed: () => _hideChat(c, context),
           ),
           action(
             text: 'btn_clear_chat'.l10n,
             trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () {},
+            onPressed: () => _clearChat(c, context),
           ),
           action(
             key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
             text:
                 c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true ? c.unblacklist : c.blacklist,
+            onPressed: c.isBlacklisted == true
+                ? c.unblacklist
+                : () => _blacklistUser(c, context),
           ),
           action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
@@ -372,5 +375,85 @@ class UserView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Future<void> _removeFromContacts(
+    UserController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Remove from contacts'.l10n,
+      description: [
+        TextSpan(text: 'Contact '.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' will be removed.'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
+  }
+
+  Future<void> _blacklistUser(
+    UserController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Block'.l10n,
+      description: [
+        TextSpan(text: 'Пользователь '.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет заблокирован.'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.blacklist();
+    }
+  }
+
+  Future<void> _clearChat(
+    UserController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Clear chat'.l10n,
+      description: [
+        TextSpan(text: 'Диалог с пользователем '.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет очищен.'.l10n),
+      ],
+    );
+
+    if (result == true) {}
+  }
+
+  Future<void> _hideChat(
+    UserController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Hide chat'.l10n,
+      description: [
+        TextSpan(text: 'Диалог с пользователем '.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет скрыт.'.l10n),
+      ],
+    );
+
+    if (result == true) {}
   }
 }

@@ -17,6 +17,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/attachment.dart';
@@ -162,7 +163,7 @@ class RecentChatTile extends StatelessWidget {
             ContextMenuButton(
               key: const Key('ButtonHideChat'),
               label: 'btn_hide_chat'.l10n,
-              onPressed: onHide,
+              onPressed: () => _hideChat(context),
               trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
@@ -699,6 +700,24 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
+  }
+
+  Future<void> _hideChat(BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'Hide chat'.l10n,
+      description: [
+        TextSpan(text: 'Чат '.l10n),
+        TextSpan(
+          text: rxChat.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' будет скрыт.'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      onHide?.call();
+    }
   }
 }
 

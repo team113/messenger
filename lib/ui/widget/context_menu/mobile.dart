@@ -32,7 +32,7 @@ import '/ui/widget/context_menu/menu.dart';
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
     Key? key,
-    this.alignment = Alignment.bottomRight,
+    this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
     this.moveDownwards = true,
@@ -304,16 +304,30 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+    final EdgeInsets padding;
+
+    if (widget.alignment == Alignment.bottomLeft) {
+      padding = EdgeInsets.only(
+        left: _bounds.left - 2,
+        right: 68,
+      );
+    } else if (widget.alignment == Alignment.bottomRight) {
+      padding = const EdgeInsets.only(left: 68, right: 4);
+    } else {
+      padding = const EdgeInsets.only(left: 0, right: 0);
+    }
+
     return Align(
       alignment: widget.alignment,
       child: Padding(
         padding: widget.margin.add(
-          EdgeInsets.only(
-            left: widget.alignment == Alignment.bottomLeft
-                ? _bounds.left - 2
-                : 68,
-            right: widget.alignment == Alignment.bottomRight ? 4 : 68,
-          ),
+          padding,
+          // EdgeInsets.only(
+          //   left: widget.alignment == Alignment.bottomLeft
+          //       ? _bounds.left - 2
+          //       : 68,
+          //   right: widget.alignment == Alignment.bottomRight ? 4 : 68,
+          // ),
         ),
         child: SlideTransition(
           position: slide,

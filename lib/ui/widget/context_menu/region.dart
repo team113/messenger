@@ -38,7 +38,7 @@ class ContextMenuRegion extends StatelessWidget {
     this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap,
-    this.alignment = Alignment.bottomRight,
+    this.alignment = Alignment.bottomCenter,
     this.actions = const [],
     this.selector,
     this.width = 260,

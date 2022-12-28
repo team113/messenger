@@ -18,6 +18,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -351,7 +352,7 @@ class ContactsTabView extends StatelessWidget {
                 ),
           ContextMenuButton(
             label: 'btn_delete'.l10n,
-            onPressed: () => c.deleteFromContacts(contact.contact.value),
+            onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
           ),
           ContextMenuButton(
@@ -378,5 +379,27 @@ class ContactsTabView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _removeFromContacts(
+    ContactsTabController c,
+    BuildContext context,
+    RxChatContact contact,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'Remove from contacts'.l10n,
+      description: [
+        TextSpan(text: 'Contact '.l10n),
+        TextSpan(
+          text: contact.contact.value.name.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: ' will be removed.'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteFromContacts(contact.contact.value);
+    }
   }
 }

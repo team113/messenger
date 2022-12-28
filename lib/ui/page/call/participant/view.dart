@@ -17,9 +17,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/page/home/page/chat/info/remove_member/controller.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -254,11 +254,7 @@ class ParticipantView extends StatelessWidget {
             if (user.id == c.me)
               WidgetButton(
                 // onPressed: () => c.removeChatMember(e.id),
-                onPressed: () => RemoveMemberView.show(
-                  context,
-                  chatId: c.chatId.value,
-                  user: user,
-                ),
+                onPressed: () => _removeChatMember(c, context, user),
                 child: Text(
                   'Leave',
                   style: TextStyle(
@@ -270,11 +266,7 @@ class ParticipantView extends StatelessWidget {
             else
               WidgetButton(
                 // onPressed: () => c.removeChatMember(e.id),
-                onPressed: () => RemoveMemberView.show(
-                  context,
-                  chatId: c.chatId.value,
-                  user: user,
-                ),
+                onPressed: () => _removeChatMember(c, context, user),
                 child: SvgLoader.asset(
                   'assets/icons/delete.svg',
                   height: 14 * 1.5,
@@ -285,5 +277,31 @@ class ParticipantView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Future<void> _removeChatMember(
+    ParticipantController c,
+    BuildContext context,
+    RxUser user,
+  ) async {
+    bool? result = await MessagePopup.alert(
+      c.me == user.id ? 'Leave group'.l10n : 'Remove member'.l10n,
+      description: [
+        if (c.me == user.id)
+          const TextSpan(text: 'Вы покидаете группу.')
+        else ...[
+          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+          TextSpan(
+            text: user.user.value.name?.val ?? user.user.value.num.val,
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+        ],
+      ],
+    );
+
+    if (result == true) {
+      await c.removeChatMember(user.id);
+    }
   }
 }
