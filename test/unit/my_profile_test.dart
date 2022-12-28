@@ -18,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -94,6 +95,16 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   @override
   Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) async {
     return Future.value(Stream.fromIterable([
@@ -110,5 +121,15 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<Stream<QueryResult<Object?>>> keepOnline() {
     return Future.value(const Stream.empty());
+  }
+
+  @override
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    BlacklistCursor? after,
+    BlacklistCursor? before,
+    int? first,
+    int? last,
+  }) {
+    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
   }
 }

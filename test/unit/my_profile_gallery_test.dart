@@ -60,6 +60,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -249,6 +259,15 @@ void main() async {
               '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
       }).updateUserAvatar as MyUserEventsVersionedMixin?),
+    );
+
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
     );
 
     AuthService authService = Get.put(

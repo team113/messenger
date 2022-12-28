@@ -128,6 +128,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   when(graphQlProvider.myUserEvents(null)).thenAnswer(
     (_) => Future.value(Stream.fromIterable([
       QueryResult.internal(
@@ -146,6 +156,15 @@ void main() async {
 
   when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
     (_) => Future.value(const Stream.empty()),
+  );
+
+  when(graphQlProvider.getBlacklist(
+    first: 120,
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
   );
 
   AuthService authService = Get.put(

@@ -113,6 +113,16 @@ void main() async {
     'chatContacts': {'nodes': [], 'ver': '0'}
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -210,6 +220,15 @@ void main() async {
       before: null,
     )).thenAnswer(
       (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
+    );
+
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
     );
 
     when(graphQlProvider.contactsEvents(null))
