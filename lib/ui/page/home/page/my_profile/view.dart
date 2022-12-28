@@ -200,7 +200,7 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: [_deleteAccount(context, c)],
+                          children: [_danger(context, c)],
                         );
 
                       case ProfileTab.logout:
@@ -788,22 +788,35 @@ Widget _password(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the contents of a [ProfileTab.danger] section.
-Widget _deleteAccount(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      text: 'btn_delete_account'.l10n,
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+Widget _danger(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () {
+            // TODO: Show a delete account popup.
+          },
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      onPressed: () {
-        // TODO: Show a delete account popup.
-      },
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-    ),
+      _dense(
+        FieldButton(
+          text: 'label_blocked_users'.l10n,
+          onPressed: () {
+            // TODO: Show a blacklisted users popup.
+          },
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ],
   );
 }
 

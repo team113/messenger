@@ -1047,7 +1047,7 @@ abstract class UserGraphQlMixin {
   ///
   /// If it's desired to receive the [User], pointed by the cursor, without
   /// querying in both directions, one can specify first or last count as 0.
-  Future<GetBlacklist$Query> getBlacklist({
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
     int? first,
     BlacklistCursor? after,
     int? last,
@@ -1066,6 +1066,6 @@ abstract class UserGraphQlMixin {
         variables: variables.toJson(),
       ),
     );
-    return GetBlacklist$Query.fromJson(result.data!);
+    return GetBlacklist$Query.fromJson(result.data!).blacklist;
   }
 }

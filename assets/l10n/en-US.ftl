@@ -345,6 +345,7 @@ label_away = Away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
+label_blocked_users = Blocked users
 label_call_active = Active call
 label_call_calling = Calling
 label_call_joining = Joining

@@ -362,6 +362,7 @@ label_away = Нет на месте
 label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас
+label_blocked_users = Заблокированные пользователи
 label_call_active = Активный звонок
 label_call_calling = Звоним
 label_call_joining = Подключение

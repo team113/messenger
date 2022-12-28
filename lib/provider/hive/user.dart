@@ -72,6 +72,12 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   Future<void> remove(UserId id) => deleteSafe(id.val);
 }
 
+/// [Hive] storage for blacklisted [User]s.
+class BlacklistedUsersHiveProvider extends UserHiveProvider {
+  @override
+  String get boxName => 'blacklist';
+}
+
 /// Persisted in [Hive] storage [User]'s [value].
 @HiveType(typeId: ModelTypeId.hiveUser)
 class HiveUser extends HiveObject {
