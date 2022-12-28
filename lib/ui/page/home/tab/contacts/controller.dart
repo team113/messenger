@@ -150,9 +150,12 @@ class ContactsTabController extends GetxController {
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
+  Future<void> favoriteContact(
+    ChatContactId id, [
+    ChatContactPosition? position,
+  ]) async {
     try {
-      await _contactService.favoriteChatContact(id);
+      await _contactService.favoriteChatContact(id, position);
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

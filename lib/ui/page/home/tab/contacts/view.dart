@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/contact.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -282,58 +283,75 @@ class ContactsTabView extends StatelessWidget {
                 child: CustomScrollView(
                   controller: ScrollController(),
                   slivers: [
-                    const SizedBox(height: kToolbarHeight),
+                    const SliverPadding(
+                      padding: EdgeInsets.only(top: kToolbarHeight),
+                    ),
                     SliverReorderableList(
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
+                        // print(contact.contact.value.favoritePosition?.val);
                         return MyReorderableDelayedDragStartListener(
                           key: Key(contact.id.val),
                           index: i,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: i == 0 ? 3 : 0,
-                            ),
-                            child: AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child:
-                                      Obx(() => _contact(context, contact, c)),
-                                ),
+                          child: AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50,
+                              child: FadeInAnimation(
+                                child: Obx(() => _contact(context, contact, c)),
                               ),
                             ),
                           ),
                         );
                       },
                       itemCount: c.favorites.length,
-                      onReorder: (int i, int j) {},
+                      onReorder: (int i, int j) {
+                        var j2 = j - 1;
+                        if (j2 < 0) {
+                          j2 = 0;
+                        }
+                        if (j >= c.favorites.length) {
+                          j--;
+                        }
+                        print(c.favorites[j].contact.value.favoritePosition);
+                        print(c.favorites[j2].contact.value.favoritePosition);
+                        print((c.favorites[j].contact.value.favoritePosition!
+                                    .val +
+                                c.favorites[j2].contact.value.favoritePosition!
+                                    .val) /
+                            2);
+                        print('$i - $j');
+                        c.favoriteContact(
+                            c.favorites[i].id,
+                            ChatContactPosition((c.favorites[j].contact.value
+                                        .favoritePosition!.val +
+                                    c.favorites[j2].contact.value
+                                        .favoritePosition!.val) /
+                                2));
+                      },
                     ),
                     SliverList(
                       delegate: SliverChildListDelegate.fixed(
                         c.contacts.mapIndexed((i, e) {
                           final RxChatContact contact = c.contacts[i];
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              top: i == 0 && c.favorites.isEmpty ? 3 : 0,
-                            ),
-                            child: AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child:
-                                      Obx(() => _contact(context, contact, c)),
-                                ),
+                          return AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50,
+                              child: FadeInAnimation(
+                                child: Obx(() => _contact(context, contact, c)),
                               ),
                             ),
                           );
                         }).toList(),
                       ),
                     ),
-                    const SizedBox(height: kBottomNavigationBarHeight),
+                    const SliverPadding(
+                      padding:
+                          EdgeInsets.only(bottom: kBottomNavigationBarHeight),
+                    ),
                   ],
                 ),
                 // ListView.builder(
