@@ -70,6 +70,8 @@ void main() async {
   await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var blacklistedUsersProvider = BlacklistedUsersHiveProvider();
+  await blacklistedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -167,6 +169,7 @@ void main() async {
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
+      blacklistedUsersProvider,
       galleryItemProvider,
       userRepository,
     );
@@ -224,6 +227,7 @@ void main() async {
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
+      blacklistedUsersProvider,
       galleryItemProvider,
       userRepository,
     );

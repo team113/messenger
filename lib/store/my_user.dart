@@ -45,7 +45,6 @@ import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
-import '/util/obs/rxlist.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -64,7 +63,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final Rx<MyUser?> myUser;
 
   @override
-  final RxObsList<RxUser> blacklist = RxObsList<RxUser>();
+  final RxList<RxUser> blacklist = RxList<RxUser>();
 
   /// GraphQL's Endpoint provider.
   final GraphQlProvider _graphQlProvider;
@@ -82,12 +81,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
+  StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [BlacklistedUsersHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _localBlacklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamIterator<MyUserEventsVersioned>? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
@@ -131,7 +133,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     for (HiveUser c in users) {
       _putBlacklisted(c);
     }
-
   }
 
   @override
@@ -462,8 +463,6 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
 
-
-
   /// Puts the provided [user] to the [_blacklistLocal].
   Future<void> _putBlacklisted(HiveUser user) async {
     var saved = _blacklistLocal.get(user.value.id);
@@ -478,7 +477,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<List<HiveUser>> _fetchBlacklist() async {
     const maxInt = 120;
     GetBlacklist$Query$Blacklist query =
-    await _graphQlProvider.getBlacklist(first: maxInt);
+        await _graphQlProvider.getBlacklist(first: maxInt);
 
     List<HiveUser> users = query.edges.map((e) => e.node.toHive()).toList();
 
@@ -509,9 +508,10 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [BlacklistedUsersHiveProvider.boxEvents] subscription.
   Future<void> _initBlacklistLocalSubscription() async {
-    _localSubscription = StreamIterator(_blacklistLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
+    _localBlacklistSubscription =
+        StreamIterator(_blacklistLocal.boxEvents);
+    while (await _localBlacklistSubscription!.moveNext()) {
+      BoxEvent event = _localBlacklistSubscription!.current;
       if (event.deleted) {
         blacklist.removeWhere((e) => e.id.val == event.key);
       } else {

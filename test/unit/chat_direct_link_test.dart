@@ -81,6 +81,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var blacklistedUsersProvider = BlacklistedUsersHiveProvider();
+  await blacklistedUsersProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -159,6 +161,7 @@ void main() async {
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
+    blacklistedUsersProvider,
     galleryItemProvider,
     userRepository,
   );

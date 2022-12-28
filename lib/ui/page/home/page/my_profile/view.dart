@@ -43,6 +43,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -836,9 +837,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
       _dense(
         FieldButton(
           text: 'label_blocked_users'.l10n,
-          onPressed: () {
-            // TODO: Show a blacklisted users popup.
-          },
+          onPressed: () => BlacklistView.show(context),
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),

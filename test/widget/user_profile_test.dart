@@ -153,6 +153,8 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var blacklistedUsersProvider = BlacklistedUsersHiveProvider();
+  await blacklistedUsersProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -343,6 +345,7 @@ void main() async {
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
+      blacklistedUsersProvider,
       galleryItemProvider,
       userRepository,
     );
