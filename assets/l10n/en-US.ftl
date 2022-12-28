@@ -624,4 +624,3 @@ label_your_direct_link = Direct link to chat with you
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
-label_recent = Recent

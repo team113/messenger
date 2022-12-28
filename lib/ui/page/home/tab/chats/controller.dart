@@ -87,7 +87,7 @@ class ChatsTabController extends GetxController {
   /// Status of the [createGroup] progression.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isEmpty`, meaning the query has not yet started.
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
@@ -311,48 +311,46 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
-  /// Enable searching mode.
+  /// Enables and initializes the [search]ing.
   void startSearch() {
-    _toggleSearch();
     searching.value = true;
+    _toggleSearch();
     search.value?.search.focus.requestFocus();
   }
 
-  /// Exiting searching mode.
+  /// Disables and disposes the [search]ing.
   void closeSearch([bool disableSearch = false]) {
+    searching.value = false;
     if (disableSearch) {
       _toggleSearch(false);
+    } else {
+      search.value?.search.clear();
+      search.value?.query.value = '';
     }
-    searching.value = false;
-    search.value?.search.clear();
-    search.value?.query.value = '';
   }
 
-  /// Enable group creation mode.
+  /// Enables and initializes the group creating.
   void startGroupCreating() {
-    _toggleSearch();
     groupCreating.value = true;
+    _toggleSearch();
     router.navigation.value = const SizedBox();
     search.value?.populate();
   }
 
-  /// Exiting group creation mode.
+  /// Disables and disposes the group creating.
   void closeGroupCreating() {
-    closeSearch(true);
     groupCreating.value = false;
+    closeSearch(true);
     router.navigation.value = null;
-    search.value?.selectedRecent.clear();
-    search.value?.selectedContacts.clear();
-    search.value?.selectedUsers.clear();
   }
 
-  /// Creates a group [Chat] with [SearchController.selectedRecent],
+  /// Creates a [Chat]-group with [SearchController.selectedRecent],
   /// [SearchController.selectedContacts] and [SearchController.selectedUsers].
   Future<void> createGroup() async {
     creatingStatus.value = RxStatus.loading();
 
     try {
-      RxChat chat = (await _chatService.createGroupChat(
+      RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
           ...search.value!.selectedContacts
@@ -360,7 +358,7 @@ class ChatsTabController extends GetxController {
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
         name: null,
-      ));
+      );
 
       router.chatInfo(chat.chat.value.id);
       closeGroupCreating();
@@ -452,14 +450,6 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Disables the [search], if its focus is lost or its query is empty.
-  void _disableSearchFocusListener() {
-    if (search.value?.search.focus.hasFocus == false &&
-        search.value?.search.text.isEmpty == true) {
-      groupCreating.value ? closeSearch(false) : closeSearch(true);
-    }
-  }
-
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
@@ -485,6 +475,14 @@ class ChatsTabController extends GetxController {
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.value?.search.focus.hasFocus == false &&
+        search.value?.search.text.isEmpty == true) {
+      closeSearch(!groupCreating.value);
+    }
   }
 }
 
