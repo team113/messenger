@@ -522,8 +522,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [BlacklistedUsersHiveProvider.boxEvents] subscription.
   Future<void> _initBlacklistLocalSubscription() async {
-    _localBlacklistSubscription =
-        StreamIterator(_blacklistLocal.boxEvents);
+    _localBlacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
     while (await _localBlacklistSubscription!.moveNext()) {
       BoxEvent event = _localBlacklistSubscription!.current;
       if (event.deleted) {
