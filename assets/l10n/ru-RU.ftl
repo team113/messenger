@@ -276,18 +276,12 @@ fcm_dialog_attachment =
 fcm_dialog_message = {$text}
 fcm_dialog_title = 
     {$userName ->
-        [x] {$userNum ->
-                [x] {""}
-               *[other] {$userNum}
-            }
+        [x] {$userNum}
        *[other] {$userName}
     }
 fcm_group_attachment =
     {$userName ->
-        [x] {$userNum ->
-                [x] {""}
-               *[other] {$userNum}
-            }
+        [x] {$userNum}
        *[other] {$userName}
     }: {$kind ->
         [image] [Изображение]
@@ -296,41 +290,55 @@ fcm_group_attachment =
     } 
 fcm_group_message = 
     {$userName ->
-        [x] {$userNum ->
-                [x] {""}
-               *[other] {$userNum}
-            }
+        [x] {$userNum}
        *[other] {$userName}
     }: {$text}
 fcm_group_title = 
     {$user1Name ->
-        [x] {$user1Num ->
-                [x] {""}
-               *[other] {$user1Num}
-            }
+        [x] {$user1Num}
        *[other] {$user1Name}
     }{$user2Name ->
-        [x] {$user2Num ->
-                [x] {""}
-               *[other] , {$user2Num}
-            }
+        [x] {$user2Num}
        *[other] , {$user2Name}
     }{$user3Name ->
-        [x] {$user3Num ->
-                [x] {""}
-               *[other] , {$user3Num}
-            }
+        [x] {$user3Num}
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
 fcm_incoming_call = Входящий звонок
-fcm_user_added_user = {$author} добавил {$user}
-fcm_user_added_you_to_group  = {$user} добавил Вас в группу
-fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
-fcm_user_left_group = {$user} покинул группу
-fcm_user_removed_user = {$author} удалил {$user}
+fcm_user_added_user = 
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } добавил {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_user_added_you_to_group = 
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } добавил Вас в группу
+fcm_user_joined_group_by_link = 
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } присоединился к группе по ссылке
+fcm_user_left_group = 
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } покинул группу
+fcm_user_removed_user = 
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } удалил {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
 label_a_of_b = {$a} из {$b}
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
@@ -614,11 +622,6 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
-fcm_user_added_user = {$author} добавил {$user}
-fcm_user_added_you_to_group  = {$user} добавил Вас в группу
-fcm_user_joined_group_by_link = {$user} присоединился к группе по ссылке
-fcm_user_left_group = {$user} покинул группу
-fcm_user_removed_user = {$author} удалил {$user}
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_users = Пользователи
 label_video = Видео
