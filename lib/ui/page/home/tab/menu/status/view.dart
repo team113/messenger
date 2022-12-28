@@ -32,7 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class StatusView extends StatelessWidget {
-  const StatusView({super.key, this.expanded = false});
+  const StatusView({super.key, this.expanded = true});
 
   /// Indicator whether this [StatusView] should contain [MyUser.status] field
   /// as well as [MyUser.presence], or [MyUser.presence] only otherwise.
