@@ -19,15 +19,7 @@ import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
 
-part 'preferences.g.dart';
-
-/// Preferences of application.
-@HiveType(typeId: ModelTypeId.preferencesData)
-class PreferencesData extends HiveObject {
-  /// Persisted [WindowPreferences] data.
-  @HiveField(0)
-  WindowPreferences? windowPreferences;
-}
+part 'window_preferences.g.dart';
 
 /// Information about window's position and size.
 @HiveType(typeId: ModelTypeId.windowPreferences)

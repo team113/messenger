@@ -17,38 +17,37 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
-import '/store/model/preferences.dart';
+import '/store/model/window_preferences.dart';
 import 'base.dart';
 
-/// [Hive] storage for a [PreferencesData].
-class PreferencesHiveProvider extends HiveBaseProvider<PreferencesData> {
+/// [Hive] storage for a [WindowPreferences].
+class WindowPreferencesHiveProvider
+    extends HiveBaseProvider<WindowPreferences> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch(key: 0);
 
   @override
-  String get boxName => 'preferences_data';
+  String get boxName => 'window_preferences_data';
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(PreferencesDataAdapter());
     Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
   /// Returns the stored [WindowPreferences] from [Hive].
-  WindowPreferences? getWindowPreferences() => getSafe(0)?.windowPreferences;
+  WindowPreferences? getWindowPreferences() => getSafe(0);
 
   /// Stores a new [WindowPreferences] to [Hive].
-  Future<void> setWindowPreferences({Size? size, Offset? position}) async {
-    WindowPreferences? prefs = getSafe(0)?.windowPreferences;
-    await putSafe(
+  void setWindowPreferences({Size? size, Offset? position}) {
+    WindowPreferences? prefs = getSafe(0);
+    putSafe(
       0,
-      PreferencesData()
-        ..windowPreferences = WindowPreferences(
-          width: size?.width ?? prefs?.width,
-          height: size?.height ?? prefs?.height,
-          dx: position?.dx ?? prefs?.dx,
-          dy: position?.dy ?? prefs?.dy,
-        ),
+      WindowPreferences(
+        width: size?.width ?? prefs?.width,
+        height: size?.height ?? prefs?.height,
+        dx: position?.dx ?? prefs?.dx,
+        dy: position?.dy ?? prefs?.dy,
+      ),
     );
   }
 }

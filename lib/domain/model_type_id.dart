@@ -103,6 +103,5 @@ class ModelTypeId {
   static const chatCallCredentials = 81;
   static const chatFavoritePosition = 82;
   static const favoriteChatsListVersion = 83;
-  static const preferencesData = 84;
-  static const windowPreferences = 85;
+  static const windowPreferences = 84;
 }

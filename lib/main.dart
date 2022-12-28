@@ -37,7 +37,6 @@ import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
-import 'domain/service/window.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/preferences.dart';
@@ -45,9 +44,10 @@ import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
-import 'store/model/preferences.dart';
+import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -64,7 +64,7 @@ Future<void> main() async {
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-      PreferencesHiveProvider preferencesProvider = Get.find();
+      WindowPreferencesHiveProvider preferencesProvider = Get.find();
 
       WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
       if (prefs?.size != null) {
@@ -74,7 +74,7 @@ Future<void> main() async {
         await windowManager.setPosition(prefs!.position!);
       }
 
-      Get.put(WindowService());
+      Get.put(WindowWorker(preferencesProvider));
     }
 
     var graphQlProvider = Get.put(GraphQlProvider());
@@ -191,7 +191,7 @@ Future<void> _initHive() async {
   }
 
   await Get.put(SessionDataHiveProvider()).init();
-  await Get.put(PreferencesHiveProvider()).init();
+  await Get.put(WindowPreferencesHiveProvider()).init();
 }
 
 /// Extension adding an ability to clean [Hive].

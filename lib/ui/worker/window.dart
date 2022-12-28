@@ -17,26 +17,26 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
+import '/domain/service/disposable_service.dart';
 import '/provider/hive/preferences.dart';
 import '/util/platform_utils.dart';
-import 'disposable_service.dart';
 
-/// Service responsible for listening window's size and position.
-class WindowService extends DisposableService {
+/// Worker responsible for updating stored window's size and position.
+class WindowWorker extends DisposableService {
+  WindowWorker(this._windowProvider);
+
   /// Subscription to the [PlatformUtils.onResized] updating the local data.
   late final StreamSubscription? _onResized;
 
   /// Subscription to the [PlatformUtils.onMoved] updating the local data.
   late final StreamSubscription? _onMoved;
 
-  /// [PreferencesHiveProvider] used to store window's position and size.
-  late final PreferencesHiveProvider _preferencesProvider;
+  /// [WindowPreferencesHiveProvider] used to store window's position and size.
+  final WindowPreferencesHiveProvider _windowProvider;
 
   @override
   void onInit() {
-    _preferencesProvider = Get.find();
     _onResized = PlatformUtils.onResized.listen((v) => _storeData(size: v));
     _onMoved = PlatformUtils.onMoved.listen((v) => _storeData(position: v));
     super.onInit();
@@ -48,9 +48,9 @@ class WindowService extends DisposableService {
     _onMoved?.cancel();
   }
 
-  /// Stores window's size and position to [PreferencesHiveProvider].
-  void _storeData({Size? size, Offset? position}) async =>
-      _preferencesProvider.setWindowPreferences(
+  /// Stores window's size and position to [WindowHiveProvider].
+  void _storeData({Size? size, Offset? position}) =>
+      _windowProvider.setWindowPreferences(
         size: size,
         position: position,
       );
