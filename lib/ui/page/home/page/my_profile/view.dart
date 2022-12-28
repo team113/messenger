@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -31,6 +32,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -150,6 +152,8 @@ class MyProfileView extends StatelessWidget {
                             }),
                             const SizedBox(height: 10),
                             _name(c),
+                            _presence(c, context),
+                            _status(c),
                           ],
                         );
 
@@ -270,6 +274,55 @@ Widget _name(MyProfileController c) {
             ),
     ),
   );
+}
+
+/// Returns [MyUser.status] editable field.
+Widget _status(MyProfileController c) {
+  return _padding(
+    ReactiveTextField(
+      key: const Key('StatusField'),
+      state: c.status,
+      label: 'label_status'.l10n,
+      filled: true,
+      maxLength: 25,
+      onSuffixPressed: c.status.text.isEmpty
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: c.status.text));
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            },
+      trailing: c.status.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/copy.svg',
+                  height: 15,
+                ),
+              ),
+            ),
+    ),
+  );
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(MyProfileController c, BuildContext context) {
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return _padding(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+  });
 }
 
 /// Returns [MyUser.num] copyable field.

@@ -23,6 +23,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui//widget/svg/svg.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -66,14 +67,30 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: Obx(() {
-                          final subtitle = c.user?.user.value.getStatus();
+                          final String? status = c.user?.user.value.getStatus();
+                          final UserTextStatus? text =
+                              c.user?.user.value.status;
+                          final StringBuffer buffer = StringBuffer();
+
+                          if (status != null || text != null) {
+                            buffer.write(text ?? '');
+
+                            if (status != null && text != null) {
+                              buffer.write('space_vertical_space'.l10n);
+                            }
+
+                            buffer.write(status ?? '');
+                          }
+
+                          final String subtitle = buffer.toString();
+
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                   '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
-                              if (subtitle != null)
+                              if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
                                   style: Theme.of(context)
@@ -340,26 +357,6 @@ class UserView extends StatelessWidget {
 
       final subtitle = c.user?.user.value.getStatus();
 
-      final Color? color;
-
-      switch (presence) {
-        case Presence.present:
-          color = Colors.green;
-          break;
-
-        case Presence.away:
-          color = Colors.orange;
-          break;
-
-        case Presence.hidden:
-          color = Colors.grey;
-          break;
-
-        case Presence.artemisUnknown:
-          color = null;
-          break;
-      }
-
       return _padding(
         ReactiveTextField(
           key: const Key('Presence'),
@@ -368,7 +365,7 @@ class UserView extends StatelessWidget {
           enabled: false,
           trailing: CircleAvatar(
             key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: color,
+            backgroundColor: presence.getColor(),
             radius: 7,
           ),
         ),
