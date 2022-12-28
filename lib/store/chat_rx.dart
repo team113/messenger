@@ -87,7 +87,7 @@ class HiveRxChat extends RxChat {
   final Rx<ChatMessage?> draft;
 
   @override
-  final List<LastChatRead> lastReads = <LastChatRead>[];
+  final RxList<LastChatRead> lastReads = RxList<LastChatRead>([]);
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -168,22 +168,47 @@ class HiveRxChat extends RxChat {
 
     status.value = RxStatus.loading();
 
+    lastReads.addAll(
+        chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)));
+
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
     _worker = ever(chat, (_) => _updateFields());
+
+    messages.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          for (LastChatRead i in chat.value.lastReads) {
+            final PreciseDateTime? lastReadAt = _lastReadAt(i.memberId, i.at);
+            if (lastReadAt != null) {
+              lastReads.firstWhereOrNull((e) => e.memberId == i.memberId)?.at =
+                  lastReadAt;
+            }
+          }
+          break;
+
+        case OperationKind.removed:
+          for (LastChatRead i in lastReads) {
+            if (e.element.value.at == i.at) {
+              final lastReadAt = _lastReadAt(i.memberId, i.at, false);
+              if (lastReadAt != null) {
+                i.at = lastReadAt;
+              }
+            }
+          }
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
 
     return _guard.protect(() async {
       await _local.init(userId: me);
       if (!_local.isEmpty) {
         for (HiveChatItem i in _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
-        }
-
-        for (LastChatRead i in chat.value.lastReads) {
-          final lastReadAt = _lastReadAt(i.memberId, i.at);
-          if (lastReadAt != null) {
-            lastReads.add(LastChatRead(i.memberId, lastReadAt));
-          }
         }
       }
 
@@ -669,50 +694,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  @override
-  void updateLastReadsByDeleting(ChatItemId itemId) {
-    final hiddenMessage =
-        messages.firstWhereOrNull((e) => e.value.id == itemId);
-
-    if (hiddenMessage != null) {
-      for (LastChatRead i in lastReads) {
-        if (hiddenMessage.value.at == i.at) {
-          final lastReadAt = _lastReadAt(i.memberId, i.at, false);
-          if (lastReadAt != null) {
-            i.at = lastReadAt;
-          }
-        }
-      }
-    }
-  }
-
-  /// Updates [lastReads] with a new [ChatEventKind.read].
-  void _updateLastReadsByAdding(EventChatRead event) {
-    final lastReadAt = _lastReadAt(event.byUser.id, event.at);
-
-    if (lastReadAt != null) {
-      LastChatRead? lastRead =
-          lastReads.firstWhereOrNull((e) => e.memberId == event.byUser.id);
-
-      if (lastRead == null) {
-        lastReads.add(LastChatRead(event.byUser.id, lastReadAt));
-      } else {
-        lastRead.at = lastReadAt;
-      }
-    }
-  }
-
-  @override
-  void backLastReads(List<LastChatRead> oldLastReads) {
-    for (LastChatRead i in oldLastReads) {
-      final LastChatRead? lastRead =
-          lastReads.firstWhereOrNull((e) => e.memberId == i.memberId);
-      if (lastRead != null && i.at > lastRead.at) {
-        lastRead.at = i.at;
-      }
-    }
-  }
-
   /// Returns optional [PreciseDateTime] of the last read of [ChatItem].
   PreciseDateTime? _lastReadAt(
     UserId id,
@@ -1009,7 +990,19 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.read:
               event as EventChatRead;
-              _updateLastReadsByAdding(event);
+
+              final PreciseDateTime? lastReadAt =
+                  _lastReadAt(event.byUser.id, event.at);
+              if (lastReadAt != null) {
+                LastChatRead? lastRead = lastReads
+                    .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+                if (lastRead == null) {
+                  lastReads.add(LastChatRead(event.byUser.id, lastReadAt));
+                } else {
+                  lastRead.at = lastReadAt;
+                }
+              }
+
               LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {

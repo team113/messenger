@@ -65,7 +65,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.item,
     required this.me,
-    required this.lastReads,
+    required this.reads,
     this.user,
     this.getUser,
     this.animation,
@@ -94,9 +94,8 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// List of this [Chat]'s members which have read it, along with the
-  /// corresponding [LastChatRead]s.
-  final List<LastChatRead> lastReads;
+  /// List [LastChatRead]'s of this [ChatItem].
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -1233,16 +1232,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     bool isSent = item.status.value == SendingStatus.sent;
 
-    const int maxAvatars = 4;
+    const int maxAvatars = 5;
     final List<Widget> avatars = [];
 
     if (widget.chat.value?.isGroup == true) {
-      final Iterable<LastChatRead> reads = widget.lastReads
-          .where((e) => e.at == item.at && e.memberId != widget.me);
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
 
-      final int take = reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
-
-      for (LastChatRead m in reads.take(take)) {
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
         final User? user = widget.chat.value?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
@@ -1255,14 +1252,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         );
       }
 
-      if (reads.length > maxAvatars) {
+      if (widget.reads.length > maxAvatars) {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(
-              title: '+${reads.length - take}',
-              radius: 10,
-            ),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
           ),
         );
       }
@@ -1527,7 +1521,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 onPressed: () => ChatItemReads.show(
                                   context,
                                   at: item.at,
-                                  lastReads: widget.lastReads,
+                                  lastReads: widget.reads,
                                   getUser: widget.getUser,
                                 ),
                                 child: Row(

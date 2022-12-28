@@ -453,12 +453,9 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
     HiveRxChat? chat = _chats[chatId];
 
-    final List<LastChatRead>? oldLastReads =
-        chat?.lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList();
     Rx<ChatItem>? item =
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
     if (item != null) {
-      chat?.updateLastReadsByDeleting(item.value.id);
       chat?.messages.remove(item);
     }
 
@@ -469,10 +466,6 @@ class ChatRepository implements AbstractChatRepository {
         chat?.remove(item.value.id, item.value.timestamp);
       }
     } catch (_) {
-      if (oldLastReads != null) {
-        chat?.backLastReads(oldLastReads);
-      }
-
       if (item != null) {
         chat?.messages.insertAfter(
           item,
