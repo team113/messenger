@@ -483,7 +483,7 @@ class MyProfileController extends GetxController {
   }
 }
 
-/// Extension that adds text representation of a [Presence] value.
+/// Extension adding text and [Color] representations of a [Presence] value.
 extension PresenceL10n on Presence {
   /// Returns text representation of a current value.
   String? localizedString() {
@@ -494,6 +494,20 @@ extension PresenceL10n on Presence {
         return 'label_presence_away'.l10n;
       case Presence.hidden:
         return 'label_presence_hidden'.l10n;
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
+
+  /// Returns a [Color] representing this [Presence].
+  Color? getColor() {
+    switch (this) {
+      case Presence.present:
+        return Colors.green;
+      case Presence.away:
+        return Colors.orange;
+      case Presence.hidden:
+        return Colors.grey;
       case Presence.artemisUnknown:
         return null;
     }

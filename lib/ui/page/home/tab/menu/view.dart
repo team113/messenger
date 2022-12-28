@@ -86,26 +86,19 @@ class MenuTabView extends StatelessWidget {
                                   'dot'.l10n * 3,
                               style: const TextStyle(color: Colors.black),
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Obx(() {
-                                  return Text(
-                                    c.myUser.value?.presence
-                                            .localizedString() ??
-                                        'dot'.l10n * 3,
-                                    style: Theme.of(context).textTheme.caption,
-                                  );
-                                }),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.expand_more,
-                                  size: 18,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              ],
-                            ),
+                            Obx(() {
+                              return Text(
+                                c.myUser.value?.presence.localizedString() ??
+                                    'dot'.l10n * 3,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(
+                                      color:
+                                          c.myUser.value?.presence.getColor(),
+                                    ),
+                              );
+                            }),
                           ],
                         );
                       }),
