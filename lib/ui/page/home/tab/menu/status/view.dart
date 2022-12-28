@@ -39,7 +39,7 @@ class StatusView extends StatelessWidget {
   final bool expanded;
 
   /// Displays a [StatusView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {bool expanded = false}) {
+  static Future<T?> show<T>(BuildContext context, {bool expanded = true}) {
     return ModalPopup.show(
       context: context,
       child: StatusView(expanded: expanded),
