@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite chats. ([#218], [#209])
         - Searching. ([#206], [#205])
     - Home page:
-        - Quick status changing menu. ([#204], [#203])
+        - Quick status changing menu. ([#275], [#204], [#203])
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
@@ -48,7 +48,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
     - Profile page:
-        - Redesigned profile page. ([#244], [#243])
+        - Redesigned profile page. ([#244], [#257], [#243])
     - Redesigned desktop context menu. ([#245])
     - Auth page:
         - Redesigned login modal. ([#249])
@@ -115,9 +115,11 @@ All user visible changes to this project will be documented in this file. This p
 [#252]: /../../issues/252
 [#254]: /../../pull/254
 [#256]: /../../issues/256
+[#257]: /../../issues/257
 [#259]: /../../issues/259
 [#260]: /../../pull/260
 [#265]: /../../pull/265
+[#275]: /../../pull/275
 
 
 
