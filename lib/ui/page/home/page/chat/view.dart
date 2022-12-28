@@ -1972,11 +1972,12 @@ class _ChatViewState extends State<ChatView>
                         ),
                         Expanded(
                           child: Container(
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               border: Border(
                                 left: BorderSide(
                                   width: 2,
-                                  color: Color(0xFF63B4FF),
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                             ),
@@ -1989,7 +1990,8 @@ class _ChatViewState extends State<ChatView>
                                 Text(
                                   'label_edit'.l10n,
                                   style: style.boldBody.copyWith(
-                                    color: const Color(0xFF63B4FF),
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                 ),
                                 if (content != null) ...[

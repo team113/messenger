@@ -186,13 +186,10 @@ class ReactiveTextField extends StatelessWidget {
                       height: 24,
                       child: ElasticAnimatedSwitcher(
                         child: state.status.value.isLoading
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: SvgLoader.asset(
-                                  'assets/icons/timer.svg',
-                                  height: 17,
-                                ),
+                            ? SvgLoader.asset(
+                                'assets/icons/timer.svg',
+                                width: 17,
+                                height: 17,
                               )
                             : state.status.value.isSuccess
                                 ? const SizedBox(

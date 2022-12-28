@@ -102,7 +102,7 @@ class MyProfileController extends GetxController {
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the current [ApplicationSettings] value.
@@ -162,13 +162,19 @@ class MyProfileController extends GetxController {
     _myUserWorker = ever(
       _myUserService.myUser,
       (MyUser? v) {
-        if (!name.focus.hasFocus && !name.changed.value) {
+        if (!name.focus.hasFocus &&
+            !name.changed.value &&
+            name.editable.value) {
           name.unchecked = v?.name?.val;
         }
-        if (!login.focus.hasFocus && !login.changed.value) {
+        if (!login.focus.hasFocus &&
+            !login.changed.value &&
+            login.editable.value) {
           login.unchecked = v?.login?.val;
         }
-        if (!link.focus.hasFocus && !link.changed.value) {
+        if (!link.focus.hasFocus &&
+            !link.changed.value &&
+            link.editable.value) {
           link.unchecked = v?.chatDirectLink?.slug.val;
         }
       },
@@ -454,13 +460,6 @@ class MyProfileController extends GetxController {
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
-    }
-  }
-
-  /// Deletes [myUser]'s account.
-  Future<void> deleteAccount() async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _myUserService.deleteMyUser();
     }
   }
 
