@@ -310,33 +310,14 @@ Widget _status(MyProfileController c) {
 Widget _presence(MyProfileController c, BuildContext context) {
   return Obx(() {
     final Presence? presence = c.myUser.value?.presence;
-    final Color? color;
-
-    switch (presence) {
-      case Presence.present:
-        color = Colors.green;
-        break;
-
-      case Presence.away:
-        color = Colors.orange;
-        break;
-
-      case Presence.hidden:
-        color = Colors.grey;
-        break;
-
-      case Presence.artemisUnknown:
-      default:
-        color = null;
-        break;
-    }
 
     return _padding(
       FieldButton(
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
-        trailing: CircleAvatar(backgroundColor: color, radius: 7),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
         style: TextStyle(color: Theme.of(context).colorScheme.secondary),
       ),
     );

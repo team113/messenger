@@ -23,6 +23,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui//widget/svg/svg.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -356,26 +357,6 @@ class UserView extends StatelessWidget {
 
       final subtitle = c.user?.user.value.getStatus();
 
-      final Color? color;
-
-      switch (presence) {
-        case Presence.present:
-          color = Colors.green;
-          break;
-
-        case Presence.away:
-          color = Colors.orange;
-          break;
-
-        case Presence.hidden:
-          color = Colors.grey;
-          break;
-
-        case Presence.artemisUnknown:
-          color = null;
-          break;
-      }
-
       return _padding(
         ReactiveTextField(
           key: const Key('Presence'),
@@ -384,7 +365,7 @@ class UserView extends StatelessWidget {
           enabled: false,
           trailing: CircleAvatar(
             key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: color,
+            backgroundColor: presence.getColor(),
             radius: 7,
           ),
         ),
