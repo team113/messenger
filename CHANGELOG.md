@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite chats. ([#218], [#209])
         - Searching. ([#206], [#205])
     - Home page:
-        - Quick status changing menu. ([#204], [#203])
+        - Quick status changing menu. ([#275], [#204], [#203])
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
@@ -119,6 +119,7 @@ All user visible changes to this project will be documented in this file. This p
 [#259]: /../../issues/259
 [#260]: /../../pull/260
 [#265]: /../../pull/265
+[#275]: /../../pull/275
 
 
 
