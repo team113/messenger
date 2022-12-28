@@ -130,6 +130,9 @@ class DropdownFieldState<T> extends ReactiveFieldState {
   final RxBool isEmpty = RxBool(true);
 
   @override
+  final RxBool changed = RxBool(false);
+
+  @override
   final FocusNode focus = FocusNode();
 
   /// Currently selected value of this [DropdownFieldState].
@@ -150,7 +153,4 @@ class DropdownFieldState<T> extends ReactiveFieldState {
     controller.text = stringify(value);
     _value = value;
   }
-
-  @override
-  final RxBool changed = RxBool(false);
 }

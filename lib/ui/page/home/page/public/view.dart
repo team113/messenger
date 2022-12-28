@@ -937,7 +937,6 @@ class _PublicViewState extends State<PublicView>
             fontSize: 15,
             color: Colors.black,
           ),
-          autoSizeText: true,
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,

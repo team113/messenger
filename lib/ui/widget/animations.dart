@@ -31,53 +31,12 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSizeAndFade(
-      fadeDuration: const Duration(milliseconds: 900 + 450),
-      sizeDuration: const Duration(milliseconds: 900 + 450),
+      fadeDuration: const Duration(milliseconds: 1350),
+      sizeDuration: const Duration(milliseconds: 1350),
       sizeCurve: Curves.elasticInOut,
       fadeInCurve: Curves.elasticInOut,
       fadeOutCurve: Curves.elasticInOut,
       child: child,
-    );
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 900 + 450),
-      switchInCurve: Curves.elasticInOut,
-      switchOutCurve: Curves.elasticInOut,
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: animation,
-        child: child,
-      ),
-      child: AnimatedSize(
-        key: child.key,
-        duration: const Duration(milliseconds: 100),
-        child: child,
-      ),
-    );
-  }
-}
-
-class AnimatedSizeWidget extends StatefulWidget {
-  const AnimatedSizeWidget({
-    Key? key,
-    required this.child,
-    required this.duration,
-  }) : super(key: key);
-
-  final Widget child;
-  final Duration duration;
-
-  @override
-  _AnimatedSizeWidgetState createState() => _AnimatedSizeWidgetState();
-}
-
-class _AnimatedSizeWidgetState extends State<AnimatedSizeWidget>
-    with TickerProviderStateMixin {
-  Widget build(BuildContext context) {
-    return AnimatedSize(
-      vsync: this,
-      duration: widget.duration,
-      child: widget.child,
-      curve: Curves.easeInOut,
     );
   }
 }

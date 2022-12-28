@@ -17,37 +17,22 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
-/// View for forwarding the provided [quotes] into the selected [Chat]s.
+/// View for deleting the [MyUser]'s account.
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteAccountView extends StatelessWidget {
-  const DeleteAccountView({Key? key}) : super(key: key);
+  const DeleteAccountView({super.key});
 
   /// Displays a [DeleteAccountView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const DeleteAccountView(),
-    );
+    return ModalPopup.show(context: context, child: const DeleteAccountView());
   }
 
   @override
@@ -56,7 +41,7 @@ class DeleteAccountView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: DeleteAccountController(Get.find(), Get.find()),
+      init: DeleteAccountController(Get.find()),
       builder: (DeleteAccountController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -64,34 +49,34 @@ class DeleteAccountView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Delete account'.l10n,
+                    'label_delete_account'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
               ),
-              const SizedBox(height: 25 - 12),
+              const SizedBox(height: 13),
               Padding(
                 padding: ModalPopup.padding(context),
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      const TextSpan(text: 'Аккаунт '),
+                      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
                       TextSpan(
                         text: c.myUser.value?.name?.val ??
                             c.myUser.value?.login?.val ??
                             c.myUser.value?.num.val ??
-                            '...',
+                            'dot'.l10n * 3,
                         style: const TextStyle(color: Colors.black),
                       ),
-                      const TextSpan(text: ' будет удалён.'),
+                      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
                     ],
                     style: thin?.copyWith(
                       fontSize: 15,
-                      color: const Color(0xFF888888),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -101,7 +86,7 @@ class DeleteAccountView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
-                  maxWidth: null,
+                  maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),
@@ -110,7 +95,7 @@ class DeleteAccountView extends StatelessWidget {
                     c.deleteAccount();
                     Navigator.of(context).pop();
                   },
-                  color: const Color(0xFF63B4FF),
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 16),

@@ -161,8 +161,25 @@ abstract class UserGraphQlMixin {
     return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
   }
 
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserStatusUpdated] (if [text] argument is specified);
+  /// - [EventUserStatusDeleted] (if [text] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] has the provided [text] as his `status` value already.
   Future<MyUserEventsVersionedMixin?> updateUserStatus(
-      UserTextStatus? text) async {
+    UserTextStatus? text,
+  ) async {
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(

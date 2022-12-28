@@ -14,35 +14,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
-import '/domain/model/user.dart';
+import '/domain/model/application_settings.dart';
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [LanguageSelectionView].
 class LanguageSelectionController extends GetxController {
-  LanguageSelectionController();
+  LanguageSelectionController(this._settingsRepository);
 
+  /// Settings repository updating the [ApplicationSettings.locale].
+  final AbstractSettingsRepository? _settingsRepository;
+
+  /// Currently selected [Language].
   late final Rx<Language?> selected;
-
-
 
   @override
   void onInit() {
     selected = Rx(L10n.chosen.value);
     super.onInit();
+  }
+
+  /// Sets the provided [language] to be [L10n.chosen].
+  Future<void> setLocalization(Language language) async {
+    await Future.wait([
+      L10n.set(language),
+      _settingsRepository?.setLocale(language.toString()),
+    ].whereNotNull());
   }
 }

@@ -98,7 +98,7 @@ class MyUserView extends StatelessWidget {
                             child: AvatarWidget.fromMyUser(
                               c.myUser.value,
                               radius: 17,
-                              showBadge: false,
+                              badge: false,
                             ),
                           ),
                         ),
@@ -795,7 +795,6 @@ class MyUserView extends StatelessWidget {
             fontSize: 15,
             color: Colors.black,
           ),
-          autoSizeText: true,
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,

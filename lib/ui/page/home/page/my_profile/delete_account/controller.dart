@@ -17,45 +17,33 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/routes.dart';
 
-import '/domain/model/user.dart';
+import '/domain/model/my_user.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
+import '/routes.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
-  code,
-}
-
-/// Controller of a [ChatForwardView].
+/// Controller of a [DeleteAccountView].
 class DeleteAccountController extends GetxController {
-  DeleteAccountController(this._authService, this._myUserService);
+  DeleteAccountController(this._myUserService);
 
-  final AuthService _authService;
+  /// [MyUserService] maintaining the [MyUser].
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Deletes [myUser]'s account.
   Future<void> deleteAccount() async {
     try {
-      router.go(await _authService.logout());
+      await _myUserService.deleteMyUser();
+      router.go(Routes.auth);
       router.tab = HomeTab.chats;
-
-      // await _myUserService.deleteMyUser();
-    } catch (e) {
-      MessagePopup.error(e);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }

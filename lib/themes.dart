@@ -29,8 +29,6 @@ class Themes {
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
-          // background: Colors.white,
-          // background: const Color(0xFFFAFAFA),
           background: const Color(0xFFF5F8FA),
           onBackground: Colors.black,
         );
@@ -60,9 +58,9 @@ class Themes {
               fontWeight: FontWeight.w400,
             ),
             callDock: const Color(0xFF1E88E5),
+            cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
-            cardBlur: 5,
             cardHoveredBorder:
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
             cardHoveredColor: const Color(0xFFF4F9FF),

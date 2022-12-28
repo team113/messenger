@@ -292,7 +292,7 @@ class ChatForwardView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: OutlinedRoundedButton(
-                maxWidth: null,
+                maxWidth: double.infinity,
                 title: const Text(
                   'Send',
                   overflow: TextOverflow.ellipsis,
@@ -1155,7 +1155,6 @@ class ChatForwardView extends StatelessWidget {
             fontSize: 15,
             color: Colors.black,
           ),
-          autoSizeText: true,
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,

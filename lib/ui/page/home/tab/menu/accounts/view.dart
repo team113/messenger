@@ -108,7 +108,7 @@ class AccountsView extends StatelessWidget {
                     Expanded(
                       child: OutlinedRoundedButton(
                         key: const Key('BackButton'),
-                        maxWidth: null,
+                        maxWidth: double.infinity,
                         title: Text('btn_back'.l10n, style: thin),
                         onPressed: () => c.stage.value = AccountsViewStage.add,
                         color: const Color(0xFFEEEEEE),
@@ -118,7 +118,7 @@ class AccountsView extends StatelessWidget {
                     Expanded(
                       child: OutlinedRoundedButton(
                         key: const Key('LoginButton'),
-                        maxWidth: null,
+                        maxWidth: double.infinity,
                         title: Text(
                           'Login'.l10n,
                           style: thin?.copyWith(color: Colors.white),
@@ -179,7 +179,7 @@ class AccountsView extends StatelessWidget {
                       title: Text('Login'.l10n),
                       onPressed: () {},
                       color: const Color(0xFFEEEEEE),
-                      maxWidth: null,
+                      maxWidth: double.infinity,
                     ),
                   ),
                 ),
@@ -201,7 +201,7 @@ class AccountsView extends StatelessWidget {
                       ),
                       onPressed: Navigator.of(context).pop,
                       color: const Color(0xFF63B4FF),
-                      maxWidth: null,
+                      maxWidth: double.infinity,
                     ),
                   ),
                 ),
@@ -225,7 +225,7 @@ class AccountsView extends StatelessWidget {
                   child: ContactTile(
                     myUser: c.myUser.value,
                     darken: 0.05,
-                    border: style.cardBorder,
+                    // border: style.cardBorder,
                     selected: true,
                     trailing: const [
                       Text(
@@ -247,7 +247,7 @@ class AccountsView extends StatelessWidget {
                   child: ContactTile(
                     myUser: c.myUser.value,
                     darken: 0.05,
-                    border: style.cardBorder,
+                    // border: style.cardBorder,
                     selected: false,
                     onTap: () {},
                     // trailing: const [
@@ -266,7 +266,7 @@ class AccountsView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: OutlinedRoundedButton(
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       'Add account'.l10n,
                       style: thin?.copyWith(color: Colors.white),

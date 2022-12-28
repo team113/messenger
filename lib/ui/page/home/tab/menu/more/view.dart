@@ -99,7 +99,7 @@ class MoreView extends StatelessWidget {
                   color: Color(0xFF63B4FF),
                 ),
                 title: Text('btn_personalize'.l10n),
-                onTap: router.personalization,
+                // onTap: router.personalization,
               ),
               const SizedBox(height: 8),
               button(
@@ -109,7 +109,7 @@ class MoreView extends StatelessWidget {
                   color: Color(0xFF63B4FF),
                 ),
                 title: Text('btn_settings'.l10n),
-                onTap: router.settings,
+                // onTap: router.settings,
               ),
               const SizedBox(height: 8),
               button(
@@ -119,7 +119,7 @@ class MoreView extends StatelessWidget {
                   color: Color(0xFF63B4FF),
                 ),
                 title: Text('Download application'.l10n),
-                onTap: router.download,
+                // onTap: router.download,
               ),
               const SizedBox(height: 8),
               button(

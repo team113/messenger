@@ -17,48 +17,53 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode, ConfirmUserPhoneErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddPhoneFlowStage {
-  code,
-}
+/// Possible [AddPhoneView] flow stage.
+enum AddPhoneFlowStage { code }
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [AddPhoneView].
 class AddPhoneController extends GetxController {
   AddPhoneController(this._myUserService, {this.initial, this.pop});
 
+  /// Callback, called when a [AddPhoneView] this controller is bound to should
+  /// be popped from the [Navigator].
   final void Function()? pop;
+
+  /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
 
+  /// [UserPhone] field state.
   late final TextFieldState phone;
+
+  /// [TextFieldState] for the [UserPhone] confirmation code.
   late final TextFieldState phoneCode;
 
+  /// Indicator whether [UserPhone] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
-  /// Timeout of a [resendPhone] action.
+  /// Timeout of a [resendPhone].
   final RxInt resendPhoneTimeout = RxInt(0);
 
+  /// [AddPhoneFlowStage] currently being displayed.
   final Rx<AddPhoneFlowStage?> stage = Rx(null);
 
+  /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
 
-  /// [Timer] to decrease [resendPhoneTimeout].
+  /// [Timer] decreasing the [resendPhoneTimeout].
   Timer? _resendPhoneTimer;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -113,25 +118,14 @@ class AddPhoneController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
+          s.error.value = 'err_wrong_recovery_code'.l10n;
         }
 
         if (s.error.value == null) {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            // await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
-            if (s.text == '1111') {
-              await Future.delayed(const Duration(seconds: 1));
-              myUser.value?.phones.confirmed
-                  .add(UserPhone(phone.text.replaceAll(' ', '')));
-              // myUser.value?.phones.unconfirmed = null;
-              myUser.refresh();
-            } else {
-              throw const ConfirmUserPhoneException(
-                ConfirmUserPhoneErrorCode.wrongCode,
-              );
-            }
+            await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
             pop?.call();
             s.clear();
           } on FormatException {
@@ -163,8 +157,7 @@ class AddPhoneController extends GetxController {
     super.onClose();
   }
 
-  /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field to
-  /// [MyUser.emails].
+  /// Resends a [ConfirmationCode] to the specified [phone].
   Future<void> resendPhone() async {
     try {
       await _myUserService.resendPhone();
@@ -178,12 +171,12 @@ class AddPhoneController extends GetxController {
     }
   }
 
-  /// Starts or stops [resendEmailTimer] based on [enabled] value.
+  /// Starts or stops the [_resendPhoneTimer] based on [enabled] value.
   void _setResendPhoneTimer([bool enabled = true]) {
     if (enabled) {
       resendPhoneTimeout.value = 30;
       _resendPhoneTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
+        const Duration(seconds: 1),
         (_) {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {

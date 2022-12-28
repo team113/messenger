@@ -16,35 +16,19 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
-import 'controller.dart';
 
-/// View for forwarding the provided [quotes] into the selected [Chat]s.
+/// View showing details about a [MyUser.chatDirectLink].
 ///
 /// Intended to be displayed with the [show] method.
 class LinkDetailsView extends StatelessWidget {
-  const LinkDetailsView({Key? key}) : super(key: key);
+  const LinkDetailsView({super.key});
 
   /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const LinkDetailsView(),
-    );
+    return ModalPopup.show(context: context, child: const LinkDetailsView());
   }
 
   @override
@@ -52,61 +36,39 @@ class LinkDetailsView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
-    return GetBuilder(
-      init: LinkDetailsController(Get.find()),
-      builder: (LinkDetailsController c) {
-        return AnimatedSizeAndFade(
-          fadeDuration: const Duration(milliseconds: 250),
-          sizeDuration: const Duration(milliseconds: 250),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16 - 12),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'Your direct chat link'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 250),
+      sizeDuration: const Duration(milliseconds: 250),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 4),
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'label_your_direct_link'.l10n,
+                style: thin?.copyWith(fontSize: 18),
               ),
-              const SizedBox(height: 25 - 12),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(text: 'label_direct_chat_link_description'.l10n),
-                    ],
-                    style: thin?.copyWith(
-                      fontSize: 15,
-                      color: const Color(0xFF888888),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              // Padding(
-              //   padding: ModalPopup.padding(context),
-              //   child: OutlinedRoundedButton(
-              //     key: const Key('Proceed'),
-              //     maxWidth: null,
-              //     title: Text(
-              //       'btn_proceed'.l10n,
-              //       style: thin?.copyWith(color: Colors.white),
-              //     ),
-              //     onPressed: () {
-              //       c.deletePhone();
-              //       Navigator.of(context).pop();
-              //     },
-              //     color: const Color(0xFF63B4FF),
-              //   ),
-              // ),
-              // const SizedBox(height: 16),
-            ],
+            ),
           ),
-        );
-      },
+          const SizedBox(height: 13),
+          Padding(
+            padding: ModalPopup.padding(context),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(text: 'label_direct_chat_link_description'.l10n),
+                ],
+                style: thin?.copyWith(
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 25),
+        ],
+      ),
     );
   }
 }

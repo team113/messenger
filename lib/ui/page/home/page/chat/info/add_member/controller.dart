@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
@@ -29,42 +28,37 @@ import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
         RedialChatCallMemberException,
-        RemoveChatMemberException,
-        TransformDialogCallIntoGroupCallException;
+        RemoveChatMemberException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of a [ParticipantView].
-class AddMemberController extends GetxController {
-  AddMemberController(
+/// Controller of an [AddChatMemberView].
+class AddChatMemberController extends GetxController {
+  AddChatMemberController(
     this.chatId,
     this._chatService,
     this._callService, {
     this.pop,
   });
 
+  /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Callback, called when a [ParticipantView] this controller is bound to
+  /// Callback, called when an [AddChatMemberView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Status of a [addMembers] completion.
+  /// Status of an [addMembers] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [addMembers] is executing.
   /// - `status.isLoading`, meaning [addMembers] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
-
-  /// Worker for catching the [OngoingCallState.ended] state of the [_call] to
-  /// [pop] the view.
-  Worker? _stateWorker;
 
   /// Worker performing a [_fetchChat] on the [chatId] changes.
   Worker? _chatWorker;
@@ -113,7 +107,6 @@ class AddMemberController extends GetxController {
   @override
   void onClose() {
     _chatsSubscription?.cancel();
-    _stateWorker?.dispose();
     _chatWorker?.dispose();
     super.onClose();
   }
@@ -134,9 +127,6 @@ class AddMemberController extends GetxController {
   }
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
-  ///
-  /// If this [chat] is a dialog, then transforms the [_call] into a
-  /// [Chat]-group call.
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
@@ -148,8 +138,6 @@ class AddMemberController extends GetxController {
 
       pop?.call();
     } on AddChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } on TransformDialogCallIntoGroupCallException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -176,7 +164,7 @@ class AddMemberController extends GetxController {
   /// Fetches the [chat].
   void _fetchChat() async {
     chat.value = null;
-    chat.value = (await _chatService.get(chatId));
+    chat.value = await _chatService.get(chatId);
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

@@ -16,31 +16,18 @@
 
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/application_settings.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/repository/settings.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/util/obs/obs.dart';
 
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
+import '/domain/model/application_settings.dart';
+import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [CallWindowSwitchView].
 class CallWindowSwitchController extends GetxController {
   CallWindowSwitchController(this._settingsRepository);
 
+  /// Settings repository updating the [ApplicationSettings.enablePopups].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.

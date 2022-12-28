@@ -18,17 +18,14 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
-import 'package:messenger/ui/widget/menu_interceptor/menu_interceptor.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -49,6 +46,7 @@ import 'tab/publics/view.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
+import 'widget/rmb_detector.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {

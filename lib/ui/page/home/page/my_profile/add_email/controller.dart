@@ -17,48 +17,53 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
-  code,
-}
+/// Possible [AddEmailView] flow stage.
+enum AddEmailFlowStage { code }
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
   AddEmailController(this._myUserService, {this.initial, this.pop});
 
+  /// Callback, called when a [AddEmailView] this controller is bound to should
+  /// be popped from the [Navigator].
   final void Function()? pop;
+
+  /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
 
+  /// [UserEmail] field state.
   late final TextFieldState email;
+
+  /// [TextFieldState] for the [UserEmail] confirmation code.
   late final TextFieldState emailCode;
 
+  /// Indicator whether [UserEmail] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
-  /// Timeout of a [resendEmail] action.
+  /// Timeout of a [resendEmail].
   final RxInt resendEmailTimeout = RxInt(0);
 
+  /// [AddEmailFlowStage] currently being displayed.
   final Rx<AddEmailFlowStage?> stage = Rx(null);
 
+  /// [MyUserService] used for confirming an [UserEmail].
   final MyUserService _myUserService;
 
-  /// [Timer] to decrease [resendEmailTimeout].
+  /// [Timer] decreasing the [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -113,7 +118,7 @@ class AddEmailController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.l10n;
+          s.error.value = 'err_wrong_recovery_code'.l10n;
         }
 
         if (s.error.value == null) {
@@ -152,8 +157,7 @@ class AddEmailController extends GetxController {
     super.onClose();
   }
 
-  /// Resend [ConfirmationCode] to [UserEmail] specified in the [email] field to
-  /// [MyUser.emails].
+  /// Resends a [ConfirmationCode] to the specified [email].
   Future<void> resendEmail() async {
     try {
       await _myUserService.resendEmail();
@@ -167,12 +171,12 @@ class AddEmailController extends GetxController {
     }
   }
 
-  /// Starts or stops [resendEmailTimer] based on [enabled] value.
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
       _resendEmailTimer = Timer.periodic(
-        const Duration(milliseconds: 1500),
+        const Duration(seconds: 1),
         (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {

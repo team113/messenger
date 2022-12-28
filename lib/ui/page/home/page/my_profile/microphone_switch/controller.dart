@@ -16,35 +16,23 @@
 
 import 'dart:async';
 
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/repository/settings.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/util/obs/obs.dart';
+import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
+import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._call, this._settingsRepository);
 
+  /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  final GlobalKey cameraKey = GlobalKey();
-
+  /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
@@ -65,7 +53,7 @@ class MicrophoneSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default [camera] device.
+  /// Sets device with [id] as a used by default microphone device.
   Future<void> setAudioDevice(String id) async {
     await Future.wait([
       _call.value.setAudioDevice(id),

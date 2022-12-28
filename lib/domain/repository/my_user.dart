@@ -53,6 +53,7 @@ abstract class AbstractMyUserRepository {
   /// provided [bio] is `null`.
   Future<void> updateUserBio(UserBio? bio);
 
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status);
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].

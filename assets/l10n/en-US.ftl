@@ -14,6 +14,8 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+alert_account_will_be_deleted1 = Account{" "}
+alert_account_will_be_deleted2 = {" "}will be deleted.
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this Email?
@@ -21,6 +23,10 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_email_will_be_deleted1 = E-mail{" "}
+alert_email_will_be_deleted2 = {" "}will be deleted.
+alert_phone_will_be_deleted1 = Phone{" "}
+alert_phone_will_be_deleted2 = {" "}will be deleted.
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
@@ -34,6 +40,7 @@ alert_popup_permissions_description =
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
+btn_add_member = Add member
 btn_add_participant = Add participant
 btn_add_participants = Add participants
 btn_add_participant_desc =
@@ -43,7 +50,6 @@ btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Favorite
 btn_allow = Allow
 btn_audio_call = Audio call
-btn_away = Away
 btn_back = Back
 btn_block = Block
 btn_call_answer_with_audio =
@@ -218,23 +224,23 @@ err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
-err_could_not_download = An error ocurred while downloading
-err_current_password_empty = Current password must not be empty
+err_could_not_download = An error occurred while downloading
 err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
+err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
 err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
-err_incorrect_password = Incorrect Password
+err_incorrect_password = Incorrect password.
+err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
 err_login_occupied = This login is already taken.
 err_message_was_read = Message was read
 err_network = Connection to the server refused
-err_new_password_empty = New password must not be empty
 err_no_filename = File should have a name
 err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
@@ -248,14 +254,13 @@ err_not_member = Not a member
 err_nowhere_to_send = Account has no confirmed emails or phones
 err_password_empty = Please, enter the password
 err_password_incorrect = Password is too long and/or starts/ends with a space
-err_passwords_mismatch = Passwords do not match
+err_passwords_mismatch = Passwords do not match.
 err_phone_occupied = Phone number is already occupied
 err_quoted_message = Message was quoted
-err_repeat_password_empty = Please, repeat the password
 err_size_too_big = File is too big. Maximum allowed size is 15 MiB
 err_stale_version = Provided version is too stale
-err_too_many_emails = Reached maximum allowed number of Email addresses
-err_too_many_phones = Reached maximum allowed number of phone number
+err_too_many_emails = Reached maximum allowed number of E-mails.
+err_too_many_phones = Reached maximum allowed number of phones.
 err_too_short = Mute duration cannot be shorter than one minute
 err_unauthorized = Authentication required
 err_uneditable_message = You can\'t edit this message
@@ -276,27 +281,33 @@ err_unsupported_forwarded_item = Unsupported forwarded item
 err_uploaded_file_malformed = File is malformed
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_items_count = Wrong items count
-err_wrong_old_password = Wrong current password
+err_wrong_old_password = Wrong password.
 err_wrong_recovery_code = Provided code is wrong.
 err_you_already_add_this_email = Indicated E-mail has been added already
 err_you_already_add_this_phone = Indicated phone has been added already
-err_you_already_has_unconfirmed_email = You already has unconfirmed Email
-err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
+err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
+err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
-err_incorrect_email = Incorrect E-mail
 label_a_of_b = {$a} of {$b}
+label_account_created = Account is created
 label_actions = Actions
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
 label_add_chat_member = Add member
 label_add_email = Add E-mail
+label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_description = A confirmation code will be sent to the indicated E-mail.
 label_add_email_hint = Write your email address
 label_add_number = Add phone number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_add_participants = Add participants
+label_add_phone = Add phone number
+label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_phone_description = A confirmation code will be sent to the indicated phone number.
 label_account_access_will_be_lost = Account access will be lost
-label_account_created = Account is created
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -372,6 +383,7 @@ label_call_title =
 label_calls = Calls
 label_calls_displaying = Calls displaying
 label_camera = Camera
+label_change_password = Change password
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
@@ -383,6 +395,7 @@ label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
 label_confirm = Confirm
+label_confirmation_code = Confirmation code
 label_contact = Contact
 label_contact_information = Contact information
 label_contacts = Contacts
@@ -395,12 +408,15 @@ label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
 label_delete_account = Delete account
+label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
+label_delete_phone_number = Delete phone number
 label_delivered = Delivered
-label_dialog_created = Chat created via direct link
-# label_dialog_created = Dialog created
+label_details = Details.
+label_dialog_created = Dialog created
+# label_dialog_created = Chat created via direct link
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to
@@ -431,11 +447,8 @@ label_duration_second_short = s
 label_edit = Edit
 label_email = E-mail
 label_email_visible = Yor E-mail visible to:{" "}
-label_email_confirmation_code_was_sent =
-      Confirmation code was sent to the indicated E-mail.
-label_emails = Emails
+label_email_example = example@gmail.com
 label_empty_message = Empty message
-label_enable_popup_calls = Display calls in popup windows
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -519,19 +532,20 @@ label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
-label_open_calls_in_app = Display calls in the application window.
+label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
-# label_participant_redial_successfully = Participant redialed
 label_participants = Participants
 label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_changed = Password has been changed.
 label_password_not_set = Password not set. Access to the account will be lost.
-label_password_not_set_info = Для Вашего аккаунта не задан пароль. Как следствие:
-    - доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
-    - в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файла cookie.
+label_password_not_set_info = No password has been set for your account. Consequently:
+
+    • access to your account will be lost forever when you close the current window;
+
+    • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
 label_personalization = Personalization
 label_phone = Phone
@@ -540,7 +554,6 @@ label_phone_confirmation_code_was_send =
 label_phone_number = Phone number
 label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
-label_presence_title = Presence (traffic light)
 label_presence = Presence
 label_presence_away = Away
 label_presence_hidden = Don't show
@@ -560,6 +573,8 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_resend = Resend
+label_resend_timeout = Resend ({$timeout})
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -571,6 +586,7 @@ label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
+label_set_password = Set password
 label_settings = Settings
 label_short_weekday =
     {$weekday ->
@@ -611,6 +627,7 @@ label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_your_direct_link = Direct link to chat with you
 btn_personalize = Personalization
 label_personalization = Personalization
 label_tab_finance = Finance
@@ -619,15 +636,7 @@ plus = +
 semicolon_space = :{" "}
 space = {" "}
 space_vertical_space = {" "}|{" "}
-label_add_email_description = A confirmation code will be sent to the indicated E-mail.
-label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
-label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
-err_incorrect_phone = Incorrect phone number
-label_add_phone_description = A confirmation code will be sent to the indicated phone number.
-label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
-label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_language = Language
-err_incorrect_status = Status can't be longer that 25 symbols
 label_participants_of = Participants: {$a} of {$b}
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.

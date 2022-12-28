@@ -15,17 +15,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/model/contact.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
 ///
@@ -45,17 +45,12 @@ class ContactTile extends StatelessWidget {
     this.height = 86,
     this.radius = 30,
     this.actions,
-    this.canDelete = false,
-    this.onDelete,
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.onBadgeTap,
-    this.onAvatarTap,
-    this.showBadge = true,
-    this.border,
   }) : super(key: key);
 
+  /// [MyUser] to display.
   final MyUser? myUser;
 
   /// [RxChatContact] to display.
@@ -70,9 +65,6 @@ class ContactTile extends StatelessWidget {
   /// Optional trailing [Widget]s.
   final List<Widget> trailing;
 
-  final bool canDelete;
-  final void Function()? onDelete;
-
   /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
 
@@ -82,10 +74,18 @@ class ContactTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
+  /// Indicator whether this [ContactTile] should have its corner folded.
   final bool folded;
 
+  /// Indicator whether a default context menu should be prevented or not.
+  ///
+  /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
+
+  /// [ContextMenuRegion.actions] of this [ContactTile].
   final List<ContextMenuButton>? actions;
+
+  /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
 
   /// Optional subtitle [Widget]s.
@@ -97,198 +97,84 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  final void Function()? onBadgeTap;
-  final void Function()? onAvatarTap;
-  final bool showBadge;
-
-  final Border? border;
-
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return Container(
-      margin: margin,
-      child: ContextMenuRegion(
-        key: contact != null || user != null
-            ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
-            : null,
-        preventContextMenu: preventContextMenu,
-        actions: actions ?? [],
-        child: ClipPath(
-          clipper: folded
-              ? _FoldedClipper(radius: style.cardRadius.topLeft.x)
-              : null,
-          child: Stack(
-            children: [
-              Container(
-                constraints: const BoxConstraints(minHeight: 76),
-                decoration: BoxDecoration(
-                  borderRadius: style.cardRadius,
-                  border: border ?? style.cardBorder,
-                  color: Colors.transparent,
-                ),
-                child: Material(
-                  type: MaterialType.card,
-                  borderRadius: style.cardRadius,
-                  color: selected
-                      ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                      : style.cardColor.darken(darken),
-                  child: InkWell(
-                    borderRadius: style.cardRadius,
-                    onTap: onTap,
-                    hoverColor: selected
-                        ? const Color(0x00D7ECFF)
-                        : const Color.fromARGB(255, 244, 249, 255),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                      child: Row(
+    return ContextMenuRegion(
+      key: contact != null || user != null
+          ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
+          : null,
+      preventContextMenu: preventContextMenu,
+      actions: actions ?? [],
+      child: Padding(
+        padding: margin,
+        child: InkWellWithHover(
+          selectedColor: style.cardSelectedColor,
+          unselectedColor: style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.primaryBorder : style.cardHoveredBorder,
+          border: selected ? style.primaryBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor.darken(darken),
+          selectedHoverColor: style.cardSelectedColor,
+          folded: contact?.contact.value.favoritePosition != null,
+          child: Padding(
+            key: contact?.contact.value.favoritePosition != null
+                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                : null,
+            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            child: Row(
+              children: [
+                ...leading,
+                if (contact != null)
+                  AvatarWidget.fromRxContact(contact, radius: radius)
+                else if (user != null)
+                  AvatarWidget.fromRxUser(user, radius: radius)
+                else
+                  AvatarWidget.fromMyUser(
+                    myUser,
+                    radius: radius,
+                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
                         children: [
-                          ...leading,
-                          if (contact != null)
-                            AvatarWidget.fromRxContact(
-                              contact,
-                              radius: radius,
-                              onAvatarTap: onAvatarTap,
-                              onBadgeTap: onBadgeTap,
-                              showBadge: showBadge,
-                            )
-                          else if (user != null)
-                            AvatarWidget.fromRxUser(
-                              user,
-                              radius: radius,
-                              onAvatarTap: onAvatarTap,
-                              onBadgeTap: onBadgeTap,
-                              showBadge: showBadge,
-                            )
-                          else
-                            AvatarWidget.fromMyUser(
-                              myUser,
-                              radius: radius,
-                              onAvatarTap: onAvatarTap,
-                              onBadgeTap: onBadgeTap,
-                              showBadge: showBadge,
-                            ),
-                          const SizedBox(width: 12),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        contact?.contact.value.name.val ??
-                                            contact?.user.value?.user.value.name
-                                                ?.val ??
-                                            contact?.user.value?.user.value.num
-                                                .val ??
-                                            user?.user.value.name?.val ??
-                                            user?.user.value.num.val ??
-                                            myUser?.name?.val ??
-                                            myUser?.num.val ??
-                                            (myUser == null
-                                                ? '...'
-                                                : 'btn_your_profile'.l10n),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                ...subtitle,
-                              ],
+                            child: Text(
+                              contact?.contact.value.name.val ??
+                                  contact?.user.value?.user.value.name?.val ??
+                                  contact?.user.value?.user.value.num.val ??
+                                  user?.user.value.name?.val ??
+                                  user?.user.value.num.val ??
+                                  myUser?.name?.val ??
+                                  myUser?.num.val ??
+                                  (myUser == null
+                                      ? '...'
+                                      : 'btn_your_profile'.l10n),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
                             ),
                           ),
-                          ...trailing,
                         ],
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              if (folded)
-                Container(
-                  width: 15,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD9D9D9),
-                    borderRadius: const BorderRadius.only(
-                      bottomRight: Radius.circular(5),
-                    ),
-                    boxShadow: [
-                      CustomBoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 4,
-                        blurStyle: BlurStyle.outer,
-                      )
+                      ...subtitle,
                     ],
                   ),
-                )
-            ],
+                ),
+                ...trailing,
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
-
-class _FoldedClipper extends CustomClipper<Path> {
-  const _FoldedClipper({this.radius = 10});
-
-  final double radius;
-
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-
-    path.moveTo(size.width - radius, 0);
-
-    path.cubicTo(
-      size.width - radius,
-      0,
-      size.width,
-      0,
-      size.width,
-      radius,
-    );
-
-    path.lineTo(
-      size.width,
-      size.height - radius,
-    );
-
-    path.cubicTo(
-      size.width,
-      size.height - radius,
-      size.width,
-      size.height,
-      size.width - radius,
-      size.height,
-    );
-
-    path.lineTo(radius, size.height);
-
-    path.cubicTo(
-      radius,
-      size.height,
-      0,
-      size.height,
-      0,
-      size.height - radius,
-    );
-
-    path.lineTo(0, radius);
-    path.lineTo(radius, 0);
-
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }

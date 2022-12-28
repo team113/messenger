@@ -810,9 +810,9 @@ class ConfirmUserEmailException
   String toMessage() {
     switch (code) {
       case ConfirmUserEmailErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
       case ConfirmUserEmailErrorCode.occupied:
-        return 'err_email_occupied'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ConfirmUserEmailErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -837,7 +837,7 @@ class ConfirmUserPhoneException
       case ConfirmUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ConfirmUserPhoneErrorCode.occupied:
-        return 'err_phone_occupied'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ConfirmUserPhoneErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }

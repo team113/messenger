@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -151,13 +150,13 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
     void Function()? onBadgeTap,
     void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
-        isOnline: showBadge && myUser?.online == true,
+        isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.val,

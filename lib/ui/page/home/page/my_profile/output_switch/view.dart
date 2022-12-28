@@ -15,52 +15,38 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/selector.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
+import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
+/// View for updating the [MediaSettings.outputDevice].
+///
+/// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
   const OutputSwitchView(this._call, {super.key});
 
+  /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
+  /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<OngoingCall> call,
   }) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: OutputSwitchView(call),
-    );
+    return ModalPopup.show(context: context, child: OutputSwitchView(call));
   }
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
@@ -73,21 +59,20 @@ class OutputSwitchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'Output'.l10n,
+                    'label_media_output'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
               ),
-
               Flexible(
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    const SizedBox(height: 25 - 12),
+                    const SizedBox(height: 13),
                     Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,
@@ -103,55 +88,49 @@ class OutputSwitchView extends StatelessWidget {
                                 (c.output.value == null && i == 0) ||
                                     c.output.value == e.deviceId();
 
-                            return SizedBox(
-                              // height: 48,
-                              child: Material(
+                            return Material(
+                              borderRadius: BorderRadius.circular(10),
+                              color: selected
+                                  ? style.cardSelectedColor.withOpacity(0.8)
+                                  : Colors.white.darken(0.05),
+                              child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                color: selected
-                                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                                    : Colors.white.darken(0.05),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(10),
-                                  onTap: () => c.setOutputDevice(e.deviceId()),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            e.label(),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style:
-                                                const TextStyle(fontSize: 15),
-                                          ),
+                                onTap: () => c.setOutputDevice(e.deviceId()),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          e.label(),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 15),
                                         ),
-                                        const SizedBox(width: 12),
-                                        AnimatedSwitcher(
+                                      ),
+                                      const SizedBox(width: 12),
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: AnimatedSwitcher(
                                           duration: 200.milliseconds,
                                           child: selected
-                                              ? const SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child: CircleAvatar(
-                                                    backgroundColor:
-                                                        Color(0xFF63B4FF),
-                                                    radius: 12,
-                                                    child: Icon(
-                                                      Icons.check,
-                                                      color: Colors.white,
-                                                      size: 12,
-                                                    ),
+                                              ? CircleAvatar(
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                  radius: 12,
+                                                  child: const Icon(
+                                                    Icons.check,
+                                                    color: Colors.white,
+                                                    size: 12,
                                                   ),
                                                 )
-                                              : const SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  key: Key('0'),
-                                                ),
+                                              : const SizedBox(),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -164,23 +143,6 @@ class OutputSwitchView extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // const SizedBox(height: 25),
-
-              // const SizedBox(height: 25),
-              // Padding(
-              //   padding: ModalPopup.padding(context),
-              //   child: OutlinedRoundedButton(
-              //     key: const Key('Proceed'),
-              //     maxWidth: null,
-              //     title: Text(
-              //       'btn_proceed'.l10n,
-              //       style: thin?.copyWith(color: Colors.white),
-              //     ),
-              //     onPressed: Navigator.of(context).pop,
-              //     color: const Color(0xFF63B4FF),
-              //   ),
-              // ),
             ],
           ),
         );

@@ -14,63 +14,43 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat.dart';
 
-import '/domain/model/ongoing_call.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
+import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
-/// [OngoingCall.members] enumeration and administration view.
+/// [Chat.members] addition view.
 ///
 /// Intended to be displayed with the [show] method.
-class AddMemberView extends StatelessWidget {
-  const AddMemberView({super.key, required this.chatId});
+class AddChatMemberView extends StatelessWidget {
+  const AddChatMemberView({super.key, required this.chatId});
 
+  /// ID of the [Chat] to add [ChatMember]s to.
   final ChatId chatId;
 
-  /// Displays a [ParticipantView] wrapped in a [ModalPopup].
+  /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
       mobilePadding: const EdgeInsets.all(0),
-      child: AddMemberView(chatId: chatId),
+      child: AddChatMemberView(chatId: chatId),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: AddMemberController(
+      init: AddChatMemberController(
         chatId,
         Get.find(),
         Get.find(),
         pop: Navigator.of(context).pop,
       ),
-      builder: (AddMemberController c) {
+      builder: (AddChatMemberController c) {
         return Obx(() {
           if (c.chat.value == null) {
             return const Center(child: CircularProgressIndicator());

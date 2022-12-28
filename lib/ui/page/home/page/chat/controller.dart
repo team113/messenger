@@ -228,8 +228,6 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
-  final RxBool hasFocus = RxBool(false);
-
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
@@ -400,8 +398,6 @@ class ChatController extends GetxController {
         },
       ),
     );
-
-    send.focus.addListener(() => hasFocus.value = send.focus.hasFocus);
 
     super.onInit();
   }
@@ -1087,7 +1083,6 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    // MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -1150,7 +1145,7 @@ class ChatController extends GetxController {
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments]
+  /// to the [attachments].
   @visibleForTesting
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);

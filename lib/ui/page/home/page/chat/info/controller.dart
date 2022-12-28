@@ -19,24 +19,25 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/domain/service/call.dart';
-import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart' show CallAlreadyExistsException;
 import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -72,6 +73,7 @@ class ChatInfoController extends GetxController {
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
 
+  /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
   /// List of [UserId]s that are being removed from the [chat].
@@ -108,9 +110,7 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) {
-        s.error.value = null;
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
@@ -164,9 +164,7 @@ class ChatInfoController extends GetxController {
       text: chat?.chat.value.directLink?.slug.val ??
           ChatDirectLinkSlug.generate(10).val,
       submitted: chat?.chat.value.directLink != null,
-      onChanged: (s) {
-        s.error.value = null;
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         ChatDirectLinkSlug? slug;
         try {
@@ -185,9 +183,7 @@ class ChatInfoController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            // await _chatService.createChatDirectLink(chatId, slug!);
-            await Future.delayed(const Duration(seconds: 1));
-
+            await _chatService.createChatDirectLink(chatId, slug!);
             s.status.value = RxStatus.success();
             _linkTimer = Timer(
               const Duration(seconds: 1),
@@ -244,83 +240,15 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Generates a new [Chat.directLink].
-  Future<void> generateLink() async {
-    ChatDirectLinkSlug slug = ChatDirectLinkSlug.generate(10);
-
-    _linkTimer?.cancel();
-    link.editable.value = false;
-    link.status.value = RxStatus.loading();
-
-    bool generated = false;
-    while (!generated) {
-      try {
-        await _chatService.createChatDirectLink(chatId, slug);
-        link.text = slug.val;
-        link.status.value = RxStatus.success();
-        link.error.value = null;
-        _linkTimer = Timer(const Duration(seconds: 1),
-            () => link.status.value = RxStatus.empty());
-        generated = true;
-      } on CreateChatDirectLinkException catch (e) {
-        if (e.code != CreateChatDirectLinkErrorCode.occupied) {
-          link.status.value = RxStatus.empty();
-          link.error.value = e.toMessage();
-          generated = true;
-        }
-      } catch (e) {
-        link.status.value = RxStatus.empty();
-        link.editable.value = true;
-        MessagePopup.error(e);
-        rethrow;
-      }
-    }
-
-    link.editable.value = true;
-  }
-
-  // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
-      _callService.call(chatId, withVideo: withVideo);
-
-  /// Deletes the [Chat.directLink].
-  Future<void> deleteLink() async {
-    if (link.editable.isFalse) return;
-
-    _linkTimer?.cancel();
-    link.editable.value = false;
-    link.status.value = RxStatus.loading();
-
+  Future<void> call(bool withVideo) async {
     try {
-      await _chatService.deleteChatDirectLink(chatId);
-      link.status.value = RxStatus.success();
-      link.error.value = null;
-      _linkTimer = Timer(const Duration(seconds: 1),
-          () => link.status.value = RxStatus.empty());
-      link.text = '';
-    } on DeleteChatDirectLinkException catch (e) {
-      link.status.value = RxStatus.empty();
-      link.error.value = e.toMessage();
-    } catch (e) {
-      link.status.value = RxStatus.empty();
+      _callService.call(chatId, withVideo: withVideo);
+    } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
-      rethrow;
-    } finally {
-      link.editable.value = true;
+    } catch (e) {
+      MessagePopup.error(e);
     }
-  }
-
-  /// Puts the [Chat.directLink] into the clipboard and shows a snackbar.
-  void copyLink() {
-    Clipboard.setData(
-      ClipboardData(
-        text:
-            '${Config.origin}${Routes.chatDirectLink}/${chat!.chat.value.directLink!.slug.val}',
-      ),
-    );
-
-    // MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected
@@ -367,10 +295,10 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Unmutes a [Chat] identified by the provided [id].
-  Future<void> unmuteChat(ChatId id) async {
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
     try {
-      await _chatService.toggleChatMute(id, null);
+      await _chatService.toggleChatMute(chatId, null);
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -379,19 +307,50 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Mutes a [Chat] identified by the provided [id].
-  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
     try {
-      PreciseDateTime? until;
-      if (duration != null) {
-        until = PreciseDateTime.now().add(duration);
+      await _chatService.toggleChatMute(chatId, MuteDuration.forever());
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      await _chatService.favoriteChat(chatId);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      await _chatService.unfavoriteChat(chatId);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Hides the [chat].
+  Future<void> hideChat() async {
+    try {
+      await _chatService.hideChat(chatId);
+      if (router.route == '${Routes.chat}/$chatId') {
+        router.go('/');
       }
-
-      await _chatService.toggleChatMute(
-        id,
-        duration == null ? MuteDuration.forever() : MuteDuration(until: until),
-      );
-    } on ToggleChatMuteException catch (e) {
+    } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -399,17 +358,21 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
-  Future<void> redialChatCallMember(UserId memberId) async {
-    if (memberId == me) {
-      _callService.join(chatId);
+  /// Joins an [OngoingCall] happening in the [chat].
+  Future<void> joinCall() => _callService.join(chatId, withVideo: false);
+
+  /// Drops the [OngoingCall] happening in the [chat].
+  Future<void> dropCall() => _callService.leave(chatId);
+
+  /// Redials the [User] identified by its [userId].
+  Future<void> redialChatCallMember(UserId userId) async {
+    if (userId == me) {
+      await _callService.join(chatId);
       return;
     }
 
-    // MessagePopup.success('label_participant_redial_successfully'.l10n);
-
     try {
-      await _callService.redialChatCallMember(chatId, memberId);
+      await _callService.redialChatCallMember(chatId, userId);
     } on RedialChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -417,12 +380,6 @@ class ChatInfoController extends GetxController {
       rethrow;
     }
   }
-
-  /// Joins the call in the [Chat] identified by the [id].
-  Future<void> joinCall() => _callService.join(chatId, withVideo: false);
-
-  /// Drops the call in the [Chat] identified by the [id].
-  Future<void> dropCall() => _callService.leave(chatId);
 
   /// Fetches the [chat].
   void _fetchChat() async {
@@ -432,15 +389,24 @@ class ChatInfoController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       name.unchecked = chat!.chat.value.name?.val;
-      link.unchecked = chat!.chat.value.directLink?.slug.val;
+
+      if (chat!.chat.value.directLink?.slug.val == null) {
+        link.text = ChatDirectLinkSlug.generate(10).val;
+      } else {
+        link.unchecked = chat!.chat.value.directLink?.slug.val;
+      }
 
       _worker = ever(
         chat!.chat,
         (Chat chat) {
-          if (!name.focus.hasFocus) {
+          if (!name.focus.hasFocus &&
+              !name.changed.value &&
+              name.editable.value) {
             name.unchecked = chat.name?.val;
           }
-          if (!link.focus.hasFocus) {
+          if (!link.focus.hasFocus &&
+              !link.changed.value &&
+              link.editable.value) {
             link.unchecked = chat.directLink?.slug.val;
           }
         },

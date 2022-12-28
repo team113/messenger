@@ -17,34 +17,35 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
+import '/ui/widget/text_field.dart';
 
-class MoreController extends GetxController {
-  MoreController(this._myUserService);
+/// Controller of a [StatusView].
+class StatusController extends GetxController {
+  StatusController(this._myUserService);
 
+  /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
 
+  /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
-  final RxBool muted = RxBool(false);
-
+  /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
+  /// [Timer] to set a `RxStatus.empty` status of the [status] field.
   Timer? _statusTimer;
 
+  /// Worker invoking [setPresence] on the [presence] changes.
   Worker? _worker;
 
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
-
-  /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
-      _myUserService.updateUserPresence(presence);
 
   @override
   void onInit() {
@@ -57,13 +58,23 @@ class MoreController extends GetxController {
           setPresence(presence);
         }
       },
-      time: 250.milliseconds,
+      time: 350.milliseconds,
     );
 
     status = TextFieldState(
-      text: myUser.value?.status?.val,
+      text: myUser.value?.status?.val ?? '',
       approvable: true,
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
       onSubmitted: (s) async {
         try {
           if (s.text.isNotEmpty) {
@@ -87,7 +98,7 @@ class MoreController extends GetxController {
               () => s.status.value = RxStatus.empty(),
             );
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {
@@ -105,4 +116,8 @@ class MoreController extends GetxController {
     _worker?.dispose();
     super.onClose();
   }
+
+  /// Sets the [MyUser.presence] to the provided value.
+  Future<void> setPresence(Presence presence) =>
+      _myUserService.updateUserPresence(presence);
 }

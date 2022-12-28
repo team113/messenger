@@ -15,26 +15,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:messenger/domain/service/auth.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/download/view.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
-import 'page/personalization/view.dart';
 import 'page/public/view.dart';
-import 'page/settings/media/controller.dart';
-import 'page/settings/view.dart';
 import 'page/user/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
@@ -56,18 +48,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [
-      _CustomPage(
-        child: AnimatedSwitcher(
-          duration: 250.milliseconds,
-          child: _NestedHomeView(
-            Get.find<AuthService>().userId!,
-            key: Key(_state.tab.name),
-            _state.tab,
-          ),
-        ),
-      )
-    ];
+    List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
@@ -76,32 +57,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.me,
           child: MyProfileView(),
         ));
-      } else if (route == Routes.personalization) {
-        pages.add(const _CustomPage(
-          key: ValueKey('PersonalizationPage'),
-          name: Routes.personalization,
-          child: PersonalizationView(),
-        ));
-      } else if (route == Routes.download) {
-        pages.add(const _CustomPage(
-          key: ValueKey('DownloadPage'),
-          name: Routes.download,
-          child: DownloadView(false),
-        ));
-      } else if (route.startsWith(Routes.settings)) {
-        pages.add(const _CustomPage(
-          key: ValueKey('SettingsPage'),
-          name: Routes.settings,
-          child: SettingsView(),
-        ));
-
-        if (route == Routes.settingsMedia) {
-          pages.add(const _CustomPage(
-            key: ValueKey('MediaSettingsPage'),
-            name: Routes.settingsMedia,
-            child: MediaSettingsView(),
-          ));
-        }
       } else if (route.startsWith('${Routes.chat}/')) {
         String id = route
             .replaceFirst('${Routes.chat}/', '')
@@ -248,21 +203,5 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
         ),
       ),
     );
-  }
-}
-
-class _NestedHomeView extends StatelessWidget {
-  const _NestedHomeView(this.me, this.tab, {Key? key}) : super(key: key);
-
-  final UserId me;
-  final HomeTab tab;
-
-  @override
-  Widget build(BuildContext context) {
-    // if (!context.isNarrow && tab == HomeTab.menu) {
-    //   return UserView(me);
-    // }
-
-    return Container();
   }
 }

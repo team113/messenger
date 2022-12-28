@@ -17,45 +17,43 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
-/// View for forwarding the provided [quotes] into the selected [Chat]s.
+/// View for changing the [L10n.chosen].
 ///
 /// Intended to be displayed with the [show] method.
 class LanguageSelectionView extends StatelessWidget {
-  const LanguageSelectionView({Key? key}) : super(key: key);
+  const LanguageSelectionView(this.settingsRepository, {super.key});
 
-  /// Displays a [LinkDetailsView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
+  /// [AbstractSettingsRepository] persisting the selected [Language].
+  final AbstractSettingsRepository? settingsRepository;
+
+  /// Displays a [LanguageSelectionView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(
+    BuildContext context,
+    AbstractSettingsRepository? settingsRepository,
+  ) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: const LanguageSelectionView(),
+      child: LanguageSelectionView(settingsRepository),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: LanguageSelectionController(),
+      init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -63,7 +61,7 @@ class LanguageSelectionView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 16 - 12),
+              const SizedBox(height: 4),
               ModalPopupHeader(
                 header: Center(
                   child: Text(
@@ -72,55 +70,58 @@ class LanguageSelectionView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 25 - 12),
+              const SizedBox(height: 4),
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   itemBuilder: (context, i) {
                     final Language e = L10n.languages[i];
-                    // final bool selected = L10n.chosen.value == e;
 
                     return Obx(() {
                       final bool selected = c.selected.value == e;
                       return SizedBox(
-                        // height: 48,
+                        key: Key('Language_${e.locale.languageCode}'),
                         child: Material(
                           borderRadius: BorderRadius.circular(10),
                           color: selected
-                              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                              ? style.cardSelectedColor.withOpacity(0.8)
                               : Colors.white.darken(0.05),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(10),
-                            // onTap: () => L10n.set(e),
                             onTap: () => c.selected.value = e,
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Row(
                                 children: [
                                   Text(
-                                    '${e.locale.languageCode.toUpperCase()}, ${e.name}',
+                                    'label_language_entry'.l10nfmt({
+                                      'code':
+                                          e.locale.languageCode.toUpperCase(),
+                                      'name': e.name,
+                                    }),
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                   const Spacer(),
-                                  AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: selected
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFF63B4FF),
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: selected
+                                          ? CircleAvatar(
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
                                               radius: 12,
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.check,
                                                 color: Colors.white,
                                                 size: 12,
                                               ),
-                                            ),
-                                          )
-                                        : const SizedBox(key: Key('0')),
+                                            )
+                                          : const SizedBox(),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -139,19 +140,19 @@ class LanguageSelectionView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
-                  maxWidth: null,
+                  maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),
                   ),
                   onPressed: () {
-                    if (c.selected.value != L10n.chosen.value) {
-                      L10n.set(c.selected.value);
+                    if (c.selected.value != null) {
+                      c.setLocalization(c.selected.value!);
                     }
 
                     Navigator.of(context).pop();
                   },
-                  color: const Color(0xFF63B4FF),
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 16),

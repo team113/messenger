@@ -25,10 +25,11 @@ class WidgetButton extends StatelessWidget {
     this.onPressed,
   }) : super(key: key);
 
-  final HitTestBehavior? behavior;
-
   /// [Widget] to press.
   final Widget child;
+
+  /// [HitTestBehavior] of this [WidgetButton].
+  final HitTestBehavior? behavior;
 
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;

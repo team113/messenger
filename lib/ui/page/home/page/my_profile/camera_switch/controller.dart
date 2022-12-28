@@ -14,36 +14,24 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/repository/settings.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/util/obs/obs.dart';
+import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
+import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/repository/settings.dart';
+import '/util/obs/obs.dart';
 
 export 'view.dart';
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
   CameraSwitchController(this._call, this._settingsRepository);
 
+  /// Local [OngoingCall] for enumerating and displaying local media.
   final Rx<OngoingCall> _call;
 
-  final GlobalKey cameraKey = GlobalKey();
-
+  /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
@@ -51,7 +39,6 @@ class CameraSwitchController extends GetxController {
 
   /// Returns ID of the currently used video device.
   RxnString get camera => _call.value.videoDevice;
-
 
   /// Returns the local [Track]s.
   ObsList<Track>? get localTracks => _call.value.localTracks;
@@ -68,9 +55,11 @@ class CameraSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default [camera] device.
-  void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
-    _settingsRepository.setVideoDevice(id);
+  /// Sets device with [id] as a used by default camera device.
+  Future<void> setVideoDevice(String id) async {
+    await Future.wait([
+      _call.value.setVideoDevice(id),
+      _settingsRepository.setVideoDevice(id),
+    ]);
   }
 }

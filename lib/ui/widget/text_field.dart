@@ -18,8 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
+import '/l10n/l10n.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
@@ -39,6 +40,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
+    this.prefix,
     this.suffixColor,
     this.suffixSize,
     this.trailing,
@@ -50,15 +52,14 @@ class ReactiveTextField extends StatelessWidget {
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.prefix,
-    this.treatErrorAsStatus = true,
     this.filled,
+    this.treatErrorAsStatus = true,
     this.prefixIcon,
     this.prefixIconColor,
     this.focusNode,
     this.textAlign = TextAlign.start,
-    this.maxLength,
     this.fillColor = Colors.white,
+    this.maxLength,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -87,6 +88,7 @@ class ReactiveTextField extends StatelessWidget {
   final Color? suffixColor;
   final double? suffixSize;
 
+  /// Optional content padding.
   final EdgeInsets? padding;
 
   /// Optional trailing [Widget].
@@ -147,11 +149,14 @@ class ReactiveTextField extends StatelessWidget {
 
   final FocusNode? focusNode;
 
+  /// [TextAlign] of this [ReactiveTextField].
   final TextAlign textAlign;
 
-  final int? maxLength;
-
+  /// Fill color of the [TextField].
   final Color fillColor;
+
+  /// Maximum number of characters allowed in this [TextField].
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -162,27 +167,30 @@ class ReactiveTextField extends StatelessWidget {
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-              : const EdgeInsets.fromLTRB(12, 12, 12, 12));
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12);
         } else {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-              : const EdgeInsets.fromLTRB(0, 12, 0, 12));
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12);
         }
       } else {
-        contentPadding = (isDense
+        contentPadding = isDense
             ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-            : const EdgeInsets.fromLTRB(12, 24, 12, 16));
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16);
       }
 
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
     }
 
+    // Builds the suffix depending on the provided states.
     Widget buildSuffix() {
       return Obx(() {
         return WidgetButton(
-          onPressed: onSuffixPressed,
+          onPressed: state.approvable && state.changed.value
+              ? state.submit
+              : onSuffixPressed,
           child: ElasticAnimatedSwitcher(
             child: (state.approvable ||
                     suffix != null ||
@@ -191,17 +199,13 @@ class ReactiveTextField extends StatelessWidget {
                 ? Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: SizedBox(
-                      // width: 24,
                       height: 24,
                       child: ElasticAnimatedSwitcher(
                         child: state.status.value.isLoading
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: SvgLoader.asset(
-                                  'assets/icons/timer.svg',
-                                  height: 17,
-                                ),
+                            ? SvgLoader.asset(
+                                'assets/icons/timer.svg',
+                                width: 17,
+                                height: 17,
                               )
                             : state.status.value.isSuccess
                                 ? const SizedBox(
@@ -226,35 +230,24 @@ class ReactiveTextField extends StatelessWidget {
                                         ),
                                       )
                                     : (state.approvable && state.changed.value)
-                                        ? IconButton(
-                                            padding: EdgeInsets.zero,
-                                            constraints: BoxConstraints.tight(
-                                              const Size(76, 24),
-                                            ),
+                                        ? UnconstrainedBox(
                                             key: const ValueKey('Approve'),
-                                            onPressed: state.submit,
-                                            icon: UnconstrainedBox(
-                                              child: Text(
-                                                'Сохранить',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
+                                            child: Text(
+                                              'btn_save'.l10n,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                                fontWeight: FontWeight.normal,
                                               ),
                                             ),
                                           )
                                         : SizedBox(
                                             key: const ValueKey('Icon'),
-                                            width: trailingWidth,
+                                            width: 24,
                                             child: suffix != null
-                                                ? Icon(
-                                                    suffix,
-                                                    color: suffixColor,
-                                                    size: suffixSize,
-                                                  )
+                                                ? Icon(suffix)
                                                 : trailing == null
                                                     ? Container()
                                                     : trailing!,
@@ -262,17 +255,14 @@ class ReactiveTextField extends StatelessWidget {
                       ),
                     ),
                   )
-                : const SizedBox(
-                    width: 1,
-                    height: 0,
-                  ),
+                : const SizedBox(width: 1, height: 0),
           ),
         );
       });
     }
 
-    return Obx(
-      () => Theme(
+    return Obx(() {
+      return Theme(
         data: Theme.of(context).copyWith(
           platform: TargetPlatform.macOS,
           scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
@@ -285,65 +275,56 @@ class ReactiveTextField extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              children: [
-                TextField(
-                  controller: state.controller,
-                  style: style,
-                  focusNode: focusNode ?? state.focus,
-                  onChanged: (s) {
-                    state.isEmpty.value = s.isEmpty;
-                    onChanged?.call();
-                  },
-                  maxLength: maxLength,
-                  textAlign: textAlign,
-                  onSubmitted: (s) => state.submit(),
-                  inputFormatters: formatters,
-                  readOnly: !enabled || !state.editable.value,
-                  enabled: enabled && state.editable.value,
-                  decoration: InputDecoration(
-                    isDense: dense ?? PlatformUtils.isMobile,
-                    prefixText: prefixText,
-                    prefix: prefix,
-                    prefixIcon: prefixIcon,
-                    prefixIconColor: prefixIconColor,
-                    fillColor: fillColor,
-                    filled: filled ?? true,
-                    // fillColor: filled == false ? Colors.transparent : null,
-                    contentPadding: contentPadding,
-                    suffixIconConstraints: null,
+            TextField(
+              controller: state.controller,
+              style: style,
+              focusNode: focusNode ?? state.focus,
+              onChanged: (s) {
+                state.isEmpty.value = s.isEmpty;
+                onChanged?.call();
+              },
+              textAlign: textAlign,
+              onSubmitted: (s) => state.submit(),
+              inputFormatters: formatters,
+              readOnly: !enabled || !state.editable.value,
+              enabled: enabled && state.editable.value,
+              decoration: InputDecoration(
+                isDense: dense ?? PlatformUtils.isMobile,
+                prefixText: prefixText,
+                prefix: prefix,
+                prefixIcon: prefixIcon,
+                prefixIconColor: prefixIconColor,
+                fillColor: fillColor,
+                filled: filled ?? true,
+                // fillColor: filled == false ? Colors.transparent : null,
+                contentPadding: contentPadding,
+                suffixIconConstraints: null,
 
-                    // suffixIconConstraints: suffix == null && trailing == null
-                    //     ? const BoxConstraints(maxWidth: 44)
-                    //     : null,
-                    suffixIcon: dense == true ? null : buildSuffix(),
-                    icon: icon == null
-                        ? null
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Icon(icon),
-                          ),
-                    labelText: label,
-                    hintText: hint,
-                    hintMaxLines: 1,
+                // suffixIconConstraints: suffix == null && trailing == null
+                //     ? const BoxConstraints(maxWidth: 44)
+                //     : null,
+                suffixIcon: dense == true ? null : buildSuffix(),
+                icon: icon == null
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(icon),
+                      ),
+                labelText: label,
+                hintText: hint,
+                hintMaxLines: 1,
 
-                    // Hide the error's text as the [AnimatedSize] below this
-                    // [TextField] displays it better.
-                    errorStyle: const TextStyle(fontSize: 0),
-                    errorText: state.error.value,
-                  ),
-                  obscureText: obscure,
-                  keyboardType: type,
-                  minLines: minLines,
-                  maxLines: maxLines,
-                  textInputAction: textInputAction,
-                ),
-                // Positioned(
-                //   right: 0,
-                //   bottom: 12,
-                //   child: buildSuffix(),
-                // ),
-              ],
+                // Hide the error's text as the [AnimatedSize] below this
+                // [TextField] displays it better.
+                errorStyle: const TextStyle(fontSize: 0),
+                errorText: state.error.value,
+              ),
+              obscureText: obscure,
+              keyboardType: type,
+              minLines: minLines,
+              maxLines: maxLines,
+              textInputAction: textInputAction,
+              maxLength: maxLength,
             ),
 
             // Displays an error, if any.
@@ -356,11 +337,7 @@ class ReactiveTextField extends StatelessWidget {
                     : Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            top: 4,
-                          ),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value!,
                             style: (style ?? const TextStyle()).copyWith(
@@ -374,8 +351,8 @@ class ReactiveTextField extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -397,8 +374,11 @@ abstract class ReactiveFieldState {
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
   FocusNode get focus;
 
+  /// Indicator whether [controller]'s text was changed.
   RxBool get changed;
-  final bool approvable = false;
+
+  /// Indicator whether [controller]'s text should be approved.
+  bool approvable = false;
 
   /// Reactive error message.
   final RxnString error = RxnString();
@@ -418,7 +398,7 @@ class TextFieldState extends ReactiveFieldState {
     this.onSubmitted,
     RxStatus? status,
     FocusNode? focus,
-    this.approvable = false,
+    bool approvable = false,
     bool editable = true,
     bool submitted = true,
   }) : focus = focus ?? FocusNode() {
@@ -427,6 +407,7 @@ class TextFieldState extends ReactiveFieldState {
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
+    this.approvable = approvable;
 
     if (submitted) {
       _previousSubmit = text;
@@ -467,8 +448,6 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [submit] was manually called.
   final Function(TextFieldState)? onSubmitted;
-
-  final bool approvable;
 
   @override
   final RxBool changed = RxBool(false);

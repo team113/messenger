@@ -641,36 +641,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Settings button on the top right if call [isOutgoing].
-        // Obx(() {
-        //   bool isOutgoing =
-        //       (c.outgoing || c.state.value == OngoingCallState.local) &&
-        //           !c.started;
-
-        //   if (isOutgoing &&
-        //       c.state.value != OngoingCallState.active &&
-        //       c.state.value != OngoingCallState.joining) {
-        //     return Align(
-        //       alignment: Alignment.topRight,
-        //       child: Padding(
-        //         padding: const EdgeInsets.only(top: 8, right: 8),
-        //         child: TooltipButton(
-        //           verticalOffset: 8,
-        //           hint: 'btn_call_settings'.l10n,
-        //           onTap: () => c.openSettings(context),
-        //           child: SvgLoader.asset(
-        //             'assets/icons/settings.svg',
-        //             width: 16,
-        //             height: 16,
-        //           ),
-        //         ),
-        //       ),
-        //     );
-        //   }
-
-        //   return Container();
-        // }),
-
         // Sliding from the top title bar.
         Obx(() {
           bool preferTitle = c.state.value != OngoingCallState.active;

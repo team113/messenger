@@ -99,7 +99,7 @@ class DeletePhoneView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
-                  maxWidth: null,
+                  maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
                     style: thin?.copyWith(color: Colors.white),

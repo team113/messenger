@@ -44,7 +44,7 @@ class MyUserService extends DisposableService {
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
-  /// Returns the current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
   @override
@@ -79,6 +79,7 @@ class MyUserService extends DisposableService {
   /// If [bio] is `null`, then resets [MyUser.bio] field.
   Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
 
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) =>
       _userRepo.updateUserStatus(status);
 

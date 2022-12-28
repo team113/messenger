@@ -15,10 +15,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'widget_button.dart';
 
 /// Stylized modal popup.
 ///
@@ -46,9 +46,6 @@ abstract class ModalPopup {
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
-    Color? color,
-    Widget? header,
-    void Function()? onBack,
   }) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -57,7 +54,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: color ?? Colors.white,
+        backgroundColor: Colors.white,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -115,76 +112,12 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: color ?? Colors.white,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // const SizedBox(height: 16),
-                      // Row(
-                      //   children: [
-                      //     if (onBack != null)
-                      //       WidgetButton(
-                      //         onPressed: onBack,
-                      //         child: Icon(
-                      //           Icons.arrow_back_ios_new,
-                      //           size: 16,
-                      //           color: Theme.of(context).colorScheme.secondary,
-                      //         ),
-                      //       )
-                      //     else
-                      //       const SizedBox(width: 20),
-                      //     if (header != null)
-                      //       Expanded(child: header)
-                      //     else
-                      //       const Spacer(),
-                      //     WidgetButton(
-                      //       onPressed: Navigator.of(context).pop,
-                      //       child: const Icon(
-                      //         Icons.close,
-                      //         size: 16,
-                      //         color: Color(0xBB818181),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      Flexible(
-                        child: ConstrainedBox(
-                          constraints: desktopConstraints,
-                          child: child,
-                        ),
-                      ),
-                      // const SizedBox(height: 16),
-                    ],
-                  ),
-                  // Positioned.fill(
-                  //   child: Align(
-                  //     alignment: Alignment.topRight,
-                  //     child: Padding(
-                  //       padding: desktopPadding.right == 0
-                  //           ? const EdgeInsets.only(right: 10)
-                  //           : EdgeInsets.zero,
-                  //       child: SizedBox(
-                  //         height: 16,
-                  //         child: isDismissible
-                  // ? WidgetButton(
-                  //     onPressed: Navigator.of(context).pop,
-                  //     child: const Icon(
-                  //       Icons.close,
-                  //       size: 16,
-                  //       color: Color(0xBB818181),
-                  //     ),
-                  //   )
-                  //             : null,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                ],
+              child: ConstrainedBox(
+                constraints: desktopConstraints,
+                child: child,
               ),
             ),
           );
@@ -212,8 +145,8 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 48),
       child: Row(
         children: [
           if (onBack != null)
@@ -233,6 +166,7 @@ class ModalPopupHeader extends StatelessWidget {
           if (header != null) Expanded(child: header!) else const Spacer(),
           if (!context.isMobile)
             WidgetButton(
+              key: const Key('CloseButton'),
               onPressed: Navigator.of(context).pop,
               child: Padding(
                 padding: const EdgeInsets.all(12),

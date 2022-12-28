@@ -17,39 +17,36 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible [ChangePasswordView] flow stage.
 enum ChangePasswordFlowStage { set, changed }
 
-/// Controller of a [ChatForwardView].
+/// Controller of a [ChangePasswordView].
 class ChangePasswordController extends GetxController {
   ChangePasswordController(this._myUserService);
 
+  /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
 
-  /// State of a current [myUser]'s password field.
+  /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;
 
-  /// State of a new [myUser]'s password field.
+  /// [TextFieldState] of the new password.
   late final TextFieldState newPassword;
 
-  /// State of a repeated new [myUser]'s password field.
+  /// [TextFieldState] for repeating the new password.
   late final TextFieldState repeatPassword;
 
-  /// Indicator whether the [password] should be obscured.
+  /// Indicator whether the [oldPassword] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
   /// Indicator whether the [newPassword] should be obscured.
@@ -58,9 +55,10 @@ class ChangePasswordController extends GetxController {
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
 
+  /// [MyUserService] updating the [MyUser]'s password.
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
@@ -81,6 +79,7 @@ class ChangePasswordController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         repeatPassword.error.value = null;
+
         try {
           UserPassword(s.text);
         } on FormatException catch (_) {
@@ -115,27 +114,12 @@ class ChangePasswordController extends GetxController {
     repeatPassword.submit();
 
     if (myUser.value?.hasPassword == true) {
-      if (!oldPassword.isValidated || oldPassword.text.isEmpty) {
-        oldPassword.error.value = 'err_current_password_empty'.l10n;
-        return;
-      }
-
       if (oldPassword.error.value != null) {
         return;
       }
     }
 
     if (newPassword.error.value == null && repeatPassword.error.value == null) {
-      if (!newPassword.isValidated || newPassword.text.isEmpty) {
-        newPassword.error.value = 'err_new_password_empty'.l10n;
-        return;
-      }
-
-      if (!repeatPassword.isValidated || repeatPassword.text.isEmpty) {
-        repeatPassword.error.value = 'err_repeat_password_empty'.l10n;
-        return;
-      }
-
       if (repeatPassword.text != newPassword.text) {
         repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
         return;
@@ -158,7 +142,7 @@ class ChangePasswordController extends GetxController {
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {
-        repeatPassword.error.value = e.toString();
+        repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
         repeatPassword.status.value = RxStatus.empty();

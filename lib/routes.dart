@@ -57,7 +57,6 @@ import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
-import 'ui/page/style/test/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
@@ -78,15 +77,11 @@ class Routes {
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
   static const contact = '/contact';
-  static const download = '/download';
   static const home = '/';
   static const finance = '/finance';
   static const public = '/public';
   static const me = '/me';
   static const menu = '/menu';
-  static const personalization = '/personalization';
-  static const settings = '/settings';
-  static const settingsMedia = '/settings/media';
   static const user = '/user';
 
   // E2E tests related page, should not be used in non-test environment.
@@ -97,18 +92,12 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab {
-  // finance,
-  contacts,
-  // public,
-  chats,
-  menu,
-}
+enum HomeTab { contacts, chats, menu }
 
+/// List of [Routes.me] page sections.
 enum ProfileTab {
   public,
   signing,
-  // privacy,
   link,
   background,
   calls,
@@ -161,7 +150,8 @@ class RouterState extends ChangeNotifier {
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
-  final Rx<ProfileTab?> profileTab = Rx(null);
+  /// Current [Routes.me] page section.
+  final Rx<ProfileTab?> profileSection = Rx(null);
 
   final RxBool muted = RxBool(false);
 
@@ -639,10 +629,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.public) ||
         _state.route == Routes.me ||
-        _state.route == Routes.settings ||
-        _state.route == Routes.settingsMedia ||
-        _state.route == Routes.personalization ||
-        _state.route == Routes.download ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -709,20 +695,6 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
-
-  /// Changes router location to the [Routes.settings] page.
-  void settings({bool push = false}) =>
-      push ? this.push(Routes.settings) : go(Routes.settings);
-
-  /// Changes router location to the [Routes.settingsMedia] page.
-  void settingsMedia() => go(Routes.settingsMedia);
-
-  /// Changes router location to the [Routes.personalization] page.
-  void personalization({bool push = false}) =>
-      push ? this.push(Routes.personalization) : go(Routes.personalization);
-
-  void download({bool push = false}) =>
-      push ? this.push(Routes.download) : go(Routes.download);
 
   /// Changes router location to the [Routes.me] page.
   void me({bool push = false}) => push ? this.push(Routes.me) : go(Routes.me);

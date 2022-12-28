@@ -19,15 +19,13 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/swappable_fit.dart';
-import 'package:messenger/ui/page/download/view.dart';
-import 'package:messenger/ui/page/home/page/my_profile/language/controller.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/widget/selector.dart';
+import '/ui/page/download/view.dart';
+import '/ui/page/home/page/my_profile/language/controller.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -40,18 +38,6 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return SwappableFit<int>(
-    //   children: List.generate(5, (i) => i),
-    //   itemBuilder: (i) {
-    //     return Container(
-    //       color: Colors.primaries[i % Colors.primaries.length],
-    //       width: double.infinity,
-    //       height: double.infinity,
-    //       child: Text('$i'),
-    //     );
-    //   },
-    // );
-
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
@@ -152,10 +138,13 @@ class AuthView extends StatelessWidget {
         Widget language = CupertinoButton(
           key: c.languageKey,
           child: Text(
-            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            'label_language_entry'.l10nfmt({
+              'code': L10n.chosen.value!.locale.countryCode,
+              'name': L10n.chosen.value!.name,
+            }),
             style: thin?.copyWith(fontSize: 13, color: primary),
           ),
-          onPressed: () => LanguageSelectionView.show(context),
+          onPressed: () => LanguageSelectionView.show(context, null),
         );
 
         // Footer part of the page.
@@ -174,7 +163,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            color: const Color(0xFF63B4FF),
+            color: Theme.of(context).colorScheme.secondary,
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(

@@ -343,8 +343,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           _waitTilSizeDetermined();
         } else {
           setState(() => widget.onSizeDetermined?.call());
-          print('onSizeDetermined');
-          // Future.delayed(Duration.zero, () => setState(() {}));
         }
       }
     });

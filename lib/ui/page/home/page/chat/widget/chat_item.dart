@@ -1555,26 +1555,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ),
                               ),
                             ),
-                            // if (avatars.isNotEmpty)
-                            //   Positioned.fill(
-                            //     child: Align(
-                            //       alignment: Alignment.bottomRight,
-                            //       child: Transform.translate(
-                            //         offset: const Offset(-6, 16),
-                            //         child: WidgetButton(
-                            //           onPressed: () => ChatItemReadsView.show(
-                            //             context,
-                            //             item: widget.item,
-                            //             chat: widget.chat,
-                            //           ),
-                            //           child: Row(
-                            //             mainAxisSize: MainAxisSize.min,
-                            //             children: avatars,
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   )
                           ],
                         ),
                       ),

@@ -17,47 +17,34 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode;
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
 
-enum AddEmailFlowStage {
-  code,
-}
-
-/// Controller of a [ChatForwardView].
+/// Controller of a [DeletePhoneView].
 class DeletePhoneController extends GetxController {
   DeletePhoneController(this._myUserService, {required this.phone});
 
+  /// [UserPhone] to delete.
   final UserPhone phone;
 
+  /// [MyUserService] deleting the [phone].
   final MyUserService _myUserService;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Deletes [email] address from [MyUser.emails].
+  /// Deletes [phone] from [MyUser.phones].
   Future<void> deletePhone() async {
     try {
-      if (myUser.value?.phones.unconfirmed != null) {
-        await _myUserService.deleteUserPhone(phone);
-      } else {
-        myUser.value?.phones.confirmed.removeWhere((e) => e == phone);
-        myUser.refresh();
-      }
-    } catch (e) {
-      MessagePopup.error(e);
+      await _myUserService.deleteUserPhone(phone);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }
