@@ -26,10 +26,10 @@ import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
 /// Controller of a [StatusView].
-class StatusViewController extends GetxController {
-  StatusViewController(this._myUserService);
+class StatusController extends GetxController {
+  StatusController(this._myUserService);
 
-  /// [Presence] visible on the screen.
+  /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
 
   /// [MyUser.status]'s field state.
@@ -41,10 +41,10 @@ class StatusViewController extends GetxController {
   /// [Timer] to set a `RxStatus.empty` status of the [status] field.
   Timer? _statusTimer;
 
-  /// Worker to react on [presence] changes.
+  /// Worker invoking [setPresence] on the [presence] changes.
   Worker? _worker;
 
-  /// Returns current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override

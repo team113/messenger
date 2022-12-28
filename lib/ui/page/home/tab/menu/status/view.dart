@@ -25,24 +25,24 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 
 import 'controller.dart';
 
-/// View for changing [MyUser.status] and [MyUser.presenceIndex].
+/// View for changing [MyUser.status] and/or [MyUser.presence].
 ///
-/// /// Intended to be displayed with the [show] method.
+/// Intended to be displayed with the [show] method.
 class StatusView extends StatelessWidget {
-  const StatusView({super.key, this.presenceOnly = false});
+  const StatusView({super.key, this.expanded = false});
 
-  /// Indicator whether only [MyUser.presenceIndex] can be changed.
-  final bool presenceOnly;
+  /// Indicator whether this [StatusView] should contain [MyUser.status] field
+  /// as well as [MyUser.presence], or [MyUser.presence] only otherwise.
+  final bool expanded;
 
-  /// Displays an [StatusView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {bool presenceOnly = false}) {
+  /// Displays a [StatusView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(BuildContext context, {bool expanded = false}) {
     return ModalPopup.show(
       context: context,
-      child: StatusView(presenceOnly: presenceOnly),
+      child: StatusView(expanded: expanded),
     );
   }
 
@@ -53,15 +53,15 @@ class StatusView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
-      init: StatusViewController(Get.find()),
-      builder: (StatusViewController c) {
+      init: StatusController(Get.find()),
+      builder: (StatusController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  presenceOnly ? 'label_presence'.l10n : 'label_status'.l10n,
+                  expanded ? 'label_status'.l10n : 'label_presence'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -71,7 +71,7 @@ class StatusView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 shrinkWrap: true,
                 children: [
-                  if (!presenceOnly) ...[
+                  if (expanded) ...[
                     _padding(
                       ReactiveTextField(
                         key: const Key('StatusField'),
@@ -83,10 +83,6 @@ class StatusView extends StatelessWidget {
                             : () {
                                 Clipboard.setData(
                                   ClipboardData(text: c.status.text),
-                                );
-
-                                MessagePopup.success(
-                                  'label_copied_to_clipboard'.l10n,
                                 );
                               },
                         trailing: c.status.text.isEmpty
@@ -117,8 +113,8 @@ class StatusView extends StatelessWidget {
                   ],
                   ...[Presence.present, Presence.away].map((e) {
                     return Obx(() {
-                      String? title;
-                      Color? color;
+                      final String? title;
+                      final Color? color;
 
                       switch (e) {
                         case Presence.present:
@@ -137,7 +133,8 @@ class StatusView extends StatelessWidget {
                           break;
 
                         case Presence.artemisUnknown:
-                          // No-op.
+                          title = null;
+                          color = null;
                           break;
                       }
 

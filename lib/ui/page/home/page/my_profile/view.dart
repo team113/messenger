@@ -333,7 +333,7 @@ Widget _presence(MyProfileController c, BuildContext context) {
 
     return _padding(
       FieldButton(
-        onPressed: () => StatusView.show(context, presenceOnly: true),
+        onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
         trailing: CircleAvatar(backgroundColor: color, radius: 7),
