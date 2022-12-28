@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -113,41 +114,16 @@ class StatusView extends StatelessWidget {
                   ],
                   ...[Presence.present, Presence.away].map((e) {
                     return Obx(() {
-                      final String? title;
-                      final Color? color;
-
-                      switch (e) {
-                        case Presence.present:
-                          title = 'btn_online'.l10n;
-                          color = Colors.green;
-                          break;
-
-                        case Presence.away:
-                          title = 'btn_away'.l10n;
-                          color = Colors.orange;
-                          break;
-
-                        case Presence.hidden:
-                          title = 'btn_invisible'.l10n;
-                          color = Colors.grey;
-                          break;
-
-                        case Presence.artemisUnknown:
-                          title = null;
-                          color = null;
-                          break;
-                      }
-
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: FieldButton(
                           onPressed: () => c.presence.value = e,
-                          text: title,
+                          text: e.localizedString(),
                           trailing: SizedBox(
                             width: 20,
                             height: 20,
                             child: CircleAvatar(
-                              backgroundColor: color,
+                              backgroundColor: e.getColor(),
                               radius: 12,
                               child: AnimatedSwitcher(
                                 duration: 200.milliseconds,
