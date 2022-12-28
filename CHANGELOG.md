@@ -31,6 +31,8 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#260], [#259])
     - User page:
         - Blacklisting. ([#234], [#229])
+    - Profile page:
+        - Blacklist. ([#277], [#267])
 
 ### Changed
 
@@ -119,6 +121,8 @@ All user visible changes to this project will be documented in this file. This p
 [#259]: /../../issues/259
 [#260]: /../../pull/260
 [#265]: /../../pull/265
+[#267]: /../../issues/267
+[#277]: /../../pull/277
 
 
 
