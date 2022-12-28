@@ -307,28 +307,29 @@ class ContactsTabView extends StatelessWidget {
                       },
                       itemCount: c.favorites.length,
                       onReorder: (int i, int j) {
-                        var j2 = j - 1;
-                        if (j2 < 0) {
-                          j2 = 0;
-                        }
-                        if (j >= c.favorites.length) {
-                          j--;
-                        }
-                        print(c.favorites[j].contact.value.favoritePosition);
-                        print(c.favorites[j2].contact.value.favoritePosition);
-                        print((c.favorites[j].contact.value.favoritePosition!
+                        ChatContactPosition position;
+                        if (j - 1 < 0) {
+                          position = ChatContactPosition(
+                            c.favorites[0].contact.value.favoritePosition!.val -
+                                0.1,
+                          );
+                        } else if (j >= c.favorites.length) {
+                          position = ChatContactPosition(
+                            c.favorites.last.contact.value.favoritePosition!
                                     .val +
-                                c.favorites[j2].contact.value.favoritePosition!
-                                    .val) /
-                            2);
-                        print('$i - $j');
-                        c.favoriteContact(
-                            c.favorites[i].id,
-                            ChatContactPosition((c.favorites[j].contact.value
-                                        .favoritePosition!.val +
-                                    c.favorites[j2].contact.value
-                                        .favoritePosition!.val) /
-                                2));
+                                1,
+                          );
+                        } else {
+                          if (j >= c.favorites.length) {
+                            j--;
+                          }
+                          position = ChatContactPosition((c.favorites[j].contact
+                                      .value.favoritePosition!.val +
+                                  c.favorites[j - 1].contact.value
+                                      .favoritePosition!.val) /
+                              2);
+                        }
+                        c.favoriteContact(c.favorites[i].id, position);
                       },
                     ),
                     SliverList(
