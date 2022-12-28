@@ -14,8 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
@@ -269,29 +273,86 @@ class ContactsTabView extends StatelessWidget {
                 child: Text('label_no_contacts'.l10n),
               );
             } else {
-              final List<RxChatContact> contacts = [
-                ...c.favorites,
-                ...c.contacts,
-              ];
+              // final List<RxChatContact> contacts = [
+              //   ...c.favorites,
+              //   ...c.contacts,
+              // ];
 
               child = AnimationLimiter(
-                child: ListView.builder(
+                child: CustomScrollView(
                   controller: ScrollController(),
-                  itemCount: c.favorites.length + c.contacts.length,
-                  itemBuilder: (_, i) {
-                    final RxChatContact contact = contacts[i];
-                    return AnimationConfiguration.staggeredList(
-                      position: i,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        horizontalOffset: 50,
-                        child: FadeInAnimation(
-                          child: Obx(() => _contact(context, contact, c)),
-                        ),
+                  slivers: [
+                    const SizedBox(height: kToolbarHeight),
+                    SliverReorderableList(
+                      itemBuilder: (context, i) {
+                        RxChatContact contact = c.favorites.elementAt(i);
+                        return MyReorderableDelayedDragStartListener(
+                          key: Key(contact.id.val),
+                          index: i,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              top: i == 0 ? 3 : 0,
+                            ),
+                            child: AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child:
+                                      Obx(() => _contact(context, contact, c)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      itemCount: c.favorites.length,
+                      onReorder: (int i, int j) {},
+                    ),
+                    SliverList(
+                      delegate: SliverChildListDelegate.fixed(
+                        c.contacts.mapIndexed((i, e) {
+                          final RxChatContact contact = c.contacts[i];
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              top: i == 0 && c.favorites.isEmpty ? 3 : 0,
+                            ),
+                            child: AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child:
+                                      Obx(() => _contact(context, contact, c)),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(height: kBottomNavigationBarHeight),
+                  ],
                 ),
+                // ListView.builder(
+                //   controller: ScrollController(),
+                //   itemCount: c.favorites.length + c.contacts.length,
+                //   itemBuilder: (_, i) {
+                //     final RxChatContact contact = contacts[i];
+                //     return AnimationConfiguration.staggeredList(
+                //       position: i,
+                //       duration: const Duration(milliseconds: 375),
+                //       child: SlideAnimation(
+                //         horizontalOffset: 50,
+                //         child: FadeInAnimation(
+                //           child: Obx(() => _contact(context, contact, c)),
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
               );
             }
           }
@@ -371,5 +432,99 @@ class ContactsTabView extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class MyReorderableDelayedDragStartListener
+    extends ReorderableDragStartListener {
+  const MyReorderableDelayedDragStartListener({
+    super.key,
+    required super.child,
+    required super.index,
+    super.enabled,
+  });
+
+  @override
+  MultiDragGestureRecognizer createRecognizer() {
+    return MyVerticalMultiDragGestureRecognizer(debugOwner: this);
+  }
+}
+
+class MyVerticalMultiDragGestureRecognizer extends MultiDragGestureRecognizer {
+  MyVerticalMultiDragGestureRecognizer({
+    super.debugOwner,
+    @Deprecated(
+      'Migrate to supportedDevices. '
+      'This feature was deprecated after v2.3.0-1.0.pre.',
+    )
+        super.kind,
+    super.supportedDevices,
+  });
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
+    return _MyVerticalPointerState(
+      event.position,
+      event.kind == PointerDeviceKind.touch
+          ? 200.milliseconds
+          : 10.milliseconds,
+      event.kind,
+      gestureSettings,
+    );
+  }
+
+  @override
+  String get debugDescription => 'vertical multidrag';
+}
+
+class _MyVerticalPointerState extends MultiDragPointerState {
+  _MyVerticalPointerState(
+    super.initialPosition,
+    Duration delay,
+    super.kind,
+    super.deviceGestureSettings,
+  ) {
+    _timer = Timer(delay, _delayPassed);
+  }
+
+  Timer? _timer;
+  GestureMultiDragStartCallback? _starter;
+
+  void _delayPassed() {
+    assert(_timer != null);
+    _timer = null;
+
+    HapticFeedback.lightImpact();
+  }
+
+  void _ensureTimerStopped() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void checkForResolutionAfterMove() {
+    assert(pendingDelta != null);
+
+    if (pendingDelta!.dy.abs() > computeHitSlop(kind, gestureSettings) &&
+        (_timer == null || kind != PointerDeviceKind.touch)) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(GestureMultiDragStartCallback starter) {
+    assert(_starter == null);
+    if ((_timer == null)) {
+      starter(initialPosition);
+    } else {
+      _starter = starter;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ensureTimerStopped();
+    super.dispose();
   }
 }
