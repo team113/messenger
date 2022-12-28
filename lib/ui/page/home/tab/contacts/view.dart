@@ -287,21 +287,29 @@ class ContactsTabView extends StatelessWidget {
                       padding: EdgeInsets.only(top: kToolbarHeight),
                     ),
                     SliverReorderableList(
+                      onReorderStart: (i) {
+                        c.reorder.value = i;
+                      },
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
                         // print(contact.contact.value.favoritePosition?.val);
-                        return MyReorderableDelayedDragStartListener(
+                        return Container(
                           key: Key(contact.id.val),
-                          index: i,
-                          child: AnimationConfiguration.staggeredList(
-                            position: i,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              horizontalOffset: 50,
-                              child: FadeInAnimation(
-                                child: Obx(() => _contact(context, contact, c)),
-                              ),
-                            ),
+                          child: ReorderableDragStartListener(
+                            index: i,
+                            child: Obx(() => c.reorder.value != null
+                                ? _contact(context, contact, c)
+                                : AnimationConfiguration.staggeredList(
+                                    position: i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: Obx(() =>
+                                            _contact(context, contact, c)),
+                                      ),
+                                    ),
+                                  )),
                           ),
                         );
                       },
@@ -310,14 +318,14 @@ class ContactsTabView extends StatelessWidget {
                         ChatContactPosition position;
                         if (j - 1 < 0) {
                           position = ChatContactPosition(
-                            c.favorites[0].contact.value.favoritePosition!.val -
-                                0.1,
+                            c.favorites[0].contact.value.favoritePosition!.val /
+                                2,
                           );
                         } else if (j >= c.favorites.length) {
                           position = ChatContactPosition(
                             c.favorites.last.contact.value.favoritePosition!
-                                    .val +
-                                1,
+                                    .val *
+                                2,
                           );
                         } else {
                           if (j >= c.favorites.length) {
