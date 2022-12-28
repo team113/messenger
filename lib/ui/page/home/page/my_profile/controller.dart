@@ -75,6 +75,9 @@ class MyProfileController extends GetxController {
   /// [MyUser.login]'s field state.
   late final TextFieldState login;
 
+  /// [MyUser.status]'s field state.
+  late final TextFieldState status;
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -89,6 +92,9 @@ class MyProfileController extends GetxController {
 
   /// [Timer] to set the `RxStatus.empty` status of the [login] field.
   Timer? _loginTimer;
+
+  /// [Timer] to set the `RxStatus.empty` status of the [status] field.
+  Timer? _statusTimer;
 
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
@@ -206,7 +212,7 @@ class MyProfileController extends GetxController {
                 .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
             s.status.value = RxStatus.empty();
           } catch (e) {
-            s.error.value = e.toString();
+            s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
             rethrow;
           } finally {
@@ -308,6 +314,53 @@ class MyProfileController extends GetxController {
           } on UpdateUserLoginException catch (e) {
             s.error.value = e.toMessage();
             s.status.value = RxStatus.empty();
+          } catch (e) {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.status.value = RxStatus.empty();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
+    status = TextFieldState(
+      text: myUser.value?.status?.val ?? '',
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        try {
+          if (s.text.isNotEmpty) {
+            UserTextStatus(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (s.error.value == null) {
+          _statusTimer?.cancel();
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await _myUserService.updateUserStatus(
+              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+            );
+            s.status.value = RxStatus.success();
+            _statusTimer = Timer(
+              const Duration(milliseconds: 1500),
+              () => s.status.value = RxStatus.empty(),
+            );
           } catch (e) {
             s.error.value = 'err_data_transfer'.l10n;
             s.status.value = RxStatus.empty();
@@ -430,7 +483,7 @@ class MyProfileController extends GetxController {
   }
 }
 
-/// Extension that adds text representation of a [Presence] value.
+/// Extension adding text and [Color] representations of a [Presence] value.
 extension PresenceL10n on Presence {
   /// Returns text representation of a current value.
   String? localizedString() {
@@ -441,6 +494,20 @@ extension PresenceL10n on Presence {
         return 'label_presence_away'.l10n;
       case Presence.hidden:
         return 'label_presence_hidden'.l10n;
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
+
+  /// Returns a [Color] representing this [Presence].
+  Color? getColor() {
+    switch (this) {
+      case Presence.present:
+        return Colors.green;
+      case Presence.away:
+        return Colors.orange;
+      case Presence.hidden:
+        return Colors.grey;
       case Presence.artemisUnknown:
         return null;
     }
