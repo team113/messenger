@@ -229,6 +229,9 @@ class OngoingCall {
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
+  /// [List] of IDs of the [User]s being redialed.
+  final RxList<UserId> redialedMembers = RxList<UserId>();
+
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
   ///
@@ -483,6 +486,7 @@ class OngoingCall {
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id);
                   }
+                  redialedMembers.remove(node.user.id);
                   break;
 
                 case ChatCallEventKind.callMoved:

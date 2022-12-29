@@ -291,10 +291,11 @@ class ParticipantView extends StatelessWidget {
         trailing: [
           Obx(() {
             bool inCall = call.value.members.keys
-                .where((e) => e.userId == user.id)
-                .isNotEmpty;
+                .any((e) => e.userId == user.id);
+            bool isRedialed = call.value.redialedMembers.value
+                .any((e) => e == user.id);
 
-            if (!inCall) {
+            if (!inCall && !isRedialed) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Material(
