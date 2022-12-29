@@ -29,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Favorite contacts. ([#237], [#223])
         - Searching. ([#260], [#259])
+        - Reordering favorite contacts. ([#285], [#269])
     - User page:
         - Blacklisting. ([#234], [#229])
 
@@ -119,7 +120,9 @@ All user visible changes to this project will be documented in this file. This p
 [#259]: /../../issues/259
 [#260]: /../../pull/260
 [#265]: /../../pull/265
+[#269]: /../../issues/269
 [#275]: /../../pull/275
+[#285]: /../../pull/285
 
 
 
