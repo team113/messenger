@@ -749,20 +749,35 @@ class _ChatViewState extends State<ChatView>
             builder: (_, snapshot) {
               if (snapshot.data != null) {
                 return Obx(() {
-                  var subtitle = c.chat!.chat.value
+                  final String? subtitle = c.chat!.chat.value
                       .getSubtitle(partner: snapshot.data!.user.value);
 
-                  return Text(subtitle ?? '', style: style);
+                  final UserTextStatus? status =
+                      snapshot.data!.user.value.status;
+
+                  if (status != null || subtitle != null) {
+                    final StringBuffer buffer = StringBuffer(status ?? '');
+
+                    if (status != null && subtitle != null) {
+                      buffer.write('space_vertical_space'.l10n);
+                    }
+
+                    buffer.write(subtitle ?? '');
+
+                    return Text(buffer.toString(), style: style);
+                  }
+
+                  return const SizedBox();
                 });
               }
 
-              return Container();
+              return const SizedBox();
             },
           );
         }
       }
 
-      return Container();
+      return const SizedBox();
     });
   }
 

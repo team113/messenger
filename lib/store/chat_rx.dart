@@ -22,7 +22,11 @@ import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
-    show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
+    show
+        ChatCallFinishReason,
+        ChatKind,
+        ChatMemberInfoAction,
+        PostChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -867,8 +871,10 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.lastItem = event.call;
               }
 
-              _chatRepository.removeCredentials(event.call.id);
-              _chatRepository.endCall(event.call.chatId);
+              if (event.reason != ChatCallFinishReason.moved) {
+                _chatRepository.removeCredentials(event.call.id);
+                _chatRepository.endCall(event.call.chatId);
+              }
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
