@@ -22,7 +22,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
-import '/util/obs/obs.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -37,56 +36,10 @@ class BlacklistController extends GetxController {
   /// [UserService] using in the [unblacklist] and the [_getUser] methods.
   final UserService _userService;
 
-  /// Subscription to the [blacklist] changes.
-  StreamSubscription? blacklistSubscription;
-
-  /// [Map] of the [RxUser]s fetched from the [_userService].
-  final RxMap<UserId, RxUser> users = RxMap<UserId, RxUser>();
-
-  /// Returns IDs of the [User]s blacklisted by the authenticated [MyUser].
-  RxObsList<UserId> get blacklist => _myUserService.blacklist;
-
-  @override
-  void onInit() {
-    for (var e in blacklist) {
-      _getUser(e).then((value) {
-        if (value != null) {
-          users[e] = value;
-        }
-      });
-    }
-
-    blacklistSubscription = blacklist.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          _getUser(event.element).then((value) {
-            if (value != null) {
-              users[event.element] = value;
-            }
-          });
-          break;
-        case OperationKind.removed:
-          users.remove(event.element);
-          break;
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    });
-
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    blacklistSubscription?.cancel();
-    super.onClose();
-  }
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist(RxUser user) =>
       _userService.unblacklistUser(user.id);
-
-  /// Returns an [User] by the provided [id].
-  Future<RxUser?> _getUser(UserId id) => _userService.get(id);
 }

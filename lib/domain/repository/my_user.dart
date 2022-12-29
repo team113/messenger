@@ -22,15 +22,15 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
-import '/util/obs/rxlist.dart';
+import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
 
-  /// Returns IDs of the [User]s blacklisted by the authenticated [MyUser].
-  RxObsList<UserId> get blacklist;
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist;
 
   /// Initializes the repository.
   ///

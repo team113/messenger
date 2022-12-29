@@ -37,13 +37,13 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/util/new_type.dart';
-import '/util/obs/rxlist.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -62,7 +62,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final Rx<MyUser?> myUser;
 
   @override
-  final RxObsList<UserId> blacklist = RxObsList<UserId>();
+  final RxList<RxUser> blacklist = RxList<RxUser>();
 
   /// GraphQL's Endpoint provider.
   final GraphQlProvider _graphQlProvider;
@@ -109,16 +109,17 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
 
-    if (!_blacklistLocal.isEmpty) {
-      for (HiveUser e in _blacklistLocal.users) {
-        blacklist.add(e.value.id);
-      }
-    }
-
     _initLocalSubscription();
     _initRemoteSubscription();
     _initKeepOnlineSubscription();
     _initBlacklistLocalSubscription();
+
+    if (!_blacklistLocal.isEmpty) {
+      var users = await Future.wait(
+        _blacklistLocal.users.map((e) => _userRepo.get(e.value.id)),
+      );
+      blacklist.addAll(users.whereNotNull());
+    }
 
     final List<HiveUser> blacklisted = await _fetchBlacklist();
 
@@ -524,11 +525,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     while (await _localBlacklistSubscription!.moveNext()) {
       BoxEvent event = _localBlacklistSubscription!.current;
       if (event.deleted) {
-        blacklist.removeWhere((e) => e.val == event.key);
+        blacklist.removeWhere((e) => e.user.value.id.val == event.key);
       } else {
-        UserId? user = blacklist.firstWhereOrNull((e) => e == event.key);
+        RxUser? user =
+            blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
         if (user == null) {
-          blacklist.add(event.value.value.id);
+          RxUser? user = await _userRepo.get(event.value.value.id);
+          if (user != null) {
+            blacklist.add(user);
+          }
         }
       }
     }

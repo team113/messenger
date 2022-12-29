@@ -60,8 +60,7 @@ class BlacklistView extends StatelessWidget {
             const SizedBox(height: 4),
             Obx(() {
               if (c.blacklist.isEmpty ||
-                  (c.users.length == c.blacklist.length &&
-                      c.users.values.none((e) => e.user.value.isBlacklisted))) {
+                  c.blacklist.none((e) => e.user.value.isBlacklisted)) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('label_no_users'.l10n),
@@ -73,50 +72,40 @@ class BlacklistView extends StatelessWidget {
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   itemBuilder: (context, i) {
-                    RxUser? user = c.users[c.blacklist[i]];
+                    RxUser? user = c.blacklist[i];
 
-                    Widget widget = Column(
-                      children: [
-                        ContactTile(
-                          user: user,
-                          onTap: user != null
-                              ? () {
-                                  Navigator.of(context).pop();
-                                  router.user(user.id, push: true);
-                                }
-                              : null,
-                          darken: 0.03,
-                          trailing: [
-                            InkWell(
-                              onTap: user != null
-                                  ? () => c.unblacklist(user)
-                                  : null,
-                              borderRadius: BorderRadius.circular(25),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SvgLoader.asset(
-                                  'assets/icons/delete.svg',
-                                  height: 14 * 1.5,
+                    return Obx(() {
+                      if (user.user.value.isBlacklisted == false) {
+                        return const SizedBox();
+                      }
+
+                      return Column(
+                        children: [
+                          ContactTile(
+                            user: user,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              router.user(user.id, push: true);
+                            },
+                            darken: 0.03,
+                            trailing: [
+                              InkWell(
+                                onTap: () => c.unblacklist(user),
+                                borderRadius: BorderRadius.circular(25),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/delete.svg',
+                                    height: 14 * 1.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                    );
-
-                    if (user != null) {
-                      return Obx(() {
-                        if (user.user.value.isBlacklisted == false) {
-                          return const SizedBox();
-                        }
-
-                        return widget;
-                      });
-                    } else {
-                      return widget;
-                    }
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      );
+                    });
                   },
                   itemCount: c.blacklist.length,
                 ),
