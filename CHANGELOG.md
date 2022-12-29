@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
-        - Read indicators. ([#255], [#253])
+        - Group read indicators. ([#255], [#253])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])

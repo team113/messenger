@@ -91,7 +91,7 @@ class HiveRxChat extends RxChat {
   final Rx<ChatMessage?> draft;
 
   @override
-  final RxList<LastChatRead> lastReads = RxList<LastChatRead>([]);
+  final RxList<LastChatRead> reads = RxList<LastChatRead>([]);
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -172,8 +172,9 @@ class HiveRxChat extends RxChat {
 
     status.value = RxStatus.loading();
 
-    lastReads.addAll(
-        chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)));
+    reads.addAll(
+      chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
+    );
 
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
@@ -183,18 +184,18 @@ class HiveRxChat extends RxChat {
       switch (e.op) {
         case OperationKind.added:
           for (LastChatRead i in chat.value.lastReads) {
-            final PreciseDateTime? lastReadAt = _lastReadAt(i.memberId, i.at);
+            final PreciseDateTime? lastReadAt = _lastReadAt(i.at);
             if (lastReadAt != null) {
-              lastReads.firstWhereOrNull((e) => e.memberId == i.memberId)?.at =
+              reads.firstWhereOrNull((e) => e.memberId == i.memberId)?.at =
                   lastReadAt;
             }
           }
           break;
 
         case OperationKind.removed:
-          for (LastChatRead i in lastReads) {
+          for (LastChatRead i in reads) {
             if (e.element.value.at == i.at) {
-              final lastReadAt = _lastReadAt(i.memberId, i.at, false);
+              final lastReadAt = _lastReadAt(i.at, false);
               if (lastReadAt != null) {
                 i.at = lastReadAt;
               }
@@ -248,7 +249,7 @@ class HiveRxChat extends RxChat {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
       messages.clear();
-      lastReads.clear();
+      reads.clear();
       _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
@@ -699,20 +700,10 @@ class HiveRxChat extends RxChat {
   }
 
   /// Returns optional [PreciseDateTime] of the last read of [ChatItem].
-  PreciseDateTime? _lastReadAt(
-    UserId id,
-    PreciseDateTime at, [
-    bool adding = true,
-  ]) {
+  PreciseDateTime? _lastReadAt(PreciseDateTime at, [bool adding = true]) {
     final previousMessages = adding
-        ? messages.where((e) =>
-            e.value is! ChatMemberInfo &&
-            e.value.at <= at &&
-            e.value.authorId != id)
-        : messages.where((e) =>
-            e.value is! ChatMemberInfo &&
-            e.value.at < at &&
-            e.value.authorId != id);
+        ? messages.where((e) => e.value is! ChatMemberInfo && e.value.at <= at)
+        : messages.where((e) => e.value is! ChatMemberInfo && e.value.at < at);
 
     final sorted =
         previousMessages.sorted((a, b) => a.value.at.compareTo(b.value.at));
@@ -997,13 +988,12 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.read:
               event as EventChatRead;
 
-              final PreciseDateTime? lastReadAt =
-                  _lastReadAt(event.byUser.id, event.at);
+              final PreciseDateTime? lastReadAt = _lastReadAt(event.at);
               if (lastReadAt != null) {
-                LastChatRead? lastRead = lastReads
+                LastChatRead? lastRead = reads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
                 if (lastRead == null) {
-                  lastReads.add(LastChatRead(event.byUser.id, lastReadAt));
+                  reads.add(LastChatRead(event.byUser.id, lastReadAt));
                 } else {
                   lastRead.at = lastReadAt;
                 }

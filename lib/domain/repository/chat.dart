@@ -231,7 +231,7 @@ abstract class RxChat {
 
   /// List of this [Chat]'s members which have read it, along with the
   /// corresponding [LastChatRead]s.
-  RxList<LastChatRead> get lastReads;
+  RxList<LastChatRead> get reads;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
