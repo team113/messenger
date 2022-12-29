@@ -119,18 +119,17 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initLocalSubscription();
     _initRemoteSubscription();
     _initKeepOnlineSubscription();
-
     _initBlacklistLocalSubscription();
 
-    List<HiveUser> users = await _fetchBlacklist();
+    final List<HiveUser> blacklisted = await _fetchBlacklist();
 
     for (HiveUser c in _blacklistLocal.users) {
-      if (users.none((e) => e.value.id == c.value.id)) {
+      if (blacklisted.none((e) => e.value.id == c.value.id)) {
         _blacklistLocal.remove(c.value.id);
       }
     }
 
-    for (HiveUser c in users) {
+    for (HiveUser c in blacklisted) {
       _putBlacklisted(c);
     }
   }

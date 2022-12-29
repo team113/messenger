@@ -34,6 +34,7 @@ query GetBlacklist(
             cursor
         }
         pageInfo {
+            __typename
             ...PageInfo
         }
     }

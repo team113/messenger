@@ -875,6 +875,14 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         FieldButton(
+          text: 'label_blocked_users'.l10n,
+          onPressed: () => BlacklistView.show(context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+      const SizedBox(height: 8),
+      _dense(
+        FieldButton(
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
@@ -884,13 +892,6 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => DeleteAccountView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ),
-      _dense(
-        FieldButton(
-          text: 'label_blocked_users'.l10n,
-          onPressed: () => BlacklistView.show(context),
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),

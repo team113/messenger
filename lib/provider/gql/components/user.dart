@@ -1069,13 +1069,13 @@ abstract class UserGraphQlMixin {
   ///
   /// ### Pagination
   ///
-  /// It's allowed to specify both first and last counts at the same time,
-  /// provided that after and before cursors are equal. In such case the
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
   /// returned page will include the [User] pointed by the cursor and the
   /// requested count of [User]s preceding and following it.
   ///
   /// If it's desired to receive the [User], pointed by the cursor, without
-  /// querying in both directions, one can specify first or last count as 0.
+  /// querying in both directions, one can specify [first] or [last] count as 0.
   Future<GetBlacklist$Query$Blacklist> getBlacklist({
     int? first,
     BlacklistCursor? after,

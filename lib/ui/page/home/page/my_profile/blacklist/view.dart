@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,22 +22,19 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
-/// View displaying blacklisted [User]s.
+/// View displaying the blacklisted [User]s.
 ///
 /// Intended to be displayed with the [show] method.
 class BlacklistView extends StatelessWidget {
   const BlacklistView({super.key});
 
   /// Displays a [BlacklistView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(
-    BuildContext context,
-  ) {
-    return ModalPopup.show(
-      context: context,
-      child: const BlacklistView(),
-    );
+  static Future<T?> show<T>(BuildContext context) {
+    return ModalPopup.show(context: context, child: const BlacklistView());
   }
 
   @override
@@ -47,51 +43,60 @@ class BlacklistView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: BlacklistController(Get.find()),
+      init: BlacklistController(Get.find(), Get.find()),
       builder: (BlacklistController c) {
-        return AnimatedSizeAndFade(
-          fadeDuration: const Duration(milliseconds: 250),
-          sizeDuration: const Duration(milliseconds: 250),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_blocked_users'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            ModalPopupHeader(
+              header: Center(
+                child: Text(
+                  'label_blocked_users'.l10n,
+                  style: thin?.copyWith(fontSize: 18),
                 ),
               ),
-              const SizedBox(height: 4),
-              if (c.blacklist.isEmpty)
-                Text('label_no_users'.l10n)
-              else
-                Flexible(
-                  child: Obx(() {
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      padding: ModalPopup.padding(context),
-                      itemBuilder: (context, i) {
-                        RxUser user = c.blacklist[i];
-                        return ContactTile(
-                          user: user,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            router.user(user.id, push: true);
-                          },
-                          darken: 0.03,
-                        );
+            ),
+            const SizedBox(height: 4),
+            Obx(() {
+              if (c.blacklist.isEmpty) {
+                return Text('label_no_users'.l10n);
+              }
+
+              return Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: ModalPopup.padding(context),
+                  itemBuilder: (context, i) {
+                    RxUser user = c.blacklist[i];
+                    return ContactTile(
+                      user: user,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        router.user(user.id, push: true);
                       },
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemCount: c.blacklist.length,
+                      darken: 0.03,
+                      trailing: [
+                        WidgetButton(
+                          onPressed: () => c.unblacklist(user),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: SvgLoader.asset(
+                              'assets/icons/delete.svg',
+                              height: 14 * 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
-                  }),
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemCount: c.blacklist.length,
                 ),
-              const SizedBox(height: 16),
-            ],
-          ),
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
         );
       },
     );

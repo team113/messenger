@@ -18,17 +18,25 @@ import 'package:get/get.dart';
 
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/user.dart';
 import 'view.dart';
 
 export 'view.dart';
 
 /// Controller of a [BlacklistView].
 class BlacklistController extends GetxController {
-  BlacklistController(this._myUser);
+  BlacklistController(this._myUserService, this._userService);
 
-  /// [MyUserService] used for getting the blacklisted [User]s.
-  final MyUserService _myUser;
+  /// [MyUserService] maintaining the blacklisted [User]s.
+  final MyUserService _myUserService;
+
+  /// [UserService] un-blacklisting the [User]s.
+  final UserService _userService;
 
   /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _myUser.blacklist;
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
+
+  /// Removes the [user] from the blacklist of the authenticated [MyUser].
+  Future<void> unblacklist(RxUser user) =>
+      _userService.unblacklistUser(user.id);
 }
