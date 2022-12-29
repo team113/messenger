@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
@@ -402,6 +403,29 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
                 if (participant.member.isConnected.value) {
                   child = Container();
+                } else if (participant.member.isRedialing.value) {
+                  child = Container(
+                    key: Key('ParticipantRedialing_${participant.member.id}'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.black.withOpacity(0.2),
+                    child: const Padding(
+                      padding: EdgeInsets.all(21.0),
+                      child: Center(
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballScaleMultiple,
+                              colors: [Colors.white],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                 } else {
                   child = Container(
                     key: Key('ParticipantConnecting_${participant.member.id}'),

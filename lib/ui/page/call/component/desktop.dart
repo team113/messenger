@@ -354,10 +354,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           child: ConditionalBackdropFilter(
                             key: c.dockKey,
                             borderRadius: BorderRadius.circular(30),
-                            filter: ImageFilter.blur(
-                              sigmaX: 15,
-                              sigmaY: 15,
-                            ),
+                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: const Color(0x301D6AAE),
@@ -631,36 +628,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                   }
                 : null,
           );
-        }),
-
-        // Settings button on the top right if call [isOutgoing].
-        Obx(() {
-          bool isOutgoing =
-              (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
-
-          if (isOutgoing &&
-              c.state.value != OngoingCallState.active &&
-              c.state.value != OngoingCallState.joining) {
-            return Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8, right: 8),
-                child: TooltipButton(
-                  verticalOffset: 8,
-                  hint: 'btn_call_settings'.l10n,
-                  onTap: () => c.openSettings(context),
-                  child: SvgLoader.asset(
-                    'assets/icons/settings.svg',
-                    width: 16,
-                    height: 16,
-                  ),
-                ),
-              ),
-            );
-          }
-
-          return Container();
         }),
 
         // Sliding from the top title bar.
@@ -1024,7 +991,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
                 child: scaler(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  // TODO: Use only SystemMouseCursors.resizeUpLeftDownRight.
+                  // Needs https://github.com/flutter/flutter/issues/89351
+                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1081,7 +1052,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: scaler(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  // TODO: Use only SystemMouseCursors.resizeUpLeftDownRight.
+                  // Needs https://github.com/flutter/flutter/issues/89351
+                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1611,7 +1586,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.topLeft) {
           widget = scaler(
-            cursor: SystemMouseCursors.resizeUpLeftDownRight,
+            // TODO: Use only SystemMouseCursors.resizeUpLeftDownRight.
+            // Needs https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1650,7 +1629,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.bottomRight) {
           widget = scaler(
-            cursor: SystemMouseCursors.resizeUpLeftDownRight,
+            // TODO: Use only SystemMouseCursors.resizeUpLeftDownRight.
+            // Needs https://github.com/flutter/flutter/issues/89351
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -2059,6 +2042,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           child: ConditionalBackdropFilter(
                             condition: PlatformUtils.isWeb,
                             child: Container(
+                              // TODO: Wait for fix on `Flutter` end.
                               color: PlatformUtils.isWeb
                                   ? const Color(0x9D165084)
                                   : const Color(0xE9165084),

@@ -423,9 +423,20 @@ class OngoingCall {
                 case ChatCallEventKind.memberJoined:
                   var node = event as EventChatCallMemberJoined;
 
+                  final CallMemberId redialedId =
+                      CallMemberId(node.user.id, null);
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
-                  if (!members.containsKey(id)) {
+
+                  final CallMember? redialed = members[redialedId];
+                  if (redialed?.isRedialing.value == true) {
+                    redialed!.isRedialing.value = false;
+                    members.move(redialedId, id);
+                  }
+
+                  final CallMember? member = members[id];
+
+                  if (member == null) {
                     members[id] = CallMember(
                       id,
                       null,
@@ -467,7 +478,11 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.declined:
-                  // TODO: Implement EventChatCallDeclined.
+                  var node = event as EventChatCallDeclined;
+                  final CallMemberId id = CallMemberId(node.user.id, null);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id);
+                  }
                   break;
 
                 case ChatCallEventKind.callMoved:
@@ -487,7 +502,21 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.redialed:
-                  // TODO: Implement EventChatCallMemberRedialed.
+                  var node = event as EventChatCallMemberRedialed;
+
+                  final CallMemberId id = CallMemberId(node.user.id, null);
+                  if (!members.containsKey(id)) {
+                    members[id] = CallMember(
+                      id,
+                      null,
+                      isHandRaised: call.value?.members
+                              .firstWhereOrNull((e) => e.user.id == id.userId)
+                              ?.handRaised ??
+                          false,
+                      isConnected: false,
+                      isRedialing: true,
+                    );
+                  }
                   break;
               }
             }
@@ -936,11 +965,19 @@ class OngoingCall {
 
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
+      final CallMemberId redialedId = CallMemberId(id.userId, null);
+
+      final CallMember? redialed = members[redialedId];
+      if (redialed?.isRedialing.value == true) {
+        members.move(redialedId, id);
+      }
+
       final CallMember? member = members[id];
 
       if (member != null) {
         member._connection = conn;
         member.isConnected.value = true;
+        member.isRedialing.value = false;
       } else {
         members[id] = CallMember(
           id,
@@ -1286,6 +1323,8 @@ class OngoingCall {
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
+
+    await enumerateDevices();
   }
 
   /// Adds the provided [track] to the local tracks and initializes video
@@ -1501,16 +1540,20 @@ class CallMember {
     this._connection, {
     bool isHandRaised = false,
     bool isConnected = false,
+    bool isRedialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
+        isRedialing = RxBool(isRedialing),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
     this.id, {
     bool isHandRaised = false,
     bool isConnected = false,
+    bool isRedialing = false,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
+        isRedialing = RxBool(isRedialing),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -1527,6 +1570,9 @@ class CallMember {
 
   /// Indicator whether this [CallMember] is connected to the media server.
   final RxBool isConnected;
+
+  /// Indicator whether this [CallMember] is redialing.
+  final RxBool isRedialing;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
