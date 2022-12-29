@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -24,8 +25,8 @@ import '/ui/page/home/widget/avatar.dart';
 /// Used to bypass [InkWell] incorrect behaviour when changing its
 /// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
-  const InkWellWithHover({
-    Key? key,
+  InkWellWithHover({
+    super.key,
     this.selected = false,
     this.selectedColor,
     this.selectedHoverColor,
@@ -36,14 +37,23 @@ class InkWellWithHover extends StatefulWidget {
     this.borderRadius,
     this.onTap,
     this.folded = false,
+    RxBool? showSplashColor,
     required this.child,
-  }) : super(key: key);
+  }) {
+    if (showSplashColor == null) {
+      this.showSplashColor = RxBool(true);
+    } else {
+      this.showSplashColor = showSplashColor;
+    }
+  }
 
   /// Indicator whether this [InkWellWithHover] is selected.
   final bool selected;
 
   /// [Color] of this [InkWellWithHover] when [selected] is `true`.
   final Color? selectedColor;
+
+  late final RxBool? showSplashColor;
 
   /// Hovered [Color] of this [InkWellWithHover] when [selected] is `true`.
   final Color? selectedHoverColor;
@@ -83,54 +93,66 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      clipper:
-          widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
-      child: DecoratedBox(
-        position: DecorationPosition.foreground,
-        decoration: BoxDecoration(
-          borderRadius: widget.borderRadius,
-          border: hovered ? widget.hoveredBorder : widget.border,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: widget.borderRadius,
-          color: hovered
-              ? widget.selected
-                  ? widget.selectedHoverColor
-                  : widget.unselectedHoverColor
-              : widget.selected
-                  ? widget.selectedColor
-                  : widget.unselectedColor,
-          child: InkWell(
+    final Style style = Theme.of(context).extension<Style>()!;
+    return Obx(
+      () => ClipPath(
+        clipper: widget.folded
+            ? _Clipper(widget.borderRadius?.topLeft.y ?? 10)
+            : null,
+        child: DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
             borderRadius: widget.borderRadius,
-            onTap: widget.onTap?.call,
-            onHover: (v) => setState(() => hovered = v),
-            hoverColor: Colors.transparent,
-            child: Stack(
-              children: [
-                Center(child: widget.child),
-                if (widget.folded)
-                  Container(
-                    width: widget.borderRadius?.topLeft.y ?? 10,
-                    height: widget.borderRadius?.topLeft.y ?? 10,
-                    decoration: BoxDecoration(
-                      color: widget.selected
-                          ? widget.selectedHoverColor?.darken(0.1)
-                          : widget.hoveredBorder!.top.color.darken(0.1),
-                      borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(4),
-                      ),
-                      boxShadow: const [
-                        CustomBoxShadow(
-                          color: Color(0xFFC0C0C0),
-                          blurStyle: BlurStyle.outer,
-                          blurRadius: 4,
+            border: hovered ? widget.hoveredBorder : widget.border,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: widget.borderRadius,
+            color: hovered
+                ? widget.selected
+                    ? widget.selectedHoverColor
+                    : widget.unselectedHoverColor
+                : widget.selected
+                    ? widget.selectedColor
+                    : widget.unselectedColor,
+            surfaceTintColor:
+                widget.showSplashColor?.value == false ? style.cardColor : null,
+            child: InkWell(
+              splashColor: widget.showSplashColor?.value == false
+                  ? style.cardColor
+                  : null,
+              highlightColor: widget.showSplashColor?.value == false
+                  ? style.cardColor
+                  : null,
+              borderRadius: widget.borderRadius,
+              onTap: widget.onTap?.call,
+              onHover: (v) => setState(() => hovered = v),
+              hoverColor: Colors.transparent,
+              child: Stack(
+                children: [
+                  Center(child: widget.child),
+                  if (widget.folded)
+                    Container(
+                      width: widget.borderRadius?.topLeft.y ?? 10,
+                      height: widget.borderRadius?.topLeft.y ?? 10,
+                      decoration: BoxDecoration(
+                        color: widget.selected
+                            ? widget.selectedHoverColor?.darken(0.1)
+                            : widget.hoveredBorder!.top.color.darken(0.1),
+                        borderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(4),
                         ),
-                      ],
+                        boxShadow: const [
+                          CustomBoxShadow(
+                            color: Color(0xFFC0C0C0),
+                            blurStyle: BlurStyle.outer,
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

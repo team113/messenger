@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -31,7 +32,7 @@ import '/ui/widget/context_menu/region.dart';
 ///
 /// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
-  const ContactTile({
+  ContactTile({
     Key? key,
     this.contact,
     this.user,
@@ -48,6 +49,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
+    this.reorderInt,
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -88,6 +90,8 @@ class ContactTile extends StatelessWidget {
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
 
+  final int? reorderInt;
+
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
@@ -97,6 +101,7 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  final RxBool showSplashColor = RxBool(true);
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -121,6 +126,7 @@ class ContactTile extends StatelessWidget {
           unselectedHoverColor: style.cardHoveredColor.darken(darken),
           selectedHoverColor: style.cardSelectedColor,
           folded: contact?.contact.value.favoritePosition != null,
+          showSplashColor: showSplashColor,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
@@ -129,14 +135,38 @@ class ContactTile extends StatelessWidget {
             child: Row(
               children: [
                 ...leading,
-                if (contact != null)
-                  AvatarWidget.fromRxContact(contact, radius: radius)
-                else if (user != null)
-                  AvatarWidget.fromRxUser(user, radius: radius)
+                if (reorderInt == null)
+                  if (contact != null)
+                    AvatarWidget.fromRxContact(contact, radius: radius)
+                  else if (user != null)
+                    AvatarWidget.fromRxUser(user, radius: radius)
+                  else
+                    AvatarWidget.fromMyUser(
+                      myUser,
+                      radius: radius,
+                    )
                 else
-                  AvatarWidget.fromMyUser(
-                    myUser,
-                    radius: radius,
+                  GestureDetector(
+                    onTapDown: (_) => showSplashColor.value = false,
+                    onTapUp: (_) => showSplashColor.value = true,
+                    child: ReorderableDragStartListener(
+                        index: reorderInt!,
+                        child: Builder(
+                          builder: (c) {
+                            if (contact != null) {
+                              return AvatarWidget.fromRxContact(contact,
+                                  radius: radius);
+                            } else if (user != null) {
+                              return AvatarWidget.fromRxUser(user,
+                                  radius: radius);
+                            } else {
+                              return AvatarWidget.fromMyUser(
+                                myUser,
+                                radius: radius,
+                              );
+                            }
+                          },
+                        )),
                   ),
                 const SizedBox(width: 12),
                 Expanded(

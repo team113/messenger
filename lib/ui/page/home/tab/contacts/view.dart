@@ -283,8 +283,12 @@ class ContactsTabView extends StatelessWidget {
                 child: CustomScrollView(
                   controller: ScrollController(),
                   slivers: [
-                    const SliverPadding(
-                      padding: EdgeInsets.only(top: kToolbarHeight),
+                    SliverPadding(
+                      padding: EdgeInsets.only(
+                        top: kToolbarHeight +
+                            MediaQuery.of(context).viewPadding.top +
+                            4,
+                      ),
                     ),
                     SliverReorderableList(
                       onReorderStart: (i) {
@@ -292,24 +296,23 @@ class ContactsTabView extends StatelessWidget {
                       },
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
-                        // print(contact.contact.value.favoritePosition?.val);
                         return Container(
                           key: Key(contact.id.val),
-                          child: ReorderableDragStartListener(
-                            index: i,
-                            child: Obx(() => c.reorder.value != null
-                                ? _contact(context, contact, c)
+                          child: Obx(
+                            () => c.reorder.value != null
+                                ? _contact(context, contact, c, reorderInt: i)
                                 : AnimationConfiguration.staggeredList(
                                     position: i,
                                     duration: const Duration(milliseconds: 375),
                                     child: SlideAnimation(
                                       horizontalOffset: 50,
                                       child: FadeInAnimation(
-                                        child: Obx(() =>
-                                            _contact(context, contact, c)),
+                                        child: Obx(() => _contact(
+                                            context, contact, c,
+                                            reorderInt: i)),
                                       ),
                                     ),
-                                  )),
+                                  ),
                           ),
                         );
                       },
@@ -400,10 +403,8 @@ class ContactsTabView extends StatelessWidget {
 
   /// Returns a [ListTile] with [contact]'s information.
   Widget _contact(
-    BuildContext context,
-    RxChatContact contact,
-    ContactsTabController c,
-  ) {
+      BuildContext context, RxChatContact contact, ContactsTabController c,
+      {int? reorderInt}) {
     bool favorite = c.favorites.contains(contact);
 
     final bool selected = router.routes
@@ -415,6 +416,7 @@ class ContactsTabView extends StatelessWidget {
       key: Key('Contact_${contact.id}'),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
+        reorderInt: reorderInt,
         contact: contact,
         folded: favorite,
         selected: selected,
