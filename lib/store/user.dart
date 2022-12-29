@@ -35,6 +35,8 @@ import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
+import 'event/my_user.dart'
+    show BlacklistEvent, EventBlacklistRecordAdded, EventBlacklistRecordRemoved;
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository implements AbstractUserRepository {
@@ -127,6 +129,50 @@ class UserRepository implements AbstractUserRepository {
 
       return user;
     });
+  }
+
+  @override
+  Future<void> blacklistUser(UserId id) async {
+    final RxUser? user = _users[id];
+    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+
+    if (user?.user.value.isBlacklisted == false) {
+      user?.user.value.isBlacklisted = true;
+      user?.user.refresh();
+    }
+
+    try {
+      await _graphQlProvider.blacklistUser(id);
+    } catch (_) {
+      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
+        user.user.value.isBlacklisted =
+            isBlacklisted ?? user.user.value.isBlacklisted;
+        user.user.refresh();
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unblacklistUser(UserId id) async {
+    final RxUser? user = _users[id];
+    final bool? isBlacklisted = user?.user.value.isBlacklisted;
+
+    if (user?.user.value.isBlacklisted == true) {
+      user?.user.value.isBlacklisted = false;
+      user?.user.refresh();
+    }
+
+    try {
+      await _graphQlProvider.unblacklistUser(id);
+    } catch (_) {
+      if (user != null && user.user.value.isBlacklisted != isBlacklisted) {
+        user.user.value.isBlacklisted =
+            isBlacklisted ?? user.user.value.isBlacklisted;
+        user.user.refresh();
+      }
+      rethrow;
+    }
   }
 
   /// Updates the locally stored [HiveUser] with the provided [user] value.
@@ -330,17 +376,17 @@ class UserRepository implements AbstractUserRepository {
   /// [BlacklistEventsVersionedMixin$Events].
   BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventBlacklistRecordAdded') {
-      var node =
-          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
       return EventBlacklistRecordAdded(
-        node.userId,
-        node.user.toHive(),
-        node.at,
+        e.userId,
+        e.user.toHive(),
+        e.at,
       );
     } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
-      var node =
-          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
-      return EventBlacklistRecordRemoved(node.userId, node.at);
+      return EventBlacklistRecordRemoved(
+        e.userId,
+        e.user.toHive(),
+        e.at,
+      );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }

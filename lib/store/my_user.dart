@@ -139,6 +139,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    final UserTextStatus? oldStatus = myUser.value?.status;
+
+    myUser.update((u) => u?.status = status);
+
+    try {
+      await _graphQlProvider.updateUserStatus(status);
+    } catch (_) {
+      myUser.update((u) => u?.status = oldStatus);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateUserLogin(UserLogin login) async {
     final UserLogin? oldLogin = myUser.value?.login;
 
@@ -272,6 +286,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> confirmEmailCode(ConfirmationCode code) async {
     final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
+    await _graphQlProvider.confirmEmailCode(code);
+
     myUser.update(
       (u) {
         u?.emails.confirmed.addIf(
@@ -281,23 +297,13 @@ class MyUserRepository implements AbstractMyUserRepository {
         u?.emails.unconfirmed = null;
       },
     );
-
-    try {
-      await _graphQlProvider.confirmEmailCode(code);
-    } catch (_) {
-      myUser.update(
-        (u) {
-          u?.emails.confirmed.removeWhere((e) => e == unconfirmed);
-          u?.emails.unconfirmed = unconfirmed;
-        },
-      );
-      rethrow;
-    }
   }
 
   @override
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
     final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+
+    await _graphQlProvider.confirmPhoneCode(code);
 
     myUser.update(
       (u) {
@@ -305,21 +311,9 @@ class MyUserRepository implements AbstractMyUserRepository {
           !u.phones.confirmed.contains(unconfirmed),
           unconfirmed!,
         );
-        u?.emails.unconfirmed = null;
+        u?.phones.unconfirmed = null;
       },
     );
-
-    try {
-      await _graphQlProvider.confirmPhoneCode(code);
-    } catch (_) {
-      myUser.update(
-        (u) {
-          u?.phones.confirmed.removeWhere((e) => e == unconfirmed);
-          u?.phones.unconfirmed = unconfirmed;
-        },
-      );
-      rethrow;
-    }
   }
 
   @override
@@ -357,7 +351,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -390,10 +384,19 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    await _graphQlProvider.uploadUserGalleryItem(
+    final events = await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
+
+    for (final event in events?.events ?? []) {
+      final MyUserEvent e = _myUserEvent(event);
+      if (e is EventUserGalleryItemAdded) {
+        return e.galleryItem;
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -418,8 +421,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> updateAvatar(GalleryItemId? id) =>
-      _graphQlProvider.updateUserAvatar(id, null);
+  Future<void> updateAvatar(GalleryItemId? id) async {
+    UserAvatar? avatar = myUser.value?.avatar;
+
+    if (id == null) {
+      myUser.update((u) => u?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateUserAvatar(id, null);
+    } catch (e) {
+      if (id == null) {
+        myUser.update((u) => u?.avatar = avatar);
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<void> updateCallCover(GalleryItemId? id) =>
@@ -698,6 +715,14 @@ class MyUserRepository implements AbstractMyUserRepository {
           event as EventUserDirectLinkUpdated;
           userEntity.value.chatDirectLink = event.directLink;
           break;
+
+        case MyUserEventKind.blacklistRecordAdded:
+          // TODO: Handle this case.
+          break;
+
+        case MyUserEventKind.blacklistRecordRemoved:
+          // TODO: Handle this case.
+          break;
       }
     }
 
@@ -882,6 +907,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as MyUserEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

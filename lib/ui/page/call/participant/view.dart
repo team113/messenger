@@ -134,7 +134,7 @@ class ParticipantView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: OutlinedRoundedButton(
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       'btn_add_participants'.l10n,
                       overflow: TextOverflow.ellipsis,
@@ -196,7 +196,7 @@ class ParticipantView extends StatelessWidget {
             onTap: () {
               // TODO: Open the [Routes.chat] page.
             },
-            hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+            hoverColor: style.cardSelectedColor.withOpacity(0.8),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(

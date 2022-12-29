@@ -23,6 +23,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -158,6 +159,35 @@ abstract class UserGraphQlMixin {
       ),
     );
     return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserStatusUpdated] (if [text] argument is specified);
+  /// - [EventUserStatusDeleted] (if [text] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] has the provided [text] as his `status` value already.
+  Future<MyUserEventsVersionedMixin?> updateUserStatus(
+    UserTextStatus? text,
+  ) async {
+    final variables = UpdateUserStatusArguments(text: text);
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        document: UpdateUserStatusMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UpdateUserStatus$Mutation.fromJson(res.data!).updateUserStatus;
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -953,5 +983,75 @@ abstract class UserGraphQlMixin {
       operationName: 'KeepOnline',
       document: KeepOnlineSubscription().document,
     ));
+  }
+
+  /// Blacklists the specified [User] for the authenticated [MyUser].
+  ///
+  /// Blacklisted [User]s are not able to communicate with the authenticated
+  /// [MyUser] directly (in [Chat]-dialogs).
+  ///
+  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [BlacklistEvent] may be produced on success:
+  /// - [EventBlacklistRecordAdded].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
+  /// [User] is blacklisted by the authenticated [MyUser] already.
+  Future<BlacklistEventsVersionedMixin?> blacklistUser(UserId id) async {
+    final variables = BlacklistUserArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'BlacklistUser',
+        document: BlacklistUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => BlacklistUserException(
+          BlacklistUser$Mutation.fromJson(data).blacklistUser
+              as BlacklistUserErrorCode),
+    );
+    return BlacklistUser$Mutation.fromJson(result.data!).blacklistUser
+        as BlacklistEventsVersionedMixin?;
+  }
+
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
+  ///
+  /// Reverses the action of [blacklistUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [BlacklistEvent] may be produced on success:
+  /// - [EventBlacklistRecordRemoved].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
+  /// [User] is not blacklisted by the authenticated [MyUser] already.
+  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
+    final variables = UnblacklistUserArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnblacklistUser',
+        document: UnblacklistUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UnblacklistUserException(
+          UnblacklistUser$Mutation.fromJson(data).unblacklistUser
+              as UnblacklistUserErrorCode),
+    );
+    return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
+        as BlacklistEventsVersionedMixin?;
   }
 }

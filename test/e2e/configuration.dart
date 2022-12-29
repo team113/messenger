@@ -27,11 +27,13 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import '../mock/overflow_error.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
+import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
 import 'parameters/keys.dart';
@@ -66,14 +68,16 @@ import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
-import 'steps/sees_as.dart';
+import 'steps/sees_as_online.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
+import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
@@ -128,13 +132,15 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeDraftInDialog,
-        seesAs,
         seeUserInSearchResults,
+        seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
+        sendsMessageWithException,
         signInAs,
         tapDropdownItem,
         tapText,
+        tapUserInSearchResults,
         tapWidget,
         twoContacts,
         twoUsers,
@@ -142,6 +148,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilAttachmentFetched,
         untilTextExists,
         untilTextExistsWithin,
+        updateAvatar,
         updateName,
         user,
         waitForAppToSettle,
@@ -169,6 +176,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         MutedStatusParameter(),
@@ -183,6 +191,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
+  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);

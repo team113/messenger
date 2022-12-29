@@ -51,12 +51,15 @@ class SearchUserTile extends StatelessWidget {
       final ChatId? chatId =
           user?.dialog.value?.id ?? contact?.user.value?.dialog.value?.id;
 
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith('${Routes.chat}/$chatId')) !=
+      final UserId? userId = user?.id ?? contact?.user.value?.id;
+
+      final bool selected = router.routes.lastWhereOrNull((e) =>
+              e.startsWith('${Routes.chat}/$chatId') ||
+              e.startsWith('${Routes.user}/$userId')) !=
           null;
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
           key: key,
           contact: contact,

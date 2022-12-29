@@ -15,9 +15,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.dart'
+    show PostChatMessageErrorCode;
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/exception.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -37,6 +41,49 @@ final StepDefinitionGeneric sendsMessageToMe =
       context.world.sessions[user.name]!.dialog!,
       text: ChatMessageText(msg),
     );
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Sends a message from the specified [User] to the authenticated [MyUser] in
+/// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
+///
+/// Examples:
+/// - Bob sends message to me and receives blacklisted exception
+/// - Charlie sends message to me and receives no exception
+final StepDefinitionGeneric sendsMessageWithException =
+    and2<TestUser, ExceptionType, CustomWorld>(
+  '{user} sends message to me and receives {exception} exception',
+  (TestUser user, ExceptionType type, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+
+    Object? exception;
+
+    try {
+      await provider.postChatMessage(
+        context.world.sessions[user.name]!.dialog!,
+        text: const ChatMessageText('111'),
+      );
+    } catch (e) {
+      exception = e;
+    }
+
+    switch (type) {
+      case ExceptionType.blacklisted:
+        assert(
+          exception is PostChatMessageException &&
+              exception.code == PostChatMessageErrorCode.blacklisted,
+        );
+        break;
+
+      case ExceptionType.no:
+        assert(exception == null);
+        break;
+    }
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
