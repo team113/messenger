@@ -403,10 +403,10 @@ class _WindowListener extends WindowListener {
   /// Callback, called when the window loses focus.
   final VoidCallback? onBlur;
 
-  /// Callback, called when the window was resized.
+  /// Callback, called when the window resizes.
   final void Function(Size size)? onResized;
 
-  /// Callback, called when the window was moved.
+  /// Callback, called when the window moves.
   final void Function(Offset offset)? onMoved;
 
   @override

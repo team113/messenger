@@ -21,31 +21,31 @@ import '/domain/model_type_id.dart';
 
 part 'window_preferences.g.dart';
 
-/// Information about window's position and size.
+/// Window [Offset] position and [Size] combined.
 @HiveType(typeId: ModelTypeId.windowPreferences)
 class WindowPreferences {
   WindowPreferences({this.width, this.height, this.dx, this.dy});
 
-  /// Window's width.
+  /// Width component of these [WindowPreferences].
   @HiveField(0)
   double? width;
 
-  /// Window's height.
+  /// Height component of these [WindowPreferences].
   @HiveField(1)
   double? height;
 
-  /// Window's x coordinate position.
+  /// Left component of these [WindowPreferences].
   @HiveField(2)
   double? dx;
 
-  /// Window's y coordinate position.
+  /// Top component of these [WindowPreferences].
   @HiveField(3)
   double? dy;
 
-  /// Returns window's size;
+  /// Returns the [Size] of these [WindowPreferences].
   Size? get size =>
       width == null || height == null ? null : Size(width!, height!);
 
-  /// Returns window's position.
+  /// Returns the [Offset] position of these [WindowPreferences].
   Offset? get position => dx == null || dy == null ? null : Offset(dx!, dy!);
 }

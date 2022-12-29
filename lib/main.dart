@@ -39,8 +39,8 @@ import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/preferences.dart';
 import 'provider/hive/session.dart';
+import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
@@ -64,9 +64,10 @@ Future<void> main() async {
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
-      WindowPreferencesHiveProvider preferencesProvider = Get.find();
 
-      WindowPreferences? prefs = preferencesProvider.getWindowPreferences();
+      final WindowPreferencesHiveProvider preferences = Get.find();
+      final WindowPreferences? prefs = preferences.get();
+
       if (prefs?.size != null) {
         await windowManager.setSize(prefs!.size!);
       }
@@ -74,13 +75,13 @@ Future<void> main() async {
         await windowManager.setPosition(prefs!.position!);
       }
 
-      Get.put(WindowWorker(preferencesProvider));
+      Get.put(WindowWorker(preferences));
     }
 
-    var graphQlProvider = Get.put(GraphQlProvider());
+    final graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    var authService =
+    final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 

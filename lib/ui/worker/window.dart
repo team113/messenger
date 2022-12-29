@@ -16,29 +16,29 @@
 
 import 'dart:async';
 
-import 'package:flutter/services.dart';
-
 import '/domain/service/disposable_service.dart';
-import '/provider/hive/preferences.dart';
+import '/provider/hive/window.dart';
 import '/util/platform_utils.dart';
 
-/// Worker responsible for updating stored window's size and position.
+/// Worker updating the [WindowPreferences] on the [WindowListener] changes.
 class WindowWorker extends DisposableService {
   WindowWorker(this._windowProvider);
 
-  /// Subscription to the [PlatformUtils.onResized] updating the local data.
+  /// [WindowPreferencesHiveProvider] maintaining the [WindowPreferences].
+  final WindowPreferencesHiveProvider _windowProvider;
+
+  /// Subscription to the [PlatformUtils.onResized] updating the size.
   late final StreamSubscription? _onResized;
 
-  /// Subscription to the [PlatformUtils.onMoved] updating the local data.
+  /// Subscription to the [PlatformUtils.onMoved] updating the position.
   late final StreamSubscription? _onMoved;
-
-  /// [WindowPreferencesHiveProvider] used to store window's position and size.
-  final WindowPreferencesHiveProvider _windowProvider;
 
   @override
   void onInit() {
-    _onResized = PlatformUtils.onResized.listen((v) => _storeData(size: v));
-    _onMoved = PlatformUtils.onMoved.listen((v) => _storeData(position: v));
+    _onResized =
+        PlatformUtils.onResized.listen((v) => _windowProvider.set(size: v));
+    _onMoved =
+        PlatformUtils.onMoved.listen((v) => _windowProvider.set(position: v));
     super.onInit();
   }
 
@@ -46,12 +46,6 @@ class WindowWorker extends DisposableService {
   void onClose() {
     _onResized?.cancel();
     _onMoved?.cancel();
+    super.onClose();
   }
-
-  /// Stores window's size and position to [WindowHiveProvider].
-  void _storeData({Size? size, Offset? position}) =>
-      _windowProvider.setWindowPreferences(
-        size: size,
-        position: position,
-      );
 }
