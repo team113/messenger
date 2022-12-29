@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -27,12 +26,13 @@ import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/util/platform_utils.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
 ///
 /// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
-  ContactTile({
+  const ContactTile({
     Key? key,
     this.contact,
     this.user,
@@ -49,7 +49,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.reorderInt,
+    this.reorderIndex,
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -90,7 +90,8 @@ class ContactTile extends StatelessWidget {
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
 
-  final int? reorderInt;
+  /// Reorderable index.
+  final int? reorderIndex;
 
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
@@ -101,7 +102,6 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  final RxBool showSplashColor = RxBool(true);
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -126,7 +126,6 @@ class ContactTile extends StatelessWidget {
           unselectedHoverColor: style.cardHoveredColor.darken(darken),
           selectedHoverColor: style.cardSelectedColor,
           folded: contact?.contact.value.favoritePosition != null,
-          showSplashColor: showSplashColor,
           child: Padding(
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
@@ -135,39 +134,7 @@ class ContactTile extends StatelessWidget {
             child: Row(
               children: [
                 ...leading,
-                if (reorderInt == null)
-                  if (contact != null)
-                    AvatarWidget.fromRxContact(contact, radius: radius)
-                  else if (user != null)
-                    AvatarWidget.fromRxUser(user, radius: radius)
-                  else
-                    AvatarWidget.fromMyUser(
-                      myUser,
-                      radius: radius,
-                    )
-                else
-                  GestureDetector(
-                    onTapDown: (_) => showSplashColor.value = false,
-                    onTapUp: (_) => showSplashColor.value = true,
-                    child: ReorderableDragStartListener(
-                        index: reorderInt!,
-                        child: Builder(
-                          builder: (c) {
-                            if (contact != null) {
-                              return AvatarWidget.fromRxContact(contact,
-                                  radius: radius);
-                            } else if (user != null) {
-                              return AvatarWidget.fromRxUser(user,
-                                  radius: radius);
-                            } else {
-                              return AvatarWidget.fromMyUser(
-                                myUser,
-                                radius: radius,
-                              );
-                            }
-                          },
-                        )),
-                  ),
+                _buildAvatar(),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -206,5 +173,38 @@ class ContactTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Returns [AvatarWidget] wrapped with reorderable listener if [reorderIndex]
+  /// is not `null`.
+  Widget _buildAvatar() {
+    Widget child;
+
+    if (contact != null) {
+      child = AvatarWidget.fromRxContact(contact, radius: radius);
+    } else if (user != null) {
+      child = AvatarWidget.fromRxUser(user, radius: radius);
+    } else {
+      child = AvatarWidget.fromMyUser(
+        myUser,
+        radius: radius,
+      );
+    }
+
+    if (reorderIndex != null) {
+      if (PlatformUtils.isMobile) {
+        child = ReorderableDelayedDragStartListener(
+          index: reorderIndex!,
+          child: child,
+        );
+      } else {
+        child = ReorderableDragStartListener(
+          index: reorderIndex!,
+          child: child,
+        );
+      }
+    }
+
+    return child;
   }
 }

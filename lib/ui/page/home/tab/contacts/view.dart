@@ -22,8 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/contact.dart';
 
+import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -274,11 +274,6 @@ class ContactsTabView extends StatelessWidget {
                 child: Text('label_no_contacts'.l10n),
               );
             } else {
-              // final List<RxChatContact> contacts = [
-              //   ...c.favorites,
-              //   ...c.contacts,
-              // ];
-
               child = AnimationLimiter(
                 child: CustomScrollView(
                   controller: ScrollController(),
@@ -291,29 +286,29 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                     SliverReorderableList(
-                      onReorderStart: (i) {
-                        c.reorder.value = i;
-                      },
+                      onReorderStart: (_) => c.reorder.value = true,
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
-                        return Container(
+                        return KeyedSubtree(
                           key: Key(contact.id.val),
-                          child: Obx(
-                            () => c.reorder.value != null
-                                ? _contact(context, contact, c, reorderInt: i)
-                                : AnimationConfiguration.staggeredList(
-                                    position: i,
-                                    duration: const Duration(milliseconds: 375),
-                                    child: SlideAnimation(
-                                      horizontalOffset: 50,
-                                      child: FadeInAnimation(
-                                        child: Obx(() => _contact(
-                                            context, contact, c,
-                                            reorderInt: i)),
-                                      ),
-                                    ),
+                          child: Obx(() {
+                            Widget child =
+                                _contact(context, contact, c, reorderIndex: i);
+                            if (c.reorder.value == false) {
+                              child = AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: child,
                                   ),
-                          ),
+                                ),
+                              );
+                            }
+
+                            return child;
+                          }),
                         );
                       },
                       itemCount: c.favorites.length,
@@ -348,7 +343,7 @@ class ContactsTabView extends StatelessWidget {
                         c.contacts.mapIndexed((i, e) {
                           final RxChatContact contact = c.contacts[i];
                           return AnimationConfiguration.staggeredList(
-                            position: i,
+                            position: c.favorites.length + i,
                             duration: const Duration(milliseconds: 375),
                             child: SlideAnimation(
                               horizontalOffset: 50,
@@ -366,23 +361,6 @@ class ContactsTabView extends StatelessWidget {
                     ),
                   ],
                 ),
-                // ListView.builder(
-                //   controller: ScrollController(),
-                //   itemCount: c.favorites.length + c.contacts.length,
-                //   itemBuilder: (_, i) {
-                //     final RxChatContact contact = contacts[i];
-                //     return AnimationConfiguration.staggeredList(
-                //       position: i,
-                //       duration: const Duration(milliseconds: 375),
-                //       child: SlideAnimation(
-                //         horizontalOffset: 50,
-                //         child: FadeInAnimation(
-                //           child: Obx(() => _contact(context, contact, c)),
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // ),
               );
             }
           }
@@ -403,8 +381,11 @@ class ContactsTabView extends StatelessWidget {
 
   /// Returns a [ListTile] with [contact]'s information.
   Widget _contact(
-      BuildContext context, RxChatContact contact, ContactsTabController c,
-      {int? reorderInt}) {
+    BuildContext context,
+    RxChatContact contact,
+    ContactsTabController c, {
+    int? reorderIndex,
+  }) {
     bool favorite = c.favorites.contains(contact);
 
     final bool selected = router.routes
@@ -416,7 +397,7 @@ class ContactsTabView extends StatelessWidget {
       key: Key('Contact_${contact.id}'),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
-        reorderInt: reorderInt,
+        reorderIndex: reorderIndex,
         contact: contact,
         folded: favorite,
         selected: selected,
@@ -461,99 +442,5 @@ class ContactsTabView extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class MyReorderableDelayedDragStartListener
-    extends ReorderableDragStartListener {
-  const MyReorderableDelayedDragStartListener({
-    super.key,
-    required super.child,
-    required super.index,
-    super.enabled,
-  });
-
-  @override
-  MultiDragGestureRecognizer createRecognizer() {
-    return MyVerticalMultiDragGestureRecognizer(debugOwner: this);
-  }
-}
-
-class MyVerticalMultiDragGestureRecognizer extends MultiDragGestureRecognizer {
-  MyVerticalMultiDragGestureRecognizer({
-    super.debugOwner,
-    @Deprecated(
-      'Migrate to supportedDevices. '
-      'This feature was deprecated after v2.3.0-1.0.pre.',
-    )
-        super.kind,
-    super.supportedDevices,
-  });
-
-  @override
-  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
-    return _MyVerticalPointerState(
-      event.position,
-      event.kind == PointerDeviceKind.touch
-          ? 200.milliseconds
-          : 10.milliseconds,
-      event.kind,
-      gestureSettings,
-    );
-  }
-
-  @override
-  String get debugDescription => 'vertical multidrag';
-}
-
-class _MyVerticalPointerState extends MultiDragPointerState {
-  _MyVerticalPointerState(
-    super.initialPosition,
-    Duration delay,
-    super.kind,
-    super.deviceGestureSettings,
-  ) {
-    _timer = Timer(delay, _delayPassed);
-  }
-
-  Timer? _timer;
-  GestureMultiDragStartCallback? _starter;
-
-  void _delayPassed() {
-    assert(_timer != null);
-    _timer = null;
-
-    HapticFeedback.lightImpact();
-  }
-
-  void _ensureTimerStopped() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  @override
-  void checkForResolutionAfterMove() {
-    assert(pendingDelta != null);
-
-    if (pendingDelta!.dy.abs() > computeHitSlop(kind, gestureSettings) &&
-        (_timer == null || kind != PointerDeviceKind.touch)) {
-      resolve(GestureDisposition.accepted);
-    }
-  }
-
-  @override
-  void accepted(GestureMultiDragStartCallback starter) {
-    assert(_starter == null);
-    if ((_timer == null)) {
-      starter(initialPosition);
-    } else {
-      _starter = starter;
-    }
-  }
-
-  @override
-  void dispose() {
-    _ensureTimerStopped();
-    super.dispose();
   }
 }
