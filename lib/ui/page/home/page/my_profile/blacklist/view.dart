@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,7 +24,6 @@ import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View displaying the blacklisted [User]s.
@@ -59,52 +59,70 @@ class BlacklistView extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Obx(() {
-              if (c.blacklist.isEmpty) {
-                return Text('label_no_users'.l10n);
+              if (c.blacklist.isEmpty ||
+                  (c.users.length == c.blacklist.length &&
+                      c.users.values.none((e) => e.user.value.isBlacklisted))) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text('label_no_users'.l10n),
+                );
               }
 
               return Flexible(
-                child: ListView.separated(
+                child: ListView.builder(
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   itemBuilder: (context, i) {
-                    return FutureBuilder<RxUser?>(
-                        future: c.getUSer(c.blacklist[i]),
-                        builder: (context, snapshot) {
-                          RxUser? user = snapshot.data;
+                    RxUser? user = c.users[c.blacklist[i]];
 
-                          return ContactTile(
-                            user: user,
-                            onTap: user != null
-                                ? () {
-                                    Navigator.of(context).pop();
-                                    router.user(user.id, push: true);
-                                  }
-                                : null,
-                            darken: 0.03,
-                            trailing: [
-                              WidgetButton(
-                                onPressed: user != null
-                                    ? () => c.unblacklist(user)
-                                    : null,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: SvgLoader.asset(
-                                    'assets/icons/delete.svg',
-                                    height: 14 * 1.5,
-                                  ),
+                    Widget widget = Column(
+                      children: [
+                        ContactTile(
+                          user: user,
+                          onTap: user != null
+                              ? () {
+                                  Navigator.of(context).pop();
+                                  router.user(user.id, push: true);
+                                }
+                              : null,
+                          darken: 0.03,
+                          trailing: [
+                            InkWell(
+                              onTap: user != null
+                                  ? () => c.unblacklist(user)
+                                  : null,
+                              borderRadius: BorderRadius.circular(25),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SvgLoader.asset(
+                                  'assets/icons/delete.svg',
+                                  height: 14 * 1.5,
                                 ),
                               ),
-                            ],
-                          );
-                        });
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    );
+
+                    if (user != null) {
+                      return Obx(() {
+                        if (user.user.value.isBlacklisted == false) {
+                          return const SizedBox();
+                        }
+
+                        return widget;
+                      });
+                    } else {
+                      return widget;
+                    }
                   },
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemCount: c.blacklist.length,
                 ),
               );
             }),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
           ],
         );
       },

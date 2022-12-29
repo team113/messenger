@@ -14,12 +14,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/util/obs/obs.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -31,16 +34,59 @@ class BlacklistController extends GetxController {
   /// [MyUserService] maintaining the blacklisted [User]s.
   final MyUserService _myUserService;
 
-  /// [UserService] un-blacklisting the [User]s.
+  /// [UserService] using in the [unblacklist] and the [_getUser] methods.
   final UserService _userService;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<UserId> get blacklist => _myUserService.blacklist;
+  /// Subscription to the [blacklist] changes.
+  StreamSubscription? blacklistSubscription;
+
+  /// [Map] of the [RxUser]s fetched from the [_userService].
+  final RxMap<UserId, RxUser> users = RxMap<UserId, RxUser>();
+
+  /// Returns IDs of the [User]s blacklisted by the authenticated [MyUser].
+  RxObsList<UserId> get blacklist => _myUserService.blacklist;
+
+  @override
+  void onInit() {
+    for (var e in blacklist) {
+      _getUser(e).then((value) {
+        if (value != null) {
+          users[e] = value;
+        }
+      });
+    }
+
+    blacklistSubscription = blacklist.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          _getUser(event.element).then((value) {
+            if (value != null) {
+              users[event.element] = value;
+            }
+          });
+          break;
+        case OperationKind.removed:
+          users.remove(event.element);
+          break;
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    blacklistSubscription?.cancel();
+    super.onClose();
+  }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist(RxUser user) =>
       _userService.unblacklistUser(user.id);
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUSer(UserId id) => _userService.get(id);
+  Future<RxUser?> _getUser(UserId id) => _userService.get(id);
 }

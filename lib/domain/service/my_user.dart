@@ -27,6 +27,7 @@ import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/routes.dart';
+import '/util/obs/rxlist.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -47,8 +48,8 @@ class MyUserService extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<UserId> get blacklist => _userRepo.blacklist;
+  /// Returns IDs of the [User]s blacklisted by the authenticated [MyUser].
+  RxObsList<UserId> get blacklist => _userRepo.blacklist;
 
   @override
   void onInit() {
