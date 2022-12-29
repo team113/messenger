@@ -53,6 +53,7 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: CustomAppBar(
@@ -359,6 +360,25 @@ class ContactsTabView extends StatelessWidget {
             label: 'btn_select'.l10n,
             trailing: const Icon(Icons.select_all),
           ),
+        ],
+        trailing: [
+          Obx(() {
+            final bool blocked =
+                c.blacklist.any((e) => e.id == contact.user.value?.id);
+
+            if (!blocked) {
+              return const SizedBox();
+            }
+
+            return const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(
+                Icons.block,
+                color: Color.fromRGBO(192, 192, 192, 1),
+                size: 20,
+              ),
+            );
+          }),
         ],
         subtitle: [
           Padding(

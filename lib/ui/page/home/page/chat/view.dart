@@ -105,6 +105,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
@@ -194,15 +195,15 @@ class _ChatViewState extends State<ChatView>
                                             maxLines: 1,
                                           ),
                                         ),
-                                        if (c.chat?.chat.value.muted !=
-                                            null) ...[
-                                          const SizedBox(width: 5),
-                                          SvgLoader.asset(
-                                            'assets/icons/muted.svg',
-                                            width: 19.99,
-                                            height: 15,
-                                          ),
-                                        ]
+                                        // if (c.chat?.chat.value.muted !=
+                                        //     null) ...[
+                                        //   const SizedBox(width: 5),
+                                        //   SvgLoader.asset(
+                                        //     'assets/icons/muted.svg',
+                                        //     width: 19.99 * 0.6,
+                                        //     height: 15 * 0.6,
+                                        //   ),
+                                        // ]
                                       ],
                                     ),
                                     _chatSubtitle(c),
@@ -752,41 +753,86 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.isGroup) {
         final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
-          return Text(subtitle, style: style);
+          return Row(
+            children: [
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgLoader.asset(
+                  'assets/icons/muted_darken.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(child: Text(subtitle, style: style)),
+            ],
+          );
         }
       } else if (chat.value.isDialog) {
         final ChatMember? partner =
             chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
         if (partner != null) {
-          return FutureBuilder<RxUser?>(
-            future: c.getUser(partner.user.id),
-            builder: (_, snapshot) {
-              if (snapshot.data != null) {
-                return Obx(() {
-                  final String? subtitle = c.chat!.chat.value
-                      .getSubtitle(partner: snapshot.data!.user.value);
+          return Row(
+            children: [
+              // Obx(() {
+              //   final RxUser? recipient = c.chat!.members.values
+              //       .firstWhereOrNull((e) => e.id != c.me);
+              //   if (recipient != null) {
+              //     if (c.blacklist.any((e) => e.id == recipient.id)) {
+              //       return const Padding(
+              //         padding: EdgeInsets.only(right: 5),
+              //         child: Icon(
+              //           Icons.block,
+              //           color: Color(0xFF888888),
+              //           size: 12,
+              //         ),
+              //       );
+              //     }
+              //   }
 
-                  final UserTextStatus? status =
-                      snapshot.data!.user.value.status;
+              //   return const SizedBox();
+              // }),
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgLoader.asset(
+                  'assets/icons/muted_darken.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(partner.user.id),
+                  builder: (_, snapshot) {
+                    if (snapshot.data != null) {
+                      return Obx(() {
+                        final String? subtitle = c.chat!.chat.value
+                            .getSubtitle(partner: snapshot.data!.user.value);
 
-                  if (status != null || subtitle != null) {
-                    final StringBuffer buffer = StringBuffer(status ?? '');
+                        final UserTextStatus? status =
+                            snapshot.data!.user.value.status;
 
-                    if (status != null && subtitle != null) {
-                      buffer.write('space_vertical_space'.l10n);
+                        if (status != null || subtitle != null) {
+                          final StringBuffer buffer =
+                              StringBuffer(status ?? '');
+
+                          if (status != null && subtitle != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(subtitle ?? '');
+
+                          return Text(buffer.toString(), style: style);
+                        }
+
+                        return const SizedBox();
+                      });
                     }
 
-                    buffer.write(subtitle ?? '');
-
-                    return Text(buffer.toString(), style: style);
-                  }
-
-                  return const SizedBox();
-                });
-              }
-
-              return const SizedBox();
-            },
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
           );
         }
       }
@@ -845,49 +891,134 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
+    return Obx(() {
+      bool blocked = false;
+
+      if (c.chat?.chat.value.isDialog == true) {
+        final RxUser? recipient =
+            c.chat!.members.values.firstWhereOrNull((e) => e.id != c.me);
+        if (recipient != null) {
+          blocked = c.blacklist.any((e) => e.id == recipient.id);
+        }
+      }
+
+      return Theme(
+        data: Theme.of(context).copyWith(
+          shadowColor: const Color(0x55000000),
+          iconTheme: const IconThemeData(color: Colors.blue),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+              borderSide: BorderSide.none,
+            ),
+            focusColor: Colors.white,
+            fillColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            filled: false,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
+        ),
+        child: blocked
+            ? _blockedField(c)
+            : c.editedMessage.value == null
+                ? _sendField(c)
+                : _editField(c),
+      );
+    });
+  }
+
+  Widget _blockedField(ChatController c) {
+    Style style = Theme.of(context).extension<Style>()!;
+
+    return SafeArea(
+      child: Container(
+        key: const Key('BlockedField'),
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          boxShadow: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+            ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          filled: false,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
+          borderRadius: style.cardRadius,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(color: style.cardColor),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                      bottom: 13,
+                    ),
+                    child: Transform.translate(
+                      offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                      child: WidgetButton(
+                        onPressed: c.unblacklist,
+                        child: IgnorePointer(
+                          child: ReactiveTextField(
+                            onChanged: c.keepTyping,
+                            enabled: false,
+                            key: const Key('MessageField'),
+                            state: TextFieldState(text: 'Разблокировать'),
+                            filled: false,
+                            dense: true,
+                            textAlign: TextAlign.center,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(
+                              fontSize: 17,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            type: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      child: c.editedMessage.value == null ? _sendField(c) : _editField(c),
     );
   }
 

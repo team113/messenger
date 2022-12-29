@@ -421,6 +421,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(GalleryItemHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(BlacklistedUsersHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -482,6 +483,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   Get.find(),
+                  Get.find(),
                   userRepository,
                 ),
               );
@@ -521,6 +523,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(GalleryItemHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(BlacklistedUsersHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -580,6 +583,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
+                Get.find(),
                 Get.find(),
                 Get.find(),
                 userRepository,

@@ -27,6 +27,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -74,6 +75,7 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._myUserService,
     this._settingsRepository, {
     this.itemId,
   });
@@ -254,6 +256,10 @@ class ChatController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
+
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
+
+  final MyUserService _myUserService;
 
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
@@ -973,6 +979,16 @@ class ChatController extends GetxController {
         );
       } else {
         initIndex = index;
+      }
+    }
+  }
+
+  Future<void> unblacklist() async {
+    if (chat?.chat.value.isDialog == true) {
+      final RxUser? recipient =
+          chat!.members.values.firstWhereOrNull((e) => e.id != me);
+      if (recipient != null) {
+        await _userService.unblacklistUser(recipient.id);
       }
     }
   }

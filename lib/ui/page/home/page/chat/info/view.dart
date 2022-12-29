@@ -93,8 +93,8 @@ class ChatInfoView extends StatelessWidget {
                                 const SizedBox(width: 5),
                                 SvgLoader.asset(
                                   'assets/icons/muted.svg',
-                                  width: 19.99,
-                                  height: 15,
+                                  width: 19.99 * 0.6,
+                                  height: 15 * 0.6,
                                 ),
                               ]
                             ],

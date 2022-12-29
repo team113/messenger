@@ -596,6 +596,23 @@ class ChatsTabController extends GetxController {
     });
   }
 
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
+
+  bool isBlocked(
+    RxChat chat,
+    Iterable<RxUser> members,
+    Iterable<RxUser> blacklist,
+  ) {
+    if (chat.chat.value.isDialog) {
+      final RxUser? recipient = members.firstWhereOrNull((e) => e.id != me);
+      if (recipient != null) {
+        return blacklist.any((e) => e.id == recipient.id);
+      }
+    }
+
+    return false;
+  }
+
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
     print(

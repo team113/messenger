@@ -106,6 +106,7 @@ class ContactTile extends StatelessWidget {
           ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
           : null,
       preventContextMenu: preventContextMenu,
+      indicateMenu: true,
       actions: actions ?? [],
       child: Padding(
         padding: margin,

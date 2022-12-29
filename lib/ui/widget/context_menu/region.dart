@@ -17,6 +17,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:uuid/uuid.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/selector.dart';
@@ -31,8 +33,8 @@ import 'mobile.dart';
 /// - [ContextMenu] or [Selector] on desktop;
 /// - [FloatingContextMenu] on mobile.
 class ContextMenuRegion extends StatelessWidget {
-  const ContextMenuRegion({
-    Key? key,
+  ContextMenuRegion({
+    super.key,
     required this.child,
     this.enabled = true,
     this.moveDownwards = true,
@@ -43,8 +45,9 @@ class ContextMenuRegion extends StatelessWidget {
     this.selector,
     this.width = 260,
     this.margin = EdgeInsets.zero,
-    this.id,
-  }) : super(key: key);
+    this.indicateMenu = false,
+    String? id,
+  }) : id = id ?? const Uuid().v4();
 
   /// Widget to wrap this region over.
   final Widget child;
@@ -85,12 +88,32 @@ class ContextMenuRegion extends StatelessWidget {
   /// mobile.
   final EdgeInsets margin;
 
-  final String? id;
+  final String id;
+
+  final bool indicateMenu;
 
   static RxnString displayed = RxnString();
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final Widget child = Obx(() {
+      if (displayed.value == id && indicateMenu && PlatformUtils.isDesktop) {
+        return Stack(
+          children: [
+            KeyedSubtree(key: Key(id), child: this.child),
+            Positioned.fill(
+              child: Container(
+                color: style.cardHoveredColor.withOpacity(0.4),
+              ),
+            ),
+          ],
+        );
+      }
+
+      return KeyedSubtree(key: Key(id), child: this.child);
+    });
+
     if (enabled && actions.isNotEmpty) {
       return ContextMenuInterceptor(
         enabled: preventContextMenu,
@@ -112,7 +135,7 @@ class ContextMenuRegion extends StatelessWidget {
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (enableLongTap ?? PlatformUtils.isMobile)
+                  onLongPressStart: (enableLongTap ?? true)
                       ? (d) => _show(context, d.globalPosition)
                       : null,
                   child: child,
