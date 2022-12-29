@@ -102,8 +102,6 @@ class SearchController extends GetxController {
 
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
-  ///
-  /// Used to determine the current [category].
   final FlutterListViewController controller = FlutterListViewController();
 
   /// [TextFieldState] of the search field.

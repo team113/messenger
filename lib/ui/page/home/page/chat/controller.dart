@@ -302,10 +302,7 @@ class ChatController extends GetxController {
             );
 
             if (result == true) {
-              send.replied.clear();
-              send.forwarding.value = false;
-              send.attachments.clear();
-              send.field.clear();
+              send.clear();
             }
           }
         } else {
@@ -328,10 +325,7 @@ class ChatController extends GetxController {
                     (e, _) => MessagePopup.error(e))
                 .onError<ConnectionException>((e, _) {});
 
-            send.replied.clear();
-            send.attachments.clear();
-            send.field.clear();
-            send.field.unsubmit();
+            send.clear();
 
             chat?.setDraft();
 
@@ -365,7 +359,6 @@ class ChatController extends GetxController {
 
           try {
             await _chatService.editChatMessage(item, text);
-            edit.editedMessage.value = null;
             edit.editedMessage.value = null;
 
             _typingSubscription?.cancel();

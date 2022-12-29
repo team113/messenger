@@ -58,7 +58,7 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
-  /// Initial [String] to put in the [MessageFieldController.send] field.
+  /// Initial [String] to put in the [MessageFieldController.field] field.
   final String? text;
 
   /// [ChatItemQuote]s to be forwarded.

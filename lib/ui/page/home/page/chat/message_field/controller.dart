@@ -139,6 +139,15 @@ class MessageFieldController extends GetxController {
     super.onInit();
   }
 
+  /// Clear local values.
+  void clear() {
+    replied.clear();
+    attachments.clear();
+    forwarding.value = false;
+    field.clear();
+    field.unsubmit();
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
