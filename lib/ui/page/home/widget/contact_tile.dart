@@ -194,11 +194,13 @@ class ContactTile extends StatelessWidget {
     if (reorderIndex != null) {
       if (PlatformUtils.isMobile) {
         child = ReorderableDelayedDragStartListener(
+          key: Key('ContactReorder_${contact?.id.val}'),
           index: reorderIndex!,
           child: child,
         );
       } else {
         child = ReorderableDragStartListener(
+          key: Key('ContactReorder_${contact?.id.val}'),
           index: reorderIndex!,
           child: child,
         );
