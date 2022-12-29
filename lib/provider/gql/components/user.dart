@@ -860,6 +860,40 @@ abstract class UserGraphQlMixin {
         .updateUserCallCover as MyUserEventsVersionedMixin?);
   }
 
+  /// Updates or resets the [MyUser.callCover] field with the provided
+  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserCallCoverUpdated] (if [id] argument is specified);
+  /// - [EventUserCallCoverDeleted] (if [id] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] uses the provided [GalleryItem] with the same crop area as his
+  /// callCover already.
+  Future<MyUserEventsVersionedMixin?> toggleMute(Muting? mute) async {
+    final variables = ToggleMyUserMuteArguments(mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleMyUserMute',
+        document: UpdateUserCallCoverMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UpdateUserCallCoverException(
+          UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+              as UpdateUserCallCoverErrorCode),
+    );
+    return (UpdateUserCallCover$Mutation.fromJson(result.data!)
+        .updateUserCallCover as MyUserEventsVersionedMixin?);
+  }
+
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
   ///
   /// HTTP request for this mutation must be `Content-Type: multipart/form-data`

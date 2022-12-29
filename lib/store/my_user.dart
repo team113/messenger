@@ -439,6 +439,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
+  Future<void> toggleMute(Muting? mute) async {
+    MuteDuration? oldMuted = myUser.value?.muted;
+
+    if (mute == null) {
+      myUser.update((u) => u?.muted = mute.duration);
+    }
+
+    try {
+      // await _graphQlProvider.updateUserAvatar(id, null);
+    } catch (e) {
+        myUser.update((u) => u?.muted = oldMuted);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
 

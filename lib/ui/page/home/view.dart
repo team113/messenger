@@ -31,6 +31,7 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
+import 'tab/chats/chats_more/view.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
@@ -197,12 +198,26 @@ class _HomeViewState extends State<HomeView> {
                               badge: c.unreadChatsCount.value == 0
                                   ? null
                                   : '${c.unreadChatsCount.value}',
-                              child: tab(
-                                tab: HomeTab.chats,
-                                child: SvgLoader.asset(
-                                  'assets/icons/chats.svg',
-                                  width: 36.06,
-                                  height: 30,
+                              child: RmbDetector(
+                                onPressed: () => ChatsMoreView.show(context),
+                                child: tab(
+                                  tab: HomeTab.chats,
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 250),
+                                    child: router.muted.value
+                                        ? SvgLoader.asset(
+                                            'assets/icons/chats_grey.svg',
+                                            key: const Key('ChatsGrey'),
+                                            width: 36.06,
+                                            height: 30,
+                                          )
+                                        : SvgLoader.asset(
+                                            'assets/icons/chats.svg',
+                                            key: const Key('ChatsColored'),
+                                            width: 36.06,
+                                            height: 30,
+                                          ),
+                                  ),
                                 ),
                               ),
                             ),
