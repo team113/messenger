@@ -546,6 +546,8 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            reads: c.chat!.reads
+                .where((m) => m.at == e.value.at && m.memberId != c.me),
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
@@ -584,6 +586,8 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            reads: c.chat!.reads.where((m) =>
+                m.at == element.forwards.last.value.at && m.memberId != c.me),
             onHide: () async {
               final List<Future> futures = [];
 
