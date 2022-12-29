@@ -68,27 +68,36 @@ class BlacklistView extends StatelessWidget {
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   itemBuilder: (context, i) {
-                    RxUser user = c.blacklist[i];
-                    return ContactTile(
-                      user: user,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        router.user(user.id, push: true);
-                      },
-                      darken: 0.03,
-                      trailing: [
-                        WidgetButton(
-                          onPressed: () => c.unblacklist(user),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: SvgLoader.asset(
-                              'assets/icons/delete.svg',
-                              height: 14 * 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    return FutureBuilder<RxUser?>(
+                        future: c.getUSer(c.blacklist[i]),
+                        builder: (context, snapshot) {
+                          RxUser? user = snapshot.data;
+
+                          return ContactTile(
+                            user: user,
+                            onTap: user != null
+                                ? () {
+                                    Navigator.of(context).pop();
+                                    router.user(user.id, push: true);
+                                  }
+                                : null,
+                            darken: 0.03,
+                            trailing: [
+                              WidgetButton(
+                                onPressed: user != null
+                                    ? () => c.unblacklist(user)
+                                    : null,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/delete.svg',
+                                    height: 14 * 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        });
                   },
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemCount: c.blacklist.length,

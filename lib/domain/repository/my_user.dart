@@ -22,7 +22,6 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
-import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
@@ -30,7 +29,7 @@ abstract class AbstractMyUserRepository {
   Rx<MyUser?> get myUser;
 
   /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist;
+  RxList<UserId> get blacklist;
 
   /// Initializes the repository.
   ///

@@ -37,13 +37,11 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
-import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
-import '/store/user_rx.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -63,7 +61,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final Rx<MyUser?> myUser;
 
   @override
-  final RxList<RxUser> blacklist = RxList<RxUser>();
+  final RxList<UserId> blacklist = RxList<UserId>();
 
   /// GraphQL's Endpoint provider.
   final GraphQlProvider _graphQlProvider;
@@ -112,7 +110,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     if (!_blacklistLocal.isEmpty) {
       for (HiveUser e in _blacklistLocal.users) {
-        blacklist.add(HiveRxUser(_userRepo, _blacklistLocal, e));
+        blacklist.add(e.value.id);
       }
     }
 
@@ -525,14 +523,11 @@ class MyUserRepository implements AbstractMyUserRepository {
     while (await _localBlacklistSubscription!.moveNext()) {
       BoxEvent event = _localBlacklistSubscription!.current;
       if (event.deleted) {
-        blacklist.removeWhere((e) => e.id.val == event.key);
+        blacklist.removeWhere((e) => e == event.key);
       } else {
-        RxUser? user = blacklist.firstWhereOrNull((e) => e.id.val == event.key);
+        UserId? user = blacklist.firstWhereOrNull((e) => e == event.key);
         if (user == null) {
-          blacklist.add(HiveRxUser(_userRepo, _blacklistLocal, event.value));
-        } else {
-          user.user.value = event.value.value;
-          user.user.refresh();
+          blacklist.add(event.value.value.id);
         }
       }
     }
