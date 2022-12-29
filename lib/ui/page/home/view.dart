@@ -253,7 +253,7 @@ class _HomeViewState extends State<HomeView> {
                                           duration: 200.milliseconds,
                                           child: SvgLoader.asset(
                                             router.muted.value
-                                                ? 'assets/icons/chats_grey.svg'
+                                                ? 'assets/icons/chats_muted.svg'
                                                 : 'assets/icons/chats.svg',
                                             key: Key('${router.muted.value}'),
                                             width: 36.06,
