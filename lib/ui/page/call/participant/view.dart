@@ -290,19 +290,23 @@ class ParticipantView extends StatelessWidget {
         darken: 0.05,
         trailing: [
           Obx(() {
-            bool inCall = call.value.members.keys
-                .any((e) => e.userId == user.id);
-            bool isRedialed = call.value.redialedMembers.value
-                .any((e) => e == user.id);
+            bool inCall =
+                call.value.members.keys.any((e) => e.userId == user.id);
+            bool isRedialed =
+                call.value.redialedMembers.any((e) => e == user.id);
 
-            if (!inCall && !isRedialed) {
+            if (!inCall) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Material(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: isRedialed
+                      ? Colors.grey
+                      : Theme.of(context).colorScheme.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
-                    onTap: () => c.redialChatCallMember(user.id),
+                    onTap: isRedialed
+                        ? null
+                        : () => c.redialChatCallMember(user.id),
                     borderRadius: BorderRadius.circular(60),
                     child: SizedBox(
                       width: 30,
