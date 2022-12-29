@@ -22,8 +22,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
-import '../attachment_selector.dart';
-import '../video_thumbnail/video_thumbnail.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
@@ -35,7 +33,9 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
@@ -167,14 +167,14 @@ class MessageFieldView extends StatelessWidget {
                           topRight: style.cardRadius.topRight,
                         ),
                         child: Container(
-                          color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                          color: Colors.white.withOpacity(0.4),
                           child: AnimatedSize(
                             duration: 400.milliseconds,
                             curve: Curves.ease,
                             child: Obx(() {
                               return Container(
                                 width: double.infinity,
-                                padding: c.repliedMessages.isNotEmpty ||
+                                padding: c.replied.isNotEmpty ||
                                         c.attachments.isNotEmpty
                                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                                     : EdgeInsets.zero,
@@ -328,7 +328,7 @@ class MessageFieldView extends StatelessWidget {
                                           );
                                         }),
                                       ),
-                                    if (c.repliedMessages.isNotEmpty)
+                                    if (c.replied.isNotEmpty)
                                       ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxHeight: MediaQuery.of(context)
@@ -346,8 +346,8 @@ class MessageFieldView extends StatelessWidget {
                                             }
 
                                             final ChatItem item =
-                                                c.repliedMessages.removeAt(old);
-                                            c.repliedMessages.insert(to, item);
+                                                c.replied.removeAt(old);
+                                            c.replied.insert(to, item);
 
                                             HapticFeedback.lightImpact();
                                           },
@@ -396,18 +396,17 @@ class MessageFieldView extends StatelessWidget {
                                             1,
                                             0,
                                           ),
-                                          children: c.repliedMessages.map((e) {
+                                          children: c.replied.map((e) {
                                             return ReorderableDragStartListener(
                                               key: Key('Handle_${e.id}'),
                                               enabled: !PlatformUtils.isMobile,
-                                              index:
-                                                  c.repliedMessages.indexOf(e),
+                                              index: c.replied.indexOf(e),
                                               child: Dismissible(
                                                 key: Key('${e.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
                                                 onDismissed: (_) {
-                                                  c.repliedMessages.remove(e);
+                                                  c.replied.remove(e);
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets
@@ -533,7 +532,7 @@ class MessageFieldView extends StatelessWidget {
                                 child: ReactiveTextField(
                                   onChanged: onChanged,
                                   key: fieldKey ?? const Key('MessageField'),
-                                  state: c.send,
+                                  state: c.field,
                                   hint: 'label_send_message_hint'.l10n,
                                   minLines: 1,
                                   maxLines: 7,
@@ -577,7 +576,7 @@ class MessageFieldView extends StatelessWidget {
                               onLongPress:
                                   canForward ? c.forwarding.toggle : null,
                               child: WidgetButton(
-                                onPressed: c.send.submit,
+                                onPressed: c.field.submit,
                                 child: SizedBox(
                                   width: 56,
                                   height: 56,
@@ -819,6 +818,7 @@ class MessageFieldView extends StatelessWidget {
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
       final Style style = Theme.of(context).extension<Style>()!;
+
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
         opaque: false,
@@ -858,42 +858,47 @@ class MessageFieldView extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!c.send.status.value.isLoading)
+              if (!c.field.status.value.isLoading)
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
                     child: Obx(() {
+                      final Widget child;
+
+                      if (c.hoveredAttachment.value == e ||
+                          PlatformUtils.isMobile) {
+                        child = InkWell(
+                          key: const Key('RemovePickedFile'),
+                          onTap: () =>
+                              c.attachments.removeWhere((a) => a.value == e),
+                          child: Container(
+                            width: 15,
+                            height: 15,
+                            margin: const EdgeInsets.only(left: 8, bottom: 8),
+                            child: Container(
+                              key: const Key('Close'),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: style.cardColor,
+                              ),
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/close_primary.svg',
+                                  width: 7,
+                                  height: 7,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
                       return AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        child: c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile
-                            ? InkWell(
-                                key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments
-                                    .removeWhere((a) => a.value == e),
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  margin:
-                                      const EdgeInsets.only(left: 8, bottom: 8),
-                                  child: Container(
-                                    key: const Key('Close'),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: style.cardColor,
-                                    ),
-                                    child: Center(
-                                      child: SvgLoader.asset(
-                                        'assets/icons/close_primary.svg',
-                                        width: 7,
-                                        height: 7,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
+                        child: child,
                       );
                     }),
                   ),
@@ -1059,7 +1064,7 @@ class MessageFieldView extends StatelessWidget {
                                 AvatarWidget.colors.length];
 
                     return Container(
-                      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
+                      key: Key('Reply_${c.replied.indexOf(item)}'),
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(width: 2, color: color),
@@ -1111,51 +1116,53 @@ class MessageFieldView extends StatelessWidget {
                     );
                   }),
             ),
-            AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.hoveredReply.value == item || PlatformUtils.isMobile
-                  ? WidgetButton(
-                      key: const Key('CancelReplyButton'),
-                      onPressed: () {
-                        c.repliedMessages.remove(item);
-                      },
-                      child: Container(
-                        width: 15,
-                        height: 15,
-                        margin: const EdgeInsets.only(right: 4, top: 4),
-                        child: Container(
-                          key: const Key('Close'),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.cardColor,
-                          ),
-                          child: Center(
-                            child: SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
-                              width: 7,
-                              height: 7,
-                            ),
-                          ),
+            Obx(() {
+              final Widget child;
+
+              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
+                child = WidgetButton(
+                  key: const Key('CancelReplyButton'),
+                  onPressed: () => c.replied.remove(item),
+                  child: Container(
+                    width: 15,
+                    height: 15,
+                    margin: const EdgeInsets.only(right: 4, top: 4),
+                    child: Container(
+                      key: const Key('Close'),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: style.cardColor,
+                      ),
+                      child: Center(
+                        child: SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          width: 7,
+                          height: 7,
                         ),
                       ),
-                    )
-                  : const SizedBox(),
-            ),
+                    ),
+                  ),
+                );
+              } else {
+                child = const SizedBox();
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
           ],
         ),
       ),
     );
   }
 
-  /// Builds a visual representation of a [MessageFieldController.quotes]
-  /// message.
+  /// Builds a visual representation of the provided [item] being forwarded.
   Widget buildForwardedMessage(
     BuildContext context,
     ChatItem item,
     MessageFieldController c,
   ) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == c.me;
+    final Style style = Theme.of(context).extension<Style>()!;
+    final bool fromMe = item.authorId == c.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1290,19 +1297,15 @@ class MessageFieldView extends StatelessWidget {
                   future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == c.me
-                        ? const Color(0xFF63B4FF)
+                        ? Theme.of(context).colorScheme.secondary
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
 
                     return Container(
                       decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            width: 2,
-                            color: color,
-                          ),
-                        ),
+                        border:
+                            Border(left: BorderSide(width: 2, color: color)),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                       padding: const EdgeInsets.only(left: 8),
@@ -1320,7 +1323,9 @@ class MessageFieldView extends StatelessWidget {
                                   return Obx(() {
                                     Color color =
                                         snapshot.data?.user.value.id == c.me
-                                            ? const Color(0xFF63B4FF)
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .secondary
                                             : AvatarWidget.colors[snapshot
                                                     .data!.user.value.num.val
                                                     .sum() %
@@ -1337,17 +1342,16 @@ class MessageFieldView extends StatelessWidget {
 
                               return Text(
                                 name ?? ('dot'.l10n * 3),
-                                style: style.boldBody
-                                    .copyWith(color: const Color(0xFF63B4FF)),
+                                style: style.boldBody.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary),
                               );
                             },
                           ),
                           if (content != null) ...[
                             const SizedBox(height: 2),
-                            DefaultTextStyle.merge(
-                              maxLines: 1,
-                              child: content,
-                            ),
+                            DefaultTextStyle.merge(maxLines: 1, child: content),
                           ],
                           if (additional.isNotEmpty) ...[
                             const SizedBox(height: 4),
@@ -1394,7 +1398,7 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Builds a visual representation of a
+  /// Builds a visual representation of the
   /// [MessageFieldController.editedMessage].
   Widget buildEditedMessage(BuildContext context, MessageFieldController c) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -1500,7 +1504,8 @@ class MessageFieldView extends StatelessWidget {
                                 Text(
                                   'label_edit'.l10n,
                                   style: style.boldBody.copyWith(
-                                    color: const Color(0xFF63B4FF),
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                 ),
                                 if (content != null) ...[
@@ -1522,34 +1527,40 @@ class MessageFieldView extends StatelessWidget {
                     ),
                   ),
                   Obx(() {
+                    final Widget child;
+
+                    if (c.hoveredReply.value == item ||
+                        PlatformUtils.isMobile) {
+                      child = WidgetButton(
+                        key: const Key('CancelEditButton'),
+                        onPressed: () => c.editedMessage.value = null,
+                        child: Container(
+                          width: 15,
+                          height: 15,
+                          margin: const EdgeInsets.only(right: 4, top: 4),
+                          child: Container(
+                            key: const Key('Close'),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: style.cardColor,
+                            ),
+                            child: Center(
+                              child: SvgLoader.asset(
+                                'assets/icons/close_primary.svg',
+                                width: 7,
+                                height: 7,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      child = const SizedBox();
+                    }
+
                     return AnimatedSwitcher(
                       duration: 200.milliseconds,
-                      child: c.hoveredReply.value == item ||
-                              PlatformUtils.isMobile
-                          ? WidgetButton(
-                              key: const Key('CancelEditButton'),
-                              onPressed: () => c.editedMessage.value = null,
-                              child: Container(
-                                width: 15,
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 4, top: 4),
-                                child: Container(
-                                  key: const Key('Close'),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: style.cardColor,
-                                  ),
-                                  child: Center(
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      width: 7,
-                                      height: 7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
+                      child: child,
                     );
                   }),
                 ],

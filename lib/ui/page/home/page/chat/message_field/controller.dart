@@ -41,7 +41,7 @@ import '/util/platform_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the [MessageFieldView] widget.
+/// Controller of a [MessageFieldView].
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
@@ -55,7 +55,7 @@ class MessageFieldController extends GetxController {
       RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> repliedMessages = RxList<ChatItem>();
+  final RxList<ChatItem> replied = RxList<ChatItem>();
 
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote> quotes = RxList<ChatItemQuote>();
@@ -63,8 +63,8 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
 
-  /// Callback called when send message was submitted.
-  void Function()? onSubmit;
+  /// Callback, called when this [MessageFieldController] is submitted.
+  final void Function()? onSubmit;
 
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
@@ -81,13 +81,13 @@ class MessageFieldController extends GetxController {
   /// Callback, called when need to update draft message.
   final void Function()? updateDraft;
 
-  /// State of a send message field.
-  late final TextFieldState send;
+  /// [TextFieldState] for a [ChatMessageText].
+  late final TextFieldState field;
 
   /// Indicator whether [send] was initialized or not.
   final RxBool _sendInitialized = RxBool(false);
 
-  /// [Chat]s service used to upload attachments.
+  /// [Chat]s service uploading the [attachments].
   final ChatService _chatService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
@@ -99,7 +99,7 @@ class MessageFieldController extends GetxController {
   @override
   void onInit() {
     if (_sendInitialized.isFalse) {
-      send = TextFieldState(
+      field = TextFieldState(
         onChanged: (_) => updateDraft?.call(),
         onSubmitted: (s) => onSubmit?.call(),
         focus: FocusNode(
@@ -109,21 +109,22 @@ class MessageFieldController extends GetxController {
               if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
                 int cursor;
 
-                if (send.controller.selection.isCollapsed) {
-                  cursor = send.controller.selection.base.offset;
-                  send.text =
-                      '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+                if (field.controller.selection.isCollapsed) {
+                  cursor = field.controller.selection.base.offset;
+                  field.text =
+                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
                 } else {
-                  cursor = send.controller.selection.start;
-                  send.text =
-                      '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+                  cursor = field.controller.selection.start;
+                  field.text =
+                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
                 }
 
-                send.controller.selection = TextSelection.fromPosition(
-                    TextPosition(offset: cursor + 1));
+                field.controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: cursor + 1),
+                );
                 return KeyEventResult.handled;
               } else if (!e.isShiftPressed) {
-                send.submit();
+                field.submit();
                 return KeyEventResult.handled;
               }
             }

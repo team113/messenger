@@ -154,10 +154,7 @@ class ContactTile extends StatelessWidget {
                   else if (user != null)
                     AvatarWidget.fromRxUser(user, radius: 30)
                   else
-                    AvatarWidget.fromMyUser(
-                      myUser,
-                      radius: 30,
-                    ),
+                    AvatarWidget.fromMyUser(myUser, radius: 30),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -176,7 +173,7 @@ class ContactTile extends StatelessWidget {
                                     myUser?.name?.val ??
                                     myUser?.num.val ??
                                     (myUser == null
-                                        ? '...'
+                                        ? 'dot'.l10n
                                         : 'btn_your_profile'.l10n),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,

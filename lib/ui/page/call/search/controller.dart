@@ -115,11 +115,8 @@ class SearchController extends GetxController {
   /// Reactive value of the [search] field passed to the [_search] method.
   final RxString query = RxString('');
 
-  /// Selected [SearchCategory].
-  final Rx<SearchCategory> category = Rx(SearchCategory.recent);
-
-  /// Callback, called every time the [selectedContacts], [selectedChats] and
-  /// [selectedUsers] change.
+  /// Callback, called on the [selectedContacts], [selectedChats] and
+  /// [selectedUsers] changes.
   final void Function(SearchViewResults? results)? onSelected;
 
   /// Worker to react on [SearchResult.status] changes.
@@ -161,21 +158,6 @@ class SearchController extends GetxController {
 
       populate();
     });
-
-    controller.sliverController.onPaintItemPositionsCallback = (d, list) {
-      int? first = list.firstOrNull?.index;
-      if (first != null) {
-        if (first >= recent.length + contacts.length + chats.length) {
-          category.value = SearchCategory.user;
-        } else if (first >= recent.length + chats.length) {
-          category.value = SearchCategory.contact;
-        } else if (first >= chats.length) {
-          category.value = SearchCategory.recent;
-        } else {
-          category.value = SearchCategory.chat;
-        }
-      }
-    };
 
     populate();
 
@@ -289,53 +271,6 @@ class SearchController extends GetxController {
     } else {
       searchStatus.value = RxStatus.empty();
       searchResults.value = null;
-    }
-  }
-
-  /// Jumps the [controller] to the provided [category] of the search results.
-  void jumpTo(SearchCategory category) {
-    if (controller.hasClients) {
-      switch (category) {
-        case SearchCategory.chat:
-          if (chats.isNotEmpty) {
-            controller.jumpTo(0);
-          }
-          break;
-
-        case SearchCategory.recent:
-          if (recent.isNotEmpty) {
-            final double to = chats.length * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
-
-        case SearchCategory.contact:
-          if (contacts.isNotEmpty) {
-            final double to = (chats.length + recent.length) * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
-
-        case SearchCategory.user:
-          if (users.isNotEmpty) {
-            final double to =
-                (chats.length + recent.length + contacts.length) * (76 + 10);
-            if (to > controller.position.maxScrollExtent) {
-              controller.jumpTo(controller.position.maxScrollExtent);
-            } else {
-              controller.jumpTo(to);
-            }
-          }
-          break;
-      }
     }
   }
 

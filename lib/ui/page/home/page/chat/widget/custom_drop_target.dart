@@ -52,17 +52,14 @@ class _CustomDropTargetState extends State<CustomDropTarget> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      keys.add(widget.key!);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => keys.add(widget.key!));
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      keys.remove(widget.key);
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => keys.remove(widget.key));
     super.dispose();
   }
 

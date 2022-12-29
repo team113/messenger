@@ -75,7 +75,7 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called every time the selected items change.
+  /// Callback, called on the selected items changes.
   final void Function(SearchViewResults? results)? onSelected;
 
   /// Callback, called when the back button is pressed.
@@ -210,7 +210,7 @@ class SearchView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() {
-                    bool enabled = this.enabled &&
+                    final bool enabled = this.enabled &&
                         (c.selectedContacts.isNotEmpty ||
                             c.selectedUsers.isNotEmpty);
 
@@ -263,8 +263,8 @@ class SearchView extends StatelessWidget {
           onTap: onTap,
           selectedColor: style.cardSelectedColor,
           unselectedColor: style.cardColor.darken(0.05),
-          selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-          unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+          selectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
+          unselectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
           border: style.cardBorder,
           hoveredBorder: style.cardBorder,
           trailing: [
@@ -274,10 +274,11 @@ class SearchView extends StatelessWidget {
               child: AnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: selected
-                    ? const CircleAvatar(
-                        backgroundColor: Color(0xFF63B4FF),
+                    ? CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
                         radius: 12,
-                        child: Icon(
+                        child: const Icon(
                           Icons.check,
                           color: Colors.white,
                           size: 14,
@@ -305,8 +306,8 @@ class SearchView extends StatelessWidget {
         darken: 0.05,
         selectedColor: style.cardSelectedColor,
         unselectedColor: style.cardColor.darken(0.05),
-        selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-        unselectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+        selectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
+        unselectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
         border: style.cardBorder,
         hoveredBorder: style.cardBorder,
         padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),

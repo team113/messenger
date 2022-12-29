@@ -24,10 +24,10 @@ import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/page/chat/forward/controller.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
-import '/ui/page/home/page/chat/widget/message_field/view.dart';
 import '/ui/widget/modal_popup.dart';
+import 'controller.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///

@@ -26,13 +26,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat_item_quote.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -56,7 +56,6 @@ import '/provider/gql/exceptions.dart'
         ReadChatException,
         UploadAttachmentException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/widget/message_field/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -64,6 +63,7 @@ import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
+import 'message_field/controller.dart';
 
 export 'view.dart';
 
@@ -112,10 +112,10 @@ class ChatController extends GetxController {
   /// [RxSplayTreeMap] of the [ListElement]s to display.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
-  /// [MessageFieldController] for sending the [ChatMessage].
+  /// [MessageFieldController] for sending a [ChatMessage].
   late final MessageFieldController send;
 
-  /// [MessageFieldController] for editing the [ChatMessage].
+  /// [MessageFieldController] for editing a [ChatMessage].
   late final MessageFieldController edit;
 
   /// Interval of a [ChatMessage] since its creation within which this
@@ -249,7 +249,7 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
-  /// Worker capturing any [MessageFieldController.repliedMessages] changes.
+  /// Worker capturing any [MessageFieldController.replied] changes.
   Worker? _repliesWorker;
 
   /// Worker capturing any [MessageFieldController.attachments] changes.
@@ -292,24 +292,60 @@ class ChatController extends GetxController {
       updateDraft: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
-          if (send.repliedMessages.isNotEmpty) {
+          if (send.replied.isNotEmpty) {
             bool? result = await ChatForwardView.show(
               router.context!,
               id,
-              send.repliedMessages.map((e) => ChatItemQuote(item: e)).toList(),
-              text: send.send.text,
+              send.replied.map((e) => ChatItemQuote(item: e)).toList(),
+              text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
             );
 
             if (result == true) {
-              send.repliedMessages.clear();
+              send.replied.clear();
               send.forwarding.value = false;
               send.attachments.clear();
-              send.send.clear();
+              send.field.clear();
             }
           }
         } else {
-          sendMessage();
+          if (send.field.text.trim().isNotEmpty ||
+              send.attachments.isNotEmpty ||
+              send.replied.isNotEmpty) {
+            _chatService
+                .sendChatMessage(
+                  chat!.chat.value.id,
+                  text: send.field.text.trim().isEmpty
+                      ? null
+                      : ChatMessageText(send.field.text.trim()),
+                  repliesTo: send.replied.reversed.toList(),
+                  attachments: send.attachments.map((e) => e.value).toList(),
+                )
+                .then((_) => _playMessageSent())
+                .onError<PostChatMessageException>(
+                    (e, _) => MessagePopup.error(e))
+                .onError<UploadAttachmentException>(
+                    (e, _) => MessagePopup.error(e))
+                .onError<ConnectionException>((e, _) {});
+
+            send.replied.clear();
+            send.attachments.clear();
+            send.field.clear();
+            send.field.unsubmit();
+
+            chat?.setDraft();
+
+            _typingSubscription?.cancel();
+            _typingSubscription = null;
+            _typingTimer?.cancel();
+
+            if (!PlatformUtils.isMobile) {
+              Future.delayed(
+                Duration.zero,
+                () => send.field.focus.requestFocus(),
+              );
+            }
+          }
         }
       },
     )..onInit();
@@ -319,12 +355,12 @@ class ChatController extends GetxController {
       _userService,
       onSubmit: () async {
         ChatMessage item = edit.editedMessage.value as ChatMessage;
-        if (edit.send.text == item.text?.val) {
+        if (edit.field.text == item.text?.val) {
           edit.editedMessage.value = null;
-        } else if (edit.send.text.isNotEmpty || item.attachments.isNotEmpty) {
+        } else if (edit.field.text.isNotEmpty || item.attachments.isNotEmpty) {
           ChatMessageText? text;
-          if (edit.send.text.isNotEmpty) {
-            text = ChatMessageText(edit.send.text);
+          if (edit.field.text.isNotEmpty) {
+            text = ChatMessageText(edit.field.text);
           }
 
           try {
@@ -336,8 +372,8 @@ class ChatController extends GetxController {
             _typingSubscription = null;
             _typingTimer?.cancel();
 
-            if (send.send.isEmpty.isFalse) {
-              send.send.focus.requestFocus();
+            if (send.field.isEmpty.isFalse) {
+              send.field.focus.requestFocus();
             }
           } on EditChatMessageException catch (e) {
             MessagePopup.error(e);
@@ -384,42 +420,6 @@ class ChatController extends GetxController {
         .forEach(AudioCache.instance.clear);
 
     super.onClose();
-  }
-
-  /// Sends chat message.
-  void sendMessage() {
-    if (send.send.text.trim().isNotEmpty ||
-        send.attachments.isNotEmpty ||
-        send.repliedMessages.isNotEmpty) {
-      _chatService
-          .sendChatMessage(
-            chat!.chat.value.id,
-            text: send.send.text.trim().isEmpty
-                ? null
-                : ChatMessageText(send.send.text.trim()),
-            repliesTo: send.repliedMessages.reversed.toList(),
-            attachments: send.attachments.map((e) => e.value).toList(),
-          )
-          .then((_) => _playMessageSent())
-          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
-          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
-          .onError<ConnectionException>((e, _) {});
-
-      send.repliedMessages.clear();
-      send.attachments.clear();
-      send.send.clear();
-      send.send.unsubmit();
-
-      chat?.setDraft();
-
-      _typingSubscription?.cancel();
-      _typingSubscription = null;
-      _typingTimer?.cancel();
-
-      if (!PlatformUtils.isMobile) {
-        Future.delayed(Duration.zero, () => send.send.focus.requestFocus());
-      }
-    }
   }
 
   // TODO: Handle [CallAlreadyExistsException].
@@ -480,14 +480,14 @@ class ChatController extends GetxController {
 
     if (item is ChatMessage) {
       edit.editedMessage.value = item;
-      edit.send.text = item.text?.val ?? '';
-      edit.send.focus.requestFocus();
+      edit.field.text = item.text?.val ?? '';
+      edit.field.focus.requestFocus();
     }
   }
 
   /// Updates [RxChat.draft] with the current [send] values,
-  /// [MessageFieldController.attachments] and
-  /// [MessageFieldController.repliedMessages] fields.
+  /// [MessageFieldController.attachments] and [MessageFieldController.replied]
+  /// fields.
   void updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
@@ -502,9 +502,9 @@ class ChatController extends GetxController {
     }
 
     chat?.setDraft(
-      text: send.send.text.isEmpty ? null : ChatMessageText(send.send.text),
+      text: send.field.text.isEmpty ? null : ChatMessageText(send.field.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: List.from(send.repliedMessages, growable: false),
+      repliesTo: List.from(send.replied, growable: false),
     );
   }
 
@@ -519,14 +519,14 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.send.text = draft?.text?.val ?? '';
-      send.repliedMessages.value = List.from(draft?.repliesTo ?? []);
+      send.field.text = draft?.text?.val ?? '';
+      send.replied.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
       }
 
-      _repliesWorker ??= ever(send.repliedMessages, (_) => updateDraft());
+      _repliesWorker ??= ever(send.replied, (_) => updateDraft());
       _attachmentsWorker ??= ever(send.attachments, (_) => updateDraft());
 
       // Adds the provided [ChatItem] to the [elements].

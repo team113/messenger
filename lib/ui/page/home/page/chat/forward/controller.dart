@@ -33,7 +33,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/widget/message_field/controller.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -96,12 +96,12 @@ class ChatForwardController extends GetxController {
       _userService,
       onSubmit: () async {
         if (searchResults.value?.isEmpty != false) {
-          send.send.unsubmit();
+          send.field.unsubmit();
           return;
         }
 
-        send.send.status.value = RxStatus.loading();
-        send.send.editable.value = false;
+        send.field.status.value = RxStatus.loading();
+        send.field.editable.value = false;
 
         try {
           List<Future> uploads = send.attachments
@@ -126,7 +126,7 @@ class ChatForwardController extends GetxController {
               : send.attachments.map((a) => a.value.id).toList();
 
           final ChatMessageText? text =
-              send.send.text.isEmpty ? null : ChatMessageText(send.send.text);
+              send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
 
           List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {
@@ -174,7 +174,7 @@ class ChatForwardController extends GetxController {
           MessagePopup.error(e);
           rethrow;
         } finally {
-          send.send.unsubmit();
+          send.field.unsubmit();
         }
       },
     )..onInit();

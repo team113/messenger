@@ -44,11 +44,11 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
-import 'widget/message_field/view.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -539,10 +539,10 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.send.repliedMessages.contains(e.value)) {
-                c.send.repliedMessages.remove(e.value);
+              if (c.send.replied.contains(e.value)) {
+                c.send.replied.remove(e.value);
               } else {
-                c.send.repliedMessages.insert(0, e.value);
+                c.send.replied.insert(0, e.value);
               }
             },
             onCopy: c.copyText,
@@ -602,22 +602,22 @@ class _ChatViewState extends State<ChatView>
             },
             onReply: () {
               if (element.forwards
-                      .any((e) => c.send.repliedMessages.contains(e.value)) ||
-                  c.send.repliedMessages.contains(element.note.value?.value)) {
+                      .any((e) => c.send.replied.contains(e.value)) ||
+                  c.send.replied.contains(element.note.value?.value)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.send.repliedMessages.remove(e.value);
+                  c.send.replied.remove(e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.send.repliedMessages.remove(element.note.value!.value);
+                  c.send.replied.remove(element.note.value!.value);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.send.repliedMessages.insert(0, e.value);
+                  c.send.replied.insert(0, e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.send.repliedMessages.insert(0, element.note.value!.value);
+                  c.send.replied.insert(0, element.note.value!.value);
                 }
               }
             },
