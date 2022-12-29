@@ -850,6 +850,7 @@ class ChatRepository implements AbstractChatRepository {
       return EventChatCallFinished(
         e.chatId,
         node.call.toModel(),
+        node.reason,
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
