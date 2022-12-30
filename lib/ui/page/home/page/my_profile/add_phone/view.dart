@@ -17,11 +17,11 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 

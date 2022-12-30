@@ -30,7 +30,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite contacts. ([#237], [#223])
         - Searching. ([#260], [#259])
     - User page:
-        - Blacklisting. ([#234], [#229])
+        - Blacklisting. ([#277], [#234], [#229])
 
 ### Changed
 
@@ -123,6 +123,7 @@ All user visible changes to this project will be documented in this file. This p
 [#260]: /../../pull/260
 [#265]: /../../pull/265
 [#275]: /../../pull/275
+[#277]: /../../pull/277
 
 
 
