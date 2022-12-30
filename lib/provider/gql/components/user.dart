@@ -883,15 +883,15 @@ abstract class UserGraphQlMixin {
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleMyUserMute',
-        document: UpdateUserCallCoverMutation(variables: variables).document,
+        document: ToggleMyUserMuteMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateUserCallCoverException(
-          UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-              as UpdateUserCallCoverErrorCode),
+      onException: (data) => ToggleMyUserMuteException(
+          ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+              as ToggleMyUserMuteErrorCode),
     );
-    return (UpdateUserCallCover$Mutation.fromJson(result.data!)
-        .updateUserCallCover as MyUserEventsVersionedMixin?);
+    return (ToggleMyUserMute$Mutation.fromJson(result.data!)
+        .toggleMyUserMute as MyUserEventsVersionedMixin?);
   }
 
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].

@@ -96,10 +96,6 @@ class ChatsMoreView extends StatelessWidget {
     );
   }
 
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
-
   Widget _mute(BuildContext context, ChatsMoreController c) {
     return Obx(() {
       return Stack(
@@ -108,7 +104,7 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: router.muted.value ? 'Отключены' : 'Включены',
+                text: c.myUser.value?.muted != null ? 'Отключены' : 'Включены',
                 editable: false,
               ),
             ),
@@ -128,7 +124,7 @@ class ChatsMoreView extends StatelessWidget {
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: !router.muted.value,
-                    onChanged: (m) => router.muted.toggle(),
+                    onChanged: (m) => c.toggleMute(),
                   ),
                 ),
               ),

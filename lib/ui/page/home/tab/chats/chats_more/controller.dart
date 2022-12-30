@@ -35,8 +35,6 @@ class ChatsMoreController extends GetxController {
 
   late final TextFieldState status;
 
-
-
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
@@ -45,6 +43,8 @@ class ChatsMoreController extends GetxController {
   Timer? _statusTimer;
 
   Worker? _worker;
+
+  RxBool muted = RxBool(false);
 
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -55,6 +55,7 @@ class ChatsMoreController extends GetxController {
   @override
   void onInit() {
     presence.value = myUser.value?.presence;
+    muted.value = myUser.value?.muted == null ? false : true;
 
     _worker = debounce(
       presence,
@@ -159,5 +160,9 @@ class ChatsMoreController extends GetxController {
   void onClose() {
     _worker?.dispose();
     super.onClose();
+  }
+
+  void toggleMute() {
+    muted.toggle();
   }
 }
