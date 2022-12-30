@@ -47,7 +47,7 @@ class MessageFieldController extends GetxController {
     this._chatService,
     this._userService, {
     this.onSubmit,
-    this.updateDraft,
+    this.updatedMessage,
   });
 
   /// [Attachment]s to be attached to a message.
@@ -79,13 +79,10 @@ class MessageFieldController extends GetxController {
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Callback, called when need to update draft message.
-  final void Function()? updateDraft;
+  final void Function()? updatedMessage;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
-
-  /// Indicator whether [send] was initialized or not.
-  final RxBool _sendInitialized = RxBool(false);
 
   /// [Chat]s service uploading the [attachments].
   final ChatService _chatService;
@@ -93,50 +90,64 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// Worker capturing any [MessageFieldController.replied] changes.
+  Worker? _repliesWorker;
+
+  /// Worker capturing any [MessageFieldController.attachments] changes.
+  Worker? _attachmentsWorker;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    if (_sendInitialized.isFalse) {
-      field = TextFieldState(
-        onChanged: (_) => updateDraft?.call(),
-        onSubmitted: (s) => onSubmit?.call(),
-        focus: FocusNode(
-          onKey: (FocusNode node, RawKeyEvent e) {
-            if (e.logicalKey == LogicalKeyboardKey.enter &&
-                e is RawKeyDownEvent) {
-              if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-                int cursor;
+    field = TextFieldState(
+      onChanged: (_) => updatedMessage?.call(),
+      onSubmitted: (s) => onSubmit?.call(),
+      focus: FocusNode(
+        onKey: (FocusNode node, RawKeyEvent e) {
+          if (e.logicalKey == LogicalKeyboardKey.enter &&
+              e is RawKeyDownEvent) {
+            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+              int cursor;
 
-                if (field.controller.selection.isCollapsed) {
-                  cursor = field.controller.selection.base.offset;
-                  field.text =
-                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
-                } else {
-                  cursor = field.controller.selection.start;
-                  field.text =
-                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
-                }
-
-                field.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-                return KeyEventResult.handled;
-              } else if (!e.isShiftPressed) {
-                field.submit();
-                return KeyEventResult.handled;
+              if (field.controller.selection.isCollapsed) {
+                cursor = field.controller.selection.base.offset;
+                field.text =
+                    '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
+              } else {
+                cursor = field.controller.selection.start;
+                field.text =
+                    '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
               }
-            }
 
-            return KeyEventResult.ignored;
-          },
-        ),
-      );
-      _sendInitialized.value = true;
-    }
+              field.controller.selection = TextSelection.fromPosition(
+                TextPosition(offset: cursor + 1),
+              );
+              return KeyEventResult.handled;
+            } else if (!e.isShiftPressed) {
+              field.submit();
+              return KeyEventResult.handled;
+            }
+          }
+
+          return KeyEventResult.ignored;
+        },
+      ),
+    );
+
+    _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
+    _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _repliesWorker?.dispose();
+    _attachmentsWorker?.dispose();
+
+    super.onClose();
   }
 
   /// Clear local values.
@@ -233,7 +244,7 @@ class MessageFieldController extends GetxController {
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
-          updateDraft?.call();
+          updatedMessage?.call();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

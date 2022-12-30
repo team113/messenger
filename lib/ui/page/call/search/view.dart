@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/search_user_tile.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -26,7 +27,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -295,48 +295,11 @@ class SearchView extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ContactTile(
-        key: key,
-        contact: contact,
-        user: user,
-        onTap: onTap,
-        selected: selected,
-        darken: 0.05,
-        selectedColor: style.cardSelectedColor,
-        unselectedColor: style.cardColor.darken(0.05),
-        selectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
-        unselectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
-        border: style.cardBorder,
-        hoveredBorder: style.cardBorder,
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-        trailing: [
-          if (selectable)
-            SizedBox(
-              width: 30,
-              height: 30,
-              child: AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: selected
-                    ? CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        radius: 12,
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                      )
-                    : const CircleAvatar(
-                        backgroundColor: Color(0xFFD7D7D7),
-                        radius: 12,
-                      ),
-              ),
-            ),
-        ],
-      ),
+    return SearchUserTile(
+      key: key,
+      contact: contact,
+      user: user,
+      onTap: onTap,
     );
   }
 }

@@ -249,12 +249,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
-  /// Worker capturing any [MessageFieldController.replied] changes.
-  Worker? _repliesWorker;
-
-  /// Worker capturing any [MessageFieldController.attachments] changes.
-  Worker? _attachmentsWorker;
-
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -289,7 +283,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      updateDraft: updateDraft,
+      updatedMessage: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
@@ -342,7 +336,7 @@ class ChatController extends GetxController {
           }
         }
       },
-    )..onInit();
+    );
 
     edit = MessageFieldController(
       _chatService,
@@ -376,7 +370,7 @@ class ChatController extends GetxController {
           }
         }
       },
-    )..onInit();
+    );
 
     super.onInit();
   }
@@ -392,8 +386,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _repliesWorker?.dispose();
-    _attachmentsWorker?.dispose();
     _messagesSubscription?.cancel();
     _chatSubscription?.cancel();
     _messagesWorker?.dispose();
@@ -473,8 +465,10 @@ class ChatController extends GetxController {
 
     if (item is ChatMessage) {
       edit.editedMessage.value = item;
-      edit.field.text = item.text?.val ?? '';
-      edit.field.focus.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        edit.field.text = item.text?.val ?? '';
+        edit.field.focus.requestFocus();
+      });
     }
   }
 
@@ -512,15 +506,14 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.field.text = draft?.text?.val ?? '';
-      send.replied.value = List.from(draft?.repliesTo ?? []);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        send.field.text = draft?.text?.val ?? '';
+        send.replied.value = List.from(draft?.repliesTo ?? []);
 
-      for (Attachment e in draft?.attachments ?? []) {
-        send.attachments.add(MapEntry(GlobalKey(), e));
-      }
-
-      _repliesWorker ??= ever(send.replied, (_) => updateDraft());
-      _attachmentsWorker ??= ever(send.attachments, (_) => updateDraft());
+        for (Attachment e in draft?.attachments ?? []) {
+          send.attachments.add(MapEntry(GlobalKey(), e));
+        }
+      });
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
