@@ -61,8 +61,8 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// Indicator whether favorite contacts was reordered or not.
-  final RxnInt reorderInt = RxnInt();
+  /// Index of favorite contact currently reorder.
+  final RxnInt reorderIndex = RxnInt();
 
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -222,6 +222,8 @@ class ContactsTabController extends GetxController {
             elements.add(UserElement(c));
           }
         }
+
+        reorderIndex.value = null;
       });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);

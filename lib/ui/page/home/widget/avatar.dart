@@ -49,6 +49,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
+    this.animateAvatarBadge = true,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -60,6 +61,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    bool animateAvatarBadge = true,
   }) =>
       AvatarWidget(
         key: key,
@@ -72,6 +74,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -84,6 +87,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
+    bool animateAvatarBadge = true,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -94,6 +98,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
     }
 
@@ -112,6 +117,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
     });
   }
@@ -124,6 +130,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
+    bool animateAvatarBadge = true,
   }) =>
       AvatarWidget(
         isOnline: badge && myUser?.online == true,
@@ -135,6 +142,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -145,6 +153,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    bool animateAvatarBadge = true,
   }) =>
       AvatarWidget(
         key: key,
@@ -155,6 +164,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -166,6 +176,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
+    bool animateAvatarBadge = true,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -175,6 +186,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        animateAvatarBadge: animateAvatarBadge,
       );
     }
 
@@ -296,6 +308,9 @@ class AvatarWidget extends StatelessWidget {
   /// of this [AvatarWidget].
   final bool isOnline;
 
+  /// Indicator whether avatar [Badge] should be animated or not.
+  final bool animateAvatarBadge;
+
   /// Indicator whether to display an away [Badge] in the bottom-right corner
   /// of this [AvatarWidget].
   ///
@@ -367,6 +382,7 @@ class AvatarWidget extends StatelessWidget {
 
       return Badge(
         showBadge: isOnline,
+        toAnimate: animateAvatarBadge,
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,

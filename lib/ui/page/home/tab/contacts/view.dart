@@ -282,8 +282,8 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                     SliverReorderableList(
-                      onReorderStart: (i) => c.reorderInt.value = i,
-                      onReorderEnd: (_) => c.reorderInt.value = -1,
+                      onReorderStart: (i) => c.reorderIndex.value = i,
+                      onReorderEnd: (_) => c.reorderIndex.value = -1,
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
                         return KeyedSubtree(
@@ -295,9 +295,11 @@ class ContactsTabView extends StatelessWidget {
                               c,
                               reorderIndex: i,
                               showShadow:
-                                  c.reorderInt.value == i ? true : false,
+                                  c.reorderIndex.value == i ? true : false,
+                              animateAvatarBadge:
+                                  c.reorderIndex.value == null ? true : false,
                             );
-                            if (c.reorderInt.value == null) {
+                            if (c.reorderIndex.value == null) {
                               child = AnimationConfiguration.staggeredList(
                                 position: i,
                                 duration: const Duration(milliseconds: 375),
@@ -389,6 +391,7 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c, {
     int? reorderIndex,
     bool showShadow = false,
+    bool animateAvatarBadge = true,
   }) {
     bool favorite = c.favorites.contains(contact);
 
@@ -398,14 +401,15 @@ class ContactsTabView extends StatelessWidget {
         true;
 
     return Padding(
+      key: Key('Contact_${contact.id}'),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
-        key: Key('Contact_${contact.id}'),
         reorderIndex: reorderIndex,
         contact: contact,
         folded: favorite,
         showShadow: showShadow,
         selected: selected,
+        animateAvatarBadge: animateAvatarBadge,
         onTap: contact.contact.value.users.isNotEmpty
             // TODO: Open [Routes.contact] page when it's implemented.
             ? () => router.user(contact.user.value!.id)

@@ -51,6 +51,7 @@ class ContactTile extends StatelessWidget {
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     this.reorderIndex,
     this.showShadow = false,
+    this.animateAvatarBadge = true,
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -91,9 +92,6 @@ class ContactTile extends StatelessWidget {
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
 
-  /// Reorderable index.
-  final int? reorderIndex;
-
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
@@ -103,7 +101,14 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  /// Reorderable index.
+  final int? reorderIndex;
+
+  /// Indicator whether this [ContactTile] should be with shadow or not.
   final bool showShadow;
+
+  /// Indicator whether avatar [Badge] should be animated or not.
+  final bool animateAvatarBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -115,22 +120,23 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
-      child: AnimatedContainer(
-        key: Key('AnimatedContainer_${contact?.id ?? user?.id ?? myUser?.id}'),
-        decoration: BoxDecoration(
-          boxShadow: [
-            if (showShadow)
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: Offset(0, 0), // changes position of shadow
-              ),
-          ],
-          borderRadius: style.cardRadius,
-        ),
+      child: Container(
+        decoration: showShadow
+            ? BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 0), // changes position of shadow
+                  ),
+                ],
+                borderRadius: style.cardRadius.copyWith(
+                    topLeft:
+                        Radius.circular(style.cardRadius.topLeft.x * 1.75)),
+              )
+            : null,
         padding: margin,
-        duration: const Duration(milliseconds: 1000),
         child: InkWellWithHover(
           selectedColor: style.cardSelectedColor,
           unselectedColor: style.cardColor.darken(darken),
@@ -198,13 +204,22 @@ class ContactTile extends StatelessWidget {
     Widget child;
 
     if (contact != null) {
-      child = AvatarWidget.fromRxContact(contact, radius: radius);
+      child = AvatarWidget.fromRxContact(
+        contact,
+        radius: radius,
+        animateAvatarBadge: animateAvatarBadge,
+      );
     } else if (user != null) {
-      child = AvatarWidget.fromRxUser(user, radius: radius);
+      child = AvatarWidget.fromRxUser(
+        user,
+        radius: radius,
+        animateAvatarBadge: animateAvatarBadge,
+      );
     } else {
       child = AvatarWidget.fromMyUser(
         myUser,
         radius: radius,
+        animateAvatarBadge: animateAvatarBadge,
       );
     }
 
