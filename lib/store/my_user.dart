@@ -17,11 +17,11 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import 'package:collection/collection.dart';
 import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -40,6 +40,7 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
@@ -71,7 +72,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   final MyUserHiveProvider _myUserLocal;
 
   /// Blacklisted [User]s local [Hive] storage.
-  final BlacklistedUsersHiveProvider _blacklistLocal;
+  final BlacklistHiveProvider _blacklistLocal;
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
@@ -82,8 +83,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
-  /// [BlacklistedUsersHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localBlacklistSubscription;
+  /// [BlacklistHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _blacklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
@@ -112,31 +113,31 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initLocalSubscription();
     _initRemoteSubscription();
     _initKeepOnlineSubscription();
-    _initBlacklistLocalSubscription();
+    _initBlacklistSubscription();
 
     if (!_blacklistLocal.isEmpty) {
-      var users = await Future.wait(
-        _blacklistLocal.users.map((e) => _userRepo.get(e.value.id)),
-      );
+      final List<RxUser?> users =
+          await Future.wait(_blacklistLocal.blacklisted.map(_userRepo.get));
       blacklist.addAll(users.whereNotNull());
     }
 
     final List<HiveUser> blacklisted = await _fetchBlacklist();
 
-    for (HiveUser c in _blacklistLocal.users) {
-      if (blacklisted.none((e) => e.value.id == c.value.id)) {
-        _blacklistLocal.remove(c.value.id);
+    for (UserId c in _blacklistLocal.blacklisted) {
+      if (blacklisted.none((e) => e.value.id == c)) {
+        _blacklistLocal.remove(c);
       }
     }
 
     for (HiveUser c in blacklisted) {
-      _putBlacklisted(c);
+      _blacklistLocal.put(c.value.id);
     }
   }
 
   @override
   void dispose() {
     _localSubscription?.cancel();
+    _blacklistSubscription?.cancel();
     _remoteSubscription?.cancel();
     _keepOnlineSubscription?.cancel();
   }
@@ -476,24 +477,13 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
 
-  /// Puts the provided [user] to the [_blacklistLocal].
-  Future<void> _putBlacklisted(HiveUser user) async {
-    var saved = _blacklistLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver) {
-      await _blacklistLocal.put(user);
-    }
-  }
-
   // TODO: Blacklist can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
   Future<List<HiveUser>> _fetchBlacklist() async {
-    const maxInt = 120;
-    GetBlacklist$Query$Blacklist query =
-        await _graphQlProvider.getBlacklist(first: maxInt);
+    final query = await _graphQlProvider.getBlacklist(first: 120);
 
     List<HiveUser> users = query.edges.map((e) => e.node.toHive()).toList();
-
     for (HiveUser user in users) {
       _userRepo.put(user);
     }
@@ -519,18 +509,18 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [BlacklistedUsersHiveProvider.boxEvents] subscription.
-  Future<void> _initBlacklistLocalSubscription() async {
-    _localBlacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
-    while (await _localBlacklistSubscription!.moveNext()) {
-      BoxEvent event = _localBlacklistSubscription!.current;
+  /// Initializes [BlacklistHiveProvider.boxEvents] subscription.
+  Future<void> _initBlacklistSubscription() async {
+    _blacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
+    while (await _blacklistSubscription!.moveNext()) {
+      BoxEvent event = _blacklistSubscription!.current;
       if (event.deleted) {
         blacklist.removeWhere((e) => e.user.value.id.val == event.key);
       } else {
-        RxUser? user =
+        final RxUser? user =
             blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
         if (user == null) {
-          RxUser? user = await _userRepo.get(event.value.value.id);
+          final RxUser? user = await _userRepo.get(UserId(event.key));
           if (user != null) {
             blacklist.add(user);
           }
@@ -797,7 +787,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blacklistRecordAdded:
           event as EventBlacklistRecordAdded;
-          _putBlacklisted(event.user);
+          _blacklistLocal.put(event.user.value.id);
           break;
 
         case MyUserEventKind.blacklistRecordRemoved:

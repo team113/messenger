@@ -33,7 +33,7 @@ class BlacklistController extends GetxController {
   /// [MyUserService] maintaining the blacklisted [User]s.
   final MyUserService _myUserService;
 
-  /// [MyUserService] maintaining the blacklisted [User]s.
+  /// [UserService] un-blacklisting the [User]s.
   final UserService _userService;
 
   /// Returns [User]s blacklisted by the authenticated [MyUser].
