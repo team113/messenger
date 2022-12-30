@@ -48,6 +48,7 @@ class MessagePopup {
   static Future<bool?> alert(
     String title, {
     List<TextSpan> description = const [],
+    List<Widget> additional = const [],
   }) {
     return ModalPopup.show(
       context: router.context!,
@@ -88,6 +89,12 @@ class MessagePopup {
                           ),
                         ),
                       ),
+                    ...additional.map(
+                      (e) => Padding(
+                        padding: ModalPopup.padding(context),
+                        child: e,
+                      ),
+                    ),
                   ],
                 ),
               ),

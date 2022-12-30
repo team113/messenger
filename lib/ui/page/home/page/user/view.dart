@@ -14,8 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -48,146 +52,156 @@ class UserView extends StatelessWidget {
       tag: id.val,
       builder: (UserController c) {
         return Obx(() {
-          if (c.status.value.isSuccess) {
+          if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: CustomAppBar(
-                title: Row(
-                  children: [
-                    Material(
-                      elevation: 6,
-                      type: MaterialType.circle,
-                      shadowColor: const Color(0x55000000),
-                      color: Colors.white,
-                      child: Center(
-                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
-                          final UserTextStatus? text =
-                              c.user?.user.value.status;
-                          final StringBuffer buffer = StringBuffer();
-
-                          if (status != null || text != null) {
-                            buffer.write(text ?? '');
-
-                            if (status != null && text != null) {
-                              buffer.write('space_vertical_space'.l10n);
-                            }
-
-                            buffer.write(status ?? '');
-                          }
-
-                          final String subtitle = buffer.toString();
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
-                              if (subtitle.isNotEmpty)
-                                Text(
-                                  subtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .caption
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                )
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                padding: const EdgeInsets.only(left: 4, right: 20),
-                leading: const [StyledBackButton()],
-                actions: [
-                  WidgetButton(
-                    onPressed: c.openChat,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
-                      ),
-                    ),
-                  ),
-                  if (!context.isNarrow) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
-                ],
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
               ),
-              body: Obx(() {
-                return ListView(
-                  key: const Key('UserColumn'),
-                  children: [
-                    const SizedBox(height: 8),
-                    Block(
-                      title: 'label_public_information'.l10n,
-                      children: [
-                        AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 100,
-                          showBadge: false,
-                        ),
-                        const SizedBox(height: 15),
-                        _name(c, context),
-                        _status(c, context),
-                        _presence(c, context),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_contact_information'.l10n,
-                      children: [_num(c, context)],
-                    ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
-                  ],
-                );
-              }),
+              body: Center(
+                child: c.status.value.isEmpty
+                    ? Text('err_unknown_user'.l10n)
+                    : const CircularProgressIndicator(),
+              ),
             );
           }
 
           return Scaffold(
-            appBar: const CustomAppBar(
-              padding: EdgeInsets.only(left: 4, right: 20),
-              leading: [StyledBackButton()],
+            appBar: CustomAppBar(
+              title: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: Center(
+                      child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: Obx(() {
+                        final String? status = c.user?.user.value.getStatus();
+                        final UserTextStatus? text = c.user?.user.value.status;
+                        final StringBuffer buffer = StringBuffer();
+
+                        if (status != null || text != null) {
+                          buffer.write(text ?? '');
+
+                          if (status != null && text != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(status ?? '');
+                        }
+
+                        final String subtitle = buffer.toString();
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                            if (subtitle.isNotEmpty)
+                              Text(
+                                subtitle,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                              )
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: const [StyledBackButton()],
+              actions: [
+                WidgetButton(
+                  onPressed: c.openChat,
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
+                    ),
+                  ),
+                ),
+                if (!context.isNarrow) ...[
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(true),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_video_call.svg',
+                      height: 17,
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 28),
+                WidgetButton(
+                  onPressed: () => c.call(false),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_audio_call.svg',
+                    height: 19,
+                  ),
+                ),
+              ],
             ),
-            body: Center(
-              child: c.status.value.isEmpty
-                  ? Text('err_unknown_user'.l10n)
-                  : const CircularProgressIndicator(),
-            ),
+            body: Obx(() {
+              return ListView(
+                key: const Key('UserColumn'),
+                children: [
+                  const SizedBox(height: 8),
+                  if (c.isBlacklisted == true)
+                    Block(
+                      title: 'Пользователь заблокирован'.l10n,
+                      children: [_blocked(c, context)],
+                    ),
+                  Block(
+                    title: 'label_public_information'.l10n,
+                    children: [
+                      AvatarWidget.fromRxUser(
+                        c.user,
+                        radius: 100,
+                        showBadge: false,
+                      ),
+                      const SizedBox(height: 15),
+                      _name(c, context),
+                      _status(c, context),
+                      _presence(c, context),
+                    ],
+                  ),
+                  Block(
+                    title: 'label_contact_information'.l10n,
+                    children: [_num(c, context)],
+                  ),
+                  Block(
+                    title: 'label_actions'.l10n,
+                    children: [_actions(c, context)],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              );
+            }),
+            bottomNavigationBar: c.isBlacklisted == true
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                    child: _blockedField(context, c),
+                  )
+                : null,
           );
         });
       },
@@ -300,6 +314,29 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.name] copyable field.
+  Widget _blocked(UserController c, BuildContext context) {
+    return Column(
+      children: [
+        _padding(
+          ReactiveTextField(
+            state: TextFieldState(text: '28.12.2022'),
+            label: 'Дата'.l10n,
+            enabled: false,
+          ),
+        ),
+        // const SizedBox(height: 4),
+        _padding(
+          ReactiveTextField(
+            state: TextFieldState(text: 'Эх, Семён Семёныч...'),
+            label: 'Причина'.l10n,
+            enabled: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [User.name] copyable field.
   Widget _name(UserController c, BuildContext context) {
     return _padding(
       CopyableTextField(
@@ -377,6 +414,117 @@ class UserView extends StatelessWidget {
     });
   }
 
+  Widget _blockedField(BuildContext context, UserController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        shadowColor: const Color(0x55000000),
+        iconTheme: const IconThemeData(color: Colors.blue),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          filled: false,
+          isDense: true,
+          contentPadding: EdgeInsets.fromLTRB(
+            15,
+            PlatformUtils.isDesktop ? 30 : 23,
+            15,
+            0,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: Color(0x22000000),
+              ),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(color: style.cardColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                        bottom: 13,
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              key: const Key('MessageField'),
+                              state: TextFieldState(text: 'Разблокировать'),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              type: TextInputType.multiline,
+                              textInputAction: TextInputAction.newline,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _removeFromContacts(
     UserController c,
     BuildContext context,
@@ -412,10 +560,18 @@ class UserView extends StatelessWidget {
         ),
         TextSpan(text: ' будет заблокирован.'.l10n),
       ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(
+          state: c.blockReason,
+          label: 'Причина',
+        ),
+      ],
     );
 
     if (result == true) {
       await c.blacklist();
+      c.blockReason.clear();
     }
   }
 

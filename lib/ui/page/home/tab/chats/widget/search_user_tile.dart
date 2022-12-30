@@ -34,6 +34,7 @@ class SearchUserTile extends StatelessWidget {
     this.user,
     this.contact,
     this.onTap,
+    this.blocked = false,
   }) : assert(user != null || contact != null);
 
   /// [RxUser] this [SearchUserTile] is about.
@@ -44,6 +45,8 @@ class SearchUserTile extends StatelessWidget {
 
   /// Callback, called when this [SearchUserTile] is pressed.
   final void Function()? onTap;
+
+  final bool blocked;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +76,17 @@ class SearchUserTile extends StatelessWidget {
               )}',
               style: const TextStyle(color: Color(0xFF888888)),
             ),
+          ],
+          trailing: [
+            if (blocked)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: Color.fromRGBO(192, 192, 192, 1),
+                  size: 20,
+                ),
+              )
           ],
         ),
       );

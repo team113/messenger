@@ -639,17 +639,26 @@ class ChatsTabView extends StatelessWidget {
                               }),
                             );
                           } else if (element is ContactElement) {
-                            child = SearchUserTile(
-                              key: Key('SearchContact_${element.contact.id}'),
-                              contact: element.contact,
-                              onTap: () => c.openChat(contact: element.contact),
-                            );
+                            child = Obx(() {
+                              return SearchUserTile(
+                                key: Key('SearchContact_${element.contact.id}'),
+                                contact: element.contact,
+                                onTap: () =>
+                                    c.openChat(contact: element.contact),
+                                blocked: c.blacklist.any((e) =>
+                                    e.id == element.contact.user.value?.id),
+                              );
+                            });
                           } else if (element is UserElement) {
-                            child = SearchUserTile(
-                              key: Key('SearchUser_${element.user.id}'),
-                              user: element.user,
-                              onTap: () => c.openChat(user: element.user),
-                            );
+                            child = Obx(() {
+                              return SearchUserTile(
+                                key: Key('SearchUser_${element.user.id}'),
+                                user: element.user,
+                                onTap: () => c.openChat(user: element.user),
+                                blocked: c.blacklist
+                                    .any((e) => e.id == element.user.id),
+                              );
+                            });
                           } else if (element is DividerElement) {
                             child = Center(
                               child: Container(
@@ -920,13 +929,20 @@ class ChatsTabView extends StatelessWidget {
                                               );
                                             });
                                           } else {
-                                            child = SearchUserTile(
-                                              key: Key(
-                                                  'SearchContact_${element.contact.id}'),
-                                              contact: element.contact,
-                                              onTap: () => c.openChat(
-                                                  contact: element.contact),
-                                            );
+                                            child = Obx(() {
+                                              return SearchUserTile(
+                                                key: Key(
+                                                    'SearchContact_${element.contact.id}'),
+                                                contact: element.contact,
+                                                onTap: () => c.openChat(
+                                                  contact: element.contact,
+                                                ),
+                                                blocked: c.blacklist.any((e) =>
+                                                    e.id ==
+                                                    element.contact.user.value
+                                                        ?.id),
+                                              );
+                                            });
                                           }
                                         } else if (element is UserElement) {
                                           if (c.groupCreating.value) {
@@ -940,13 +956,18 @@ class ChatsTabView extends StatelessWidget {
                                               );
                                             });
                                           } else {
-                                            child = SearchUserTile(
-                                              key: Key(
-                                                  'SearchContact_${element.user.id}'),
-                                              user: element.user,
-                                              onTap: () => c.openChat(
-                                                  user: element.user),
-                                            );
+                                            child = Obx(() {
+                                              return SearchUserTile(
+                                                key: Key(
+                                                    'SearchContact_${element.user.id}'),
+                                                user: element.user,
+                                                onTap: () => c.openChat(
+                                                  user: element.user,
+                                                ),
+                                                blocked: c.blacklist.any((e) =>
+                                                    e.id == element.user.id),
+                                              );
+                                            });
                                           }
                                         } else if (element is MyUserElement) {
                                           child = Obx(() {

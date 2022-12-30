@@ -17,6 +17,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -43,7 +44,11 @@ class BlacklistView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: BlacklistController(Get.find(), Get.find()),
+      init: BlacklistController(
+        Get.find(),
+        Get.find(),
+        pop: Navigator.of(context).pop,
+      ),
       builder: (BlacklistController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -52,8 +57,9 @@ class BlacklistView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'label_blocked_users'.l10n,
+                  'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
                   style: thin?.copyWith(fontSize: 18),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -86,17 +92,35 @@ class BlacklistView extends StatelessWidget {
                           router.user(user.id, push: true);
                         },
                         darken: 0.03,
-                        trailing: [
-                          InkWell(
-                            onTap: () => c.unblacklist(user),
-                            borderRadius: BorderRadius.circular(25),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SvgLoader.asset(
-                                'assets/icons/delete.svg',
-                                height: 14 * 1.5,
-                              ),
+                        subtitle: [
+                          const SizedBox(height: 5),
+                          Text(
+                            '28.12.2022',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 13,
                             ),
+                          ),
+                          //   const SizedBox(height: 5),
+                          //   Text(
+                          //     'Причина: плохой человек',
+                          //     style: TextStyle(
+                          //       color: Theme.of(context).colorScheme.primary,
+                          //       fontSize: 13,
+                          //     ),
+                          //   ),
+                        ],
+                        trailing: [
+                          WidgetButton(
+                            onPressed: () => c.unblacklist(user),
+                            child: Icon(
+                              Icons.remove_circle,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            // child: SvgLoader.asset(
+                            //   'assets/icons/delete.svg',
+                            //   height: 14 * 1.5,
+                            // ),
                           ),
                         ],
                       );

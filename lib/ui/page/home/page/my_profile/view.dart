@@ -225,6 +225,12 @@ class MyProfileView extends StatelessWidget {
                           children: [_language(context, c)],
                         );
 
+                      case ProfileTab.blocked:
+                        return Block(
+                          title: 'label_blocked_users'.l10n,
+                          children: [_blockedUsers(context, c)],
+                        );
+
                       case ProfileTab.download:
                         if (PlatformUtils.isWeb) {
                           return Block(
@@ -901,17 +907,33 @@ Widget _password(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the contents of a [ProfileTab.danger] section.
-Widget _deleteAccount(BuildContext context, MyProfileController c) {
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
   return Column(
     children: [
       _dense(
         FieldButton(
-          text: 'label_blocked_users'.l10n,
-          onPressed: () => BlacklistView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          text: 'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: TextStyle(
+              color: c.blacklist.isEmpty
+                  ? Colors.black
+                  : Theme.of(context).colorScheme.secondary),
+
+          // trailing: Icon(
+          //   Icons.block,
+          //   color: Theme.of(context).colorScheme.secondary,
+          // ),
         ),
       ),
-      const SizedBox(height: 8),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.danger] section.
+Widget _deleteAccount(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
       _dense(
         FieldButton(
           text: 'btn_delete_account'.l10n,

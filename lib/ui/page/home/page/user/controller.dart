@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -76,6 +77,8 @@ class UserController extends GetxController {
   /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
+
+  late final TextFieldState blockReason;
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -159,6 +162,8 @@ class UserController extends GetxController {
           break;
       }
     });
+
+    blockReason = TextFieldState();
 
     super.onInit();
   }

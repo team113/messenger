@@ -954,7 +954,7 @@ class _ChatViewState extends State<ChatView>
   }
 
   Widget _blockedField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return SafeArea(
       child: Container(

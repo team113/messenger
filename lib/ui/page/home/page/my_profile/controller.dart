@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/user.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -122,6 +123,8 @@ class MyProfileController extends GetxController {
 
   /// Returns ID of the currently used output device.
   RxnString get output => call.value.outputDevice;
+
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
   void onInit() {
