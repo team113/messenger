@@ -39,8 +39,6 @@ class WindowPreferencesHiveProvider
 
   /// Stores a new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
-    print('set $size $position');
-
     final WindowPreferences? stored = get();
     putSafe(
       0,
