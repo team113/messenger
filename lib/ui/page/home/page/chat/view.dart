@@ -551,8 +551,8 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.repliedMessages.contains(e.value)) {
-                c.repliedMessages.remove(e.value);
+              if (c.repliedMessages.any((i) => i.id == e.value.id)) {
+                c.repliedMessages.removeWhere((i) => i.id == e.value.id);
               } else {
                 c.repliedMessages.insert(0, e.value);
               }
@@ -613,15 +613,17 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards
-                      .any((e) => c.repliedMessages.contains(e.value)) ||
-                  c.repliedMessages.contains(element.note.value?.value)) {
+              if (element.forwards.any((e) =>
+                      c.repliedMessages.any((i) => i.id == e.value.id)) ||
+                  c.repliedMessages
+                      .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.repliedMessages.remove(e.value);
+                  c.repliedMessages.removeWhere((i) => i.id == e.value.id);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.remove(element.note.value!.value);
+                  c.repliedMessages
+                      .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
