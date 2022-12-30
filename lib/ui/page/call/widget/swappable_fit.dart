@@ -175,7 +175,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
   /// Centers the provided [item].
   void _center(T item) {
-    if(center == item) {
+    if (center == item) {
       return;
     }
 
