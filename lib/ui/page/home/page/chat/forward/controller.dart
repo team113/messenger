@@ -177,7 +177,7 @@ class ChatForwardController extends GetxController {
           send.field.unsubmit();
         }
       },
-    )..onInit();
+    );
 
     send.quotes.addAll(quotes);
     send.attachments.addAll(attachments);

@@ -300,6 +300,7 @@ class SearchView extends StatelessWidget {
       contact: contact,
       user: user,
       onTap: onTap,
+      darken: 0.05,
     );
   }
 }

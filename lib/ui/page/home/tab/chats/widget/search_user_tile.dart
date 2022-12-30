@@ -34,6 +34,7 @@ class SearchUserTile extends StatelessWidget {
     this.user,
     this.contact,
     this.onTap,
+    this.darken = 0,
   }) : assert(user != null || contact != null);
 
   /// [RxUser] this [SearchUserTile] is about.
@@ -44,6 +45,8 @@ class SearchUserTile extends StatelessWidget {
 
   /// Callback, called when this [SearchUserTile] is pressed.
   final void Function()? onTap;
+
+  final double darken;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +67,7 @@ class SearchUserTile extends StatelessWidget {
           key: key,
           contact: contact,
           user: user,
-          darken: 0,
+          darken: darken,
           onTap: onTap,
           selected: selected,
           subtitle: [
