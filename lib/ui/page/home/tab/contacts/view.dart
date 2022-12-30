@@ -317,28 +317,28 @@ class ContactsTabView extends StatelessWidget {
                         );
                       },
                       itemCount: c.favorites.length,
-                      onReorder: (int i, int j) {
+                      onReorder: (int from, int to) {
                         double position;
-                        if (j - 1 < 0) {
-                          position = c.favorites[0].contact.value
+                        if (to - 1 < 0) {
+                          position = c.favorites.first.contact.value
                                   .favoritePosition!.val /
                               2;
-                        } else if (j >= c.favorites.length) {
+                        } else if (to >= c.favorites.length) {
                           position = c.favorites.last.contact.value
                                   .favoritePosition!.val *
                               2;
                         } else {
-                          if (j >= c.favorites.length) {
-                            j--;
+                          if (to >= c.favorites.length) {
+                            to--;
                           }
-                          position = (c.favorites[j].contact.value
+                          position = (c.favorites[to].contact.value
                                       .favoritePosition!.val +
-                                  c.favorites[j - 1].contact.value
+                                  c.favorites[to - 1].contact.value
                                       .favoritePosition!.val) /
                               2;
                         }
                         c.favoriteContact(
-                          c.favorites[i].id,
+                          c.favorites[from].id,
                           ChatContactPosition(position),
                         );
                       },
