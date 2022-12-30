@@ -79,30 +79,25 @@ class BlacklistView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return Column(
-                        children: [
-                          ContactTile(
-                            user: user,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              router.user(user.id, push: true);
-                            },
-                            darken: 0.03,
-                            trailing: [
-                              InkWell(
-                                onTap: () => c.unblacklist(user),
-                                borderRadius: BorderRadius.circular(25),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SvgLoader.asset(
-                                    'assets/icons/delete.svg',
-                                    height: 14 * 1.5,
-                                  ),
-                                ),
+                      return ContactTile(
+                        user: user,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          router.user(user.id, push: true);
+                        },
+                        darken: 0.03,
+                        trailing: [
+                          InkWell(
+                            onTap: () => c.unblacklist(user),
+                            borderRadius: BorderRadius.circular(25),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SvgLoader.asset(
+                                'assets/icons/delete.svg',
+                                height: 14 * 1.5,
                               ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 8),
                         ],
                       );
                     });

@@ -22,6 +22,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -41,7 +42,7 @@ void main() async {
   await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlacklistedUsersHiveProvider();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
 
   test('MyProfile test', () async {
