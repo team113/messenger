@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/search_user_tile.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -25,6 +24,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/widget/modal_popup.dart';
