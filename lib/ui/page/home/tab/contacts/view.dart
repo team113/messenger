@@ -282,15 +282,22 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                     SliverReorderableList(
-                      onReorderStart: (_) => c.reorder.value = true,
+                      onReorderStart: (i) => c.reorderInt.value = i,
+                      onReorderEnd: (_) => c.reorderInt.value = -1,
                       itemBuilder: (context, i) {
                         RxChatContact contact = c.favorites.elementAt(i);
                         return KeyedSubtree(
                           key: Key(contact.id.val),
                           child: Obx(() {
-                            Widget child =
-                                _contact(context, contact, c, reorderIndex: i);
-                            if (c.reorder.value == false) {
+                            Widget child = _contact(
+                              context,
+                              contact,
+                              c,
+                              reorderIndex: i,
+                              showShadow:
+                                  c.reorderInt.value == i ? true : false,
+                            );
+                            if (c.reorderInt.value == null) {
                               child = AnimationConfiguration.staggeredList(
                                 position: i,
                                 duration: const Duration(milliseconds: 375),
@@ -309,29 +316,29 @@ class ContactsTabView extends StatelessWidget {
                       },
                       itemCount: c.favorites.length,
                       onReorder: (int i, int j) {
-                        ChatContactPosition position;
+                        double position;
                         if (j - 1 < 0) {
-                          position = ChatContactPosition(
-                            c.favorites[0].contact.value.favoritePosition!.val /
-                                2,
-                          );
+                          position = c.favorites[0].contact.value
+                                  .favoritePosition!.val /
+                              2;
                         } else if (j >= c.favorites.length) {
-                          position = ChatContactPosition(
-                            c.favorites.last.contact.value.favoritePosition!
-                                    .val *
-                                2,
-                          );
+                          position = c.favorites.last.contact.value
+                                  .favoritePosition!.val *
+                              2;
                         } else {
                           if (j >= c.favorites.length) {
                             j--;
                           }
-                          position = ChatContactPosition((c.favorites[j].contact
-                                      .value.favoritePosition!.val +
+                          position = (c.favorites[j].contact.value
+                                      .favoritePosition!.val +
                                   c.favorites[j - 1].contact.value
                                       .favoritePosition!.val) /
-                              2);
+                              2;
                         }
-                        c.favoriteContact(c.favorites[i].id, position);
+                        c.favoriteContact(
+                          c.favorites[i].id,
+                          ChatContactPosition(position),
+                        );
                       },
                     ),
                     SliverList(
@@ -352,8 +359,8 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                     const SliverPadding(
-                      padding:
-                          EdgeInsets.only(bottom: kBottomNavigationBarHeight),
+                      padding: EdgeInsets.only(
+                          bottom: kBottomNavigationBarHeight + 5),
                     ),
                   ],
                 ),
@@ -381,6 +388,7 @@ class ContactsTabView extends StatelessWidget {
     RxChatContact contact,
     ContactsTabController c, {
     int? reorderIndex,
+    bool showShadow = false,
   }) {
     bool favorite = c.favorites.contains(contact);
 
@@ -390,12 +398,13 @@ class ContactsTabView extends StatelessWidget {
         true;
 
     return Padding(
-      key: Key('Contact_${contact.id}'),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
+        key: Key('Contact_${contact.id}'),
         reorderIndex: reorderIndex,
         contact: contact,
         folded: favorite,
+        showShadow: showShadow,
         selected: selected,
         onTap: contact.contact.value.users.isNotEmpty
             // TODO: Open [Routes.contact] page when it's implemented.

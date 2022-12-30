@@ -50,6 +50,7 @@ class ContactTile extends StatelessWidget {
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     this.reorderIndex,
+    this.showShadow = false,
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -102,6 +103,8 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  final bool showShadow;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -112,8 +115,22 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
-      child: Padding(
+      child: AnimatedContainer(
+        key: Key('AnimatedContainer_${contact?.id ?? user?.id ?? myUser?.id}'),
+        decoration: BoxDecoration(
+          boxShadow: [
+            if (showShadow)
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 3,
+                blurRadius: 5,
+                offset: Offset(0, 0), // changes position of shadow
+              ),
+          ],
+          borderRadius: style.cardRadius,
+        ),
         padding: margin,
+        duration: const Duration(milliseconds: 1000),
         child: InkWellWithHover(
           selectedColor: style.cardSelectedColor,
           unselectedColor: style.cardColor.darken(darken),

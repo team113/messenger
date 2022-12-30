@@ -26,14 +26,12 @@ Feature: Reorder favorite contacts
   Scenario: User reorder contacts
     When "Bob" contact is favorite
     Then I see "Bob" contact as favorite
-    And I see "Bob" contact first in contacts list
 
     When "Charlie" contact is favorite
     Then I see "Charlie" contact as favorite
-    And I see "Charlie" contact first in contacts list
 
-    When drag "Charlie" contact to down
+    When I drag "Charlie" contact to down
     Then I see "Charlie" contact last in contacts list
 
-    When drag "Bob" contact to down
+    When I drag "Bob" contact to down
     Then I see "Bob" contact last in contacts list

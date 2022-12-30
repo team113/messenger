@@ -20,25 +20,22 @@ import 'package:gherkin/gherkin.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/domain/model/contact.dart';
 
-import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
 
-/// Adds or removes a [ChatContact] with the provided name to or from the
-/// favorites depending on the specified [FavoriteStatus].
+/// Drags contact with specified name to down.
 ///
 /// Examples:
-/// - Given "Name" contact is favorite
+/// - When I drag "Name" contact to down
 final StepDefinitionGeneric dragContactToDown = given1<String, CustomWorld>(
-  'drag {string} contact to down',
+  'I drag {string} contact to down',
   (String name, context) async {
     final ChatContactId contactId = context.world.contacts[name]!;
 
-    final finder = context.world.appDriver.findBy(
-      Key('ContactReorder_${contactId.val}'),
-      FindType.key,
-    );
     await context.world.appDriver.nativeDriver.drag(
-      finder,
+      context.world.appDriver.findBy(
+        Key('ContactReorder_${contactId.val}'),
+        FindType.key,
+      ),
       const Offset(0, 250),
       kind: PointerDeviceKind.mouse,
     );

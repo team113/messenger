@@ -62,7 +62,7 @@ class ContactsTabController extends GetxController {
   final RxList<RxChatContact> favorites = RxList();
 
   /// Indicator whether favorite contacts was reordered or not.
-  final RxBool reorder = RxBool(false);
+  final RxnInt reorderInt = RxnInt();
 
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
