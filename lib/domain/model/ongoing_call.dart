@@ -426,6 +426,8 @@ class OngoingCall {
                 case ChatCallEventKind.memberJoined:
                   var node = event as EventChatCallMemberJoined;
 
+                  redialedMembers.remove(node.user.id);
+
                   final CallMemberId redialedId =
                       CallMemberId(node.user.id, null);
                   final CallMemberId id =
@@ -970,6 +972,8 @@ class OngoingCall {
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
+
+      redialedMembers.remove(id.userId);
 
       final CallMember? redialed = members[redialedId];
       if (redialed?.isRedialing.value == true) {
