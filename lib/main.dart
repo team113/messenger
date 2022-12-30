@@ -75,6 +75,8 @@ Future<void> main() async {
         await windowManager.setPosition(prefs!.position!);
       }
 
+      await windowManager.show();
+
       Get.put(WindowWorker(preferences));
     }
 
