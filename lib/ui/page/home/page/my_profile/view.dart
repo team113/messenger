@@ -45,6 +45,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -220,7 +221,7 @@ class MyProfileView extends StatelessWidget {
                       case ProfileTab.danger:
                         return Block(
                           title: 'label_danger_zone'.l10n,
-                          children: [_deleteAccount(context, c)],
+                          children: [_danger(context, c)],
                         );
 
                       case ProfileTab.logout:
@@ -869,21 +870,32 @@ Widget _password(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the contents of a [ProfileTab.danger] section.
-Widget _deleteAccount(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      key: const Key('DeleteAccount'),
-      text: 'btn_delete_account'.l10n,
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+Widget _danger(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          text: 'label_blocked_users'.l10n,
+          onPressed: () => BlacklistView.show(context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      onPressed: () => DeleteAccountView.show(context),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-    ),
+      const SizedBox(height: 8),
+      _dense(
+        FieldButton(
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => DeleteAccountView.show(context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ],
   );
 }
 

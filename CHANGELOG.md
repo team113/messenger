@@ -30,7 +30,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite contacts. ([#237], [#223])
         - Searching. ([#260], [#259])
     - User page:
-        - Blacklisting. ([#234], [#229])
+        - Blacklisting. ([#277], [#234], [#229])
 - Desktop:
     - Persist window's size and position ([#274], [#263])
 
@@ -124,6 +124,7 @@ All user visible changes to this project will be documented in this file. This p
 [#265]: /../../pull/265
 [#274]: /../../pull/274
 [#275]: /../../pull/275
+[#277]: /../../pull/277
 
 
 

@@ -22,18 +22,22 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
+import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
 
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist;
+
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
   /// Callback [onPasswordUpdated] should be called when [myUser]'s password
   /// is updated.
-  void init({
+  Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   });
