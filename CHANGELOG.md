@@ -31,7 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#260], [#259])
         - Reordering favorite contacts. ([#285], [#269])
     - User page:
-        - Blacklisting. ([#234], [#229])
+        - Blacklisting. ([#277], [#234], [#229])
 
 ### Changed
 
@@ -122,6 +122,7 @@ All user visible changes to this project will be documented in this file. This p
 [#265]: /../../pull/265
 [#269]: /../../issues/269
 [#275]: /../../pull/275
+[#277]: /../../pull/277
 [#285]: /../../pull/285
 
 

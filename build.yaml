@@ -27,6 +27,12 @@ targets:
                 name: AttachmentId
                 imports:
                   - "package:messenger/domain/model/attachment.dart"
+            - graphql_type: BlacklistCursor
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: BlacklistCursor
+                imports:
+                  - "package:messenger/store/model/my_user.dart"
             - graphql_type: ChatCallCredentials
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
