@@ -194,9 +194,11 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blacklistEvent:
-        var saved = _userLocal.get(id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsBlacklistEventsEvent).event;
-        if (saved != null && saved.blacklistedVer > versioned.ver) {
+
+        // TODO: Properly account `MyUserVersion` returned.
+        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
           break;
         }
 
@@ -206,7 +208,19 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.isBlacklisted:
-        // TODO: Handle this case.
+        var versioned = events as UserEventsIsBlacklisted;
+        var userEntity = _userLocal.get(id);
+
+        if (userEntity != null) {
+          // TODO: Properly account `MyUserVersion` returned.
+          if (userEntity.blacklistedVer > versioned.ver) {
+            break;
+          }
+
+          userEntity.value.isBlacklisted = versioned.blacklisted;
+          userEntity.blacklistedVer = versioned.ver;
+          _userLocal.put(userEntity);
+        }
         break;
     }
   }
