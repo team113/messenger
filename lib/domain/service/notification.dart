@@ -26,9 +26,12 @@ import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
+import 'my_user.dart';
 
 /// Service responsible for notifications management.
 class NotificationService extends DisposableService {
+  NotificationService(this._myUserService);
+
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
@@ -42,6 +45,7 @@ class NotificationService extends DisposableService {
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
+  final MyUserService _myUserService;
 
   /// Initializes this [NotificationService].
   ///
@@ -110,7 +114,8 @@ class NotificationService extends DisposableService {
   }) async {
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
-    if (_focused && payload == router.route) return;
+    if (_focused && payload == router.route ||
+        _myUserService.myUser.value?.muted != null) return;
 
     if (playSound) {
       runZonedGuarded(() async {

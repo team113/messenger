@@ -104,7 +104,7 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: c.myUser.value?.muted != null ? 'Отключены' : 'Включены',
+                text: c.muted.value ? 'Отключены' : 'Включены',
                 editable: false,
               ),
             ),
@@ -123,8 +123,8 @@ class ChatsMoreView extends StatelessWidget {
                   child: Switch.adaptive(
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: !router.muted.value,
-                    onChanged: (m) => c.toggleMute(),
+                    value: !c.muted.value,
+                    onChanged: c.toggleMute,
                   ),
                 ),
               ),

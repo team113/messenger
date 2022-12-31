@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -31,20 +32,12 @@ import '/domain/service/my_user.dart';
 class ChatsMoreController extends GetxController {
   ChatsMoreController(this._myUserService);
 
-  final Rx<Presence?> presence = Rx(null);
-
-  late final TextFieldState status;
-
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
   final MyUserService _myUserService;
 
-  Timer? _statusTimer;
-
-  Worker? _worker;
-
-  RxBool muted = RxBool(false);
+  final RxBool muted = RxBool(false);
 
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -54,55 +47,7 @@ class ChatsMoreController extends GetxController {
 
   @override
   void onInit() {
-    presence.value = myUser.value?.presence;
     muted.value = myUser.value?.muted == null ? false : true;
-
-    _worker = debounce(
-      presence,
-      (Presence? presence) {
-        if (myUser.value?.presence != presence && presence != null) {
-          setPresence(presence);
-        }
-      },
-      time: 250.milliseconds,
-    );
-
-    status = TextFieldState(
-      text: myUser.value?.status?.val,
-      approvable: true,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _statusTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
-            );
-            s.status.value = RxStatus.success();
-            _statusTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } catch (e) {
-            s.error.value = e.toString();
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
 
     link = TextFieldState(
       text: myUser.value?.chatDirectLink?.slug.val ??
@@ -135,7 +80,7 @@ class ChatsMoreController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            // await _myUserService.createChatDirectLink(slug!);
+            await _myUserService.createChatDirectLink(slug!);
             await Future.delayed(const Duration(seconds: 1));
             s.status.value = RxStatus.empty();
           } on CreateChatDirectLinkException catch (e) {
@@ -156,13 +101,13 @@ class ChatsMoreController extends GetxController {
     super.onInit();
   }
 
-  @override
-  void onClose() {
-    _worker?.dispose();
-    super.onClose();
-  }
-
-  void toggleMute() {
-    muted.toggle();
+  void toggleMute(bool val) async {
+    try {
+      muted.value = !val;
+      await _myUserService
+          .toggleMute(!val == true ? MuteDuration.forever() : null);
+    } catch (e) {
+      muted.value = val;
+    }
   }
 }

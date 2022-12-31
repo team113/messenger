@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:mutex/mutex.dart';
 
 import '../model/my_user.dart';
@@ -192,6 +193,10 @@ class MyUserService extends DisposableService {
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
   Future<void> updateCallCover(GalleryItemId? id) =>
       _userRepo.updateCallCover(id);
+
+  /// Updates or resets the [MyUser.callCover] field with the provided
+  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async => await _userRepo.clearCache();

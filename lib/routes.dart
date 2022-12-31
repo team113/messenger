@@ -17,6 +17,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
@@ -33,6 +34,7 @@ import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
+import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
@@ -467,7 +469,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              MyUserService myUserService =
+                  deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               ChatService chatService =
@@ -477,6 +480,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 chatService,
                 callRepository,
               ));
+
+              deps
+                  .put(NotificationService(myUserService))
+                  .init(onNotificationResponse: _onNotificationResponse);
 
               return deps;
             },
@@ -581,6 +588,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
             ));
 
+            deps
+                .put(NotificationService(myUserService))
+                .init(onNotificationResponse: _onNotificationResponse);
+
             deps.put(CallWorker(
               Get.find(),
               callService,
@@ -660,6 +671,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       }
     } else {
       WebUtils.title('Gapopa');
+    }
+  }
+
+  /// Callback, triggered when an user taps on a notification.
+  void _onNotificationResponse(NotificationResponse response) {
+    if (response.payload != null) {
+      if (response.payload!.startsWith(Routes.chat)) {
+        router.go(response.payload!);
+      }
     }
   }
 }

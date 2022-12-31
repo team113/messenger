@@ -69,9 +69,6 @@ Future<void> main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
-    Get.put(NotificationService())
-        .init(onNotificationResponse: onNotificationResponse);
-
     await authService.init();
     await L10n.init();
 
@@ -122,17 +119,6 @@ Future<void> main() async {
     },
     appRunner: appRunner,
   );
-}
-
-/// Callback, triggered when an user taps on a notification.
-///
-/// Must be a top level function.
-void onNotificationResponse(NotificationResponse response) {
-  if (response.payload != null) {
-    if (response.payload!.startsWith(Routes.chat)) {
-      router.go(response.payload!);
-    }
-  }
 }
 
 /// Implementation of this application.

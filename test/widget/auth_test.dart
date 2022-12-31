@@ -101,7 +101,7 @@ void main() async {
     Get.put(draftProvider);
     Get.put(settingsProvider);
     Get.put(credentialsProvider);
-    Get.put(NotificationService());
+    Get.put(NotificationService(Get.find()));
     Get.put(BackgroundWorker(sessionProvider));
 
     AuthService authService = Get.put(

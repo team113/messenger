@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 
 import '../model/my_user.dart';
 import '../model/user.dart';
@@ -147,7 +148,7 @@ abstract class AbstractMyUserRepository {
 
   /// Updates or resets the [MyUser.callCover] field with the provided
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> toggleMute(Muting? mute);
+  Future<void> toggleMute(MuteDuration? mute);
 
   /// Disposes the repository.
   void dispose();

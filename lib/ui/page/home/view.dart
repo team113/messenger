@@ -204,7 +204,7 @@ class _HomeViewState extends State<HomeView> {
                                   tab: HomeTab.chats,
                                   child: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 250),
-                                    child: router.muted.value
+                                    child: c.myUser.value?.muted != null
                                         ? SvgLoader.asset(
                                             'assets/icons/chats_grey.svg',
                                             key: const Key('ChatsGrey'),
