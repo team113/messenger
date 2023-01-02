@@ -19,9 +19,6 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -94,7 +91,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
 
-  test('MyUserService successfully update muting information', () async {
+  test('MyUserService successfully update muted information', () async {
     when(graphQlProvider.myUserEvents(null)).thenAnswer(
       (_) => Future.value(Stream.fromIterable([
         QueryResult.internal(
@@ -110,7 +107,7 @@ void main() async {
     when(graphQlProvider.keepOnline())
         .thenAnswer((_) => Future.value(const Stream.empty()));
 
-    when(graphQlProvider.toggleMyUserMute(Muting(duration: null))).thenAnswer(
+    when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
       (_) => Future.value(ToggleMyUserMute$Mutation.fromJson({
         'toggleMyUserMute': {
           '__typename': 'MyUserEventsVersioned',
@@ -153,9 +150,9 @@ void main() async {
 
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    await myUserService.toggleMute(MuteDuration.forever());
+    await myUserService.toggleMute(null);
 
-    verify(graphQlProvider.toggleMyUserMute(Muting(duration: null)));
+    verify(graphQlProvider.toggleMyUserMute(null));
   });
 
   test('MyUserService throws ToggleMyUserMuteException', () async {
@@ -171,7 +168,7 @@ void main() async {
       ])),
     );
 
-    when(graphQlProvider.toggleMyUserMute(Muting(duration: null))).thenThrow(
+    when(graphQlProvider.toggleMyUserMute(null)).thenThrow(
       const ToggleMyUserMuteException(ToggleMyUserMuteErrorCode.artemisUnknown),
     );
 
@@ -194,10 +191,10 @@ void main() async {
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     expect(
-      () async => await myUserService.toggleMute(MuteDuration.forever()),
+      () async => await myUserService.toggleMute(null),
       throwsA(isA<ToggleMyUserMuteException>()),
     );
 
-    verify(graphQlProvider.toggleMyUserMute(Muting(duration: null)));
+    verify(graphQlProvider.toggleMyUserMute(null));
   });
 }

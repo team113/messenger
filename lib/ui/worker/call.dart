@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -34,6 +33,7 @@ import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -66,6 +66,7 @@ class CallWorker extends DisposableService {
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
 
+  /// [MyUserService] used to getting [MyUser.muted].
   final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.

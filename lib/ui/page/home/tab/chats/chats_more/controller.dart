@@ -28,6 +28,7 @@ import '/provider/gql/exceptions.dart'
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
+/// Controller used in [ChatsMoreView].
 class ChatsMoreController extends GetxController {
   ChatsMoreController(this._myUserService);
 

@@ -898,7 +898,6 @@ abstract class UserGraphQlMixin {
           ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
               as ToggleMyUserMuteErrorCode),
     );
-    print(result.data!);
     return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
         as MyUserEventsVersionedMixin?);
   }

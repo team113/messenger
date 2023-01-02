@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
         - Searching. ([#206], [#205])
-        - Muting/unmuting all notifications. ([#288], [#278])
+        - Muting/unmuting all chats notifications. ([#288], [#278])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
     - Media panel:
