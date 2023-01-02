@@ -37,11 +37,14 @@ import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
+import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
+import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
+import 'ui/worker/window.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -53,16 +56,32 @@ Future<void> main() async {
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-    }
 
     await _initHive();
 
-    var graphQlProvider = Get.put(GraphQlProvider());
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      await windowManager.ensureInitialized();
+
+      final WindowPreferencesHiveProvider preferences = Get.find();
+      final WindowPreferences? prefs = preferences.get();
+
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
+      }
+
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
+      }
+
+      await windowManager.show();
+
+      Get.put(WindowWorker(preferences));
+    }
+
+    final graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    var authService =
+    final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
@@ -159,6 +178,7 @@ Future<void> _initHive() async {
   }
 
   await Get.put(SessionDataHiveProvider()).init();
+  await Get.put(WindowPreferencesHiveProvider()).init();
 }
 
 /// Extension adding an ability to clean [Hive].
