@@ -319,6 +319,7 @@ class ContactsTabView extends StatelessWidget {
                       itemCount: c.favorites.length,
                       onReorder: (int from, int to) {
                         double position;
+
                         if (to - 1 < 0) {
                           position = c.favorites.first.contact.value
                                   .favoritePosition!.val /
@@ -337,6 +338,7 @@ class ContactsTabView extends StatelessWidget {
                                       .favoritePosition!.val) /
                               2;
                         }
+
                         c.favoriteContact(
                           c.favorites[from].id,
                           ChatContactPosition(position),

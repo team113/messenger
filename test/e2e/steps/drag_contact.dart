@@ -36,8 +36,7 @@ final StepDefinitionGeneric dragContactToDown = given1<String, CustomWorld>(
         Key('ContactReorder_${contactId.val}'),
         FindType.key,
       ),
-      const Offset(0, 250),
-      kind: PointerDeviceKind.mouse,
+      const Offset(0, 200),
     );
   },
   configuration: StepDefinitionConfiguration()
