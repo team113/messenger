@@ -299,8 +299,8 @@ class ChatsTabView extends StatelessWidget {
                 child = AnimationLimiter(
                   key: const Key('Chats'),
                   child: customListView(
-            context,
-                    itemCount: c.chats.length,
+                    context,
+                    childCount: c.chats.length,
                     (_, i) {
                       final RxChat chat = c.chats[i];
                       return AnimationConfiguration.staggeredList(
@@ -338,9 +338,9 @@ class ChatsTabView extends StatelessWidget {
             }
 
             return ContextMenuInterceptor(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: child,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: child,
               ),
             );
           }),
