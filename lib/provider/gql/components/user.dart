@@ -860,8 +860,17 @@ abstract class UserGraphQlMixin {
         .updateUserCallCover as MyUserEventsVersionedMixin?);
   }
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
+  /// any already existing mute even if it's longer.
+  ///
+  /// Muted [MyUser] implies that all his [Chat]s events don't produce sounds
+  /// and notifications on a client side. This, however, has nothing to do with
+  /// a server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleMyUserMute` doesn't correlate with
+  /// `Mutation.toggleChatMute`. Unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds, and so, muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds too.
   ///
   /// ### Authentication
   ///
@@ -870,14 +879,13 @@ abstract class UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserCallCoverUpdated] (if [id] argument is specified);
-  /// - [EventUserCallCoverDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserMuted] (if [mute] argument is not `null`);
+  /// - [EventUserUnmuted] (if [mute] argument is `null`).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as his
-  /// callCover already.
+  /// [MyUser] is muted already `until` the specified datetime (or unmuted).
   Future<MyUserEventsVersionedMixin?> toggleMute(Muting? mute) async {
     final variables = ToggleMyUserMuteArguments(mute: mute);
     final QueryResult result = await client.mutate(
@@ -890,8 +898,8 @@ abstract class UserGraphQlMixin {
           ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
               as ToggleMyUserMuteErrorCode),
     );
-    return (ToggleMyUserMute$Mutation.fromJson(result.data!)
-        .toggleMyUserMute as MyUserEventsVersionedMixin?);
+    return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
+        as MyUserEventsVersionedMixin?);
   }
 
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].

@@ -146,8 +146,7 @@ abstract class AbstractMyUserRepository {
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
   Future<void> updateCallCover(GalleryItemId? id);
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute);
 
   /// Disposes the repository.

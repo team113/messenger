@@ -45,6 +45,8 @@ class NotificationService extends DisposableService {
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
+
+  /// [MyUserService] used to get [myUser]s mute value.
   final MyUserService _myUserService;
 
   /// Initializes this [NotificationService].

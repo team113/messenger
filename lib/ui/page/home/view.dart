@@ -165,10 +165,8 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        Widget animated({
-                          HomeTab tab = HomeTab.contacts,
-                          required Widget child,
-                        }) {
+                        // [AnimatedOpacity] boilerplate.
+                        Widget tab({required Widget child, HomeTab? tab}) {
                           return Obx(() {
                             return AnimatedScale(
                               duration: 150.milliseconds,
@@ -186,7 +184,7 @@ class _HomeViewState extends State<HomeView> {
                           items: [
                             CustomNavigationBarItem(
                               key: const Key('ContactsButton'),
-                              child: animated(
+                              child: tab(
                                 tab: HomeTab.contacts,
                                 child: SvgLoader.asset(
                                   'assets/icons/contacts.svg',
@@ -205,7 +203,7 @@ class _HomeViewState extends State<HomeView> {
                                   : Colors.red,
                               child: RmbDetector(
                                 onPressed: () => ChatsMoreView.show(context),
-                                child: animated(
+                                child: tab(
                                   tab: HomeTab.chats,
                                   child: Obx(() {
                                     return AnimatedSwitcher(
@@ -234,7 +232,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: Padding(
                                   key: c.profileKey,
                                   padding: const EdgeInsets.only(bottom: 2),
-                                  child: animated(
+                                  child: tab(
                                     tab: HomeTab.menu,
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,

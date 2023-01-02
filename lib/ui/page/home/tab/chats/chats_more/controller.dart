@@ -17,17 +17,17 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart'
-    show CreateChatDirectLinkException;
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
+    show CreateChatDirectLinkException, ToggleMyUserMuteException;
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 class ChatsMoreController extends GetxController {
   ChatsMoreController(this._myUserService);
@@ -109,10 +109,14 @@ class ChatsMoreController extends GetxController {
       togglingSwitch.value = true;
       muted.value = !val;
       await _myUserService.toggleMute(
-        !val == true ? MuteDuration.forever() : null,
+        val == true ? null : MuteDuration.forever(),
       );
+    } on ToggleMyUserMuteException catch (e) {
+      muted.value = val;
+      MessagePopup.error(e);
     } catch (e) {
       muted.value = val;
+      MessagePopup.error(e);
     } finally {
       togglingSwitch.value = false;
     }

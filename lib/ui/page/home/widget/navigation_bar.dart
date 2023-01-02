@@ -138,6 +138,7 @@ class CustomNavigationBarItem {
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
 
+  /// [Color] of a [Badge] over this item.
   final Color badgeColor;
 
   /// [Widget] to display.

@@ -194,8 +194,7 @@ class MyUserService extends DisposableService {
   Future<void> updateCallCover(GalleryItemId? id) =>
       _userRepo.updateCallCover(id);
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
 
   /// Removes [MyUser] from the local data storage.

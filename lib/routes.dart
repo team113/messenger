@@ -17,7 +17,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show NotificationResponse;
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
@@ -147,8 +148,6 @@ class RouterState extends ChangeNotifier {
 
   /// Current [Routes.me] page section.
   final Rx<ProfileTab?> profileSection = Rx(null);
-
-  final RxBool muted = RxBool(false);
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
