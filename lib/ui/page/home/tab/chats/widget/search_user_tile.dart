@@ -46,6 +46,7 @@ class SearchUserTile extends StatelessWidget {
   /// Callback, called when this [SearchUserTile] is pressed.
   final void Function()? onTap;
 
+  /// Amount of darkening to apply to the background of this [SearchUserTile].
   final double darken;
 
   @override
