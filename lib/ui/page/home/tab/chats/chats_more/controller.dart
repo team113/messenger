@@ -39,6 +39,8 @@ class ChatsMoreController extends GetxController {
 
   final RxBool muted = RxBool(false);
 
+  final RxBool togglingSwitch = RxBool(false);
+
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Sets the [MyUser.presence] to the provided value.
@@ -102,12 +104,17 @@ class ChatsMoreController extends GetxController {
   }
 
   void toggleMute(bool val) async {
+    if (togglingSwitch.value) return;
     try {
+      togglingSwitch.value = true;
       muted.value = !val;
-      await _myUserService
-          .toggleMute(!val == true ? MuteDuration.forever() : null);
+      await _myUserService.toggleMute(
+        !val == true ? MuteDuration.forever() : null,
+      );
     } catch (e) {
       muted.value = val;
+    } finally {
+      togglingSwitch.value = false;
     }
   }
 }

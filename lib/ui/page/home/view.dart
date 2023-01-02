@@ -200,7 +200,7 @@ class _HomeViewState extends State<HomeView> {
                               badge: c.unreadChatsCount.value == 0
                                   ? null
                                   : '${c.unreadChatsCount.value}',
-                              badgeColor: router.muted.value
+                              badgeColor: c.myUser.value?.muted != null
                                   ? const Color(0xFFC0C0C0)
                                   : Colors.red,
                               child: RmbDetector(

@@ -349,6 +349,7 @@ label_attachments = [{$count} { $count ->
     *[other] attachments
     }]
 label_audio_call = Audio call
+label_audio_notifications = Audio notifications
 label_away = Away
 label_background = Background
 label_biography = Biography
@@ -424,6 +425,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_disabled = Disabled
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -438,6 +440,7 @@ label_email = E-mail
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
+label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code

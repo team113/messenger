@@ -18,16 +18,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
 
+import '/config.dart';
+import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
+import '/ui/page/home/page/my_profile/link_details/view.dart';
 import 'controller.dart';
 
 class ChatsMoreView extends StatelessWidget {
@@ -70,7 +70,7 @@ class ChatsMoreView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'Звуковые уведомления'.l10n,
+                  'label_audio_notifications'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -83,7 +83,7 @@ class ChatsMoreView extends StatelessWidget {
                   const SizedBox(height: 8),
                   _mute(context, c),
                   const SizedBox(height: 21),
-                  header('Прямая ссылка на чат с Вами'),
+                  header('label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
                   _link(context, c),
                 ],
@@ -104,7 +104,7 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: c.muted.value ? 'Отключены' : 'Включены',
+                text: (c.muted.value ? 'label_disabled' : 'label_enabled').l10n,
                 editable: false,
               ),
             ),
@@ -124,7 +124,7 @@ class ChatsMoreView extends StatelessWidget {
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: !c.muted.value,
-                    onChanged: c.toggleMute,
+                    onChanged: c.togglingSwitch.value ? null : c.toggleMute,
                   ),
                 ),
               ),
@@ -176,25 +176,33 @@ class ChatsMoreView extends StatelessWidget {
             child: Row(
               children: [
                 RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
+                  text: TextSpan(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.normal,
                     ),
                     children: [
                       TextSpan(
-                        text: 'Переходов: 0.',
-                        // style: TextStyle(color: Color(0xFF888888)),
-                        style: TextStyle(color: Color(0xFF888888)),
+                        text: 'label_transition_count'.l10nfmt({
+                              'count':
+                                  c.myUser.value?.chatDirectLink?.usageCount ??
+                                      0
+                            }) +
+                            'dot_space'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                      // TextSpan(
-                      //   text: 'Подробнее.',
-                      //   style: const TextStyle(color: Color(0xFF00A3FF)),
-                      //   recognizer: TapGestureRecognizer()
-                      //     ..onTap = () {
-                      //       LinkDetailsView.show(context);
-                      //     },
-                      // ),
+                      TextSpan(
+                        text: 'label_details'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await LinkDetailsView.show(context);
+                          },
+                      ),
                     ],
                   ),
                 ),
