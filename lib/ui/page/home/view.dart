@@ -173,7 +173,7 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
-                    // extendBody: true,
+                    extendBody: true,
                     bottomNavigationBar: SafeArea(
                       key: const Key('NavigationBar'),
                       child: Obx(() {

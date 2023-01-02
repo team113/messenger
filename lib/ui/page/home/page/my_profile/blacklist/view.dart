@@ -24,7 +24,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
 /// View displaying the blacklisted [User]s.
@@ -105,23 +104,32 @@ class BlacklistView extends StatelessWidget {
                           //   Text(
                           //     'Причина: плохой человек',
                           //     style: TextStyle(
-                          //       color: Theme.of(context).colorScheme.primary,
-                          //       fontSize: 13,
+                          // color: Theme.of(context).colorScheme.primary,
+                          // fontSize: 13,
                           //     ),
                           //   ),
                         ],
                         trailing: [
                           WidgetButton(
                             onPressed: () => c.unblacklist(user),
-                            child: Icon(
-                              Icons.remove_circle,
-                              color: Theme.of(context).colorScheme.secondary,
+                            child: Text(
+                              'btn_unblock_short'.l10n,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontSize: 13,
+                              ),
                             ),
+
+                            // child: Icon(
+                            //   Icons.remove_circle,
+                            //   color: Theme.of(context).colorScheme.secondary,
+                            // ),
                             // child: SvgLoader.asset(
                             //   'assets/icons/delete.svg',
                             //   height: 14 * 1.5,
                             // ),
                           ),
+                          const SizedBox(width: 4),
                         ],
                       );
                     });

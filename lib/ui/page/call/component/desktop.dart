@@ -1024,7 +1024,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: scaler(
-                  cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1043,7 +1045,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
                 child: scaler(
-                  cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1361,9 +1365,10 @@ Widget _primaryView(CallController c) {
                                   ),
                                 ContextMenuButton(
                                   label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatMember(
-                                    participant.member.id.userId,
-                                  ),
+                                  onPressed: () {},
+                                  // onPressed: () => c.removeChatMember(
+                                  //   participant.member.id.userId,
+                                  // ),
                                 ),
                               ] else ...[
                                 ContextMenuButton(
@@ -1901,9 +1906,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   ),
                                 ContextMenuButton(
                                   label: 'btn_call_remove_participant'.l10n,
-                                  onPressed: () => c.removeChatMember(
-                                    participant.member.id.userId,
-                                  ),
+                                  onPressed: () {},
+                                  // onPressed: () => c.removeChatMember(
+                                  //   participant.member.id.userId,
+                                  // ),
                                 ),
                               ] else ...[
                                 ContextMenuButton(

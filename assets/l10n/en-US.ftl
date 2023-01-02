@@ -106,7 +106,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
-btn_call_remove_participant = Kick participant
+btn_call_remove_participant = Remove from call
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -198,6 +198,7 @@ btn_share = Share
 btn_start = Start
 btn_submit = Submit
 btn_unblock = Unblock
+btn_unblock_short = Unblock
 btn_unmute_chat = Unmute
 btn_video_call = Video call
 btn_write_message = Write a message
@@ -645,3 +646,4 @@ label_participants_of = Participants: {$a} of {$b}
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
 btn_select = Select
+btn_upload = Upload

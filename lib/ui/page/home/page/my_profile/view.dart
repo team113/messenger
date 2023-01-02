@@ -1056,23 +1056,27 @@ Widget _background(BuildContext context, MyProfileController c) {
           ),
         ),
         Obx(() {
-          if (c.background.value == null) {
-            return const SizedBox();
-          }
-
           return Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Center(
-              child: WidgetButton(
-                onPressed:
-                    c.background.value == null ? null : c.removeBackground,
-                child: Text(
-                  'btn_delete'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed: c.background.value == null
+                        ? c.pickBackground
+                        : c.removeBackground,
+                    child: Text(
+                      c.background.value == null
+                          ? 'btn_upload'.l10n
+                          : 'btn_delete'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );

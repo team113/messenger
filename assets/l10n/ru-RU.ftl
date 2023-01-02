@@ -111,7 +111,7 @@ btn_call_remote_video_on = Включить входящее видео
 btn_call_remote_video_on_desc =
     Включить
     входящее видео
-btn_call_remove_participant = Выгнать участника
+btn_call_remove_participant = Удалить из звонка
 btn_call_screen_off = Завершить демонстрацию экрана
 btn_call_screen_off_desc =
     Завершить
@@ -203,6 +203,7 @@ btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
 btn_unblock = Разблокировать
+btn_unblock_short = Разблок.
 btn_unmute_chat = Включить звук
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
@@ -668,3 +669,4 @@ label_participants_of = Участников: {$a} из {$b}
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
 btn_select = Выбрать
+btn_upload = Загрузить

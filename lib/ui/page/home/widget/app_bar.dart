@@ -29,6 +29,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading = const [],
     this.actions = const [],
     this.padding,
+    this.background,
+    this.border,
   }) : super(key: key);
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -42,6 +44,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
+
+  final Border? border;
+  final Color? background;
 
   @override
   Size get preferredSize => const Size(double.infinity, 60);
@@ -67,7 +72,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 60,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                border: style.cardBorder,
                 boxShadow: const [
                   CustomBoxShadow(
                     blurRadius: 8,
@@ -83,10 +87,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   sigmaY: style.cardBlur,
                 ),
                 borderRadius: style.cardRadius,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
-                    color: style.cardColor,
+                    border: border ?? style.cardBorder,
+                    color: background ?? style.cardColor,
                   ),
                   padding: padding,
                   child: Row(
