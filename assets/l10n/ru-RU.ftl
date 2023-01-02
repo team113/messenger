@@ -40,6 +40,7 @@ alert_popup_permissions_description =
 alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
+btn_add_member = Добавить участника
 btn_participants = Список участников
 btn_participants_desc =
     Список
