@@ -127,6 +127,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
+    this.badgeColor = Colors.red,
     this.child,
   });
 
@@ -135,6 +136,8 @@ class CustomNavigationBarItem {
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  final Color badgeColor;
 
   /// [Widget] to display.
   final Widget? child;

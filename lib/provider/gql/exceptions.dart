@@ -1189,7 +1189,7 @@ class UpdateUserCallCoverException
   }
 }
 
-/// Exception of `Mutation.updateUserCallCover` described in the [code].
+/// Exception of `Mutation.toggleMyUserMute` described in the [code].
 class ToggleMyUserMuteException
     with LocalizedExceptionMixin
     implements Exception {

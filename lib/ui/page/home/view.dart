@@ -165,8 +165,10 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
+                        Widget animated({
+                          HomeTab tab = HomeTab.contacts,
+                          required Widget child,
+                        }) {
                           return Obx(() {
                             return AnimatedScale(
                               duration: 150.milliseconds,
@@ -184,7 +186,7 @@ class _HomeViewState extends State<HomeView> {
                           items: [
                             CustomNavigationBarItem(
                               key: const Key('ContactsButton'),
-                              child: tab(
+                              child: animated(
                                 tab: HomeTab.contacts,
                                 child: SvgLoader.asset(
                                   'assets/icons/contacts.svg',
@@ -198,26 +200,30 @@ class _HomeViewState extends State<HomeView> {
                               badge: c.unreadChatsCount.value == 0
                                   ? null
                                   : '${c.unreadChatsCount.value}',
+                              badgeColor: router.muted.value
+                                  ? const Color(0xFFC0C0C0)
+                                  : Colors.red,
                               child: RmbDetector(
                                 onPressed: () => ChatsMoreView.show(context),
-                                child: tab(
+                                child: animated(
                                   tab: HomeTab.chats,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 250),
-                                    child: c.myUser.value?.muted != null
-                                        ? SvgLoader.asset(
-                                            'assets/icons/chats_grey.svg',
-                                            key: const Key('ChatsGrey'),
-                                            width: 36.06,
-                                            height: 30,
-                                          )
-                                        : SvgLoader.asset(
-                                            'assets/icons/chats.svg',
-                                            key: const Key('ChatsColored'),
-                                            width: 36.06,
-                                            height: 30,
-                                          ),
-                                  ),
+                                  child: Obx(() {
+                                    return AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: SvgLoader.asset(
+                                        c.myUser.value?.muted != null
+                                            ? 'assets/icons/chats_muted.svg'
+                                            : 'assets/icons/chats.svg',
+                                        key: Key(
+                                          c.myUser.value?.muted != null
+                                              ? 'ChatsMuted'
+                                              : 'ChatsUnmuted',
+                                        ),
+                                        width: 36.06,
+                                        height: 30,
+                                      ),
+                                    );
+                                  }),
                                 ),
                               ),
                             ),
@@ -228,7 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                 child: Padding(
                                   key: c.profileKey,
                                   padding: const EdgeInsets.only(bottom: 2),
-                                  child: tab(
+                                  child: animated(
                                     tab: HomeTab.menu,
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,

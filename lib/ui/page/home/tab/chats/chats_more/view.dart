@@ -137,9 +137,6 @@ class ChatsMoreView extends StatelessWidget {
 
   /// Returns [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,14 +155,7 @@ class ChatsMoreView extends StatelessWidget {
                       ),
                     );
 
-                    // Clipboard.setData(
-                    //   ClipboardData(
-                    //     text:
-                    //         '${Config.origin}${Routes.chatDirectLink}/${c.myUser.value?.chatDirectLink?.slug.val}',
-                    //   ),
-                    // );
-
-                    // MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null
