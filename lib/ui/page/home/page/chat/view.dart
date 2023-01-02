@@ -897,348 +897,344 @@ class _ChatViewState extends State<ChatView>
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
 
-      return SafeArea(
-        child: Container(
-          key: const Key('SendField'),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            boxShadow: const [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: Color(0x22000000),
+    return SafeArea(
+      child: Container(
+        key: const Key('SendField'),
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          boxShadow: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+            ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
+          ),
+          borderRadius: style.cardRadius,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LayoutBuilder(builder: (context, constraints) {
+                return Obx(() {
+                  bool grab = (125 + 2) * c.attachments.length >
+                      constraints.maxWidth - 16;
+
+                  return ConditionalBackdropFilter(
+                    condition: style.cardBlur > 0,
+                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                    borderRadius: BorderRadius.only(
+                      topLeft: style.cardRadius.topLeft,
+                      topRight: style.cardRadius.topRight,
+                    ),
+                    child: Container(
+                      color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                      child: AnimatedSize(
+                        duration: 400.milliseconds,
+                        curve: Curves.ease,
+                        child: Obx(() {
+                          return Container(
+                            width: double.infinity,
+                            padding: c.repliedMessages.isNotEmpty ||
+                                    c.attachments.isNotEmpty
+                                ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                                : EdgeInsets.zero,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (c.repliedMessages.isNotEmpty)
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height /
+                                              3,
+                                    ),
+                                    child: ReorderableListView(
+                                      shrinkWrap: true,
+                                      buildDefaultDragHandles:
+                                          PlatformUtils.isMobile,
+                                      onReorder: (int old, int to) {
+                                        if (old < to) {
+                                          --to;
+                                        }
+
+                                        final ChatItem item =
+                                            c.repliedMessages.removeAt(old);
+                                        c.repliedMessages.insert(to, item);
+
+                                        HapticFeedback.lightImpact();
+                                      },
+                                      proxyDecorator: (child, i, animation) {
+                                        return AnimatedBuilder(
+                                          animation: animation,
+                                          builder: (
+                                            BuildContext context,
+                                            Widget? child,
+                                          ) {
+                                            final double t = Curves.easeInOut
+                                                .transform(animation.value);
+                                            final double elevation =
+                                                lerpDouble(0, 6, t)!;
+                                            final Color color = Color.lerp(
+                                              const Color(0x00000000),
+                                              const Color(0x33000000),
+                                              t,
+                                            )!;
+
+                                            return InitCallback(
+                                              callback:
+                                                  HapticFeedback.selectionClick,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    CustomBoxShadow(
+                                                      color: color,
+                                                      blurRadius: elevation,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: child,
+                                              ),
+                                            );
+                                          },
+                                          child: child,
+                                        );
+                                      },
+                                      reverse: true,
+                                      padding: const EdgeInsets.fromLTRB(
+                                        1,
+                                        0,
+                                        1,
+                                        0,
+                                      ),
+                                      children: c.repliedMessages.map((e) {
+                                        return ReorderableDragStartListener(
+                                          key: Key('Handle_${e.id}'),
+                                          enabled: !PlatformUtils.isMobile,
+                                          index: c.repliedMessages.indexOf(e),
+                                          child: Dismissible(
+                                            key: Key('${e.id}'),
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            onDismissed: (_) {
+                                              c.repliedMessages.remove(e);
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 2,
+                                              ),
+                                              child: _repliedMessage(c, e),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                if (c.attachments.isNotEmpty &&
+                                    c.repliedMessages.isNotEmpty)
+                                  const SizedBox(height: 4),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: MouseRegion(
+                                    cursor: grab
+                                        ? SystemMouseCursors.grab
+                                        : MouseCursor.defer,
+                                    opaque: false,
+                                    child: ScrollConfiguration(
+                                      behavior: CustomScrollBehavior(),
+                                      child: SingleChildScrollView(
+                                        clipBehavior: Clip.none,
+                                        physics: grab
+                                            ? null
+                                            : const NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: c.attachments
+                                              .map(
+                                                (e) => _buildAttachment(
+                                                  c,
+                                                  e.value,
+                                                  e.key,
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  );
+                });
+              }),
+              Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                decoration: BoxDecoration(color: style.cardColor),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
+                      WidgetButton(
+                        onPressed: c.pickFile,
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Center(
+                            child: SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: SvgLoader.asset(
+                                'assets/icons/attach.svg',
+                                height: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      WidgetButton(
+                        onPressed: () =>
+                            AttachmentSourceSelector.show(context, c),
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Center(
+                            child: SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: SvgLoader.asset(
+                                'assets/icons/attach.svg',
+                                height: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                          bottom: 13,
+                        ),
+                        child: Transform.translate(
+                          offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                          child: ReactiveTextField(
+                            onChanged: c.keepTyping,
+                            key: const Key('MessageField'),
+                            state: c.send,
+                            hint: 'label_send_message_hint'.l10n,
+                            minLines: 1,
+                            maxLines: 7,
+                            filled: false,
+                            dense: true,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(fontSize: 17),
+                            type: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onLongPress: c.forwarding.toggle,
+                      child: Obx(() {
+                        return AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: c.forwarding.value
+                              ? WidgetButton(
+                                  onPressed: () async {
+                                    if (c.repliedMessages.isNotEmpty) {
+                                      bool? result = await ChatForwardView.show(
+                                        context,
+                                        c.id,
+                                        c.repliedMessages
+                                            .map((e) => ChatItemQuote(item: e))
+                                            .toList(),
+                                        text: c.send.text,
+                                        attachments: c.attachments
+                                            .map((e) => e.value)
+                                            .toList(),
+                                      );
+
+                                      if (result == true) {
+                                        c.repliedMessages.clear();
+                                        c.forwarding.value = false;
+                                        c.attachments.clear();
+                                        c.send.clear();
+                                      }
+                                    }
+                                  },
+                                  child: SizedBox(
+                                    width: 56,
+                                    height: 56,
+                                    child: Center(
+                                      child: AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 150),
+                                        child: SizedBox(
+                                          width: 26,
+                                          height: 22,
+                                          child: SvgLoader.asset(
+                                            'assets/icons/forward.svg',
+                                            width: 26,
+                                            height: 22,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : WidgetButton(
+                                  onPressed: c.send.isEmpty.value &&
+                                          c.attachments.isEmpty &&
+                                          c.repliedMessages.isEmpty
+                                      ? () {}
+                                      : c.send.submit,
+                                  child: SizedBox(
+                                    width: 56,
+                                    height: 56,
+                                    child: Center(
+                                      child: AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 150),
+                                        child: SizedBox(
+                                          key: const Key('Send'),
+                                          width: 25.18,
+                                          height: 22.85,
+                                          child: SvgLoader.asset(
+                                            'assets/icons/send.svg',
+                                            height: 22.85,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: style.cardRadius,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Obx(
-                  () {
-                    return LayoutBuilder(builder: (context, constraints) {
-                      bool grab = (125 + 2) * c.attachments.length >
-                          constraints.maxWidth - 16;
-
-                      return ConditionalBackdropFilter(
-                        condition: style.cardBlur > 0,
-                        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                        borderRadius: BorderRadius.only(
-                          topLeft: style.cardRadius.topLeft,
-                          topRight: style.cardRadius.topRight,
-                        ),
-                        child: Container(
-                          color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                          child: AnimatedSize(
-                            duration: 400.milliseconds,
-                            curve: Curves.ease,
-                            child: Obx(() {
-                              return Container(
-                                width: double.infinity,
-                                padding: c.repliedMessages.isNotEmpty ||
-                                        c.attachments.isNotEmpty
-                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                    : EdgeInsets.zero,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (c.repliedMessages.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight:
-                                              MediaQuery.of(context).size.height /
-                                                  3,
-                                        ),
-                                        child: ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: (int old, int to) {
-                                            if (old < to) {
-                                              --to;
-                                            }
-
-                                            final ChatItem item =
-                                                c.repliedMessages.removeAt(old);
-                                            c.repliedMessages.insert(to, item);
-
-                                            HapticFeedback.lightImpact();
-                                          },
-                                          proxyDecorator: (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves.easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
-
-                                                return InitCallback(
-                                                  callback:
-                                                      HapticFeedback.selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
-                                                  ),
-                                                );
-                                              },
-                                              child: child,
-                                            );
-                                          },
-                                          reverse: true,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            1,
-                                            0,
-                                          ),
-                                          children: c.repliedMessages.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: c.repliedMessages.indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  c.repliedMessages.remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: _repliedMessage(c, e),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    if (c.attachments.isNotEmpty &&
-                                        c.repliedMessages.isNotEmpty)
-                                      const SizedBox(height: 4),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: MouseRegion(
-                                        cursor: grab
-                                            ? SystemMouseCursors.grab
-                                            : MouseCursor.defer,
-                                        opaque: false,
-                                        child: ScrollConfiguration(
-                                          behavior: CustomScrollBehavior(),
-                                          child: SingleChildScrollView(
-                                            clipBehavior: Clip.none,
-                                            physics: grab
-                                                ? null
-                                                : const NeverScrollableScrollPhysics(),
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: c.attachments
-                                                  .map(
-                                                    (e) => _buildAttachment(
-                                                      c,
-                                                      e.value,
-                                                      e.key,
-                                                    ),
-                                                  )
-                                                  .toList(),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      );
-                    });
-                  }
-                ),
-                Container(
-                  constraints: const BoxConstraints(minHeight: 56),
-                  decoration: BoxDecoration(color: style.cardColor),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
-                        WidgetButton(
-                          onPressed: c.pickFile,
-                          child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Center(
-                              child: SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: SvgLoader.asset(
-                                  'assets/icons/attach.svg',
-                                  height: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        WidgetButton(
-                          onPressed: () =>
-                              AttachmentSourceSelector.show(context, c),
-                          child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Center(
-                              child: SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: SvgLoader.asset(
-                                  'assets/icons/attach.svg',
-                                  height: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                            bottom: 13,
-                          ),
-                          child: Transform.translate(
-                            offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                            child: ReactiveTextField(
-                              onChanged: c.keepTyping,
-                              key: const Key('MessageField'),
-                              state: c.send,
-                              hint: 'label_send_message_hint'.l10n,
-                              minLines: 1,
-                              maxLines: 7,
-                              filled: false,
-                              dense: true,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
-                              type: TextInputType.multiline,
-                              textInputAction: TextInputAction.newline,
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onLongPress: c.forwarding.toggle,
-                        child: Obx(
-                          () {
-                            return AnimatedSwitcher(
-                              duration: 300.milliseconds,
-                              child: c.forwarding.value
-                                  ? WidgetButton(
-                                      onPressed: () async {
-                                        if (c.repliedMessages.isNotEmpty) {
-                                          bool? result = await ChatForwardView.show(
-                                            context,
-                                            c.id,
-                                            c.repliedMessages
-                                                .map((e) => ChatItemQuote(item: e))
-                                                .toList(),
-                                            text: c.send.text,
-                                            attachments: c.attachments
-                                                .map((e) => e.value)
-                                                .toList(),
-                                          );
-
-                                          if (result == true) {
-                                            c.repliedMessages.clear();
-                                            c.forwarding.value = false;
-                                            c.attachments.clear();
-                                            c.send.clear();
-                                          }
-                                        }
-                                      },
-                                      child: SizedBox(
-                                        width: 56,
-                                        height: 56,
-                                        child: Center(
-                                          child: AnimatedSwitcher(
-                                            duration:
-                                                const Duration(milliseconds: 150),
-                                            child: SizedBox(
-                                              width: 26,
-                                              height: 22,
-                                              child: SvgLoader.asset(
-                                                'assets/icons/forward.svg',
-                                                width: 26,
-                                                height: 22,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : WidgetButton(
-                                      onPressed: c.send.isEmpty.value &&
-                                              c.attachments.isEmpty &&
-                                              c.repliedMessages.isEmpty
-                                          ? () {}
-                                          : c.send.submit,
-                                      child: SizedBox(
-                                        width: 56,
-                                        height: 56,
-                                        child: Center(
-                                          child: AnimatedSwitcher(
-                                            duration:
-                                                const Duration(milliseconds: 150),
-                                            child: SizedBox(
-                                              key: const Key('Send'),
-                                              width: 25.18,
-                                              height: 22.85,
-                                              child: SvgLoader.asset(
-                                                'assets/icons/send.svg',
-                                                height: 22.85,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                            );
-                          }
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-      );
+      ),
+    );
   }
 
   /// Returns a [ReactiveTextField] for editing a [ChatMessage].
