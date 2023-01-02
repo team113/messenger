@@ -31,7 +31,7 @@ import '/util/platform_utils.dart';
 /// Person ([ChatContact] or [User]) visual representation.
 ///
 /// If both specified, the [contact] will be used.
-class ContactTile extends StatelessWidget {
+class ContactTile extends StatefulWidget {
   const ContactTile({
     Key? key,
     this.contact,
@@ -111,90 +111,118 @@ class ContactTile extends StatelessWidget {
   final bool animateAvatarBadge;
 
   @override
+  State<ContactTile> createState() => _ContactTileState();
+}
+
+/// [State] of [ContactTile].
+class _ContactTileState extends State<ContactTile> {
+  /// Indicator whether this [ContactTile] should be with shadow or not.
+  bool showShadow = false;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() {
+        showShadow = widget.showShadow;
+      });
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return ContextMenuRegion(
-      key: contact != null || user != null
-          ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
-          : null,
-      preventContextMenu: preventContextMenu,
-      actions: actions ?? [],
-      child: Container(
-        decoration: showShadow
-            ? BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: const Offset(0, 0), // changes position of shadow
+    Widget child = InkWellWithHover(
+      selectedColor: style.cardSelectedColor,
+      unselectedColor: style.cardColor.darken(widget.darken),
+      selected: widget.selected,
+      hoveredBorder:
+          widget.selected ? style.primaryBorder : style.cardHoveredBorder,
+      border: widget.selected ? style.primaryBorder : style.cardBorder,
+      borderRadius: style.cardRadius,
+      onTap: widget.onTap,
+      unselectedHoverColor: style.cardHoveredColor.darken(widget.darken),
+      selectedHoverColor: style.cardSelectedColor,
+      folded: widget.contact?.contact.value.favoritePosition != null,
+      child: Padding(
+        key: widget.contact?.contact.value.favoritePosition != null
+            ? Key('FavoriteIndicator_${widget.contact?.contact.value.id}')
+            : null,
+        padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+        child: Row(
+          children: [
+            ...widget.leading,
+            _buildAvatar(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.contact?.contact.value.name.val ??
+                              widget
+                                  .contact?.user.value?.user.value.name?.val ??
+                              widget.contact?.user.value?.user.value.num.val ??
+                              widget.user?.user.value.name?.val ??
+                              widget.user?.user.value.num.val ??
+                              widget.myUser?.name?.val ??
+                              widget.myUser?.num.val ??
+                              (widget.myUser == null
+                                  ? '...'
+                                  : 'btn_your_profile'.l10n),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
+                      ),
+                    ],
                   ),
+                  ...widget.subtitle,
+                ],
+              ),
+            ),
+            ...widget.trailing,
+          ],
+        ),
+      ),
+    );
+
+    return ContextMenuRegion(
+      key: widget.contact != null || widget.user != null
+          ? Key(
+              'ContextMenuRegion_${widget.contact?.id ?? widget.user?.id ?? widget.myUser?.id}')
+          : null,
+      preventContextMenu: widget.preventContextMenu,
+      actions: widget.actions ?? [],
+      child: widget.showShadow == true
+          ? AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  if (showShadow)
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                      offset: const Offset(0, 0),
+                    ),
                 ],
                 borderRadius: style.cardRadius.copyWith(
                     topLeft:
                         Radius.circular(style.cardRadius.topLeft.x * 1.75)),
-              )
-            : null,
-        padding: margin,
-        child: InkWellWithHover(
-          selectedColor: style.cardSelectedColor,
-          unselectedColor: style.cardColor.darken(darken),
-          selected: selected,
-          hoveredBorder:
-              selected ? style.primaryBorder : style.cardHoveredBorder,
-          border: selected ? style.primaryBorder : style.cardBorder,
-          borderRadius: style.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor.darken(darken),
-          selectedHoverColor: style.cardSelectedColor,
-          folded: contact?.contact.value.favoritePosition != null,
-          child: Padding(
-            key: contact?.contact.value.favoritePosition != null
-                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                : null,
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
-            child: Row(
-              children: [
-                ...leading,
-                _buildAvatar(),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              contact?.contact.value.name.val ??
-                                  contact?.user.value?.user.value.name?.val ??
-                                  contact?.user.value?.user.value.num.val ??
-                                  user?.user.value.name?.val ??
-                                  user?.user.value.num.val ??
-                                  myUser?.name?.val ??
-                                  myUser?.num.val ??
-                                  (myUser == null
-                                      ? '...'
-                                      : 'btn_your_profile'.l10n),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      ...subtitle,
-                    ],
-                  ),
-                ),
-                ...trailing,
-              ],
+              ),
+              padding: widget.margin,
+              child: child,
+            )
+          : Padding(
+              padding: widget.margin,
+              child: child,
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -203,37 +231,37 @@ class ContactTile extends StatelessWidget {
   Widget _buildAvatar() {
     Widget child;
 
-    if (contact != null) {
+    if (widget.contact != null) {
       child = AvatarWidget.fromRxContact(
-        contact,
-        radius: radius,
-        animateAvatarBadge: animateAvatarBadge,
+        widget.contact,
+        radius: widget.radius,
+        animateAvatarBadge: widget.animateAvatarBadge,
       );
-    } else if (user != null) {
+    } else if (widget.user != null) {
       child = AvatarWidget.fromRxUser(
-        user,
-        radius: radius,
-        animateAvatarBadge: animateAvatarBadge,
+        widget.user,
+        radius: widget.radius,
+        animateAvatarBadge: widget.animateAvatarBadge,
       );
     } else {
       child = AvatarWidget.fromMyUser(
-        myUser,
-        radius: radius,
-        animateAvatarBadge: animateAvatarBadge,
+        widget.myUser,
+        radius: widget.radius,
+        animateAvatarBadge: widget.animateAvatarBadge,
       );
     }
 
-    if (reorderIndex != null) {
+    if (widget.reorderIndex != null) {
       if (PlatformUtils.isMobile) {
         child = ReorderableDelayedDragStartListener(
-          key: Key('ContactReorder_${contact?.id.val}'),
-          index: reorderIndex!,
+          key: Key('ContactReorder_${widget.contact?.id.val}'),
+          index: widget.reorderIndex!,
           child: child,
         );
       } else {
         child = ReorderableDragStartListener(
-          key: Key('ContactReorder_${contact?.id.val}'),
-          index: reorderIndex!,
+          key: Key('ContactReorder_${widget.contact?.id.val}'),
+          index: widget.reorderIndex!,
           child: child,
         );
       }
