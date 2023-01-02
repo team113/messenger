@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Reordering favorite contacts. ([#285], [#269])
     - User page:
         - Blacklisting. ([#277], [#234], [#229])
+    - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
 
@@ -119,8 +120,10 @@ All user visible changes to this project will be documented in this file. This p
 [#257]: /../../issues/257
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#263]: /../../issues/263
 [#265]: /../../pull/265
 [#269]: /../../issues/269
+[#274]: /../../pull/274
 [#275]: /../../pull/275
 [#277]: /../../pull/277
 [#285]: /../../pull/285
