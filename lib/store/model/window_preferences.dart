@@ -21,7 +21,7 @@ import '/domain/model_type_id.dart';
 
 part 'window_preferences.g.dart';
 
-/// Window [Offset] position and [Size] combined.
+/// [Offset] position and [Size] combined.
 @HiveType(typeId: ModelTypeId.windowPreferences)
 class WindowPreferences {
   WindowPreferences({this.width, this.height, this.dx, this.dy});

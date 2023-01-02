@@ -31,8 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#260], [#259])
     - User page:
         - Blacklisting. ([#277], [#234], [#229])
-- Desktop:
-    - Persist window's size and position ([#274], [#263])
+    - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
 

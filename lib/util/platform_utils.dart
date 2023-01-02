@@ -110,7 +110,7 @@ class PlatformUtilsImpl {
   Stream<Size> get onResized {
     StreamController<Size>? controller;
 
-    _WindowListener listener = _WindowListener(
+    final _WindowListener listener = _WindowListener(
       onResized: (size) => controller!.add(size),
     );
 
@@ -126,7 +126,7 @@ class PlatformUtilsImpl {
   Stream<Offset> get onMoved {
     StreamController<Offset>? controller;
 
-    _WindowListener listener = _WindowListener(
+    final _WindowListener listener = _WindowListener(
       onMoved: (position) => controller!.add(position),
     );
 

@@ -37,7 +37,7 @@ class WindowPreferencesHiveProvider
   /// Returns the stored [WindowPreferences] from [Hive].
   WindowPreferences? get() => getSafe(0);
 
-  /// Stores a new [WindowPreferences] to [Hive].
+  /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
     final WindowPreferences? stored = get();
     putSafe(

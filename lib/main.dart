@@ -71,6 +71,7 @@ Future<void> main() async {
       if (prefs?.size != null) {
         await windowManager.setSize(prefs!.size!);
       }
+
       if (prefs?.position != null) {
         await windowManager.setPosition(prefs!.position!);
       }
