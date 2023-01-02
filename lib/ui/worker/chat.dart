@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
@@ -35,11 +36,14 @@ import '/util/obs/obs.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
+
+  final MyUserService _myUserService;
 
   /// [NotificationService], used to show a new [Chat] message notification.
   final NotificationService _notificationService;
@@ -106,25 +110,31 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        _notificationService.show(
-          c.title.value,
-          body: 'label_you_were_added_to_group'.l10n,
-          payload: '${Routes.chat}/${c.chat.value.id}',
-          icon: c.avatar.value?.original.url,
-          tag: c.chat.value.id.val,
-        );
+        if (_myUserService.myUser.value?.muted == null) {
+          _notificationService.show(
+            c.title.value,
+            body: 'label_you_were_added_to_group'.l10n,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: c.chat.value.id.val,
+          );
+        }
       }
     }
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag) => _notificationService.show(
-        c.title.value,
-        body: body,
-        payload: '${Routes.chat}/${c.chat.value.id}',
-        icon: c.avatar.value?.original.url,
-        tag: tag,
-      ),
+      onNotification: (body, tag) {
+        if (_myUserService.myUser.value?.muted == null) {
+          _notificationService.show(
+            c.title.value,
+            body: body,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: tag,
+          );
+        }
+      },
       me: () => _chatService.me,
     );
   }

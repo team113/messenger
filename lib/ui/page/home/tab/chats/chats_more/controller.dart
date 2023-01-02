@@ -18,7 +18,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -35,17 +34,17 @@ class ChatsMoreController extends GetxController {
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
-  final MyUserService _myUserService;
-
+  /// Indicator whether [MyUser] is muted or not.
   final RxBool muted = RxBool(false);
 
+  /// Indicator whether is toggling [MyUser] muted status or not.
   final RxBool togglingSwitch = RxBool(false);
 
-  Rx<MyUser?> get myUser => _myUserService.myUser;
+  /// Service responsible for [MyUser] management.
+  final MyUserService _myUserService;
 
-  /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
-      _myUserService.updateUserPresence(presence);
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -103,13 +102,14 @@ class ChatsMoreController extends GetxController {
     super.onInit();
   }
 
+  /// Toggles [MyUser] mute status.
   void toggleMute(bool val) async {
     if (togglingSwitch.value) return;
     try {
       togglingSwitch.value = true;
       muted.value = !val;
       await _myUserService.toggleMute(
-        val == true ? null : MuteDuration.forever(),
+        !val == true ? MuteDuration.forever() : null,
       );
     } on ToggleMyUserMuteException catch (e) {
       muted.value = val;

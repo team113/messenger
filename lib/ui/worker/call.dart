@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -49,6 +50,7 @@ class CallWorker extends DisposableService {
     this._background,
     this._callService,
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
@@ -63,6 +65,8 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -168,7 +172,8 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification) {
+              if (showNotification &&
+                  _myUserService.myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
                   String? title = chat?.title.value ??
                       c.caller?.name?.val ??

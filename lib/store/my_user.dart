@@ -485,9 +485,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     myUser.update((u) => u?.muted = muting?.toModel());
 
     try {
-      await _graphQlProvider.toggleMute(muting);
+      await _graphQlProvider.toggleMyUserMute(muting);
     } catch (e) {
-        myUser.update((u) => u?.muted = muted);
+      myUser.update((u) => u?.muted = muted);
       rethrow;
     }
   }

@@ -30,6 +30,7 @@ import '/util/message_popup.dart';
 import '/ui/page/home/page/my_profile/link_details/view.dart';
 import 'controller.dart';
 
+/// View showing info about [MyUser.chatDirectLink] and [MyUser.muted] status.
 class ChatsMoreView extends StatelessWidget {
   const ChatsMoreView({super.key});
 
@@ -62,6 +63,7 @@ class ChatsMoreView extends StatelessWidget {
     }
 
     return GetBuilder(
+      key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
       builder: (ChatsMoreController c) {
         return Column(
@@ -96,6 +98,7 @@ class ChatsMoreView extends StatelessWidget {
     );
   }
 
+  /// Returns [MyUser.muted] toggling [Switch].
   Widget _mute(BuildContext context, ChatsMoreController c) {
     return Obx(() {
       return Stack(
@@ -121,6 +124,7 @@ class ChatsMoreView extends StatelessWidget {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
+                    key: const Key('MyUserSwitch'),
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: !c.muted.value,

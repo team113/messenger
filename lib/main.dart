@@ -24,6 +24,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -34,6 +36,7 @@ import 'package:window_manager/window_manager.dart';
 import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
@@ -85,6 +88,9 @@ Future<void> main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
+    Get.put(NotificationService())
+        .init(onNotificationResponse: onNotificationResponse);
+
     await authService.init();
     await L10n.init();
 
@@ -135,6 +141,17 @@ Future<void> main() async {
     },
     appRunner: appRunner,
   );
+}
+
+/// Callback, triggered when an user taps on a notification.
+///
+/// Must be a top level function.
+void onNotificationResponse(NotificationResponse response) {
+  if (response.payload != null) {
+    if (response.payload!.startsWith(Routes.chat)) {
+      router.go(response.payload!);
+    }
+  }
 }
 
 /// Implementation of this application.
