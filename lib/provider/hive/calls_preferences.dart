@@ -46,7 +46,6 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
     CallPreferences? localPrefs = get(chatId);
     if (localPrefs == null) {
       localPrefs = CallPreferences(
-        chatId,
         inAppPrefs: inAppPrefs,
         popupPrefs: popupPrefs,
       );
@@ -64,18 +63,14 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
 /// Preferences of a call containing its in app and popup [CallPreference]s.
 @HiveType(typeId: ModelTypeId.callPreferences)
 class CallPreferences extends HiveObject {
-  CallPreferences(this.chatId, {this.inAppPrefs, this.popupPrefs});
-
-  /// [ChatId] of this [CallPreferences].
-  @HiveField(0)
-  ChatId chatId;
+  CallPreferences({this.inAppPrefs, this.popupPrefs});
 
   /// In app [CallPreference]s.
-  @HiveField(1)
+  @HiveField(0)
   CallPreference? inAppPrefs;
 
   /// Popup [CallPreference]s.
-  @HiveField(2)
+  @HiveField(1)
   CallPreference? popupPrefs;
 }
 
