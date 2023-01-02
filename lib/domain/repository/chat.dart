@@ -229,8 +229,7 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
-  /// List of this [Chat]'s members which have read it, along with the
-  /// corresponding [LastChatRead]s.
+  /// List [LastChatRead]'s of items from this [messages].
   RxList<LastChatRead> get reads;
 
   /// Fetches the [messages] from the service.

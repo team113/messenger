@@ -547,6 +547,7 @@ class _ChatViewState extends State<ChatView>
             me: c.me!,
             reads: c.chat!.reads
                 .where((m) => m.at == e.value.at && m.memberId != c.me),
+            members: c.chat!.members,
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
@@ -587,6 +588,7 @@ class _ChatViewState extends State<ChatView>
             me: c.me!,
             reads: c.chat!.reads.where((m) =>
                 m.at == element.forwards.last.value.at && m.memberId != c.me),
+            members: c.chat!.members,
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
