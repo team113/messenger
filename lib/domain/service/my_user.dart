@@ -24,7 +24,9 @@ import '../model/user.dart';
 import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -43,8 +45,11 @@ class MyUserService extends DisposableService {
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
-  /// Returns the current [MyUser] value.
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _userRepo.blacklist;
 
   @override
   void onInit() {
@@ -77,6 +82,10 @@ class MyUserService extends DisposableService {
   ///
   /// If [bio] is `null`, then resets [MyUser.bio] field.
   Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) =>
+      _userRepo.updateUserStatus(status);
 
   /// Updates password for the authenticated [MyUser].
   ///
@@ -164,7 +173,7 @@ class MyUserService extends DisposableService {
   Future<void> deleteChatDirectLink() => _userRepo.deleteChatDirectLink();
 
   /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile galleryItem, {
     void Function(int count, int total)? onSendProgress,
   }) =>

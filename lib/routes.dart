@@ -38,6 +38,7 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
+import 'provider/hive/blacklist.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
@@ -79,9 +80,6 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
-  static const personalization = '/personalization';
-  static const settings = '/settings';
-  static const settingsMedia = '/settings/media';
   static const user = '/user';
 
   // E2E tests related page, should not be used in non-test environment.
@@ -93,6 +91,20 @@ class Routes {
 
 /// List of [Routes.home] page tabs.
 enum HomeTab { contacts, chats, menu }
+
+/// List of [Routes.me] page sections.
+enum ProfileTab {
+  public,
+  signing,
+  link,
+  background,
+  calls,
+  media,
+  language,
+  download,
+  danger,
+  logout,
+}
 
 /// Application's router state.
 ///
@@ -130,6 +142,9 @@ class RouterState extends ChangeNotifier {
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
+
+  /// Current [Routes.me] page section.
+  final Rx<ProfileTab?> profileSection = Rx(null);
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
@@ -383,6 +398,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(GalleryItemHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(BlacklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -444,6 +460,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   Get.find(),
+                  Get.find(),
                   userRepository,
                 ),
               );
@@ -483,6 +500,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(GalleryItemHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(BlacklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -544,6 +562,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 graphQlProvider,
                 Get.find(),
                 Get.find(),
+                Get.find(),
                 userRepository,
               ),
             );
@@ -590,9 +609,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
-        _state.route == Routes.settings ||
-        _state.route == Routes.settingsMedia ||
-        _state.route == Routes.personalization ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -653,15 +669,6 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
-
-  /// Changes router location to the [Routes.settings] page.
-  void settings() => go(Routes.settings);
-
-  /// Changes router location to the [Routes.settingsMedia] page.
-  void settingsMedia() => go(Routes.settingsMedia);
-
-  /// Changes router location to the [Routes.personalization] page.
-  void personalization() => go(Routes.personalization);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

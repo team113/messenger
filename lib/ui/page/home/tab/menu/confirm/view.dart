@@ -131,7 +131,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('CloseButton'),
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
                       style: thin?.copyWith(color: Colors.white),
@@ -182,7 +182,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 if (c.hasPassword.value) ...[
                   OutlinedRoundedButton(
                     key: const Key('ConfirmLogoutButton'),
-                    maxWidth: null,
+                    maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
                       style: const TextStyle(color: Colors.white),
@@ -207,7 +207,7 @@ class ConfirmLogoutView extends StatelessWidget {
                       Expanded(
                         child: OutlinedRoundedButton(
                           key: const Key('SetPasswordButton'),
-                          maxWidth: null,
+                          maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
                             style: const TextStyle(color: Colors.white),
@@ -221,7 +221,7 @@ class ConfirmLogoutView extends StatelessWidget {
                       Expanded(
                         child: OutlinedRoundedButton(
                           key: const Key('ConfirmLogoutButton'),
-                          maxWidth: null,
+                          maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
                             style: const TextStyle(),

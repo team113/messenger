@@ -20,19 +20,24 @@ import '../model/my_user.dart';
 import '../model/user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
+import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
 
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist;
+
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
   /// Callback [onPasswordUpdated] should be called when [myUser]'s password
   /// is updated.
-  void init({
+  Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   });
@@ -51,6 +56,9 @@ abstract class AbstractMyUserRepository {
   /// Resets [MyUser.bio] field to `null` for the authenticated [MyUser] if the
   /// provided [bio] is `null`.
   Future<void> updateUserBio(UserBio? bio);
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status);
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   Future<void> updateUserLogin(UserLogin login);
@@ -120,7 +128,7 @@ abstract class AbstractMyUserRepository {
   Future<void> deleteChatDirectLink();
 
   /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile galleryItem, {
     void Function(int count, int total)? onSendProgress,
   });

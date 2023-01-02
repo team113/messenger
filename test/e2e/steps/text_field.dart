@@ -21,6 +21,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
+import '../configuration.dart';
 import '../parameters/keys.dart';
 import '../world/custom_world.dart';
 
@@ -102,7 +103,7 @@ Future<void> _fillField(
   StepContext<FlutterWorld> context,
 ) async {
   await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findBy(key.name, FindType.key);
+  final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
   await context.world.appDriver.scrollIntoView(finder);
   await context.world.appDriver.waitForAppToSettle();
@@ -110,7 +111,7 @@ Future<void> _fillField(
       .tap(finder, timeout: context.configuration.timeout);
   await context.world.appDriver.waitForAppToSettle();
 
-  final finder2 = context.world.appDriver.findBy(key.name, FindType.key);
+  final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
   await context.world.appDriver.scrollIntoView(finder2);
   await context.world.appDriver.enterText(finder2, text);
 
