@@ -21,11 +21,11 @@ import 'package:flutter/material.dart';
 /// Widget placing its [children] evenly on a screen.
 class FitView extends StatelessWidget {
   const FitView({
-    Key? key,
+    super.key,
     required this.children,
     this.dividerColor,
     this.dividerSize = 1,
-  }) : super(key: key);
+  });
 
   /// Children widgets needed to be placed evenly on a screen.
   final List<Widget> children;
@@ -38,7 +38,8 @@ class FitView extends StatelessWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
-  /// Calculates count of the columns.
+  /// Returns the count of [Column]s this [FitView] uses given the provided
+  /// [constraints] and [length].
   static int calculate({
     required BoxConstraints constraints,
     required int length,
@@ -122,7 +123,8 @@ class FitView extends StatelessWidget {
                 pow(constraints.maxHeight / rows, 2))
             .toDouble();
       }
-      // Tweak of a standart arrangment.
+
+      // Tweak of a standard arrangement.
       else if (length == 4) {
         mColumns =
             constraints.maxWidth / constraints.maxHeight < 0.56 ? 1 : mColumns;
@@ -137,8 +139,8 @@ class FitView extends StatelessWidget {
     return mColumns;
   }
 
-  /// Calculates [Rect] of the element with the provided [index] in a [FitView]
-  /// with the provided [length] and [constraints].
+  /// Returns a [Rect] of an element at the provided [index] in a [FitView]
+  /// with the specified [length] and [constraints].
   static Rect sizeOf({
     required int index,
     required int length,

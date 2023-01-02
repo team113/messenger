@@ -42,7 +42,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#246], [#287])
+        - Redesigned mobile interface. ([#287], [#246])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])

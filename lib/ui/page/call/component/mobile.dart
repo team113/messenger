@@ -29,13 +29,13 @@ import '../widget/conditional_backdrop.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
+import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/swappable_fit.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -73,15 +73,15 @@ Widget mobileCall(CallController c, BuildContext context) {
             fit: c.minimized.value,
             itemBuilder: (e) {
               return Obx(() {
-                bool muted = e.member.owner == MediaOwnerKind.local
+                final bool muted = e.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered =
+                final bool isHovered =
                     c.hoveredRenderer.value == e && !anyDragIsHappening;
 
                 return Stack(
@@ -264,7 +264,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             : Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: (d) {
-                  c.tappedAt = DateTime.now();
+                  c.downAt = DateTime.now();
                   c.downPosition = d.localPosition;
                   c.downButtons = d.buttons;
                 },
@@ -276,10 +276,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                               .abs() <=
                           80000;
 
-                      final time = DateTime.now()
-                              .difference(c.tappedAt!)
-                              .inMilliseconds <
-                          340;
+                      final time =
+                          DateTime.now().difference(c.downAt!).inMilliseconds <
+                              340;
 
                       if (distance && time) {
                         if (c.showUi.isFalse) {

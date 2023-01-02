@@ -22,7 +22,8 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_transition.dart';
 import 'fit_view.dart';
 
-/// Placing [items] evenly on a screen with an ability to center one of them.
+/// Widget placing its [items] in a stage with the provided [center]ed item
+/// allowing to swap [items] back and forth.
 class SwappableFit<T> extends StatefulWidget {
   const SwappableFit({
     super.key,
@@ -38,26 +39,28 @@ class SwappableFit<T> extends StatefulWidget {
   /// Items of this [SwappableFit].
   final List<T> items;
 
-  /// Item being centered.
+  /// Item to put in center.
   final T? center;
 
-  /// Indicator whether all [items] should be displayed in a [FitView].
+  /// Indicator whether the [center]ed item should be ignored.
+  ///
+  /// Intended to be used to temporary disable the swappable behaviour.
   final bool fit;
 
   @override
   State<SwappableFit> createState() => _SwappableFitState<T>();
 }
 
-/// State of a [SwappableFit] used to animate [_items].
+/// State of a [SwappableFit] maintaining and animating the [_items].
 class _SwappableFitState<T> extends State<SwappableFit<T>> {
   /// [_SwappableItem]s of this [SwappableFit].
   late final List<_SwappableItem<T>> _items;
 
-  /// Item being centered.
-  T? center;
+  /// Item to put in center.
+  T? _centered;
 
   /// [BoxConstraints] of this [SwappableFit].
-  BoxConstraints? constraints;
+  BoxConstraints? _constraints;
 
   /// Count of the [_items] being animated.
   ///
@@ -67,7 +70,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
   @override
   void initState() {
     _items = widget.items.map((e) => _SwappableItem(e)).toList();
-    center = widget.center;
+    _centered = widget.center;
     super.initState();
   }
 
@@ -83,7 +86,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
     if (widget.fit == oldWidget.fit) {
       Future.delayed(Duration.zero, () {
-        if (center != widget.center) {
+        if (_centered != widget.center) {
           if (!widget.fit) {
             if (widget.center != null) {
               _center(widget.center as T);
@@ -91,7 +94,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
               _uncenter();
             }
           } else {
-            center = widget.center;
+            _centered = widget.center;
           }
         }
       });
@@ -113,18 +116,18 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
     return IgnorePointer(
       ignoring: _locked != 0,
       child: LayoutBuilder(builder: (context, constraints) {
-        this.constraints = constraints;
+        _constraints = constraints;
         final double size = constraints.maxHeight / 8;
 
         return Column(
           children: [
-            if (center != null && !widget.fit)
+            if (_centered != null && !widget.fit)
               SizedBox(
                 height: size,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: _items.map((e) {
-                    if (e.item == center) {
+                    if (e.item == _centered) {
                       return const SizedBox();
                     }
 
@@ -147,15 +150,15 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
             Expanded(
               child: FitView(
                 children: _items.where((e) {
-                  if (center != null && !widget.fit) {
-                    return e.item == center;
+                  if (_centered != null && !widget.fit) {
+                    return e.item == _centered;
                   }
 
                   return true;
                 }).map((e) {
                   return GestureDetector(
                     onLongPress: () {
-                      if (center == e.item) {
+                      if (_centered == e.item) {
                         _uncenter();
                       } else {
                         _center(e.item);
@@ -179,16 +182,16 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
   /// Centers the provided [item].
   void _center(T item) {
-    if (center == item) {
+    if (_centered == item) {
       return;
     }
 
-    final layout = constraints?.biggest ?? MediaQuery.of(router.context!).size;
+    final layout = _constraints?.biggest ?? MediaQuery.of(router.context!).size;
     final index = _items.indexWhere((m) => m.item == item);
 
-    if (center == null) {
+    if (_centered == null) {
       for (int j = 0; j < _items.length; ++j) {
-        _SwappableItem<T> i = _items[j];
+        final _SwappableItem<T> i = _items[j];
         ++_locked;
 
         if (i.item == item) {
@@ -236,21 +239,21 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
         Overlay.of(context)?.insert(i.entry!);
       }
     } else {
-      _swap(center as T, item);
+      _swap(_centered as T, item);
     }
 
-    center = item;
+    _centered = item;
 
     setState(() {});
   }
 
-  /// Uncenters the [center] item.
+  /// Un-centers the [_centered] item.
   void _uncenter() {
-    if (center == null) {
+    if (_centered == null) {
       return;
     }
 
-    final layout = constraints?.biggest ?? MediaQuery.of(router.context!).size;
+    final layout = _constraints?.biggest ?? MediaQuery.of(router.context!).size;
 
     for (int j = 0; j < _items.length; ++j) {
       _SwappableItem<T> i = _items[j];
@@ -262,7 +265,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
           endRect: FitView.sizeOf(
             index: j,
             length: _items.length,
-            constraints: constraints ?? BoxConstraints.tight(layout),
+            constraints: _constraints ?? BoxConstraints.tight(layout),
           ),
           curve: Curves.ease,
           onEnd: () {
@@ -278,15 +281,15 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
       Overlay.of(context)?.insert(i.entry!);
     }
 
-    center = null;
+    _centered = null;
 
     setState(() {});
   }
 
-  /// Swaps two provided items.
+  /// Swaps the two provided items.
   void _swap(T e, T m) {
-    _SwappableItem<T>? a = _items.firstWhereOrNull((i) => i.item == e);
-    _SwappableItem<T>? b = _items.firstWhereOrNull((i) => i.item == m);
+    final _SwappableItem<T>? a = _items.firstWhereOrNull((i) => i.item == e);
+    final _SwappableItem<T>? b = _items.firstWhereOrNull((i) => i.item == m);
 
     if (a != null && b != null) {
       ++_locked;

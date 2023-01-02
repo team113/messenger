@@ -154,6 +154,9 @@ class CallController extends GetxController {
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
 
+  /// [DateTime] of when the last [Listener.onPointerDown] callback happened.
+  DateTime? downAt;
+
   /// Position of a [Listener.onPointerDown] callback used in
   /// [Listener.onPointerUp] since the latter does not provide this info.
   Offset downPosition = Offset.zero;
@@ -263,9 +266,6 @@ class CallController extends GetxController {
   /// [secondaryBottom] value before the secondary view got relocated with the
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
-
-  /// [DateTime] of the last [PointerDownEvent] in mobile call.
-  DateTime? tappedAt;
 
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
