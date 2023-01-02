@@ -21,11 +21,11 @@ import 'package:flutter/material.dart';
 /// Widget placing its [children] evenly on a screen.
 class FitView extends StatelessWidget {
   const FitView({
-    Key? key,
+    super.key,
     required this.children,
     this.dividerColor,
     this.dividerSize = 1,
-  }) : super(key: key);
+  });
 
   /// Children widgets needed to be placed evenly on a screen.
   final List<Widget> children;
@@ -38,6 +38,145 @@ class FitView extends StatelessWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
+  /// Returns the count of [Column]s this [FitView] uses given the provided
+  /// [constraints] and [length].
+  static int calculate({
+    required BoxConstraints constraints,
+    required int length,
+  }) {
+    // Number of columns.
+    int mColumns = 0;
+
+    // Minimal diagonal of a square.
+    double min = double.infinity;
+
+    // To find the [mColumns], iterate through every possible number of
+    // columns and pick the arrangement with [min]imal diagonal.
+    for (int columns = 1; columns <= length; ++columns) {
+      int rows = (length / columns).ceil();
+
+      // Current diagonal of a single square.
+      double diagonal = (pow(constraints.maxWidth / columns, 2) +
+              pow(constraints.maxHeight / rows, 2))
+          .toDouble();
+
+      // If there's any [children] left outside, then their diagonal will
+      // always be bigger, so we need to recalculate.
+      int outside = length % columns;
+      if (outside != 0) {
+        // Diagonal of an outside [children] is calculated with some
+        // coefficient to force the algorithm to pick non-standard
+        // arrangement.
+        double coef = 1;
+
+        // Coefficient is hard-coded for some cases in order to [FitView] to
+        // look better.
+        if (length == 3) {
+          coef = constraints.maxWidth > constraints.maxHeight ? 0.5 : 0.87;
+        } else if (length == 5) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef = 0.8;
+          } else {
+            coef = outside == 1 ? 0.8 : 1.5;
+          }
+        } else if (length == 10) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef = outside == 2 ? 0.65 : 0.8;
+          } else {
+            coef = 0.8;
+          }
+        } else if (length == 9) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef = 0.9;
+          } else {
+            coef = 0.5;
+          }
+        } else if (length == 8) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef = outside == 2 ? 0.59 : 0.8;
+          } else {
+            coef = 0.8;
+          }
+        } else if (length == 7) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef =
+                constraints.maxWidth / constraints.maxHeight >= 3 ? 0.7 : 0.4;
+          } else {
+            coef = 0.4;
+          }
+        } else if (length == 6) {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef =
+                (constraints.maxWidth / constraints.maxHeight > 3) ? 0.57 : 0.7;
+          } else {
+            coef = 0.7;
+          }
+        } else {
+          if (constraints.maxWidth > constraints.maxHeight) {
+            coef = outside == 2 ? 0.59 : 0.77;
+          } else {
+            coef = 0.6;
+          }
+        }
+
+        diagonal = (pow(constraints.maxWidth / outside * coef, 2) +
+                pow(constraints.maxHeight / rows, 2))
+            .toDouble();
+      }
+
+      // Tweak of a standard arrangement.
+      else if (length == 4) {
+        mColumns =
+            constraints.maxWidth / constraints.maxHeight < 0.56 ? 1 : mColumns;
+      }
+
+      if (diagonal < min && min - diagonal > 1) {
+        mColumns = columns;
+        min = diagonal;
+      }
+    }
+
+    return mColumns;
+  }
+
+  /// Returns a [Rect] of an element at the provided [index] in a [FitView]
+  /// with the specified [length] and [constraints].
+  static Rect sizeOf({
+    required int index,
+    required int length,
+    required BoxConstraints constraints,
+  }) {
+    final columns = calculate(constraints: constraints, length: length);
+    final rows = (length / columns).ceil();
+    final outside = length % columns;
+
+    for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
+      for (int columnIndex = 0; columnIndex < columns; columnIndex++) {
+        final cellIndex = rowIndex * columns + columnIndex;
+
+        if (cellIndex == index) {
+          int inThisRow = columns;
+
+          if (rows != 1 && columns != 1 && rowIndex == rows - 1) {
+            inThisRow = outside;
+          }
+
+          final double width = constraints.maxWidth / inThisRow;
+          final double height = constraints.maxHeight / rows;
+
+          return Rect.fromLTWH(
+            columnIndex * width,
+            rowIndex * height,
+            width,
+            height,
+          );
+        }
+      }
+    }
+
+    return Rect.zero;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) {
@@ -46,97 +185,8 @@ class FitView extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       // Number of columns.
-      int mColumns = 0;
-
-      // Minimal diagonal of a square.
-      double min = double.infinity;
-
-      // To find the [mColumns], iterate through every possible number of
-      // columns and pick the arrangement with [min]imal diagonal.
-      for (int columns = 1; columns <= children.length; ++columns) {
-        int rows = (children.length / columns).ceil();
-
-        // Current diagonal of a single square.
-        double diagonal = (pow(constraints.maxWidth / columns, 2) +
-                pow(constraints.maxHeight / rows, 2))
-            .toDouble();
-
-        // If there's any [children] left outside, then their diagonal will
-        // always be bigger, so we need to recalculate.
-        int outside = children.length % columns;
-        if (outside != 0) {
-          // Diagonal of an outside [children] is calculated with some
-          // coefficient to force the algorithm to pick non-standard
-          // arrangement.
-          double coef = 1;
-
-          // Coefficient is hard-coded for some cases in order to [FitView] to
-          // look better.
-          if (children.length == 3) {
-            coef = constraints.maxWidth > constraints.maxHeight ? 0.5 : 0.87;
-          } else if (children.length == 5) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = 0.8;
-            } else {
-              coef = outside == 1 ? 0.8 : 1.5;
-            }
-          } else if (children.length == 10) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = outside == 2 ? 0.65 : 0.8;
-            } else {
-              coef = 0.8;
-            }
-          } else if (children.length == 9) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = 0.9;
-            } else {
-              coef = 0.5;
-            }
-          } else if (children.length == 8) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = outside == 2 ? 0.59 : 0.8;
-            } else {
-              coef = 0.8;
-            }
-          } else if (children.length == 7) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef =
-                  constraints.maxWidth / constraints.maxHeight >= 3 ? 0.7 : 0.4;
-            } else {
-              coef = 0.4;
-            }
-          } else if (children.length == 6) {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = (constraints.maxWidth / constraints.maxHeight > 3)
-                  ? 0.57
-                  : 0.7;
-            } else {
-              coef = 0.7;
-            }
-          } else {
-            if (constraints.maxWidth > constraints.maxHeight) {
-              coef = outside == 2 ? 0.59 : 0.77;
-            } else {
-              coef = 0.6;
-            }
-          }
-
-          diagonal = (pow(constraints.maxWidth / outside * coef, 2) +
-                  pow(constraints.maxHeight / rows, 2))
-              .toDouble();
-        }
-        // Tweak of a standart arrangment.
-        else if (children.length == 4) {
-          mColumns = constraints.maxWidth / constraints.maxHeight < 0.56
-              ? 1
-              : mColumns;
-        }
-
-        if (diagonal < min) {
-          mColumns = columns;
-          min = diagonal;
-        }
-      }
+      int mColumns =
+          calculate(constraints: constraints, length: children.length);
 
       // Creates a column of a row at [rowIndex] index.
       List<Widget> createColumn(int rowIndex) {
