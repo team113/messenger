@@ -41,7 +41,7 @@ class SwappableFit<T> extends StatefulWidget {
   /// Item being centered.
   final T? center;
 
-  /// Indicator whether all
+  /// Indicator whether all [items] should be displayed in a [FitView].
   final bool fit;
 
   @override
@@ -81,13 +81,17 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
     _items.removeWhere((e) => widget.items.none((p) => p == e.item));
 
-    if (!widget.fit) {
+    if (widget.fit == oldWidget.fit) {
       Future.delayed(Duration.zero, () {
         if (center != widget.center) {
-          if (widget.center != null) {
-            _center(widget.center as T);
-          } else if (center != null && widget.center == null) {
-            _uncenter();
+          if (!widget.fit) {
+            if (widget.center != null) {
+              _center(widget.center as T);
+            } else {
+              _uncenter();
+            }
+          } else {
+            center = widget.center;
           }
         }
       });
@@ -328,10 +332,10 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 class _SwappableItem<T> {
   _SwappableItem(this.item);
 
-  /// Reorderable [Object] itself.
+  /// Swappable [Object] itself.
   final T item;
 
-  /// [GlobalKey] of an [item] this [_ReorderableItem] builds.
+  /// [GlobalKey] of an [item] this [_SwappableItem] builds.
   final GlobalKey itemKey = GlobalKey();
 
   /// [OverlayEntry] of this [_SwappableItem].
