@@ -619,7 +619,8 @@ to attach them to the start of each source file to most effectively
 state the exclusion of warranty; and each file should have at least
 the “copyright” line and a pointer to where the full notice is found.
 
-    Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+    Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+                          <https://github.com/team113>
 
     This program is free software: you can redistribute it and/or modify it under 
     the terms of the GNU Affero General Public License v3.0 as published by the 
