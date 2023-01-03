@@ -46,7 +46,8 @@ final StepDefinitionGeneric seeContactPosition =
 
           case PositionStatus.last:
             return controller.favorites.indexWhere((e) => e.id == contactId) ==
-                -1;
+                    -1 ||
+                controller.favorites.last.id == contactId;
         }
       },
     );

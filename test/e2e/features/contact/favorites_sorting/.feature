@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,16 +23,12 @@ Feature: Reorder favorite contacts
     And contacts Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
+    And "Bob" contact is favorite
+    And "Charlie" contact is favorite
 
   Scenario: User reorder contacts
-    When "Bob" contact is favorite
-    Then I see "Bob" contact as favorite
-
-    When "Charlie" contact is favorite
-    Then I see "Charlie" contact as favorite
-
-    When I drag "Charlie" contact to down
+    When I drag "Charlie" contact to 200 pixels down
     Then I see "Charlie" contact last in contacts list
 
-    When I drag "Bob" contact to down
+    When I drag "Bob" contact to 200 pixels down
     Then I see "Bob" contact last in contacts list

@@ -62,8 +62,8 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// Index of favorite contact currently reorder.
-  final RxnInt reorderIndex = RxnInt();
+  /// Indicator whether favorite contacts was reordered or not.
+  final RxBool reordered = RxBool(false);
 
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -181,6 +181,30 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Reorders favorite contacts.
+  void reorderFavoriteContacts(int from, int to) {
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.contact.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.contact.value.favoritePosition!.val * 2;
+    } else {
+      if (to >= favorites.length) {
+        to--;
+      }
+
+      position = (favorites[to].contact.value.favoritePosition!.val +
+              favorites[to - 1].contact.value.favoritePosition!.val) /
+          2;
+    }
+
+    favoriteContact(
+      favorites[from].id,
+      ChatContactPosition(position),
+    );
+  }
+
   /// Toggles the [sortByName] sorting the [contacts].
   void toggleSorting() {
     _settingsRepository.setSortContactsByName(!sortByName);
@@ -224,7 +248,7 @@ class ContactsTabController extends GetxController {
           }
         }
 
-        reorderIndex.value = null;
+        reordered.value = false;
       });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);

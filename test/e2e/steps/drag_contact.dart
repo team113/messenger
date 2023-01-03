@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,22 +22,28 @@ import 'package:messenger/domain/model/contact.dart';
 
 import '../world/custom_world.dart';
 
-/// Drags contact with specified name to down.
+/// Drags contact with specified name to specified amount pixels to down.
 ///
 /// Examples:
-/// - When I drag "Name" contact to down
-final StepDefinitionGeneric dragContactToDown = given1<String, CustomWorld>(
-  'I drag {string} contact to down',
-  (String name, context) async {
+/// - When I drag "Name" contact to 200 pixels down
+final StepDefinitionGeneric dragContactToDown =
+    given2<String, int, CustomWorld>(
+  'I drag {string} contact to {int} pixels down',
+  (String name, int offset, context) async {
     final ChatContactId contactId = context.world.contacts[name]!;
-
-    await context.world.appDriver.nativeDriver.drag(
-      context.world.appDriver.findBy(
+    await context.world.appDriver.waitUntil(() async {
+      var finder = context.world.appDriver.findBy(
         Key('ContactReorder_${contactId.val}'),
         FindType.key,
-      ),
-      const Offset(0, 200),
-    );
+      );
+      if (await context.world.appDriver.isAbsent(finder)) return false;
+
+      await context.world.appDriver.nativeDriver.drag(
+        finder,
+        Offset(0, offset.toDouble()),
+      );
+      return true;
+    });
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

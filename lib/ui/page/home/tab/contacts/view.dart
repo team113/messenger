@@ -15,12 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -280,92 +281,82 @@ class ContactsTabView extends StatelessWidget {
                         top: kToolbarHeight +
                             MediaQuery.of(context).viewPadding.top +
                             4,
+                        left: 10,
+                        right: 10,
                       ),
-                    ),
-                    SliverReorderableList(
-                      onReorderStart: (i) => c.reorderIndex.value = i,
-                      onReorderEnd: (_) => c.reorderIndex.value = -1,
-                      itemBuilder: (context, i) {
-                        RxChatContact contact = c.favorites.elementAt(i);
-                        return KeyedSubtree(
-                          key: Key(contact.id.val),
-                          child: Obx(() {
-                            Widget child = _contact(
-                              context,
-                              contact,
-                              c,
-                              reorderIndex: i,
-                              showShadow:
-                                  c.reorderIndex.value == i ? true : false,
-                              animateAvatarBadge:
-                                  c.reorderIndex.value == null ? true : false,
-                            );
-                            if (c.reorderIndex.value == null) {
-                              child = AnimationConfiguration.staggeredList(
-                                position: i,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  horizontalOffset: 50,
-                                  child: FadeInAnimation(
-                                    child: child,
+                      sliver: SliverReorderableList(
+                        onReorderStart: (_) => c.reordered.value = true,
+                        proxyDecorator: (child, _, animation) {
+                          return AnimatedBuilder(
+                            animation: animation,
+                            builder: (_, Widget? child) {
+                              final double t =
+                                  Curves.easeInOut.transform(animation.value);
+                              final double elevation = lerpDouble(0, 6, t)!;
+                              final Color color = Color.lerp(
+                                const Color(0x00000000),
+                                const Color(0x33000000),
+                                t,
+                              )!;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    CustomBoxShadow(
+                                      color: color,
+                                      blurRadius: elevation,
+                                    ),
+                                  ],
+                                  borderRadius: style.cardRadius.copyWith(
+                                    topLeft: Radius.circular(
+                                      style.cardRadius.topLeft.x * 1.75,
+                                    ),
                                   ),
                                 ),
+                                child: child,
                               );
-                            }
-
-                            return child;
-                          }),
-                        );
-                      },
-                      itemCount: c.favorites.length,
-                      onReorder: (int from, int to) {
-                        double position;
-
-                        if (to - 1 < 0) {
-                          position = c.favorites.first.contact.value
-                                  .favoritePosition!.val /
-                              2;
-                        } else if (to >= c.favorites.length) {
-                          position = c.favorites.last.contact.value
-                                  .favoritePosition!.val *
-                              2;
-                        } else {
-                          if (to >= c.favorites.length) {
-                            to--;
-                          }
-                          position = (c.favorites[to].contact.value
-                                      .favoritePosition!.val +
-                                  c.favorites[to - 1].contact.value
-                                      .favoritePosition!.val) /
-                              2;
-                        }
-
-                        c.favoriteContact(
-                          c.favorites[from].id,
-                          ChatContactPosition(position),
-                        );
-                      },
-                    ),
-                    SliverList(
-                      delegate: SliverChildListDelegate.fixed(
-                        c.contacts.mapIndexed((i, e) {
-                          final RxChatContact contact = c.contacts[i];
-                          return AnimationConfiguration.staggeredList(
-                            position: c.favorites.length + i,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              horizontalOffset: 50,
-                              child: FadeInAnimation(
-                                child: Obx(() => _contact(context, contact, c)),
-                              ),
-                            ),
+                            },
+                            child: child,
                           );
-                        }).toList(),
+                        },
+                        itemBuilder: (_, i) {
+                          RxChatContact contact = c.favorites.elementAt(i);
+                          return KeyedSubtree(
+                            key: Key(contact.id.val),
+                            child: Obx(() {
+                              return _contact(
+                                context,
+                                contact,
+                                c,
+                                i,
+                                reorderIndex: i,
+                                reordered: c.reordered,
+                              );
+                            }),
+                          );
+                        },
+                        itemCount: c.favorites.length,
+                        onReorder: c.reorderFavoriteContacts,
                       ),
                     ),
-                    const SliverPadding(
-                      padding: EdgeInsets.only(
-                          bottom: kBottomNavigationBarHeight + 5),
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                        bottom: kBottomNavigationBarHeight + 5,
+                        left: 10,
+                        right: 10,
+                      ),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate.fixed(
+                          c.contacts.mapIndexed((i, e) {
+                            return _contact(
+                              context,
+                              e,
+                              c,
+                              c.favorites.length + i,
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -391,10 +382,10 @@ class ContactsTabView extends StatelessWidget {
   Widget _contact(
     BuildContext context,
     RxChatContact contact,
-    ContactsTabController c, {
+    ContactsTabController c,
+    int position, {
     int? reorderIndex,
-    bool showShadow = false,
-    bool animateAvatarBadge = true,
+    RxBool? reordered,
   }) {
     bool favorite = c.favorites.contains(contact);
 
@@ -403,55 +394,80 @@ class ContactsTabView extends StatelessWidget {
             ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
         true;
 
-    return Padding(
+    Widget child = ContactTile(
       key: Key('Contact_${contact.id}'),
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: ContactTile(
-        reorderIndex: reorderIndex,
-        contact: contact,
-        folded: favorite,
-        showShadow: showShadow,
-        selected: selected,
-        animateAvatarBadge: animateAvatarBadge,
-        onTap: contact.contact.value.users.isNotEmpty
-            // TODO: Open [Routes.contact] page when it's implemented.
-            ? () => router.user(contact.user.value!.id)
-            : null,
-        actions: [
-          favorite
-              ? ContextMenuButton(
-                  key: const Key('UnfavoriteContactButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: () =>
-                      c.unfavoriteContact(contact.contact.value.id),
-                )
-              : ContextMenuButton(
-                  key: const Key('FavoriteContactButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: () => c.favoriteContact(contact.contact.value.id),
-                ),
-          ContextMenuButton(
-            label: 'btn_delete_from_contacts'.l10n,
-            onPressed: () => c.deleteFromContacts(contact.contact.value),
-          ),
-        ],
-        subtitle: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
-              if (subtitle != null) {
-                return Text(
-                  subtitle,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+      reorderIndex: reorderIndex,
+      contact: contact,
+      folded: favorite,
+      selected: selected,
+      avatarBuilder: reorderIndex == null
+          ? null
+          : (child) {
+              if (PlatformUtils.isMobile) {
+                return ReorderableDelayedDragStartListener(
+                  key: Key('ContactReorder_${contact.id.val}'),
+                  index: reorderIndex,
+                  child: child,
+                );
+              } else {
+                return ReorderableDragStartListener(
+                  key: Key('ContactReorder_${contact.id.val}'),
+                  index: reorderIndex,
+                  child: child,
                 );
               }
+            },
+      onTap: contact.contact.value.users.isNotEmpty
+          // TODO: Open [Routes.contact] page when it's implemented.
+          ? () => router.user(contact.user.value!.id)
+          : null,
+      actions: [
+        favorite
+            ? ContextMenuButton(
+                key: const Key('UnfavoriteContactButton'),
+                label: 'btn_delete_from_favorites'.l10n,
+                onPressed: () => c.unfavoriteContact(contact.contact.value.id),
+              )
+            : ContextMenuButton(
+                key: const Key('FavoriteContactButton'),
+                label: 'btn_add_to_favorites'.l10n,
+                onPressed: () => c.favoriteContact(contact.contact.value.id),
+              ),
+        ContextMenuButton(
+          label: 'btn_delete_from_contacts'.l10n,
+          onPressed: () => c.deleteFromContacts(contact.contact.value),
+        ),
+      ],
+      subtitle: [
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: Obx(() {
+            final subtitle = contact.user.value?.user.value.getStatus();
+            if (subtitle != null) {
+              return Text(
+                subtitle,
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              );
+            }
 
-              return Container();
-            }),
-          ),
-        ],
+            return Container();
+          }),
+        ),
+      ],
+    );
+
+    if (reordered?.value == true) {
+      return child;
+    }
+
+    return AnimationConfiguration.staggeredList(
+      position: position,
+      duration: const Duration(milliseconds: 375),
+      child: SlideAnimation(
+        horizontalOffset: 50,
+        child: FadeInAnimation(
+          child: child,
+        ),
       ),
     );
   }
