@@ -17,6 +17,7 @@
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/util/obs/obs.dart';
@@ -40,13 +41,16 @@ class CallSettingsController extends GetxController {
   InputDevices get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get videoDevice => _call.value.videoDevice;
+  RxnString get camera => _call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  RxnString get audioDevice => _call.value.audioDevice;
+  RxnString get mic => _call.value.audioDevice;
 
   /// Returns ID of the currently used output device.
-  RxnString get outputDevice => _call.value.outputDevice;
+  RxnString get output => _call.value.outputDevice;
+
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
 
   /// Callback to pop the [CallSettingsView].
   void Function() onPop;
@@ -88,5 +92,10 @@ class CallSettingsController extends GetxController {
   void setOutputDevice(String id) {
     _call.value.setOutputDevice(id);
     _settingsRepo.setOutputDevice(id);
+  }
+
+  /// Populates media input devices, such as microphones, cameras, and so forth.
+  void enumerateDevices() {
+    _call.value.enumerateDevices();
   }
 }

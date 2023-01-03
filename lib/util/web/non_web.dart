@@ -180,4 +180,14 @@ class WebUtils {
   static void consoleError(Object? object) {
     // No-op.
   }
+
+  /// Requests camera permission.
+  static Future<void> cameraPermission() async {
+    // No-op.
+  }
+
+  /// Requests audio permission.
+  static Future<void> audioPermission() async {
+    // No-op.
+  }
 }

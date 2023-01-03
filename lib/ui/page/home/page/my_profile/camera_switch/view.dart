@@ -33,17 +33,28 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class CameraSwitchView extends StatelessWidget {
-  const CameraSwitchView(this._call, {super.key});
+  const CameraSwitchView({
+    this.onChange,
+    this.camera,
+    super.key,
+  });
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when selected microphone changed.
+  final void Function(String)? onChange;
+
+  /// ID of the currently used video device.
+  final String? camera;
 
   /// Displays a [CameraSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChange,
+    String? camera,
   }) {
-    return ModalPopup.show(context: context, child: CameraSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: CameraSwitchView(onChange: onChange, camera: camera),
+    );
   }
 
   @override
@@ -53,7 +64,7 @@ class CameraSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: CameraSwitchController(_call, Get.find()),
+      init: CameraSwitchController(Get.find(), camera: camera),
       builder: (CameraSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -77,15 +88,9 @@ class CameraSwitchView extends StatelessWidget {
                     const SizedBox(height: 13),
                     Padding(
                       padding: ModalPopup.padding(context),
-                      child: StreamBuilder(
-                        stream: c.localTracks?.changes,
-                        builder: (context, snapshot) {
-                          final RtcVideoRenderer? local = c.localTracks
-                              ?.firstWhereOrNull((t) =>
-                                  t.source == MediaSourceKind.Device &&
-                                  t.renderer.value is RtcVideoRenderer)
-                              ?.renderer
-                              .value as RtcVideoRenderer?;
+                      child: Obx(
+                        () {
+                          final RtcVideoRenderer? local = c.renderer.value;
                           return Center(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
@@ -139,7 +144,16 @@ class CameraSwitchView extends StatelessWidget {
                                   : Colors.white.darken(0.05),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setVideoDevice(e.deviceId()),
+                                onTap: selected
+                                    ? () {}
+                                    : () {
+                                        c.camera.value = e.deviceId();
+                                        if (onChange != null) {
+                                          onChange!.call(e.deviceId());
+                                        } else {
+                                          c.setVideoDevice(e.deviceId());
+                                        }
+                                      },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(

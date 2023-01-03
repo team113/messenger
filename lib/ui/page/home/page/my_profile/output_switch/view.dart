@@ -31,17 +31,28 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
-  const OutputSwitchView(this._call, {super.key});
+  const OutputSwitchView({
+    this.onChange,
+    this.output,
+    super.key,
+  });
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when selected microphone changed.
+  final void Function(String)? onChange;
+
+  /// ID of the currently used audio output device.
+  final String? output;
 
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChange,
+    String? output,
   }) {
-    return ModalPopup.show(context: context, child: OutputSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: OutputSwitchView(onChange: onChange, output: output),
+    );
   }
 
   @override
@@ -51,7 +62,7 @@ class OutputSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: OutputSwitchController(_call, Get.find()),
+      init: OutputSwitchController(Get.find(), output: output),
       builder: (OutputSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -95,7 +106,16 @@ class OutputSwitchView extends StatelessWidget {
                                   : Colors.white.darken(0.05),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setOutputDevice(e.deviceId()),
+                                onTap: selected
+                                    ? () {}
+                                    : () {
+                                        c.output.value = e.deviceId();
+                                        if (onChange != null) {
+                                          onChange!.call(e.deviceId());
+                                        } else {
+                                          c.setOutputDevice(e.deviceId());
+                                        }
+                                      },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(

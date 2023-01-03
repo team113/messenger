@@ -14,52 +14,129 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
-import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
 /// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
-  CameraSwitchController(this._call, this._settingsRepository);
-
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  CameraSwitchController(this._settingsRepository, {String? camera})
+      : camera = RxnString(camera);
 
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// List of [MediaDeviceInfo] of all the available devices.
+  InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
+  /// ID of the currently used video device.
+  RxnString camera;
+
+  /// [RtcVideoRenderer]s of the [OngoingCall.displays].
+  final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
+
+  /// Client for communication with a media server.
+  late Jason _jason;
+
+  /// Handle to a media manager tracking all the connected devices.
+  late MediaManagerHandle _mediaManager;
 
   /// Returns the local [Track]s.
-  ObsList<Track>? get localTracks => _call.value.localTracks;
+  LocalMediaTrack? _localTrack;
+
+  /// [Worker] reacting on the [camera] changes updating the [renderer].
+  Worker? _cameraWorker;
+
+  /// Mutex guarding [initRenderer].
+  final Mutex _initRendererGuard = Mutex();
 
   @override
-  void onInit() {
-    _call.value.setVideoEnabled(true);
+  void onInit() async {
+    _jason = Jason();
+
+    _mediaManager = _jason.mediaManager();
+    _mediaManager.onDeviceChange(() async {
+      await _enumerateDevices();
+    });
+
+    await WebUtils.cameraPermission();
+
+    _cameraWorker = ever(camera, (e) {
+      renderer.value?.dispose();
+      _localTrack?.free();
+
+      initRenderer();
+    });
+
+    _enumerateDevices().whenComplete(() => initRenderer());
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setVideoEnabled(false);
+    _mediaManager.free();
+    _jason.free();
+    renderer.value?.dispose();
+    _localTrack?.free();
+    _cameraWorker?.dispose();
+
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default camera device.
   Future<void> setVideoDevice(String id) async {
-    await Future.wait([
-      _call.value.setVideoDevice(id),
-      _settingsRepository.setVideoDevice(id),
-    ]);
+    await _settingsRepository.setVideoDevice(id);
+  }
+
+  /// Initializes a [RtcVideoRenderer] for the [camera].
+  Future<void> initRenderer() async {
+    if (_initRendererGuard.isLocked) {
+      return;
+    }
+
+    String? camera = this.camera.value;
+
+    await _initRendererGuard.protect(() async {
+      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
+      if (camera != null) {
+        constraints.deviceId(camera);
+      }
+
+      MediaStreamSettings settings = MediaStreamSettings();
+      settings.deviceVideo(constraints);
+
+      final List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
+        settings,
+      );
+
+      _localTrack = tracks.first;
+
+      final RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
+      await renderer.initialize();
+      renderer.srcObject = tracks.first.getTrack();
+
+      this.renderer.value = renderer;
+    });
+
+    if (camera != this.camera.value) {
+      initRenderer();
+    }
+  }
+
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available media input devices, such as microphones, cameras, and so forth.
+  Future<void> _enumerateDevices() async {
+    devices.value = (await _mediaManager.enumerateDevices())
+        .whereNot((e) => e.deviceId().isEmpty)
+        .toList();
+    devices.refresh();
   }
 }

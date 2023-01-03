@@ -31,17 +31,28 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MicrophoneSwitchView extends StatelessWidget {
-  const MicrophoneSwitchView(this._call, {super.key});
+  const MicrophoneSwitchView({
+    this.onChange,
+    this.mic,
+    super.key,
+  });
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when selected microphone changed.
+  final void Function(String)? onChange;
+
+  /// ID of the currently used microphone device.
+  final String? mic;
 
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChange,
+    String? mic,
   }) {
-    return ModalPopup.show(context: context, child: MicrophoneSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: MicrophoneSwitchView(onChange: onChange, mic: mic),
+    );
   }
 
   @override
@@ -51,7 +62,7 @@ class MicrophoneSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: MicrophoneSwitchController(_call, Get.find()),
+      init: MicrophoneSwitchController(Get.find(), mic: mic),
       builder: (MicrophoneSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -95,7 +106,16 @@ class MicrophoneSwitchView extends StatelessWidget {
                                   : Colors.white.darken(0.05),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setAudioDevice(e.deviceId()),
+                                onTap: selected
+                                    ? () {}
+                                    : () {
+                                        c.mic.value = e.deviceId();
+                                        if (onChange != null) {
+                                          onChange!.call(e.deviceId());
+                                        } else {
+                                          c.setAudioDevice(e.deviceId());
+                                        }
+                                      },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(
