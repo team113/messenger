@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,18 +32,13 @@ import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'page/user/my_user/view.dart';
 import 'router.dart';
 import 'tab/chats/chats_more/view.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
-import 'tab/finance/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
-import 'tab/publics/view.dart';
+import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -152,8 +148,8 @@ class _HomeViewState extends State<HomeView> {
                       },
                       child: Obx(() {
                         return PageView(
-                          physics: (c.verticalScrollTimer.value == null &&
-                                  router.navigation.value == null)
+                          physics: c.verticalScrollTimer.value == null &&
+                                  router.navigation.value == null
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
@@ -177,10 +173,8 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: SafeArea(
                       key: const Key('NavigationBar'),
                       child: Obx(() {
-                        Widget animated({
-                          HomeTab tab = HomeTab.contacts,
-                          required Widget child,
-                        }) {
+                        // [AnimatedOpacity] boilerplate.
+                        Widget tab({required Widget child, HomeTab? tab}) {
                           return Obx(() {
                             return AnimatedScale(
                               duration: 150.milliseconds,
@@ -194,102 +188,59 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
-                        Widget child = router.navigation.value ??
-                            CustomNavigationBar(
-                              items: [
-                                // CustomNavigationBarItem(
-                                //   key: const Key('FinanceButton'),
-                                //   // icon: FontAwesomeIcons.solidCircleUser,
-                                //   // label: 'label_tab_contacts'.l10n,
-                                //   leading: animated(
-                                //     tab: HomeTab.finance,
-                                //     child: SvgLoader.asset(
-                                //       'assets/icons/money.svg',
-                                //       width: 30,
-                                //       height: 30,
-                                //     ),
-                                //   ),
-                                // ),
-                                CustomNavigationBarItem(
-                                  key: const Key('ContactsButton'),
-                                  child: animated(
-                                    tab: HomeTab.contacts,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/contacts.svg',
-                                      width: 30,
-                                      height: 30,
-                                    ),
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 1),
+                          translate: false,
+                          child: CustomNavigationBar(
+                            items: [
+                              CustomNavigationBarItem(
+                                key: const Key('ContactsButton'),
+                                child: tab(
+                                  tab: HomeTab.contacts,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contacts.svg',
+                                    width: 30,
+                                    height: 30,
                                   ),
                                 ),
-                                // CustomNavigationBarItem(
-                                //   key: const Key('PublicsButton'),
-                                //   badge: c.unreadChatsCount.value == 0
-                                //       ? null
-                                //       : '${c.unreadChatsCount.value}',
-                                //   leading: animated(
-                                //     tab: HomeTab.public,
-                                //     child: SvgLoader.asset(
-                                //       'assets/icons/publics.svg',
-                                //       width: 30,
-                                //       height: 30,
-                                //     ),
-                                //   ),
-                                // ),
-                                CustomNavigationBarItem(
-                                  key: const Key('ChatsButton'),
-                                  badge: c.unreadChatsCount.value == 0
-                                      ? null
-                                      : '${c.unreadChatsCount.value}',
-                                  badgeColor: router.muted.value
-                                      ? const Color(0xFFC0C0C0)
-                                      : Colors.red,
-                                  child: RmbDetector(
-                                    onPressed: () =>
-                                        ChatsMoreView.show(context),
-                                    child: animated(
-                                      tab: HomeTab.chats,
-                                      child: Obx(() {
-                                        return AnimatedSwitcher(
-                                          duration: 200.milliseconds,
-                                          child: SvgLoader.asset(
-                                            router.muted.value
-                                                ? 'assets/icons/chats_muted.svg'
-                                                : 'assets/icons/chats.svg',
-                                            key: Key('${router.muted.value}'),
-                                            width: 36.06,
-                                            height: 30,
-                                          ),
-                                        );
-                                      }),
-                                    ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                child: tab(
+                                  tab: HomeTab.chats,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/chats.svg',
+                                    width: 36.06,
+                                    height: 30,
                                   ),
                                 ),
-                                CustomNavigationBarItem(
-                                  key: const Key('MenuButton'),
-                                  child: RmbDetector(
-                                    onPressed: () => StatusView.show(context),
-                                    child: Padding(
-                                      key: c.profileKey,
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: animated(
-                                        tab: HomeTab.menu,
-                                        child: AvatarWidget.fromMyUser(
-                                          c.myUser.value,
-                                          radius: 15,
-                                        ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: RmbDetector(
+                                  onPressed: () => StatusView.show(context),
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: tab(
+                                      tab: HomeTab.menu,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
-                              currentIndex: router.tab.index,
-                              onTap: (i) => c.pages.jumpToPage(i),
-                            );
-
-                        return AnimatedSizeAndFade(
-                          fadeDuration: 250.milliseconds,
-                          sizeDuration: 250.milliseconds,
-                          child: child,
+                              ),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: c.pages.jumpToPage,
+                          ),
                         );
                       }),
                     ),

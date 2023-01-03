@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -530,7 +531,7 @@ class PublicsTabView extends StatelessWidget {
                                       c.searchStatus.value = RxStatus.empty();
                                       c.searching.value = false;
                                       c.groupCreating.value = false;
-                                      router.navigation.value = null;
+                                      // router.navigation.value = null;
                                       c.selectedChats.clear();
                                       c.selectedUsers.clear();
                                       c.selectedContacts.clear();
@@ -538,7 +539,7 @@ class PublicsTabView extends StatelessWidget {
                                     }
                                   } else if (c.groupCreating.isFalse) {
                                     c.groupCreating.value = true;
-                                    router.navigation.value = const SizedBox();
+                                    // router.navigation.value = const SizedBox();
                                     // router.navigation.value =
                                     // createGroupButton();
                                     // Future.delayed(

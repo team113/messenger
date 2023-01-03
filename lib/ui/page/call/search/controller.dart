@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -69,6 +70,9 @@ class SearchController extends GetxController {
 
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
+
+  /// Reactive list of the selected [Chat]s.
+  final RxList<RxUser> selectedRecent = RxList<RxUser>([]);
 
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
@@ -204,6 +208,15 @@ class SearchController extends GetxController {
       selectedUsers.remove(user);
     } else {
       selectedUsers.add(user);
+    }
+  }
+
+  /// Selects or unselects the specified [user].
+  void selectRecent(RxUser user) {
+    if (selectedRecent.contains(user)) {
+      selectedRecent.remove(user);
+    } else {
+      selectedRecent.add(user);
     }
   }
 

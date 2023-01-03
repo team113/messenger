@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -294,12 +295,12 @@ class _PublicViewState extends State<PublicView>
                     child: FloatingActionButton(
                       onPressed: () {
                         if (router.navigation.value == null) {
-                          router.navigation.value = Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                            child: _sendField(context, c),
-                          );
+                          // router.navigation.value = Padding(
+                          //   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                          //   child: _sendField(context, c),
+                          // );
                         } else {
-                          router.navigation.value = null;
+                          // router.navigation.value = null;
                         }
                       },
                       backgroundColor: const Color(0xFF63B4FF),

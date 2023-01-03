@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -373,7 +374,7 @@ class PublicsTabController extends GetxController {
   void closeSearch([bool reset = true]) {
     if (reset || !searching.value) {
       groupCreating.value = false;
-      router.navigation.value = null;
+      // router.navigation.value = null;
     }
 
     search.clear();
@@ -427,7 +428,7 @@ class PublicsTabController extends GetxController {
       searchStatus.value = RxStatus.empty();
       searching.value = false;
       groupCreating.value = false;
-      router.navigation.value = null;
+      // router.navigation.value = null;
       selectedChats.clear();
       selectedUsers.clear();
       selectedContacts.clear();
