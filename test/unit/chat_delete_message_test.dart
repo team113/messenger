@@ -185,7 +185,11 @@ void main() async {
       sessionProvider,
     ),
   );
-  ChatService chatService = Get.put(ChatService(chatRepository, authService));
+  ChatService chatService = Get.put(ChatService(
+    chatRepository,
+    authService,
+    userRepository,
+  ));
 
   test('ChatService successfully deletes chat message', () async {
     when(graphQlProvider.deleteChatMessage(

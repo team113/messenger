@@ -211,7 +211,7 @@ class HiveRxChat extends RxChat {
             ?.user
             .id;
         if (responderId != null) {
-          _chatRepository.updateDialog(responderId, this);
+          _chatRepository.updateDialog(this);
         }
       }
 

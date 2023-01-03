@@ -280,7 +280,11 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    ));
 
     await chatService.createChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -334,7 +338,11 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    ));
 
     await chatService.deleteChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -409,7 +417,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    Get.put(ChatService(chatRepository, authService));
+    Get.put(ChatService(chatRepository, authService, userRepository));
 
     authService.useChatDirectLink(ChatDirectLinkSlug('link'));
 
@@ -460,7 +468,11 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    ));
 
     expect(
       () async => await chatService.createChatDirectLink(
@@ -522,7 +534,11 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    ));
 
     expect(
       () async => await chatService.deleteChatDirectLink(
@@ -575,7 +591,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    Get.put(ChatService(chatRepository, authService));
+    Get.put(ChatService(chatRepository, authService, userRepository));
 
     expect(
       () => authService.useChatDirectLink(

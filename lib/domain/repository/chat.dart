@@ -46,6 +46,7 @@ abstract class AbstractChatRepository {
   /// a [Chat].
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
+    required void Function(RxChat chat) onDialogUpdated,
   });
 
   /// Disposes this repository.

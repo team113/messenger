@@ -176,17 +176,10 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  /// Updates the locally stored [HiveUser] with the provided [user] value.
-  void update(User user) {
-    HiveUser? hiveUser = _userLocal.get(user.id);
-    if (hiveUser != null) {
-      hiveUser.value = user;
-      put(hiveUser, ignoreVersion: true);
-    }
-  }
-
-  /// Updates the locally stored [User]s dialog with the provided [chat] value.
-  void updateDialog(UserId userId, RxChat chat) {
+  @override
+  void updateDialog(RxChat chat) {
+    UserId userId =
+        chat.chat.value.members.firstWhere((e) => e.user.id != chat.me).user.id;
     if (users[userId]?.dialog.value?.id != chat.id) {
       HiveUser? hiveUser = _userLocal.get(userId);
       users[userId]?.dialog.value = chat;
@@ -194,6 +187,15 @@ class UserRepository implements AbstractUserRepository {
         hiveUser.value.dialog = chat.chat.value;
         put(hiveUser, ignoreVersion: true);
       }
+    }
+  }
+
+  /// Updates the locally stored [HiveUser] with the provided [user] value.
+  void update(User user) {
+    HiveUser? hiveUser = _userLocal.get(user.id);
+    if (hiveUser != null) {
+      hiveUser.value = user;
+      put(hiveUser, ignoreVersion: true);
     }
   }
 

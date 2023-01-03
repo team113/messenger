@@ -230,7 +230,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    return Get.put(ChatService(chatRepository, authService));
+    return Get.put(ChatService(chatRepository, authService, userRepository));
   }
 
   when(graphQlProvider.recentChats(

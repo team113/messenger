@@ -396,7 +396,11 @@ void main() async {
       userRepository,
       sessionProvider,
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    ));
 
     Get.put(CallService(authService, chatService, callRepository));
 

@@ -167,7 +167,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    return Get.put(ChatService(chatRepository, authService));
+    return Get.put(ChatService(chatRepository, authService, userRepository));
   }
 
   test('ChatService successfully leaves a chat', () async {

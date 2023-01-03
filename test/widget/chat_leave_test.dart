@@ -320,6 +320,7 @@ void main() async {
           ),
         ),
         authService,
+        userRepository,
       ),
     );
 

@@ -198,7 +198,11 @@ void main() async {
       sessionProvider,
     );
 
-    ChatService chatService = ChatService(chatRepository, authService);
+    ChatService chatService = ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    );
 
     await chatService.updateChatAvatar(
       const ChatId('123'),
@@ -288,7 +292,11 @@ void main() async {
       sessionProvider,
     );
 
-    ChatService chatService = ChatService(chatRepository, authService);
+    ChatService chatService = ChatService(
+      chatRepository,
+      authService,
+      userRepository,
+    );
 
     Object? exception;
 
