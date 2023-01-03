@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -353,6 +354,7 @@ label_away = Away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
+label_blocked_users = Blocked users
 label_call_active = Active call
 label_call_calling = Calling
 label_call_joining = Joining
@@ -516,6 +518,7 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
+label_no_users = No users
 label_no_user_found = No user found
 label_nobody = No one
 label_nothing_found = Nothing was found
