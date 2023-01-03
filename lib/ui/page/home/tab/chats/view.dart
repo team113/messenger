@@ -201,11 +201,11 @@ class ChatsTabView extends StatelessWidget {
                 );
               } else if (c.elements.isNotEmpty) {
                 child = AnimationLimiter(
-                  child: customListView(
+                  child: ListView.builder(
                     key: const Key('Search'),
-                    context,
-                    childCount: c.elements.length,
-                    (_, i) {
+                    controller: ScrollController(),
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
                       final ListElement element = c.elements[i];
                       final Widget child;
 
@@ -256,26 +256,18 @@ class ChatsTabView extends StatelessWidget {
                         child = const SizedBox();
                       }
 
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          top: i == 0 ? kToolbarHeight : 0,
-                          bottom: i == c.elements.length - 1
-                              ? kBottomNavigationBarHeight
-                              : 0,
-                        ),
-                        child: AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  top: i == 0 ? 3 : 0,
-                                  bottom: i == c.elements.length - 1 ? 4 : 0,
-                                ),
-                                child: child,
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                top: i == 0 ? 3 : 0,
+                                bottom: i == c.elements.length - 1 ? 4 : 0,
                               ),
+                              child: child,
                             ),
                           ),
                         ),
@@ -296,51 +288,84 @@ class ChatsTabView extends StatelessWidget {
                   child: Text('label_no_chats'.l10n),
                 );
               } else {
-                child = AnimationLimiter(
+                final MediaQueryData? mediaQuery = MediaQuery.maybeOf(context);
+                print(mediaQuery!.padding);
+                print(mediaQuery.viewInsets);
+                print(mediaQuery.viewPadding);
+                print(mediaQuery.systemGestureInsets);
+                print('----');
+                return AnimationLimiter(
                   key: const Key('Chats'),
-                  child: customListView(
-                    context,
-                    childCount: c.chats.length,
-                    (_, i) {
-                      final RxChat chat = c.chats[i];
-                      return AnimationConfiguration.staggeredList(
-                        position: i,
-                        duration: const Duration(milliseconds: 375),
-                        child: SlideAnimation(
-                          horizontalOffset: 50,
-                          child: FadeInAnimation(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: RecentChatTile(
-                                chat,
-                                key: Key('RecentChat_${chat.id}'),
-                                me: c.me,
-                                getUser: c.getUser,
-                                onJoin: () => c.joinCall(chat.id),
-                                onDrop: () => c.dropCall(chat.id),
-                                onLeave: () => c.leaveChat(chat.id),
-                                onHide: () => c.hideChat(chat.id),
-                                inCall: () => c.inCall(chat.id),
-                                onMute: () => c.muteChat(chat.id),
-                                onUnmute: () => c.unmuteChat(chat.id),
-                                onFavorite: () => c.favoriteChat(chat.id),
-                                onUnfavorite: () => c.unfavoriteChat(chat.id),
+                  child: MediaQuery(
+                    data: mediaQuery.copyWith(
+                      padding: EdgeInsets.only(
+                        left: 0.0,
+                        right: 0.0,
+                        top: 60,
+                        bottom: 58,
+                      ),
+                      // size: Size(mediaQuery.size.width,
+                      //     mediaQuery.size.height - mediaQuery.padding.top),
+                    ),
+                    child: Container(
+                      padding: mediaQuery.padding.copyWith(
+                          top: mediaQuery.systemGestureInsets.top + 5,
+                          bottom: mediaQuery.systemGestureInsets.bottom),
+                      child: ListView.builder(
+                        // padding: mediaQuery.padding.copyWith(
+                        //   left: 0.0,
+                        //   right: 0.0,
+                        //   top: mediaQuery.padding.top + mediaQuery.viewInsets.top,
+                        //   bottom: mediaQuery.padding.bottom +
+                        //       mediaQuery.viewInsets.bottom,
+                        // ),
+                        itemCount: c.chats.length,
+                        itemBuilder: (_, i) {
+                          final RxChat chat = c.chats[i];
+                          return AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50,
+                              child: FadeInAnimation(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: RecentChatTile(
+                                    chat,
+                                    key: Key('RecentChat_${chat.id}'),
+                                    me: c.me,
+                                    getUser: c.getUser,
+                                    onJoin: () => c.joinCall(chat.id),
+                                    onDrop: () => c.dropCall(chat.id),
+                                    onLeave: () => c.leaveChat(chat.id),
+                                    onHide: () => c.hideChat(chat.id),
+                                    inCall: () => c.inCall(chat.id),
+                                    onMute: () => c.muteChat(chat.id),
+                                    onUnmute: () => c.unmuteChat(chat.id),
+                                    onFavorite: () => c.favoriteChat(chat.id),
+                                    onUnfavorite: () =>
+                                        c.unfavoriteChat(chat.id),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 );
               }
             }
 
-            return ContextMenuInterceptor(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: child,
+            return Container(
+              // padding: const EdgeInsets.symmetric(vertical: 5),
+              child: ContextMenuInterceptor(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                ),
               ),
             );
           }),
@@ -348,44 +373,4 @@ class ChatsTabView extends StatelessWidget {
       },
     );
   }
-}
-
-/// Returns [builder] wrapped with [CustomScrollView].
-Widget customListView(
-  BuildContext context,
-  NullableIndexedWidgetBuilder builder, {
-  required int childCount,
-  Key? key,
-}) {
-  return Padding(
-    padding: EdgeInsets.only(
-      top:
-          PlatformUtils.isAndroid ? MediaQuery.of(context).padding.top + 10 : 5,
-      bottom: PlatformUtils.isAndroid
-          ? MediaQuery.of(context).padding.bottom -
-              kBottomNavigationBarHeight +
-              5
-          : 5,
-    ),
-    child: CustomScrollView(
-      controller: ScrollController(),
-      slivers: [
-        SliverList(
-          key: key,
-          delegate: SliverChildBuilderDelegate(
-            (_, i) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  top: i == 0 ? kToolbarHeight : 0,
-                  bottom: i == childCount - 1 ? kBottomNavigationBarHeight : 0,
-                ),
-                child: builder(context, i),
-              );
-            },
-            childCount: childCount,
-          ),
-        )
-      ],
-    ),
-  );
 }
