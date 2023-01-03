@@ -405,9 +405,9 @@ class ChatsTabController extends GetxController {
       ]).listen((_) {
         elements.clear();
 
-        elements.add(const EmptyElement());
-
         if (groupCreating.value) {
+          elements.add(const EmptyElement());
+
           if (search.value?.query.isEmpty == true) {
             elements.add(const MyUserElement());
           }
