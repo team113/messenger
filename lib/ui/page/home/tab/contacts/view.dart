@@ -124,10 +124,7 @@ class ContactsTabView extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(
-                            fontSize: 17,
-                            // color: c.search.value == null ? null : Colors.white,
-                          ),
+                          style: style.boldBody.copyWith(fontSize: 17),
                           onChanged: () => c.search.value?.query.value =
                               c.search.value?.search.text ?? '',
                         ),
@@ -139,71 +136,72 @@ class ContactsTabView extends StatelessWidget {
                 }
 
                 return AnimatedSwitcher(
-                    duration: 250.milliseconds, child: child);
+                  duration: 250.milliseconds,
+                  child: child,
+                );
               }),
               actions: [
                 Obx(() {
                   final Widget child;
 
                   if (c.search.value != null) {
-                    child = WidgetButton(
-                      key: const Key('CloseSearch'),
-                      onPressed: () {
-                        if (c.search.value?.query.isNotEmpty == true) {
-                          c.toggleSearch(false);
-                        }
-                      },
-                      child: SvgLoader.asset(
-                        'assets/icons/close_primary.svg',
-                        height: 15,
-                        width: 15,
-                      ),
+                    child = SvgLoader.asset(
+                      'assets/icons/close_primary.svg',
+                      height: 15,
+                      width: 15,
                     );
                   } else {
-                    child = WidgetButton(
+                    child = SvgLoader.asset(
+                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                       key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                      onPressed: c.toggleSorting,
-                      child: SvgLoader.asset(
-                        'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                        width: 29.69,
-                        height: 21,
-                      ),
+                      width: 29.69,
+                      height: 21,
                     );
                   }
-                  return Container(
-                    // alignment: Alignment.center,
-                    width: 29.69 + 12 + 18,
-                    height: 21,
-                    // margin: const EdgeInsets.only(left: 12, right: 18),
-                    child: AnimatedSwitcher(
-                      duration: 250.milliseconds,
-                      child: child,
+
+                  return WidgetButton(
+                    onPressed: () {
+                      if (c.search.value != null) {
+                        c.toggleSearch(false);
+                      } else {
+                        c.toggleSorting();
+                      }
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 29.69 + 12 + 18,
+                      height: double.infinity,
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: child,
+                        ),
+                      ),
                     ),
                   );
                 }),
               ],
               leading: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 12),
-                  child: Obx(() {
-                    return AnimatedSwitcher(
-                      duration: 250.milliseconds,
-                      child: WidgetButton(
-                        key: const Key('SearchButton'),
-                        onPressed:
-                            c.search.value != null ? null : c.toggleSearch,
+                Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: WidgetButton(
+                      key: const Key('SearchButton'),
+                      onPressed: c.search.value != null ? null : c.toggleSearch,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 20, right: 12),
+                        height: double.infinity,
                         child: SvgLoader.asset(
                           'assets/icons/search.svg',
                           width: 17.77,
                         ),
                       ),
-                    );
-                  }),
-                ),
+                    ),
+                  );
+                }),
               ],
             ),
             extendBodyBehindAppBar: true,
-            extendBody: true,
             body: Obx(() {
               if (!c.contactsReady.value) {
                 return const Center(child: CircularProgressIndicator());
@@ -326,7 +324,6 @@ class ContactsTabView extends StatelessWidget {
                   AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        // ? const Color(0x50FFFFFF)
                         ? const Color(0xFFEBEBEB)
                         : const Color(0x00EBEBEB),
                   ),

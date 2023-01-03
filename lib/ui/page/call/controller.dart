@@ -812,10 +812,19 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
-
           break;
 
         case OperationKind.updated:
+          if (e.key != e.oldKey && e.oldKey != null) {
+            for (var m in [
+              ..._findParticipants(e.oldKey!, MediaSourceKind.Device),
+              ..._findParticipants(e.oldKey!, MediaSourceKind.Display),
+            ]) {
+              m.member = e.value!;
+              print('member is now ${e.value?.id}');
+            }
+          }
+
           _insureCorrectGrouping();
           break;
       }
@@ -1947,7 +1956,7 @@ class Participant {
         audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
-  final CallMember member;
+  CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;

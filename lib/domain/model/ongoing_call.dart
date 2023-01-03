@@ -367,6 +367,34 @@ class OngoingCall {
       return;
     }
 
+    calls.getChat(chatId.value).then((v) {
+      for (var m in (v?.chat.value.members ?? [])
+          .where((e) => e.user.id != me.id.userId)) {
+        final CallMemberId id = CallMemberId(m.user.id, null);
+
+        if (members.values.none((e) => e.id.userId == id.userId)) {
+          _timers[id] = Timer(30.seconds, () {
+            final CallMember? member = members[id];
+            if (member?.isRedialing.value == true) {
+              _timers.remove(id);
+              members.remove(id);
+            }
+          });
+
+          members[id] = CallMember(
+            id,
+            null,
+            isHandRaised: call.value?.members
+                    .firstWhereOrNull((e) => e.user.id == id.userId)
+                    ?.handRaised ??
+                false,
+            isConnected: false,
+            isRedialing: true,
+          );
+        }
+      }
+    });
+
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members.move(_me, id);
     _me = id;
@@ -405,7 +433,6 @@ class OngoingCall {
 
             call.value = node.call;
             call.refresh();
-
             break;
 
           case ChatCallEventsKind.event:
@@ -457,6 +484,7 @@ class OngoingCall {
 
                   final CallMember? redialed = members[redialedId];
                   if (redialed?.isRedialing.value == true) {
+                    redialed?.id = id;
                     members.move(redialedId, id);
                   }
 
@@ -566,6 +594,7 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() {
+    _timers.forEach((_, v) => v.cancel());
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
       if (_jason != null) {
@@ -923,6 +952,8 @@ class OngoingCall {
     return settings;
   }
 
+  final Map<CallMemberId, Timer> _timers = {};
+
   /// Initializes the [_room].
   void _initRoom() {
     _room = _jason!.initRoom();
@@ -1023,7 +1054,9 @@ class OngoingCall {
 
       conn.onClose(() {
         Log.print('onClose', 'CALL');
+
         members.remove(id);
+        members.remove(CallMemberId(id.userId, null));
       });
 
       conn.onRemoteTrackAdded((track) async {
@@ -1648,7 +1681,7 @@ class CallMember {
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
-  final CallMemberId id;
+  CallMemberId id;
 
   /// List of [Track]s of this [CallMember].
   final ObsList<Track> tracks = ObsList();

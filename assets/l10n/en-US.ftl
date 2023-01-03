@@ -370,7 +370,7 @@ label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_blocked_count = Blocked: {$count}
 label_call_active = Active call
-label_call_calling = Calling
+label_call_calling = Connection preparing
 label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
@@ -382,12 +382,13 @@ label_call_title =
         *[other] {$type ->
             [video] Video call
             [audio] Audio call
-            *[other] Calling...
+            *[other] Connection preparing...
         }
     }
 label_calls = Calls
 label_calls_displaying = Calls displaying
 label_camera = Camera
+label_chat = Chat
 label_change_password = Change password
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -579,6 +580,7 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_required = Required
 label_resend = Resend
 label_resend_timeout = Resend ({$timeout})
 label_search = Search
@@ -621,6 +623,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} unread messages
 }
 label_use_search = Use search to find an user
+label_user = User
 label_users = Users
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number

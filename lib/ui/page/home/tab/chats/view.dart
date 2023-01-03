@@ -170,73 +170,71 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }),
                   leading: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: WidgetButton(
-                            key: const Key('SearchButton'),
-                            onPressed: c.searching.value ? null : c.startSearch,
+                    Obx(() {
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: WidgetButton(
+                          key: const Key('SearchButton'),
+                          onPressed: c.searching.value ? null : c.startSearch,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
                             child: SvgLoader.asset(
                               'assets/icons/search.svg',
                               width: 17.77,
                             ),
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      );
+                    }),
                   ],
                   actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 18),
-                      child: Obx(() {
-                        final Widget child;
+                    Obx(() {
+                      final Widget child;
 
-                        if (c.searching.value) {
-                          child = WidgetButton(
-                            key: const Key('CloseSearch'),
-                            onPressed: c.groupCreating.value
-                                ? () => c.closeSearch(false)
-                                : () => c.closeSearch(true),
-                            child: SizedBox(
-                              width: 21.77,
-                              child: SvgLoader.asset(
+                      if (c.searching.value) {
+                        child = SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          height: 15,
+                        );
+                      } else {
+                        child = c.groupCreating.value
+                            ? SvgLoader.asset(
                                 'assets/icons/close_primary.svg',
                                 height: 15,
-                              ),
-                            ),
-                          );
-                        } else {
-                          child = WidgetButton(
-                            onPressed: c.groupCreating.value
-                                ? c.closeGroupCreating
-                                : c.startGroupCreating,
-                            child: SizedBox(
-                              width: 21.77,
-                              child: c.groupCreating.value
-                                  ? SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      height: 15,
-                                    )
-                                  : SvgLoader.asset(
-                                      'assets/icons/group.svg',
-                                      width: 21.77,
-                                      height: 18.44,
-                                    ),
-                            ),
-                          );
-                        }
+                              )
+                            : SvgLoader.asset(
+                                'assets/icons/group.svg',
+                                width: 21.77,
+                                height: 18.44,
+                              );
+                      }
 
-                        return SizedBox(
-                          width: 21.77,
-                          child: AnimatedSwitcher(
-                            duration: 250.milliseconds,
-                            child: child,
+                      return WidgetButton(
+                        onPressed: () {
+                          if (c.searching.value) {
+                            c.groupCreating.value
+                                ? () => c.closeSearch(false)
+                                : () => c.closeSearch(true);
+                          } else {
+                            c.groupCreating.value
+                                ? c.closeGroupCreating()
+                                : c.startGroupCreating();
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 12, right: 18),
+                          height: double.infinity,
+                          child: SizedBox(
+                            width: 21.77,
+                            child: AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
+                            ),
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      );
+                    }),
                   ],
                 ),
                 body: Obx(() {
