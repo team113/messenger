@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -35,26 +34,24 @@ class MicrophoneSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
+  /// ID of the initially selected microphone device.
+  RxnString mic;
+
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// ID of the currently used microphone device.
-  RxnString mic;
-
   /// Client for communication with a media server.
-  Jason? _jason;
+  late final Jason _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  MediaManagerHandle? _mediaManager;
+  late final MediaManagerHandle _mediaManager;
 
   @override
   void onInit() async {
     _jason = Jason();
 
-    _mediaManager = _jason!.mediaManager();
-    _mediaManager!.onDeviceChange(() async {
-      await _enumerateDevices();
-    });
+    _mediaManager = _jason.mediaManager();
+    _mediaManager.onDeviceChange(() => _enumerateDevices());
 
     await WebUtils.audioPermission();
 
@@ -64,8 +61,8 @@ class MicrophoneSwitchController extends GetxController {
 
   @override
   void onClose() {
-    _mediaManager?.free();
-    _jason?.free();
+    _mediaManager.free();
+    _jason.free();
     super.onClose();
   }
 
@@ -77,9 +74,11 @@ class MicrophoneSwitchController extends GetxController {
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
-    devices.value = (await _mediaManager!.enumerateDevices())
-        .whereNot((e) => e.deviceId().isEmpty)
+    devices.value = (await _mediaManager.enumerateDevices())
+        .where(
+          (e) =>
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.audioinput,
+        )
         .toList();
-    devices.refresh();
   }
 }

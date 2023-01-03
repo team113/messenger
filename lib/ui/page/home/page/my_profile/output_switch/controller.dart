@@ -16,7 +16,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -38,7 +37,7 @@ class OutputSwitchController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// ID of the currently used audio output device.
+  /// ID of the initially selected audio output device.
   RxnString output;
 
   /// Client for communication with a media server.
@@ -52,9 +51,7 @@ class OutputSwitchController extends GetxController {
     _jason = Jason();
 
     _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() async {
-      await _enumerateDevices();
-    });
+    _mediaManager.onDeviceChange(() => _enumerateDevices());
 
     await WebUtils.audioPermission();
 
@@ -78,8 +75,11 @@ class OutputSwitchController extends GetxController {
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
     devices.value = (await _mediaManager.enumerateDevices())
-        .whereNot((e) => e.deviceId().isEmpty)
+        .where(
+          (e) =>
+              e.deviceId().isNotEmpty &&
+              e.kind() == MediaDeviceKind.audiooutput,
+        )
         .toList();
-    devices.refresh();
   }
 }

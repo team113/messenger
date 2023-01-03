@@ -125,10 +125,7 @@ class MyProfileController extends GetxController {
     _jason = Jason();
 
     _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() async {
-      print('onDeviceChange');
-      await enumerateDevices();
-    });
+    _mediaManager.onDeviceChange(() => enumerateDevices());
 
     enumerateDevices();
 

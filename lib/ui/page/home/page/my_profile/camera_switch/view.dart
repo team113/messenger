@@ -42,7 +42,7 @@ class CameraSwitchView extends StatelessWidget {
   /// Callback, called when selected microphone changed.
   final void Function(String)? onChange;
 
-  /// ID of the currently used video device.
+  /// ID of the initially selected video device.
   final String? camera;
 
   /// Displays a [CameraSwitchView] wrapped in a [ModalPopup].
@@ -127,11 +127,10 @@ class CameraSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.video().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e =
-                                c.devices.video().toList()[i];
+                            final MediaDeviceInfo e = c.devices[i];
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||

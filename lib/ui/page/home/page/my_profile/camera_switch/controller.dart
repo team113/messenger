@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -37,7 +36,7 @@ class CameraSwitchController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// ID of the currently used video device.
+  /// ID of the initially selected video device.
   RxnString camera;
 
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
@@ -63,9 +62,7 @@ class CameraSwitchController extends GetxController {
     _jason = Jason();
 
     _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() async {
-      await _enumerateDevices();
-    });
+    _mediaManager.onDeviceChange(() => _enumerateDevices());
 
     await WebUtils.cameraPermission();
 
@@ -76,7 +73,9 @@ class CameraSwitchController extends GetxController {
       initRenderer();
     });
 
-    _enumerateDevices().whenComplete(() => initRenderer());
+    await _enumerateDevices();
+    initRenderer();
+
     super.onInit();
   }
 
@@ -132,11 +131,13 @@ class CameraSwitchController extends GetxController {
   }
 
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
-  /// available media input devices, such as microphones, cameras, and so forth.
+  /// available cameras.
   Future<void> _enumerateDevices() async {
     devices.value = (await _mediaManager.enumerateDevices())
-        .whereNot((e) => e.deviceId().isEmpty)
+        .where(
+          (e) =>
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.videoinput,
+        )
         .toList();
-    devices.refresh();
   }
 }

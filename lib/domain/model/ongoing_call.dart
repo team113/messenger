@@ -624,6 +624,12 @@ class OngoingCall {
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            audioState.value = LocalTrackState.disabled;
+            if (!e.cause().contains('Permission denied')) {
+              _errors.add('unmuteAudio() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
             _errors.add('unmuteAudio() call failed with $e');
@@ -666,6 +672,12 @@ class OngoingCall {
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            videoState.value = LocalTrackState.disabled;
+            if (!e.cause().contains('Permission denied')) {
+              _errors.add('enableVideo() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             _errors.add('enableVideo() call failed with $e');
             videoState.value = LocalTrackState.disabled;

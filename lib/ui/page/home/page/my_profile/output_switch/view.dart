@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -40,7 +39,7 @@ class OutputSwitchView extends StatelessWidget {
   /// Callback, called when selected microphone changed.
   final void Function(String)? onChange;
 
-  /// ID of the currently used audio output device.
+  /// ID of the initially selected audio output device.
   final String? output;
 
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
@@ -89,11 +88,11 @@ class OutputSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.output().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
                             final MediaDeviceInfo e =
-                                c.devices.output().toList()[i];
+                                c.devices[i];
 
                             final bool selected =
                                 (c.output.value == null && i == 0) ||

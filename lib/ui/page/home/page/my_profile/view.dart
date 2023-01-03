@@ -1069,7 +1069,10 @@ Widget _media(BuildContext context, MyProfileController c) {
                 context,
                 camera: c.media.value?.videoDevice,
               );
-              c.enumerateDevices();
+
+              if (c.devices.video().isEmpty) {
+                c.enumerateDevices();
+              }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
@@ -1090,7 +1093,10 @@ Widget _media(BuildContext context, MyProfileController c) {
                 context,
                 mic: c.media.value?.audioDevice,
               );
-              c.enumerateDevices();
+
+              if (c.devices.audio().isEmpty) {
+                c.enumerateDevices();
+              }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
@@ -1111,7 +1117,10 @@ Widget _media(BuildContext context, MyProfileController c) {
                 context,
                 output: c.media.value?.outputDevice,
               );
-              c.enumerateDevices();
+
+              if (c.devices.output().isEmpty) {
+                c.enumerateDevices();
+              }
             },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );

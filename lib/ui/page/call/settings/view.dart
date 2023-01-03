@@ -94,7 +94,7 @@ class CallSettingsView extends StatelessWidget {
               shrinkWrap: true,
               children: [
                 const SizedBox(height: 12),
-                header('Медиа'),
+                header('label_media'.l10n),
                 _dense(
                   context,
                   WidgetButton(
@@ -104,7 +104,10 @@ class CallSettingsView extends StatelessWidget {
                         onChange: (device) => c.setVideoDevice(device),
                         camera: c.camera.value,
                       );
-                      c.enumerateDevices();
+
+                      if(c.devices.video().isEmpty) {
+                        c.enumerateDevices();
+                      }
                     },
                     child: IgnorePointer(
                       child: Obx(() {
@@ -136,7 +139,10 @@ class CallSettingsView extends StatelessWidget {
                         onChange: (device) => c.setAudioDevice(device),
                         mic: c.mic.value,
                       );
-                      c.enumerateDevices();
+
+                      if(c.devices.audio().isEmpty) {
+                        c.enumerateDevices();
+                      }
                     },
                     child: IgnorePointer(
                       child: Obx(() {
@@ -168,7 +174,10 @@ class CallSettingsView extends StatelessWidget {
                         onChange: (device) => c.setOutputDevice(device),
                         output: c.output.value,
                       );
-                      c.enumerateDevices();
+
+                      if(c.devices.output().isEmpty) {
+                        c.enumerateDevices();
+                      }
                     },
                     child: IgnorePointer(
                       child: Obx(() {
@@ -191,7 +200,7 @@ class CallSettingsView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                header('Звонки'),
+                header('label_calls'.l10n),
                 _dense(
                   context,
                   WidgetButton(
@@ -200,8 +209,8 @@ class CallSettingsView extends StatelessWidget {
                       child: ReactiveTextField(
                         state: TextFieldState(
                           text: (c.settings.value?.enablePopups ?? true)
-                              ? 'Отображать звонки в отдельном окне.'
-                              : 'Отображать звонки в окне приложения.',
+                              ? 'label_open_calls_in_window'.l10n
+                              : 'label_open_calls_in_app'.l10n,
                         ),
                         maxLines: null,
                         style: TextStyle(
