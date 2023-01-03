@@ -174,7 +174,7 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    router.navigation.value = null;
+    router.navigation.value = true;
 
     super.onClose();
   }
@@ -334,7 +334,7 @@ class ChatsTabController extends GetxController {
   void startGroupCreating() {
     groupCreating.value = true;
     _toggleSearch();
-    router.navigation.value = const SizedBox();
+    router.navigation.value = false;
     search.value?.populate();
   }
 
@@ -342,7 +342,7 @@ class ChatsTabController extends GetxController {
   void closeGroupCreating() {
     groupCreating.value = false;
     closeSearch(true);
-    router.navigation.value = null;
+    router.navigation.value = true;
   }
 
   /// Creates a [Chat]-group with [SearchController.selectedRecent],
@@ -362,6 +362,7 @@ class ChatsTabController extends GetxController {
       );
 
       router.chatInfo(chat.chat.value.id);
+
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
       MessagePopup.error(e);
@@ -407,8 +408,6 @@ class ChatsTabController extends GetxController {
         elements.clear();
 
         if (groupCreating.value) {
-          elements.add(const EmptyElement());
-
           if (search.value?.query.isEmpty == true) {
             elements.add(const MyUserElement());
           }
@@ -559,7 +558,7 @@ class DividerElement extends ListElement {
   final SearchCategory category;
 }
 
-/// [ListElement] representing a [MyUser].
+/// [ListElement] representing the currently authenticated [MyUser].
 class MyUserElement extends ListElement {
   const MyUserElement();
 }
@@ -570,9 +569,4 @@ class RecentElement extends ListElement {
 
   /// [RxUser] itself.
   final RxUser user;
-}
-
-/// [ListElement] is used as an indent.
-class EmptyElement extends ListElement {
-  const EmptyElement();
 }

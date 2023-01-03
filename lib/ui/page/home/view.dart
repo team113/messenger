@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,6 +36,7 @@ import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
+import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -182,12 +182,12 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
-                        final Widget child;
-
-                        if (router.navigation.value != null) {
-                          child = router.navigation.value!;
-                        } else {
-                          child = CustomNavigationBar(
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 1),
+                          translate: false,
+                          child: CustomNavigationBar(
                             items: [
                               CustomNavigationBarItem(
                                 key: const Key('ContactsButton'),
@@ -234,13 +234,7 @@ class _HomeViewState extends State<HomeView> {
                             ],
                             currentIndex: router.tab.index,
                             onTap: c.pages.jumpToPage,
-                          );
-                        }
-
-                        return AnimatedSizeAndFade(
-                          fadeDuration: 250.milliseconds,
-                          sizeDuration: 250.milliseconds,
-                          child: child,
+                          ),
                         );
                       }),
                     ),

@@ -519,7 +519,6 @@ label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
 label_no_users = No users
-label_no_user_found = No user found
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_num = Gapopa ID

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
@@ -59,7 +58,6 @@ class ChatsTabView extends StatelessWidget {
           children: [
             Obx(() {
               return Scaffold(
-                extendBody: c.groupCreating.value ? false : true,
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
@@ -235,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
                         if (c.search.value?.searchStatus.value.isSuccess ==
                             true) {
                           center =
-                              Center(child: Text('label_no_user_found'.l10n));
+                              Center(child: Text('label_nothing_found'.l10n));
                         } else {
                           center =
                               const Center(child: CircularProgressIndicator());
@@ -248,128 +246,121 @@ class ChatsTabView extends StatelessWidget {
                           child: center,
                         );
                       } else {
-                        child = ContextMenuInterceptor(
-                          child: FlutterListView(
-                            controller: c.search.value!.controller,
-                            delegate: FlutterListViewDelegate(
-                              (context, i) {
-                                final ListElement element = c.elements[i];
-                                final Widget child;
+                        child = ListView.builder(
+                          controller: c.search.value!.controller,
+                          itemCount: c.elements.length,
+                          itemBuilder: (context, i) {
+                            final ListElement element = c.elements[i];
+                            final Widget child;
 
-                                if (element is RecentElement) {
-                                  child = Obx(() {
-                                    return SelectedUserTile(
-                                      user: element.user,
-                                      selected: c.search.value?.selectedRecent
-                                              .contains(element.user) ??
-                                          false,
-                                      onTap: () => c.search.value
-                                          ?.selectRecent(element.user),
-                                    );
-                                  });
-                                } else if (element is ContactElement) {
-                                  child = Obx(() {
-                                    return SelectedUserTile(
-                                      contact: element.contact,
-                                      selected: c.search.value?.selectedContacts
-                                              .contains(element.contact) ??
-                                          false,
-                                      onTap: () => c.search.value
-                                          ?.selectContact(element.contact),
-                                    );
-                                  });
-                                } else if (element is UserElement) {
-                                  child = Obx(() {
-                                    return SelectedUserTile(
-                                      user: element.user,
-                                      selected: c.search.value?.selectedUsers
-                                              .contains(element.user) ??
-                                          false,
-                                      onTap: () => c.search.value
-                                          ?.selectUser(element.user),
-                                    );
-                                  });
-                                } else if (element is MyUserElement) {
-                                  child = Obx(() {
-                                    return SelectedUserTile(
-                                      myUser: c.myUser.value,
-                                      selected: true,
-                                      subtitle: [
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'label_required'.l10n,
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  });
-                                } else if (element is DividerElement) {
-                                  final String text;
-
-                                  switch (element.category) {
-                                    case SearchCategory.recent:
-                                      text = 'label_recent'.l10n;
-                                      break;
-
-                                    case SearchCategory.contact:
-                                      text = 'label_contact'.l10n;
-                                      break;
-
-                                    case SearchCategory.user:
-                                      text = 'label_user'.l10n;
-                                      break;
-
-                                    case SearchCategory.chat:
-                                      text = 'label_chat'.l10n;
-                                      break;
-                                  }
-
-                                  child = Center(
-                                    child: Container(
-                                      margin: const EdgeInsets.fromLTRB(
-                                        10,
-                                        2,
-                                        10,
-                                        2,
-                                      ),
-                                      padding: const EdgeInsets.fromLTRB(
-                                        12,
-                                        10,
-                                        12,
-                                        6,
-                                      ),
-                                      width: double.infinity,
-                                      child: Center(
-                                        child: Text(
-                                          text,
-                                          style:
-                                              style.systemMessageStyle.copyWith(
-                                            color: Colors.black,
-                                            fontSize: 15,
-                                          ),
-                                        ),
+                            if (element is RecentElement) {
+                              child = Obx(() {
+                                return SelectedUserTile(
+                                  user: element.user,
+                                  selected: c.search.value?.selectedRecent
+                                          .contains(element.user) ??
+                                      false,
+                                  onTap: () => c.search.value
+                                      ?.selectRecent(element.user),
+                                );
+                              });
+                            } else if (element is ContactElement) {
+                              child = Obx(() {
+                                return SelectedUserTile(
+                                  contact: element.contact,
+                                  selected: c.search.value?.selectedContacts
+                                          .contains(element.contact) ??
+                                      false,
+                                  onTap: () => c.search.value
+                                      ?.selectContact(element.contact),
+                                );
+                              });
+                            } else if (element is UserElement) {
+                              child = Obx(() {
+                                return SelectedUserTile(
+                                  user: element.user,
+                                  selected: c.search.value?.selectedUsers
+                                          .contains(element.user) ??
+                                      false,
+                                  onTap: () =>
+                                      c.search.value?.selectUser(element.user),
+                                );
+                              });
+                            } else if (element is MyUserElement) {
+                              child = Obx(() {
+                                return SelectedUserTile(
+                                  myUser: c.myUser.value,
+                                  selected: true,
+                                  subtitle: [
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'label_required'.l10n,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                     ),
-                                  );
-                                } else if (element is EmptyElement) {
-                                  child = const SizedBox(height: 60);
-                                } else {
-                                  child = const SizedBox();
-                                }
+                                  ],
+                                );
+                              });
+                            } else if (element is DividerElement) {
+                              final String text;
 
-                                return child;
-                              },
-                              childCount: c.elements.length,
-                            ),
-                          ),
+                              switch (element.category) {
+                                case SearchCategory.recent:
+                                  text = 'label_recent'.l10n;
+                                  break;
+
+                                case SearchCategory.contact:
+                                  text = 'label_contact'.l10n;
+                                  break;
+
+                                case SearchCategory.user:
+                                  text = 'label_user'.l10n;
+                                  break;
+
+                                case SearchCategory.chat:
+                                  text = 'label_chat'.l10n;
+                                  break;
+                              }
+
+                              child = Center(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(
+                                    10,
+                                    2,
+                                    10,
+                                    2,
+                                  ),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    12,
+                                    10,
+                                    12,
+                                    6,
+                                  ),
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      text,
+                                      style: style.systemMessageStyle.copyWith(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              child = const SizedBox();
+                            }
+
+                            return child;
+                          },
                         );
                       }
                     } else if (c.searching.value &&
-                        !c.search.value!.search.isEmpty.value) {
+                        c.search.value?.search.isEmpty.value == false) {
                       if (c.search.value!.searchStatus.value.isLoading &&
                           c.elements.isEmpty) {
                         child = const Center(
@@ -464,7 +455,6 @@ class ChatsTabView extends StatelessWidget {
                       child = AnimationLimiter(
                         key: const Key('Chats'),
                         child: ListView.builder(
-                          controller: ScrollController(),
                           itemCount: c.chats.length,
                           itemBuilder: (_, i) {
                             final RxChat chat = c.chats[i];
@@ -516,12 +506,8 @@ class ChatsTabView extends StatelessWidget {
 
                   return const Center(child: CircularProgressIndicator());
                 }),
-                bottomNavigationBar: AnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  child: c.groupCreating.value
-                      ? _createGroup(context, c)
-                      : const SizedBox(height: 61),
-                ),
+                bottomNavigationBar:
+                    c.groupCreating.value ? _createGroup(context, c) : null,
               );
             }),
             Obx(() {

@@ -539,7 +539,6 @@ label_no_contacts = Нет контактов
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
 label_no_users = Нет пользователей
-label_no_user_found = Пользователь не найден
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
