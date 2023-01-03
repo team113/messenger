@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -31,16 +30,11 @@ import '/ui/widget/modal_popup.dart';
 class ChatItemReads extends StatelessWidget {
   const ChatItemReads({
     super.key,
-    required this.at,
     required this.lastReads,
     this.getUser,
   });
 
-  /// [PreciseDateTime] when [ChatItem] was posted.
-  final PreciseDateTime at;
-
-  /// List of this [Chat]'s members which have read it, along with the
-  /// corresponding [LastChatRead]s.
+  /// List [LastChatRead]'s of this [ChatItem].
   final Iterable<LastChatRead> lastReads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -50,14 +44,12 @@ class ChatItemReads extends StatelessWidget {
   /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required PreciseDateTime at,
     required Iterable<LastChatRead> lastReads,
     Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
       context: context,
       child: ChatItemReads(
-        at: at,
         lastReads: lastReads,
         getUser: getUser,
       ),
@@ -83,29 +75,25 @@ class ChatItemReads extends StatelessWidget {
         ),
         const SizedBox(height: 25 - 12),
         ...lastReads.map((e) {
-          if (e.at == at) {
-            return Padding(
-              padding: ModalPopup.padding(context),
-              child: FutureBuilder<RxUser?>(
-                future: getUser?.call(e.memberId),
-                builder: (context, snapshot) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: ContactTile(
-                      user: snapshot.data,
-                      darken: 0.05,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        router.user(e.memberId, push: true);
-                      },
-                    ),
-                  );
-                },
-              ),
-            );
-          }
-
-          return const SizedBox();
+          return Padding(
+            padding: ModalPopup.padding(context),
+            child: FutureBuilder<RxUser?>(
+              future: getUser?.call(e.memberId),
+              builder: (context, snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: ContactTile(
+                    user: snapshot.data,
+                    darken: 0.05,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      router.user(e.memberId, push: true);
+                    },
+                  ),
+                );
+              },
+            ),
+          );
         }),
         const SizedBox(height: 16),
       ],

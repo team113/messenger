@@ -61,8 +61,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
-    this.reads,
-    this.members,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
@@ -100,10 +99,7 @@ class ChatForwardWidget extends StatefulWidget {
   final RxUser? user;
 
   /// List [LastChatRead]'s of this [ChatItem].
-  final Iterable<LastChatRead>? reads;
-
-  /// Members of this [chat].
-  final Map<UserId, RxUser>? members;
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -678,26 +674,32 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
 
-    if (widget.chat.value?.isGroup == true &&
-        widget.reads != null &&
-        widget.members != null &&
-        widget.members!.length <= 10) {
+    if (widget.chat.value?.isGroup == true) {
       final int countUserAvatars =
-          widget.reads!.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
 
-      for (LastChatRead m in widget.reads!.take(countUserAvatars)) {
-        final RxUser? user = widget.members?.values
-            .firstWhereOrNull((e) => e.user.value.id == m.memberId);
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
 
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget.fromRxUser(user, radius: 10),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
+            ),
           ),
         );
       }
 
-      if (widget.reads!.length > maxAvatars) {
+      if (widget.reads.length > maxAvatars) {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
@@ -724,7 +726,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
       padding:
-          EdgeInsets.only(bottom: widget.reads?.isNotEmpty == true ? 33 : 13),
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -925,8 +927,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   child: WidgetButton(
                                     onPressed: () => ChatItemReads.show(
                                       context,
-                                      at: widget.forwards.last.value.at,
-                                      lastReads: widget.reads!,
+                                      lastReads: widget.reads,
                                       getUser: widget.getUser,
                                     ),
                                     child: Row(
