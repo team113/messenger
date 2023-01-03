@@ -932,7 +932,7 @@ class _ChatViewState extends State<ChatView>
                       topRight: style.cardRadius.topRight,
                     ),
                     child: Container(
-                      color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                      color: Colors.white.withOpacity(0.4),
                       child: AnimatedSize(
                         duration: 400.milliseconds,
                         curve: Curves.ease,
@@ -1152,78 +1152,82 @@ class _ChatViewState extends State<ChatView>
                     GestureDetector(
                       onLongPress: c.forwarding.toggle,
                       child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: 300.milliseconds,
-                          child: c.forwarding.value
-                              ? WidgetButton(
-                                  onPressed: () async {
-                                    if (c.repliedMessages.isNotEmpty) {
-                                      bool? result = await ChatForwardView.show(
-                                        context,
-                                        c.id,
-                                        c.repliedMessages
-                                            .map((e) => ChatItemQuote(item: e))
-                                            .toList(),
-                                        text: c.send.text,
-                                        attachments: c.attachments
-                                            .map((e) => e.value)
-                                            .toList(),
-                                      );
+                        final Widget child;
 
-                                      if (result == true) {
-                                        c.repliedMessages.clear();
-                                        c.forwarding.value = false;
-                                        c.attachments.clear();
-                                        c.send.clear();
-                                      }
-                                    }
-                                  },
+                        if (c.forwarding.value) {
+                          child = WidgetButton(
+                            onPressed: () async {
+                              if (c.repliedMessages.isNotEmpty) {
+                                final bool? result = await ChatForwardView.show(
+                                  context,
+                                  c.id,
+                                  c.repliedMessages
+                                      .map((e) => ChatItemQuote(item: e))
+                                      .toList(),
+                                  text: c.send.text,
+                                  attachments: c.attachments
+                                      .map((e) => e.value)
+                                      .toList(),
+                                );
+
+                                if (result == true) {
+                                  c.repliedMessages.clear();
+                                  c.forwarding.value = false;
+                                  c.attachments.clear();
+                                  c.send.clear();
+                                }
+                              }
+                            },
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
                                   child: SizedBox(
-                                    width: 56,
-                                    height: 56,
-                                    child: Center(
-                                      child: AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 150),
-                                        child: SizedBox(
-                                          width: 26,
-                                          height: 22,
-                                          child: SvgLoader.asset(
-                                            'assets/icons/forward.svg',
-                                            width: 26,
-                                            height: 22,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : WidgetButton(
-                                  onPressed: c.send.isEmpty.value &&
-                                          c.attachments.isEmpty &&
-                                          c.repliedMessages.isEmpty
-                                      ? () {}
-                                      : c.send.submit,
-                                  child: SizedBox(
-                                    width: 56,
-                                    height: 56,
-                                    child: Center(
-                                      child: AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 150),
-                                        child: SizedBox(
-                                          key: const Key('Send'),
-                                          width: 25.18,
-                                          height: 22.85,
-                                          child: SvgLoader.asset(
-                                            'assets/icons/send.svg',
-                                            height: 22.85,
-                                          ),
-                                        ),
-                                      ),
+                                    width: 26,
+                                    height: 22,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/forward.svg',
+                                      width: 26,
+                                      height: 22,
                                     ),
                                   ),
                                 ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          child = WidgetButton(
+                            onPressed: c.send.isEmpty.value &&
+                                    c.attachments.isEmpty &&
+                                    c.repliedMessages.isEmpty
+                                ? () {}
+                                : c.send.submit,
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
+                                  child: SizedBox(
+                                    key: const Key('Send'),
+                                    width: 25.18,
+                                    height: 22.85,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/send.svg',
+                                      height: 22.85,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: child,
                         );
                       }),
                     ),
