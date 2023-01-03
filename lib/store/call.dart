@@ -377,7 +377,7 @@ class CallRepository extends DisposableInterface
     return _credentialsProvider.remove(id);
   }
 
-  @override
+  /// Sets call preferences.
   Future<void> setPrefs(
     ChatId chatId, {
     CallPreference? inAppPrefs,
@@ -389,7 +389,7 @@ class CallRepository extends DisposableInterface
         popupPrefs: popupPrefs,
       );
 
-  @override
+  /// Returns call preferences.
   CallPreferences? getPrefs(ChatId id) => _callsSettingsProvider.get(id);
 
   @override
