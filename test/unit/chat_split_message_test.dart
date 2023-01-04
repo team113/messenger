@@ -88,8 +88,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   AuthService authService = Get.put(
     AuthService(
@@ -166,6 +166,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -176,7 +177,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -241,6 +241,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -251,7 +252,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -324,6 +324,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -334,7 +335,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -401,6 +401,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -411,7 +412,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -470,6 +470,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -480,7 +481,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -553,6 +553,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -563,7 +564,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );

@@ -112,8 +112,8 @@ void main() async {
   await chatProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -167,6 +167,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -176,7 +177,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -296,6 +296,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -305,7 +306,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -364,6 +364,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository = Get.put(
@@ -375,7 +376,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );

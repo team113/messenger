@@ -86,8 +86,8 @@ void main() async {
   await backgroundProvider.init();
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -259,6 +259,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -270,7 +271,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -314,6 +314,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -325,7 +326,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -390,6 +390,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -401,7 +402,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -442,6 +442,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -453,7 +454,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -505,6 +505,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -516,7 +517,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -559,6 +559,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -570,7 +571,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );

@@ -77,8 +77,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -144,6 +144,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -164,7 +165,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );
@@ -209,6 +209,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
 
@@ -229,7 +230,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );

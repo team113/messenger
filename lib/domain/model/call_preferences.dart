@@ -35,7 +35,7 @@ class CallPreferences extends HiveObject {
   CallPreference? popupPrefs;
 }
 
-/// [CallPreference] contains it size and position.
+/// Preferences of a call containing its [width], [height] and position.
 @HiveType(typeId: ModelTypeId.callPreference)
 class CallPreference extends HiveObject {
   CallPreference({this.width, this.height, this.left, this.top});

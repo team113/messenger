@@ -76,8 +76,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -147,6 +147,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository =
@@ -157,7 +158,6 @@ void main() async {
       userRepository,
       credentialsProvider,
       settingsRepository,
-      callsPreferences,
       me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -203,6 +203,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     UserRepository userRepository =
@@ -213,7 +214,6 @@ void main() async {
       userRepository,
       credentialsProvider,
       settingsRepository,
-      callsPreferences,
       me: const UserId('me'),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(

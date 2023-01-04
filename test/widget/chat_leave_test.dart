@@ -161,8 +161,8 @@ void main() async {
   await chatItemHiveProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -298,6 +298,7 @@ void main() async {
         settingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callsPreferencesProvider,
       ),
     );
     AbstractCallRepository callRepository = Get.put(
@@ -306,7 +307,6 @@ void main() async {
         userRepository,
         credentialsProvider,
         settingsRepository,
-        callsPreferences,
         me: const UserId('me'),
       ),
     );

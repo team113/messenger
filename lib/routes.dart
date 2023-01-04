@@ -412,7 +412,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find(), Get.find()),
+                SettingsRepository(
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                ),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
@@ -433,7 +438,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   userRepository,
                   Get.find(),
                   settingsRepository,
-                  Get.find(),
                   me: me,
                 ),
               );
@@ -516,7 +520,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find(), Get.find()),
+              SettingsRepository(
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                Get.find(),
+              ),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -537,7 +546,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 userRepository,
                 Get.find(),
                 settingsRepository,
-                Get.find(),
                 me: me,
               ),
             );
@@ -590,6 +598,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService,
               chatService,
               Get.find(),
+              settingsRepository,
             ));
 
             deps.put(ChatWorker(

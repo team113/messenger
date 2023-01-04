@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/call_preferences.dart';
 import '../model/chat.dart';
 import '../model/chat_call.dart';
 import '../model/chat_item.dart';

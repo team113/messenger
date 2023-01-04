@@ -29,6 +29,7 @@ import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '../../domain/model/call_preferences.dart';
+import '../../domain/repository/settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -52,6 +53,7 @@ class CallWorker extends DisposableService {
     this._callService,
     this._chatService,
     this._notificationService,
+    this._settingsRepository,
   );
 
   /// [BackgroundWorker] used to get data from its service.
@@ -65,6 +67,9 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// Settings repository, used to get the [buttons] value.
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -378,7 +383,7 @@ class CallWorker extends DisposableService {
         }
       } else if (s.key?.startsWith('prefs_call_') == true) {
         ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
-        _callService.setCallPrefs(
+        _settingsRepository.setPrefs(
           chatId,
           popupPrefs: CallPreference.fromJson(json.decode(s.newValue!)),
         );

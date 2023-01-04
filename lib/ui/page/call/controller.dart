@@ -526,8 +526,9 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
-    CallPreference? prefs =
-        _calls.getCallPrefs(_currentCall.value.chatId.value)?.inAppPrefs;
+    CallPreference? prefs = _settingsRepository
+        .getPrefs(_currentCall.value.chatId.value)
+        ?.inAppPrefs;
 
     if (isMobile) {
       Size size = router.context!.mediaQuerySize;
@@ -846,7 +847,7 @@ class CallController extends GetxController {
 
     secondaryEntry?.remove();
 
-    _calls.setCallPrefs(
+    _settingsRepository.setPrefs(
       chat.value!.id,
       inAppPrefs: CallPreference(
         top: top.value,

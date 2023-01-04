@@ -19,6 +19,8 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 
+import '../model/call_preferences.dart';
+import '../model/chat.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 
@@ -71,4 +73,14 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.sortContactsByName] value.
   Future<void> setSortContactsByName(bool enabled);
+
+  /// Sets call preferences.
+  Future<void> setPrefs(
+    ChatId chatId, {
+    CallPreference? inAppPrefs,
+    CallPreference? popupPrefs,
+  });
+
+  /// Returns call preferences.
+  CallPreferences? getPrefs(ChatId id);
 }

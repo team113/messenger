@@ -168,8 +168,8 @@ void main() async {
   await credentialsProvider.init();
   var blacklistedUsersProvider = BlacklistHiveProvider();
   await blacklistedUsersProvider.init();
-  var callsPreferences = CallsPreferencesHiveProvider();
-  await callsPreferences.init();
+  var callsPreferencesProvider = CallsPreferencesHiveProvider();
+  await callsPreferencesProvider.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
@@ -379,6 +379,7 @@ void main() async {
       mediaSettingsProvider,
       applicationSettingsProvider,
       backgroundProvider,
+      callsPreferencesProvider,
     );
     ContactRepository contactRepository = ContactRepository(
         graphQlProvider, contactProvider, userRepository, sessionProvider);
@@ -389,7 +390,6 @@ void main() async {
       userRepository,
       credentialsProvider,
       settingsRepository,
-      callsPreferences,
       me: const UserId('me'),
     );
     ChatRepository chatRepository = ChatRepository(
