@@ -155,8 +155,9 @@ class MyProfileView extends StatelessWidget {
                               }),
                               const SizedBox(height: 10),
                               _name(c),
-                            _presence(c, context),
-                            _status(c),],
+                              _presence(c, context),
+                              _status(c),
+                            ],
                           );
 
                         case ProfileTab.signing:
