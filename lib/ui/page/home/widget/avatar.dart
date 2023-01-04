@@ -396,19 +396,19 @@ class AvatarWidget extends StatelessWidget {
 
       switch (quality) {
         case AvatarQuality.original:
-          link = avatar?.original.relativeRef;
+          link = avatar?.original.url;
           break;
 
         case AvatarQuality.big:
-          link = avatar?.big.relativeRef;
+          link = avatar?.big.url;
           break;
 
         case AvatarQuality.medium:
-          link = avatar?.medium.relativeRef;
+          link = avatar?.medium.url;
           break;
 
         case AvatarQuality.small:
-          link = avatar?.small.relativeRef;
+          link = avatar?.small.url;
           break;
       }
 
