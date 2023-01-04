@@ -511,7 +511,7 @@ class ChatsTabController extends GetxController {
   bool _escapeListener(KeyEvent e) {
     if (e.logicalKey == LogicalKeyboardKey.escape) {
       if (searching.value) {
-        closeSearch();
+        closeSearch(true);
         return true;
       }
     }
