@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../model/call_preferences.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -31,7 +32,6 @@ import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
     show TransformDialogCallIntoGroupCallException;
-import '/provider/hive/calls_preferences.dart';
 import '/store/event/chat_call.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
@@ -266,17 +266,17 @@ class CallService extends DisposableService {
       _callsRepo.removeCredentials(id);
 
   /// Sets call preferences.
-  Future<void> setCallPrefs(
-    ChatId chatId, {
-    CallPreference? inAppPrefs,
-    CallPreference? popupPrefs,
-  }) =>
-      _callsRepo.setPrefs(
-        chatId,
-        inAppPrefs: inAppPrefs,
-        popupPrefs: popupPrefs,
-      );
-
-  /// Returns call preferences.
-  CallPreferences? getCallPrefs(ChatId id) => _callsRepo.getPrefs(id);
+  // Future<void> setCallPrefs(
+  //   ChatId chatId, {
+  //   CallPreference? inAppPrefs,
+  //   CallPreference? popupPrefs,
+  // }) =>
+  //     _callsRepo.setPrefs(
+  //       chatId,
+  //       inAppPrefs: inAppPrefs,
+  //       popupPrefs: popupPrefs,
+  //     );
+  //
+  // /// Returns call preferences.
+  // CallPreferences? getCallPrefs(ChatId id) => _callsRepo.getPrefs(id);
 }

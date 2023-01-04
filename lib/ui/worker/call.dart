@@ -28,6 +28,7 @@ import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
+import '../../domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -36,7 +37,6 @@ import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/calls_preferences.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
 import '/util/obs/obs.dart';

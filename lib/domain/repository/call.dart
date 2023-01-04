@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../model/call_preferences.dart';
 import '../model/chat.dart';
 import '../model/chat_call.dart';
 import '../model/chat_item.dart';
@@ -26,7 +27,6 @@ import '../model/my_user.dart';
 import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/calls_preferences.dart';
 import '/store/event/chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
@@ -132,16 +132,6 @@ abstract class AbstractCallRepository {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id);
-
-  /// Sets call preferences.
-  Future<void> setPrefs(
-    ChatId chatId, {
-    CallPreference? inAppPrefs,
-    CallPreference? popupPrefs,
-  });
-
-  /// Returns call preferences.
-  CallPreferences? getPrefs(ChatId id);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///

@@ -20,9 +20,9 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 
+import '../../domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
-import '/provider/hive/calls_preferences.dart';
 import 'web_utils.dart';
 
 /// Helper providing direct access to browser-only features.

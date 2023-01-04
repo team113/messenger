@@ -28,6 +28,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '../../../domain/model/call_preferences.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -41,7 +42,6 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
-import '/provider/hive/calls_preferences.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';

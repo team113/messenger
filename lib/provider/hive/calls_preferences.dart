@@ -16,11 +16,9 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
+import '../../domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
-
-part 'calls_preferences.g.dart';
 
 /// [Hive] storage for [CallPreferences].
 class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
@@ -58,56 +56,4 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
 
   /// Returns a [CallPreferences] from [Hive] by its [id].
   CallPreferences? get(ChatId id) => getSafe(id.val);
-}
-
-/// Preferences of a call containing its in app and popup [CallPreference]s.
-@HiveType(typeId: ModelTypeId.callPreferences)
-class CallPreferences extends HiveObject {
-  CallPreferences({this.inAppPrefs, this.popupPrefs});
-
-  /// In app [CallPreference]s.
-  @HiveField(0)
-  CallPreference? inAppPrefs;
-
-  /// Popup [CallPreference]s.
-  @HiveField(1)
-  CallPreference? popupPrefs;
-}
-
-/// [CallPreference] contains it size and position.
-@HiveType(typeId: ModelTypeId.callPreference)
-class CallPreference extends HiveObject {
-  CallPreference({this.width, this.height, this.left, this.top});
-
-  /// Width of the call these [CallPreference] are about.
-  @HiveField(0)
-  double? width;
-
-  /// Height of the call these [CallPreference] are about.
-  @HiveField(1)
-  double? height;
-
-  /// Left position of the call these [CallPreference] are about.
-  @HiveField(2)
-  double? left;
-
-  /// Top position of the call these [CallPreference] are about.
-  @HiveField(3)
-  double? top;
-
-  /// Constructs a [CallPreference] from the provided [data].
-  factory CallPreference.fromJson(Map<dynamic, dynamic> data) => CallPreference(
-        width: data['width'],
-        height: data['height'],
-        left: data['left'],
-        top: data['top'],
-      );
-
-  /// Returns a [Map] containing data of these [CallPreference].
-  Map<String, dynamic> toJson() => {
-        'width': width,
-        'height': height,
-        'left': left,
-        'top': top,
-      };
 }

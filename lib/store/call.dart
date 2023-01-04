@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
+import '../domain/model/call_preferences.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
@@ -388,7 +389,7 @@ class CallRepository extends DisposableInterface
         inAppPrefs: inAppPrefs,
         popupPrefs: popupPrefs,
       );
-
+  //
   /// Returns call preferences.
   CallPreferences? getPrefs(ChatId id) => _callsSettingsProvider.get(id);
 

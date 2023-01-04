@@ -38,9 +38,9 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
+import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
-import '/provider/hive/calls_preferences.dart';
 import '/routes.dart';
 import 'web_utils.dart';
 
