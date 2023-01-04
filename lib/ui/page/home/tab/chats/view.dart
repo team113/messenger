@@ -260,7 +260,7 @@ class ChatsTabView extends StatelessWidget {
                                   return SelectedUserTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedRecent
-                                        .contains(element.user) ??
+                                            .contains(element.user) ??
                                         false,
                                     onTap: () => c.search.value
                                         ?.selectRecent(element.user),
@@ -271,7 +271,7 @@ class ChatsTabView extends StatelessWidget {
                                   return SelectedUserTile(
                                     contact: element.contact,
                                     selected: c.search.value?.selectedContacts
-                                        .contains(element.contact) ??
+                                            .contains(element.contact) ??
                                         false,
                                     onTap: () => c.search.value
                                         ?.selectContact(element.contact),
@@ -282,10 +282,10 @@ class ChatsTabView extends StatelessWidget {
                                   return SelectedUserTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedUsers
-                                        .contains(element.user) ??
+                                            .contains(element.user) ??
                                         false,
-                                    onTap: () =>
-                                        c.search.value?.selectUser(element.user),
+                                    onTap: () => c.search.value
+                                        ?.selectUser(element.user),
                                   );
                                 });
                               } else if (element is MyUserElement) {
@@ -345,7 +345,8 @@ class ChatsTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         text,
-                                        style: style.systemMessageStyle.copyWith(
+                                        style:
+                                            style.systemMessageStyle.copyWith(
                                           color: Colors.black,
                                           fontSize: 15,
                                         ),
@@ -371,7 +372,8 @@ class ChatsTabView extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         );
                       } else if (c.elements.isNotEmpty) {
-                        final ScrollController scrollController = ScrollController();
+                        final ScrollController scrollController =
+                            ScrollController();
                         child = Scrollbar(
                           controller: scrollController,
                           child: ListView.builder(
@@ -385,8 +387,8 @@ class ChatsTabView extends StatelessWidget {
                               if (element is ChatElement) {
                                 final RxChat chat = element.chat;
                                 child = Padding(
-                                  padding:
-                                  const EdgeInsets.only(left: 10, right: 10),
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10),
                                   child: RecentChatTile(
                                     chat,
                                     key: Key('SearchChat_${chat.id}'),
@@ -399,7 +401,8 @@ class ChatsTabView extends StatelessWidget {
                                 );
                               } else if (element is ContactElement) {
                                 child = SearchUserTile(
-                                  key: Key('SearchContact_${element.contact.id}'),
+                                  key: Key(
+                                      'SearchContact_${element.contact.id}'),
                                   contact: element.contact,
                                   onTap: () =>
                                       c.openChat(contact: element.contact),
@@ -414,14 +417,15 @@ class ChatsTabView extends StatelessWidget {
                                 child = Center(
                                   child: Container(
                                     margin:
-                                    const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                    padding:
-                                    const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        12, 10, 12, 6),
                                     width: double.infinity,
                                     child: Center(
                                       child: Text(
                                         element.category.name.capitalizeFirst!,
-                                        style: style.systemMessageStyle.copyWith(
+                                        style:
+                                            style.systemMessageStyle.copyWith(
                                           color: Colors.black,
                                           fontSize: 15,
                                         ),
@@ -442,7 +446,7 @@ class ChatsTabView extends StatelessWidget {
                                       padding: EdgeInsets.only(
                                         top: i == 0 ? 3 : 0,
                                         bottom:
-                                        i == c.elements.length - 1 ? 4 : 0,
+                                            i == c.elements.length - 1 ? 4 : 0,
                                       ),
                                       child: child,
                                     ),
@@ -459,7 +463,8 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      final ScrollController scrollController = ScrollController();
+                      final ScrollController scrollController =
+                          ScrollController();
                       child = AnimationLimiter(
                         key: const Key('Chats'),
                         child: Scrollbar(
@@ -491,7 +496,8 @@ class ChatsTabView extends StatelessWidget {
                                         inCall: () => c.inCall(chat.id),
                                         onMute: () => c.muteChat(chat.id),
                                         onUnmute: () => c.unmuteChat(chat.id),
-                                        onFavorite: () => c.favoriteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
                                         onUnfavorite: () =>
                                             c.unfavoriteChat(chat.id),
                                       ),
