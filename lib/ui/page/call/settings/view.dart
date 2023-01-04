@@ -105,7 +105,7 @@ class CallSettingsView extends StatelessWidget {
                         camera: c.camera.value,
                       );
 
-                      if(c.devices.video().isEmpty) {
+                      if (c.devices.video().isEmpty) {
                         c.enumerateDevices();
                       }
                     },
@@ -140,7 +140,7 @@ class CallSettingsView extends StatelessWidget {
                         mic: c.mic.value,
                       );
 
-                      if(c.devices.audio().isEmpty) {
+                      if (c.devices.audio().isEmpty) {
                         c.enumerateDevices();
                       }
                     },
@@ -175,7 +175,7 @@ class CallSettingsView extends StatelessWidget {
                         output: c.output.value,
                       );
 
-                      if(c.devices.output().isEmpty) {
+                      if (c.devices.output().isEmpty) {
                         c.enumerateDevices();
                       }
                     },

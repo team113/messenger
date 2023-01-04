@@ -571,7 +571,7 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            if (!e.cause().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied')) {
               _errors.add('enableScreenShare() call failed with $e');
               rethrow;
             }
@@ -622,11 +622,14 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
+            if (!isActive || members.length <= 1) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
-            if (!e.cause().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied')) {
               _errors.add('unmuteAudio() call failed with $e');
               rethrow;
             }
@@ -668,13 +671,13 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
             videoState.value = LocalTrackState.disabled;
-            if (!e.cause().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied')) {
               _errors.add('enableVideo() call failed with $e');
               rethrow;
             }
@@ -907,6 +910,10 @@ class OngoingCall {
               break;
 
             default:
+              if(e.message().contains('Permission denied')) {
+                return;
+              }
+
               _errors.add('Failed to get media: $e');
 
               await _room?.disableAudio();

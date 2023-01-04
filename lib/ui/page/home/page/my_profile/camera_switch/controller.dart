@@ -66,12 +66,7 @@ class CameraSwitchController extends GetxController {
 
     await WebUtils.cameraPermission();
 
-    _cameraWorker = ever(camera, (e) {
-      renderer.value?.dispose();
-      _localTrack?.free();
-
-      initRenderer();
-    });
+    _cameraWorker = ever(camera, (e) => initRenderer());
 
     await _enumerateDevices();
     initRenderer();
@@ -100,6 +95,9 @@ class CameraSwitchController extends GetxController {
     if (_initRendererGuard.isLocked) {
       return;
     }
+
+    renderer.value?.dispose();
+    _localTrack?.free();
 
     String? camera = this.camera.value;
 
