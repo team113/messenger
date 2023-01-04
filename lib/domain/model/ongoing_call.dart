@@ -905,6 +905,10 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to initiate screen capture: $e');
               await setScreenShareEnabled(false);
               break;
