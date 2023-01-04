@@ -40,7 +40,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -49,6 +48,8 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'chat_item.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -60,6 +61,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
@@ -99,6 +101,9 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [User] posted these [forwards].
   final RxUser? user;
+
+  /// [LastChatRead] to display under this [ChatItem].
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -673,6 +678,44 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = item.text?.val;
     }
 
+    const int maxAvatars = 5;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
+            ),
+          ),
+        );
+      }
+
+      if (widget.reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       translateChild: _fromMe,
@@ -689,6 +732,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -890,7 +935,30 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: child,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child,
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: const Offset(-12, -4),
+                                  child: WidgetButton(
+                                    onPressed: () => ChatItemReads.show(
+                                      context,
+                                      reads: widget.reads,
+                                      getUser: widget.getUser,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

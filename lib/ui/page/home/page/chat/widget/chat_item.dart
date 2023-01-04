@@ -55,6 +55,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -65,6 +66,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.item,
     required this.me,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
@@ -93,6 +95,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// [LastChatRead] to display under this [ChatItem].
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -1235,6 +1240,44 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     bool isSent = item.status.value == SendingStatus.sent;
 
+    const int maxAvatars = 5;
+    final List<Widget> avatars = [];
+
+    if (widget.chat.value?.isGroup == true) {
+      final int countUserAvatars =
+          widget.reads.length > maxAvatars ? maxAvatars - 1 : maxAvatars;
+
+      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+        final User? user = widget.chat.value?.members
+            .firstWhereOrNull((e) => e.user.id == m.memberId)
+            ?.user;
+
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
+            ),
+          ),
+        );
+      }
+
+      if (widget.reads.length > maxAvatars) {
+        avatars.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+          ),
+        );
+      }
+    }
+
     return SwipeableStatus(
       animation: widget.animation,
       translateChild: _fromMe,
@@ -1246,6 +1289,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1495,7 +1540,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        child: child,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            child,
+                            if (avatars.isNotEmpty)
+                              Transform.translate(
+                                offset: const Offset(-12, -4),
+                                child: WidgetButton(
+                                  onPressed: () => ChatItemReads.show(
+                                    context,
+                                    reads: widget.reads,
+                                    getUser: widget.getUser,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: avatars,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   );
