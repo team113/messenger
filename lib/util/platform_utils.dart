@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -102,6 +103,38 @@ class PlatformUtilsImpl {
         onCancel: worker?.dispose,
       );
     }
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the application's window size changes.
+  Stream<Size> get onResized {
+    StreamController<Size>? controller;
+
+    final _WindowListener listener = _WindowListener(
+      onResized: (size) => controller!.add(size),
+    );
+
+    controller = StreamController<Size>(
+      onListen: () => WindowManager.instance.addListener(listener),
+      onCancel: () => WindowManager.instance.removeListener(listener),
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the application's window position changes.
+  Stream<Offset> get onMoved {
+    StreamController<Offset>? controller;
+
+    final _WindowListener listener = _WindowListener(
+      onMoved: (position) => controller!.add(position),
+    );
+
+    controller = StreamController<Offset>(
+      onListen: () => WindowManager.instance.addListener(listener),
+      onCancel: () => WindowManager.instance.removeListener(listener),
+    );
 
     return controller.stream;
   }
@@ -355,6 +388,8 @@ class _WindowListener extends WindowListener {
     this.onEnterFullscreen,
     this.onFocus,
     this.onBlur,
+    this.onResized,
+    this.onMoved,
   });
 
   /// Callback, called when the window exits fullscreen.
@@ -369,6 +404,12 @@ class _WindowListener extends WindowListener {
   /// Callback, called when the window loses focus.
   final VoidCallback? onBlur;
 
+  /// Callback, called when the window resizes.
+  final void Function(Size size)? onResized;
+
+  /// Callback, called when the window moves.
+  final void Function(Offset offset)? onMoved;
+
   @override
   void onWindowEnterFullScreen() => onEnterFullscreen?.call();
 
@@ -380,4 +421,12 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowBlur() => onBlur?.call();
+
+  @override
+  void onWindowResized() async =>
+      onResized?.call(await windowManager.getSize());
+
+  @override
+  void onWindowMoved() async =>
+      onMoved?.call(await windowManager.getPosition());
 }

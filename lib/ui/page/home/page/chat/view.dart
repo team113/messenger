@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -364,9 +365,11 @@ class _ChatViewState extends State<ChatView>
                               return FlutterListView(
                                 key: const Key('MessagesList'),
                                 controller: c.listController,
-                                physics: c.isHorizontalScroll.isFalse
-                                    ? const BouncingScrollPhysics()
-                                    : const NeverScrollableScrollPhysics(),
+                                physics: c.isHorizontalScroll.isTrue ||
+                                        (PlatformUtils.isDesktop &&
+                                            c.isItemDragged.isTrue)
+                                    ? const NeverScrollableScrollPhysics()
+                                    : const BouncingScrollPhysics(),
                                 delegate: FlutterListViewDelegate(
                                   (context, i) => _listElement(context, c, i),
                                   // ignore: invalid_use_of_protected_member
@@ -533,14 +536,18 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads
+                    .where((m) => m.at == e.value.at && m.memberId != c.me),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.send.replied.contains(e.value)) {
-                c.send.replied.remove(e.value);
+              if (c.send.replied.any((i) => i.id == e.value.id)) {
+                c.send.replied.removeWhere((i) => i.id == e.value.id);
               } else {
                 c.send.replied.insert(0, e.value);
               }
@@ -571,6 +578,11 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads.where((m) =>
+                    m.at == element.forwards.last.value.at &&
+                    m.memberId != c.me),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
@@ -601,15 +613,17 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards
-                      .any((e) => c.send.replied.contains(e.value)) ||
-                  c.send.replied.contains(element.note.value?.value)) {
+              if (element.forwards.any((e) =>
+                      c.send.replied.contains(e.value)) ||
+                  c.send.replied
+                      .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.send.replied.remove(e.value);
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
                 }
 
                 if (element.note.value != null) {
-                  c.send.replied.remove(element.note.value!.value);
+                  c.send.replied
+                      .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {

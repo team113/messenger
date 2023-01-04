@@ -12,4 +12,4 @@ PRODUCT_NAME = Gapopa
 PRODUCT_BUNDLE_IDENTIFIER = com.team113.messenger
 
 // The copyright displayed in application information.
-PRODUCT_COPYRIGHT = Copyright © 2022 IT ENGINEERING MANAGEMENT INC. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC. All rights reserved.

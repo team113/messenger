@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -118,6 +119,11 @@ void main() async {
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+
+  when(graphQlProvider.readChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
+      .thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

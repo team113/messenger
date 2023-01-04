@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -70,6 +71,9 @@ class SearchController extends GetxController {
 
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
+
+  /// Reactive list of the selected [Chat]s.
+  final RxList<RxUser> selectedRecent = RxList<RxUser>([]);
 
   /// Reactive list of the selected [Chat]s.
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
@@ -180,7 +184,7 @@ class SearchController extends GetxController {
   }
 
   /// Selects or unselects the specified [contact], [user] or [chat].
-  void select({RxChatContact? contact, RxUser? user, RxChat? chat}) {
+  void select({RxChatContact? contact, RxUser? user, RxChat? chat, RxUser selectRecent,}) {
     if (contact != null) {
       if (selectedContacts.contains(contact)) {
         selectedContacts.remove(contact);
@@ -205,9 +209,17 @@ class SearchController extends GetxController {
       }
     }
 
-    if (contact != null || user != null || chat != null) {
+    if (selectRecent != null) {
+      if (selectedRecent.contains(selectRecent)) {
+        selectedRecent.remove(selectRecent);
+      } else {
+        selectedRecent.add(selectRecent);
+      }
+    }
+
+    if (contact != null || user != null || chat != null || selectRecent != null) {
       onSelected?.call(
-        SearchViewResults(selectedChats, selectedUsers, selectedContacts),
+        SearchViewResults(selectedChats, selectedUsers, selectedContacts, selectRecent,),
       );
     }
   }
@@ -488,7 +500,7 @@ class SearchController extends GetxController {
 
 /// Combined [List]s of [RxChat]s, [RxUser]s and [RxChatContact]s.
 class SearchViewResults {
-  const SearchViewResults(this.chats, this.users, this.contacts);
+  const SearchViewResults(this.chats, this.users, this.contacts, this.selectRecent);
 
   /// [RxChat]s themselves.
   final List<RxChat> chats;
@@ -499,6 +511,9 @@ class SearchViewResults {
   /// [RxChatContact]s themselves.
   final List<RxChatContact> contacts;
 
+  /// [RxChatContact]s themselves.
+  final List<RxUser> selectRecent;
+
   /// Indicates whether [chats], [users] and [contacts] are empty.
-  bool get isEmpty => chats.isEmpty && users.isEmpty && contacts.isEmpty;
+  bool get isEmpty => chats.isEmpty && users.isEmpty && contacts.isEmpty && selectRecent.isEmpty;
 }

@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -388,6 +389,7 @@ label_call_title =
 label_calls = Звонки
 label_calls_displaying = Отображение звонков
 label_camera = Камера
+label_chat = Чат
 label_change_password = Изменить пароль
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_dropped = Отменённый звонок
@@ -586,6 +588,7 @@ label_replies = [{$count} { $count ->
     [few] ответа
     *[other] ответов
     }]
+label_required = Обязательно
 label_resend = Отправить код
 label_resend_timeout = Повторить ({$timeout})
 label_search = Поиск
@@ -628,6 +631,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} непрочитанных сообщения
 }
 label_use_search = Используйте поиск, чтобы найти пользователя
+label_user = Пользователь
 label_users = Пользователи
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона

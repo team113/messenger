@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -373,6 +374,7 @@ label_call_title =
 label_calls = Calls
 label_calls_displaying = Calls displaying
 label_camera = Camera
+label_chat = Chat
 label_change_password = Change password
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -565,6 +567,7 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_required = Required
 label_resend = Resend
 label_resend_timeout = Resend ({$timeout})
 label_search = Search
@@ -607,6 +610,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} unread messages
 }
 label_use_search = Use search to find an user
+label_user = User
 label_users = Users
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -35,6 +36,7 @@ import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
+import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -132,19 +134,20 @@ class _HomeViewState extends State<HomeView> {
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
                           if (s.scrollDelta.dx.abs() < 3 &&
-                              (s.scrollDelta.dy.abs() > 1 ||
+                              (s.scrollDelta.dy.abs() > 3 ||
                                   c.verticalScrollTimer.value != null)) {
                             c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value =
-                                Timer(150.milliseconds, () {
-                              c.verticalScrollTimer.value = null;
-                            });
+                            c.verticalScrollTimer.value = Timer(
+                              300.milliseconds,
+                              () => c.verticalScrollTimer.value = null,
+                            );
                           }
                         }
                       },
                       child: Obx(() {
                         return PageView(
-                          physics: c.verticalScrollTimer.value == null
+                          physics: c.verticalScrollTimer.value == null &&
+                                  router.navigation.value
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
@@ -179,53 +182,59 @@ class _HomeViewState extends State<HomeView> {
                           });
                         }
 
-                        return CustomNavigationBar(
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              child: tab(
-                                tab: HomeTab.contacts,
-                                child: SvgLoader.asset(
-                                  'assets/icons/contacts.svg',
-                                  width: 30,
-                                  height: 30,
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 1),
+                          translate: false,
+                          child: CustomNavigationBar(
+                            items: [
+                              CustomNavigationBarItem(
+                                key: const Key('ContactsButton'),
+                                child: tab(
+                                  tab: HomeTab.contacts,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contacts.svg',
+                                    width: 30,
+                                    height: 30,
+                                  ),
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('ChatsButton'),
-                              badge: c.unreadChatsCount.value == 0
-                                  ? null
-                                  : '${c.unreadChatsCount.value}',
-                              child: tab(
-                                tab: HomeTab.chats,
-                                child: SvgLoader.asset(
-                                  'assets/icons/chats.svg',
-                                  width: 36.06,
-                                  height: 30,
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                child: tab(
+                                  tab: HomeTab.chats,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/chats.svg',
+                                    width: 36.06,
+                                    height: 30,
+                                  ),
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              child: RmbDetector(
-                                onPressed: () => StatusView.show(context),
-                                child: Padding(
-                                  key: c.profileKey,
-                                  padding: const EdgeInsets.only(bottom: 2),
-                                  child: tab(
-                                    tab: HomeTab.menu,
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: RmbDetector(
+                                  onPressed: () => StatusView.show(context),
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: tab(
+                                      tab: HomeTab.menu,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: c.pages.jumpToPage,
+                          ),
                         );
                       }),
                     ),
