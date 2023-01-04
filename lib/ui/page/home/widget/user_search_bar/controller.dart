@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -32,6 +33,9 @@ class UserSearchBarController extends GetxController {
 
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Status of the search.
   ///

@@ -46,8 +46,6 @@ class IntroductionView extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
-    final ScrollController scrollController = ScrollController();
-
     return GetBuilder(
       key: const Key('IntroductionView'),
       init: IntroductionController(Get.find()),
@@ -160,9 +158,9 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
-              controller: scrollController,
+              controller: c.scrollController,
               child: ListView(
-                controller: scrollController,
+                controller: c.scrollController,
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),

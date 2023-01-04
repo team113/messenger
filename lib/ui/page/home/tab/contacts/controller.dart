@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -67,6 +68,9 @@ class ContactsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;

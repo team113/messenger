@@ -56,15 +56,14 @@ class UserSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
     return GetBuilder(
       key: const Key('UserSearchBarView'),
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
         () => Scrollbar(
-          controller: scrollController,
+          controller: c.scrollController,
           child: FloatingSearchBar(
-            scrollController: scrollController,
+            scrollController: c.scrollController,
             hint: 'label_search'.l10n,
             controller: searchController,
             scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),

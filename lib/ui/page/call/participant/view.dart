@@ -105,7 +105,6 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final ScrollController scrollController = ScrollController();
               List<Widget> children = [
                 const SizedBox(height: 12),
                 Padding(
@@ -122,9 +121,9 @@ class ParticipantView extends StatelessWidget {
                 const SizedBox(height: 18),
                 Expanded(
                   child: Scrollbar(
-                    controller: scrollController,
+                    controller: c.scrollController,
                     child: ListView(
-                      controller: scrollController,
+                      controller: c.scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       children: c.chat.value!.members.values.map((e) {
                         return Padding(

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -36,6 +37,9 @@ class IntroductionController extends GetxController {
 
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState num;

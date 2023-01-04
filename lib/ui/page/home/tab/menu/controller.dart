@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -30,6 +31,9 @@ export 'view.dart';
 /// Controller of the `HomeTab.menu` tab.
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [AuthService] used in a [logout].
   final AuthService _authService;

@@ -41,7 +41,6 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final Style style = Theme.of(context).extension<Style>()!;
-        final ScrollController scrollController = ScrollController();
 
         return Scaffold(
           extendBodyBehindAppBar: true,
@@ -117,9 +116,9 @@ class MenuTabView extends StatelessWidget {
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Scrollbar(
-              controller: scrollController,
+              controller: c.scrollController,
               child: ListView.builder(
-                controller: scrollController,
+                controller: c.scrollController,
                 key: const Key('MenuListView'),
                 itemCount: ProfileTab.values.length,
                 itemBuilder: (context, i) {

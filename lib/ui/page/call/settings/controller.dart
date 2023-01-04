@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -27,6 +28,9 @@ export 'view.dart';
 /// Controller of the call overlay settings.
 class CallSettingsController extends GetxController {
   CallSettingsController(this._call, this._settingsRepo, {required this.onPop});
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// The [OngoingCall] that this settings are bound to.
   final Rx<OngoingCall> _call;

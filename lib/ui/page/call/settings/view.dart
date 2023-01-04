@@ -83,8 +83,6 @@ class _CallSettingsViewState extends State<CallSettingsView> {
       width: double.infinity,
     );
 
-    final ScrollController scrollController = ScrollController();
-
     Widget row(Widget left, Widget right, [bool flexible = false]) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Row(
@@ -223,9 +221,9 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                     divider,
                     Expanded(
                       child: Scrollbar(
-                        controller: scrollController,
+                        controller: c.scrollController,
                         child: ListView(
-                          controller: scrollController,
+                          controller: c.scrollController,
                           children: [
                             const SizedBox(height: 25),
                             row(

@@ -42,7 +42,6 @@ class ConfirmLogoutView extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-    final ScrollController scrollController = ScrollController();
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
@@ -243,9 +242,9 @@ class ConfirmLogoutView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
-              controller: scrollController,
+              controller: c.scrollController,
               child: ListView(
-                controller: scrollController,
+                controller: c.scrollController,
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 children: [
