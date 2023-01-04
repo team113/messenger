@@ -153,10 +153,15 @@ Widget mobileCall(CallController c, BuildContext context) {
                             bool isOutgoing = (c.outgoing ||
                                     c.state.value == OngoingCallState.local) &&
                                 !c.started;
+
                             bool withDots = c.state.value !=
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
+
+                            bool isDialog =
+                                c.chat.value?.chat.value.isDialog == true;
+
                             String state =
                                 c.state.value == OngoingCallState.active
                                     ? c.duration.value
@@ -167,7 +172,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     : c.state.value == OngoingCallState.joining
                                         ? 'label_call_joining'.l10n
                                         : isOutgoing
-                                            ? 'label_call_calling'.l10n
+                                            ? isDialog
+                                                ? 'label_call_calling'.l10n
+                                                : 'label_call_connecting'.l10n
                                             : c.withVideo == true
                                                 ? 'label_video_call'.l10n
                                                 : 'label_audio_call'.l10n;

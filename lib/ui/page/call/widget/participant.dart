@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
@@ -26,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
+import 'animated_dots.dart';
 import 'call_cover.dart';
 import 'conditional_backdrop.dart';
 import 'video_view.dart';
@@ -406,25 +408,59 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   child = Container();
                 } else if (participant.member.isRedialing.value) {
                   child = Container(
-                    key: Key('ParticipantRedialing_${participant.member.id}'),
+                    key: Key(
+                      'ParticipantRedialing_${participant.member.id}',
+                    ),
                     width: double.infinity,
                     height: double.infinity,
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withOpacity(0.4),
                     // child: const Center(child: Icon(Icons.phone)),
-                    child: const Padding(
-                      padding: EdgeInsets.all(21.0),
+                    // child: Column(
+                    //   children: [
+                    //     Expanded(
+                    //       flex: 3,
+                    //       child: Center(
+                    //         child: Container(
+                    //           // decoration: BoxDecoration(
+                    //           //   borderRadius: BorderRadius.circular(5),
+                    //           //   color: Colors.black.withOpacity(0.8),
+                    //           // ),
+                    //           padding: const EdgeInsets.fromLTRB(2, 8, 8, 6),
+                    //           margin: const EdgeInsets.all(8),
+                    //           child: Row(
+                    //             mainAxisSize: MainAxisSize.min,
+                    //             mainAxisAlignment: MainAxisAlignment.center,
+                    //             children: [
+                    //               const SizedBox(width: 13),
+                    //               Text(
+                    //                 'label_call_calling'.l10n,
+                    //                 style: context.textTheme.headline4
+                    //                     ?.copyWith(color: Colors.white),
+                    //               ),
+                    //               const AnimatedDots(),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const Expanded(flex: 6, child: SizedBox()),
+                    //   ],
+                    // ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(21.0),
                       child: Center(
-                        child: SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: AspectRatio(
-                            aspectRatio: 1,
-                            child: LoadingIndicator(
-                              indicatorType: Indicator.ballScaleMultiple,
-                              colors: [Colors.white],
-                            ),
-                          ),
+                        child: SpinKitDoubleBounce(
+                          // child: SpinKitPulse(
+                          key: participant.redialingKey,
+                          // color: Colors.white,
+                          color: const Color(0xFFEEEEEE),
+                          size: 100 / 1.5,
+                          duration: const Duration(milliseconds: 4500),
                         ),
+                        // child: LoadingIndicator(
+                        //   indicatorType: Indicator.ballScaleMultiple,
+                        //   colors: [Colors.white],
+                        // ),
                       ),
                     ),
                   );

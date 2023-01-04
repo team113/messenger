@@ -370,7 +370,8 @@ label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_blocked_count = Blocked: {$count}
 label_call_active = Active call
-label_call_calling = Connection preparing
+label_call_calling = Calling
+label_call_connecting = Connection preparing
 label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
@@ -382,7 +383,7 @@ label_call_title =
         *[other] {$type ->
             [video] Video call
             [audio] Audio call
-            *[other] Connection preparing...
+            *[other] Calling...
         }
     }
 label_calls = Calls

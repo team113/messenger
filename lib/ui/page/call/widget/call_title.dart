@@ -84,7 +84,7 @@ class CallTitle extends StatelessWidget {
             title ?? ('dot'.l10n * 3),
             style: context.textTheme.headline4?.copyWith(color: Colors.white),
           ),
-          if (state != null) const SizedBox(height: 3),
+          if (state != null) const SizedBox(height: 8),
           if (state != null)
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -93,8 +93,8 @@ class CallTitle extends StatelessWidget {
                 if (withDots) const SizedBox(width: 13),
                 Text(
                   state!,
-                  style:
-                      context.textTheme.caption?.copyWith(color: Colors.white),
+                  style: context.textTheme.headline4
+                      ?.copyWith(color: Colors.white),
                 ),
                 if (withDots) const AnimatedDots(),
               ],

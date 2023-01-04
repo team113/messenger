@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -43,7 +44,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -66,7 +66,9 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Active call.
-      if (c.state.value == OngoingCallState.active) {
+      if (true // c.state.value == OngoingCallState.active
+          // || c.chat.value?.chat.value.isGroup == true
+          ) {
         // Secondary view possible alignment.
         Widget possibleContainer() {
           return Obx(() {
@@ -257,7 +259,40 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }
 
-            return Container();
+            return const SizedBox();
+          }),
+        );
+
+        content.add(
+          Obx(() {
+            bool isOutgoing =
+                (c.outgoing || c.state.value == OngoingCallState.local) &&
+                    !c.started;
+
+            Participant? video =
+                (c.locals.firstOrNull ?? c.paneled.firstOrNull);
+
+            if (isOutgoing && video?.video.value == null) {
+              return Padding(
+                padding: const EdgeInsets.all(21.0),
+                child: Center(
+                  child: SpinKitDoubleBounce(
+                    // child: SpinKitPulse(
+                    key: video?.redialingKey,
+                    // color: Colors.white,
+                    color: const Color(0xFFEEEEEE),
+                    size: 100 / 1.5,
+                    duration: const Duration(milliseconds: 4500),
+                  ),
+                  // child: LoadingIndicator(
+                  //   indicatorType: Indicator.ballScaleMultiple,
+                  //   colors: [Colors.white],
+                  // ),
+                ),
+              );
+            }
+
+            return const SizedBox();
           }),
         );
 
@@ -644,7 +679,14 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Sliding from the top title bar.
         Obx(() {
-          bool preferTitle = c.state.value != OngoingCallState.active;
+          bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+          bool isDialog = c.chat.value?.chat.value.isDialog == true;
+
+          bool preferTitle =
+              c.state.value != OngoingCallState.active && !isOutgoing;
+
           return AnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),
             duration: const Duration(milliseconds: 200),
@@ -762,7 +804,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
-        if (c.state.value == OngoingCallState.active) ...[
+        if (true /*c.state.value == OngoingCallState.active*/) ...[
           // Secondary panel itself.
           _secondaryView(c, context),
 

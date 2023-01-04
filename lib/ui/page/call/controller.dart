@@ -1938,6 +1938,7 @@ class Participant {
 
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
+  final GlobalKey redialingKey = GlobalKey();
 
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>

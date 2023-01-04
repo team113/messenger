@@ -388,7 +388,8 @@ label_blocked_users = Заблокированные пользователи
 label_blocked_users_count = Заблокированных пользователей: {$count}
 label_blocked_count = Заблокировано: {$count}
 label_call_active = Активный звонок
-label_call_calling = Подготовка соединения
+label_call_calling = Звоним
+label_call_connecting = Подготовка соединения
 label_call_joining = Подключение
 label_call_permissions_description =
     Необходим для отображения звонков напрямую в телефоне
@@ -400,7 +401,7 @@ label_call_title =
         *[other] {$type ->
             [video] Видеозвонок
             [audio] Аудиозвонок
-            *[other] Подготовка соединения...
+            *[other] Звоним...
         }
     }
 label_calls = Звонки

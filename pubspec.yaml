@@ -117,6 +117,7 @@ dev_dependencies:
   network_image_mock: ^2.1.1
   sentry_dart_plugin: ^1.0.0-beta.2
   yaml: ^3.1.0
+  flutter_spinkit: ^5.1.0
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.

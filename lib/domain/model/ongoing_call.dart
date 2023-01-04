@@ -317,7 +317,7 @@ class OngoingCall {
         return;
       }
 
-      members[_me] = CallMember.me(_me);
+      members[_me] = CallMember.me(_me, isConnected: true);
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
@@ -373,7 +373,7 @@ class OngoingCall {
         final CallMemberId id = CallMemberId(m.user.id, null);
 
         if (members.values.none((e) => e.id.userId == id.userId)) {
-          _timers[id] = Timer(30.seconds, () {
+          _timers[id] = Timer(120.seconds, () {
             final CallMember? member = members[id];
             if (member?.isRedialing.value == true) {
               _timers.remove(id);
@@ -1031,6 +1031,7 @@ class OngoingCall {
 
       final CallMember? redialed = members[redialedId];
       if (redialed?.isRedialing.value == true) {
+        redialed?.id = id;
         members.move(redialedId, id);
       }
 
