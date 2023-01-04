@@ -230,6 +230,9 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
+  /// [LastChatRead]s of this [chat].
+  RxList<LastChatRead> get reads;
+
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
 
