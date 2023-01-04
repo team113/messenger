@@ -131,16 +131,7 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
-  bool _escapeListener(KeyEvent e) {
-    if (e.logicalKey == LogicalKeyboardKey.escape) {
-      if (searching.value) {
-        closeSearch();
-        return true;
-      }
-    }
 
-    return false;
-  }
 
   @override
   void onInit() {
@@ -517,6 +508,17 @@ class ChatsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
     }
+  }
+
+  bool _escapeListener(KeyEvent e) {
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      if (searching.value) {
+        closeSearch();
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

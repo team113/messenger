@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/my_user.dart';
 
@@ -122,6 +123,8 @@ class ContactsTabController extends GetxController {
 
     _initUsersUpdates();
 
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+
     super.onInit();
   }
 
@@ -135,6 +138,9 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
+
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+
     super.onClose();
   }
 
@@ -379,5 +385,16 @@ class ContactsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
     }
+  }
+
+  bool _escapeListener(KeyEvent e) {
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      if (search.value != null) {
+        toggleSearch(false);
+        return true;
+      }
+    }
+
+    return false;
   }
 }
