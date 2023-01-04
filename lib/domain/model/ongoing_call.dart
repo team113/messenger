@@ -910,7 +910,7 @@ class OngoingCall {
               break;
 
             default:
-              if(e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied')) {
                 return;
               }
 
