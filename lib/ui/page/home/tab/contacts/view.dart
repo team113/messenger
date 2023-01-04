@@ -134,11 +134,7 @@ class ContactsTabView extends StatelessWidget {
               if (c.search.value != null) {
                 child = WidgetButton(
                   key: const Key('CloseSearch'),
-                  onPressed: () {
-                    if (c.search.value?.query.isNotEmpty == true) {
-                      c.toggleSearch(false);
-                    }
-                  },
+                  onPressed: () => c.toggleSearch(false),
                   child: SvgLoader.asset(
                     'assets/icons/close_primary.svg',
                     height: 15,

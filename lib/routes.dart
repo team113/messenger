@@ -141,6 +141,9 @@ class RouterState extends ChangeNotifier {
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
 
+  /// Indicator whether [HomeView] page navigation should be visible.
+  final RxBool navigation = RxBool(true);
+
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
