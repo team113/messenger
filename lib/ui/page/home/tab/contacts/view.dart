@@ -330,7 +330,6 @@ class ContactsTabView extends StatelessWidget {
                                 c,
                                 i,
                                 reorderIndex: i,
-                                reordered: c.reordered,
                               );
                             }),
                           );
@@ -385,7 +384,6 @@ class ContactsTabView extends StatelessWidget {
     ContactsTabController c,
     int position, {
     int? reorderIndex,
-    RxBool? reordered,
   }) {
     bool favorite = c.favorites.contains(contact);
 
@@ -452,7 +450,7 @@ class ContactsTabView extends StatelessWidget {
       ],
     );
 
-    if (reordered?.value == true) {
+    if (c.reordered.value == true && reorderIndex != null) {
       return child;
     }
 
