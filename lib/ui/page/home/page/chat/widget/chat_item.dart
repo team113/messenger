@@ -67,10 +67,10 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.item,
     required this.me,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
-    this.reads = const [],
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -96,7 +96,7 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// List [LastChatRead]'s of this [ChatItem].
+  /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -1263,7 +1263,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget.fromUser(user, radius: 10),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
+            ),
           ),
         );
       }
@@ -1552,22 +1560,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             child,
-                            Transform.translate(
-                              offset: const Offset(-12, -4),
-                              child: WidgetButton(
-                                onPressed: () => ChatItemReads.show(
-                                  context,
-                                  at: item.at,
-                                  lastReads: widget.reads,
-                                  getUser: widget.getUser,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: avatars,
+                            if (avatars.isNotEmpty)
+                              Transform.translate(
+                                offset: const Offset(-12, -4),
+                                child: WidgetButton(
+                                  onPressed: () => ChatItemReads.show(
+                                    context,
+                                    reads: widget.reads,
+                                    getUser: widget.getUser,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: avatars,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),

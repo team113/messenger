@@ -17,8 +17,8 @@
 
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/model/application_settings.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/util/obs/obs.dart';

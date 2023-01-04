@@ -15,18 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -240,8 +234,6 @@ class ChatsTabView extends StatelessWidget {
                 body: Obx(() {
                   if (c.chatsReady.value) {
                     final Widget? child;
-
-                    final ScrollController controller = ScrollController();
 
                     if (c.groupCreating.value) {
                       Widget? center;

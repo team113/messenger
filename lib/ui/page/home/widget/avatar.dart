@@ -58,9 +58,6 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.useLayoutBuilder = true,
-    this.onBadgeTap,
-    this.onAvatarTap,
     this.quality = AvatarQuality.big,
   }) : super(key: key);
 
@@ -73,8 +70,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
@@ -88,8 +83,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
 
@@ -103,8 +96,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
@@ -116,8 +107,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
     }
@@ -137,8 +126,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
     });
@@ -152,8 +139,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
@@ -166,8 +151,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
 
@@ -179,9 +162,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool useLayoutBuilder = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
@@ -193,9 +173,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
 
@@ -208,9 +185,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    bool useLayoutBuilder = true,
-    void Function()? onBadgeTap,
-    void Function()? onAvatarTap,
     AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
@@ -221,9 +195,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       );
     }
@@ -240,9 +211,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
-        onBadgeTap: onBadgeTap,
-        onAvatarTap: onAvatarTap,
         quality: quality,
       ),
     );
@@ -359,11 +327,6 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  final bool useLayoutBuilder;
-
-  final void Function()? onBadgeTap;
-  final void Function()? onAvatarTap;
-
   final AvatarQuality quality;
 
   /// Avatar color swatches.
@@ -408,7 +371,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    Widget child(BoxConstraints? constraints) {
+    return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
       if (color != null) {
@@ -419,22 +382,10 @@ class AvatarWidget extends StatelessWidget {
         gradient = const Color(0xFF555555);
       }
 
-      double minWidth = min(
-        _minDiameter,
-        constraints?.smallest.shortestSide ?? _minDiameter,
-      );
-      double minHeight = min(
-        _minDiameter,
-        constraints?.smallest.shortestSide ?? _minDiameter,
-      );
-      double maxWidth = min(
-        _maxDiameter,
-        constraints?.biggest.shortestSide ?? _maxDiameter,
-      );
-      double maxHeight = min(
-        _maxDiameter,
-        constraints?.biggest.shortestSide ?? _maxDiameter,
-      );
+      double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
+      double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
+      double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+      double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
       double badgeSize = max(5, maxWidth / 12);
       if (maxWidth < 40) {
@@ -463,71 +414,65 @@ class AvatarWidget extends StatelessWidget {
 
       return Badge(
         showBadge: isOnline,
-        badgeContent: WidgetButton(
-          onPressed: onBadgeTap,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isAway ? Colors.orange : Colors.green,
-            ),
-            padding: EdgeInsets.all(badgeSize),
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
           ),
+          padding: EdgeInsets.all(badgeSize),
         ),
         padding: EdgeInsets.all(badgeSize / 3),
         badgeColor: Colors.white,
         toAnimate: false,
         position: BadgePosition.bottomEnd(
-          bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
-          end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+          bottom: -badgeSize / 5,
+          end: -badgeSize / 5,
         ),
+        // position: BadgePosition.bottomEnd(
+        //   bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+        //   end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+        // ),
         elevation: 0,
-        child: WidgetButton(
-          onPressed: onAvatarTap,
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: minHeight,
-              minWidth: minWidth,
-              maxWidth: maxWidth,
-              maxHeight: maxHeight,
-            ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [gradient.lighten(), gradient],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: avatar == null
-                ? Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      textScaleFactor: 1,
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40.0),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  )
-                : ClipOval(
-                    child: RetryImage(
-                      avatar!.original.url,
-                      fit: BoxFit.cover,
-                      height: double.infinity,
-                      width: double.infinity,
-                    ),
-                  ),
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
           ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
+            ),
+            shape: BoxShape.circle,
+          ),
+          child: avatar == null
+              ? Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
+                  ),
+                )
+              : ClipOval(
+                  child: RetryImage(
+                    link ?? avatar!.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                  ),
+                ),
         ),
       );
-    }
-
-    if (!useLayoutBuilder) {
-      return child(null);
-    }
-
-    return LayoutBuilder(builder: (context, constraints) => child(constraints));
+    });
   }
 }
 

@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,7 +32,6 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
-import 'tab/chats/chats_more/view.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';

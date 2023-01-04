@@ -55,8 +55,8 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
-import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -130,8 +130,6 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
-
-
 
   @override
   void onInit() {

@@ -17,25 +17,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/widget/animated_size_and_fade.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/domain/model/ongoing_call.dart';
-import '/domain/repository/chat.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_size_and_fade.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import 'controller.dart';
 
 /// [OngoingCall.members] enumeration and administration view.

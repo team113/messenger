@@ -40,7 +40,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -49,6 +48,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'chat_item.dart';
 import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 
@@ -61,10 +61,10 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.reads = const [],
     this.user,
     this.getUser,
     this.animation,
-    this.reads = const [],
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -98,7 +98,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
-  /// List [LastChatRead]'s of this [ChatItem].
+  /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -686,7 +686,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget.fromUser(user, radius: 10),
+            child: FutureBuilder<RxUser?>(
+              future: widget.getUser?.call(user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                }
+                return AvatarWidget.fromUser(user, radius: 10);
+              },
+            ),
           ),
         );
       }
@@ -717,6 +725,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -911,23 +921,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               child,
-                              Transform.translate(
-                                offset: const Offset(-12, -4),
-                                child: WidgetButton(
-                                  onPressed: () => ChatItemReads.show(
-                                    context,
-                                    at: widget.forwards.last.value.at,
-                                    lastReads: widget.reads,
-                                    getUser: widget.getUser,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: avatars,
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: const Offset(-12, -4),
+                                  child: WidgetButton(
+                                    onPressed: () => ChatItemReads.show(
+                                      context,
+                                      reads: widget.reads,
+                                      getUser: widget.getUser,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),

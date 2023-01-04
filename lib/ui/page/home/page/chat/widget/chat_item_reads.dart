@@ -1,5 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
-//                       <https://github.com/team113>
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,7 +17,6 @@
 import 'package:flutter/material.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -26,23 +24,18 @@ import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 
-/// List of [User]s for whom [ChatItem] is the last read.
+/// View displaying the provided [reads] along with corresponding [User]s.
 ///
 /// Intended to be displayed with the [show] method.
 class ChatItemReads extends StatelessWidget {
   const ChatItemReads({
     super.key,
-    required this.at,
-    required this.lastReads,
+    this.reads = const [],
     this.getUser,
   });
 
-  /// [PreciseDateTime] when [ChatItem] was posted.
-  final PreciseDateTime at;
-
-  /// List of this [Chat]'s members which have read it, along with the
-  /// corresponding [LastChatRead]s.
-  final Iterable<LastChatRead> lastReads;
+  /// [LastChatRead]s themselves.
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -51,17 +44,12 @@ class ChatItemReads extends StatelessWidget {
   /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required PreciseDateTime at,
-    required Iterable<LastChatRead> lastReads,
+    Iterable<LastChatRead> reads = const [],
     Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
       context: context,
-      child: ChatItemReads(
-        at: at,
-        lastReads: lastReads,
-        getUser: getUser,
-      ),
+      child: ChatItemReads(reads: reads, getUser: getUser),
     );
   }
 
@@ -73,7 +61,7 @@ class ChatItemReads extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        const SizedBox(height: 16 - 12),
+        const SizedBox(height: 4),
         ModalPopupHeader(
           header: Center(
             child: Text(
@@ -82,31 +70,27 @@ class ChatItemReads extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 25 - 12),
-        ...lastReads.map((e) {
-          if (e.at == at) {
-            return Padding(
-              padding: ModalPopup.padding(context),
-              child: FutureBuilder<RxUser?>(
-                future: getUser?.call(e.memberId),
-                builder: (context, snapshot) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: ContactTile(
-                      user: snapshot.data,
-                      darken: 0.05,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        router.user(e.memberId, push: true);
-                      },
-                    ),
-                  );
-                },
-              ),
-            );
-          }
-
-          return const SizedBox();
+        const SizedBox(height: 13),
+        ...reads.map((e) {
+          return Padding(
+            padding: ModalPopup.padding(context),
+            child: FutureBuilder<RxUser?>(
+              future: getUser?.call(e.memberId),
+              builder: (context, snapshot) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: ContactTile(
+                    user: snapshot.data,
+                    darken: 0.05,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      router.user(e.memberId, push: true);
+                    },
+                  ),
+                );
+              },
+            ),
+          );
         }),
         const SizedBox(height: 16),
       ],
