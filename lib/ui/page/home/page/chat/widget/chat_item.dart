@@ -68,6 +68,7 @@ class ChatItemWidget extends StatefulWidget {
     this.user,
     this.getUser,
     this.animation,
+    this.dragDelta = 10,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -114,6 +115,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
+
+  /// Distance to travel in order for the dragging started.
+  final double dragDelta;
 
   /// Callback, called when a gallery list is required.
   ///
@@ -482,6 +486,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Drag [Offset] to determine whether need to animate this [ChatItemWidget].
+  Offset _realOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -611,7 +618,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
-        asStack: true,
+        translateChild: false,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -1230,7 +1237,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translateChild: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1262,13 +1269,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              if (_realOffset.dx > widget.dragDelta) {
+                _offset += d.delta;
 
-              setState(() {});
+                if (_offset.dx > 30 + widget.dragDelta &&
+                    _offset.dx - d.delta.dx < 30 + widget.dragDelta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _realOffset += d.delta;
+
+                if(_realOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -1276,6 +1294,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _realOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});

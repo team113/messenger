@@ -27,7 +27,7 @@ class SwipeableStatus extends StatelessWidget {
     required this.child,
     required this.swipeable,
     this.animation,
-    this.asStack = false,
+    this.translateChild = false,
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
@@ -49,9 +49,8 @@ class SwipeableStatus extends StatelessWidget {
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
 
-  /// Indicator whether [swipeable] should be put in a [Stack] instead of a
-  /// [Row].
-  final bool asStack;
+  /// Indicator whether [child] should be translated on swipe.
+  final bool translateChild;
 
   /// Indicator whether status is sent.
   final bool isSent;
@@ -80,13 +79,16 @@ class SwipeableStatus extends StatelessWidget {
       return child;
     }
 
-    if (asStack) {
+    if (translateChild) {
       return Stack(
         alignment: crossAxisAlignment == CrossAxisAlignment.end
             ? Alignment.bottomRight
             : Alignment.centerRight,
         children: [
-          child,
+          _animatedBuilder(
+            child,
+            translated: false,
+          ),
           _animatedBuilder(
             Padding(
               padding: padding,
@@ -98,18 +100,19 @@ class SwipeableStatus extends StatelessWidget {
       );
     }
 
-    return _animatedBuilder(
-      Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          Expanded(child: child),
+    return Stack(
+      alignment: crossAxisAlignment == CrossAxisAlignment.end
+          ? Alignment.bottomRight
+          : Alignment.centerRight,
+      children: [
+        child,
+        _animatedBuilder(
           Padding(
             padding: padding,
             child: SizedBox(width: width, child: _swipeableWithStatus(context)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -159,13 +162,14 @@ class SwipeableStatus extends StatelessWidget {
   }
 
   /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child) => AnimatedBuilder(
+  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
+      AnimatedBuilder(
         animation: animation!,
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: const Offset(width, 0),
-              end: Offset.zero,
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );
