@@ -44,7 +44,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned mobile interface. ([#287], [#246])
-        - Redesigned settings modal. ([#293], [#283])
+        - Redesigned settings. ([#293], [#283])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
