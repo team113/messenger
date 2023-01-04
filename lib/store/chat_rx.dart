@@ -206,13 +206,7 @@ class HiveRxChat extends RxChat {
       }
 
       if (chat.value.isDialog) {
-        UserId? responderId = chat.value.members
-            .firstWhereOrNull((e) => e.user.id != me)
-            ?.user
-            .id;
-        if (responderId != null) {
-          _chatRepository.updateDialog(this);
-        }
+        _chatRepository.updateDialog(this);
       }
 
       status.value = RxStatus.success();
