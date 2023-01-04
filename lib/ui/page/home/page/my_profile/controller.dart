@@ -382,6 +382,8 @@ class MyProfileController extends GetxController {
 
   @override
   void onClose() {
+    _mediaManager.free();
+    _jason.free();
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     super.onClose();
