@@ -725,7 +725,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               } else {
                 _realOffset += d.delta;
 
-                if(_realOffset.dx <= 0) {
+                if (_realOffset.dx <= 0) {
                   _dragging = false;
                   widget.onDrag?.call(_dragging);
                 }
