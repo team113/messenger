@@ -452,43 +452,68 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      child = AnimationLimiter(
-                        key: const Key('Chats'),
-                        child: ListView.builder(
-                          itemCount: c.chats.length,
-                          itemBuilder: (_, i) {
-                            final RxChat chat = c.chats[i];
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: RecentChatTile(
-                                      chat,
-                                      key: Key('RecentChat_${chat.id}'),
-                                      me: c.me,
-                                      getUser: c.getUser,
-                                      onJoin: () => c.joinCall(chat.id),
-                                      onDrop: () => c.dropCall(chat.id),
-                                      onLeave: () => c.leaveChat(chat.id),
-                                      onHide: () => c.hideChat(chat.id),
-                                      inCall: () => c.inCall(chat.id),
-                                      onMute: () => c.muteChat(chat.id),
-                                      onUnmute: () => c.unmuteChat(chat.id),
-                                      onFavorite: () => c.favoriteChat(chat.id),
-                                      onUnfavorite: () =>
-                                          c.unfavoriteChat(chat.id),
+                      final MediaQueryData? mediaQuery =
+                          MediaQuery.maybeOf(context);
+                      print(mediaQuery?.systemGestureInsets);
+                      print(mediaQuery?.padding);
+                      print(mediaQuery?.viewPadding);
+                      print(mediaQuery?.viewInsets);
+                      print('------------');
+                      MediaQueryData mediaQuery2 = context.mediaQuery;
+                      print(mediaQuery2.systemGestureInsets);
+                      print(mediaQuery2.padding);
+                      print(mediaQuery2.viewPadding);
+                      print(mediaQuery2.viewInsets);
+                      print('------------');
+                      context.isMobile;
+                      child = MediaQuery(
+                        data: mediaQuery2.copyWith(
+                          padding: mediaQuery2.padding.copyWith(
+                            top: mediaQuery2.padding.top + 60,
+                          ),
+                          viewInsets: EdgeInsets.only(top: 30),
+                          size: Size(100, 200),
+                        ),
+                        child: AnimationLimiter(
+                          key: const Key('Chats'),
+                          child: ListView.builder(
+                            clipBehavior: Clip.hardEdge,
+                            itemCount: c.chats.length,
+                            itemBuilder: (_, i) {
+                              final RxChat chat = c.chats[i];
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      child: RecentChatTile(
+                                        chat,
+                                        key: Key('RecentChat_${chat.id}'),
+                                        me: c.me,
+                                        getUser: c.getUser,
+                                        onJoin: () => c.joinCall(chat.id),
+                                        onDrop: () => c.dropCall(chat.id),
+                                        onLeave: () => c.leaveChat(chat.id),
+                                        onHide: () => c.hideChat(chat.id),
+                                        inCall: () => c.inCall(chat.id),
+                                        onMute: () => c.muteChat(chat.id),
+                                        onUnmute: () => c.unmuteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
+                                        onUnfavorite: () =>
+                                            c.unfavoriteChat(chat.id),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       );
                     }
