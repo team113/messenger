@@ -40,8 +40,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/chat/widget/chat_item_reads.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -50,6 +48,8 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'animated_offset.dart';
+import 'chat_item.dart';
+import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -98,7 +98,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
-  /// List [LastChatRead]'s of this [ChatItem].
+  /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -927,7 +927,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   child: WidgetButton(
                                     onPressed: () => ChatItemReads.show(
                                       context,
-                                      lastReads: widget.reads,
+                                      reads: widget.reads,
                                       getUser: widget.getUser,
                                     ),
                                     child: Row(

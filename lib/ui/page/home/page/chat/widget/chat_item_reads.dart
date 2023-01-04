@@ -24,18 +24,18 @@ import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 
-/// List of [User]s for whom [ChatItem] is the last read.
+/// View displaying the provided [reads] along with corresponding [User]s.
 ///
 /// Intended to be displayed with the [show] method.
 class ChatItemReads extends StatelessWidget {
   const ChatItemReads({
     super.key,
-    required this.lastReads,
+    this.reads = const [],
     this.getUser,
   });
 
-  /// List [LastChatRead]'s of this [ChatItem].
-  final Iterable<LastChatRead> lastReads;
+  /// [LastChatRead]s themselves.
+  final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -44,15 +44,12 @@ class ChatItemReads extends StatelessWidget {
   /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Iterable<LastChatRead> lastReads,
+    Iterable<LastChatRead> reads = const [],
     Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
       context: context,
-      child: ChatItemReads(
-        lastReads: lastReads,
-        getUser: getUser,
-      ),
+      child: ChatItemReads(reads: reads, getUser: getUser),
     );
   }
 
@@ -64,7 +61,7 @@ class ChatItemReads extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       children: [
-        const SizedBox(height: 16 - 12),
+        const SizedBox(height: 4),
         ModalPopupHeader(
           header: Center(
             child: Text(
@@ -73,8 +70,8 @@ class ChatItemReads extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 25 - 12),
-        ...lastReads.map((e) {
+        const SizedBox(height: 13),
+        ...reads.map((e) {
           return Padding(
             padding: ModalPopup.padding(context),
             child: FutureBuilder<RxUser?>(

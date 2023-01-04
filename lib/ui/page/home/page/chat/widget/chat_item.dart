@@ -95,7 +95,7 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// List [LastChatRead]'s of this [ChatItem].
+  /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -1532,7 +1532,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 child: WidgetButton(
                                   onPressed: () => ChatItemReads.show(
                                     context,
-                                    lastReads: widget.reads,
+                                    reads: widget.reads,
                                     getUser: widget.getUser,
                                   ),
                                   child: Row(
