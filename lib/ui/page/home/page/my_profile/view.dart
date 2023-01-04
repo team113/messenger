@@ -112,6 +112,7 @@ class MyProfileView extends StatelessWidget {
                                     c.myUser.value,
                                     radius: 100,
                                     badge: false,
+                                    quality: AvatarQuality.original,
                                   ),
                                 ),
                                 Positioned.fill(

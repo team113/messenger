@@ -254,7 +254,11 @@ class ChatInfoView extends StatelessWidget {
           children: [
             WidgetButton(
               onPressed: c.pickAvatar,
-              child: AvatarWidget.fromRxChat(c.chat, radius: 100),
+              child: AvatarWidget.fromRxChat(
+                c.chat,
+                radius: 100,
+                quality: AvatarQuality.original,
+              ),
             ),
             Positioned.fill(
               child: Obx(() {
