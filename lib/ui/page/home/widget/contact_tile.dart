@@ -191,6 +191,6 @@ class ContactTile extends StatelessWidget {
       child = AvatarWidget.fromMyUser(myUser, radius: radius);
     }
 
-    return avatarBuilder != null ? avatarBuilder!(child) : child;
+    return avatarBuilder == null ? child : avatarBuilder!(child);
   }
 }

@@ -402,21 +402,17 @@ class ContactsTabView extends StatelessWidget {
       selected: selected,
       avatarBuilder: reorderIndex == null
           ? null
-          : (child) {
-              if (PlatformUtils.isMobile) {
-                return ReorderableDelayedDragStartListener(
+          : (child) => PlatformUtils.isMobile == true
+              ? ReorderableDelayedDragStartListener(
                   key: Key('ContactReorder_${contact.id.val}'),
                   index: reorderIndex,
                   child: child,
-                );
-              } else {
-                return ReorderableDragStartListener(
+                )
+              : ReorderableDragStartListener(
                   key: Key('ContactReorder_${contact.id.val}'),
                   index: reorderIndex,
                   child: child,
-                );
-              }
-            },
+                ),
       onTap: contact.contact.value.users.isNotEmpty
           // TODO: Open [Routes.contact] page when it's implemented.
           ? () => router.user(contact.user.value!.id)
