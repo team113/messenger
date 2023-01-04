@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/call_preferences.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat_call.dart';
@@ -53,7 +54,7 @@ class CallOverlayController extends GetxController {
   /// the browser's storage.
   final Map<ChatId, Worker> _workers = {};
 
-  /// Returns the stored [ApplicationSettings].
+  /// Returns the stored [ApplicationSettings] and [Chat]s [CallPreferences].
   Rx<ApplicationSettings?> get _settings => _settingsRepo.applicationSettings;
 
   @override
@@ -78,7 +79,7 @@ class CallOverlayController extends GetxController {
               withScreen: ongoingCall.screenShareState.value ==
                       LocalTrackState.enabling ||
                   ongoingCall.screenShareState.value == LocalTrackState.enabled,
-              popupPrefs: _settingsRepo.getPrefs(event.key!)?.popupPrefs,
+              popupPrefs: _settingsRepo.getCallPrefs(event.key!)?.popupPrefs,
             );
 
             // If [window] is `true`, then a new popup window is created, so

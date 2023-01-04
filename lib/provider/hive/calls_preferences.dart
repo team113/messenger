@@ -16,7 +16,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../../domain/model/call_preferences.dart';
+import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
 
@@ -32,7 +32,6 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
   void registerAdapters() {
     Hive.maybeRegisterAdapter(CallPreferenceAdapter());
     Hive.maybeRegisterAdapter(CallPreferencesAdapter());
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Puts the provided [CallPreference]s to [Hive].
@@ -48,8 +47,12 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
         popupPrefs: popupPrefs,
       );
     } else {
-      localPrefs.inAppPrefs = inAppPrefs;
-      localPrefs.popupPrefs = popupPrefs;
+      if (inAppPrefs != null) {
+        localPrefs.inAppPrefs = inAppPrefs;
+      }
+      if (popupPrefs != null) {
+        localPrefs.popupPrefs = popupPrefs;
+      }
     }
     await putSafe(chatId.val, localPrefs);
   }

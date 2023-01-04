@@ -28,8 +28,8 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../../../domain/model/call_preferences.dart';
 import '/domain/model/application_settings.dart';
+import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -315,7 +315,8 @@ class CallController extends GetxController {
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
-  /// Settings repository, used to get the [buttons] value.
+  /// Settings repository, used to get the [buttons] value, set and get [Chat]s
+  /// [CallPreferences].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Current [OngoingCall].
@@ -527,7 +528,7 @@ class CallController extends GetxController {
     isMobile = router.context!.isMobile;
 
     CallPreference? prefs = _settingsRepository
-        .getPrefs(_currentCall.value.chatId.value)
+        .getCallPrefs(_currentCall.value.chatId.value)
         ?.inAppPrefs;
 
     if (isMobile) {
@@ -847,7 +848,7 @@ class CallController extends GetxController {
 
     secondaryEntry?.remove();
 
-    _settingsRepository.setPrefs(
+    _settingsRepository.setCallPrefs(
       chat.value!.id,
       inAppPrefs: CallPreference(
         top: top.value,

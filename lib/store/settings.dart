@@ -21,14 +21,14 @@ import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '../domain/model/call_preferences.dart';
-import '../domain/model/chat.dart';
-import '../provider/hive/calls_preferences.dart';
 import '/domain/model/application_settings.dart';
+import '/domain/model/call_preferences.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
 import '/provider/hive/background.dart';
+import '/provider/hive/calls_preferences.dart';
 import '/provider/hive/media_settings.dart';
 
 /// Application settings repository.
@@ -140,7 +140,7 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
-  Future<void> setPrefs(
+  Future<void> setCallPrefs(
     ChatId chatId, {
     CallPreference? inAppPrefs,
     CallPreference? popupPrefs,
@@ -152,7 +152,7 @@ class SettingsRepository extends DisposableInterface
       );
 
   @override
-  CallPreferences? getPrefs(ChatId id) => _callsSettingsProvider.get(id);
+  CallPreferences? getCallPrefs(ChatId id) => _callsSettingsProvider.get(id);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
