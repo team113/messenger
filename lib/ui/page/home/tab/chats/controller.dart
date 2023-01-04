@@ -54,8 +54,8 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
-import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
