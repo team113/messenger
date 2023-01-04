@@ -90,7 +90,6 @@ class ChatForwardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
     return GetBuilder(
       init: ChatForwardController(
         Get.find(),
@@ -109,10 +108,10 @@ class ChatForwardView extends StatelessWidget {
               const SizedBox(height: 25),
               Expanded(
                 child: Scrollbar(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   child: Obx(
                     () => ListView(
-                      controller: scrollController,
+                      controller: c.scrollController,
                       shrinkWrap: true,
                       primary: false,
                       padding: const EdgeInsets.symmetric(horizontal: 15),

@@ -82,6 +82,9 @@ class ChatsTabController extends GetxController {
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 

@@ -43,7 +43,6 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -147,11 +146,11 @@ class UserView extends StatelessWidget {
                 ],
               ),
               body: Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: Obx(() {
                   return ListView(
                     key: const Key('UserColumn'),
-                    controller: scrollController,
+                    controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
                       Block(

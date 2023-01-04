@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -63,6 +64,9 @@ class ChatInfoController extends GetxController {
 
   /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;

@@ -53,11 +53,10 @@ class ChangePasswordView extends StatelessWidget {
           switch (c.stage.value) {
             case ChangePasswordFlowStage.set:
             case ChangePasswordFlowStage.changed:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Padding(
@@ -89,11 +88,10 @@ class ChangePasswordView extends StatelessWidget {
               break;
 
             default:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Obx(() {

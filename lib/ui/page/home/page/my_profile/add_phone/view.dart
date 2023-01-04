@@ -57,11 +57,10 @@ class AddPhoneView extends StatelessWidget {
 
           switch (c.stage.value) {
             case AddPhoneFlowStage.code:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Padding(
@@ -138,11 +137,10 @@ class AddPhoneView extends StatelessWidget {
               break;
 
             default:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Padding(

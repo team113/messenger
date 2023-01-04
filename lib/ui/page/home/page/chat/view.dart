@@ -900,7 +900,6 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [ReactiveTextField] for sending a message in this [Chat].
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
-    final ScrollController scrollController = ScrollController();
 
     return SafeArea(
       child: Container(
@@ -959,9 +958,9 @@ class _ChatViewState extends State<ChatView>
                                               3,
                                     ),
                                     child: Scrollbar(
-                                      controller: scrollController,
+                                      controller: c.scrollController,
                                       child: ReorderableListView(
-                                        scrollController: scrollController,
+                                        scrollController: c.scrollController,
                                         shrinkWrap: true,
                                         buildDefaultDragHandles:
                                             PlatformUtils.isMobile,

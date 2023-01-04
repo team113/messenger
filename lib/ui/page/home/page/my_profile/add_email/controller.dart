@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -42,6 +43,9 @@ class AddEmailController extends GetxController {
 
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserEmail] field state.
   late final TextFieldState email;

@@ -43,8 +43,6 @@ class CreateGroupView extends StatelessWidget {
       width: double.infinity,
     );
 
-    final ScrollController scrollController = ScrollController();
-
     return MediaQuery.removeViewInsets(
       removeLeft: true,
       removeTop: true,
@@ -100,9 +98,9 @@ class CreateGroupView extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: Scrollbar(
-                                      controller: scrollController,
+                                      controller: c.scrollController,
                                       child: ListView(
-                                        controller: scrollController,
+                                        controller: c.scrollController,
                                         children: [
                                           ...c.selectedUsers.map(
                                             (e) => AddUserListTile(

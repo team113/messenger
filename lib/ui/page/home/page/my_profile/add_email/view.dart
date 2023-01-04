@@ -57,11 +57,10 @@ class AddEmailView extends StatelessWidget {
 
           switch (c.stage.value) {
             case AddEmailFlowStage.code:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Padding(
@@ -138,11 +137,10 @@ class AddEmailView extends StatelessWidget {
               break;
 
             default:
-              final ScrollController scrollController = ScrollController();
               child = Scrollbar(
-                controller: scrollController,
+                controller: c.scrollController,
                 child: ListView(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
                     Padding(

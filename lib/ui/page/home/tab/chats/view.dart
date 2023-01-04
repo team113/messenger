@@ -372,13 +372,11 @@ class ChatsTabView extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         );
                       } else if (c.elements.isNotEmpty) {
-                        final ScrollController scrollController =
-                            ScrollController();
                         child = Scrollbar(
-                          controller: scrollController,
+                          controller: c.scrollController,
                           child: ListView.builder(
                             key: const Key('Search'),
-                            controller: scrollController,
+                            controller: c.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
@@ -463,14 +461,12 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      final ScrollController scrollController =
-                          ScrollController();
                       child = AnimationLimiter(
                         key: const Key('Chats'),
                         child: Scrollbar(
-                          controller: scrollController,
+                          controller: c.scrollController,
                           child: ListView.builder(
-                            controller: scrollController,
+                            controller: c.scrollController,
                             itemCount: c.chats.length,
                             itemBuilder: (_, i) {
                               final RxChat chat = c.chats[i];

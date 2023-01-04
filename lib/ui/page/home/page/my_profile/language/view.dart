@@ -52,7 +52,6 @@ class LanguageSelectionView extends StatelessWidget {
     final Style style = Theme.of(context).extension<Style>()!;
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-    final ScrollController scrollController = ScrollController();
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
@@ -75,9 +74,9 @@ class LanguageSelectionView extends StatelessWidget {
               const SizedBox(height: 4),
               Flexible(
                 child: Scrollbar(
-                  controller: scrollController,
+                  controller: c.scrollController,
                   child: ListView.separated(
-                    controller: scrollController,
+                    controller: c.scrollController,
                     shrinkWrap: true,
                     padding: ModalPopup.padding(context),
                     itemBuilder: (context, i) {

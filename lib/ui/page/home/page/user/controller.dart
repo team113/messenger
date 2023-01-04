@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -62,6 +63,9 @@ class UserController extends GetxController {
   /// - `status.isSuccess`, meaning [user] is successfully fetched.
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Temporary indicator whether the [user] is muted.
   final RxBool isMuted = RxBool(false);

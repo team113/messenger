@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -42,6 +43,9 @@ class CreateGroupController extends GetxController {
   /// - `status.isLoading`, meaning [createGroup] is executing.
   /// - `status.isError`, meaning [createGroup] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Reactive list of the selected [ChatContact]s.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);

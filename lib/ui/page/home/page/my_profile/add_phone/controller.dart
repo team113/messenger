@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -42,6 +43,9 @@ class AddPhoneController extends GetxController {
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
+
+  /// [ScrollController] used by [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserPhone] field state.
   late final TextFieldState phone;
