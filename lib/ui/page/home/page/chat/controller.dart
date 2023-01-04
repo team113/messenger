@@ -399,6 +399,10 @@ class ChatController extends GetxController {
         .whereNotNull()
         .forEach(AudioCache.instance.clear);
 
+    if (chat!.chat.value.isDialog) {
+      chat!.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
+    }
+
     super.onClose();
   }
 
@@ -892,6 +896,12 @@ class ChatController extends GetxController {
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
+      }
+
+      if (chat!.chat.value.isDialog) {
+        chat!.members.values
+            .lastWhereOrNull((u) => u.id != me)
+            ?.listenUpdates();
       }
     }
   }
