@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,6 +23,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/widget_button.dart';
@@ -71,9 +73,7 @@ class MenuTabView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Flexible(
                   child: WidgetButton(
-                    onPressed: () {
-                      // TODO: Display status changing modal.
-                    },
+                    onPressed: () => StatusView.show(context),
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -88,26 +88,19 @@ class MenuTabView extends StatelessWidget {
                                   'dot'.l10n * 3,
                               style: const TextStyle(color: Colors.black),
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Obx(() {
-                                  return Text(
-                                    c.myUser.value?.presence
-                                            .localizedString() ??
-                                        'dot'.l10n * 3,
-                                    style: Theme.of(context).textTheme.caption,
-                                  );
-                                }),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.expand_more,
-                                  size: 18,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              ],
-                            ),
+                            Obx(() {
+                              return Text(
+                                c.myUser.value?.presence.localizedString() ??
+                                    'dot'.l10n * 3,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(
+                                      color:
+                                          c.myUser.value?.presence.getColor(),
+                                    ),
+                              );
+                            }),
                           ],
                         );
                       }),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,6 +39,7 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
+import 'provider/hive/blacklist.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
@@ -138,6 +140,9 @@ class RouterState extends ChangeNotifier {
 
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
+
+  /// Indicator whether [HomeView] page navigation should be visible.
+  final RxBool navigation = RxBool(true);
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -397,6 +402,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(GalleryItemHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(BlacklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -458,6 +464,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   Get.find(),
+                  Get.find(),
                   userRepository,
                 ),
               );
@@ -497,6 +504,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(GalleryItemHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(BlacklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
@@ -556,6 +564,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
+                Get.find(),
                 Get.find(),
                 Get.find(),
                 userRepository,

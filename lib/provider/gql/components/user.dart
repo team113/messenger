@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -159,6 +160,35 @@ abstract class UserGraphQlMixin {
       ),
     );
     return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserStatusUpdated] (if [text] argument is specified);
+  /// - [EventUserStatusDeleted] (if [text] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] has the provided [text] as his `status` value already.
+  Future<MyUserEventsVersionedMixin?> updateUserStatus(
+    UserTextStatus? text,
+  ) async {
+    final variables = UpdateUserStatusArguments(text: text);
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        document: UpdateUserStatusMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UpdateUserStatus$Mutation.fromJson(res.data!).updateUserStatus;
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -1024,5 +1054,48 @@ abstract class UserGraphQlMixin {
     );
     return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
         as BlacklistEventsVersionedMixin?;
+  }
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
+  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    int? first,
+    BlacklistCursor? after,
+    int? last,
+    BlacklistCursor? before,
+  }) async {
+    final variables = GetBlacklistArguments(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetBlacklist',
+        document: GetBlacklistQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetBlacklist$Query.fromJson(result.data!).blacklist;
   }
 }

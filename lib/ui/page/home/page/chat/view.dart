@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -378,9 +379,11 @@ class _ChatViewState extends State<ChatView>
                                 return FlutterListView(
                                   key: const Key('MessagesList'),
                                   controller: c.listController,
-                                  physics: c.isHorizontalScroll.isFalse
-                                      ? const BouncingScrollPhysics()
-                                      : const NeverScrollableScrollPhysics(),
+                                  physics: c.isHorizontalScroll.isTrue ||
+                                      (PlatformUtils.isDesktop &&
+                                            c.isItemDragged.isTrue)
+                                      ? const NeverScrollableScrollPhysics()
+                                    : const BouncingScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
                                     (context, i) => _listElement(context, c, i),
                                     // ignore: invalid_use_of_protected_member
@@ -554,8 +557,8 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.repliedMessages.contains(e.value)) {
-                c.repliedMessages.remove(e.value);
+              if (c.repliedMessages.any((i) => i.id == e.value.id)) {
+                c.repliedMessages.removeWhere((i) => i.id == e.value.id);
               } else {
                 c.repliedMessages.insert(0, e.value);
               }
@@ -616,15 +619,17 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards
-                      .any((e) => c.repliedMessages.contains(e.value)) ||
-                  c.repliedMessages.contains(element.note.value?.value)) {
+              if (element.forwards.any((e) =>
+                      c.repliedMessages.any((i) => i.id == e.value.id)) ||
+                  c.repliedMessages
+                      .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.repliedMessages.remove(e.value);
+                  c.repliedMessages.removeWhere((i) => i.id == e.value.id);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.remove(element.note.value!.value);
+                  c.repliedMessages
+                      .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
@@ -764,20 +769,35 @@ class _ChatViewState extends State<ChatView>
             builder: (_, snapshot) {
               if (snapshot.data != null) {
                 return Obx(() {
-                  var subtitle = c.chat!.chat.value
+                  final String? subtitle = c.chat!.chat.value
                       .getSubtitle(partner: snapshot.data!.user.value);
 
-                  return Text(subtitle ?? '', style: style);
+                  final UserTextStatus? status =
+                      snapshot.data!.user.value.status;
+
+                  if (status != null || subtitle != null) {
+                    final StringBuffer buffer = StringBuffer(status ?? '');
+
+                    if (status != null && subtitle != null) {
+                      buffer.write('space_vertical_space'.l10n);
+                    }
+
+                    buffer.write(subtitle ?? '');
+
+                    return Text(buffer.toString(), style: style);
+                  }
+
+                  return const SizedBox();
                 });
               }
 
-              return Container();
+              return const SizedBox();
             },
           );
         }
       }
 
-      return Container();
+      return const SizedBox();
     });
   }
 
@@ -905,38 +925,40 @@ class _ChatViewState extends State<ChatView>
             mainAxisSize: MainAxisSize.min,
             children: [
               LayoutBuilder(builder: (context, constraints) {
-                bool grab = (125 + 2) * c.attachments.length >
-                    constraints.maxWidth - 16;
+                return Obx(() {
+                  bool grab = (125 + 2) * c.attachments.length >
+                      constraints.maxWidth - 16;
 
-                return ConditionalBackdropFilter(
-                  condition: style.cardBlur > 0,
-                  filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                  borderRadius: BorderRadius.only(
-                    topLeft: style.cardRadius.topLeft,
-                    topRight: style.cardRadius.topRight,
-                  ),
-                  child: Container(
-                    color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                    child: AnimatedSize(
-                      duration: 400.milliseconds,
-                      curve: Curves.ease,
-                      child: Obx(() {
-                        return Container(
-                          width: double.infinity,
-                          padding: c.repliedMessages.isNotEmpty ||
-                                  c.attachments.isNotEmpty
-                              ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                              : EdgeInsets.zero,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (c.repliedMessages.isNotEmpty)
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height / 3,
-                                  ),
-                                  child: Scrollbar(
+                  return ConditionalBackdropFilter(
+                    condition: style.cardBlur > 0,
+                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                    borderRadius: BorderRadius.only(
+                      topLeft: style.cardRadius.topLeft,
+                      topRight: style.cardRadius.topRight,
+                    ),
+                    child: Container(
+                      color: Colors.white.withOpacity(0.4),
+                      child: AnimatedSize(
+                        duration: 400.milliseconds,
+                        curve: Curves.ease,
+                        child: Obx(() {
+                          return Container(
+                            width: double.infinity,
+                            padding: c.repliedMessages.isNotEmpty ||
+                                    c.attachments.isNotEmpty
+                                ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                                : EdgeInsets.zero,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (c.repliedMessages.isNotEmpty)
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height /
+                                              3,
+                                    ),
+                                    child: Scrollbar(
                                     controller: scrollController,
                                     child: ReorderableListView(
                                       scrollController: scrollController,
@@ -1020,51 +1042,52 @@ class _ChatViewState extends State<ChatView>
                                         );
                                       }).toList(),
                                     ),
+                                    ),
                                   ),
-                                ),
-                              if (c.attachments.isNotEmpty &&
-                                  c.repliedMessages.isNotEmpty)
-                                const SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: grab
-                                      ? SystemMouseCursors.grab
-                                      : MouseCursor.defer,
-                                  opaque: false,
-                                  child: ScrollConfiguration(
-                                    behavior: CustomScrollBehavior(),
-                                    child: SingleChildScrollView(
-                                      clipBehavior: Clip.none,
-                                      physics: grab
-                                          ? null
-                                          : const NeverScrollableScrollPhysics(),
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: c.attachments
-                                            .map(
-                                              (e) => _buildAttachment(
-                                                c,
-                                                e.value,
-                                                e.key,
-                                              ),
-                                            )
-                                            .toList(),
+                                if (c.attachments.isNotEmpty &&
+                                    c.repliedMessages.isNotEmpty)
+                                  const SizedBox(height: 4),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: MouseRegion(
+                                    cursor: grab
+                                        ? SystemMouseCursors.grab
+                                        : MouseCursor.defer,
+                                    opaque: false,
+                                    child: ScrollConfiguration(
+                                      behavior: CustomScrollBehavior(),
+                                      child: SingleChildScrollView(
+                                        clipBehavior: Clip.none,
+                                        physics: grab
+                                            ? null
+                                            : const NeverScrollableScrollPhysics(),
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: c.attachments
+                                              .map(
+                                                (e) => _buildAttachment(
+                                                  c,
+                                                  e.value,
+                                                  e.key,
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                });
               }),
               Container(
                 constraints: const BoxConstraints(minHeight: 56),
@@ -1137,79 +1160,85 @@ class _ChatViewState extends State<ChatView>
                     ),
                     GestureDetector(
                       onLongPress: c.forwarding.toggle,
-                      child: AnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: c.forwarding.value
-                            ? WidgetButton(
-                                onPressed: () async {
-                                  if (c.repliedMessages.isNotEmpty) {
-                                    bool? result = await ChatForwardView.show(
-                                      context,
-                                      c.id,
-                                      c.repliedMessages
-                                          .map((e) => ChatItemQuote(item: e))
-                                          .toList(),
-                                      text: c.send.text,
-                                      attachments: c.attachments
-                                          .map((e) => e.value)
-                                          .toList(),
-                                    );
+                      child: Obx(() {
+                        final Widget child;
 
-                                    if (result == true) {
-                                      c.repliedMessages.clear();
-                                      c.forwarding.value = false;
-                                      c.attachments.clear();
-                                      c.send.clear();
-                                    }
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        width: 26,
-                                        height: 22,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/forward.svg',
-                                          width: 26,
-                                          height: 22,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : WidgetButton(
-                                onPressed: c.send.isEmpty.value &&
-                                        c.attachments.isEmpty &&
-                                        c.repliedMessages.isEmpty
-                                    ? () {}
-                                    : c.send.submit,
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: SizedBox(
-                                        key: const Key('Send'),
-                                        width: 25.18,
-                                        height: 22.85,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/send.svg',
-                                          height: 22.85,
-                                        ),
-                                      ),
+                        if (c.forwarding.value) {
+                          child = WidgetButton(
+                            onPressed: () async {
+                              if (c.repliedMessages.isNotEmpty) {
+                                final bool? result = await ChatForwardView.show(
+                                  context,
+                                  c.id,
+                                  c.repliedMessages
+                                      .map((e) => ChatItemQuote(item: e))
+                                      .toList(),
+                                  text: c.send.text,
+                                  attachments: c.attachments
+                                      .map((e) => e.value)
+                                      .toList(),
+                                );
+
+                                if (result == true) {
+                                  c.repliedMessages.clear();
+                                  c.forwarding.value = false;
+                                  c.attachments.clear();
+                                  c.send.clear();
+                                }
+                              }
+                            },
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
+                                  child: SizedBox(
+                                    width: 26,
+                                    height: 22,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/forward.svg',
+                                      width: 26,
+                                      height: 22,
                                     ),
                                   ),
                                 ),
                               ),
-                      ),
+                            ),
+                          );
+                        } else {
+                          child = WidgetButton(
+                            onPressed: c.send.isEmpty.value &&
+                                    c.attachments.isEmpty &&
+                                    c.repliedMessages.isEmpty
+                                ? () {}
+                                : c.send.submit,
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 150),
+                                  child: SizedBox(
+                                    key: const Key('Send'),
+                                    width: 25.18,
+                                    height: 22.85,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/send.svg',
+                                      height: 22.85,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return AnimatedSwitcher(
+                          duration: 300.milliseconds,
+                          child: child,
+                        );
+                      }),
                     ),
                   ],
                 ),

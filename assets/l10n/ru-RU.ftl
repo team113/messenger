@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -47,7 +48,6 @@ btn_add_to_contacts = Добавить в контакты
 btn_add_to_favorites = В избранные
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
-btn_away = Отошёл
 btn_back = Назад
 btn_block = Заблокировать
 btn_call_answer_with_audio =
@@ -155,7 +155,6 @@ btn_forward = Переслать сообщение
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
-btn_hidden = Скрыт
 btn_hide_chat = Скрыть чат
 btn_info = Информация
 btn_join_call = Присоединиться к звонку
@@ -168,7 +167,6 @@ btn_media_settings = Настройки медиа
 btn_mute_chat = Отключить уведомления
 btn_next = Далее
 btn_ok = Ок
-btn_online = Онлайн
 btn_participants = Участники
 btn_participants_desc =
     Список
@@ -371,6 +369,7 @@ label_away = Нет на месте
 label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас
+label_blocked_users = Заблокированные пользователи
 label_call_active = Активный звонок
 label_call_calling = Звоним
 label_call_joining = Подключение
@@ -390,6 +389,7 @@ label_call_title =
 label_calls = Звонки
 label_calls_displaying = Отображение звонков
 label_camera = Камера
+label_chat = Чат
 label_change_password = Изменить пароль
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_dropped = Отменённый звонок
@@ -538,6 +538,7 @@ label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
+label_no_users = Нет пользователей
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
@@ -586,6 +587,7 @@ label_replies = [{$count} { $count ->
     [few] ответа
     *[other] ответов
     }]
+label_required = Обязательно
 label_resend = Отправить код
 label_resend_timeout = Повторить ({$timeout})
 label_search = Поиск
@@ -628,6 +630,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} непрочитанных сообщения
 }
 label_use_search = Используйте поиск, чтобы найти пользователя
+label_user = Пользователь
 label_users = Пользователи
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -36,10 +38,13 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
+import '/provider/hive/user.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -50,6 +55,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._myUserLocal,
+    this._blacklistLocal,
     this._galleryItemLocal,
     this._userRepo,
   );
@@ -57,11 +63,17 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   late final Rx<MyUser?> myUser;
 
+  @override
+  final RxList<RxUser> blacklist = RxList<RxUser>();
+
   /// GraphQL's Endpoint provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
+
+  /// Blacklisted [User]s local [Hive] storage.
+  final BlacklistHiveProvider _blacklistLocal;
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
@@ -70,12 +82,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
+  StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [BlacklistHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _blacklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamIterator<MyUserEventsVersioned>? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
@@ -87,22 +102,43 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final void Function() onPasswordUpdated;
 
   @override
-  void init({
+  Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
-  }) {
+  }) async {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
     myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
+
     _initLocalSubscription();
     _initRemoteSubscription();
     _initKeepOnlineSubscription();
+    _initBlacklistSubscription();
+
+    if (!_blacklistLocal.isEmpty) {
+      final List<RxUser?> users =
+          await Future.wait(_blacklistLocal.blacklisted.map(_userRepo.get));
+      blacklist.addAll(users.whereNotNull());
+    }
+
+    final List<HiveUser> blacklisted = await _fetchBlacklist();
+
+    for (UserId c in _blacklistLocal.blacklisted) {
+      if (blacklisted.none((e) => e.value.id == c)) {
+        _blacklistLocal.remove(c);
+      }
+    }
+
+    for (HiveUser c in blacklisted) {
+      _blacklistLocal.put(c.value.id);
+    }
   }
 
   @override
   void dispose() {
     _localSubscription?.cancel();
+    _blacklistSubscription?.cancel();
     _remoteSubscription?.cancel();
     _keepOnlineSubscription?.cancel();
   }
@@ -134,6 +170,20 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _graphQlProvider.updateUserBio(bio);
     } catch (_) {
       myUser.update((u) => u?.bio = oldBio);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    final UserTextStatus? oldStatus = myUser.value?.status;
+
+    myUser.update((u) => u?.status = status);
+
+    try {
+      await _graphQlProvider.updateUserStatus(status);
+    } catch (_) {
+      myUser.update((u) => u?.status = oldStatus);
       rethrow;
     }
   }
@@ -428,6 +478,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateCallCover(GalleryItemId? id) =>
       _graphQlProvider.updateUserCallCover(id, null);
 
+  // TODO: Blacklist can be huge, so we should implement pagination and
+  //       loading on demand.
+  /// Fetches __all__ blacklisted [User]s from the remote.
+  Future<List<HiveUser>> _fetchBlacklist() async {
+    final query = await _graphQlProvider.getBlacklist(first: 120);
+
+    List<HiveUser> users = query.edges.map((e) => e.node.toHive()).toList();
+    for (HiveUser user in users) {
+      _userRepo.put(user);
+    }
+
+    return users;
+  }
+
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
@@ -442,6 +506,26 @@ class MyUserRepository implements AbstractMyUserRepository {
         // Refresh the value since [event.value] is the same [MyUser] stored in
         // [_myUser] (so `==` operator fails to distinguish them).
         myUser.refresh();
+      }
+    }
+  }
+
+  /// Initializes [BlacklistHiveProvider.boxEvents] subscription.
+  Future<void> _initBlacklistSubscription() async {
+    _blacklistSubscription = StreamIterator(_blacklistLocal.boxEvents);
+    while (await _blacklistSubscription!.moveNext()) {
+      BoxEvent event = _blacklistSubscription!.current;
+      if (event.deleted) {
+        blacklist.removeWhere((e) => e.user.value.id.val == event.key);
+      } else {
+        final RxUser? user =
+            blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
+        if (user == null) {
+          final RxUser? user = await _userRepo.get(UserId(event.key));
+          if (user != null) {
+            blacklist.add(user);
+          }
+        }
       }
     }
   }
@@ -703,11 +787,13 @@ class MyUserRepository implements AbstractMyUserRepository {
           break;
 
         case MyUserEventKind.blacklistRecordAdded:
-          // TODO: Handle this case.
+          event as EventBlacklistRecordAdded;
+          _blacklistLocal.put(event.user.value.id);
           break;
 
         case MyUserEventKind.blacklistRecordRemoved:
-          // TODO: Handle this case.
+          event as EventBlacklistRecordRemoved;
+          _blacklistLocal.remove(event.user.value.id);
           break;
       }
     }

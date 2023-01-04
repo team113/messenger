@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -31,6 +33,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -43,6 +46,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
+import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -151,7 +155,8 @@ class MyProfileView extends StatelessWidget {
                               }),
                               const SizedBox(height: 10),
                               _name(c),
-                            ],
+                            _presence(c, context),
+                            _status(c),],
                           );
 
                         case ProfileTab.signing:
@@ -218,7 +223,7 @@ class MyProfileView extends StatelessWidget {
                         case ProfileTab.danger:
                           return Block(
                             title: 'label_danger_zone'.l10n,
-                            children: [_deleteAccount(context, c)],
+                            children: [_danger(context, c)],
                           );
 
                         case ProfileTab.logout:
@@ -272,6 +277,55 @@ Widget _name(MyProfileController c) {
             ),
     ),
   );
+}
+
+/// Returns [MyUser.status] editable field.
+Widget _status(MyProfileController c) {
+  return _padding(
+    ReactiveTextField(
+      key: const Key('StatusField'),
+      state: c.status,
+      label: 'label_status'.l10n,
+      filled: true,
+      maxLength: 25,
+      onSuffixPressed: c.status.text.isEmpty
+          ? null
+          : () {
+              Clipboard.setData(ClipboardData(text: c.status.text));
+              MessagePopup.success('label_copied_to_clipboard'.l10n);
+            },
+      trailing: c.status.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/copy.svg',
+                  height: 15,
+                ),
+              ),
+            ),
+    ),
+  );
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(MyProfileController c, BuildContext context) {
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return _padding(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+  });
 }
 
 /// Returns [MyUser.num] copyable field.
@@ -819,21 +873,32 @@ Widget _password(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the contents of a [ProfileTab.danger] section.
-Widget _deleteAccount(BuildContext context, MyProfileController c) {
-  return _dense(
-    FieldButton(
-      key: const Key('DeleteAccount'),
-      text: 'btn_delete_account'.l10n,
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+Widget _danger(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          text: 'label_blocked_users'.l10n,
+          onPressed: () => BlacklistView.show(context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
-      onPressed: () => DeleteAccountView.show(context),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-    ),
+      const SizedBox(height: 8),
+      _dense(
+        FieldButton(
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => DeleteAccountView.show(context),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ],
   );
 }
 

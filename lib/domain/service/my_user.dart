@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,6 +27,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -46,6 +48,9 @@ class MyUserService extends DisposableService {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _userRepo.blacklist;
 
   @override
   void onInit() {
@@ -78,6 +83,10 @@ class MyUserService extends DisposableService {
   ///
   /// If [bio] is `null`, then resets [MyUser.bio] field.
   Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) =>
+      _userRepo.updateUserStatus(status);
 
   /// Updates password for the authenticated [MyUser].
   ///

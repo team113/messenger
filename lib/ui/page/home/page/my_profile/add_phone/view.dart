@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,11 +18,11 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 

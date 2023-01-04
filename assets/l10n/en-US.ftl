@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -47,7 +48,6 @@ btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Favorite
 btn_allow = Allow
 btn_audio_call = Audio call
-btn_away = Away
 btn_back = Back
 btn_block = Block
 btn_call_answer_with_audio =
@@ -155,7 +155,6 @@ btn_forward = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
-btn_hidden = Hidden
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
@@ -168,7 +167,6 @@ btn_media_settings = Media settings
 btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
-btn_online = Online
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -356,6 +354,7 @@ label_away = Away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
+label_blocked_users = Blocked users
 label_call_active = Active call
 label_call_calling = Calling
 label_call_joining = Joining
@@ -375,6 +374,7 @@ label_call_title =
 label_calls = Calls
 label_calls_displaying = Calls displaying
 label_camera = Camera
+label_chat = Chat
 label_change_password = Change password
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -518,6 +518,7 @@ label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_messages = No messages
 label_no_registration = no registration
+label_no_users = No users
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
@@ -565,6 +566,7 @@ label_replies = [{$count} { $count ->
     [1] reply
     *[other] replies
     }]
+label_required = Required
 label_resend = Resend
 label_resend_timeout = Resend ({$timeout})
 label_search = Search
@@ -607,6 +609,7 @@ label_unread_messages = { $quantity ->
     *[other] {$quantity} unread messages
 }
 label_use_search = Use search to find an user
+label_user = User
 label_users = Users
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number

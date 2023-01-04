@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,7 +23,11 @@ import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
-    show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
+    show
+        ChatCallFinishReason,
+        ChatKind,
+        ChatMemberInfoAction,
+        PostChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -865,8 +870,10 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.lastItem = event.call;
               }
 
-              _chatRepository.removeCredentials(event.call.id);
-              _chatRepository.endCall(event.call.chatId);
+              if (event.reason != ChatCallFinishReason.moved) {
+                _chatRepository.removeCredentials(event.call.id);
+                _chatRepository.endCall(event.call.chatId);
+              }
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
