@@ -332,6 +332,7 @@ class HiveRxChat extends RxChat {
         }
       }
 
+      Future.delayed(Duration.zero, updateReads);
       status.value = RxStatus.success();
     });
   }
