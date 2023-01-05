@@ -77,21 +77,26 @@ class CallSettingsController extends GetxController {
     _stateWorker.dispose();
   }
 
-  /// Sets device with [id] as a used by default [videoDevice].
+  /// Sets device with [id] as a used by default camera device.
   void setVideoDevice(String id) {
     _call.value.setVideoDevice(id);
     _settingsRepo.setVideoDevice(id);
   }
 
-  /// Sets device with [id] as a used by default [audioDevice].
+  /// Sets device with [id] as a used by default microphone device.
   void setAudioDevice(String id) {
     _call.value.setAudioDevice(id);
     _settingsRepo.setAudioDevice(id);
   }
 
-  /// Sets device with [id] as a used by default [outputDevice].
+  /// Sets device with [id] as a used by default output device.
   void setOutputDevice(String id) {
     _call.value.setOutputDevice(id);
     _settingsRepo.setOutputDevice(id);
+  }
+
+  /// Populates media input devices, such as microphones, cameras, and so forth.
+  Future<void> enumerateDevices() async {
+    await _call.value.enumerateDevices();
   }
 }

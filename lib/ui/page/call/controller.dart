@@ -172,17 +172,6 @@ class CallController extends GetxController {
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
 
-  /// Temporary indicator whether the secondary view should always be on top.
-  final RxBool panelUp = RxBool(false);
-
-  /// Temporary indicator whether a left mouse button clicks on
-  /// [RtcVideoRenderer]s should call [focus], [unfocus] and [center] or not.
-  final RxBool handleLmb = RxBool(false);
-
-  /// Timeout of a [handleLmb] used to decline any clicks happened after it
-  /// reaches zero.
-  int lmbTimeout = 7;
-
   /// Error happened in a call.
   final RxString error = RxString('');
 
@@ -620,10 +609,6 @@ class CallController extends GetxController {
                 hoveredRenderer.value = null;
                 isCursorHidden.value = true;
               }
-            }
-
-            if (lmbTimeout > 0) {
-              --lmbTimeout;
             }
 
             if (errorTimeout.value > 0) {

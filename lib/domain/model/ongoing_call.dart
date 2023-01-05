@@ -654,12 +654,16 @@ class OngoingCall {
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
-          } catch (e) {
-            if (!e.toString().contains('Permission denied')) {
-              screenShareState.value = LocalTrackState.disabled;
+          } on LocalMediaInitException catch (e) {
+            screenShareState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
               _errors.add('enableScreenShare() call failed with $e');
               rethrow;
             }
+          } catch (e) {
+            screenShareState.value = LocalTrackState.disabled;
+            _errors.add('enableScreenShare() call failed with $e');
+            rethrow;
           }
         }
         break;
@@ -705,8 +709,17 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
+            if (!isActive || members.length <= 1) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            audioState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('unmuteAudio() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
             _errors.add('unmuteAudio() call failed with $e');
@@ -745,10 +758,16 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            videoState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('enableVideo() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             _errors.add('enableVideo() call failed with $e');
             videoState.value = LocalTrackState.disabled;
@@ -976,11 +995,19 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to initiate screen capture: $e');
               await setScreenShareEnabled(false);
               break;
 
             default:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to get media: $e');
 
               await _room?.disableAudio();
@@ -1391,6 +1418,10 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
+    if (_mediaManager == null) {
+      return;
+    }
+
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled,
@@ -1406,8 +1437,6 @@ class OngoingCall {
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
-
-    await enumerateDevices();
   }
 
   /// Adds the provided [track] to the local tracks and initializes video
