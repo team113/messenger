@@ -152,6 +152,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -711,7 +714,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -750,13 +753,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -764,6 +781,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
