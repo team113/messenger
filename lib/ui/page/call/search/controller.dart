@@ -183,8 +183,13 @@ class SearchController extends GetxController {
     }.toList();
   }
 
-  /// Selects or unselects the specified [contact], [user] or [chat].
-  void select({RxChatContact? contact, RxUser? user, RxChat? chat, RxUser selectRecent,}) {
+  /// Selects or unselects the specified [contact], [user], [chat] or [recent].
+  void select({
+    RxChatContact? contact,
+    RxUser? user,
+    RxChat? chat,
+    RxUser? recent,
+  }) {
     if (contact != null) {
       if (selectedContacts.contains(contact)) {
         selectedContacts.remove(contact);
@@ -209,17 +214,22 @@ class SearchController extends GetxController {
       }
     }
 
-    if (selectRecent != null) {
-      if (selectedRecent.contains(selectRecent)) {
-        selectedRecent.remove(selectRecent);
+    if (recent != null) {
+      if (selectedRecent.contains(recent)) {
+        selectedRecent.remove(recent);
       } else {
-        selectedRecent.add(selectRecent);
+        selectedRecent.add(recent);
       }
     }
 
-    if (contact != null || user != null || chat != null || selectRecent != null) {
+    if (contact != null || user != null || chat != null || recent != null) {
       onSelected?.call(
-        SearchViewResults(selectedChats, selectedUsers, selectedContacts, selectRecent,),
+        SearchViewResults(
+          selectedChats,
+          selectedUsers,
+          selectedContacts,
+          selectedRecent,
+        ),
       );
     }
   }
@@ -500,7 +510,7 @@ class SearchController extends GetxController {
 
 /// Combined [List]s of [RxChat]s, [RxUser]s and [RxChatContact]s.
 class SearchViewResults {
-  const SearchViewResults(this.chats, this.users, this.contacts, this.selectRecent);
+  const SearchViewResults(this.chats, this.users, this.contacts, this.recent);
 
   /// [RxChat]s themselves.
   final List<RxChat> chats;
@@ -511,9 +521,10 @@ class SearchViewResults {
   /// [RxChatContact]s themselves.
   final List<RxChatContact> contacts;
 
-  /// [RxChatContact]s themselves.
-  final List<RxUser> selectRecent;
+  /// Recent [RxUser]s themselves.
+  final List<RxUser> recent;
 
   /// Indicates whether [chats], [users] and [contacts] are empty.
-  bool get isEmpty => chats.isEmpty && users.isEmpty && contacts.isEmpty && selectRecent.isEmpty;
+  bool get isEmpty =>
+      chats.isEmpty && users.isEmpty && contacts.isEmpty && recent.isEmpty;
 }

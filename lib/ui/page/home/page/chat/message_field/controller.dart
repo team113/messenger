@@ -103,7 +103,10 @@ class MessageFieldController extends GetxController {
   void onInit() {
     field = TextFieldState(
       onChanged: (_) => updatedMessage?.call(),
-      onSubmitted: (s) => onSubmit?.call(),
+      onSubmitted: (s) {
+        field.unsubmit();
+        onSubmit?.call();
+      },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&

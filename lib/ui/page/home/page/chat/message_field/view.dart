@@ -149,87 +149,206 @@ class MessageFieldView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     LayoutBuilder(builder: (context, constraints) {
-                      bool grab = false;
-                      if (c.attachments.isNotEmpty) {
-                        grab = (125 + 2) * c.attachments.length >
-                            constraints.maxWidth - 16;
-                      }
+                      return Obx(() {
+                        bool grab = false;
+                        if (c.attachments.isNotEmpty) {
+                          grab = (125 + 2) * c.attachments.length >
+                              constraints.maxWidth - 16;
+                        }
 
-                      return ConditionalBackdropFilter(
-                        condition: style.cardBlur > 0,
-                        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                        borderRadius: BorderRadius.only(
-                          topLeft: style.cardRadius.topLeft,
-                          topRight: style.cardRadius.topRight,
-                        ),
-                        child: Container(
-                          color: Colors.white.withOpacity(0.4),
-                          child: AnimatedSize(
-                            duration: 400.milliseconds,
-                            curve: Curves.ease,
-                            child: Obx(() {
-                              return Container(
-                                width: double.infinity,
-                                padding: c.replied.isNotEmpty ||
-                                        c.attachments.isNotEmpty
-                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                    : EdgeInsets.zero,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Obx(() {
-                                      if (c.editedMessage.value != null) {
-                                        return ConstrainedBox(
+                        return ConditionalBackdropFilter(
+                          condition: style.cardBlur > 0,
+                          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                          borderRadius: BorderRadius.only(
+                            topLeft: style.cardRadius.topLeft,
+                            topRight: style.cardRadius.topRight,
+                          ),
+                          child: Container(
+                            color: Colors.white.withOpacity(0.4),
+                            child: AnimatedSize(
+                              duration: 400.milliseconds,
+                              curve: Curves.ease,
+                              child: Obx(() {
+                                return Container(
+                                  width: double.infinity,
+                                  padding: c.replied.isNotEmpty ||
+                                          c.attachments.isNotEmpty
+                                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                                      : EdgeInsets.zero,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Obx(() {
+                                        if (c.editedMessage.value != null) {
+                                          return ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxHeight: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                4,
+                                                4,
+                                                4,
+                                                4,
+                                              ),
+                                              child: Dismissible(
+                                                key: Key(
+                                                    '${c.editedMessage.value?.id}'),
+                                                direction:
+                                                    DismissDirection.horizontal,
+                                                onDismissed: (_) => c
+                                                    .editedMessage.value = null,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    vertical: 2,
+                                                  ),
+                                                  child: MessageFieldMessage(
+                                                    c.editedMessage.value!,
+                                                    c,
+                                                    () => c.editedMessage
+                                                        .value = null,
+                                                    isEdit: true,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return Container();
+                                        }
+                                      }),
+                                      if (c.quotes.isNotEmpty)
+                                        ConstrainedBox(
                                           constraints: BoxConstraints(
                                             maxHeight: MediaQuery.of(context)
                                                     .size
                                                     .height /
                                                 3,
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                              4,
-                                              4,
-                                              4,
-                                              4,
-                                            ),
-                                            child: Dismissible(
-                                              key: Key(
-                                                  '${c.editedMessage.value?.id}'),
-                                              direction:
-                                                  DismissDirection.horizontal,
-                                              onDismissed: (_) =>
-                                                  c.editedMessage.value = null,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  vertical: 2,
-                                                ),
-                                                child: MessageFieldMessage(
-                                                  c.editedMessage.value!,
-                                                  c,
-                                                  () => c.editedMessage.value =
-                                                      null,
-                                                  isEdit: true,
-                                                ),
+                                          child: Obx(() {
+                                            return ReorderableListView(
+                                              shrinkWrap: true,
+                                              buildDefaultDragHandles:
+                                                  PlatformUtils.isMobile,
+                                              onReorder: (int old, int to) {
+                                                if (old < to) {
+                                                  --to;
+                                                }
+
+                                                final ChatItemQuote item =
+                                                    c.quotes.removeAt(old);
+                                                c.quotes.insert(to, item);
+
+                                                HapticFeedback.lightImpact();
+                                              },
+                                              proxyDecorator:
+                                                  (child, i, animation) {
+                                                return AnimatedBuilder(
+                                                  animation: animation,
+                                                  builder: (
+                                                    BuildContext context,
+                                                    Widget? child,
+                                                  ) {
+                                                    final double t = Curves
+                                                        .easeInOut
+                                                        .transform(
+                                                            animation.value);
+                                                    final double elevation =
+                                                        lerpDouble(0, 6, t)!;
+                                                    final Color color =
+                                                        Color.lerp(
+                                                      const Color(0x00000000),
+                                                      const Color(0x33000000),
+                                                      t,
+                                                    )!;
+
+                                                    return InitCallback(
+                                                      callback: HapticFeedback
+                                                          .selectionClick,
+                                                      child: Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          boxShadow: [
+                                                            CustomBoxShadow(
+                                                              color: color,
+                                                              blurRadius:
+                                                                  elevation,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        child: child,
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: child,
+                                                );
+                                              },
+                                              reverse: true,
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                1,
+                                                0,
+                                                1,
+                                                0,
                                               ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        return Container();
-                                      }
-                                    }),
-                                    if (c.quotes.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
+                                              children: c.quotes.map((e) {
+                                                return ReorderableDragStartListener(
+                                                  key: Key(
+                                                      'Handle_${e.item.id}'),
+                                                  enabled:
+                                                      !PlatformUtils.isMobile,
+                                                  index: c.quotes.indexOf(e),
+                                                  child: Dismissible(
+                                                    key: Key('${e.item.id}'),
+                                                    direction: DismissDirection
+                                                        .horizontal,
+                                                    onDismissed: (_) {
+                                                      c.quotes.remove(e);
+                                                      if (c.quotes.isEmpty) {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      }
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                        vertical: 2,
+                                                      ),
+                                                      child:
+                                                          MessageFieldMessage(
+                                                        e.item,
+                                                        c,
+                                                        () {
+                                                          c.quotes.remove(e);
+                                                          if (c
+                                                              .quotes.isEmpty) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          }
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            );
+                                          }),
                                         ),
-                                        child: Obx(() {
-                                          return ReorderableListView(
+                                      if (c.replied.isNotEmpty)
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                3,
+                                          ),
+                                          child: ReorderableListView(
                                             shrinkWrap: true,
                                             buildDefaultDragHandles:
                                                 PlatformUtils.isMobile,
@@ -238,9 +357,9 @@ class MessageFieldView extends StatelessWidget {
                                                 --to;
                                               }
 
-                                              final ChatItemQuote item =
-                                                  c.quotes.removeAt(old);
-                                              c.quotes.insert(to, item);
+                                              final ChatItem item =
+                                                  c.replied.removeAt(old);
+                                              c.replied.insert(to, item);
 
                                               HapticFeedback.lightImpact();
                                             },
@@ -292,22 +411,18 @@ class MessageFieldView extends StatelessWidget {
                                               1,
                                               0,
                                             ),
-                                            children: c.quotes.map((e) {
+                                            children: c.replied.map((e) {
                                               return ReorderableDragStartListener(
-                                                key: Key('Handle_${e.item.id}'),
+                                                key: Key('Handle_${e.id}'),
                                                 enabled:
                                                     !PlatformUtils.isMobile,
-                                                index: c.quotes.indexOf(e),
+                                                index: c.replied.indexOf(e),
                                                 child: Dismissible(
-                                                  key: Key('${e.item.id}'),
+                                                  key: Key('${e.id}'),
                                                   direction: DismissDirection
                                                       .horizontal,
                                                   onDismissed: (_) {
-                                                    c.quotes.remove(e);
-                                                    if (c.quotes.isEmpty) {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    }
+                                                    c.replied.remove(e);
                                                   },
                                                   child: Padding(
                                                     padding: const EdgeInsets
@@ -315,163 +430,63 @@ class MessageFieldView extends StatelessWidget {
                                                       vertical: 2,
                                                     ),
                                                     child: MessageFieldMessage(
-                                                      e.item,
+                                                      e,
                                                       c,
-                                                      () {
-                                                        c.quotes.remove(e);
-                                                        if (c.quotes.isEmpty) {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        }
-                                                      },
+                                                      () => c.replied.remove(e),
                                                     ),
                                                   ),
                                                 ),
                                               );
                                             }).toList(),
-                                          );
-                                        }),
-                                      ),
-                                    if (c.replied.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                        ),
-                                        child: ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: (int old, int to) {
-                                            if (old < to) {
-                                              --to;
-                                            }
-
-                                            final ChatItem item =
-                                                c.replied.removeAt(old);
-                                            c.replied.insert(to, item);
-
-                                            HapticFeedback.lightImpact();
-                                          },
-                                          proxyDecorator:
-                                              (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves
-                                                    .easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
-
-                                                return InitCallback(
-                                                  callback: HapticFeedback
-                                                      .selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
-                                                  ),
-                                                );
-                                              },
-                                              child: child,
-                                            );
-                                          },
-                                          reverse: true,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            1,
-                                            0,
                                           ),
-                                          children: c.replied.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: c.replied.indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  c.replied.remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: MessageFieldMessage(
-                                                    e,
-                                                    c,
-                                                    () => c.replied.remove(e),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
                                         ),
-                                      ),
-                                    if (c.attachments.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: MouseRegion(
-                                          cursor: grab
-                                              ? SystemMouseCursors.grab
-                                              : MouseCursor.defer,
-                                          opaque: false,
-                                          child: ScrollConfiguration(
-                                            behavior: CustomScrollBehavior(),
-                                            child: SingleChildScrollView(
-                                              clipBehavior: Clip.none,
-                                              physics: grab
-                                                  ? null
-                                                  : const NeverScrollableScrollPhysics(),
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: c.attachments
-                                                    .map(
-                                                      (e) => buildAttachment(
-                                                        context,
-                                                        e.value,
-                                                        e.key,
-                                                        c,
-                                                      ),
-                                                    )
-                                                    .toList(),
+                                      if (c.attachments.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: MouseRegion(
+                                            cursor: grab
+                                                ? SystemMouseCursors.grab
+                                                : MouseCursor.defer,
+                                            opaque: false,
+                                            child: ScrollConfiguration(
+                                              behavior: CustomScrollBehavior(),
+                                              child: SingleChildScrollView(
+                                                clipBehavior: Clip.none,
+                                                physics: grab
+                                                    ? null
+                                                    : const NeverScrollableScrollPhysics(),
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: c.attachments
+                                                      .map(
+                                                        (e) => buildAttachment(
+                                                          context,
+                                                          e.value,
+                                                          e.key,
+                                                          c,
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ]
-                                  ],
-                                ),
-                              );
-                            }),
+                                      ]
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      });
                     }),
                     Container(
                       constraints: const BoxConstraints(minHeight: 56),
@@ -586,12 +601,8 @@ class MessageFieldView extends StatelessWidget {
                                   height: 56,
                                   child: Center(
                                     child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 150),
-                                      child: AnimatedSwitcher(
-                                        duration: 300.milliseconds,
-                                        child: child,
-                                      ),
+                                      duration: 300.milliseconds,
+                                      child: child,
                                     ),
                                   ),
                                 ),

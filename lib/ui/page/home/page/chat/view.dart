@@ -613,8 +613,8 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards.any((e) =>
-                      c.send.replied.contains(e.value)) ||
+              if (element.forwards.any(
+                      (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
                   c.send.replied
                       .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {

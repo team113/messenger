@@ -261,7 +261,7 @@ class ChatsTabView extends StatelessWidget {
                                           .contains(element.user) ??
                                       false,
                                   onTap: () => c.search.value
-                                      ?.selectRecent(element.user),
+                                      ?.select(recent: element.user),
                                 );
                               });
                             } else if (element is ContactElement) {
@@ -272,7 +272,7 @@ class ChatsTabView extends StatelessWidget {
                                           .contains(element.contact) ??
                                       false,
                                   onTap: () => c.search.value
-                                      ?.selectContact(element.contact),
+                                      ?.select(contact: element.contact),
                                 );
                               });
                             } else if (element is UserElement) {
@@ -282,8 +282,8 @@ class ChatsTabView extends StatelessWidget {
                                   selected: c.search.value?.selectedUsers
                                           .contains(element.user) ??
                                       false,
-                                  onTap: () =>
-                                      c.search.value?.selectUser(element.user),
+                                  onTap: () => c.search.value
+                                      ?.select(user: element.user),
                                 );
                               });
                             } else if (element is MyUserElement) {
