@@ -121,6 +121,11 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
+  ///
+  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
+  final List<RxUser> _recipients = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -140,6 +145,25 @@ class ChatsTabController extends GetxController {
           _ChatSortingData(chat.chat, _sortChats);
     }
 
+    // Adds the recipient of the provided [chat] to the [_recipients] and starts
+    // listening to its updates.
+    Future<void> listenUpdates(RxChat chat) async {
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
+
+      if (userId != null) {
+        RxUser? rxUser =
+            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        rxUser ??= await getUser(userId);
+        if (rxUser != null) {
+          _recipients.add(rxUser..listenUpdates());
+        }
+      }
+    }
+
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
@@ -147,11 +171,31 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
+
+          if (event.value!.chat.value.isDialog) {
+            listenUpdates(event.value!);
+          }
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
+
+          if (event.value!.chat.value.isDialog) {
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
+
+            _recipients.removeWhere((e) {
+              if (e.id == userId) {
+                e.stopUpdates();
+                return true;
+              }
+
+              return false;
+            });
+          }
           break;
 
         case OperationKind.updated:
@@ -173,6 +217,10 @@ class ChatsTabController extends GetxController {
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
+
+    for (RxUser v in _recipients) {
+      v.stopUpdates();
+    }
 
     router.navigation.value = true;
 
