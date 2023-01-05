@@ -281,7 +281,7 @@ class ContactsTabView extends StatelessWidget {
                         right: 10,
                       ),
                       sliver: SliverReorderableList(
-                        onReorderStart: (_) => c.reordered.value = true,
+                        onReorderStart: (_) => c.reordering.value = true,
                         proxyDecorator: (child, _, animation) {
                           return AnimatedBuilder(
                             animation: animation,
@@ -320,18 +320,51 @@ class ContactsTabView extends StatelessWidget {
                           return KeyedSubtree(
                             key: Key(contact.id.val),
                             child: Obx(() {
-                              return _contact(
+                              final Widget child = _contact(
                                 context,
                                 contact,
                                 c,
-                                i,
-                                reorderIndex: i,
+                                avatarBuilder: (child) {
+                                  if (PlatformUtils.isMobile) {
+                                    return ReorderableDelayedDragStartListener(
+                                      key: Key(
+                                          'ContactReorder_${contact.id.val}'),
+                                      index: i,
+                                      child: child,
+                                    );
+                                  }
+
+                                  return ReorderableDragStartListener(
+                                    key:
+                                        Key('ContactReorder_${contact.id.val}'),
+                                    index: i,
+                                    child: child,
+                                  );
+                                },
+                              );
+
+                              // Ignore the animation, if there's an ongoing
+                              // reordering happening.
+                              if (c.reordering.value) {
+                                return child;
+                              }
+
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(child: child),
+                                ),
                               );
                             }),
                           );
                         },
                         itemCount: c.favorites.length,
-                        onReorder: c.reorderFavoriteContacts,
+                        onReorder: (a, b) {
+                          c.reorderContact(a, b);
+                          c.reordering.value = false;
+                        },
                       ),
                     ),
                     SliverPadding(
@@ -343,11 +376,15 @@ class ContactsTabView extends StatelessWidget {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate.fixed(
                           c.contacts.mapIndexed((i, e) {
-                            return _contact(
-                              context,
-                              e,
-                              c,
-                              c.favorites.length + i,
+                            return AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child: _contact(context, e, c),
+                                ),
+                              ),
                             );
                           }).toList(),
                         ),
@@ -377,9 +414,8 @@ class ContactsTabView extends StatelessWidget {
   Widget _contact(
     BuildContext context,
     RxChatContact contact,
-    ContactsTabController c,
-    int position, {
-    int? reorderIndex,
+    ContactsTabController c, {
+    Widget Function(Widget)? avatarBuilder,
   }) {
     bool favorite = c.favorites.contains(contact);
 
@@ -388,25 +424,12 @@ class ContactsTabView extends StatelessWidget {
             ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
         true;
 
-    Widget child = ContactTile(
+    return ContactTile(
       key: Key('Contact_${contact.id}'),
-      reorderIndex: reorderIndex,
       contact: contact,
       folded: favorite,
       selected: selected,
-      avatarBuilder: reorderIndex == null
-          ? null
-          : (child) => PlatformUtils.isMobile == true
-              ? ReorderableDelayedDragStartListener(
-                  key: Key('ContactReorder_${contact.id.val}'),
-                  index: reorderIndex,
-                  child: child,
-                )
-              : ReorderableDragStartListener(
-                  key: Key('ContactReorder_${contact.id.val}'),
-                  index: reorderIndex,
-                  child: child,
-                ),
+      avatarBuilder: avatarBuilder,
       onTap: contact.contact.value.users.isNotEmpty
           // TODO: Open [Routes.contact] page when it's implemented.
           ? () => router.user(contact.user.value!.id)
@@ -444,21 +467,6 @@ class ContactsTabView extends StatelessWidget {
           }),
         ),
       ],
-    );
-
-    if (c.reordered.value == true && reorderIndex != null) {
-      return child;
-    }
-
-    return AnimationConfiguration.staggeredList(
-      position: position,
-      duration: const Duration(milliseconds: 375),
-      child: SlideAnimation(
-        horizontalOffset: 50,
-        child: FadeInAnimation(
-          child: child,
-        ),
-      ),
     );
   }
 }

@@ -49,7 +49,6 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.reorderIndex,
     this.avatarBuilder,
   }) : super(key: key);
 
@@ -99,9 +98,6 @@ class ContactTile extends StatelessWidget {
 
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
-
-  /// Reorderable index.
-  final int? reorderIndex;
 
   /// Builder for [AvatarWidget].
   final Widget Function(Widget child)? avatarBuilder;
