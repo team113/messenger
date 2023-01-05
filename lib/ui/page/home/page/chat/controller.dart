@@ -470,10 +470,6 @@ class ChatController extends GetxController {
 
     if (item is ChatMessage) {
       edit.editedMessage.value = item;
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        edit.field.text = item.text?.val ?? '';
-        edit.field.focus.requestFocus();
-      });
     }
   }
 
@@ -511,14 +507,12 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        send.field.text = draft?.text?.val ?? '';
-        send.replied.value = List.from(draft?.repliesTo ?? []);
+      send.draftText.value = draft?.text?.val;
+      send.replied.value = List.from(draft?.repliesTo ?? []);
 
-        for (Attachment e in draft?.attachments ?? []) {
-          send.attachments.add(MapEntry(GlobalKey(), e));
-        }
-      });
+      for (Attachment e in draft?.attachments ?? []) {
+        send.attachments.add(MapEntry(GlobalKey(), e));
+      }
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {

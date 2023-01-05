@@ -81,6 +81,9 @@ class MessageFieldController extends GetxController {
   /// Callback, called when need to update draft message.
   final void Function()? updatedMessage;
 
+  /// Draft message text.
+  final RxnString draftText = RxnString();
+
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
 
@@ -138,6 +141,15 @@ class MessageFieldController extends GetxController {
         },
       ),
     );
+
+    if (draftText.value != null) {
+      field.text = draftText.value!;
+    }
+
+    if (editedMessage.value != null && editedMessage.value is ChatMessage) {
+      field.text = (editedMessage.value! as ChatMessage).text?.val ?? '';
+      field.focus.requestFocus();
+    }
 
     _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
     _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
