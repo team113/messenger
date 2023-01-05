@@ -837,6 +837,12 @@ class ChatController extends GetxController {
         }
       };
 
+      if (chat?.chat.value.isDialog == true) {
+        chat?.members.values
+            .lastWhereOrNull((u) => u.id != me)
+            ?.listenUpdates();
+      }
+
       _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
 
       // If [RxChat.status] is not successful yet, populate the
@@ -892,12 +898,6 @@ class ChatController extends GetxController {
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
-      }
-
-      if (chat!.chat.value.isDialog) {
-        chat!.members.values
-            .lastWhereOrNull((u) => u.id != me)
-            ?.listenUpdates();
       }
     }
   }

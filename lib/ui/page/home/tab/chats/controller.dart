@@ -121,8 +121,10 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
-  /// Map of [RxUser] who get their updates.
-  final Map<UserId, RxUser> _recentUpdates = {};
+  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
+  ///
+  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
+  final List<RxUser> _recipients = [];
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -143,6 +145,25 @@ class ChatsTabController extends GetxController {
           _ChatSortingData(chat.chat, _sortChats);
     }
 
+    // Adds the recipient of the provided [chat] to the [_recipients] and starts
+    // listening to its updates.
+    Future<void> listenUpdates(RxChat chat) async {
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
+
+      if (userId != null) {
+        RxUser? rxUser =
+            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        rxUser ??= await getUser(userId);
+        if (rxUser != null) {
+          _recipients.add(rxUser..listenUpdates());
+        }
+      }
+    }
+
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
@@ -150,16 +171,30 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
+
           if (event.value!.chat.value.isDialog) {
-            _updateRecentUpdates(event.value!);
+            listenUpdates(event.value!);
           }
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
+
           if (event.value!.chat.value.isDialog) {
-            _updateRecentUpdates(event.value!, false);
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
+
+            _recipients.removeWhere((e) {
+              if (e.id == userId) {
+                e.stopUpdates();
+                return true;
+              }
+
+              return false;
+            });
           }
           break;
 
@@ -168,8 +203,6 @@ class ChatsTabController extends GetxController {
           break;
       }
     });
-
-    chats.where((c) => c.chat.value.isDialog).forEach(_updateRecentUpdates);
 
     super.onInit();
   }
@@ -185,7 +218,9 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    _recentUpdates.forEach((_, v) => v.stopUpdates());
+    for (RxUser v in _recipients) {
+      v.stopUpdates();
+    }
 
     router.navigation.value = true;
 
@@ -495,33 +530,6 @@ class ChatsTabController extends GetxController {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
-    }
-  }
-
-  /// Adds or removes getting updates [RxUser] from [chat]-dialog.
-  Future<void> _updateRecentUpdates(
-    RxChat chat, [
-    bool added = true,
-  ]) async {
-    RxUser? rxUser =
-        chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
-
-    if (rxUser == null) {
-      final UserId? userId = chat.chat.value.members
-          .firstWhereOrNull((u) => u.user.id != me)
-          ?.user
-          .id;
-      if (userId != null) {
-        rxUser = await getUser(userId);
-      }
-    }
-
-    if (rxUser != null) {
-      if (added) {
-        _recentUpdates[rxUser.id] = rxUser..listenUpdates();
-      } else {
-        _recentUpdates.remove(rxUser.id)?.stopUpdates();
-      }
     }
   }
 }
