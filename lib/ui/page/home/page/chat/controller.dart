@@ -399,8 +399,8 @@ class ChatController extends GetxController {
         .whereNotNull()
         .forEach(AudioCache.instance.clear);
 
-    if (chat!.chat.value.isDialog) {
-      chat!.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
+    if (chat?.chat.value.isDialog == true) {
+      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
     }
 
     super.onClose();
