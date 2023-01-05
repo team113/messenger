@@ -41,29 +41,34 @@ class MicrophoneSwitchController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// Client for communication with a media server.
-  late final Jason _jason;
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle _mediaManager;
+  late final MediaManagerHandle? _mediaManager;
 
   @override
   void onInit() async {
-    _jason = Jason();
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => _enumerateDevices());
 
-    _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() => _enumerateDevices());
+      await WebUtils.microphonePermission();
+      await _enumerateDevices();
+    } catch (_) {
+      // [Jason] may be unsupported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
 
-    await WebUtils.audioPermission();
-
-    _enumerateDevices();
     super.onInit();
   }
 
   @override
   void onClose() {
-    _mediaManager.free();
-    _jason.free();
+    _mediaManager?.free();
+    _jason?.free();
     super.onClose();
   }
 
@@ -75,7 +80,7 @@ class MicrophoneSwitchController extends GetxController {
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
-    devices.value = (await _mediaManager.enumerateDevices())
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
               e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.audioinput,

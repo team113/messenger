@@ -32,13 +32,13 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
   const OutputSwitchView({
-    this.onChange,
+    this.onChanged,
     this.output,
     super.key,
   });
 
-  /// Callback, called when selected microphone changed.
-  final void Function(String)? onChange;
+  /// Callback, called when the selected output device changes.
+  final void Function(String)? onChanged;
 
   /// ID of the initially selected audio output device.
   final String? output;
@@ -46,12 +46,12 @@ class OutputSwitchView extends StatelessWidget {
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChange,
+    void Function(String)? onChanged,
     String? output,
   }) {
     return ModalPopup.show(
       context: context,
-      child: OutputSwitchView(onChange: onChange, output: output),
+      child: OutputSwitchView(onChanged: onChanged, output: output),
     );
   }
 
@@ -109,11 +109,8 @@ class OutputSwitchView extends StatelessWidget {
                                     ? () {}
                                     : () {
                                         c.output.value = e.deviceId();
-                                        if (onChange != null) {
-                                          onChange!.call(e.deviceId());
-                                        } else {
-                                          c.setOutputDevice(e.deviceId());
-                                        }
+                                        (onChanged ?? c.setOutputDevice)
+                                            .call(e.deviceId());
                                       },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),

@@ -916,7 +916,7 @@ class OngoingCall {
 
             default:
               if (e.message().contains('Permission denied')) {
-                return;
+                break;
               }
 
               _errors.add('Failed to get media: $e');

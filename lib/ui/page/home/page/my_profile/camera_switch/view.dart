@@ -35,13 +35,13 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class CameraSwitchView extends StatelessWidget {
   const CameraSwitchView({
-    this.onChange,
+    this.onChanged,
     this.camera,
     super.key,
   });
 
-  /// Callback, called when selected microphone changed.
-  final void Function(String)? onChange;
+  /// Callback, called when the selected camera device changes.
+  final void Function(String)? onChanged;
 
   /// ID of the initially selected video device.
   final String? camera;
@@ -49,12 +49,12 @@ class CameraSwitchView extends StatelessWidget {
   /// Displays a [CameraSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChange,
+    void Function(String)? onChanged,
     String? camera,
   }) {
     return ModalPopup.show(
       context: context,
-      child: CameraSwitchView(onChange: onChange, camera: camera),
+      child: CameraSwitchView(onChanged: onChanged, camera: camera),
     );
   }
 
@@ -89,38 +89,36 @@ class CameraSwitchView extends StatelessWidget {
                     const SizedBox(height: 13),
                     Padding(
                       padding: ModalPopup.padding(context),
-                      child: Obx(
-                        () {
-                          final RtcVideoRenderer? local = c.renderer.value;
-                          return Center(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                height: 250,
-                                width: 370,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: local == null
-                                    ? Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/no_video.svg',
-                                          width: 48.54,
-                                          height: 42,
-                                        ),
-                                      )
-                                    : webrtc.VideoView(
-                                        local.inner,
-                                        objectFit:
-                                            webrtc.VideoViewObjectFit.cover,
-                                        mirror: true,
-                                      ),
+                      child: Obx(() {
+                        final RtcVideoRenderer? local = c.renderer.value;
+                        return Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              height: 250,
+                              width: 370,
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              child: local == null
+                                  ? Center(
+                                      child: SvgLoader.asset(
+                                        'assets/icons/no_video.svg',
+                                        width: 48.54,
+                                        height: 42,
+                                      ),
+                                    )
+                                  : webrtc.VideoView(
+                                      local.inner,
+                                      objectFit:
+                                          webrtc.VideoViewObjectFit.cover,
+                                      mirror: true,
+                                    ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      }),
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
@@ -145,14 +143,11 @@ class CameraSwitchView extends StatelessWidget {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
                                 onTap: selected
-                                    ? () {}
+                                    ? null
                                     : () {
                                         c.camera.value = e.deviceId();
-                                        if (onChange != null) {
-                                          onChange!.call(e.deviceId());
-                                        } else {
-                                          c.setVideoDevice(e.deviceId());
-                                        }
+                                        (onChanged ?? c.setVideoDevice)
+                                            .call(e.deviceId());
                                       },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),

@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
@@ -182,13 +183,21 @@ class WebUtils {
     // No-op.
   }
 
-  /// Requests camera permission.
+  /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
-    // No-op.
+    try {
+      await Permission.camera.request();
+    } catch (_) {
+      // No-op.
+    }
   }
 
-  /// Requests audio permission.
-  static Future<void> audioPermission() async {
-    // No-op.
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    try {
+      await Permission.microphone.request();
+    } catch (_) {
+      // No-op.
+    }
   }
 }

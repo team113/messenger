@@ -31,14 +31,10 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MicrophoneSwitchView extends StatelessWidget {
-  const MicrophoneSwitchView({
-    this.onChange,
-    this.mic,
-    super.key,
-  });
+  const MicrophoneSwitchView({super.key, this.onChanged, this.mic});
 
-  /// Callback, called when selected microphone changed.
-  final void Function(String)? onChange;
+  /// Callback, called when the selected microphone device changes.
+  final void Function(String)? onChanged;
 
   /// ID of the initially selected microphone device.
   final String? mic;
@@ -46,12 +42,12 @@ class MicrophoneSwitchView extends StatelessWidget {
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChange,
+    void Function(String)? onChanged,
     String? mic,
   }) {
     return ModalPopup.show(
       context: context,
-      child: MicrophoneSwitchView(onChange: onChange, mic: mic),
+      child: MicrophoneSwitchView(onChanged: onChanged, mic: mic),
     );
   }
 
@@ -106,14 +102,11 @@ class MicrophoneSwitchView extends StatelessWidget {
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
                                 onTap: selected
-                                    ? () {}
+                                    ? null
                                     : () {
                                         c.mic.value = e.deviceId();
-                                        if (onChange != null) {
-                                          onChange!.call(e.deviceId());
-                                        } else {
-                                          c.setAudioDevice(e.deviceId());
-                                        }
+                                        (onChanged ?? c.setAudioDevice)
+                                            .call(e.deviceId());
                                       },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),

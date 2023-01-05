@@ -96,7 +96,7 @@ class CallSettingsController extends GetxController {
   }
 
   /// Populates media input devices, such as microphones, cameras, and so forth.
-  void enumerateDevices() {
-    _call.value.enumerateDevices();
+  Future<void> enumerateDevices() async {
+    await _call.value.enumerateDevices();
   }
 }

@@ -501,7 +501,7 @@ class WebUtils {
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);
 
-  /// Requests camera permission.
+  /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
     final status =
         await html.window.navigator.permissions?.query({'name': 'camera'});
@@ -511,8 +511,8 @@ class WebUtils {
     }
   }
 
-  /// Requests audio permission.
-  static Future<void> audioPermission() async {
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
     final status =
         await html.window.navigator.permissions?.query({'name': 'microphone'});
 

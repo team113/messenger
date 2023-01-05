@@ -85,11 +85,11 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Client for communication with a media server.
-  late final Jason _jason;
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle _mediaManager;
+  late final MediaManagerHandle? _mediaManager;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -123,12 +123,16 @@ class MyProfileController extends GetxController {
 
   @override
   void onInit() {
-    _jason = Jason();
-
-    _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() => enumerateDevices());
-
-    enumerateDevices();
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => enumerateDevices());
+      enumerateDevices();
+    } catch (_) {
+      // [Jason] might not be supported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
 
@@ -382,8 +386,8 @@ class MyProfileController extends GetxController {
 
   @override
   void onClose() {
-    _mediaManager.free();
-    _jason.free();
+    _mediaManager?.free();
+    _jason?.free();
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     super.onClose();
@@ -455,7 +459,7 @@ class MyProfileController extends GetxController {
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
-    devices.value = (await _mediaManager.enumerateDevices())
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .whereNot((e) => e.deviceId().isEmpty)
         .toList();
     devices.refresh();

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -43,11 +44,11 @@ class CameraSwitchController extends GetxController {
   /// [RtcVideoRenderer]s of the [OngoingCall.displays].
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
-  /// Client for communication with a media server.
-  late Jason _jason;
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late MediaManagerHandle _mediaManager;
+  late final MediaManagerHandle? _mediaManager;
 
   /// Returns the local [Track]s.
   LocalMediaTrack? _localTrack;
@@ -60,16 +61,21 @@ class CameraSwitchController extends GetxController {
 
   @override
   void onInit() async {
-    _jason = Jason();
-
-    _mediaManager = _jason.mediaManager();
-    _mediaManager.onDeviceChange(() => _enumerateDevices());
-
-    await WebUtils.cameraPermission();
-
     _cameraWorker = ever(camera, (e) => initRenderer());
 
-    await _enumerateDevices();
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => _enumerateDevices());
+
+      await WebUtils.cameraPermission();
+      await _enumerateDevices();
+    } catch (_) {
+      // [Jason] may not be supported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
+
     initRenderer();
 
     super.onInit();
@@ -77,12 +83,11 @@ class CameraSwitchController extends GetxController {
 
   @override
   void onClose() {
-    _mediaManager.free();
-    _jason.free();
+    _mediaManager?.free();
+    _jason?.free();
     renderer.value?.dispose();
     _localTrack?.free();
     _cameraWorker?.dispose();
-
     super.onClose();
   }
 
@@ -91,7 +96,7 @@ class CameraSwitchController extends GetxController {
     await _settingsRepository.setVideoDevice(id);
   }
 
-  /// Initializes a [RtcVideoRenderer] for the [camera].
+  /// Initializes a [RtcVideoRenderer] for the current [camera].
   Future<void> initRenderer() async {
     if (_initRendererGuard.isLocked) {
       return;
@@ -100,7 +105,7 @@ class CameraSwitchController extends GetxController {
     renderer.value?.dispose();
     _localTrack?.free();
 
-    String? camera = this.camera.value;
+    final String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
       DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
@@ -108,20 +113,20 @@ class CameraSwitchController extends GetxController {
         constraints.deviceId(camera);
       }
 
-      MediaStreamSettings settings = MediaStreamSettings();
-      settings.deviceVideo(constraints);
+      final settings = MediaStreamSettings()..deviceVideo(constraints);
+      final List<LocalMediaTrack> tracks =
+          await _mediaManager?.initLocalTracks(settings) ?? [];
 
-      final List<LocalMediaTrack> tracks = await _mediaManager.initLocalTracks(
-        settings,
-      );
+      _localTrack = tracks.firstOrNull;
+      if (_localTrack != null) {
+        final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
+        await renderer.initialize();
+        renderer.srcObject = tracks.first.getTrack();
 
-      _localTrack = tracks.first;
-
-      final RtcVideoRenderer renderer = RtcVideoRenderer(tracks.first);
-      await renderer.initialize();
-      renderer.srcObject = tracks.first.getTrack();
-
-      this.renderer.value = renderer;
+        this.renderer.value = renderer;
+      } else {
+        renderer.value = null;
+      }
     });
 
     if (camera != this.camera.value) {
@@ -132,7 +137,7 @@ class CameraSwitchController extends GetxController {
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available cameras.
   Future<void> _enumerateDevices() async {
-    devices.value = (await _mediaManager.enumerateDevices())
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
               e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.videoinput,

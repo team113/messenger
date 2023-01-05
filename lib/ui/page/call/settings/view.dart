@@ -43,20 +43,7 @@ class CallSettingsView extends StatelessWidget {
     BuildContext context, {
     required Rx<OngoingCall> call,
   }) {
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      child: CallSettingsView(call),
-    );
+    return ModalPopup.show(context: context, child: CallSettingsView(call));
   }
 
   @override
@@ -102,12 +89,12 @@ class CallSettingsView extends StatelessWidget {
                     onPressed: () async {
                       await CameraSwitchView.show(
                         context,
-                        onChange: (device) => c.setVideoDevice(device),
+                        onChanged: (device) => c.setVideoDevice(device),
                         camera: c.camera.value,
                       );
 
                       if (c.devices.video().isEmpty) {
-                        c.enumerateDevices();
+                        await c.enumerateDevices();
                       }
                     },
                     child: IgnorePointer(
@@ -137,12 +124,12 @@ class CallSettingsView extends StatelessWidget {
                     onPressed: () async {
                       await MicrophoneSwitchView.show(
                         context,
-                        onChange: (device) => c.setAudioDevice(device),
+                        onChanged: (device) => c.setAudioDevice(device),
                         mic: c.mic.value,
                       );
 
                       if (c.devices.audio().isEmpty) {
-                        c.enumerateDevices();
+                        await c.enumerateDevices();
                       }
                     },
                     child: IgnorePointer(
@@ -172,12 +159,12 @@ class CallSettingsView extends StatelessWidget {
                     onPressed: () async {
                       await OutputSwitchView.show(
                         context,
-                        onChange: (device) => c.setOutputDevice(device),
+                        onChanged: (device) => c.setOutputDevice(device),
                         output: c.output.value,
                       );
 
                       if (c.devices.output().isEmpty) {
-                        c.enumerateDevices();
+                        await c.enumerateDevices();
                       }
                     },
                     child: IgnorePointer(
