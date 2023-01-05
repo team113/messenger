@@ -192,10 +192,6 @@ class ContactRepository implements AbstractContactRepository {
     if (fromContacts) {
       contacts.remove(id);
       favorites.addIf(contact != null, id, contact!);
-    } else {
-      favorites.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
     }
 
     try {
