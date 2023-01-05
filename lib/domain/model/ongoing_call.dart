@@ -1563,8 +1563,6 @@ class Track {
       isMuted = RxBool((track as RemoteMediaTrack).muted());
     } else {
       isMuted = RxBool(false);
-    //DeviceConstraints
-
     }
   }
 
