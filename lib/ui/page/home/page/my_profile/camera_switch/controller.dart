@@ -59,6 +59,9 @@ class CameraSwitchController extends GetxController {
   /// Mutex guarding [initRenderer].
   final Mutex _initRendererGuard = Mutex();
 
+  /// Indicator whether this [CameraSwitchController] is disposed.
+  bool _disposed = false;
+
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
@@ -88,6 +91,7 @@ class CameraSwitchController extends GetxController {
     renderer.value?.dispose();
     _localTrack?.free();
     _cameraWorker?.dispose();
+    _disposed = true;
     super.onClose();
   }
 
@@ -117,19 +121,31 @@ class CameraSwitchController extends GetxController {
       final List<LocalMediaTrack> tracks =
           await _mediaManager?.initLocalTracks(settings) ?? [];
 
-      _localTrack = tracks.firstOrNull;
+      if (_disposed) {
+        tracks.firstOrNull?.free();
+        _localTrack = null;
+      } else {
+        _localTrack = tracks.firstOrNull;
+      }
+
       if (_localTrack != null) {
         final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
         await renderer.initialize();
+
         renderer.srcObject = tracks.first.getTrack();
 
-        this.renderer.value = renderer;
+        if (_disposed) {
+          renderer.dispose();
+          this.renderer.value = null;
+        } else {
+          this.renderer.value = renderer;
+        }
       } else {
         renderer.value = null;
       }
     });
 
-    if (camera != this.camera.value) {
+    if (camera != this.camera.value && !_disposed) {
       initRenderer();
     }
   }
