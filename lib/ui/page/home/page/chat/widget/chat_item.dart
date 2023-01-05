@@ -70,7 +70,6 @@ class ChatItemWidget extends StatefulWidget {
     this.user,
     this.getUser,
     this.animation,
-    this.dragDelta = 10,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -120,9 +119,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
-
-  /// Distance to travel in order for the dragging started.
-  final double dragDelta;
 
   /// Callback, called when a gallery list is required.
   ///
@@ -491,8 +487,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
-  /// Drag [Offset] to determine whether need to animate this [ChatItemWidget].
-  Offset _realOffset = Offset.zero;
+  /// Total [Offset] applied to this [ChatItemWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
 
   /// [Duration] to animate [_offset] changes with.
   ///
@@ -623,7 +619,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
-        translateChild: false,
+        translate: false,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -632,6 +628,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
+        padding: const EdgeInsets.only(bottom: 8),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1280,7 +1277,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      translateChild: _fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1314,20 +1311,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              if (_realOffset.dx > widget.dragDelta) {
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
+
+              if (_totalOffset.dx > delta) {
                 _offset += d.delta;
 
-                if (_offset.dx > 30 + widget.dragDelta &&
-                    _offset.dx - d.delta.dx < 30 + widget.dragDelta) {
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
                   HapticFeedback.selectionClick();
                   widget.onReply?.call();
                 }
 
                 setState(() {});
               } else {
-                _realOffset += d.delta;
-
-                if (_realOffset.dx <= 0) {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
                   _dragging = false;
                   widget.onDrag?.call(_dragging);
                 }
@@ -1339,7 +1339,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
-              _realOffset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});

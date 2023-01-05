@@ -65,7 +65,6 @@ class ChatForwardWidget extends StatefulWidget {
     this.user,
     this.getUser,
     this.animation,
-    this.dragDelta = 10,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -95,9 +94,6 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Optional animation controlling a [SwipeableStatus].
   final AnimationController? animation;
-
-  /// Distance to travel in order for the dragging started.
-  final double dragDelta;
 
   /// [User] posted these [forwards].
   final RxUser? user;
@@ -156,8 +152,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
-  /// Drag [Offset] to determine whether need to animate this [ChatForwardWidget]
-  Offset _realOffset = Offset.zero;
+  /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
 
   /// [Duration] to animate [_offset] changes with.
   ///
@@ -718,7 +714,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      translateChild: _fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -757,20 +753,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             }
 
             if (_dragging) {
-              if (_realOffset.dx > widget.dragDelta) {
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
+
+              if (_totalOffset.dx > delta) {
                 _offset += d.delta;
 
-                if (_offset.dx > 30 + widget.dragDelta &&
-                    _offset.dx - d.delta.dx < 30 + widget.dragDelta) {
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
                   HapticFeedback.selectionClick();
                   widget.onReply?.call();
                 }
 
                 setState(() {});
               } else {
-                _realOffset += d.delta;
-
-                if (_realOffset.dx <= 0) {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
                   _dragging = false;
                   widget.onDrag?.call(_dragging);
                 }
@@ -782,7 +781,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
-              _realOffset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});

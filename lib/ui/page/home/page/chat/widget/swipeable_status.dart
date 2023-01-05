@@ -27,7 +27,7 @@ class SwipeableStatus extends StatelessWidget {
     required this.child,
     required this.swipeable,
     this.animation,
-    this.translateChild = false,
+    this.translate = false,
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
@@ -49,8 +49,8 @@ class SwipeableStatus extends StatelessWidget {
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
 
-  /// Indicator whether [child] should be translated on swipe.
-  final bool translateChild;
+  /// Indicator whether [child] should translate along with the [swipeable].
+  final bool translate;
 
   /// Indicator whether status is sent.
   final bool isSent;
@@ -79,33 +79,12 @@ class SwipeableStatus extends StatelessWidget {
       return child;
     }
 
-    if (translateChild) {
-      return Stack(
-        alignment: crossAxisAlignment == CrossAxisAlignment.end
-            ? Alignment.bottomRight
-            : Alignment.centerRight,
-        children: [
-          _animatedBuilder(
-            child,
-            translated: false,
-          ),
-          _animatedBuilder(
-            Padding(
-              padding: padding,
-              child:
-                  SizedBox(width: width, child: _swipeableWithStatus(context)),
-            ),
-          ),
-        ],
-      );
-    }
-
     return Stack(
       alignment: crossAxisAlignment == CrossAxisAlignment.end
           ? Alignment.bottomRight
           : Alignment.centerRight,
       children: [
-        child,
+        translate ? _animatedBuilder(child, translated: false) : child,
         _animatedBuilder(
           Padding(
             padding: padding,
