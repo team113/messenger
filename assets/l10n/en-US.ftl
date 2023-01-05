@@ -362,7 +362,7 @@ label_attachments = [{$count} { $count ->
     *[other] attachments
     }]
 label_audio_call = Audio call
-label_away = Away
+label_away = away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
@@ -538,8 +538,8 @@ label_no_users = No users
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_num = Gapopa ID
-label_offline = Offline
-label_online = Online
+label_offline = offline
+label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register

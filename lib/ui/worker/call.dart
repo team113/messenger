@@ -129,7 +129,7 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (calling) {
-              play('ringing.mp3');
+              // play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play('chinese.mp3');
               Vibration.hasVibrator().then((bool? v) {

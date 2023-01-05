@@ -23,6 +23,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/avatar.dart';
+import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -65,41 +67,38 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       ];
 
-      // Active call.
-      if (true // c.state.value == OngoingCallState.active
-          // || c.chat.value?.chat.value.isGroup == true
-          ) {
-        // Secondary view possible alignment.
-        Widget possibleContainer() {
-          return Obx(() {
-            Alignment? alignment = c.possibleSecondaryAlignment.value;
-            if (alignment == null) {
-              return Container();
-            }
+      // Secondary view possible alignment.
+      Widget possibleContainer() {
+        return Obx(() {
+          Alignment? alignment = c.possibleSecondaryAlignment.value;
+          if (alignment == null) {
+            return Container();
+          }
 
-            double width = 10;
-            double height = 10;
+          double width = 10;
+          double height = 10;
 
-            if (alignment == Alignment.topCenter ||
-                alignment == Alignment.bottomCenter) {
-              width = double.infinity;
-            } else {
-              height = double.infinity;
-            }
+          if (alignment == Alignment.topCenter ||
+              alignment == Alignment.bottomCenter) {
+            width = double.infinity;
+          } else {
+            height = double.infinity;
+          }
 
-            return Align(
-              alignment: alignment,
-              child: ConditionalBackdropFilter(
-                child: Container(
-                  height: height,
-                  width: width,
-                  color: const Color(0x4D165084),
-                ),
+          return Align(
+            alignment: alignment,
+            child: ConditionalBackdropFilter(
+              child: Container(
+                height: height,
+                width: width,
+                color: const Color(0x4D165084),
               ),
-            );
-          });
-        }
+            ),
+          );
+        });
+      }
 
+      if (true) {
         content.addAll([
           // Call's primary view.
           Column(
@@ -126,6 +125,46 @@ Widget desktopCall(CallController c, BuildContext context) {
                       child: Stack(
                         children: [
                           _primaryView(c),
+                          Obx(() {
+                            bool isIncoming = c.state.value !=
+                                    OngoingCallState.active &&
+                                c.state.value != OngoingCallState.joining &&
+                                !(c.outgoing ||
+                                    c.state.value == OngoingCallState.local);
+
+                            bool isDialog =
+                                c.chat.value?.chat.value.isDialog == true;
+
+                            final Widget child;
+
+                            if (!isIncoming) {
+                              child = const SizedBox();
+                            } else {
+                              if (isDialog) {
+                                child =
+                                    CallCoverWidget(c.chat.value?.callCover);
+                              } else {
+                                if (c.chat.value?.avatar.value != null) {
+                                  Avatar avatar = c.chat.value!.avatar.value!;
+                                  child = CallCoverWidget(
+                                    UserCallCover(
+                                      full: avatar.full,
+                                      original: avatar.original,
+                                      square: avatar.full,
+                                      vertical: avatar.full,
+                                    ),
+                                  );
+                                } else {
+                                  child = const SizedBox();
+                                }
+                              }
+                            }
+
+                            return AnimatedSwitcher(
+                              duration: 400.milliseconds,
+                              child: child,
+                            );
+                          }),
                           Obx(
                             () => MouseRegion(
                               opaque: false,
@@ -164,11 +203,8 @@ Widget desktopCall(CallController c, BuildContext context) {
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
-              if ((d.kind != PointerDeviceKind.mouse &&
-                  d.kind != PointerDeviceKind.stylus)) {
-                c.downPosition = d.localPosition;
-                c.downButtons = d.buttons;
-              }
+              c.downPosition = d.localPosition;
+              c.downButtons = d.buttons;
             },
             onPointerUp: (d) {
               if (c.downButtons & kPrimaryButton != 0 &&
@@ -348,8 +384,10 @@ Widget desktopCall(CallController c, BuildContext context) {
       /// Builds the [Dock] containing the [CallController.buttons].
       Widget dock() {
         return Obx(() {
-          bool isDocked = c.state.value == OngoingCallState.active ||
-              c.state.value == OngoingCallState.joining;
+          bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+          bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
           bool showBottomUi = (c.showUi.isTrue ||
               c.draggedButton.value != null ||
@@ -362,86 +400,93 @@ Widget desktopCall(CallController c, BuildContext context) {
 
           return AnimatedPadding(
             key: const Key('DockedAnimatedPadding'),
-            padding: isDocked
-                ? const EdgeInsets.only(bottom: 5)
-                : const EdgeInsets.only(bottom: 30),
+            padding: const EdgeInsets.only(bottom: 5),
             curve: Curves.ease,
             duration: 200.milliseconds,
             child: AnimatedSwitcher(
               key: const Key('DockedAnimatedSwitcher'),
               duration: 200.milliseconds,
-              child: isDocked
-                  ? AnimatedSlider(
-                      key: const Key('DockedPanelPadding'),
-                      isOpen: showBottomUi,
-                      duration: 400.milliseconds,
-                      translate: false,
-                      listener: () =>
-                          Future.delayed(Duration.zero, c.relocateSecondary),
-                      child: MouseRegion(
-                        onEnter: (d) => c.keepUi(true),
-                        onHover: (d) => c.keepUi(true),
-                        onExit: c.showUi.value && !c.displayMore.value
-                            ? (d) => c.keepUi(false)
-                            : (d) => c.keepUi(),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: const [
-                              CustomBoxShadow(
-                                color: Color(0x33000000),
-                                blurRadius: 8,
-                                blurStyle: BlurStyle.outer,
-                              )
-                            ],
-                          ),
-                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                          child: ConditionalBackdropFilter(
-                            key: c.dockKey,
-                            borderRadius: BorderRadius.circular(30),
-                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0x301D6AAE),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 13,
-                                horizontal: 5,
-                              ),
-                              child: Obx(() {
-                                return Dock<CallButton>(
-                                  // ignore: invalid_use_of_protected_member
-                                  items: c.buttons.value,
-                                  itemWidth: CallController.buttonSize,
-                                  itemBuilder: (e) => e.build(
-                                    hinted: c.draggedButton.value == null,
-                                  ),
-                                  onReorder: (buttons) {
-                                    c.buttons.clear();
-                                    c.buttons.addAll(buttons);
-                                    c.relocateSecondary();
-                                  },
-                                  onDragStarted: (b) {
-                                    c.showDragAndDropButtonsHint = false;
-                                    c.draggedButton.value = b;
-                                  },
-                                  onDragEnded: (_) =>
-                                      c.draggedButton.value = null,
-                                  onLeave: (_) => c.displayMore.value = true,
-                                  onWillAccept: (d) => d?.c == c,
-                                );
-                              }),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.only(left: 13, right: 13),
-                      child: pendingButtons(),
+              child: AnimatedSlider(
+                key: const Key('DockedPanelPadding'),
+                isOpen: showBottomUi,
+                duration: 400.milliseconds,
+                translate: false,
+                listener: () =>
+                    Future.delayed(Duration.zero, c.relocateSecondary),
+                child: MouseRegion(
+                  onEnter: (d) => c.keepUi(true),
+                  onHover: (d) => c.keepUi(true),
+                  onExit: c.showUi.value && !c.displayMore.value
+                      ? (d) => c.keepUi(false)
+                      : (d) => c.keepUi(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        CustomBoxShadow(
+                          color: Color(0x33000000),
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
                     ),
+                    margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      key: c.dockKey,
+                      borderRadius: BorderRadius.circular(30),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0x301D6AAE),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 13,
+                          horizontal: 5,
+                        ),
+                        child: Obx(() {
+                          bool answer =
+                              (c.state.value != OngoingCallState.joining &&
+                                  c.state.value != OngoingCallState.active &&
+                                  !isOutgoing);
+
+                          return Dock<CallButton>(
+                            items: answer
+                                ? [
+                                    AcceptAudioButton(c),
+                                    AcceptVideoButton(c),
+                                    DeclineButton(c),
+                                  ]
+                                // ignore: invalid_use_of_protected_member
+                                : c.buttons.value,
+                            itemWidth: CallController.buttonSize,
+                            itemBuilder: (e) {
+                              if (answer) {}
+
+                              return e.build(
+                                hinted: c.draggedButton.value == null,
+                              );
+                            },
+                            onReorder: (buttons) {
+                              c.buttons.clear();
+                              c.buttons.addAll(buttons);
+                              c.relocateSecondary();
+                            },
+                            onDragStarted: (b) {
+                              c.showDragAndDropButtonsHint = false;
+                              c.draggedButton.value = b;
+                            },
+                            onDragEnded: (_) => c.draggedButton.value = null,
+                            onLeave: (_) => c.displayMore.value = true,
+                            onWillAccept: (d) => d?.c == c,
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           );
         });
@@ -805,7 +850,17 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         if (true /*c.state.value == OngoingCallState.active*/) ...[
           // Secondary panel itself.
-          _secondaryView(c, context),
+          Obx(() {
+            bool isIncoming = c.state.value != OngoingCallState.active &&
+                c.state.value != OngoingCallState.joining &&
+                !(c.outgoing || c.state.value == OngoingCallState.local);
+
+            if (isIncoming) {
+              return const SizedBox();
+            }
+
+            return _secondaryView(c, context);
+          }),
 
           // Show a hint if any renderer is draggable.
           Obx(() {
@@ -1525,6 +1580,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         return Container();
       }
 
+      double borderRadius = 15;
       double? left, right;
       double? top, bottom;
       Axis? axis;
@@ -1737,14 +1793,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   return Container(
                     width: width,
                     height: height,
-                    decoration: const BoxDecoration(
-                      boxShadow: [
+                    decoration: BoxDecoration(
+                      boxShadow: const [
                         CustomBoxShadow(
                           color: Color(0x44000000),
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
                       ],
+                      borderRadius: BorderRadius.circular(borderRadius),
                     ),
                   );
                 }
@@ -1766,16 +1823,19 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 child: Obx(() {
                   if (c.secondaryAlignment.value == null) {
                     return IgnorePointer(
-                      child: Stack(
-                        children: [
-                          SvgLoader.asset(
-                            'assets/images/background_dark.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(color: const Color(0x11FFFFFF)),
-                        ],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        child: Stack(
+                          children: [
+                            SvgLoader.asset(
+                              'assets/images/background_dark.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(color: const Color(0x11FFFFFF)),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -2009,6 +2069,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             children:
                 c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
+            borderRadius: c.secondaryAlignment.value == null ? borderRadius : 0,
           ),
 
           // Discards the pointer when hovered over videos.
@@ -2093,31 +2154,39 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           opacity: c.secondaryHovered.value ? 1 : 0,
                           child: ConditionalBackdropFilter(
                             condition: PlatformUtils.isWeb,
-                            child: Container(
-                              // TODO: Wait for fix on `Flutter` end.
-                              color: PlatformUtils.isWeb
-                                  ? const Color(0x9D165084)
-                                  : const Color(0xE9165084),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 7),
-                                  const Expanded(
-                                    child: Text(
-                                      'Draggable',
-                                      style: TextStyle(color: Colors.white),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                            child: ClipRRect(
+                              borderRadius: c.secondaryAlignment.value == null
+                                  ? BorderRadius.only(
+                                      topLeft: Radius.circular(borderRadius),
+                                      topRight: Radius.circular(borderRadius),
+                                    )
+                                  : BorderRadius.zero,
+                              child: Container(
+                                // TODO: Wait for fix on `Flutter` end.
+                                color: PlatformUtils.isWeb
+                                    ? const Color(0x9D165084)
+                                    : const Color(0xE9165084),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 7),
+                                    const Expanded(
+                                      child: Text(
+                                        'Draggable',
+                                        style: TextStyle(color: Colors.white),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  InkResponse(
-                                    onTap: isAnyDrag ? null : c.focusAll,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close.svg',
-                                      height: 10.25,
+                                    InkResponse(
+                                      onTap: isAnyDrag ? null : c.focusAll,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/close.svg',
+                                        height: 10.25,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 7),
-                                ],
+                                    const SizedBox(width: 7),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -2229,13 +2298,17 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         child: AnimatedContainer(
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
-                          decoration: BoxDecoration(
-                            border: (c.secondaryHovered.value ||
+                          decoration: ShapeDecoration(
+                            shape: (c.secondaryHovered.value ||
                                     c.primaryDrags.value != 0)
                                 ? c.secondaryAlignment.value == null
-                                    ? Border.all(
-                                        color: const Color(0xFF888888),
-                                        width: 1,
+                                    ? RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                          color: Color(0xFF888888),
+                                          width: 1,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(borderRadius),
                                       )
                                     : Border(
                                         top: c.secondaryAlignment.value ==

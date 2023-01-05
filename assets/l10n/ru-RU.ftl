@@ -380,7 +380,7 @@ label_attachments = [{$count} { $count ->
     *[other] прикреплений
     }]
 label_audio_call = Аудиозвонок
-label_away = Отошёл
+label_away = отошёл
 label_background = Бэкграунд
 label_biography = Биография
 label_biography_hint = Несколько слов о Вас
@@ -559,8 +559,8 @@ label_no_users = Нет пользователей
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
-label_offline = Офлайн
-label_online = Онлайн
+label_offline = офлайн
+label_online = онлайн
 label_open_calls_in_app = Отображать звонки в окне приложения.
 label_open_calls_in_window = Отображать звонки в отдельном окне.
 label_or_register = или регистрация

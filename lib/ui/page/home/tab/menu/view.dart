@@ -47,34 +47,33 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: const Color(0x55000000),
-                  color: Colors.white,
-                  child: InkWell(
-                    onTap: context.isNarrow &&
-                            ModalRoute.of(context)?.canPop == true
-                        ? Navigator.of(context).pop
-                        : null,
-                    customBorder: const CircleBorder(),
-                    child: Center(
-                      child: Obx(() {
-                        return AvatarWidget.fromMyUser(
-                          c.myUser.value,
-                          radius: 17,
-                          badge: false,
-                        );
-                      }),
+            title: WidgetButton(
+              onPressed: () => StatusView.show(context),
+              child: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: InkWell(
+                      onTap: context.isNarrow &&
+                              ModalRoute.of(context)?.canPop == true
+                          ? Navigator.of(context).pop
+                          : null,
+                      customBorder: const CircleBorder(),
+                      child: Center(
+                        child: Obx(() {
+                          return AvatarWidget.fromMyUser(
+                            c.myUser.value,
+                            radius: 17,
+                          );
+                        }),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: WidgetButton(
-                    onPressed: () => StatusView.show(context),
+                  const SizedBox(width: 10),
+                  Flexible(
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -91,14 +90,15 @@ class MenuTabView extends StatelessWidget {
                             ),
                             Obx(() {
                               return Text(
-                                c.myUser.value?.presence.localizedString() ??
-                                    'dot'.l10n * 3,
+                                c.myUser.value?.status?.val ??
+                                    'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
                                     .caption
                                     ?.copyWith(
                                       color:
-                                          c.myUser.value?.presence.getColor(),
+                                          Theme.of(context).colorScheme.primary,
+                                      // c.myUser.value?.presence.getColor(),
                                     ),
                               );
                             }),
@@ -107,9 +107,9 @@ class MenuTabView extends StatelessWidget {
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-              ],
+                  const SizedBox(width: 10),
+                ],
+              ),
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]

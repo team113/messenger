@@ -157,9 +157,7 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
-    }
+    await _contactService.deleteContact(contact.id);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.

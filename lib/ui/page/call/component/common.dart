@@ -448,35 +448,34 @@ Widget withDescription(Widget child, Widget description) {
 }
 
 /// Title call information.
-Widget callTitle(CallController c) => Obx(
-      () {
-        bool isOutgoing =
-            (c.outgoing || c.state.value == OngoingCallState.local) &&
-                !c.started;
-        bool isDialog = c.chat.value?.chat.value.isDialog == true;
+Widget callTitle(CallController c) {
+  return Obx(() {
+    bool isOutgoing =
+        (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
+    bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
-        bool withDots = c.state.value != OngoingCallState.active &&
-            (c.state.value == OngoingCallState.joining || isOutgoing);
-        String? state = c.state.value == OngoingCallState.active
-            ? c.duration.value.toString().split('.').first.padLeft(8, '0')
-            : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.l10n
-                : isOutgoing
-                    ? isDialog
-                        ? null
-                        // ? 'label_call_calling'.l10n
-                        : 'label_call_connecting'.l10n
-                    : c.withVideo == true
-                        ? 'label_video_call'.l10n
-                        : 'label_audio_call'.l10n;
+    bool withDots = c.state.value != OngoingCallState.active &&
+        (c.state.value == OngoingCallState.joining || isOutgoing);
+    String? state = c.state.value == OngoingCallState.active
+        ? c.duration.value.toString().split('.').first.padLeft(8, '0')
+        : c.state.value == OngoingCallState.joining
+            ? 'label_call_joining'.l10n
+            : isOutgoing
+                ? isDialog
+                    ? null
+                    // ? 'label_call_calling'.l10n
+                    : 'label_call_connecting'.l10n
+                : c.withVideo == true
+                    ? 'label_video_call'.l10n
+                    : 'label_audio_call'.l10n;
 
-        return CallTitle(
-          c.me.id.userId,
-          chat: c.chat.value?.chat.value,
-          title: c.chat.value?.title.value,
-          avatar: c.chat.value?.avatar.value,
-          state: state,
-          withDots: withDots,
-        );
-      },
+    return CallTitle(
+      c.me.id.userId,
+      chat: c.chat.value?.chat.value,
+      title: c.chat.value?.title.value,
+      avatar: c.chat.value?.avatar.value,
+      state: state,
+      withDots: withDots,
     );
+  });
+}

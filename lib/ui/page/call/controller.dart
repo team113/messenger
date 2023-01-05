@@ -596,8 +596,8 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
+        // SchedulerBinding.instance
+        //     .addPostFrameCallback((_) => relocateSecondary());
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -618,6 +618,9 @@ class CallController extends GetxController {
         );
 
         keepUi();
+      } else if (state == OngoingCallState.joining) {
+        SchedulerBinding.instance
+            .addPostFrameCallback((_) => relocateSecondary());
       }
 
       refresh();
@@ -1821,6 +1824,11 @@ class CallController extends GetxController {
             }
           } else {
             paneled.add(participant);
+          }
+
+          if (state.value == OngoingCallState.local || outgoing) {
+            SchedulerBinding.instance
+                .addPostFrameCallback((_) => relocateSecondary());
           }
           break;
 
