@@ -249,6 +249,7 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         child = ListWrapper(
                           context: context,
+                          bottomPadding: 0,
                           child: ListView.builder(
                             controller: c.search.value!.controller,
                             itemCount: c.elements.length,
@@ -366,6 +367,11 @@ class ChatsTabView extends StatelessWidget {
                       }
                     } else if (c.searching.value &&
                         c.search.value?.search.isEmpty.value == false) {
+                      print(context.mediaQuery);
+                      print(context.mediaQueryPadding);
+                      print(context.mediaQuerySize);
+                      print(context.mediaQueryViewInsets);
+                      print(context.mediaQueryViewPadding);
                       if (c.search.value!.searchStatus.value.isLoading &&
                           c.elements.isEmpty) {
                         child = const Center(
