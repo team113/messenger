@@ -41,9 +41,9 @@ class MessageFieldMessage extends StatefulWidget {
     this.item,
     this.c,
     this.onClose, {
+    super.key,
     this.isEdit = false,
-    Key? key,
-  }) : super(key: key);
+  });
 
   /// [ChatItem] used to builds a visual representation.
   final ChatItem item;
@@ -316,7 +316,9 @@ class _MessageFieldMessageState extends State<MessageFieldMessage> {
                             if (content != null) ...[
                               const SizedBox(height: 2),
                               DefaultTextStyle.merge(
-                                  maxLines: 1, child: content),
+                                maxLines: 1,
+                                child: content,
+                              ),
                             ],
                             if (additional.isNotEmpty) ...[
                               const SizedBox(height: 4),

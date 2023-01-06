@@ -1249,20 +1249,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
 
-        avatars.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: FutureBuilder<RxUser?>(
-              future: widget.getUser?.call(user!.id),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
-                }
-                return AvatarWidget.fromUser(user, radius: 10);
-              },
+        if (user != null) {
+          avatars.add(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: FutureBuilder<RxUser?>(
+                future: widget.getUser?.call(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                  }
+                  return AvatarWidget.fromUser(user, radius: 10);
+                },
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
 
       if (widget.reads.length > maxAvatars) {
