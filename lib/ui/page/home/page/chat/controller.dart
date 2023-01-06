@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -397,6 +398,10 @@ class ChatController extends GetxController {
     [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
         .whereNotNull()
         .forEach(AudioCache.instance.clear);
+
+    if (chat?.chat.value.isDialog == true) {
+      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
+    }
 
     super.onClose();
   }
@@ -802,14 +807,10 @@ class ChatController extends GetxController {
 
           _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
-            return (element is ChatMessageElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatMemberInfoElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatCallElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatForwardElement &&
-                    element.forwards.first.value.authorId != me);
+            return element is ChatMessageElement ||
+                element is ChatMemberInfoElement ||
+                element is ChatCallElement ||
+                element is ChatForwardElement;
           });
 
           if (_lastVisibleItem != null &&
@@ -835,6 +836,12 @@ class ChatController extends GetxController {
           }
         }
       };
+
+      if (chat?.chat.value.isDialog == true) {
+        chat?.members.values
+            .lastWhereOrNull((u) => u.id != me)
+            ?.listenUpdates();
+      }
 
       _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
 
@@ -904,7 +911,8 @@ class ChatController extends GetxController {
     if (item != null &&
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
-        !status.value.isLoadingMore) {
+        !status.value.isLoadingMore &&
+        item.status.value == SendingStatus.sent) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {

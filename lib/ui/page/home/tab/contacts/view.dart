@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -133,11 +134,7 @@ class ContactsTabView extends StatelessWidget {
               if (c.search.value != null) {
                 child = WidgetButton(
                   key: const Key('CloseSearch'),
-                  onPressed: () {
-                    if (c.search.value?.query.isNotEmpty == true) {
-                      c.toggleSearch(false);
-                    }
-                  },
+                  onPressed: () => c.toggleSearch(false),
                   child: SvgLoader.asset(
                     'assets/icons/close_primary.svg',
                     height: 15,

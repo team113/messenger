@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -139,6 +140,9 @@ class RouterState extends ChangeNotifier {
 
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
+
+  /// Indicator whether [HomeView] page navigation should be visible.
+  final RxBool navigation = RxBool(true);
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;

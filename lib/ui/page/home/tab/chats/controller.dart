@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,12 +19,14 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -38,9 +41,11 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
+        CreateGroupChatException,
         FavoriteChatException,
         HideChatException,
         RemoveChatMemberException,
@@ -49,12 +54,12 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
-import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the [HomeTab.chats] tab .
+/// Controller of the [HomeTab.chats] tab.
 class ChatsTabController extends GetxController {
   ChatsTabController(
     this._chatService,
@@ -62,6 +67,7 @@ class ChatsTabController extends GetxController {
     this._authService,
     this._userService,
     this._contactService,
+    this._myUserService,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -72,6 +78,19 @@ class ChatsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// Indicator whether [search]ing is active.
+  final RxBool searching = RxBool(false);
+
+  /// Indicator whether group creation is active.
+  final RxBool groupCreating = RxBool(false);
+
+  /// Status of the [createGroup] progression.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query has not yet started.
+  /// - `status.isLoading`, meaning the [createGroup] is executing.
+  final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -88,6 +107,9 @@ class ChatsTabController extends GetxController {
   /// [ChatContact]s service used by a [SearchController].
   final ContactService _contactService;
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
   /// Subscription for [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -99,8 +121,16 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
+  ///
+  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
+  final List<RxUser> _recipients = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
@@ -115,6 +145,25 @@ class ChatsTabController extends GetxController {
           _ChatSortingData(chat.chat, _sortChats);
     }
 
+    // Adds the recipient of the provided [chat] to the [_recipients] and starts
+    // listening to its updates.
+    Future<void> listenUpdates(RxChat chat) async {
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
+
+      if (userId != null) {
+        RxUser? rxUser =
+            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        rxUser ??= await getUser(userId);
+        if (rxUser != null) {
+          _recipients.add(rxUser..listenUpdates());
+        }
+      }
+    }
+
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
@@ -122,11 +171,31 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
+
+          if (event.value!.chat.value.isDialog) {
+            listenUpdates(event.value!);
+          }
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
+
+          if (event.value!.chat.value.isDialog) {
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
+
+            _recipients.removeWhere((e) {
+              if (e.id == userId) {
+                e.stopUpdates();
+                return true;
+              }
+
+              return false;
+            });
+          }
           break;
 
         case OperationKind.updated:
@@ -148,6 +217,12 @@ class ChatsTabController extends GetxController {
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
+
+    for (RxUser v in _recipients) {
+      v.stopUpdates();
+    }
+
+    router.navigation.value = true;
 
     super.onClose();
   }
@@ -285,8 +360,76 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
+  /// Enables and initializes the [search]ing.
+  void startSearch() {
+    searching.value = true;
+    _toggleSearch();
+    search.value?.search.focus.requestFocus();
+  }
+
+  /// Disables and disposes the [search]ing.
+  void closeSearch([bool disableSearch = false]) {
+    searching.value = false;
+    if (disableSearch) {
+      _toggleSearch(false);
+    } else {
+      search.value?.search.clear();
+      search.value?.query.value = '';
+    }
+  }
+
+  /// Enables and initializes the group creating.
+  void startGroupCreating() {
+    groupCreating.value = true;
+    _toggleSearch();
+    router.navigation.value = false;
+    search.value?.populate();
+  }
+
+  /// Disables and disposes the group creating.
+  void closeGroupCreating() {
+    groupCreating.value = false;
+    closeSearch(true);
+    router.navigation.value = true;
+  }
+
+  /// Creates a [Chat]-group with [SearchController.selectedRecent],
+  /// [SearchController.selectedContacts] and [SearchController.selectedUsers].
+  Future<void> createGroup() async {
+    creatingStatus.value = RxStatus.loading();
+
+    try {
+      RxChat chat = await _chatService.createGroupChat(
+        {
+          ...search.value!.selectedRecent.map((e) => e.id),
+          ...search.value!.selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...search.value!.selectedUsers.map((e) => e.id),
+        }.where((e) => e != me).toList(),
+        name: null,
+      );
+
+      router.chatInfo(chat.chat.value.id);
+
+      closeGroupCreating();
+    } on CreateGroupChatException catch (e) {
+      MessagePopup.error(e);
+    } on FormatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      creatingStatus.value = RxStatus.empty();
+    }
+  }
+
   /// Enables and initializes or disables and disposes the [search].
-  void toggleSearch([bool enable = true]) {
+  void _toggleSearch([bool enable = true]) {
+    if (search.value != null && enable) {
+      return;
+    }
+
     search.value?.onClose();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     _searchSubscription?.cancel();
@@ -297,6 +440,7 @@ class ChatsTabController extends GetxController {
         _userService,
         _contactService,
         categories: const [
+          SearchCategory.recent,
           SearchCategory.chat,
           SearchCategory.contact,
           SearchCategory.user,
@@ -304,16 +448,32 @@ class ChatsTabController extends GetxController {
       )..onInit();
 
       _searchSubscription = StreamGroup.merge([
+        search.value!.recent.stream,
         search.value!.chats.stream,
         search.value!.contacts.stream,
         search.value!.users.stream,
       ]).listen((_) {
         elements.clear();
 
-        if (search.value?.chats.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.chat));
-          for (RxChat c in search.value!.chats.values) {
-            elements.add(ChatElement(c));
+        if (groupCreating.value) {
+          if (search.value?.query.isEmpty == true) {
+            elements.add(const MyUserElement());
+          }
+
+          search.value?.users.removeWhere((k, v) => me == k);
+
+          if (search.value?.recent.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.chat));
+            for (RxUser c in search.value!.recent.values) {
+              elements.add(RecentElement(c));
+            }
+          }
+        } else {
+          if (search.value?.chats.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.chat));
+            for (RxChat c in search.value!.chats.values) {
+              elements.add(ChatElement(c));
+            }
           }
         }
 
@@ -333,10 +493,8 @@ class ChatsTabController extends GetxController {
       });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);
-      search.value!.search.focus.requestFocus();
     } else {
       search.value = null;
-      elements.clear();
     }
   }
 
@@ -371,7 +529,7 @@ class ChatsTabController extends GetxController {
   void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
-      toggleSearch(false);
+      closeSearch(!groupCreating.value);
     }
   }
 }
@@ -446,4 +604,17 @@ class DividerElement extends ListElement {
 
   /// [SearchCategory] of this [DividerElement].
   final SearchCategory category;
+}
+
+/// [ListElement] representing the currently authenticated [MyUser].
+class MyUserElement extends ListElement {
+  const MyUserElement();
+}
+
+/// [ListElement] representing a recent [RxUser].
+class RecentElement extends ListElement {
+  const RecentElement(this.user);
+
+  /// [RxUser] itself.
+  final RxUser user;
 }
