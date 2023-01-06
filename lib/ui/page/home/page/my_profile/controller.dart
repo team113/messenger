@@ -122,12 +122,12 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   @override
-  void onInit() {
+  void onInit() async {
     try {
       _jason = Jason();
       _mediaManager = _jason?.mediaManager();
       _mediaManager?.onDeviceChange(() => enumerateDevices());
-      enumerateDevices();
+      await enumerateDevices();
     } catch (_) {
       // [Jason] might not be supported on the current platform.
       _jason = null;

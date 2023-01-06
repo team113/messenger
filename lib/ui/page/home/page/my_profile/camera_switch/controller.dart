@@ -41,7 +41,7 @@ class CameraSwitchController extends GetxController {
   /// ID of the initially selected video device.
   RxnString camera;
 
-  /// [RtcVideoRenderer]s of the [OngoingCall.displays].
+  /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
   /// Client for communicating with the [_mediaManager].
@@ -50,7 +50,7 @@ class CameraSwitchController extends GetxController {
   /// Handle to a media manager tracking all the connected devices.
   late final MediaManagerHandle? _mediaManager;
 
-  /// Returns the local [Track]s.
+  /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
 
   /// [Worker] reacting on the [camera] changes updating the [renderer].
@@ -58,9 +58,6 @@ class CameraSwitchController extends GetxController {
 
   /// Mutex guarding [initRenderer].
   final Mutex _initRendererGuard = Mutex();
-
-  /// Indicator whether this [CameraSwitchController] is disposed.
-  bool _disposed = false;
 
   @override
   void onInit() async {
@@ -91,7 +88,6 @@ class CameraSwitchController extends GetxController {
     renderer.value?.dispose();
     _localTrack?.free();
     _cameraWorker?.dispose();
-    _disposed = true;
     super.onClose();
   }
 
@@ -121,7 +117,7 @@ class CameraSwitchController extends GetxController {
       final List<LocalMediaTrack> tracks =
           await _mediaManager?.initLocalTracks(settings) ?? [];
 
-      if (_disposed) {
+      if (isClosed) {
         tracks.firstOrNull?.free();
         _localTrack = null;
       } else {
@@ -134,7 +130,7 @@ class CameraSwitchController extends GetxController {
 
         renderer.srcObject = tracks.first.getTrack();
 
-        if (_disposed) {
+        if (isClosed) {
           renderer.dispose();
           this.renderer.value = null;
         } else {
@@ -145,7 +141,7 @@ class CameraSwitchController extends GetxController {
       }
     });
 
-    if (camera != this.camera.value && !_disposed) {
+    if (camera != this.camera.value && !isClosed) {
       initRenderer();
     }
   }
