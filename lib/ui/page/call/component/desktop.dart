@@ -2072,13 +2072,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           child: ClipRRect(
                             borderRadius: c.secondaryAlignment.value == null
                                 ? BorderRadius.only(
-                                    topLeft: Radius.circular(borderRadius),
-                                    topRight: Radius.circular(borderRadius),
+                                    topLeft: borderRadius.topLeft,
+                                    topRight: borderRadius.topRight,
                                   )
                                 : BorderRadius.zero,
                             child: ConditionalBackdropFilter(
                               condition: PlatformUtils.isWeb &&
-                                  (c.minimized.isFalse || c.fullscreen.isTrue),                              
+                                  (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
                                 color: PlatformUtils.isWeb
                                     ? const Color(0x9D165084)
