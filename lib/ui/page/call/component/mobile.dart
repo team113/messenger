@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -119,6 +120,10 @@ Widget mobileCall(CallController c, BuildContext context) {
           return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
         }
 
+        bool isOutgoing =
+            (c.outgoing || c.state.value == OngoingCallState.local) &&
+                !c.started;
+
         return Stack(
           children: [
             // Show an [AvatarWidget], if no [CallCover] is available.
@@ -150,10 +155,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                           height: 40,
                           child: Obx(() {
-                            bool isOutgoing = (c.outgoing ||
-                                    c.state.value == OngoingCallState.local) &&
-                                !c.started;
-
                             bool withDots = c.state.value !=
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
@@ -200,6 +201,26 @@ Widget mobileCall(CallController c, BuildContext context) {
                     )
                   : Container(),
             ),
+
+            if (isOutgoing)
+              Padding(
+                padding: const EdgeInsets.all(21.0),
+                child: Center(
+                  child: SpinKitDoubleBounce(
+                    // child: SpinKitPulse(
+                    key: (c.locals.firstOrNull ?? c.paneled.firstOrNull)
+                        ?.redialingKey,
+                    // color: Colors.white,
+                    color: const Color(0xFFEEEEEE),
+                    size: 100 / 1.5,
+                    duration: const Duration(milliseconds: 4500),
+                  ),
+                  // child: LoadingIndicator(
+                  //   indicatorType: Indicator.ballScaleMultiple,
+                  //   colors: [Colors.white],
+                  // ),
+                ),
+              ),
           ],
         );
       }));
@@ -557,12 +578,17 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
-                                    padding(AcceptAudioButton(c)
-                                        .build(expanded: true)),
-                                    padding(AcceptVideoButton(c)
-                                        .build(expanded: true)),
+                                    padding(AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ).build(expanded: true)),
+                                    padding(AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ).build(expanded: true)),
                                     padding(
-                                        DeclineButton(c).build(expanded: true)),
+                                      DeclineButton(c).build(expanded: true),
+                                    ),
                                   ],
                           ),
                         ),

@@ -126,12 +126,12 @@ class MyProfileController extends GetxController {
   RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
-  void onInit() async {
+  void onInit() {
     try {
       _jason = Jason();
       _mediaManager = _jason?.mediaManager();
       _mediaManager?.onDeviceChange(() => enumerateDevices());
-      await enumerateDevices();
+      enumerateDevices();
     } catch (_) {
       // [Jason] might not be supported on the current platform.
       _jason = null;

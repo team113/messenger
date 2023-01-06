@@ -124,7 +124,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                     Expanded(
                       child: Stack(
                         children: [
-                          _primaryView(c),
                           Obx(() {
                             bool isIncoming = c.state.value !=
                                     OngoingCallState.active &&
@@ -138,7 +137,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             final Widget child;
 
                             if (!isIncoming) {
-                              child = const SizedBox();
+                              child = _primaryView(c);
                             } else {
                               if (isDialog) {
                                 child =
@@ -451,18 +450,64 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.active &&
                                   !isOutgoing);
 
+                          if (answer) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(width: 11),
+                                SizedBox.square(
+                                  dimension: CallController.buttonSize,
+                                  child: AcceptAudioButton(
+                                    c,
+                                    highlight: !c.withVideo,
+                                  ).build(),
+                                ),
+                                const SizedBox(width: 24),
+                                SizedBox.square(
+                                  dimension: CallController.buttonSize,
+                                  child: AcceptVideoButton(
+                                    c,
+                                    highlight: c.withVideo,
+                                  ).build(),
+                                ),
+                                const SizedBox(width: 24),
+                                SizedBox.square(
+                                  dimension: CallController.buttonSize,
+                                  child: DeclineButton(c).build(),
+                                ),
+                                const SizedBox(width: 11),
+                              ],
+                            );
+                          }
+
                           return Dock<CallButton>(
                             items: answer
                                 ? [
-                                    AcceptAudioButton(c),
-                                    AcceptVideoButton(c),
+                                    AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ),
+                                    PaddingButton(c),
+                                    AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ),
+                                    PaddingButton(c),
                                     DeclineButton(c),
                                   ]
                                 // ignore: invalid_use_of_protected_member
                                 : c.buttons.value,
                             itemWidth: CallController.buttonSize,
                             itemBuilder: (e) {
-                              if (answer) {}
+                              // if (answer) {
+                              //   return Padding(
+                              //     padding:
+                              //         const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              //     child: e.build(
+                              //       hinted: c.draggedButton.value == null,
+                              //     ),
+                              //   );
+                              // }
 
                               return e.build(
                                 hinted: c.draggedButton.value == null,
