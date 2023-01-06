@@ -320,6 +320,18 @@ class SearchController extends GetxController {
           return 1;
         }
 
+        if (a.chat.value.favoritePosition != null &&
+            b.chat.value.favoritePosition == null) {
+          return -1;
+        } else if (a.chat.value.favoritePosition == null &&
+            b.chat.value.favoritePosition != null) {
+          return 1;
+        } else if (a.chat.value.favoritePosition != null &&
+            b.chat.value.favoritePosition != null) {
+          return a.chat.value.favoritePosition!
+              .compareTo(b.chat.value.favoritePosition!);
+        }
+
         return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
       });
 
