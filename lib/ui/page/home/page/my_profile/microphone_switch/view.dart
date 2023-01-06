@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -32,17 +31,24 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MicrophoneSwitchView extends StatelessWidget {
-  const MicrophoneSwitchView(this._call, {super.key});
+  const MicrophoneSwitchView({super.key, this.onChanged, this.mic});
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when the selected microphone device changes.
+  final void Function(String)? onChanged;
+
+  /// ID of the initially selected microphone device.
+  final String? mic;
 
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChanged,
+    String? mic,
   }) {
-    return ModalPopup.show(context: context, child: MicrophoneSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: MicrophoneSwitchView(onChanged: onChanged, mic: mic),
+    );
   }
 
   @override
@@ -52,7 +58,7 @@ class MicrophoneSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: MicrophoneSwitchController(_call, Get.find()),
+      init: MicrophoneSwitchController(Get.find(), mic: mic),
       builder: (MicrophoneSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -79,11 +85,10 @@ class MicrophoneSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.audio().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e =
-                                c.devices.audio().toList()[i];
+                            final MediaDeviceInfo e = c.devices[i];
 
                             final bool selected =
                                 (c.mic.value == null && i == 0) ||
@@ -96,7 +101,13 @@ class MicrophoneSwitchView extends StatelessWidget {
                                   : Colors.white.darken(0.05),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setAudioDevice(e.deviceId()),
+                                onTap: selected
+                                    ? null
+                                    : () {
+                                        c.mic.value = e.deviceId();
+                                        (onChanged ?? c.setAudioDevice)
+                                            .call(e.deviceId());
+                                      },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(

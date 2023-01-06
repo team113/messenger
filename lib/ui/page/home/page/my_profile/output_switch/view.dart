@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -32,17 +31,28 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class OutputSwitchView extends StatelessWidget {
-  const OutputSwitchView(this._call, {super.key});
+  const OutputSwitchView({
+    this.onChanged,
+    this.output,
+    super.key,
+  });
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when the selected output device changes.
+  final void Function(String)? onChanged;
+
+  /// ID of the initially selected audio output device.
+  final String? output;
 
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChanged,
+    String? output,
   }) {
-    return ModalPopup.show(context: context, child: OutputSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: OutputSwitchView(onChanged: onChanged, output: output),
+    );
   }
 
   @override
@@ -52,7 +62,7 @@ class OutputSwitchView extends StatelessWidget {
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: OutputSwitchController(_call, Get.find()),
+      init: OutputSwitchController(Get.find(), output: output),
       builder: (OutputSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -79,11 +89,10 @@ class OutputSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.output().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e =
-                                c.devices.output().toList()[i];
+                            final MediaDeviceInfo e = c.devices[i];
 
                             final bool selected =
                                 (c.output.value == null && i == 0) ||
@@ -96,7 +105,13 @@ class OutputSwitchView extends StatelessWidget {
                                   : Colors.white.darken(0.05),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setOutputDevice(e.deviceId()),
+                                onTap: selected
+                                    ? () {}
+                                    : () {
+                                        c.output.value = e.deviceId();
+                                        (onChanged ?? c.setOutputDevice)
+                                            .call(e.deviceId());
+                                      },
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Row(
