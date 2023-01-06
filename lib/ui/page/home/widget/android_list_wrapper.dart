@@ -8,37 +8,39 @@ class ListWrapper extends StatelessWidget {
     super.key,
     required BuildContext context,
     required this.child,
-    this.bottomPadding = 60,
+    this.bottomPadding,
   }) : buildContext = context;
 
   final Widget child;
 
   final BuildContext buildContext;
 
-  final double bottomPadding;
+  final double? bottomPadding;
 
   @override
   Widget build(BuildContext context) {
     final MediaQueryData mediaQuery = buildContext.mediaQuery;
-    print(buildContext.mediaQueryViewPadding);
-    print(buildContext.mediaQuery);
-    print(buildContext.mediaQueryViewInsets);
-    print(buildContext.mediaQuerySize);
-    print(buildContext.mediaQueryPadding);
-    print(buildContext.height);
-    return MediaQuery(
-      data: mediaQuery.copyWith(
-        padding: mediaQuery.padding.copyWith(
-          top: 60,
-          bottom: mediaQuery.padding.bottom,
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+      return MediaQuery(
+        data: mediaQuery.copyWith(
+          padding: mediaQuery.padding.copyWith(
+            top: 60,
+            bottom: bottomPadding ?? 61,
+          ),
         ),
-      ),
-      child: Container(
-        margin: EdgeInsets.only(top: mediaQuery.padding.top + 5, bottom: 5),
-        height: buildContext.height -
-            (context.isMobile ? mediaQuery.padding.bottom + 5 : 11),
+        child: Container(
+          margin: EdgeInsets.only(
+              top: mediaQuery.padding.top + 5,
+              bottom: mediaQuery.padding.bottom - 61 + 5),
+          height: buildContext.height,
+          child: child,
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
         child: child,
-      ),
-    );
+      );
+    }
   }
 }
