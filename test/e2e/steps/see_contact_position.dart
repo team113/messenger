@@ -43,7 +43,7 @@ final StepDefinitionGeneric seeContactPosition =
 
         final List<RxChatContact> contacts = [
           ...controller.favorites,
-          ...controller.contacts
+          ...controller.contacts,
         ];
 
         switch (status) {

@@ -28,9 +28,8 @@ All user visible changes to this project will be documented in this file. This p
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
-        - Favorite contacts. ([#237], [#223])
+        - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#260], [#259])
-        - Reordering favorite contacts. ([#285], [#269])
     - User page:
         - Blacklisting. ([#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
@@ -127,7 +126,6 @@ All user visible changes to this project will be documented in this file. This p
 [#260]: /../../pull/260
 [#263]: /../../issues/263
 [#265]: /../../pull/265
-[#269]: /../../issues/269
 [#274]: /../../pull/274
 [#275]: /../../pull/275
 [#277]: /../../pull/277

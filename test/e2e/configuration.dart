@@ -48,8 +48,8 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
-import 'steps/contact_is_favorite.dart';
 import 'steps/contact.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
@@ -106,7 +106,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contact,
         copyFromField,
         downloadFile,
-        dragContactToDown,
+        dragContactDown,
         fillField,
         fillFieldN,
         goToUserPage,

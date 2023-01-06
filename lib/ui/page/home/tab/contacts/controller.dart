@@ -62,14 +62,16 @@ class ContactsTabController extends GetxController {
   /// Reactive list of favorited [ChatContact]s.
   final RxList<RxChatContact> favorites = RxList();
 
-  /// Indicator whether ongoing reordering is happening or not.
-  final RxBool reordering = RxBool(false);
-
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -181,7 +183,7 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Reorders favorite contacts.
+  /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
     double position;
 
@@ -201,7 +203,10 @@ class ContactsTabController extends GetxController {
 
     final ChatContactId contactId = favorites[from].id;
 
-    if (to > from) to--;
+    if (to > from) {
+      to--;
+    }
+
     favorites.insert(to, favorites.removeAt(from));
 
     await favoriteContact(contactId, ChatContactPosition(position));

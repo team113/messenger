@@ -192,6 +192,10 @@ class ContactRepository implements AbstractContactRepository {
     if (fromContacts) {
       contacts.remove(id);
       favorites.addIf(contact != null, id, contact!);
+    } else {
+      favorites.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
     }
 
     try {
@@ -268,6 +272,9 @@ class ContactRepository implements AbstractContactRepository {
           } else {
             contact.contact.value = event.value.value;
             contact.contact.refresh();
+            favorites.emit(
+              MapChangeNotification.updated(contact.id, contact.id, contact),
+            );
           }
         }
       }

@@ -33,7 +33,7 @@ import '/ui/widget/context_menu/region.dart';
 /// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
   const ContactTile({
-    Key? key,
+    super.key,
     this.contact,
     this.user,
     this.myUser,
@@ -49,8 +49,8 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-    this.avatarBuilder,
-  }) : super(key: key);
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [MyUser] to display.
   final MyUser? myUser;
@@ -99,8 +99,11 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
-  /// Builder for [AvatarWidget].
-  final Widget Function(Widget child)? avatarBuilder;
+  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +137,13 @@ class ContactTile extends StatelessWidget {
             child: Row(
               children: [
                 ...leading,
-                _buildAvatar(),
+                avatarBuilder(
+                  contact != null
+                      ? AvatarWidget.fromRxContact(contact, radius: radius)
+                      : user != null
+                          ? AvatarWidget.fromRxUser(user, radius: radius)
+                          : AvatarWidget.fromMyUser(myUser, radius: radius),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -175,18 +184,6 @@ class ContactTile extends StatelessWidget {
     );
   }
 
-  /// Returns [AvatarWidget].
-  Widget _buildAvatar() {
-    Widget child;
-
-    if (contact != null) {
-      child = AvatarWidget.fromRxContact(contact, radius: radius);
-    } else if (user != null) {
-      child = AvatarWidget.fromRxUser(user, radius: radius);
-    } else {
-      child = AvatarWidget.fromMyUser(myUser, radius: radius);
-    }
-
-    return avatarBuilder == null ? child : avatarBuilder!(child);
-  }
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }
