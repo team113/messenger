@@ -1496,7 +1496,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         return Container();
       }
 
-      double borderRadius = 15;
+      // [BorderRadius] to decorate the secondary panel with.
+      final BorderRadius borderRadius = BorderRadius.circular(10);
+
       double? left, right;
       double? top, bottom;
       Axis? axis;
@@ -1714,7 +1716,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           blurStyle: BlurStyle.outer,
                         )
                       ],
-                      borderRadius: BorderRadius.circular(borderRadius),
+                      borderRadius: borderRadius,
                     ),
                   );
                 }
@@ -1738,7 +1740,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   if (c.secondaryAlignment.value == null) {
                     return IgnorePointer(
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(borderRadius),
+                        borderRadius: borderRadius,
                         child: Stack(
                           children: [
                             SvgLoader.asset(
@@ -1983,7 +1985,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             children:
                 c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
-            borderRadius: c.secondaryAlignment.value == null ? borderRadius : 0,
+            borderRadius:
+                c.secondaryAlignment.value == null ? borderRadius : null,
           ),
 
           // Discards the pointer when hovered over videos.
@@ -2071,8 +2074,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             child: ClipRRect(
                               borderRadius: c.secondaryAlignment.value == null
                                   ? BorderRadius.only(
-                                      topLeft: Radius.circular(borderRadius),
-                                      topRight: Radius.circular(borderRadius),
+                                      topLeft: borderRadius.topLeft,
+                                      topRight: borderRadius.topRight,
                                     )
                                   : BorderRadius.zero,
                               child: Container(
@@ -2214,43 +2217,52 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
                           decoration: ShapeDecoration(
-                            shape: (c.secondaryHovered.value ||
-                                    c.primaryDrags.value != 0)
+                            shape: c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0
                                 ? c.secondaryAlignment.value == null
                                     ? RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                          color: Color(0xFF888888),
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                           width: 1,
                                         ),
-                                        borderRadius:
-                                            BorderRadius.circular(borderRadius),
+                                        borderRadius: borderRadius,
                                       )
                                     : Border(
                                         top: c.secondaryAlignment.value ==
                                                 Alignment.bottomCenter
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         left: c.secondaryAlignment.value ==
                                                 Alignment.centerRight
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         right: c.secondaryAlignment.value ==
                                                 Alignment.centerLeft
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         bottom: c.secondaryAlignment.value ==
                                                 Alignment.topCenter
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
