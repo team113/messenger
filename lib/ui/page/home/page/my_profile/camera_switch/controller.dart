@@ -41,7 +41,7 @@ class CameraSwitchController extends GetxController {
   /// ID of the initially selected video device.
   RxnString camera;
 
-  /// [RtcVideoRenderer]s of the [OngoingCall.displays].
+  /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
   /// Client for communicating with the [_mediaManager].
@@ -50,7 +50,7 @@ class CameraSwitchController extends GetxController {
   /// Handle to a media manager tracking all the connected devices.
   late final MediaManagerHandle? _mediaManager;
 
-  /// Returns the local [Track]s.
+  /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
 
   /// [Worker] reacting on the [camera] changes updating the [renderer].
@@ -117,19 +117,31 @@ class CameraSwitchController extends GetxController {
       final List<LocalMediaTrack> tracks =
           await _mediaManager?.initLocalTracks(settings) ?? [];
 
-      _localTrack = tracks.firstOrNull;
+      if (isClosed) {
+        tracks.firstOrNull?.free();
+        _localTrack = null;
+      } else {
+        _localTrack = tracks.firstOrNull;
+      }
+
       if (_localTrack != null) {
         final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
         await renderer.initialize();
+
         renderer.srcObject = tracks.first.getTrack();
 
-        this.renderer.value = renderer;
+        if (isClosed) {
+          renderer.dispose();
+          this.renderer.value = null;
+        } else {
+          this.renderer.value = renderer;
+        }
       } else {
         renderer.value = null;
       }
     });
 
-    if (camera != this.camera.value) {
+    if (camera != this.camera.value && !isClosed) {
       initRenderer();
     }
   }
