@@ -43,16 +43,12 @@ class ContactTile extends StatelessWidget {
     this.selected = false,
     this.subtitle = const [],
     this.darken = 0,
+    this.height = 86,
+    this.radius = 30,
     this.actions,
     this.folded = false,
     this.preventContextMenu = false,
-    this.unselectedColor,
-    this.selectedColor,
-    this.selectedHoverColor,
-    this.unselectedHoverColor,
-    this.border,
-    this.hoveredBorder,
-    this.padding = const EdgeInsets.fromLTRB(12, 14, 12, 14),
+    this.margin = const EdgeInsets.symmetric(vertical: 3),
   }) : super(key: key);
 
   /// [MyUser] to display.
@@ -90,29 +86,17 @@ class ContactTile extends StatelessWidget {
   /// [ContextMenuRegion.actions] of this [ContactTile].
   final List<ContextMenuButton>? actions;
 
+  /// Margin to apply to this [ContactTile].
+  final EdgeInsets margin;
+
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
 
-  /// Background color of unselected this [ContactTile].
-  final Color? unselectedColor;
+  /// Height of this [ContactTile].
+  final double height;
 
-  /// Background color of selected this [ContactTile].
-  final Color? selectedColor;
-
-  /// Background hover color of selected this [ContactTile].
-  final Color? selectedHoverColor;
-
-  /// Background hover color of unselected this [ContactTile].
-  final Color? unselectedHoverColor;
-
-  /// [Border] of this [ContactTile].
-  final Border? border;
-
-  /// Hovered [Border] of this [ContactTile].
-  final Border? hoveredBorder;
-
-  /// Padding of this [ChatTile].
-  final EdgeInsets padding;
+  /// Radius of an [AvatarWidget] this [ContactTile] displays.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -124,72 +108,70 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
-      child: SizedBox(
-        height: 86,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: selectedColor ?? style.cardSelectedColor,
-            unselectedColor: unselectedColor ?? style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder: hoveredBorder ??
-                (selected ? style.primaryBorder : style.cardHoveredBorder),
-            border:
-                border ?? (selected ? style.primaryBorder : style.cardBorder),
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor:
-                unselectedHoverColor ?? style.cardHoveredColor.darken(darken),
-            selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
-            folded: contact?.contact.value.favoritePosition != null,
-            child: Padding(
-              key: contact?.contact.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                  : null,
-              padding: padding,
-              child: Row(
-                children: [
-                  ...leading,
-                  if (contact != null)
-                    AvatarWidget.fromRxContact(contact, radius: 30)
-                  else if (user != null)
-                    AvatarWidget.fromRxUser(user, radius: 30)
-                  else
-                    AvatarWidget.fromMyUser(myUser, radius: 30),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                contact?.contact.value.name.val ??
-                                    contact?.user.value?.user.value.name?.val ??
-                                    contact?.user.value?.user.value.num.val ??
-                                    user?.user.value.name?.val ??
-                                    user?.user.value.num.val ??
-                                    myUser?.name?.val ??
-                                    myUser?.num.val ??
-                                    (myUser == null
-                                        ? 'dot'.l10n
-                                        : 'btn_your_profile'.l10n),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ...subtitle,
-                      ],
-                    ),
+      child: Padding(
+        padding: margin,
+        child: InkWellWithHover(
+          selectedColor: style.cardSelectedColor,
+          unselectedColor: style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.primaryBorder : style.cardHoveredBorder,
+          border: selected ? style.primaryBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor.darken(darken),
+          selectedHoverColor: style.cardSelectedColor,
+          folded: contact?.contact.value.favoritePosition != null,
+          child: Padding(
+            key: contact?.contact.value.favoritePosition != null
+                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                : null,
+            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            child: Row(
+              children: [
+                ...leading,
+                if (contact != null)
+                  AvatarWidget.fromRxContact(contact, radius: radius)
+                else if (user != null)
+                  AvatarWidget.fromRxUser(user, radius: radius)
+                else
+                  AvatarWidget.fromMyUser(
+                    myUser,
+                    radius: radius,
                   ),
-                  ...trailing,
-                ],
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              contact?.contact.value.name.val ??
+                                  contact?.user.value?.user.value.name?.val ??
+                                  contact?.user.value?.user.value.num.val ??
+                                  user?.user.value.name?.val ??
+                                  user?.user.value.num.val ??
+                                  myUser?.name?.val ??
+                                  myUser?.num.val ??
+                                  (myUser == null
+                                      ? '...'
+                                      : 'btn_your_profile'.l10n),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ...subtitle,
+                    ],
+                  ),
+                ),
+                ...trailing,
+              ],
             ),
           ),
         ),

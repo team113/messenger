@@ -6,6 +6,7 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -45,6 +46,7 @@ class MessageFieldMessage extends StatefulWidget {
 
 /// [State] of [MessageFieldMessage].
 class _MessageFieldMessageState extends State<MessageFieldMessage> {
+  /// Reactive [User] value, author of message.
   RxUser? user;
 
   @override

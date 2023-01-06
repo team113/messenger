@@ -24,10 +24,8 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
+import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -252,56 +250,55 @@ class SearchView extends StatelessWidget {
     bool selected = false,
     Key? key,
   }) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final Widget child;
+    final List<Widget> trailing = [
+      SizedBox(
+        width: 30,
+        height: 30,
+        child: AnimatedSwitcher(
+          duration: 200.milliseconds,
+          child: selected
+              ? CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  radius: 12,
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                )
+              : const CircleAvatar(
+                  backgroundColor: Color(0xFFD7D7D7),
+                  radius: 12,
+                ),
+        ),
+      )
+    ];
 
     if (chat != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ChatTile(
-          key: Key('Chat_${chat.id}'),
-          chat: chat,
-          selected: selected,
-          onTap: onTap,
-          selectedColor: style.cardSelectedColor,
-          unselectedColor: style.cardColor.darken(0.05),
-          selectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
-          unselectedHoverColor: style.cardSelectedColor.withOpacity(0.8),
-          border: style.cardBorder,
-          hoveredBorder: style.cardBorder,
-          trailing: [
-            SizedBox(
-              width: 30,
-              height: 30,
-              child: AnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: selected
-                    ? CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        radius: 12,
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 14,
-                        ),
-                      )
-                    : const CircleAvatar(
-                        backgroundColor: Color(0xFFD7D7D7),
-                        radius: 12,
-                      ),
-              ),
-            )
-          ],
-        ),
+      child = ChatTile(
+        key: Key('Chat_${chat.id}'),
+        chat: chat,
+        selected: selected,
+        onTap: onTap,
+        darken: 0.05,
+        trailing: trailing,
+      );
+    } else {
+      child = ContactTile(
+        key: key,
+        contact: contact,
+        user: user,
+        darken: 0.05,
+        onTap: onTap,
+        selected: selected,
+        trailing: trailing,
       );
     }
 
-    return SearchUserTile(
-      key: key,
-      contact: contact,
-      user: user,
-      onTap: onTap,
-      darken: 0.05,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: child,
     );
   }
 }

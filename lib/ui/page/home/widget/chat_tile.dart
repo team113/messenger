@@ -39,12 +39,8 @@ class ChatTile extends StatelessWidget {
     this.actions = const [],
     this.selected = false,
     this.onTap,
-    this.unselectedColor,
-    this.selectedColor,
-    this.selectedHoverColor,
-    this.unselectedHoverColor,
-    this.border,
-    this.hoveredBorder,
+    this.height = 94,
+    this.darken = 0,
   }) : super(key: key);
 
   /// [Chat] this [ChatTile] represents.
@@ -74,23 +70,11 @@ class ChatTile extends StatelessWidget {
   /// Callback, called when this [ChatTile] is pressed.
   final void Function()? onTap;
 
-  /// Background color of unselected this [ChatTile].
-  final Color? unselectedColor;
+  /// Height of this [ChatTile].
+  final double height;
 
-  /// Background color of selected this [ChatTile].
-  final Color? selectedColor;
-
-  /// Background hover color of selected this [ChatTile].
-  final Color? selectedHoverColor;
-
-  /// Background hover color of unselected this [ChatTile].
-  final Color? unselectedHoverColor;
-
-  /// [Border] of this [ChatTile].
-  final Border? border;
-
-  /// Hovered [Border] of this [ChatTile].
-  final Border? hoveredBorder;
+  /// Amount of darkening to apply to the background of this [ChatTile].
+  final double darken;
 
   @override
   Widget build(BuildContext context) {
@@ -101,22 +85,20 @@ class ChatTile extends StatelessWidget {
       preventContextMenu: false,
       actions: actions,
       child: SizedBox(
-        height: 94,
+        height: height,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: selectedColor ?? style.cardSelectedColor,
-            unselectedColor: unselectedColor ?? style.cardColor,
+            selectedColor: style.cardSelectedColor,
+            unselectedColor: style.cardColor.darken(darken),
             selected: selected,
-            hoveredBorder: hoveredBorder ??
-                (selected ? style.primaryBorder : style.cardHoveredBorder),
-            border:
-                border ?? (selected ? style.primaryBorder : style.cardBorder),
+            hoveredBorder:
+                selected ? style.primaryBorder : style.cardHoveredBorder,
+            border: selected ? style.primaryBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor:
-                unselectedHoverColor ?? style.cardHoveredColor,
-            selectedHoverColor: selectedHoverColor ?? style.cardSelectedColor,
+            unselectedHoverColor: style.cardHoveredColor.darken(darken),
+            selectedHoverColor: style.cardSelectedColor,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
