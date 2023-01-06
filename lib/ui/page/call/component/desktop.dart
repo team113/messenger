@@ -2069,15 +2069,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           key: const ValueKey('TitleBar'),
                           opacity: c.secondaryHovered.value ? 1 : 0,
-                          child: ConditionalBackdropFilter(
-                            condition: PlatformUtils.isWeb,
-                            child: ClipRRect(
-                              borderRadius: c.secondaryAlignment.value == null
-                                  ? BorderRadius.only(
-                                      topLeft: borderRadius.topLeft,
-                                      topRight: borderRadius.topRight,
-                                    )
-                                  : BorderRadius.zero,
+                          child: ClipRRect(
+                            borderRadius: c.secondaryAlignment.value == null
+                                ? BorderRadius.only(
+                                    topLeft: Radius.circular(borderRadius),
+                                    topRight: Radius.circular(borderRadius),
+                                  )
+                                : BorderRadius.zero,
+                            child: ConditionalBackdropFilter(
+                              condition: PlatformUtils.isWeb &&
+                                  (c.minimized.isFalse || c.fullscreen.isTrue),                              
                               child: Container(
                                 color: PlatformUtils.isWeb
                                     ? const Color(0x9D165084)
