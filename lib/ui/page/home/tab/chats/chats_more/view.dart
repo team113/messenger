@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -41,27 +42,6 @@ class ChatsMoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    Widget header(String text) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
-            ),
-          ),
-        ),
-      );
-    }
-
     return GetBuilder(
       key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
@@ -73,7 +53,10 @@ class ChatsMoreView extends StatelessWidget {
               header: Center(
                 child: Text(
                   'label_audio_notifications'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(color: Colors.black, fontSize: 18),
                 ),
               ),
             ),
@@ -85,7 +68,7 @@ class ChatsMoreView extends StatelessWidget {
                   const SizedBox(height: 8),
                   _mute(context, c),
                   const SizedBox(height: 21),
-                  header('label_your_direct_link'.l10n),
+                  _header(context, 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
                   _link(context, c),
                 ],
@@ -95,6 +78,25 @@ class ChatsMoreView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  /// Returns title with specified [text].
+  Widget _header(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: Theme.of(context)
+                .extension<Style>()!
+                .systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
+          ),
+        ),
+      ),
     );
   }
 

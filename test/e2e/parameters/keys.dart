@@ -38,7 +38,6 @@ enum WidgetKey {
   ChatDirectLinkExpandable,
   ChatForwardView,
   ChatMessage,
-  ChatsMoreView,
   ChatsMuted,
   ChatView,
   ChatsButton,

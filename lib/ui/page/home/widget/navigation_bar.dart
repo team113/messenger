@@ -99,25 +99,24 @@ class CustomNavigationBar extends StatelessWidget {
                                       ),
                                     ),
                               badgeColor: b.badgeColor,
-                                showBadge: b.badge != null,
-                                child: InkResponse(
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  onTap: () => onTap?.call(i),
-                                  child: b.child!,
-                                ),
+                              showBadge: b.badge != null,
+                              child: InkResponse(
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                onTap: () => onTap?.call(i),
+                                child: b.child!,
                               ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
-          ],
-
+          ),
+        ],
       ),
     );
   }

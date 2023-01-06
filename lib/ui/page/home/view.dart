@@ -207,29 +207,29 @@ class _HomeViewState extends State<HomeView> {
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
-                                  ? const Color(0xFFC0C0C0)
-                                  : Colors.red,
-                              child: RmbDetector(
-                                onPressed: () => ChatsMoreView.show(context),
-                                child: tab(
-                                  tab: HomeTab.chats,
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: SvgLoader.asset(
-                                        c.myUser.value?.muted != null
-                                            ? 'assets/icons/chats_muted.svg'
-                                            : 'assets/icons/chats.svg',
-                                        key: Key(
+                                    ? const Color(0xFFC0C0C0)
+                                    : Colors.red,
+                                child: RmbDetector(
+                                  onPressed: () => ChatsMoreView.show(context),
+                                  child: tab(
+                                    tab: HomeTab.chats,
+                                    child: Obx(() {
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: SvgLoader.asset(
                                           c.myUser.value?.muted != null
-                                              ? 'ChatsMuted'
-                                              : 'ChatsUnmuted',
+                                              ? 'assets/icons/chats_muted.svg'
+                                              : 'assets/icons/chats.svg',
+                                          key: Key(
+                                            c.myUser.value?.muted != null
+                                                ? 'ChatsMuted'
+                                                : 'ChatsUnmuted',
+                                          ),
+                                          width: 36.06,
+                                          height: 30,
                                         ),
-                                        width: 36.06,
-                                        height: 30,
-                                      ),
-                                    );
-                                  }),
+                                      );
+                                    }),
                                   ),
                                 ),
                               ),
