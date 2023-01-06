@@ -23,12 +23,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
@@ -40,7 +41,6 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -61,9 +61,6 @@ class MyProfileController extends GetxController {
   /// Index of the initial profile page section to show in a [FlutterListView].
   int listInitIndex = 0;
 
-  /// [OngoingCall] used for getting local media devices.
-  late final Rx<OngoingCall> call;
-
   /// [MyUser.name]'s field state.
   late final TextFieldState name;
 
@@ -79,11 +76,20 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
+  /// List of [MediaDeviceInfo] of all the available devices.
+  InputDevices devices = RxList<MediaDeviceInfo>([]);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
+
+  /// Handle to a media manager tracking all the connected devices.
+  late final MediaManagerHandle? _mediaManager;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -112,20 +118,22 @@ class MyProfileController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => call.value.devices;
-
-  /// Returns ID of the currently used video device.
-  RxnString get camera => call.value.videoDevice;
-
-  /// Returns ID of the currently used microphone device.
-  RxnString get mic => call.value.audioDevice;
-
-  /// Returns ID of the currently used output device.
-  RxnString get output => call.value.outputDevice;
+  /// Returns the current [MediaSettings] value.
+  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   @override
-  void onInit() {
+  void onInit() async {
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => enumerateDevices());
+      await enumerateDevices();
+    } catch (_) {
+      // [Jason] might not be supported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
+
     listInitIndex = router.profileSection.value?.index ?? 0;
 
     bool ignoreWorker = false;
@@ -373,31 +381,15 @@ class MyProfileController extends GetxController {
       },
     );
 
-    if (!PlatformUtils.isMobile) {
-      // TODO: This is a really bad hack. We should not create a call here.
-      //       Required functionality should be decoupled from the
-      //       [OngoingCall] or reimplemented here.
-      call = Rx<OngoingCall>(OngoingCall(
-        const ChatId('settings'),
-        const UserId(''),
-        state: OngoingCallState.local,
-        mediaSettings: _settingsRepo.mediaSettings.value,
-        withAudio: false,
-        withVideo: false,
-        withScreen: false,
-      ));
-
-      call.value.init();
-    }
-
     super.onInit();
   }
 
   @override
   void onClose() {
+    _mediaManager?.free();
+    _jason?.free();
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
-    call.value.dispose();
     super.onClose();
   }
 
@@ -462,6 +454,15 @@ class MyProfileController extends GetxController {
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
+  }
+
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available media input devices, such as microphones, cameras, and so forth.
+  Future<void> enumerateDevices() async {
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
+        .whereNot((e) => e.deviceId().isEmpty)
+        .toList();
+    devices.refresh();
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
