@@ -507,7 +507,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'camera'});
 
     if (status?.state != 'granted') {
-      await html.window.navigator.getUserMedia(video: true);
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(video: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
     }
   }
 
@@ -517,7 +522,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'microphone'});
 
     if (status?.state != 'granted') {
-      await html.window.navigator.getUserMedia(audio: true);
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(audio: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
     }
   }
 }
