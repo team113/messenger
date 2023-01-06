@@ -274,9 +274,7 @@ class ContactsTabView extends StatelessWidget {
                   slivers: [
                     SliverPadding(
                       padding: EdgeInsets.only(
-                        top: kToolbarHeight +
-                            MediaQuery.of(context).viewPadding.top +
-                            4,
+                        top: 60 + MediaQuery.of(context).viewPadding.top,
                         left: 10,
                         right: 10,
                       ),
@@ -368,7 +366,7 @@ class ContactsTabView extends StatelessWidget {
                     ),
                     SliverPadding(
                       padding: const EdgeInsets.only(
-                        bottom: kBottomNavigationBarHeight + 5,
+                        bottom: 61,
                         left: 10,
                         right: 10,
                       ),

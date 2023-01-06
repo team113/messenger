@@ -197,13 +197,15 @@ class ContactsTabController extends GetxController {
           2;
     }
 
+    final ChatContactId contactId = favorites[from].id;
+
     if (to > from) {
       to--;
     }
 
     favorites.insert(to, favorites.removeAt(from));
 
-    await favoriteContact(favorites[from].id, ChatContactPosition(position));
+    await favoriteContact(contactId, ChatContactPosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
