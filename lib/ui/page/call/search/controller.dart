@@ -536,7 +536,7 @@ class SearchViewResults {
   /// Recent [RxUser]s themselves.
   final List<RxUser> recent;
 
-  /// Indicates whether [chats], [users] and [contacts] are empty.
+  /// Indicates whether [chats], [users], [contacts] and [recent] are empty.
   bool get isEmpty =>
       chats.isEmpty && users.isEmpty && contacts.isEmpty && recent.isEmpty;
 }

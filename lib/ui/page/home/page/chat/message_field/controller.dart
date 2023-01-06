@@ -49,7 +49,19 @@ class MessageFieldController extends GetxController {
     this._userService, {
     this.onSubmit,
     this.updatedMessage,
-  });
+    List<ChatItemQuote>? quotes,
+    List<Attachment>? attachments,
+    this.emptyQuotes,
+  }) {
+    if (quotes != null) {
+      this.quotes.addAll(quotes);
+    }
+    if (attachments != null && attachments.isNotEmpty) {
+      for (Attachment attachment in attachments) {
+        this.attachments.add(MapEntry(GlobalKey(), attachment));
+      }
+    }
+  }
 
   /// [Attachment]s to be attached to a message.
   final RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
@@ -85,6 +97,9 @@ class MessageFieldController extends GetxController {
   /// Draft message text.
   final RxnString draftText = RxnString();
 
+  /// Callback, called when [quotes] is being empty.
+  final void Function()? emptyQuotes;
+
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
 
@@ -94,17 +109,21 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [Worker] to react on the [quotes] updates.
+  late final Worker? _quotesChanges;
+
   /// Worker capturing any [MessageFieldController.replied] changes.
-  Worker? _repliesWorker;
+  late final Worker? _repliesWorker;
 
   /// Worker capturing any [MessageFieldController.attachments] changes.
-  Worker? _attachmentsWorker;
+  late final Worker? _attachmentsWorker;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
+    print('init');
     field = TextFieldState(
       onChanged: (_) => updatedMessage?.call(),
       onSubmitted: (s) {
@@ -154,6 +173,11 @@ class MessageFieldController extends GetxController {
 
     _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
     _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
+    _quotesChanges ??= ever(quotes, (_) {
+      if (quotes.isEmpty) {
+        emptyQuotes?.call();
+      }
+    });
 
     super.onInit();
   }
@@ -162,6 +186,7 @@ class MessageFieldController extends GetxController {
   void onClose() {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
+    _quotesChanges?.dispose();
 
     super.onClose();
   }

@@ -52,7 +52,7 @@ class ChatForwardView extends StatelessWidget {
   final String? text;
 
   /// Initial [Attachment]s to attach to the provided [quotes].
-  final RxList<MapEntry<GlobalKey, Attachment>>? attachments;
+  final List<Attachment>? attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -72,9 +72,7 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachments == null
-            ? null
-            : RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()),
+        attachments: attachments,
         text: text,
       ),
     );

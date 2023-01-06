@@ -36,7 +36,6 @@ import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 
 export 'view.dart';
 
@@ -46,12 +45,11 @@ class ChatForwardController extends GetxController {
     this._chatService,
     this._userService, {
     required this.from,
-    required List<ChatItemQuote> quotes,
+    required this.quotes,
     this.text,
     this.pop,
-    RxList<MapEntry<GlobalKey, Attachment>>? attachments,
-  })  : quotes = RxList(quotes),
-        attachments = RxObsList(attachments ?? []);
+    this.attachments,
+  });
 
   /// Selected items in [SearchView] popup.
   final Rx<SearchViewResults?> searchResults = Rx(null);
@@ -63,14 +61,14 @@ class ChatForwardController extends GetxController {
   final String? text;
 
   /// [ChatItemQuote]s to be forwarded.
-  final RxList<ChatItemQuote> quotes;
+  final List<ChatItemQuote> quotes;
 
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
   /// [Attachment]s to attach to the [quotes].
-  final RxObsList<MapEntry<GlobalKey, Attachment>> attachments;
+  final List<Attachment>? attachments;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -80,9 +78,6 @@ class ChatForwardController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
-
-  /// [Worker] to react on the [quotes] updates.
-  late final Worker quotesChanges;
 
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
@@ -95,6 +90,9 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      emptyQuotes: () => pop?.call(),
+      quotes: quotes,
+      attachments: attachments,
       onSubmit: () async {
         if (searchResults.value?.isEmpty != false) {
           send.field.unsubmit();
@@ -180,22 +178,7 @@ class ChatForwardController extends GetxController {
       },
     );
 
-    send.quotes.addAll(quotes);
-    send.attachments.addAll(attachments);
-
-    quotesChanges = ever(quotes, (_) {
-      if (quotes.isEmpty) {
-        pop?.call();
-      }
-    });
-
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    quotesChanges.dispose();
-    super.onClose();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
