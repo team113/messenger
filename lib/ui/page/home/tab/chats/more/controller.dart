@@ -36,9 +36,6 @@ class ChatsMoreController extends GetxController {
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
-  /// Indicator whether [MyUser] is muted or not.
-  final RxBool muted = RxBool(false);
-
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
   /// Used to discard repeated toggling.
@@ -52,8 +49,6 @@ class ChatsMoreController extends GetxController {
 
   @override
   void onInit() {
-    muted.value = myUser.value?.muted == null ? false : true;
-
     link = TextFieldState(
       text: myUser.value?.chatDirectLink?.slug.val ??
           ChatDirectLinkSlug.generate(10).val,
@@ -110,17 +105,14 @@ class ChatsMoreController extends GetxController {
   Future<void> toggleMute(bool enabled) async {
     if (!isMuting.value) {
       isMuting.value = true;
-      muted.value = !enabled;
 
       try {
         await _myUserService.toggleMute(
           enabled ? null : MuteDuration.forever(),
         );
       } on ToggleMyUserMuteException catch (e) {
-        muted.value = enabled;
         MessagePopup.error(e);
       } catch (e) {
-        muted.value = enabled;
         MessagePopup.error(e);
         rethrow;
       } finally {
