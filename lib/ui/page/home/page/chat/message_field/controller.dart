@@ -55,8 +55,10 @@ class MessageFieldController extends GetxController {
     if (quotes != null) {
       this.quotes.addAll(quotes);
     }
-    if (attachments != null) {
-      attachments.map((e) => this.attachments.add(MapEntry(GlobalKey(), e)));
+    if (attachments != null && attachments.isNotEmpty) {
+      this.attachments.addAll(
+            attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
+          );
     }
   }
 
