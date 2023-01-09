@@ -31,6 +31,7 @@ import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -274,7 +275,8 @@ class ContactsTabView extends StatelessWidget {
                   slivers: [
                     SliverPadding(
                       padding: EdgeInsets.only(
-                        top: 60 + MediaQuery.of(context).viewPadding.top,
+                        top: CustomAppBar.height +
+                            MediaQuery.of(context).viewPadding.top,
                         left: 10,
                         right: 10,
                       ),
@@ -366,7 +368,7 @@ class ContactsTabView extends StatelessWidget {
                     ),
                     SliverPadding(
                       padding: const EdgeInsets.only(
-                        bottom: 61,
+                        bottom: CustomNavigationBar.height + 5,
                         left: 10,
                         right: 10,
                       ),
