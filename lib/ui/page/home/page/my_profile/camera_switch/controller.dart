@@ -15,52 +15,145 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
-import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
 /// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
-  CameraSwitchController(this._call, this._settingsRepository);
-
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  CameraSwitchController(this._settingsRepository, {String? camera})
+      : camera = RxnString(camera);
 
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// List of [MediaDeviceInfo] of all the available devices.
+  InputDevices devices = RxList<MediaDeviceInfo>([]);
 
-  /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
+  /// ID of the initially selected video device.
+  RxnString camera;
 
-  /// Returns the local [Track]s.
-  ObsList<Track>? get localTracks => _call.value.localTracks;
+  /// [RtcVideoRenderer] rendering the currently selected [camera] device.
+  final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
+
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
+
+  /// Handle to a media manager tracking all the connected devices.
+  late final MediaManagerHandle? _mediaManager;
+
+  /// [LocalMediaTrack] of the currently selected [camera] device.
+  LocalMediaTrack? _localTrack;
+
+  /// [Worker] reacting on the [camera] changes updating the [renderer].
+  Worker? _cameraWorker;
+
+  /// Mutex guarding [initRenderer].
+  final Mutex _initRendererGuard = Mutex();
 
   @override
-  void onInit() {
-    _call.value.setVideoEnabled(true);
+  void onInit() async {
+    _cameraWorker = ever(camera, (e) => initRenderer());
+
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => _enumerateDevices());
+
+      await WebUtils.cameraPermission();
+      await _enumerateDevices();
+    } catch (_) {
+      // [Jason] may not be supported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
+
+    initRenderer();
+
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setVideoEnabled(false);
+    _mediaManager?.free();
+    _jason?.free();
+    renderer.value?.dispose();
+    _localTrack?.free();
+    _cameraWorker?.dispose();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default camera device.
   Future<void> setVideoDevice(String id) async {
-    await Future.wait([
-      _call.value.setVideoDevice(id),
-      _settingsRepository.setVideoDevice(id),
-    ]);
+    await _settingsRepository.setVideoDevice(id);
+  }
+
+  /// Initializes a [RtcVideoRenderer] for the current [camera].
+  Future<void> initRenderer() async {
+    if (_initRendererGuard.isLocked) {
+      return;
+    }
+
+    renderer.value?.dispose();
+    _localTrack?.free();
+
+    final String? camera = this.camera.value;
+
+    await _initRendererGuard.protect(() async {
+      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
+      if (camera != null) {
+        constraints.deviceId(camera);
+      }
+
+      final settings = MediaStreamSettings()..deviceVideo(constraints);
+      final List<LocalMediaTrack> tracks =
+          await _mediaManager?.initLocalTracks(settings) ?? [];
+
+      if (isClosed) {
+        tracks.firstOrNull?.free();
+        _localTrack = null;
+      } else {
+        _localTrack = tracks.firstOrNull;
+      }
+
+      if (_localTrack != null) {
+        final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
+        await renderer.initialize();
+
+        renderer.srcObject = tracks.first.getTrack();
+
+        if (isClosed) {
+          renderer.dispose();
+          this.renderer.value = null;
+        } else {
+          this.renderer.value = renderer;
+        }
+      } else {
+        renderer.value = null;
+      }
+    });
+
+    if (camera != this.camera.value && !isClosed) {
+      initRenderer();
+    }
+  }
+
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available cameras.
+  Future<void> _enumerateDevices() async {
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
+        .where(
+          (e) =>
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.videoinput,
+        )
+        .toList();
   }
 }

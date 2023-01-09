@@ -500,4 +500,34 @@ class WebUtils {
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);
+
+  /// Requests the permission to use a camera.
+  static Future<void> cameraPermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'camera'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(video: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'microphone'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(audio: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
 }

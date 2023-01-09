@@ -1059,13 +1059,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull(
-                            (e) => e.deviceId() == c.camera.value) ??
+            text: (c.devices.video().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.videoDevice) ??
                         c.devices.video().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_camera'.l10n,
-            onPressed: () => CameraSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await CameraSwitchView.show(
+                context,
+                camera: c.media.value?.videoDevice,
+              );
+
+              if (c.devices.video().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
@@ -1074,13 +1083,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull(
-                            (e) => e.deviceId() == c.mic.value) ??
+            text: (c.devices.audio().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_microphone'.l10n,
-            onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await MicrophoneSwitchView.show(
+                context,
+                mic: c.media.value?.audioDevice,
+              );
+
+              if (c.devices.audio().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
@@ -1089,13 +1107,22 @@ Widget _media(BuildContext context, MyProfileController c) {
       _dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.output().firstWhereOrNull(
-                            (e) => e.deviceId() == c.output.value) ??
+            text: (c.devices.output().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.outputDevice) ??
                         c.devices.output().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_output'.l10n,
-            onPressed: () => OutputSwitchView.show(context, call: c.call),
+            onPressed: () async {
+              await OutputSwitchView.show(
+                context,
+                output: c.media.value?.outputDevice,
+              );
+
+              if (c.devices.output().isEmpty) {
+                c.enumerateDevices();
+              }
+            },
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           );
         }),
