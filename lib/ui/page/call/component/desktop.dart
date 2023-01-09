@@ -161,12 +161,8 @@ Widget desktopCall(CallController c, BuildContext context) {
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
-              if ((d.kind != PointerDeviceKind.mouse &&
-                      d.kind != PointerDeviceKind.stylus) ||
-                  !c.handleLmb.value) {
-                c.downPosition = d.localPosition;
-                c.downButtons = d.buttons;
-              }
+              c.downPosition = d.localPosition;
+              c.downButtons = d.buttons;
             },
             onPointerUp: (d) {
               if (c.downButtons & kPrimaryButton != 0 &&

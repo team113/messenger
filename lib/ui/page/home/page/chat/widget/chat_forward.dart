@@ -153,6 +153,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Total [Offset] applied to this [ChatForwardWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -712,7 +715,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -728,7 +731,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       ),
       padding:
           EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
-      withRightPadding: !_fromMe,
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -752,13 +754,27 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -766,6 +782,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -793,8 +810,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 child: LayoutBuilder(builder: (context, constraints) {
                   return ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: min(550,
-                          constraints.maxWidth * 0.84 + SwipeableStatus.width),
+                      maxWidth: min(
+                        550,
+                        (constraints.maxWidth +
+                                    (_fromMe ? SwipeableStatus.width : 0)) *
+                                0.84 -
+                            20,
+                      ),
                     ),
                     child: Padding(
                       padding: EdgeInsets.zero,
