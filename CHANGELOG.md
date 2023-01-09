@@ -49,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
+        - Redesigned mobile context menu. ([#305], [#295]) 
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
@@ -136,7 +137,9 @@ All user visible changes to this project will be documented in this file. This p
 [#287]: /../../pull/287
 [#292]: /../../issues/292
 [#293]: /../../pull/293
+[#295]: /../../issues/295
 [#300]: /../../pull/300
+[#305]: /../../pull/305
 
 
 
