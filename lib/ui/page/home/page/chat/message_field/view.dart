@@ -23,16 +23,21 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -42,7 +47,6 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'widget/message.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -149,306 +153,7 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    LayoutBuilder(builder: (context, constraints) {
-                      return Obx(() {
-                        bool grab = false;
-                        if (c.attachments.isNotEmpty) {
-                          grab = (125 + 2) * c.attachments.length >
-                              constraints.maxWidth - 16;
-                        }
-
-                        return ConditionalBackdropFilter(
-                          condition: style.cardBlur > 0,
-                          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                          borderRadius: BorderRadius.only(
-                            topLeft: style.cardRadius.topLeft,
-                            topRight: style.cardRadius.topRight,
-                          ),
-                          child: Container(
-                            color: Colors.white.withOpacity(0.4),
-                            child: AnimatedSize(
-                              duration: 400.milliseconds,
-                              curve: Curves.ease,
-                              child: Container(
-                                width: double.infinity,
-                                padding: c.replied.isNotEmpty ||
-                                        c.attachments.isNotEmpty
-                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                    : EdgeInsets.zero,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (c.editedMessage.value != null)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Dismissible(
-                                            key: Key(
-                                                '${c.editedMessage.value?.id}'),
-                                            direction:
-                                                DismissDirection.horizontal,
-                                            onDismissed: (_) =>
-                                                c.editedMessage.value = null,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                              ),
-                                              child: MessageFieldMessage(
-                                                c.editedMessage.value!,
-                                                c,
-                                                () => c.editedMessage.value =
-                                                    null,
-                                                isEdit: true,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    if (c.quotes.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                        ),
-                                        child: ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: (int old, int to) {
-                                            if (old < to) {
-                                              --to;
-                                            }
-
-                                            final ChatItemQuote item =
-                                                c.quotes.removeAt(old);
-                                            c.quotes.insert(to, item);
-
-                                            HapticFeedback.lightImpact();
-                                          },
-                                          proxyDecorator:
-                                              (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves
-                                                    .easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
-
-                                                return InitCallback(
-                                                  callback: HapticFeedback
-                                                      .selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
-                                                  ),
-                                                );
-                                              },
-                                              child: child,
-                                            );
-                                          },
-                                          reverse: true,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                          children: c.quotes.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.item.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: c.quotes.indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.item.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  c.quotes.remove(e);
-                                                  if (c.quotes.isEmpty) {
-                                                    Navigator.of(context).pop();
-                                                  }
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: MessageFieldMessage(
-                                                    e.item,
-                                                    c,
-                                                    () {
-                                                      c.quotes.remove(e);
-                                                      if (c.quotes.isEmpty) {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    if (c.replied.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                        ),
-                                        child: ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: (int old, int to) {
-                                            if (old < to) {
-                                              --to;
-                                            }
-
-                                            final ChatItem item =
-                                                c.replied.removeAt(old);
-                                            c.replied.insert(to, item);
-
-                                            HapticFeedback.lightImpact();
-                                          },
-                                          proxyDecorator:
-                                              (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves
-                                                    .easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
-
-                                                return InitCallback(
-                                                  callback: HapticFeedback
-                                                      .selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
-                                                  ),
-                                                );
-                                              },
-                                              child: child,
-                                            );
-                                          },
-                                          reverse: true,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                          children: c.replied.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index: c.replied.indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  c.replied.remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: MessageFieldMessage(
-                                                    e,
-                                                    c,
-                                                    () => c.replied.remove(e),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    if (c.attachments.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: MouseRegion(
-                                          cursor: grab
-                                              ? SystemMouseCursors.grab
-                                              : MouseCursor.defer,
-                                          opaque: false,
-                                          child: ScrollConfiguration(
-                                            behavior: CustomScrollBehavior(),
-                                            child: SingleChildScrollView(
-                                              clipBehavior: Clip.none,
-                                              physics: grab
-                                                  ? null
-                                                  : const NeverScrollableScrollPhysics(),
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: c.attachments
-                                                    .map(
-                                                      (e) => buildAttachment(
-                                                        context,
-                                                        e.value,
-                                                        e.key,
-                                                        c,
-                                                      ),
-                                                    )
-                                                    .toList(),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ]
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      });
-                    }),
+                    _fieldBuilder(c, style),
                     Container(
                       constraints: const BoxConstraints(minHeight: 56),
                       decoration: BoxDecoration(color: style.cardColor),
@@ -583,8 +288,276 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
+  /// Returns message field.
+  Widget _fieldBuilder(MessageFieldController c, Style style) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Obx(() {
+        bool grab = false;
+        if (c.attachments.isNotEmpty) {
+          grab = (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
+        }
+
+        return ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+          borderRadius: BorderRadius.only(
+            topLeft: style.cardRadius.topLeft,
+            topRight: style.cardRadius.topRight,
+          ),
+          child: Container(
+            color: Colors.white.withOpacity(0.4),
+            child: AnimatedSize(
+              duration: 400.milliseconds,
+              curve: Curves.ease,
+              child: Container(
+                width: double.infinity,
+                padding: c.replied.isNotEmpty || c.attachments.isNotEmpty
+                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                    : EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (c.editedMessage.value != null)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height / 3,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Dismissible(
+                            key: Key('${c.editedMessage.value?.id}'),
+                            direction: DismissDirection.horizontal,
+                            onDismissed: (_) => c.editedMessage.value = null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2,
+                              ),
+                              child: _buildMessage(
+                                context,
+                                c.editedMessage.value!,
+                                c,
+                                onClose: () => c.editedMessage.value = null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (c.quotes.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height / 3,
+                        ),
+                        child: ReorderableListView(
+                          shrinkWrap: true,
+                          buildDefaultDragHandles: PlatformUtils.isMobile,
+                          onReorder: (int old, int to) {
+                            if (old < to) {
+                              --to;
+                            }
+
+                            final ChatItemQuote item = c.quotes.removeAt(old);
+                            c.quotes.insert(to, item);
+
+                            HapticFeedback.lightImpact();
+                          },
+                          proxyDecorator: (child, i, animation) {
+                            return AnimatedBuilder(
+                              animation: animation,
+                              builder: (
+                                BuildContext context,
+                                Widget? child,
+                              ) {
+                                final double t =
+                                    Curves.easeInOut.transform(animation.value);
+                                final double elevation = lerpDouble(0, 6, t)!;
+                                final Color color = Color.lerp(
+                                  const Color(0x00000000),
+                                  const Color(0x33000000),
+                                  t,
+                                )!;
+
+                                return InitCallback(
+                                  callback: HapticFeedback.selectionClick,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        CustomBoxShadow(
+                                          color: color,
+                                          blurRadius: elevation,
+                                        ),
+                                      ],
+                                    ),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: child,
+                            );
+                          },
+                          reverse: true,
+                          padding: const EdgeInsets.symmetric(horizontal: 1),
+                          children: c.quotes.map((e) {
+                            return ReorderableDragStartListener(
+                              key: Key('Handle_${e.item.id}'),
+                              enabled: !PlatformUtils.isMobile,
+                              index: c.quotes.indexOf(e),
+                              child: Dismissible(
+                                key: Key('${e.item.id}'),
+                                direction: DismissDirection.horizontal,
+                                onDismissed: (_) {
+                                  c.quotes.remove(e);
+                                  if (c.quotes.isEmpty) {
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                  child: _buildMessage(
+                                    context,
+                                    e.item,
+                                    c,
+                                    onClose: () {
+                                      c.quotes.remove(e);
+                                      if (c.quotes.isEmpty) {
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    if (c.replied.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height / 3,
+                        ),
+                        child: ReorderableListView(
+                          shrinkWrap: true,
+                          buildDefaultDragHandles: PlatformUtils.isMobile,
+                          onReorder: (int old, int to) {
+                            if (old < to) {
+                              --to;
+                            }
+
+                            final ChatItem item = c.replied.removeAt(old);
+                            c.replied.insert(to, item);
+
+                            HapticFeedback.lightImpact();
+                          },
+                          proxyDecorator: (child, i, animation) {
+                            return AnimatedBuilder(
+                              animation: animation,
+                              builder: (
+                                BuildContext context,
+                                Widget? child,
+                              ) {
+                                final double t =
+                                    Curves.easeInOut.transform(animation.value);
+                                final double elevation = lerpDouble(0, 6, t)!;
+                                final Color color = Color.lerp(
+                                  const Color(0x00000000),
+                                  const Color(0x33000000),
+                                  t,
+                                )!;
+
+                                return InitCallback(
+                                  callback: HapticFeedback.selectionClick,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        CustomBoxShadow(
+                                          color: color,
+                                          blurRadius: elevation,
+                                        ),
+                                      ],
+                                    ),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: child,
+                            );
+                          },
+                          reverse: true,
+                          padding: const EdgeInsets.symmetric(horizontal: 1),
+                          children: c.replied.map((e) {
+                            return ReorderableDragStartListener(
+                              key: Key('Handle_${e.id}'),
+                              enabled: !PlatformUtils.isMobile,
+                              index: c.replied.indexOf(e),
+                              child: Dismissible(
+                                key: Key('${e.id}'),
+                                direction: DismissDirection.horizontal,
+                                onDismissed: (_) => c.replied.remove(e),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                  child: _buildMessage(
+                                    context,
+                                    e,
+                                    c,
+                                    onClose: () => c.replied.remove(e),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    if (c.attachments.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: MouseRegion(
+                          cursor: grab
+                              ? SystemMouseCursors.grab
+                              : MouseCursor.defer,
+                          opaque: false,
+                          child: ScrollConfiguration(
+                            behavior: CustomScrollBehavior(),
+                            child: SingleChildScrollView(
+                              clipBehavior: Clip.none,
+                              physics: grab
+                                  ? null
+                                  : const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: c.attachments
+                                    .map(
+                                      (e) => _buildAttachment(
+                                        context,
+                                        e.value,
+                                        e.key,
+                                        c,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      });
+    });
+  }
+
   /// Returns a visual representation of the provided [Attachment].
-  Widget buildAttachment(
+  Widget _buildAttachment(
     BuildContext context,
     Attachment e,
     GlobalKey key,
@@ -890,6 +863,306 @@ class MessageFieldView extends StatelessWidget {
       direction: DismissDirection.up,
       onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: attachment(),
+    );
+  }
+
+  /// Returns a visual representation of the provided [item].
+  Widget _buildMessage(
+    BuildContext context,
+    ChatItem item,
+    MessageFieldController c, {
+    void Function()? onClose,
+  }) {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final bool fromMe = item.authorId == c.me;
+
+    Widget? content;
+    final List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      if (item.attachments.isNotEmpty) {
+        additional.addAll(
+          item.attachments.map((a) {
+            ImageAttachment? image;
+
+            if (a is ImageAttachment) {
+              image = a;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              width: 30,
+              height: 30,
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      size: 16,
+                    )
+                  : RetryImage(
+                      image.small.url,
+                      fit: BoxFit.cover,
+                      height: double.infinity,
+                      width: double.infinity,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+            );
+          }).toList(),
+        );
+      }
+
+      if (item.text != null && item.text!.val.isNotEmpty) {
+        content = Text(
+          item.text!.val,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
+      } else {
+        title = item.authorId == c.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title, style: style.boldBody)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatForward) {
+      // TODO: Implement `ChatForward`.
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
+    return MouseRegion(
+      opaque: false,
+      onEnter: (d) => c.hoveredReply.value = item,
+      onExit: (d) => c.hoveredReply.value = null,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            c.editedMessage.value != null
+                ? Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(width: 12),
+                        SvgLoader.asset(
+                          'assets/icons/edit.svg',
+                          width: 17,
+                          height: 17,
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  width: 2,
+                                  color: Color(0xFF63B4FF),
+                                ),
+                              ),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'label_edit'.l10n,
+                                  style: style.boldBody.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  DefaultTextStyle.merge(
+                                    maxLines: 1,
+                                    child: content,
+                                  ),
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(children: additional),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Expanded(
+                    child: FutureBuilder<RxUser?>(
+                        future: c.getUser(item.authorId),
+                        builder: (context, snapshot) {
+                          Color color = snapshot.data?.user.value.id == c.me
+                              ? Theme.of(context).colorScheme.secondary
+                              : AvatarWidget.colors[
+                                  (snapshot.data?.user.value.num.val.sum() ??
+                                          3) %
+                                      AvatarWidget.colors.length];
+
+                          return Container(
+                            key: Key('Reply_${c.replied.indexOf(item)}'),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(width: 2, color: color),
+                              ),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Builder(
+                                  builder: (context) {
+                                    String? name;
+
+                                    if (snapshot.data != null) {
+                                      name =
+                                          snapshot.data?.user.value.name?.val;
+                                      if (snapshot.data?.user.value != null) {
+                                        return Obx(() {
+                                          return Text(
+                                            snapshot.data!.user.value.name
+                                                    ?.val ??
+                                                snapshot
+                                                    .data!.user.value.num.val,
+                                            style: style.boldBody
+                                                .copyWith(color: color),
+                                          );
+                                        });
+                                      }
+                                    }
+
+                                    return Text(
+                                      name ?? ('dot'.l10n * 3),
+                                      style: style.boldBody.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  DefaultTextStyle.merge(
+                                    maxLines: 1,
+                                    child: content,
+                                  ),
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(children: additional),
+                                ],
+                              ],
+                            ),
+                          );
+                        }),
+                  ),
+            Obx(() {
+              final Widget child;
+
+              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
+                child = WidgetButton(
+                  key: const Key('CancelReplyButton'),
+                  onPressed: () => onClose?.call(),
+                  child: Container(
+                    width: 15,
+                    height: 15,
+                    margin: const EdgeInsets.only(right: 4, top: 4),
+                    child: Container(
+                      key: const Key('Close'),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: style.cardColor,
+                      ),
+                      child: Center(
+                        child: SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          width: 7,
+                          height: 7,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                child = const SizedBox();
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
+          ],
+        ),
+      ),
     );
   }
 }

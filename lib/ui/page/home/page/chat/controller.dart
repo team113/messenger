@@ -155,12 +155,6 @@ class ChatController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
-  /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment = Rx(null);
-
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
-
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
@@ -284,7 +278,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      updatedMessage: updateDraft,
+      onMessageChanged: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {

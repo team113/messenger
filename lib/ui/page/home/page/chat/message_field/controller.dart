@@ -48,7 +48,7 @@ class MessageFieldController extends GetxController {
     this._chatService,
     this._userService, {
     this.onSubmit,
-    this.updatedMessage,
+    this.onMessageChanged,
     List<ChatItemQuote>? quotes,
     List<Attachment>? attachments,
   }) {
@@ -88,8 +88,8 @@ class MessageFieldController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
-  /// Callback, called when need to update draft message.
-  final void Function()? updatedMessage;
+  /// Callback, called when message was changed.
+  final void Function()? onMessageChanged;
 
   /// Draft message text.
   String? draftText;
@@ -115,7 +115,7 @@ class MessageFieldController extends GetxController {
   @override
   void onInit() {
     field = TextFieldState(
-      onChanged: (_) => updatedMessage?.call(),
+      onChanged: (_) => onMessageChanged?.call(),
       onSubmitted: (s) {
         field.unsubmit();
         onSubmit?.call();
@@ -161,8 +161,8 @@ class MessageFieldController extends GetxController {
       field.focus.requestFocus();
     }
 
-    _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
-    _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
+    _repliesWorker ??= ever(replied, (_) => onMessageChanged?.call());
+    _attachmentsWorker ??= ever(attachments, (_) => onMessageChanged?.call());
 
     super.onInit();
   }
@@ -269,7 +269,7 @@ class MessageFieldController extends GetxController {
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
-          updatedMessage?.call();
+          onMessageChanged?.call();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

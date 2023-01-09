@@ -153,7 +153,7 @@ class SearchView extends StatelessWidget {
 
                         if (e is RxUser) {
                           child = Obx(() {
-                            return tile(
+                            return _tile(
                               key: Key('SearchUser_${e.id}'),
                               context: context,
                               user: e,
@@ -167,7 +167,7 @@ class SearchView extends StatelessWidget {
                           });
                         } else if (e is RxChatContact) {
                           child = Obx(() {
-                            return tile(
+                            return _tile(
                               key: Key('SearchContact_${e.id}'),
                               context: context,
                               contact: e,
@@ -181,7 +181,7 @@ class SearchView extends StatelessWidget {
                           });
                         } else if (e is RxChat) {
                           child = Obx(() {
-                            return tile(
+                            return _tile(
                               context: context,
                               chat: e,
                               selected: c.selectedChats.contains(e),
@@ -241,7 +241,7 @@ class SearchView extends StatelessWidget {
 
   /// Builds a visual representation of the provided [user], [contact] or
   /// [chat].
-  Widget tile({
+  Widget _tile({
     required BuildContext context,
     RxUser? user,
     RxChatContact? contact,

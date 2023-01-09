@@ -72,7 +72,7 @@ class SearchController extends GetxController {
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
 
-  /// Reactive list of the selected [Chat]s.
+  /// Reactive list of the selected recent [User]s.
   final RxList<RxUser> selectedRecent = RxList<RxUser>([]);
 
   /// Reactive list of the selected [Chat]s.
@@ -117,8 +117,8 @@ class SearchController extends GetxController {
   /// Reactive value of the [search] field passed to the [_search] method.
   final RxString query = RxString('');
 
-  /// Callback, called on the [selectedContacts], [selectedChats] and
-  /// [selectedUsers] changes.
+  /// Callback, called on the [selectedContacts], [selectedChats],
+  /// [selectedUsers] and [selectedRecent] changes.
   final void Function(SearchViewResults? results)? onSelected;
 
   /// Worker to react on [SearchResult.status] changes.
@@ -520,7 +520,8 @@ class SearchController extends GetxController {
   }
 }
 
-/// Combined [List]s of [RxChat]s, [RxUser]s and [RxChatContact]s.
+/// Combined [List]s of [RxChat]s, [RxUser]s, [RxChatContact]s and recent
+/// [RxUser]s.
 class SearchViewResults {
   const SearchViewResults(this.chats, this.users, this.contacts, this.recent);
 
