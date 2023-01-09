@@ -127,7 +127,7 @@ class MyProfileController extends GetxController {
       _jason = Jason();
       _mediaManager = _jason?.mediaManager();
       _mediaManager?.onDeviceChange(() => enumerateDevices());
-      await enumerateDevices();
+      enumerateDevices();
     } catch (_) {
       // [Jason] might not be supported on the current platform.
       _jason = null;
