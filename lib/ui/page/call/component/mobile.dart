@@ -22,6 +22,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -69,10 +70,57 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
+          if (c.primary.length == 1 && c.secondary.length == 1) {
+            return Stack(
+              children: [
+                FitView(
+                  children: [
+                    ...c.primary,
+                    if (c.minimized.value) ...c.secondary,
+                  ].map((e) {
+                    return Obx(() {
+                      final bool muted = e.member.owner == MediaOwnerKind.local
+                          ? !c.audioState.value.isEnabled
+                          : e.audio.value?.isMuted.value ?? false;
+
+                      final bool anyDragIsHappening =
+                          c.secondaryDrags.value != 0 ||
+                              c.primaryDrags.value != 0 ||
+                              c.secondaryDragged.value;
+
+                      final bool isHovered =
+                          c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+                      return Stack(
+                        children: [
+                          const ParticipantDecoratorWidget(),
+                          IgnorePointer(
+                            child: ParticipantWidget(
+                              e,
+                              offstageUntilDetermined: true,
+                            ),
+                          ),
+                          ParticipantOverlayWidget(
+                            e,
+                            muted: muted,
+                            hovered: isHovered,
+                            preferBackdrop: !c.minimized.value,
+                          ),
+                        ],
+                      );
+                    });
+                  }).toList(),
+                ),
+                if (!c.minimized.value) _secondaryView(c, context, constraints),
+              ],
+            );
+          }
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
             center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
             fit: c.minimized.value,
+            onTap: () => c.keepUi(false),
             itemBuilder: (e) {
               return Obx(() {
                 final bool muted = e.member.owner == MediaOwnerKind.local
@@ -92,7 +140,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     IgnorePointer(
                       child: ParticipantWidget(
                         e,
-                        offstageUntilDetermined: true,
+                        // offstageUntilDetermined: true,
                       ),
                     ),
                     ParticipantOverlayWidget(
@@ -659,6 +707,210 @@ Widget mobileCall(CallController c, BuildContext context) {
       );
     });
   });
+}
+
+/// [FitWrap] of the [CallController.secondary] widgets.
+Widget _secondaryView(
+  CallController c,
+  BuildContext context,
+  BoxConstraints constraints,
+) {
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(size: c.size),
+    child: Obx(() {
+      if (c.secondary.isEmpty) {
+        return Container();
+      }
+
+      double? left = c.secondaryLeft.value;
+      double? top = c.secondaryTop.value;
+      double? right = c.secondaryRight.value;
+      double? bottom = c.secondaryBottom.value;
+      double width = c.secondaryWidth.value;
+      double height = c.secondaryHeight.value;
+
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          // Display a shadow below the view.
+          Positioned(
+            key: c.secondaryKey,
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: IgnorePointer(
+              child: Obx(() {
+                if (c.secondaryAlignment.value == null &&
+                    !(c.secondary.length == 1 &&
+                        c.draggedRenderer.value != null)) {
+                  return Container(
+                    width: width,
+                    height: height,
+                    decoration: const BoxDecoration(
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: Color(0x44000000),
+                          blurRadius: 9,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                  );
+                }
+
+                return Container();
+              }),
+            ),
+          ),
+
+          // Display the background.
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Obx(() {
+                  if (c.secondaryAlignment.value == null) {
+                    return Stack(
+                      children: [
+                        SvgLoader.asset(
+                          'assets/images/background_dark.svg',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                        Container(color: const Color(0x11FFFFFF)),
+                      ],
+                    );
+                  }
+
+                  return Container();
+                }),
+              ),
+            ),
+          ),
+
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: FitView(
+                  key: const Key('SecondaryFitView'),
+                  children: c.secondary.map((e) {
+                    return Obx(() {
+                      final bool muted = e.member.owner == MediaOwnerKind.local
+                          ? !c.audioState.value.isEnabled
+                          : e.audio.value?.isMuted.value ?? false;
+
+                      final bool anyDragIsHappening =
+                          c.secondaryDrags.value != 0 ||
+                              c.primaryDrags.value != 0 ||
+                              c.secondaryDragged.value;
+
+                      final bool isHovered =
+                          c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+                      return Stack(
+                        children: [
+                          const ParticipantDecoratorWidget(),
+                          IgnorePointer(
+                            child: ParticipantWidget(
+                              e,
+                              offstageUntilDetermined: true,
+                            ),
+                          ),
+                          ParticipantOverlayWidget(
+                            e,
+                            muted: muted,
+                            hovered: isHovered,
+                            preferBackdrop: !c.minimized.value,
+                          ),
+                        ],
+                      );
+                    });
+                  }).toList(),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            child: Listener(
+              onPointerDown: (_) => c.secondaryManipulated.value = true,
+              onPointerUp: (_) => c.secondaryManipulated.value = false,
+              child: GestureDetector(
+                onTap: () {
+                  final Participant participant = c.secondary.first;
+                  c.unfocusAll();
+                  c.focus(participant);
+                  c.keepUi(false);
+                },
+                onScaleStart: (d) {
+                  c.secondaryBottomShifted = null;
+
+                  c.secondaryLeft.value ??= c.size.width -
+                      c.secondaryWidth.value -
+                      (c.secondaryRight.value ?? 0);
+                  c.secondaryTop.value ??= c.size.height -
+                      c.secondaryHeight.value -
+                      (c.secondaryBottom.value ?? 0);
+
+                  c.secondaryRight.value = null;
+                  c.secondaryBottom.value = null;
+
+                  if (d.pointerCount == 1) {
+                    c.secondaryDragged.value = true;
+                    c.calculateSecondaryPanning(d.focalPoint);
+                    c.applySecondaryConstraints();
+                  } else if (d.pointerCount == 2) {
+                    c.secondaryUnscaledSize =
+                        max(c.secondaryWidth.value, c.secondaryHeight.value);
+                    c.secondaryScaled.value = true;
+                    c.calculateSecondaryPanning(d.focalPoint);
+                  }
+                },
+                onScaleUpdate: (d) {
+                  c.updateSecondaryOffset(d.focalPoint);
+                  if (d.pointerCount == 2) {
+                    c.scaleSecondary(d.scale);
+                  }
+
+                  c.applySecondaryConstraints();
+                },
+                onScaleEnd: (d) {
+                  c.secondaryDragged.value = false;
+                  c.secondaryScaled.value = false;
+                  c.secondaryUnscaledSize = null;
+                  c.updateSecondaryAttach();
+                },
+                child: Container(
+                  width: width,
+                  height: height,
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }),
+  );
 }
 
 /// Builds a tile representation of the [CallController.chat].

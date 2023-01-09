@@ -32,6 +32,7 @@ class SwappableFit<T> extends StatefulWidget {
     this.items = const [],
     this.center,
     this.fit = false,
+    this.onTap,
   });
 
   /// Builder building the provided item.
@@ -47,6 +48,8 @@ class SwappableFit<T> extends StatefulWidget {
   ///
   /// Intended to be used to temporary disable the swappable behaviour.
   final bool fit;
+
+  final void Function()? onTap;
 
   @override
   State<SwappableFit> createState() => _SwappableFitState<T>();
@@ -136,7 +139,10 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                       width: size,
                       height: size,
                       child: GestureDetector(
-                        onLongPress: () => _center(e.item),
+                        onTap: () {
+                          _center(e.item);
+                          widget.onTap?.call();
+                        },
                         child: e.entry == null
                             ? KeyedSubtree(
                                 key: e.itemKey,
