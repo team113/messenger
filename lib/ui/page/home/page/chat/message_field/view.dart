@@ -169,321 +169,281 @@ class MessageFieldView extends StatelessWidget {
                             child: AnimatedSize(
                               duration: 400.milliseconds,
                               curve: Curves.ease,
-                              child: Obx(() {
-                                return Container(
-                                  width: double.infinity,
-                                  padding: c.replied.isNotEmpty ||
-                                          c.attachments.isNotEmpty
-                                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                      : EdgeInsets.zero,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Obx(() {
-                                        if (c.editedMessage.value != null) {
-                                          return ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                              maxHeight: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  3,
-                                            ),
+                              child: Container(
+                                width: double.infinity,
+                                padding: c.replied.isNotEmpty ||
+                                        c.attachments.isNotEmpty
+                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                                    : EdgeInsets.zero,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (c.editedMessage.value != null)
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Dismissible(
+                                            key: Key(
+                                                '${c.editedMessage.value?.id}'),
+                                            direction:
+                                                DismissDirection.horizontal,
+                                            onDismissed: (_) =>
+                                                c.editedMessage.value = null,
                                             child: Padding(
                                               padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                4,
-                                                4,
-                                                4,
-                                                4,
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 2,
                                               ),
+                                              child: MessageFieldMessage(
+                                                c.editedMessage.value!,
+                                                c,
+                                                () => c.editedMessage.value =
+                                                    null,
+                                                isEdit: true,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (c.quotes.isNotEmpty)
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
+                                        ),
+                                        child: ReorderableListView(
+                                          shrinkWrap: true,
+                                          buildDefaultDragHandles:
+                                              PlatformUtils.isMobile,
+                                          onReorder: (int old, int to) {
+                                            if (old < to) {
+                                              --to;
+                                            }
+
+                                            final ChatItemQuote item =
+                                                c.quotes.removeAt(old);
+                                            c.quotes.insert(to, item);
+
+                                            HapticFeedback.lightImpact();
+                                          },
+                                          proxyDecorator:
+                                              (child, i, animation) {
+                                            return AnimatedBuilder(
+                                              animation: animation,
+                                              builder: (
+                                                BuildContext context,
+                                                Widget? child,
+                                              ) {
+                                                final double t = Curves
+                                                    .easeInOut
+                                                    .transform(animation.value);
+                                                final double elevation =
+                                                    lerpDouble(0, 6, t)!;
+                                                final Color color = Color.lerp(
+                                                  const Color(0x00000000),
+                                                  const Color(0x33000000),
+                                                  t,
+                                                )!;
+
+                                                return InitCallback(
+                                                  callback: HapticFeedback
+                                                      .selectionClick,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      boxShadow: [
+                                                        CustomBoxShadow(
+                                                          color: color,
+                                                          blurRadius: elevation,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: child,
+                                                  ),
+                                                );
+                                              },
+                                              child: child,
+                                            );
+                                          },
+                                          reverse: true,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                          children: c.quotes.map((e) {
+                                            return ReorderableDragStartListener(
+                                              key: Key('Handle_${e.item.id}'),
+                                              enabled: !PlatformUtils.isMobile,
+                                              index: c.quotes.indexOf(e),
                                               child: Dismissible(
-                                                key: Key(
-                                                    '${c.editedMessage.value?.id}'),
+                                                key: Key('${e.item.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
-                                                onDismissed: (_) => c
-                                                    .editedMessage.value = null,
+                                                onDismissed: (_) {
+                                                  c.quotes.remove(e);
+                                                  if (c.quotes.isEmpty) {
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                },
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(
                                                     vertical: 2,
                                                   ),
                                                   child: MessageFieldMessage(
-                                                    c.editedMessage.value!,
+                                                    e.item,
                                                     c,
-                                                    () => c.editedMessage
-                                                        .value = null,
-                                                    isEdit: true,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        } else {
-                                          return Container();
-                                        }
-                                      }),
-                                      if (c.quotes.isNotEmpty)
-                                        ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxHeight: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                3,
-                                          ),
-                                          child: Obx(() {
-                                            return ReorderableListView(
-                                              shrinkWrap: true,
-                                              buildDefaultDragHandles:
-                                                  PlatformUtils.isMobile,
-                                              onReorder: (int old, int to) {
-                                                if (old < to) {
-                                                  --to;
-                                                }
-
-                                                final ChatItemQuote item =
-                                                    c.quotes.removeAt(old);
-                                                c.quotes.insert(to, item);
-
-                                                HapticFeedback.lightImpact();
-                                              },
-                                              proxyDecorator:
-                                                  (child, i, animation) {
-                                                return AnimatedBuilder(
-                                                  animation: animation,
-                                                  builder: (
-                                                    BuildContext context,
-                                                    Widget? child,
-                                                  ) {
-                                                    final double t = Curves
-                                                        .easeInOut
-                                                        .transform(
-                                                            animation.value);
-                                                    final double elevation =
-                                                        lerpDouble(0, 6, t)!;
-                                                    final Color color =
-                                                        Color.lerp(
-                                                      const Color(0x00000000),
-                                                      const Color(0x33000000),
-                                                      t,
-                                                    )!;
-
-                                                    return InitCallback(
-                                                      callback: HapticFeedback
-                                                          .selectionClick,
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          boxShadow: [
-                                                            CustomBoxShadow(
-                                                              color: color,
-                                                              blurRadius:
-                                                                  elevation,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: child,
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: child,
-                                                );
-                                              },
-                                              reverse: true,
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                1,
-                                                0,
-                                                1,
-                                                0,
-                                              ),
-                                              children: c.quotes.map((e) {
-                                                return ReorderableDragStartListener(
-                                                  key: Key(
-                                                      'Handle_${e.item.id}'),
-                                                  enabled:
-                                                      !PlatformUtils.isMobile,
-                                                  index: c.quotes.indexOf(e),
-                                                  child: Dismissible(
-                                                    key: Key('${e.item.id}'),
-                                                    direction: DismissDirection
-                                                        .horizontal,
-                                                    onDismissed: (_) {
+                                                    () {
                                                       c.quotes.remove(e);
                                                       if (c.quotes.isEmpty) {
                                                         Navigator.of(context)
                                                             .pop();
                                                       }
                                                     },
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                        vertical: 2,
-                                                      ),
-                                                      child:
-                                                          MessageFieldMessage(
-                                                        e.item,
-                                                        c,
-                                                        () {
-                                                          c.quotes.remove(e);
-                                                          if (c
-                                                              .quotes.isEmpty) {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          }
-                                                        },
-                                                      ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    if (c.replied.isNotEmpty)
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
+                                        ),
+                                        child: ReorderableListView(
+                                          shrinkWrap: true,
+                                          buildDefaultDragHandles:
+                                              PlatformUtils.isMobile,
+                                          onReorder: (int old, int to) {
+                                            if (old < to) {
+                                              --to;
+                                            }
+
+                                            final ChatItem item =
+                                                c.replied.removeAt(old);
+                                            c.replied.insert(to, item);
+
+                                            HapticFeedback.lightImpact();
+                                          },
+                                          proxyDecorator:
+                                              (child, i, animation) {
+                                            return AnimatedBuilder(
+                                              animation: animation,
+                                              builder: (
+                                                BuildContext context,
+                                                Widget? child,
+                                              ) {
+                                                final double t = Curves
+                                                    .easeInOut
+                                                    .transform(animation.value);
+                                                final double elevation =
+                                                    lerpDouble(0, 6, t)!;
+                                                final Color color = Color.lerp(
+                                                  const Color(0x00000000),
+                                                  const Color(0x33000000),
+                                                  t,
+                                                )!;
+
+                                                return InitCallback(
+                                                  callback: HapticFeedback
+                                                      .selectionClick,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      boxShadow: [
+                                                        CustomBoxShadow(
+                                                          color: color,
+                                                          blurRadius: elevation,
+                                                        ),
+                                                      ],
                                                     ),
+                                                    child: child,
                                                   ),
                                                 );
-                                              }).toList(),
+                                              },
+                                              child: child,
                                             );
-                                          }),
-                                        ),
-                                      if (c.replied.isNotEmpty)
-                                        ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxHeight: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                3,
-                                          ),
-                                          child: ReorderableListView(
-                                            shrinkWrap: true,
-                                            buildDefaultDragHandles:
-                                                PlatformUtils.isMobile,
-                                            onReorder: (int old, int to) {
-                                              if (old < to) {
-                                                --to;
-                                              }
-
-                                              final ChatItem item =
-                                                  c.replied.removeAt(old);
-                                              c.replied.insert(to, item);
-
-                                              HapticFeedback.lightImpact();
-                                            },
-                                            proxyDecorator:
-                                                (child, i, animation) {
-                                              return AnimatedBuilder(
-                                                animation: animation,
-                                                builder: (
-                                                  BuildContext context,
-                                                  Widget? child,
-                                                ) {
-                                                  final double t = Curves
-                                                      .easeInOut
-                                                      .transform(
-                                                          animation.value);
-                                                  final double elevation =
-                                                      lerpDouble(0, 6, t)!;
-                                                  final Color color =
-                                                      Color.lerp(
-                                                    const Color(0x00000000),
-                                                    const Color(0x33000000),
-                                                    t,
-                                                  )!;
-
-                                                  return InitCallback(
-                                                    callback: HapticFeedback
-                                                        .selectionClick,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        boxShadow: [
-                                                          CustomBoxShadow(
-                                                            color: color,
-                                                            blurRadius:
-                                                                elevation,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: child,
-                                                    ),
-                                                  );
+                                          },
+                                          reverse: true,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                          children: c.replied.map((e) {
+                                            return ReorderableDragStartListener(
+                                              key: Key('Handle_${e.id}'),
+                                              enabled: !PlatformUtils.isMobile,
+                                              index: c.replied.indexOf(e),
+                                              child: Dismissible(
+                                                key: Key('${e.id}'),
+                                                direction:
+                                                    DismissDirection.horizontal,
+                                                onDismissed: (_) {
+                                                  c.replied.remove(e);
                                                 },
-                                                child: child,
-                                              );
-                                            },
-                                            reverse: true,
-                                            padding: const EdgeInsets.fromLTRB(
-                                              1,
-                                              0,
-                                              1,
-                                              0,
-                                            ),
-                                            children: c.replied.map((e) {
-                                              return ReorderableDragStartListener(
-                                                key: Key('Handle_${e.id}'),
-                                                enabled:
-                                                    !PlatformUtils.isMobile,
-                                                index: c.replied.indexOf(e),
-                                                child: Dismissible(
-                                                  key: Key('${e.id}'),
-                                                  direction: DismissDirection
-                                                      .horizontal,
-                                                  onDismissed: (_) {
-                                                    c.replied.remove(e);
-                                                  },
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      vertical: 2,
-                                                    ),
-                                                    child: MessageFieldMessage(
-                                                      e,
-                                                      c,
-                                                      () => c.replied.remove(e),
-                                                    ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    vertical: 2,
+                                                  ),
+                                                  child: MessageFieldMessage(
+                                                    e,
+                                                    c,
+                                                    () => c.replied.remove(e),
                                                   ),
                                                 ),
-                                              );
-                                            }).toList(),
-                                          ),
+                                              ),
+                                            );
+                                          }).toList(),
                                         ),
-                                      if (c.attachments.isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: MouseRegion(
-                                            cursor: grab
-                                                ? SystemMouseCursors.grab
-                                                : MouseCursor.defer,
-                                            opaque: false,
-                                            child: ScrollConfiguration(
-                                              behavior: CustomScrollBehavior(),
-                                              child: SingleChildScrollView(
-                                                clipBehavior: Clip.none,
-                                                physics: grab
-                                                    ? null
-                                                    : const NeverScrollableScrollPhysics(),
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: c.attachments
-                                                      .map(
-                                                        (e) => buildAttachment(
-                                                          context,
-                                                          e.value,
-                                                          e.key,
-                                                          c,
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                                ),
+                                      ),
+                                    if (c.attachments.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: MouseRegion(
+                                          cursor: grab
+                                              ? SystemMouseCursors.grab
+                                              : MouseCursor.defer,
+                                          opaque: false,
+                                          child: ScrollConfiguration(
+                                            behavior: CustomScrollBehavior(),
+                                            child: SingleChildScrollView(
+                                              clipBehavior: Clip.none,
+                                              physics: grab
+                                                  ? null
+                                                  : const NeverScrollableScrollPhysics(),
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: c.attachments
+                                                    .map(
+                                                      (e) => buildAttachment(
+                                                        context,
+                                                        e.value,
+                                                        e.key,
+                                                        c,
+                                                      ),
+                                                    )
+                                                    .toList(),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ]
-                                    ],
-                                  ),
-                                );
-                              }),
+                                      ),
+                                    ]
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         );

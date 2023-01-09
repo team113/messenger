@@ -507,7 +507,7 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.draftText.value = draft?.text?.val;
+      send.draftText = draft?.text?.val;
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {

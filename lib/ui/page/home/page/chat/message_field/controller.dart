@@ -49,7 +49,6 @@ class MessageFieldController extends GetxController {
     this._userService, {
     this.onSubmit,
     this.updatedMessage,
-    this.onEmptyQuotes,
     List<ChatItemQuote>? quotes,
     List<Attachment>? attachments,
   }) {
@@ -92,10 +91,8 @@ class MessageFieldController extends GetxController {
   /// Callback, called when need to update draft message.
   final void Function()? updatedMessage;
 
-  final void Function()? onEmptyQuotes;
-
   /// Draft message text.
-  final RxnString draftText = RxnString();
+  String? draftText;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
@@ -107,13 +104,10 @@ class MessageFieldController extends GetxController {
   final UserService _userService;
 
   /// Worker capturing any [MessageFieldController.replied] changes.
-  late final Worker? _repliesWorker;
+  Worker? _repliesWorker;
 
   /// Worker capturing any [MessageFieldController.attachments] changes.
-  late final Worker? _attachmentsWorker;
-
-  /// [Worker] to react on the [quotes] updates.
-  late final Worker? _quotesChanges;
+  Worker? _attachmentsWorker;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -158,8 +152,8 @@ class MessageFieldController extends GetxController {
       ),
     );
 
-    if (draftText.value != null) {
-      field.text = draftText.value!;
+    if (draftText != null) {
+      field.text = draftText!;
     }
 
     if (editedMessage.value != null && editedMessage.value is ChatMessage) {
@@ -170,14 +164,6 @@ class MessageFieldController extends GetxController {
     _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
     _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
 
-    if (quotes.isNotEmpty) {
-      _quotesChanges ??= ever(quotes, (_) {
-        if (quotes.isEmpty) {
-          onEmptyQuotes?.call();
-        }
-      });
-    }
-
     super.onInit();
   }
 
@@ -185,7 +171,6 @@ class MessageFieldController extends GetxController {
   void onClose() {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
-    _quotesChanges?.dispose();
 
     super.onClose();
   }

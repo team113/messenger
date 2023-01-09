@@ -44,11 +44,11 @@ class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
     this._userService, {
-    required this.from,
-    required this.quotes,
     this.text,
     this.pop,
     this.attachments,
+    required this.from,
+    required this.quotes,
   });
 
   /// Selected items in [SearchView] popup.
@@ -90,7 +90,6 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      onEmptyQuotes: () => pop?.call(),
       quotes: quotes,
       attachments: attachments,
       onSubmit: () async {
