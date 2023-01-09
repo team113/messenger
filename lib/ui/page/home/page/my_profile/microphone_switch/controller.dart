@@ -23,42 +23,68 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
-  MicrophoneSwitchController(this._call, this._settingsRepository);
-
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  MicrophoneSwitchController(this._settingsRepository, {String? mic})
+      : mic = RxnString(mic);
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// ID of the initially selected microphone device.
+  RxnString mic;
 
-  /// Returns ID of the currently used video device.
-  RxnString get mic => _call.value.audioDevice;
+  /// List of [MediaDeviceInfo] of all the available devices.
+  InputDevices devices = RxList<MediaDeviceInfo>([]);
+
+  /// Client for communicating with the [_mediaManager].
+  late final Jason? _jason;
+
+  /// Handle to a media manager tracking all the connected devices.
+  late final MediaManagerHandle? _mediaManager;
 
   @override
-  void onInit() {
-    _call.value.setAudioEnabled(true);
+  void onInit() async {
+    try {
+      _jason = Jason();
+      _mediaManager = _jason?.mediaManager();
+      _mediaManager?.onDeviceChange(() => _enumerateDevices());
+
+      await WebUtils.microphonePermission();
+      await _enumerateDevices();
+    } catch (_) {
+      // [Jason] may be unsupported on the current platform.
+      _jason = null;
+      _mediaManager = null;
+    }
+
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setAudioEnabled(false);
+    _mediaManager?.free();
+    _jason?.free();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default microphone device.
   Future<void> setAudioDevice(String id) async {
-    await Future.wait([
-      _call.value.setAudioDevice(id),
-      _settingsRepository.setAudioDevice(id),
-    ]);
+    await _settingsRepository.setAudioDevice(id);
+  }
+
+  /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
+  /// available media input devices, such as microphones, cameras, and so forth.
+  Future<void> _enumerateDevices() async {
+    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
+        .where(
+          (e) =>
+              e.deviceId().isNotEmpty && e.kind() == MediaDeviceKind.audioinput,
+        )
+        .toList();
   }
 }
