@@ -35,6 +35,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
+    this.withRightPadding = false,
   }) : super(key: key);
 
   /// Expanded width of the [swipeable].
@@ -74,6 +75,9 @@ class SwipeableStatus extends StatelessWidget {
   /// Padding of a [swipeable].
   final EdgeInsetsGeometry padding;
 
+  /// Indicator whether the [child] needs a padding on the right.
+  final bool withRightPadding;
+
   @override
   Widget build(BuildContext context) {
     if (animation == null) {
@@ -86,7 +90,10 @@ class SwipeableStatus extends StatelessWidget {
             ? Alignment.bottomRight
             : Alignment.centerRight,
         children: [
-          child,
+          Padding(
+            padding: EdgeInsets.only(right: withRightPadding ? width : 0),
+            child: child,
+          ),
           _animatedBuilder(
             Padding(
               padding: padding,

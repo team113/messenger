@@ -164,7 +164,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (context.isMobile && widget.trailing != null) ...[
+              if (PlatformUtils.isMobile && widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(

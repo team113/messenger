@@ -80,6 +80,7 @@ class ChatTile extends StatelessWidget {
       key: Key('ChatTile_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
+      darkenable: true,
       child: SizedBox(
         height: height,
         child: Padding(
