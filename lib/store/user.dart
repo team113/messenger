@@ -24,6 +24,7 @@ import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -193,6 +194,16 @@ class UserRepository implements AbstractUserRepository {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
+  /// Attaches the provided [chat]-dialog to the specified [User].
+  Future<void> attachLocalDialog(UserId id, Chat chat) async {
+    RxUser? user = await get(id);
+
+    if (user != null) {
+      user.user.value.dialog = chat;
+      update(user.user.value);
+    }
+  }
+
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Future<Stream<UserEvents>> userEvents(
     UserId id,
@@ -231,6 +242,10 @@ class UserRepository implements AbstractUserRepository {
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
     if (saved == null || saved.ver < user.ver || ignoreVersion) {
+      if (saved?.value.dialog != null &&
+          (saved!.value.dialog?.id.isLocal ?? false)) {
+        user.value.dialog = saved.value.dialog;
+      }
       await _userLocal.put(user);
     }
   }

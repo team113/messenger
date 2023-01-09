@@ -89,4 +89,16 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) => deleteSafe(id.val);
+
+  /// Moves the element at the [oldKey] to the [newKey] replacing the existing
+  /// element, if any.
+  ///
+  /// No-op, if element at the [oldKey] doesn't exist.
+  Future<void> move(ChatId oldKey, ChatId newKey) async {
+    ChatMessage? draft = get(oldKey);
+    if(draft != null) {
+      remove(oldKey);
+      put(newKey, draft);
+    }
+  }
 }

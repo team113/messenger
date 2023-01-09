@@ -208,13 +208,21 @@ class UserController extends GetxController {
     }
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
     Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+
+    if (user!.id == me) {
+      dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+    } else {
+      if (dialog?.id.isLocal ?? false) {
+        dialog = (await _chatService.get(dialog!.id))?.chat.value;
+      }
+      dialog ??= await _chatService.createLocalDialogChat(user!.user.value);
+    }
+
     router.chat(dialog.id, push: true);
   }
 

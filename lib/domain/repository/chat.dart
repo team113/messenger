@@ -25,6 +25,7 @@ import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
 import '../model/mute_duration.dart';
+import '../model/my_user.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -70,6 +71,13 @@ abstract class AbstractChatRepository {
   /// Creates a dialog [Chat] between the given [responderId] and the
   /// authenticated [MyUser].
   Future<RxChat> createDialogChat(UserId responderId);
+
+  /// Creates a local dialog [Chat] between the given [responder] and the
+  /// authenticated [MyUser].
+  Future<Chat> createLocalDialogChat(User responder);
+
+  /// Replaces a [local] dialog [Chat] with an remote.
+  Future<RxChat> replaceLocalDialog(RxChat local);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.

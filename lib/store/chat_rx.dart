@@ -263,7 +263,7 @@ class HiveRxChat extends RxChat {
 
   /// Subscribes to the remote updates of the [chat] if not subscribed already.
   void subscribe() {
-    if (!_remoteSubscriptionInitialized) {
+    if (!_remoteSubscriptionInitialized && !id.isLocal) {
       _initRemoteSubscription(id);
     }
   }
@@ -308,6 +308,10 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> fetchMessages() async {
+    if(id.isLocal) {
+      return;
+    }
+
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
@@ -654,7 +658,7 @@ class HiveRxChat extends RxChat {
     }
 
     members
-        .removeWhere((k, _) => !chat.value.members.any((m) => m.user.id == k));
+        .removeWhere((k, _) => chat.value.members.none((m) => m.user.id == k));
 
     if (chat.value.name == null) {
       var users = members.values.take(3);

@@ -80,7 +80,7 @@ class ChatController extends GetxController {
   });
 
   /// ID of this [Chat].
-  final ChatId id;
+  ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
@@ -301,10 +301,16 @@ class ChatController extends GetxController {
   void onInit() {
     send = TextFieldState(
       onChanged: (s) {},
-      onSubmitted: (s) {
+      onSubmitted: (s) async {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
             repliedMessages.isNotEmpty) {
+          if (chat!.chat.value.id.isLocal) {
+            chat = await _chatService.replaceLocalDialog(chat!);
+            id = chat!.id;
+            await _fetchChat();
+          }
+
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
@@ -408,8 +414,15 @@ class ChatController extends GetxController {
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
-      _callService.call(id, withVideo: withVideo);
+  Future<void> call(bool withVideo) async {
+    if (chat!.chat.value.id.isLocal) {
+      chat = await _chatService.replaceLocalDialog(chat!);
+      id = chat!.id;
+      await _fetchChat();
+    }
+
+    _callService.call(id, withVideo: withVideo);
+  }
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);
@@ -536,7 +549,7 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.text = draft?.text?.val ?? '';
+      send.text = draft?.text?.val ?? send.text;
       repliedMessages.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
@@ -1088,12 +1101,15 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
-    _typingTimer?.cancel();
-    _typingTimer = Timer(_typingDuration, () {
-      _typingSubscription?.cancel();
-      _typingSubscription = null;
-    });
+    if (!id.isLocal) {
+      _typingSubscription ??=
+          (await _chatService.keepTyping(id)).listen((_) {});
+      _typingTimer?.cancel();
+      _typingTimer = Timer(_typingDuration, () {
+        _typingSubscription?.cancel();
+        _typingSubscription = null;
+      });
+    }
   }
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or

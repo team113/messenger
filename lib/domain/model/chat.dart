@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;
@@ -244,6 +245,12 @@ class LastChatRead {
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
   const ChatId(String val) : super(val);
+
+  /// Constructs a dummy [ChatId].
+  factory ChatId.local() => ChatId('local_${const Uuid().v4()}');
+
+  /// Indicates whether this [ChatId] is a dummy ID.
+  bool get isLocal => val.startsWith('local_');
 }
 
 /// Name of a [Chat].
