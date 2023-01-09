@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -44,7 +45,7 @@ class ChatWorker extends DisposableService {
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
 
-  /// [MyUserService] used to getting [MyUser.muted].
+  /// [MyUserService] used to getting [MyUser.muted] status.
   final MyUserService _myUserService;
 
   /// [NotificationService], used to show a new [Chat] message notification.
@@ -59,6 +60,9 @@ class ChatWorker extends DisposableService {
 
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onReady() {
@@ -112,7 +116,7 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        if (_myUserService.myUser.value?.muted == null) {
+        if (_myUser.value?.muted == null) {
           _notificationService.show(
             c.title.value,
             body: 'label_you_were_added_to_group'.l10n,
@@ -126,9 +130,9 @@ class ChatWorker extends DisposableService {
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag) {
-        if (_myUserService.myUser.value?.muted == null) {
-          _notificationService.show(
+      onNotification: (body, tag) async {
+        if (_myUser.value?.muted == null) {
+          await _notificationService.show(
             c.title.value,
             body: body,
             payload: '${Routes.chat}/${c.chat.value.id}',

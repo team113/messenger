@@ -32,8 +32,8 @@ import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
-import 'tab/chats/chats_more/view.dart';
 import 'tab/chats/controller.dart';
+import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
@@ -222,8 +222,8 @@ class _HomeViewState extends State<HomeView> {
                                               : 'assets/icons/chats.svg',
                                           key: Key(
                                             c.myUser.value?.muted != null
-                                                ? 'ChatsMuted'
-                                                : 'ChatsUnmuted',
+                                                ? 'Muted'
+                                                : 'Unmuted',
                                           ),
                                           width: 36.06,
                                           height: 30,

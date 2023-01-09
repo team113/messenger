@@ -31,11 +31,13 @@ import '/util/message_popup.dart';
 import '/ui/page/home/page/my_profile/link_details/view.dart';
 import 'controller.dart';
 
-/// View showing info about [MyUser.chatDirectLink] and [MyUser.muted] status.
+/// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
+///
+/// Intended to be displayed with the [show] method.
 class ChatsMoreView extends StatelessWidget {
   const ChatsMoreView({super.key});
 
-  /// Displays an [ChatsMoreView] wrapped in a [ModalPopup].
+  /// Displays a [ChatsMoreView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(context: context, child: const ChatsMoreView());
   }
@@ -81,7 +83,7 @@ class ChatsMoreView extends StatelessWidget {
     );
   }
 
-  /// Returns title with specified [text].
+  /// Returns a styled as a header [Container] with the provided [text].
   Widget _header(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
@@ -100,7 +102,7 @@ class ChatsMoreView extends StatelessWidget {
     );
   }
 
-  /// Returns [MyUser.muted] toggling [Switch].
+  /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
     return Obx(() {
       return Stack(
@@ -126,11 +128,11 @@ class ChatsMoreView extends StatelessWidget {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
-                    key: const Key('MyUserSwitch'),
+                    key: const Key('MuteMyUserSwitch'),
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: !c.muted.value,
-                    onChanged: c.togglingSwitch.value ? null : c.toggleMute,
+                    onChanged: c.isMuting.value ? null : c.toggleMute,
                   ),
                 ),
               ),
@@ -141,7 +143,7 @@ class ChatsMoreView extends StatelessWidget {
     });
   }
 
-  /// Returns [MyUser.chatDirectLink] editable field.
+  /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
     return Obx(() {
       return Column(

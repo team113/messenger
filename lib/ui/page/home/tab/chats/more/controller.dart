@@ -29,7 +29,7 @@ import '/provider/gql/exceptions.dart'
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
-/// Controller used in [ChatsMoreView].
+/// Controller of a [ChatsMoreView].
 class ChatsMoreController extends GetxController {
   ChatsMoreController(this._myUserService);
 
@@ -39,8 +39,10 @@ class ChatsMoreController extends GetxController {
   /// Indicator whether [MyUser] is muted or not.
   final RxBool muted = RxBool(false);
 
-  /// Indicator whether is toggling [MyUser] muted status or not.
-  final RxBool togglingSwitch = RxBool(false);
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -104,23 +106,26 @@ class ChatsMoreController extends GetxController {
     super.onInit();
   }
 
-  /// Toggles [MyUser] mute status.
-  void toggleMute(bool val) async {
-    if (togglingSwitch.value) return;
-    try {
-      togglingSwitch.value = true;
-      muted.value = !val;
-      await _myUserService.toggleMute(
-        !val == true ? MuteDuration.forever() : null,
-      );
-    } on ToggleMyUserMuteException catch (e) {
-      muted.value = val;
-      MessagePopup.error(e);
-    } catch (e) {
-      muted.value = val;
-      MessagePopup.error(e);
-    } finally {
-      togglingSwitch.value = false;
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+      muted.value = !enabled;
+
+      try {
+        await _myUserService.toggleMute(
+          !enabled == true ? MuteDuration.forever() : null,
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        muted.value = enabled;
+        MessagePopup.error(e);
+      } catch (e) {
+        muted.value = enabled;
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
     }
   }
 }

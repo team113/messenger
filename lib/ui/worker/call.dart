@@ -29,6 +29,7 @@ import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
@@ -67,7 +68,7 @@ class CallWorker extends DisposableService {
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
 
-  /// [MyUserService] used to getting [MyUser.muted].
+  /// [MyUserService] used to getting [MyUser.muted] status.
   final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
@@ -94,6 +95,9 @@ class CallWorker extends DisposableService {
 
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -174,20 +178,21 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification &&
-                  _myUserService.myUser.value?.muted == null) {
+              if (showNotification && _myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
+                  if (chat?.chat.value.muted == null) {
+                    String? title = chat?.title.value ??
+                        c.caller?.name?.val ??
+                        c.caller?.num.val;
 
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: chat?.avatar.value?.original.url,
-                    playSound: false,
-                  );
+                    _notificationService.show(
+                      title ?? 'label_incoming_call'.l10n,
+                      body: title == null ? null : 'label_incoming_call'.l10n,
+                      payload: '${Routes.chat}/${c.chatId}',
+                      icon: chat?.avatar.value?.original.url,
+                      playSound: false,
+                    );
+                  }
                 });
               }
             }
