@@ -68,7 +68,7 @@ class CallWorker extends DisposableService {
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
 
-  /// [MyUserService] used to getting [MyUser.muted] status.
+  /// [MyUserService] used to get [MyUser.muted] status.
   final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.

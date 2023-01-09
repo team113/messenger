@@ -524,6 +524,7 @@ label_no_registration = no registration
 label_no_users = No users
 label_nobody = No one
 label_nothing_found = Nothing was found
+label_notifications = Notifications
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
@@ -597,6 +598,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sound_and_vibrations = Sound and vibrations
 label_start_screen_sharing = Start screen sharing
 label_status = Status
 label_subtitle_participants = participants

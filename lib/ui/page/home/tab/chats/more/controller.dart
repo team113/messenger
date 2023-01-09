@@ -114,7 +114,7 @@ class ChatsMoreController extends GetxController {
 
       try {
         await _myUserService.toggleMute(
-          !enabled == true ? MuteDuration.forever() : null,
+          enabled ? null : MuteDuration.forever(),
         );
       } on ToggleMyUserMuteException catch (e) {
         muted.value = enabled;

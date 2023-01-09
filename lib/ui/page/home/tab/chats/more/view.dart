@@ -111,7 +111,10 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: (c.muted.value ? 'label_disabled' : 'label_enabled').l10n,
+                text: (c.myUser.value?.muted == null
+                        ? 'label_enabled'
+                        : 'label_disabled')
+                    .l10n,
                 editable: false,
               ),
             ),
@@ -131,7 +134,7 @@ class ChatsMoreView extends StatelessWidget {
                     key: const Key('MuteMyUserSwitch'),
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: !c.muted.value,
+                    value: c.myUser.value?.muted == null,
                     onChanged: c.isMuting.value ? null : c.toggleMute,
                   ),
                 ),

@@ -544,6 +544,7 @@ label_no_registration = без регистрации
 label_no_users = Нет пользователей
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
+label_notifications = Уведомления
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
@@ -618,6 +619,7 @@ label_short_weekday =
     }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sound_and_vibrations = Звук и вибрация
 label_start_screen_sharing = Начать демонстрацию экрана
 label_status = Статус
 label_subtitle_participants = участников

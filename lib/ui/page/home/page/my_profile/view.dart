@@ -203,6 +203,12 @@ class MyProfileView extends StatelessWidget {
 
                         return const SizedBox();
 
+                      case ProfileTab.notifications:
+                        return Block(
+                          title: 'label_audio_notifications'.l10n,
+                          children: [_notifications(context, c)],
+                        );
+
                       case ProfileTab.language:
                         return Block(
                           title: 'label_language'.l10n,
@@ -1129,6 +1135,51 @@ Widget _media(BuildContext context, MyProfileController c) {
       ),
     ],
   );
+}
+
+/// Returns the contents of a [ProfileTab.notifications] section.
+Widget _notifications(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: (c.myUser.value?.muted == null
+                        ? 'label_enabled'
+                        : 'label_disabled')
+                    .l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(
+                    platform: TargetPlatform.macOS,
+                  ),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.myUser.value?.muted == null,
+                    onChanged: c.isMuting.value ? null : c.toggleMute,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
 }
 
 /// Returns the contents of a [ProfileTab.download] section.
