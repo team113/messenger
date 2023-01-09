@@ -20,6 +20,7 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -138,6 +139,9 @@ class ChatsTabController extends GetxController {
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
+
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+
     _sortChats();
 
     for (RxChat chat in chats) {
@@ -209,6 +213,8 @@ class ChatsTabController extends GetxController {
 
   @override
   void onClose() {
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+
     for (var data in _sortingData.values) {
       data.dispose();
     }
@@ -531,6 +537,18 @@ class ChatsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
     }
+  }
+
+  /// Handles the [LogicalKeyboardKey.escape] event.
+  bool _escapeListener(KeyEvent e) {
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      if (searching.value) {
+        closeSearch(!groupCreating.value);
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
