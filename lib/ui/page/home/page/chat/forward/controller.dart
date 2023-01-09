@@ -90,7 +90,7 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      emptyQuotes: () => pop?.call(),
+      onEmptyQuotes: () => pop?.call(),
       quotes: quotes,
       attachments: attachments,
       onSubmit: () async {

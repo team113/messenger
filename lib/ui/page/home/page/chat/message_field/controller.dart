@@ -49,17 +49,15 @@ class MessageFieldController extends GetxController {
     this._userService, {
     this.onSubmit,
     this.updatedMessage,
+    this.onEmptyQuotes,
     List<ChatItemQuote>? quotes,
     List<Attachment>? attachments,
-    this.emptyQuotes,
   }) {
     if (quotes != null) {
       this.quotes.addAll(quotes);
     }
-    if (attachments != null && attachments.isNotEmpty) {
-      for (Attachment attachment in attachments) {
-        this.attachments.add(MapEntry(GlobalKey(), attachment));
-      }
+    if (attachments != null) {
+      attachments.map((e) => this.attachments.add(MapEntry(GlobalKey(), e)));
     }
   }
 
@@ -94,11 +92,10 @@ class MessageFieldController extends GetxController {
   /// Callback, called when need to update draft message.
   final void Function()? updatedMessage;
 
+  final void Function()? onEmptyQuotes;
+
   /// Draft message text.
   final RxnString draftText = RxnString();
-
-  /// Callback, called when [quotes] is being empty.
-  final void Function()? emptyQuotes;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
@@ -109,21 +106,20 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// [Worker] to react on the [quotes] updates.
-  late final Worker? _quotesChanges;
-
   /// Worker capturing any [MessageFieldController.replied] changes.
   late final Worker? _repliesWorker;
 
   /// Worker capturing any [MessageFieldController.attachments] changes.
   late final Worker? _attachmentsWorker;
 
+  /// [Worker] to react on the [quotes] updates.
+  late final Worker? _quotesChanges;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    print('init');
     field = TextFieldState(
       onChanged: (_) => updatedMessage?.call(),
       onSubmitted: (s) {
@@ -173,11 +169,14 @@ class MessageFieldController extends GetxController {
 
     _repliesWorker ??= ever(replied, (_) => updatedMessage?.call());
     _attachmentsWorker ??= ever(attachments, (_) => updatedMessage?.call());
-    _quotesChanges ??= ever(quotes, (_) {
-      if (quotes.isEmpty) {
-        emptyQuotes?.call();
-      }
-    });
+
+    if (quotes.isNotEmpty) {
+      _quotesChanges ??= ever(quotes, (_) {
+        if (quotes.isEmpty) {
+          onEmptyQuotes?.call();
+        }
+      });
+    }
 
     super.onInit();
   }

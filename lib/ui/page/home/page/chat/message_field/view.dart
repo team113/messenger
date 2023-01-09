@@ -198,8 +198,7 @@ class MessageFieldView extends StatelessWidget {
                                               ),
                                               child: Dismissible(
                                                 key: Key(
-                                                  '${c.editedMessage.value?.id}',
-                                                ),
+                                                    '${c.editedMessage.value?.id}'),
                                                 direction:
                                                     DismissDirection.horizontal,
                                                 onDismissed: (_) => c
@@ -259,12 +258,9 @@ class MessageFieldView extends StatelessWidget {
                                                     final double t = Curves
                                                         .easeInOut
                                                         .transform(
-                                                      animation.value,
-                                                    );
-
+                                                            animation.value);
                                                     final double elevation =
                                                         lerpDouble(0, 6, t)!;
-
                                                     final Color color =
                                                         Color.lerp(
                                                       const Color(0x00000000),
