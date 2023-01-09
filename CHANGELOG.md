@@ -45,6 +45,7 @@ All user visible changes to this project will be documented in this file. This p
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned mobile interface. ([#287], [#246])
         - Redesigned settings. ([#293], [#283])
+        - Rounded secondary panel. ([#300], [#292])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
@@ -133,7 +134,9 @@ All user visible changes to this project will be documented in this file. This p
 [#283]: /../../issues/283
 [#285]: /../../pull/285
 [#287]: /../../pull/287
+[#292]: /../../issues/292
 [#293]: /../../pull/293
+[#300]: /../../pull/300
 
 
 

@@ -66,6 +66,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowEmptyTarget = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -159,6 +160,9 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
   /// Hover color of the [DragTarget].
   final Color hoverColor;
+
+  /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
+  final BorderRadius? borderRadius;
 
   /// Returns calculated size of a [ReorderableFit] in its [Wrap] form with
   /// [maxSize], [constraints], [axis] and children [length].
@@ -382,6 +386,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           useLongPress: useLongPress,
           allowDraggingLast: allowDraggingLast,
           itemConstraints: itemConstraints,
+          borderRadius: borderRadius,
         );
       }),
     );
@@ -422,6 +427,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -517,6 +523,9 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
 
   /// Indicator whether this [_ReorderableFit] should use a [Wrap].
   final bool useWrap;
+
+  /// Optional [BorderRadius] to decorate this [_ReorderableFit] with.
+  final BorderRadius? borderRadius;
 
   @override
   State<_ReorderableFit<T>> createState() => _ReorderableFitState<T>();
@@ -796,27 +805,30 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             top: widget.top,
             right: widget.right,
             bottom: widget.bottom,
-            child: SizedBox(
-              width: widget.width,
-              height: widget.height,
-              child: widget.useWrap
-                  ? Wrap(
-                      direction: widget.axis ?? Axis.horizontal,
-                      alignment: WrapAlignment.start,
-                      runAlignment: WrapAlignment.start,
-                      spacing: 0,
-                      runSpacing: 0,
-                      children: _items
-                          .mapIndexed(
-                            (i, e) => SizedBox(
-                              width: widget.wrapSize,
-                              height: widget.wrapSize,
-                              child: cell(i),
-                            ),
-                          )
-                          .toList(),
-                    )
-                  : Column(children: createRows()),
+            child: ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: SizedBox(
+                width: widget.width,
+                height: widget.height,
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .mapIndexed(
+                              (i, e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: cell(i),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(children: createRows()),
+              ),
             ),
           ),
 
