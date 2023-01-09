@@ -43,6 +43,9 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
+  /// Height of the [CustomNavigationBar].
+  static const double height = 56;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -75,7 +78,7 @@ class CustomNavigationBar extends StatelessWidget {
                 color: style.cardColor,
                 borderRadius: style.cardRadius,
               ),
-              height: 56,
+              height: height,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 child: Row(
