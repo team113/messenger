@@ -617,7 +617,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
-        asStack: true,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -711,7 +710,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: const EdgeInsets.fromLTRB(5, 6, 2, 6),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -1290,7 +1289,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1398,8 +1397,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 +
-                            (_fromMe ? SwipeableStatus.width : -10),
+                        constraints.maxWidth * 0.84 - 20,
                       ),
                     ),
                     child: Material(

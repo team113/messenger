@@ -1266,6 +1266,16 @@ class OngoingCall {
         }
       }
 
+      if (audioState.value != LocalTrackState.enabled) {
+        await _room?.muteAudio();
+      }
+      if (videoState.value != LocalTrackState.enabled) {
+        await _room?.disableVideo(MediaSourceKind.Device);
+      }
+      if (screenShareState.value != LocalTrackState.enabled) {
+        await _room?.disableVideo(MediaSourceKind.Display);
+      }
+
       try {
         await initLocalTracks();
       } catch (e) {
@@ -1295,16 +1305,6 @@ class OngoingCall {
               : screenShareState.value;
 
       try {
-        if (audioState.value != LocalTrackState.enabled) {
-          await _room?.muteAudio();
-        }
-        if (videoState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Device);
-        }
-        if (screenShareState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Display);
-        }
-
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(

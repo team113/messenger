@@ -473,7 +473,6 @@ class _PostWidgetState extends State<PostWidget> {
     bool isSent = widget.item.value.status.value == SendingStatus.sent;
 
     return SwipeableStatus(
-      asStack: true,
       isSent: isSent,
       isDelivered: true,
       isRead: isSent && false,

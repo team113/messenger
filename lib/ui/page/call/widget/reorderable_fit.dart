@@ -66,7 +66,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.allowEmptyTarget = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
-    this.borderRadius = 0,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -161,8 +161,8 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// Hover color of the [DragTarget].
   final Color hoverColor;
 
-  /// Optional [BorderRadius] of this [ReorderableFit]
-  final double borderRadius;
+  /// Optional [BorderRadius] to decorate this [ReorderableFit] with.
+  final BorderRadius? borderRadius;
 
   /// Returns calculated size of a [ReorderableFit] in its [Wrap] form with
   /// [maxSize], [constraints], [axis] and children [length].
@@ -427,7 +427,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.allowDraggingLast = true,
     this.itemConstraints,
-    this.borderRadius = 0,
+    this.borderRadius,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -524,8 +524,8 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Indicator whether this [_ReorderableFit] should use a [Wrap].
   final bool useWrap;
 
-  /// Optional [BorderRadius] of this [ReorderableFit]
-  final double borderRadius;
+  /// Optional [BorderRadius] to decorate this [_ReorderableFit] with.
+  final BorderRadius? borderRadius;
 
   @override
   State<_ReorderableFit<T>> createState() => _ReorderableFitState<T>();
@@ -806,7 +806,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             right: widget.right,
             bottom: widget.bottom,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,

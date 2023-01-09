@@ -713,7 +713,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&

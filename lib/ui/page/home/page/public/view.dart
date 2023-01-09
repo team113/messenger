@@ -605,7 +605,6 @@ class _PublicViewState extends State<PublicView>
         const SizedBox(height: 16 * 1.5 / 2),
         SwipeableStatus(
           animation: _animation,
-          asStack: true,
           padding: const EdgeInsets.only(right: 8),
           crossAxisAlignment: CrossAxisAlignment.center,
           swipeable: Padding(
