@@ -487,6 +487,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Total [Offset] applied to this [ChatItemWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -616,7 +619,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
-        asStack: true,
+        translate: false,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -625,6 +628,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
+        padding: const EdgeInsets.only(bottom: 8),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -710,7 +714,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: const EdgeInsets.fromLTRB(5, 6, 2, 6),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -1273,7 +1277,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !_fromMe,
+      translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
@@ -1307,13 +1311,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              _offset += d.delta;
-              if (_offset.dx > 30 && _offset.dx - d.delta.dx < 30) {
-                HapticFeedback.selectionClick();
-                widget.onReply?.call();
-              }
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
 
-              setState(() {});
+              if (_totalOffset.dx > delta) {
+                _offset += d.delta;
+
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
@@ -1321,6 +1339,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               _dragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -1374,8 +1393,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 +
-                            (_fromMe ? SwipeableStatus.width : -10),
+                        constraints.maxWidth * 0.84 - 20,
                       ),
                     ),
                     child: Material(

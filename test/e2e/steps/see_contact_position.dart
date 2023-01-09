@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
+import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
 
 import '../parameters/position_status.dart';
@@ -40,13 +41,17 @@ final StepDefinitionGeneric seeContactPosition =
         final controller = Get.find<ContactsTabController>();
         final ChatContactId contactId = context.world.contacts[name]!;
 
+        final List<RxChatContact> contacts = [
+          ...controller.favorites,
+          ...controller.contacts,
+        ];
+
         switch (status) {
           case PositionStatus.first:
-            return controller.favorites.first.id == contactId;
+            return contacts.first.id == contactId;
 
           case PositionStatus.last:
-            return controller.favorites.indexWhere((e) => e.id == contactId) ==
-                -1;
+            return contacts.last.id == contactId;
         }
       },
     );

@@ -818,8 +818,8 @@ class _ChatViewState extends State<ChatView>
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
-        asStack: true,
-        padding: const EdgeInsets.only(right: 8),
+        translate: false,
+        padding: const EdgeInsets.only(right: 8, top: 2),
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),

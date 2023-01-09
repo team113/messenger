@@ -368,6 +368,7 @@ class AvatarWidget extends StatelessWidget {
 
       return Badge(
         showBadge: isOnline,
+        toAnimate: false,
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,

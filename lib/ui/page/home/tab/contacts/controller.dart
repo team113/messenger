@@ -69,7 +69,12 @@ class ContactsTabController extends GetxController {
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
@@ -155,9 +160,12 @@ class ContactsTabController extends GetxController {
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
+  Future<void> favoriteContact(
+    ChatContactId id, [
+    ChatContactPosition? position,
+  ]) async {
     try {
-      await _contactService.favoriteChatContact(id);
+      await _contactService.favoriteChatContact(id, position);
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -177,6 +185,30 @@ class ContactsTabController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reorders a [ChatContact] from the [from] position to the [to] position.
+  Future<void> reorderContact(int from, int to) async {
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.contact.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.contact.value.favoritePosition!.val * 2;
+    } else {
+      position = (favorites[to].contact.value.favoritePosition!.val +
+              favorites[to - 1].contact.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatContactId contactId = favorites[from].id;
+    favorites.insert(to, favorites.removeAt(from));
+
+    await favoriteContact(contactId, ChatContactPosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
