@@ -145,36 +145,40 @@ class UserView extends StatelessWidget {
                   ),
                 ],
               ),
-              body: Obx(() {
-                return ListView(
-                  key: const Key('UserColumn'),
-                  children: [
-                    const SizedBox(height: 8),
-                    Block(
-                      title: 'label_public_information'.l10n,
-                      children: [
-                        AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 100,
-                          showBadge: false,
-                        ),
-                        const SizedBox(height: 15),
-                        _name(c, context),
-                        _status(c, context),
-                        _presence(c, context),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_contact_information'.l10n,
-                      children: [_num(c, context)],
-                    ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
-                  ],
-                );
-              }),
+              body: Scrollbar(
+                controller: c.scrollController,
+                child: Obx(() {
+                  return ListView(
+                    key: const Key('UserColumn'),
+                    controller: c.scrollController,
+                    children: [
+                      const SizedBox(height: 8),
+                      Block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          AvatarWidget.fromRxUser(
+                            c.user,
+                            radius: 100,
+                            showBadge: false,
+                          ),
+                          const SizedBox(height: 15),
+                          _name(c, context),
+                          _status(c, context),
+                          _presence(c, context),
+                        ],
+                      ),
+                      Block(
+                        title: 'label_contact_information'.l10n,
+                        children: [_num(c, context)],
+                      ),
+                      Block(
+                        title: 'label_actions'.l10n,
+                        children: [_actions(c, context)],
+                      ),
+                    ],
+                  );
+                }),
+              ),
             );
           }
 

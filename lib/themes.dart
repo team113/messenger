@@ -227,9 +227,17 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light()
-            .scrollbarTheme
-            .copyWith(thickness: MaterialStateProperty.all(6)),
+        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
+              interactive: true,
+              thickness: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.dragged) ||
+                    states.contains(MaterialState.hovered)) {
+                  return 6;
+                }
+
+                return 4;
+              }),
+            ),
         radioTheme: ThemeData.light().radioTheme.copyWith(
           fillColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
