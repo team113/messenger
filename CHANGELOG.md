@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
-        - Searching. ([#206], [#205])
+        - Searching. ([#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
     - Media panel:
@@ -29,7 +29,7 @@ All user visible changes to this project will be documented in this file. This p
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
-        - Searching. ([#260], [#259])
+        - Searching. ([#310], [#260], [#259])
     - User page:
         - Blacklisting. ([#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
@@ -137,6 +137,7 @@ All user visible changes to this project will be documented in this file. This p
 [#292]: /../../issues/292
 [#293]: /../../pull/293
 [#300]: /../../pull/300
+[#310]: /../../pull/310
 
 
 
