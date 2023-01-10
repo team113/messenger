@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/util/platform_utils.dart';
+import 'app_bar.dart';
+import 'navigation_bar.dart';
 
 class ListWrapper extends StatelessWidget {
   const ListWrapper({
@@ -24,14 +26,12 @@ class ListWrapper extends StatelessWidget {
       return MediaQuery(
         data: mediaQuery.copyWith(
           padding: mediaQuery.padding.copyWith(
-            top: 60,
-            bottom: bottomPadding ?? 61,
+            top: CustomAppBar.height,
+            bottom: bottomPadding ?? CustomNavigationBar.height,
           ),
         ),
         child: Container(
-          margin: EdgeInsets.only(
-              top: mediaQuery.padding.top + 5,
-              bottom: mediaQuery.padding.bottom - 61 + 5),
+          margin: EdgeInsets.only(top: mediaQuery.padding.top + 5, bottom: 10),
           height: buildContext.height,
           child: child,
         ),
