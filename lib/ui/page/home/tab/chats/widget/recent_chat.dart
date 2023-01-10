@@ -150,37 +150,46 @@ class RecentChatTile extends StatelessWidget {
               key: const Key('UnfavoriteChatButton'),
               label: 'btn_delete_from_favorites'.l10n,
               onPressed: onUnfavorite,
+              trailing: const Icon(Icons.star_border),
             ),
           if (chat.favoritePosition == null && onFavorite != null)
             ContextMenuButton(
               key: const Key('FavoriteChatButton'),
               label: 'btn_add_to_favorites'.l10n,
               onPressed: onFavorite,
+              trailing: const Icon(Icons.star),
             ),
           if (onHide != null)
             ContextMenuButton(
               key: const Key('ButtonHideChat'),
-              label: 'btn_hide_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_hide'.l10n
+                  : 'btn_hide_chat'.l10n,
               onPressed: onHide,
-            ),
-          if (chat.isGroup && onLeave != null)
-            ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: onLeave,
+              trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
               key: const Key('MuteChatButton'),
-              label: 'btn_mute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
               onPressed: onMute,
+              trailing: const Icon(Icons.notifications_off),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
               key: const Key('UnmuteChatButton'),
-              label: 'btn_unmute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_unmute'.l10n
+                  : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
+              trailing: const Icon(Icons.notifications),
             ),
+          ContextMenuButton(
+            label: 'btn_select'.l10n,
+            trailing: const Icon(Icons.select_all),
+          ),
         ],
         selected: selected,
         onTap: () => router.chat(chat.id),
