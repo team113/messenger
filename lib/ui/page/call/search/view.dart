@@ -160,6 +160,8 @@ class SearchView extends StatelessWidget {
                                 key: Key('SearchUser_${e.id}'),
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
+                                darken: 0.05,
+                                filledSelector: true,
                                 onTap: selectable
                                     ? () => c.select(user: e)
                                     : enabled
@@ -172,6 +174,8 @@ class SearchView extends StatelessWidget {
                               return SelectedTile(
                                 key: Key('SearchContact_${e.id}'),
                                 contact: e,
+                                darken: 0.05,
+                                filledSelector: true,
                                 selected: c.selectedContacts.contains(e),
                                 onTap: selectable
                                     ? () => c.select(contact: e)
@@ -184,6 +188,8 @@ class SearchView extends StatelessWidget {
                             child = Obx(() {
                               return SelectedTile(
                                 chat: e,
+                                darken: 0.05,
+                                filledSelector: true,
                                 selected: c.selectedChats.contains(e),
                                 onTap: selectable
                                     ? () => c.select(chat: e)

@@ -101,7 +101,7 @@ class SelectedTile extends StatelessWidget {
               chat: chat,
               selected: selected,
               onTap: onTap,
-              darken: 0.05,
+              darken: darken,
               trailing: _trailing(context),
             ),
     );
