@@ -93,8 +93,8 @@ class MessageFieldController extends GetxController {
   /// Callback, called when message was changed.
   final void Function()? onMessageChanged;
 
-  /// Draft message text.
-  String? draftText;
+  /// Initial message text.
+  String? initialText;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
@@ -154,8 +154,8 @@ class MessageFieldController extends GetxController {
       ),
     );
 
-    if (draftText != null) {
-      field.text = draftText!;
+    if (initialText != null && initialText!.isNotEmpty) {
+      field.text = initialText!;
     }
 
     if (editedMessage.value != null && editedMessage.value is ChatMessage) {

@@ -534,7 +534,7 @@ class SearchViewResults {
   /// [RxChatContact]s themselves.
   final List<RxChatContact> contacts;
 
-  /// Recent [RxUser]s themselves.
+  /// Recent [RxUser]s.
   final List<RxUser> recent;
 
   /// Indicates whether [chats], [users], [contacts] and [recent] are empty.

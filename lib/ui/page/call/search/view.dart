@@ -130,12 +130,14 @@ class SearchView extends StatelessWidget {
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
-                    if (c.searchStatus.value.isSuccess) {
-                      return Center(child: Text('label_nothing_found'.l10n));
-                    } else if (c.searchStatus.value.isEmpty) {
+                    if (c.searchStatus.value.isSuccess ||
+                        c.searchStatus.value.isEmpty) {
                       return Center(
                         child: Text(
-                          'label_use_search'.l10n,
+                          (c.searchStatus.value.isSuccess
+                                  ? 'label_nothing_found'
+                                  : 'label_use_search')
+                              .l10n,
                           textAlign: TextAlign.center,
                         ),
                       );

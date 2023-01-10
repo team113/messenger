@@ -27,7 +27,6 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -77,7 +76,7 @@ class MessageFieldView extends StatelessWidget {
   /// [MessageFieldView].
   final bool canAttach;
 
-  /// Callback, called when a [ChatItem] being a reply or forward of this
+  /// Callback, called when a [ChatItem] being a reply or edit message of this
   /// [MessageFieldView] is pressed.
   final Future<void> Function(ChatItemId id)? onItemPressed;
 
@@ -161,50 +160,30 @@ class MessageFieldView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
-                            WidgetButton(
-                              onPressed: canAttach ? c.pickFile : null,
-                              child: SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/attach.svg',
-                                      height: 22,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          else
-                            WidgetButton(
-                              onPressed: canAttach
-                                  ? () => AttachmentSourceSelector.show(
-                                        context,
-                                        onPickFile: c.pickFile,
-                                        onTakePhoto: c.pickImageFromCamera,
-                                        onPickMedia: c.pickMedia,
-                                        onTakeVideo: c.pickVideoFromCamera,
-                                      )
-                                  : null,
-                              child: SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/attach.svg',
-                                      height: 22,
-                                    ),
-                                  ),
+                          WidgetButton(
+                            onPressed: canAttach
+                                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+                                    ? c.pickFile
+                                    : () => AttachmentSourceSelector.show(
+                                          context,
+                                          onPickFile: c.pickFile,
+                                          onTakePhoto: c.pickImageFromCamera,
+                                          onPickMedia: c.pickMedia,
+                                          onTakeVideo: c.pickVideoFromCamera,
+                                        )
+                                : null,
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Center(
+                                child: SvgLoader.asset(
+                                  'assets/icons/attach.svg',
+                                  height: 22,
+                                  width: 22,
                                 ),
                               ),
                             ),
+                          ),
                           Expanded(
                             child: Padding(
                               padding: EdgeInsets.only(
@@ -233,30 +212,6 @@ class MessageFieldView extends StatelessWidget {
                             ),
                           ),
                           Obx(() {
-                            final Widget child;
-
-                            if (c.forwarding.value) {
-                              child = SizedBox(
-                                width: 26,
-                                height: 22,
-                                child: SvgLoader.asset(
-                                  'assets/icons/forward.svg',
-                                  width: 26,
-                                  height: 22,
-                                ),
-                              );
-                            } else {
-                              child = SizedBox(
-                                key: sendKey ?? const Key('Send'),
-                                width: 25.18,
-                                height: 22.85,
-                                child: SvgLoader.asset(
-                                  'assets/icons/send.svg',
-                                  height: 22.85,
-                                ),
-                              );
-                            }
-
                             return GestureDetector(
                               onLongPress:
                                   canForward ? c.forwarding.toggle : null,
@@ -268,7 +223,18 @@ class MessageFieldView extends StatelessWidget {
                                   child: Center(
                                     child: AnimatedSwitcher(
                                       duration: 300.milliseconds,
-                                      child: child,
+                                      child: c.forwarding.value
+                                          ? SvgLoader.asset(
+                                              'assets/icons/forward.svg',
+                                              width: 26,
+                                              height: 22,
+                                            )
+                                          : SvgLoader.asset(
+                                              key: sendKey ?? const Key('Send'),
+                                              'assets/icons/send.svg',
+                                              height: 22.85,
+                                              width: 25.18,
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -292,10 +258,9 @@ class MessageFieldView extends StatelessWidget {
   Widget _fieldBuilder(MessageFieldController c, Style style) {
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
-        bool grab = false;
-        if (c.attachments.isNotEmpty) {
-          grab = (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
-        }
+        final bool grab = c.attachments.isNotEmpty
+            ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+            : false;
 
         return ConditionalBackdropFilter(
           condition: style.cardBlur > 0,
@@ -332,11 +297,15 @@ class MessageFieldView extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 vertical: 2,
                               ),
-                              child: _buildMessage(
-                                context,
-                                c.editedMessage.value!,
-                                c,
-                                onClose: () => c.editedMessage.value = null,
+                              child: WidgetButton(
+                                onPressed: () => onItemPressed
+                                    ?.call(c.editedMessage.value!.id),
+                                child: _buildMessage(
+                                  context,
+                                  c.editedMessage.value!,
+                                  c,
+                                  () => c.editedMessage.value = null,
+                                ),
                               ),
                             ),
                           ),
@@ -355,12 +324,11 @@ class MessageFieldView extends StatelessWidget {
                               --to;
                             }
 
-                            final ChatItemQuote item = c.quotes.removeAt(old);
-                            c.quotes.insert(to, item);
+                            c.quotes.insert(to, c.quotes.removeAt(old));
 
                             HapticFeedback.lightImpact();
                           },
-                          proxyDecorator: (child, i, animation) {
+                          proxyDecorator: (child, _, animation) {
                             return AnimatedBuilder(
                               animation: animation,
                               builder: (
@@ -418,7 +386,7 @@ class MessageFieldView extends StatelessWidget {
                                     context,
                                     e.item,
                                     c,
-                                    onClose: () {
+                                    () {
                                       c.quotes.remove(e);
                                       if (c.quotes.isEmpty) {
                                         Navigator.of(context).pop();
@@ -444,8 +412,7 @@ class MessageFieldView extends StatelessWidget {
                               --to;
                             }
 
-                            final ChatItem item = c.replied.removeAt(old);
-                            c.replied.insert(to, item);
+                            c.replied.insert(to, c.replied.removeAt(old));
 
                             HapticFeedback.lightImpact();
                           },
@@ -498,11 +465,14 @@ class MessageFieldView extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 2,
                                   ),
-                                  child: _buildMessage(
-                                    context,
-                                    e,
-                                    c,
-                                    onClose: () => c.replied.remove(e),
+                                  child: WidgetButton(
+                                    onPressed: () => onItemPressed?.call(e.id),
+                                    child: _buildMessage(
+                                      context,
+                                      e,
+                                      c,
+                                      () => c.replied.remove(e),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -531,14 +501,7 @@ class MessageFieldView extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: c.attachments
-                                    .map(
-                                      (e) => _buildAttachment(
-                                        context,
-                                        e.value,
-                                        e.key,
-                                        c,
-                                      ),
-                                    )
+                                    .map((e) => _buildAttachment(context, e, c))
                                     .toList(),
                               ),
                             ),
@@ -559,13 +522,15 @@ class MessageFieldView extends StatelessWidget {
   /// Returns a visual representation of the provided [Attachment].
   Widget _buildAttachment(
     BuildContext context,
-    Attachment e,
-    GlobalKey key,
+    MapEntry<GlobalKey, Attachment> entry,
     MessageFieldController c,
   ) {
-    bool isImage =
+    final Attachment e = entry.value;
+    final GlobalKey key = entry.key;
+
+    final bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    bool isVideo = (e is FileAttachment && e.isVideo) ||
+    final bool isVideo = (e is FileAttachment && e.isVideo) ||
         (e is LocalAttachment && e.file.isVideo);
 
     const double size = 125;
@@ -573,7 +538,7 @@ class MessageFieldView extends StatelessWidget {
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       if (isImage || isVideo) {
-        Widget child;
+        final Widget child;
 
         if (isImage) {
           if (e is LocalAttachment) {
@@ -644,7 +609,7 @@ class MessageFieldView extends StatelessWidget {
           }
         }
 
-        List<Attachment> attachmentsList = c.attachments
+        final List<Attachment> attachments = c.attachments
             .where((e) {
               Attachment a = e.value;
               return a is ImageAttachment ||
@@ -657,7 +622,7 @@ class MessageFieldView extends StatelessWidget {
         return WidgetButton(
           key: key,
           onPressed: () {
-            int index = c.attachments.indexOf(e);
+            final int index = c.attachments.indexOf(e);
             if (index != -1) {
               GalleryPopup.show(
                 context: context,
@@ -665,10 +630,9 @@ class MessageFieldView extends StatelessWidget {
                   initial: c.attachments.indexOf(e),
                   initialKey: key,
                   onTrashPressed: (int i) {
-                    Attachment a = attachmentsList[i];
-                    c.attachments.removeWhere((o) => o.value == a);
+                    c.attachments.removeWhere((o) => o.value == attachments[i]);
                   },
-                  children: attachmentsList.map((o) {
+                  children: attachments.map((o) {
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
@@ -870,9 +834,9 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildMessage(
     BuildContext context,
     ChatItem item,
-    MessageFieldController c, {
-    void Function()? onClose,
-  }) {
+    MessageFieldController c,
+    void Function() onClose,
+  ) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = item.authorId == c.me;
 
@@ -883,11 +847,7 @@ class MessageFieldView extends StatelessWidget {
       if (item.attachments.isNotEmpty) {
         additional.addAll(
           item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
+            final ImageAttachment? image = a is ImageAttachment ? a : null;
 
             return Container(
               margin: const EdgeInsets.only(right: 2),
@@ -1060,7 +1020,8 @@ class MessageFieldView extends StatelessWidget {
                     child: FutureBuilder<RxUser?>(
                         future: c.getUser(item.authorId),
                         builder: (context, snapshot) {
-                          Color color = snapshot.data?.user.value.id == c.me
+                          final Color color = snapshot.data?.user.value.id ==
+                                  c.me
                               ? Theme.of(context).colorScheme.secondary
                               : AvatarWidget.colors[
                                   (snapshot.data?.user.value.num.val.sum() ??
@@ -1080,37 +1041,23 @@ class MessageFieldView extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Builder(
-                                  builder: (context) {
-                                    String? name;
-
-                                    if (snapshot.data != null) {
-                                      name =
-                                          snapshot.data?.user.value.name?.val;
-                                      if (snapshot.data?.user.value != null) {
-                                        return Obx(() {
-                                          return Text(
-                                            snapshot.data!.user.value.name
-                                                    ?.val ??
-                                                snapshot
-                                                    .data!.user.value.num.val,
-                                            style: style.boldBody
-                                                .copyWith(color: color),
-                                          );
-                                        });
-                                      }
-                                    }
-
-                                    return Text(
-                                      name ?? ('dot'.l10n * 3),
-                                      style: style.boldBody.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
+                                snapshot.data != null
+                                    ? Obx(() {
+                                        return Text(
+                                          snapshot.data!.user.value.name?.val ??
+                                              snapshot.data!.user.value.num.val,
+                                          style: style.boldBody
+                                              .copyWith(color: color),
+                                        );
+                                      })
+                                    : Text(
+                                        ('dot'.l10n * 3),
+                                        style: style.boldBody.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                ),
                                 if (content != null) ...[
                                   const SizedBox(height: 2),
                                   DefaultTextStyle.merge(
@@ -1133,7 +1080,7 @@ class MessageFieldView extends StatelessWidget {
               if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
                 child = WidgetButton(
                   key: const Key('CancelReplyButton'),
-                  onPressed: () => onClose?.call(),
+                  onPressed: () => onClose.call(),
                   child: Container(
                     width: 15,
                     height: 15,

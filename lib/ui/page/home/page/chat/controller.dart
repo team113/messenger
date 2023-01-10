@@ -34,7 +34,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -151,9 +150,6 @@ class ChatController extends GetxController {
 
   /// [Rect] the bottom bar takes.
   final Rx<Rect?> bottomBarRect = Rx(null);
-
-  /// Maximum allowed [NativeFile.size] of an [Attachment].
-  static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
@@ -501,7 +497,7 @@ class ChatController extends GetxController {
 
       ChatMessage? draft = chat!.draft.value;
 
-      send.draftText = draft?.text?.val;
+      send.initialText = draft?.text?.val;
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
