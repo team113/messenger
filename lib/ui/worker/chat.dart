@@ -22,11 +22,13 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -36,11 +38,15 @@ import '/util/obs/obs.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
+
+  /// [MyUserService] used to getting [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// [NotificationService], used to show a new [Chat] message notification.
   final NotificationService _notificationService;
@@ -54,6 +60,9 @@ class ChatWorker extends DisposableService {
 
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onReady() {
@@ -107,25 +116,31 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        _notificationService.show(
-          c.title.value,
-          body: 'label_you_were_added_to_group'.l10n,
-          payload: '${Routes.chat}/${c.chat.value.id}',
-          icon: c.avatar.value?.original.url,
-          tag: c.chat.value.id.val,
-        );
+        if (_myUser.value?.muted == null) {
+          _notificationService.show(
+            c.title.value,
+            body: 'label_you_were_added_to_group'.l10n,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: c.chat.value.id.val,
+          );
+        }
       }
     }
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag) => _notificationService.show(
-        c.title.value,
-        body: body,
-        payload: '${Routes.chat}/${c.chat.value.id}',
-        icon: c.avatar.value?.original.url,
-        tag: tag,
-      ),
+      onNotification: (body, tag) async {
+        if (_myUser.value?.muted == null) {
+          await _notificationService.show(
+            c.title.value,
+            body: body,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: tag,
+          );
+        }
+      },
       me: () => _chatService.me,
     );
   }

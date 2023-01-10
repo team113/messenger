@@ -373,6 +373,7 @@ label_attachments = [{$count} { $count ->
     *[other] прикреплений
     }]
 label_audio_call = Аудиозвонок
+label_audio_notifications = Звуковые уведомления
 label_away = Нет на месте
 label_background = Бэкграунд
 label_biography = Биография
@@ -451,6 +452,7 @@ label_direct_chat_link_in_chat_description =
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,
     - совершать звонки
+label_disabled = Отключены
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -465,6 +467,7 @@ label_email = E-mail
 label_email_example = example@gmail.com
 label_email_visible = Ваш E-mail видят:{" "}
 label_empty_message = Пустое сообщение
+label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -549,6 +552,7 @@ label_no_registration = без регистрации
 label_no_users = Нет пользователей
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
+label_notifications = Уведомления
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
@@ -623,6 +627,7 @@ label_short_weekday =
     }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sound_and_vibrations = Звук и вибрация
 label_start_screen_sharing = Начать демонстрацию экрана
 label_status = Статус
 label_subtitle_participants = участников
