@@ -44,8 +44,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
 
+  /// Height of the [CustomAppBar].
+  static const double height = 60;
+
   @override
-  Size get preferredSize => const Size(double.infinity, 60);
+  Size get preferredSize => const Size(double.infinity, height);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +68,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
             child: Container(
-              height: 60,
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
                 border: style.cardBorder,

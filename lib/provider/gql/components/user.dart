@@ -861,6 +861,48 @@ abstract class UserGraphQlMixin {
         .updateUserCallCover as MyUserEventsVersionedMixin?);
   }
 
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
+  /// any already existing mute even if it's longer.
+  ///
+  /// Muted [MyUser] implies that all his [Chat]s events don't produce sounds
+  /// and notifications on a client side. This, however, has nothing to do with
+  /// a server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleMyUserMute` doesn't correlate with
+  /// `Mutation.toggleChatMute`. Unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds, and so, muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds too.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserMuted] (if [mute] argument is not `null`);
+  /// - [EventUserUnmuted] (if [mute] argument is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] is muted already `until` the specified datetime (or unmuted).
+  Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
+    final variables = ToggleMyUserMuteArguments(mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleMyUserMute',
+        document: ToggleMyUserMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleMyUserMuteException(
+          ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+              as ToggleMyUserMuteErrorCode),
+    );
+    return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
+        as MyUserEventsVersionedMixin?);
+  }
+
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
   ///
   /// HTTP request for this mutation must be `Content-Type: multipart/form-data`

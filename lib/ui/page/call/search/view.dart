@@ -177,45 +177,49 @@ class SearchView extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  return FlutterListView(
+                  return Scrollbar(
                     controller: c.controller,
-                    delegate: FlutterListViewDelegate(
-                      (context, i) {
-                        dynamic e = c.getIndex(i);
-                        Widget child = Container();
+                    child: FlutterListView(
+                      controller: c.controller,
+                      delegate: FlutterListViewDelegate(
+                        (context, i) {
+                          dynamic e = c.getIndex(i);
+                          Widget child = Container();
 
-                        if (e is RxUser) {
-                          child = Obx(() {
-                            return tile(
-                              key: Key('SearchUser_${e.id}'),
-                              user: e,
-                              selected: c.selectedUsers.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectUser(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        } else if (e is RxChatContact) {
-                          child = Obx(() {
-                            return tile(
-                              key: Key('SearchContact_${e.id}'),
-                              contact: e,
-                              selected: c.selectedContacts.contains(e),
-                              onTap: selectable
-                                  ? () => c.selectContact(e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        }
+                          if (e is RxUser) {
+                            child = Obx(() {
+                              return tile(
+                                key: Key('SearchUser_${e.id}'),
+                                user: e,
+                                selected: c.selectedUsers.contains(e),
+                                onTap: selectable
+                                    ? () => c.selectUser(e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else if (e is RxChatContact) {
+                            child = Obx(() {
+                              return tile(
+                                key: Key('SearchContact_${e.id}'),
+                                contact: e,
+                                selected: c.selectedContacts.contains(e),
+                                onTap: selectable
+                                    ? () => c.selectContact(e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          }
 
-                        return child;
-                      },
-                      childCount:
-                          c.contacts.length + c.users.length + c.recent.length,
+                          return child;
+                        },
+                        childCount: c.contacts.length +
+                            c.users.length +
+                            c.recent.length,
+                      ),
                     ),
                   );
                 }),

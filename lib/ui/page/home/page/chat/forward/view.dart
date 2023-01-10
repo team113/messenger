@@ -107,20 +107,24 @@ class ChatForwardView extends StatelessWidget {
             children: [
               const SizedBox(height: 25),
               Expanded(
-                child: Obx(
-                  () => ListView(
-                    shrinkWrap: true,
-                    primary: false,
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    children: [
-                      ...c.chats.map(
-                        (e) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: _chat(context, c, e),
-                        ),
-                      )
-                    ],
-                  ),
+                child: Scrollbar(
+                  controller: c.scrollController,
+                  child: Obx(() {
+                    return ListView(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      primary: false,
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      children: [
+                        ...c.chats.map(
+                          (e) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: _chat(context, c, e),
+                          ),
+                        )
+                      ],
+                    );
+                  }),
                 ),
               ),
               ...c.quotes.map((e) => _forwardedMessage(context, c, e.item)),

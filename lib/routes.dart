@@ -101,6 +101,7 @@ enum ProfileTab {
   background,
   calls,
   media,
+  notifications,
   language,
   download,
   danger,
@@ -587,11 +588,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
               callService,
               chatService,
+              myUserService,
               Get.find(),
             ));
 
             deps.put(ChatWorker(
               chatService,
+              myUserService,
               Get.find(),
             ));
 

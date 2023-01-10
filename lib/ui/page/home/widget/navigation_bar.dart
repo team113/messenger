@@ -43,6 +43,9 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
+  /// Height of the [CustomNavigationBar].
+  static const double height = 56;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -75,7 +78,7 @@ class CustomNavigationBar extends StatelessWidget {
                 color: style.cardColor,
                 borderRadius: style.cardRadius,
               ),
-              height: 56,
+              height: height,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 child: Row(
@@ -98,6 +101,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         fontSize: 11,
                                       ),
                                     ),
+                              badgeColor: b.badgeColor,
                               showBadge: b.badge != null,
                               child: InkResponse(
                                 hoverColor: Colors.transparent,
@@ -126,6 +130,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
+    this.badgeColor = Colors.red,
     this.child,
   });
 
@@ -134,6 +139,9 @@ class CustomNavigationBarItem {
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  /// [Color] of the provided [badge], if any.
+  final Color badgeColor;
 
   /// [Widget] to display.
   final Widget? child;
