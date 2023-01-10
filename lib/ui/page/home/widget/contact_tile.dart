@@ -115,6 +115,7 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
+      indicateOpenedMenu: true,
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
