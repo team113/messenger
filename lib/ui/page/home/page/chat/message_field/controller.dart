@@ -87,6 +87,9 @@ class MessageFieldController extends GetxController {
   /// Indicator whether forwarding mode is enabled.
   final RxBool forwarding = RxBool(false);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 

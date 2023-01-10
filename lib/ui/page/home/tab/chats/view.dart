@@ -264,50 +264,50 @@ class ChatsTabView extends StatelessWidget {
                                         false,
                                     onTap: () => c.search.value
                                         ?.select(recent: element.user),
-                                );
-                              });
-                            } else if (element is ContactElement) {
-                              child = Obx(() {
-                                return SelectedUserTile(
-                                  contact: element.contact,
-                                  selected: c.search.value?.selectedContacts
-                                          .contains(element.contact) ??
-                                      false,
-                                  onTap: () => c.search.value
-                                      ?.select(contact: element.contact),
-                                );
-                              });
-                            } else if (element is UserElement) {
-                              child = Obx(() {
-                                return SelectedUserTile(
-                                  user: element.user,
-                                  selected: c.search.value?.selectedUsers
-                                          .contains(element.user) ??
-                                      false,
-                                  onTap: () => c.search.value
-                                      ?.select(user: element.user),
-                                );
-                              });
-                            } else if (element is MyUserElement) {
-                              child = Obx(() {
-                                return SelectedUserTile(
-                                  myUser: c.myUser.value,
-                                  selected: true,
-                                  subtitle: [
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      'label_required'.l10n,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
+                                  );
+                                });
+                              } else if (element is ContactElement) {
+                                child = Obx(() {
+                                  return SelectedUserTile(
+                                    contact: element.contact,
+                                    selected: c.search.value?.selectedContacts
+                                            .contains(element.contact) ??
+                                        false,
+                                    onTap: () => c.search.value
+                                        ?.select(contact: element.contact),
+                                  );
+                                });
+                              } else if (element is UserElement) {
+                                child = Obx(() {
+                                  return SelectedUserTile(
+                                    user: element.user,
+                                    selected: c.search.value?.selectedUsers
+                                            .contains(element.user) ??
+                                        false,
+                                    onTap: () => c.search.value
+                                        ?.select(user: element.user),
+                                  );
+                                });
+                              } else if (element is MyUserElement) {
+                                child = Obx(() {
+                                  return SelectedUserTile(
+                                    myUser: c.myUser.value,
+                                    selected: true,
+                                    subtitle: [
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'label_required'.l10n,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              });
-                            } else if (element is DividerElement) {
-                              final String text;
+                                    ],
+                                  );
+                                });
+                              } else if (element is DividerElement) {
+                                final String text;
 
                                 switch (element.category) {
                                   case SearchCategory.recent:
