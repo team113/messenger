@@ -1266,13 +1266,16 @@ class OngoingCall {
         }
       }
 
-      if (audioState.value != LocalTrackState.enabled) {
+      if (audioState.value != LocalTrackState.enabled &&
+          audioState.value != LocalTrackState.enabling) {
         await _room?.muteAudio();
       }
-      if (videoState.value != LocalTrackState.enabled) {
+      if (videoState.value != LocalTrackState.enabled &&
+          videoState.value != LocalTrackState.enabling) {
         await _room?.disableVideo(MediaSourceKind.Device);
       }
-      if (screenShareState.value != LocalTrackState.enabled) {
+      if (screenShareState.value != LocalTrackState.enabled &&
+          screenShareState.value != LocalTrackState.enabling) {
         await _room?.disableVideo(MediaSourceKind.Display);
       }
 
