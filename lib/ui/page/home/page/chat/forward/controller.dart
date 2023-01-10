@@ -69,6 +69,9 @@ class ChatForwardController extends GetxController {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// State of a send message field.
   late final TextFieldState send;
 
