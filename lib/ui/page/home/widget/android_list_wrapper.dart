@@ -27,12 +27,14 @@ class ListWrapper extends StatelessWidget {
         data: mediaQuery.copyWith(
           padding: mediaQuery.padding.copyWith(
             top: CustomAppBar.height,
-            bottom: bottomPadding ?? CustomNavigationBar.height,
+            bottom: bottomPadding ?? CustomNavigationBar.height + 5,
           ),
         ),
         child: Container(
-          margin: EdgeInsets.only(top: mediaQuery.padding.top + 5, bottom: 10),
-          height: buildContext.height,
+          margin: EdgeInsets.only(
+            top: mediaQuery.padding.top + 5,
+            bottom: mediaQuery.padding.bottom - CustomNavigationBar.height,
+          ),
           child: child,
         ),
       );
