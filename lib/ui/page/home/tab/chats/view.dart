@@ -386,7 +386,9 @@ class ChatsTabView extends StatelessWidget {
                                 final RxChat chat = element.chat;
                                 child = Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 10, right: 10),
+                                    left: 10,
+                                    right: 10,
+                                  ),
                                   child: RecentChatTile(
                                     chat,
                                     key: Key('SearchChat_${chat.id}'),
