@@ -120,15 +120,18 @@ class ParticipantView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 Expanded(
-                  child: ListView(
-                    controller: ScrollController(),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    children: c.chat.value!.members.values.map((e) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: _user(context, c, e),
-                      );
-                    }).toList(),
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView(
+                      controller: c.scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      children: c.chat.value!.members.values.map((e) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: _user(context, c, e),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 18),
