@@ -413,9 +413,11 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Handles the [LogicalKeyboardKey.escape] event.
+  /// Closes the [search]ing on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
-    if (e.logicalKey == LogicalKeyboardKey.escape) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
       if (search.value != null) {
         toggleSearch(false);
         return true;
