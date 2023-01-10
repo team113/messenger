@@ -598,7 +598,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
-label_sound_and_vibrations = Sound and vibrations
+label_sound_and_vibrations = Sound and vibration
 label_start_screen_sharing = Start screen sharing
 label_status = Status
 label_subtitle_participants = participants

@@ -295,18 +295,20 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset) async {
-    runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer?.play(
-        AssetSource('audio/$asset'),
-        position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
-      );
-    }, (e, _) {
-      if (!e.toString().contains('NotAllowedError')) {
-        throw e;
-      }
-    });
+    if (_myUser.value?.muted == null) {
+      runZonedGuarded(() async {
+        await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer?.play(
+          AssetSource('audio/$asset'),
+          position: Duration.zero,
+          mode: PlayerMode.mediaPlayer,
+        );
+      }, (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      });
+    }
   }
 
   /// Stops the audio that is currently playing.

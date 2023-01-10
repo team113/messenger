@@ -92,7 +92,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
 
-  test('MyUserService successfully update muted information', () async {
+  test('MyUserService successfully mutes and unmutes MyUser', () async {
     when(graphQlProvider.myUserEvents(null)).thenAnswer(
       (_) => Future.value(Stream.fromIterable([
         QueryResult.internal(
@@ -156,7 +156,8 @@ void main() async {
     verify(graphQlProvider.toggleMyUserMute(null));
   });
 
-  test('MyUserService throws ToggleMyUserMuteException', () async {
+  test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
+      () async {
     when(graphQlProvider.myUserEvents(null)).thenAnswer(
       (_) => Future.value(Stream.fromIterable([
         QueryResult.internal(
