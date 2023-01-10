@@ -67,6 +67,9 @@ class ChatForwardController extends GetxController {
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// [Attachment]s to attach to the [quotes].
   final List<Attachment>? attachments;
 

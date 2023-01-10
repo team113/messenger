@@ -146,22 +146,24 @@ class SearchView extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  return FlutterListView(
+                  return Scrollbar(
                     controller: c.controller,
-                    delegate: FlutterListViewDelegate(
-                      (context, i) {
-                        dynamic e = c.getIndex(i);
-                        Widget child = Container();
+                    child: FlutterListView(
+                      controller: c.controller,
+                      delegate: FlutterListViewDelegate(
+                        (context, i) {
+                          dynamic e = c.getIndex(i);
+                          Widget child = Container();
 
-                        if (e is RxUser) {
-                          child = Obx(() {
-                            return _tile(
+                          if (e is RxUser) {
+                            child = Obx(() {
+                              return _tile(
                               key: Key('SearchUser_${e.id}'),
                               context: context,
-                              user: e,
-                              selected: c.selectedUsers.contains(e),
-                              onTap: selectable
-                                  ? () => c.select(user: e)
+                                user: e,
+                                selected: c.selectedUsers.contains(e),
+                                onTap: selectable
+                                    ? () => c.select(user: e)
                                   : enabled
                                       ? () => onPressed?.call(e)
                                       : null,
@@ -170,8 +172,8 @@ class SearchView extends StatelessWidget {
                         } else if (e is RxChatContact) {
                           child = Obx(() {
                             return _tile(
-                              key: Key('SearchContact_${e.id}'),
-                              context: context,
+                                key: Key('SearchContact_${e.id}'),
+                                context: context,
                               contact: e,
                               selected: c.selectedContacts.contains(e),
                               onTap: selectable
@@ -201,7 +203,7 @@ class SearchView extends StatelessWidget {
                       childCount: c.chats.length +
                           c.contacts.length +
                           c.users.length +
-                          c.recent.length,
+                          c.recent.length,),
                     ),
                   );
                 }),
