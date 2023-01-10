@@ -211,7 +211,7 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<Chat> createLocalDialogChat(User responder) async {
+  Future<Chat> createLocalDialog(User responder) async {
     ChatId chatId = ChatId.local();
     final hiveChat = HiveChat(
       Chat(
@@ -236,6 +236,7 @@ class ChatRepository implements AbstractChatRepository {
       await _graphQlProvider.createDialogChat(
           local.members.values.firstWhere((e) => e.id != me).id),
     );
+    chats.remove(local.id);
     remove(local.id);
     _draftLocal.move(local.id, chat.chat.value.id);
 

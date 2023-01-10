@@ -69,12 +69,12 @@ class ChatService extends DisposableService {
   Future<RxChat> createDialogChat(UserId responderId) =>
       _chatRepository.createDialogChat(responderId);
 
-  /// Creates a local dialog [Chat] between the given [responder] and the
+  /// Creates a local [Chat]-dialog between the given [responder] and the
   /// authenticated [MyUser].
-  Future<Chat> createLocalDialogChat(User responder) =>
-      _chatRepository.createLocalDialogChat(responder);
+  Future<Chat> createLocalDialog(User responder) =>
+      _chatRepository.createLocalDialog(responder);
 
-  /// Replaces a [local] [Chat]-dialog with a remote.
+  /// Replaces [local] [Chat]-dialog with a remote.
   Future<RxChat> replaceLocalDialog(RxChat local) =>
       _chatRepository.replaceLocalDialog(local);
 

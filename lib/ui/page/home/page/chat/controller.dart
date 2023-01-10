@@ -1291,7 +1291,7 @@ class ChatController extends GetxController {
   /// Replaces a local [Chat]-dialog with a remote.
   Future<void> replaceLocalDialog() async {
     RxChat chat = await _chatService.replaceLocalDialog(this.chat!);
-    WebUtils.replaceInUrl(this.chat!.id.val, chat.id.val);
+    router.replaceInRoute(this.chat!.id.val, chat.id.val);
     id = chat.id;
     await _fetchChat();
   }

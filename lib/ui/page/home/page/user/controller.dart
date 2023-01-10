@@ -220,7 +220,7 @@ class UserController extends GetxController {
       if (dialog?.id.isLocal ?? false) {
         dialog = (await _chatService.get(dialog!.id))?.chat.value;
       }
-      dialog ??= await _chatService.createLocalDialogChat(user!.user.value);
+      dialog ??= await _chatService.createLocalDialog(user!.user.value);
     }
 
     router.chat(dialog.id, push: true);

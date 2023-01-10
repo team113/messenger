@@ -221,6 +221,14 @@ class RouterState extends ChangeNotifier {
     }
   }
 
+  /// Replaces the provided [String] in the last route.
+  Future<void> replaceInRoute(String from, String to) async {
+    if (routes.isNotEmpty) {
+      routes[routes.length - 1] = routes.last.replaceFirst(from, to);
+      WebUtils.replaceInUrl(from, to);
+    }
+  }
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.
