@@ -285,7 +285,7 @@ class ContactsTabView extends StatelessWidget {
                       controller: c.scrollController,
                       slivers: [
                         SliverPadding(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                             top: CustomAppBar.height,
                             left: 10,
                             right: 10,
