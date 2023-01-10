@@ -286,16 +286,20 @@ class LoginView extends StatelessWidget {
             fadeInCurve: Curves.easeOut,
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
-            child: ListView(
-              key: Key('${c.stage.value}'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 12),
-              ],
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                key: Key('${c.stage.value}'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });

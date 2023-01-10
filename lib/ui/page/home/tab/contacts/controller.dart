@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -73,6 +74,9 @@ class ContactsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
