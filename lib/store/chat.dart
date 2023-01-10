@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -1155,6 +1156,20 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
+      if (data.chat.value.isDialog) {
+        ChatMember? member =
+            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me);
+        HiveRxChat? localDialog = chats.values.firstWhereOrNull(
+          (e) => e.id.isLocal && e.members.keys.contains(member?.user.id),
+        );
+
+        if (localDialog != null) {
+          _chats.remove(localDialog.id);
+          remove(localDialog.id);
+          _draftLocal.move(localDialog.id, data.chat.value.id);
+        }
+      }
+
       entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
