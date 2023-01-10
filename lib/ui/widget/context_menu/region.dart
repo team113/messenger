@@ -18,10 +18,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 import 'package:uuid/uuid.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/themes.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
@@ -33,20 +33,21 @@ import 'mobile.dart';
 /// Depending on the current platform it displays:
 /// - [ContextMenu] or [Selector] on desktop;
 /// - [FloatingContextMenu] on mobile.
-class ContextMenuRegion extends StatelessWidget {
+class ContextMenuRegion extends StatefulWidget {
   ContextMenuRegion({
     super.key,
     required this.child,
     this.enabled = true,
     this.moveDownwards = true,
     this.preventContextMenu = true,
-    this.enableLongTap,
+    this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
     this.selector,
     this.width = 260,
     this.margin = EdgeInsets.zero,
-    this.indicateMenu = false,
+    this.indicateOpenedMenu = false,
+    this.unconstrained = false,
     String? id,
   }) : id = id ?? const Uuid().v4();
 
@@ -72,7 +73,7 @@ class ContextMenuRegion extends StatelessWidget {
   final bool preventContextMenu;
 
   /// Indicator whether context menu should be displayed on a long tap.
-  final bool? enableLongTap;
+  final bool enableLongTap;
 
   /// [GlobalKey] of a [Selector.buttonKey].
   ///
@@ -91,33 +92,45 @@ class ContextMenuRegion extends StatelessWidget {
 
   final String id;
 
-  final bool indicateMenu;
+  /// Indicator whether this [ContextMenuRegion] should display a [ColoredBox]
+  /// above the [child] when a [ContextMenu] is opened.
+  final bool indicateOpenedMenu;
+
+  final bool unconstrained;
 
   static RxnString displayed = RxnString();
 
   @override
+  State<ContextMenuRegion> createState() => _ContextMenuRegionState();
+}
+
+/// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
+class _ContextMenuRegionState extends State<ContextMenuRegion> {
+  /// Indicator whether a [ColoredBox] should be displayed above the provided
+  /// child.
+  bool _darkened = false;
+
+  @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final Widget child = Obx(() {
-      if (displayed.value == id && indicateMenu && PlatformUtils.isDesktop) {
-        return Stack(
-          children: [
-            KeyedSubtree(key: Key(id), child: this.child),
-            Positioned.fill(
-              child: Container(
-                color: style.cardHoveredColor.withOpacity(0.4),
-              ),
-            ),
-          ],
-        );
-      }
+    final Widget child;
 
-      return KeyedSubtree(key: Key(id), child: this.child);
-    });
+    if (_darkened) {
+      final Style style = Theme.of(context).extension<Style>()!;
+      child = Stack(
+        children: [
+          widget.child,
+          Positioned.fill(
+            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
+          ),
+        ],
+      );
+    } else {
+      child = widget.child;
+    }
 
-    if (enabled && actions.isNotEmpty) {
+    if (widget.enabled && widget.actions.isNotEmpty) {
       return ContextMenuInterceptor(
-        enabled: preventContextMenu,
+        enabled: widget.preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
@@ -127,16 +140,30 @@ class ContextMenuRegion extends StatelessWidget {
           },
           child: PlatformUtils.isMobile
               ? FloatingContextMenu(
-                  alignment: alignment,
-                  moveDownwards: moveDownwards,
-                  actions: actions,
-                  margin: margin,
-                  id: id,
+                  alignment: widget.alignment,
+                  moveDownwards: widget.moveDownwards,
+                  actions: widget.actions,
+                  margin: widget.margin,
+                  unconstrained: widget.unconstrained,
+                  onOpened: () {
+                    print('onOpened');
+                    ContextMenuRegion.displayed.value = widget.id;
+                    if (widget.indicateOpenedMenu) {
+                      setState(() => _darkened = true);
+                    }
+                  },
+                  onClosed: () {
+                    print('onClosed');
+                    ContextMenuRegion.displayed.value = null;
+                    if (widget.indicateOpenedMenu) {
+                      setState(() => _darkened = false);
+                    }
+                  },
                   child: child,
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (enableLongTap ?? true)
+                  onLongPressStart: widget.enableLongTap
                       ? (d) => _show(context, d.globalPosition)
                       : null,
                   child: child,
@@ -148,25 +175,29 @@ class ContextMenuRegion extends StatelessWidget {
     return child;
   }
 
-  /// Shows the [ContextMenu] wrapping the [actions].
+  /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    if (actions.isEmpty) {
+    if (widget.actions.isEmpty) {
       return;
     }
 
-    displayed.value = id;
+    ContextMenuRegion.displayed.value = widget.id;
 
-    if (selector != null) {
+    if (widget.indicateOpenedMenu) {
+      setState(() => _darkened = true);
+    }
+
+    if (widget.selector != null) {
       await Selector.show<ContextMenuButton>(
         context: context,
-        items: actions,
-        width: width,
-        margin: margin,
+        items: widget.actions,
+        width: widget.width,
+        margin: widget.margin,
         buttonBuilder: (i, b) {
           return Padding(
             padding: EdgeInsets.only(
               top: i == 0 ? 6 : 0,
-              bottom: i == actions.length - 1 ? 6 : 0,
+              bottom: i == widget.actions.length - 1 ? 6 : 0,
             ),
             child: b,
           );
@@ -188,8 +219,8 @@ class ContextMenuRegion extends StatelessWidget {
           );
         },
         onSelected: (b) => b.onPressed?.call(),
-        buttonKey: selector,
-        alignment: Alignment(-alignment.x, -alignment.y),
+        buttonKey: widget.selector,
+        alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
       await showDialog(
@@ -215,7 +246,7 @@ class ContextMenuRegion extends StatelessWidget {
                         alignment.x > 0 ? 0 : -1,
                         alignment.y > 0 ? 0 : -1,
                       ),
-                      child: ContextMenu(actions: actions),
+                      child: ContextMenu(actions: widget.actions),
                     ),
                   )
                 ],
@@ -226,6 +257,10 @@ class ContextMenuRegion extends StatelessWidget {
       );
     }
 
-    displayed.value = null;
+    if (widget.indicateOpenedMenu) {
+      setState(() => _darkened = false);
+    }
+
+    ContextMenuRegion.displayed.value = null;
   }
 }

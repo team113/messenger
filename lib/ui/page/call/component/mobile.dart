@@ -23,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -70,7 +72,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
-          if (c.primary.length == 1 && c.secondary.length == 1) {
+          if (c.primary.length == 1 && c.secondary.length == 1 && c.isDialog) {
             return Stack(
               children: [
                 FitView(
@@ -116,9 +118,12 @@ Widget mobileCall(CallController c, BuildContext context) {
             );
           }
 
+          final Participant? center =
+              c.secondary.isNotEmpty ? c.primary.firstOrNull : null;
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
-            center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
+            center: center,
             fit: c.minimized.value,
             onTap: () => c.keepUi(false),
             itemBuilder: (e) {
@@ -134,22 +139,106 @@ Widget mobileCall(CallController c, BuildContext context) {
                 final bool isHovered =
                     c.hoveredRenderer.value == e && !anyDragIsHappening;
 
-                return Stack(
-                  children: [
-                    const ParticipantDecoratorWidget(),
-                    IgnorePointer(
-                      child: ParticipantWidget(
-                        e,
-                        // offstageUntilDetermined: true,
+                return ContextMenuRegion(
+                  actions: [
+                    if (center == e)
+                      ContextMenuButton(
+                        label: 'btn_call_uncenter'.l10n,
+                        onPressed: c.focusAll,
+                      )
+                    else
+                      ContextMenuButton(
+                        label: 'btn_call_center'.l10n,
+                        onPressed: () => c.center(e),
                       ),
-                    ),
-                    ParticipantOverlayWidget(
-                      e,
-                      muted: muted,
-                      hovered: isHovered,
-                      preferBackdrop: !c.minimized.value,
-                    ),
+                    if (e.member.id != c.me.id) ...[
+                      if (e.video.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label: e.video.value?.renderer.value != null
+                              ? 'btn_call_disable_video'.l10n
+                              : 'btn_call_enable_video'.l10n,
+                          onPressed: () => c.toggleVideoEnabled(e),
+                        ),
+                      if (e.audio.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label:
+                              (e.audio.value?.direction.value.isEnabled == true)
+                                  ? 'btn_call_disable_audio'.l10n
+                                  : 'btn_call_enable_audio'.l10n,
+                          onPressed: () => c.toggleAudioEnabled(e),
+                        ),
+                      ContextMenuButton(
+                        label: 'btn_call_remove_participant'.l10n,
+                        onPressed: () {},
+                      ),
+                    ] else ...[
+                      ContextMenuButton(
+                        label: c.videoState.value.isEnabled
+                            ? 'btn_call_video_off'.l10n
+                            : 'btn_call_video_on'.l10n,
+                        onPressed: c.toggleVideo,
+                      ),
+                      ContextMenuButton(
+                        label: c.audioState.value.isEnabled
+                            ? 'btn_call_audio_off'.l10n
+                            : 'btn_call_audio_on'.l10n,
+                        onPressed: c.toggleAudio,
+                      ),
+                    ],
                   ],
+                  id: e.member.id.toString(),
+                  unconstrained: true,
+                  child: Obx(() {
+                    final bool menu = ContextMenuRegion.displayed.value ==
+                        e.member.id.toString();
+
+                    final Widget stack = Stack(
+                      children: [
+                        const ParticipantDecoratorWidget(),
+                        IgnorePointer(
+                          child: ParticipantWidget(
+                            e,
+                            offstageUntilDetermined: true,
+                          ),
+                        ),
+                        ParticipantOverlayWidget(
+                          e,
+                          muted: muted,
+                          hovered: isHovered,
+                          preferBackdrop: !c.minimized.value,
+                        ),
+                      ],
+                    );
+
+                    print(
+                        '$menu, ${ContextMenuRegion.displayed.value} vs ${e.member.id.toString()}');
+
+                    if (!menu) {
+                      return stack;
+                    }
+
+                    return AnimatedContainer(
+                      key: Key(e.member.id.toString()),
+                      duration: 200.milliseconds,
+                      width:
+                          menu ? MediaQuery.of(context).size.width - 10 : null,
+                      height:
+                          menu ? MediaQuery.of(context).size.height - 10 : null,
+                      child: stack,
+                    );
+
+                    return UnconstrainedBox(
+                      child: SizedBox(
+                        width: menu
+                            ? MediaQuery.of(context).size.width - 10
+                            : null,
+                        height: menu
+                            ? MediaQuery.of(context).size.height - 10
+                            : null,
+                        child: stack,
+                      ),
+                    );
+                  }),
                 );
               });
             },
