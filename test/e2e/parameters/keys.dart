@@ -80,6 +80,8 @@ enum WidgetKey {
   MessageField,
   MonologButton,
   MuteChatButton,
+  MuteMyUserSwitch,
+  Muted,
   MyProfileButton,
   MyProfileScrollable,
   MyProfileView,
@@ -118,6 +120,7 @@ enum WidgetKey {
   UnfavoriteChatButton,
   UnfavoriteContactButton,
   UnmuteChatButton,
+  Unmuted,
   UsernameField,
 }
 

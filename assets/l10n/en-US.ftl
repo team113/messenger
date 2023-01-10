@@ -350,6 +350,7 @@ label_attachments = [{$count} { $count ->
     *[other] attachments
     }]
 label_audio_call = Audio call
+label_audio_notifications = Audio notifications
 label_away = Away
 label_background = Background
 label_biography = Biography
@@ -426,6 +427,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_disabled = Disabled
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -440,6 +442,7 @@ label_email = E-mail
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
+label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -521,6 +524,7 @@ label_no_registration = no registration
 label_no_users = No users
 label_nobody = No one
 label_nothing_found = Nothing was found
+label_notifications = Notifications
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
@@ -594,6 +598,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sound_and_vibrations = Sound and vibration
 label_start_screen_sharing = Start screen sharing
 label_status = Status
 label_subtitle_participants = participants
