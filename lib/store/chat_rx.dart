@@ -308,7 +308,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> fetchMessages() async {
-    if(id.isLocal) {
+    if (id.isLocal) {
       return;
     }
 

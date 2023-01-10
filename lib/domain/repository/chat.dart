@@ -76,7 +76,7 @@ abstract class AbstractChatRepository {
   /// authenticated [MyUser].
   Future<Chat> createLocalDialogChat(User responder);
 
-  /// Replaces a [local] dialog [Chat] with an remote.
+  /// Replaces a [local] [Chat]-dialog with a remote.
   Future<RxChat> replaceLocalDialog(RxChat local);
 
   /// Creates a group [Chat] with the provided members and the authenticated

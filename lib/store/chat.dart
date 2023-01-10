@@ -237,7 +237,7 @@ class ChatRepository implements AbstractChatRepository {
           local.members.values.firstWhere((e) => e.id != me).id),
     );
     remove(local.id);
-    await _draftLocal.move(local.id, chat.chat.value.id);
+    _draftLocal.move(local.id, chat.chat.value.id);
 
     return _putEntry(chat);
   }

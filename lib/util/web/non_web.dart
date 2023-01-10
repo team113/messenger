@@ -200,4 +200,9 @@ class WebUtils {
       // No-op.
     }
   }
+
+  /// Replaces the provided [String] in the current url.
+  static void replaceInUrl(String from, String to) {
+    // No-op.
+  }
 }

@@ -306,9 +306,7 @@ class ChatController extends GetxController {
             attachments.isNotEmpty ||
             repliedMessages.isNotEmpty) {
           if (chat!.chat.value.id.isLocal) {
-            chat = await _chatService.replaceLocalDialog(chat!);
-            id = chat!.id;
-            await _fetchChat();
+            await replaceLocalDialog();
           }
 
           _chatService
@@ -416,9 +414,7 @@ class ChatController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     if (chat!.chat.value.id.isLocal) {
-      chat = await _chatService.replaceLocalDialog(chat!);
-      id = chat!.id;
-      await _fetchChat();
+      await replaceLocalDialog();
     }
 
     _callService.call(id, withVideo: withVideo);
@@ -1290,6 +1286,14 @@ class ChatController extends GetxController {
         elements[_unreadElement!.id] = _unreadElement!;
       }
     }
+  }
+
+  /// Replaces a local [Chat]-dialog with a remote.
+  Future<void> replaceLocalDialog() async {
+    RxChat chat = await _chatService.replaceLocalDialog(this.chat!);
+    WebUtils.replaceInUrl(this.chat!.id.val, chat.id.val);
+    id = chat.id;
+    await _fetchChat();
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].

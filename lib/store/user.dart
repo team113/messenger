@@ -242,8 +242,7 @@ class UserRepository implements AbstractUserRepository {
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
     if (saved == null || saved.ver < user.ver || ignoreVersion) {
-      if (saved?.value.dialog != null &&
-          (saved!.value.dialog?.id.isLocal ?? false)) {
+      if (saved?.value.dialog != null && saved!.value.dialog!.id.isLocal) {
         user.value.dialog = saved.value.dialog;
       }
       await _userLocal.put(user);

@@ -95,10 +95,10 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   ///
   /// No-op, if element at the [oldKey] doesn't exist.
   Future<void> move(ChatId oldKey, ChatId newKey) async {
-    ChatMessage? draft = get(oldKey);
-    if(draft != null) {
+    ChatMessage? value = get(oldKey);
+    if (value != null) {
       remove(oldKey);
-      put(newKey, draft);
+      put(newKey, value);
     }
   }
 }
