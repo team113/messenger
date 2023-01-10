@@ -43,81 +43,83 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
+  /// Height of the [CustomNavigationBar].
+  static const double height = 56;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-              blurStyle: BlurStyle.outer,
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: Color(0x22000000),
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+        borderRadius: style.cardRadius,
+        border: style.cardBorder,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            borderRadius: style.cardRadius,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
             ),
-          ],
-          borderRadius: style.cardRadius,
-          border: style.cardBorder,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ConditionalBackdropFilter(
-              condition: style.cardBlur > 0,
-              borderRadius: style.cardRadius,
-              filter: ImageFilter.blur(
-                sigmaX: style.cardBlur,
-                sigmaY: style.cardBlur,
+            child: Container(
+              decoration: BoxDecoration(
+                color: style.cardColor,
+                borderRadius: style.cardRadius,
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: style.cardColor,
-                  borderRadius: style.cardRadius,
-                ),
-                height: 56,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: items.mapIndexed((i, b) {
-                      return Expanded(
-                        key: b.key,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (b.child != null)
-                              Badge(
-                                badgeContent: b.badge == null
-                                    ? null
-                                    : Text(
-                                        b.badge!,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                        ),
+              height: height,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: items.mapIndexed((i, b) {
+                    return Expanded(
+                      key: b.key,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (b.child != null)
+                            Badge(
+                              badgeContent: b.badge == null
+                                  ? null
+                                  : Text(
+                                      b.badge!,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
                                       ),
-                                showBadge: b.badge != null,
-                                child: InkResponse(
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  onTap: () => onTap?.call(i),
-                                  child: b.child!,
-                                ),
+                                    ),
+                              badgeColor: b.badgeColor,
+                              showBadge: b.badge != null,
+                              child: InkResponse(
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                onTap: () => onTap?.call(i),
+                                child: b.child!,
                               ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -128,6 +130,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
+    this.badgeColor = Colors.red,
     this.child,
   });
 
@@ -136,6 +139,9 @@ class CustomNavigationBarItem {
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  /// [Color] of the provided [badge], if any.
+  final Color badgeColor;
 
   /// [Widget] to display.
   final Widget? child;

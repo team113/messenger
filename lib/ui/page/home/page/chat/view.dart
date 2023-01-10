@@ -373,32 +373,35 @@ class _ChatViewState extends State<ChatView>
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
-                            Obx(() {
-                              return FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isTrue ||
-                                        (PlatformUtils.isDesktop &&
-                                            c.isItemDragged.isTrue)
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const BouncingScrollPhysics(),
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  keepPosition: true,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                ),
-                              );
-                            }),
+                            Scrollbar(
+                              controller: c.listController,
+                              child: Obx(() {
+                                return FlutterListView(
+                                  key: const Key('MessagesList'),
+                                  controller: c.listController,
+                                  physics: c.isHorizontalScroll.isTrue ||
+                                          (PlatformUtils.isDesktop &&
+                                              c.isItemDragged.isTrue)
+                                      ? const NeverScrollableScrollPhysics()
+                                      : const BouncingScrollPhysics(),
+                                  delegate: FlutterListViewDelegate(
+                                    (context, i) => _listElement(context, c, i),
+                                    // ignore: invalid_use_of_protected_member
+                                    childCount: c.elements.value.length,
+                                    keepPosition: true,
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
+                                    onItemSticky: (i) => c.elements.values
+                                        .elementAt(i) is DateTimeElement,
+                                    initIndex: c.initIndex,
+                                    initOffset: c.initOffset,
+                                    initOffsetBasedOnBottom: false,
+                                  ),
+                                );
+                              }),
+                            ),
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
@@ -548,6 +551,10 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads
+                    .where((m) => m.at == e.value.at && m.memberId != c.me),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
@@ -586,6 +593,11 @@ class _ChatViewState extends State<ChatView>
             note: element.note,
             authorId: element.authorId,
             me: c.me!,
+            reads: c.chat!.members.length > 10
+                ? []
+                : c.chat!.reads.where((m) =>
+                    m.at == element.forwards.last.value.at &&
+                    m.memberId != c.me),
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
@@ -806,8 +818,8 @@ class _ChatViewState extends State<ChatView>
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
-        asStack: true,
-        padding: const EdgeInsets.only(right: 8),
+        translate: false,
+        padding: const EdgeInsets.only(right: 8, top: 2),
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
@@ -954,86 +966,90 @@ class _ChatViewState extends State<ChatView>
                                           MediaQuery.of(context).size.height /
                                               3,
                                     ),
-                                    child: ReorderableListView(
-                                      shrinkWrap: true,
-                                      buildDefaultDragHandles:
-                                          PlatformUtils.isMobile,
-                                      onReorder: (int old, int to) {
-                                        if (old < to) {
-                                          --to;
-                                        }
+                                    child: Scrollbar(
+                                      controller: c.scrollController,
+                                      child: ReorderableListView(
+                                        scrollController: c.scrollController,
+                                        shrinkWrap: true,
+                                        buildDefaultDragHandles:
+                                            PlatformUtils.isMobile,
+                                        onReorder: (int old, int to) {
+                                          if (old < to) {
+                                            --to;
+                                          }
 
-                                        final ChatItem item =
-                                            c.repliedMessages.removeAt(old);
-                                        c.repliedMessages.insert(to, item);
+                                          final ChatItem item =
+                                              c.repliedMessages.removeAt(old);
+                                          c.repliedMessages.insert(to, item);
 
-                                        HapticFeedback.lightImpact();
-                                      },
-                                      proxyDecorator: (child, i, animation) {
-                                        return AnimatedBuilder(
-                                          animation: animation,
-                                          builder: (
-                                            BuildContext context,
-                                            Widget? child,
-                                          ) {
-                                            final double t = Curves.easeInOut
-                                                .transform(animation.value);
-                                            final double elevation =
-                                                lerpDouble(0, 6, t)!;
-                                            final Color color = Color.lerp(
-                                              const Color(0x00000000),
-                                              const Color(0x33000000),
-                                              t,
-                                            )!;
+                                          HapticFeedback.lightImpact();
+                                        },
+                                        proxyDecorator: (child, i, animation) {
+                                          return AnimatedBuilder(
+                                            animation: animation,
+                                            builder: (
+                                              BuildContext context,
+                                              Widget? child,
+                                            ) {
+                                              final double t = Curves.easeInOut
+                                                  .transform(animation.value);
+                                              final double elevation =
+                                                  lerpDouble(0, 6, t)!;
+                                              final Color color = Color.lerp(
+                                                const Color(0x00000000),
+                                                const Color(0x33000000),
+                                                t,
+                                              )!;
 
-                                            return InitCallback(
-                                              callback:
-                                                  HapticFeedback.selectionClick,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  boxShadow: [
-                                                    CustomBoxShadow(
-                                                      color: color,
-                                                      blurRadius: elevation,
-                                                    ),
-                                                  ],
+                                              return InitCallback(
+                                                callback: HapticFeedback
+                                                    .selectionClick,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: [
+                                                      CustomBoxShadow(
+                                                        color: color,
+                                                        blurRadius: elevation,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: child,
                                                 ),
-                                                child: child,
-                                              ),
-                                            );
-                                          },
-                                          child: child,
-                                        );
-                                      },
-                                      reverse: true,
-                                      padding: const EdgeInsets.fromLTRB(
-                                        1,
-                                        0,
-                                        1,
-                                        0,
-                                      ),
-                                      children: c.repliedMessages.map((e) {
-                                        return ReorderableDragStartListener(
-                                          key: Key('Handle_${e.id}'),
-                                          enabled: !PlatformUtils.isMobile,
-                                          index: c.repliedMessages.indexOf(e),
-                                          child: Dismissible(
-                                            key: Key('${e.id}'),
-                                            direction:
-                                                DismissDirection.horizontal,
-                                            onDismissed: (_) {
-                                              c.repliedMessages.remove(e);
+                                              );
                                             },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 2,
+                                            child: child,
+                                          );
+                                        },
+                                        reverse: true,
+                                        padding: const EdgeInsets.fromLTRB(
+                                          1,
+                                          0,
+                                          1,
+                                          0,
+                                        ),
+                                        children: c.repliedMessages.map((e) {
+                                          return ReorderableDragStartListener(
+                                            key: Key('Handle_${e.id}'),
+                                            enabled: !PlatformUtils.isMobile,
+                                            index: c.repliedMessages.indexOf(e),
+                                            child: Dismissible(
+                                              key: Key('${e.id}'),
+                                              direction:
+                                                  DismissDirection.horizontal,
+                                              onDismissed: (_) {
+                                                c.repliedMessages.remove(e);
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 2,
+                                                ),
+                                                child: _repliedMessage(c, e),
                                               ),
-                                              child: _repliedMessage(c, e),
                                             ),
-                                          ),
-                                        );
-                                      }).toList(),
+                                          );
+                                        }).toList(),
+                                      ),
                                     ),
                                   ),
                                 if (c.attachments.isNotEmpty &&

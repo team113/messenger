@@ -272,6 +272,9 @@ class ContactRepository implements AbstractContactRepository {
           } else {
             contact.contact.value = event.value.value;
             contact.contact.refresh();
+            favorites.emit(
+              MapChangeNotification.updated(contact.id, contact.id, contact),
+            );
           }
         }
       }

@@ -352,9 +352,8 @@ class ChatRepository implements AbstractChatRepository {
           .toList()
           .indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
-        Iterable<Rx<ChatItem>> unread = chat.messages
-            .skip(chat.messages.length - lastReadIndex - 1)
-            .where((m) => m.value.authorId != me);
+        Iterable<Rx<ChatItem>> unread =
+            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
         chat.chat.update((c) => c?.unreadCount = unread.length - 1);
       }
     }
@@ -417,6 +416,7 @@ class ChatRepository implements AbstractChatRepository {
             item,
             (e) => item.value.at.compareTo(e.value.at) == 1,
           );
+          chat?.updateReads();
         }
 
         rethrow;
@@ -449,6 +449,7 @@ class ChatRepository implements AbstractChatRepository {
             item,
             (e) => item.value.at.compareTo(e.value.at) == 1,
           );
+          chat?.updateReads();
         }
 
         rethrow;
@@ -478,6 +479,7 @@ class ChatRepository implements AbstractChatRepository {
           item,
           (e) => item.value.at.compareTo(e.value.at) == 1,
         );
+        chat?.updateReads();
       }
 
       rethrow;

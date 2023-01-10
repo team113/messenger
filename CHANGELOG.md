@@ -17,18 +17,20 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
+        - Group read indicators. ([#255], [#253])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
-        - Searching. ([#206], [#205])
+        - Searching. ([#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
+        - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
-        - Favorite contacts. ([#237], [#223])
-        - Searching. ([#260], [#259])
+        - Favorite contacts. ([#285], [#237], [#223])
+        - Searching. ([#310], [#260], [#259])
     - User page:
         - Blacklisting. ([#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
@@ -43,11 +45,14 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned settings. ([#293], [#283])
+        - Rounded secondary panel. ([#300], [#292])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
+        - Redesigned group creating. ([#247], [#238])
     - Profile page:
         - Redesigned profile page. ([#244], [#257], [#243])
     - Redesigned desktop context menu. ([#245])
@@ -58,7 +63,8 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
-        - Redesigned chat info page. ([#265], [#256])    
+        - Redesigned chat info page. ([#265], [#256])
+    - Redesigned scrollbar. ([#276], [#262])
 
 ### Fixed
 
@@ -105,25 +111,39 @@ All user visible changes to this project will be documented in this file. This p
 [#234]: /../../pull/234
 [#235]: /../../pull/235
 [#237]: /../../pull/237
+[#238]: /../../issues/238
 [#241]: /../../pull/241
 [#243]: /../../issues/243
 [#244]: /../../pull/244
 [#245]: /../../pull/245
 [#246]: /../../pull/246
+[#247]: /../../pull/247
 [#249]: /../../pull/249
 [#251]: /../../pull/251
 [#252]: /../../issues/252
+[#253]: /../../issues/253
 [#254]: /../../pull/254
+[#255]: /../../pull/255
 [#256]: /../../issues/256
 [#257]: /../../issues/257
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#262]: /../../issues/262
 [#263]: /../../issues/263
 [#265]: /../../pull/265
 [#274]: /../../pull/274
 [#275]: /../../pull/275
+[#276]: /../../pull/276
 [#277]: /../../pull/277
+[#278]: /../../issues/278
+[#283]: /../../issues/283
+[#285]: /../../pull/285
 [#287]: /../../pull/287
+[#288]: /../../pull/288
+[#292]: /../../issues/292
+[#293]: /../../pull/293
+[#300]: /../../pull/300
+[#310]: /../../pull/310
 
 
 

@@ -149,6 +149,9 @@ class ChatController extends GetxController {
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Indicator whether an ongoing horizontal scroll is happening.
   ///
   /// Used to discard any vertical gestures while this is `true`.
@@ -398,6 +401,10 @@ class ChatController extends GetxController {
     [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
         .whereNotNull()
         .forEach(AudioCache.instance.clear);
+
+    if (chat?.chat.value.isDialog == true) {
+      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
+    }
 
     super.onClose();
   }
@@ -803,14 +810,10 @@ class ChatController extends GetxController {
 
           _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
-            return (element is ChatMessageElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatMemberInfoElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatCallElement &&
-                    element.item.value.authorId != me) ||
-                (element is ChatForwardElement &&
-                    element.forwards.first.value.authorId != me);
+            return element is ChatMessageElement ||
+                element is ChatMemberInfoElement ||
+                element is ChatCallElement ||
+                element is ChatForwardElement;
           });
 
           if (_lastVisibleItem != null &&
@@ -836,6 +839,12 @@ class ChatController extends GetxController {
           }
         }
       };
+
+      if (chat?.chat.value.isDialog == true) {
+        chat?.members.values
+            .lastWhereOrNull((u) => u.id != me)
+            ?.listenUpdates();
+      }
 
       _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
 
@@ -905,7 +914,8 @@ class ChatController extends GetxController {
     if (item != null &&
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
-        !status.value.isLoadingMore) {
+        !status.value.isLoadingMore &&
+        item.status.value == SendingStatus.sent) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {

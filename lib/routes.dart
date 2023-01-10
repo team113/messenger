@@ -101,6 +101,7 @@ enum ProfileTab {
   background,
   calls,
   media,
+  notifications,
   language,
   download,
   danger,
@@ -140,6 +141,9 @@ class RouterState extends ChangeNotifier {
 
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
+
+  /// Indicator whether [HomeView] page navigation should be visible.
+  final RxBool navigation = RxBool(true);
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -590,11 +594,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
               callService,
               chatService,
+              myUserService,
               Get.find(),
             ));
 
             deps.put(ChatWorker(
               chatService,
+              myUserService,
               Get.find(),
             ));
 
