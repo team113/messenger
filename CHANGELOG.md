@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
         - Searching. ([#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
+        - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
@@ -137,9 +138,11 @@ All user visible changes to this project will be documented in this file. This p
 [#275]: /../../pull/275
 [#276]: /../../pull/276
 [#277]: /../../pull/277
+[#278]: /../../issues/278
 [#283]: /../../issues/283
 [#285]: /../../pull/285
 [#287]: /../../pull/287
+[#288]: /../../pull/288
 [#292]: /../../issues/292
 [#293]: /../../pull/293
 [#300]: /../../pull/300
