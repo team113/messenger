@@ -32,7 +32,7 @@ class LanguageSelectionController extends GetxController {
   /// Currently selected [Language].
   late final Rx<Language?> selected;
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// Settings repository updating the [ApplicationSettings.locale].

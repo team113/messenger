@@ -38,7 +38,7 @@ class ConfirmLogoutController extends GetxController {
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// Field for password input.

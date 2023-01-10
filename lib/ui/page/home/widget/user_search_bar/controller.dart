@@ -34,7 +34,7 @@ class UserSearchBarController extends GetxController {
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// Status of the search.

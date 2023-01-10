@@ -44,7 +44,7 @@ class AddPhoneController extends GetxController {
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [UserPhone] field state.

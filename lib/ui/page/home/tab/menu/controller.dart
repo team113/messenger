@@ -32,7 +32,7 @@ export 'view.dart';
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [AuthService] used in a [logout].

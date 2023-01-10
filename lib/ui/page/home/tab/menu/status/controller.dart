@@ -34,7 +34,7 @@ class StatusController extends GetxController {
   /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [MyUser.status]'s field state.

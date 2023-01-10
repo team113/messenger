@@ -65,7 +65,7 @@ class ChatInfoController extends GetxController {
   /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to get the [chat] value.

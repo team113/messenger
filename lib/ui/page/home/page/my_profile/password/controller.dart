@@ -39,7 +39,7 @@ class ChangePasswordController extends GetxController {
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [TextFieldState] of the current [MyUser]'s password.

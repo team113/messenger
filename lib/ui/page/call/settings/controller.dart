@@ -30,7 +30,7 @@ export 'view.dart';
 class CallSettingsController extends GetxController {
   CallSettingsController(this._call, this._settingsRepo, {required this.onPop});
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// The [OngoingCall] that this settings are bound to.

@@ -44,7 +44,7 @@ class AddEmailController extends GetxController {
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [UserEmail] field state.

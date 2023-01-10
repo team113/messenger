@@ -74,7 +74,7 @@ class LoginController extends GetxController {
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.

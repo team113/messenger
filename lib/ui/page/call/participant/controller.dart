@@ -59,7 +59,7 @@ class ParticipantController extends GetxController {
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// Callback, called when a [ParticipantView] this controller is bound to

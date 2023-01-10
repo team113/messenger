@@ -99,7 +99,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
   late ConfirmDialogVariant _variant;
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   @override

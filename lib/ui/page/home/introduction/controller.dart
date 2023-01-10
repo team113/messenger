@@ -38,7 +38,7 @@ class IntroductionController extends GetxController {
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [MyUser.num]'s copyable [TextFieldState].

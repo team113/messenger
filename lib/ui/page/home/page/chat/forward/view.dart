@@ -109,8 +109,8 @@ class ChatForwardView extends StatelessWidget {
               Expanded(
                 child: Scrollbar(
                   controller: c.scrollController,
-                  child: Obx(
-                    () => ListView(
+                  child: Obx(() {
+                    return ListView(
                       controller: c.scrollController,
                       shrinkWrap: true,
                       primary: false,
@@ -123,8 +123,8 @@ class ChatForwardView extends StatelessWidget {
                           ),
                         )
                       ],
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ),
               ...c.quotes.map((e) => _forwardedMessage(context, c, e.item)),

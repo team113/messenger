@@ -32,7 +32,7 @@ export 'view.dart';
 class BlacklistController extends GetxController {
   BlacklistController(this._myUserService, this._userService);
 
-  /// [ScrollController] used by [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [MyUserService] maintaining the blacklisted [User]s.
