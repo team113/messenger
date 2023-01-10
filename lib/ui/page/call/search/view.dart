@@ -24,8 +24,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/tab/chats/widget/selected_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -157,53 +156,51 @@ class SearchView extends StatelessWidget {
 
                           if (e is RxUser) {
                             child = Obx(() {
-                              return _tile(
-                              key: Key('SearchUser_${e.id}'),
-                              context: context,
+                              return SelectedTile(
+                                key: Key('SearchUser_${e.id}'),
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
                                 onTap: selectable
                                     ? () => c.select(user: e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        } else if (e is RxChatContact) {
-                          child = Obx(() {
-                            return _tile(
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else if (e is RxChatContact) {
+                            child = Obx(() {
+                              return SelectedTile(
                                 key: Key('SearchContact_${e.id}'),
-                                context: context,
-                              contact: e,
-                              selected: c.selectedContacts.contains(e),
-                              onTap: selectable
-                                  ? () => c.select(contact: e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        } else if (e is RxChat) {
-                          child = Obx(() {
-                            return _tile(
-                              context: context,
-                              chat: e,
-                              selected: c.selectedChats.contains(e),
-                              onTap: selectable
-                                  ? () => c.select(chat: e)
-                                  : enabled
-                                      ? () => onPressed?.call(e)
-                                      : null,
-                            );
-                          });
-                        }
+                                contact: e,
+                                selected: c.selectedContacts.contains(e),
+                                onTap: selectable
+                                    ? () => c.select(contact: e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          } else if (e is RxChat) {
+                            child = Obx(() {
+                              return SelectedTile(
+                                chat: e,
+                                selected: c.selectedChats.contains(e),
+                                onTap: selectable
+                                    ? () => c.select(chat: e)
+                                    : enabled
+                                        ? () => onPressed?.call(e)
+                                        : null,
+                              );
+                            });
+                          }
 
-                        return child;
-                      },
-                      childCount: c.chats.length +
-                          c.contacts.length +
-                          c.users.length +
-                          c.recent.length,),
+                          return child;
+                        },
+                        childCount: c.chats.length +
+                            c.contacts.length +
+                            c.users.length +
+                            c.recent.length,
+                      ),
                     ),
                   );
                 }),
@@ -240,69 +237,6 @@ class SearchView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  /// Builds a visual representation of the provided [user], [contact] or
-  /// [chat].
-  Widget _tile({
-    required BuildContext context,
-    RxUser? user,
-    RxChatContact? contact,
-    RxChat? chat,
-    void Function()? onTap,
-    bool selected = false,
-    Key? key,
-  }) {
-    final Widget child;
-    final List<Widget> trailing = [
-      SizedBox(
-        width: 30,
-        height: 30,
-        child: AnimatedSwitcher(
-          duration: 200.milliseconds,
-          child: selected
-              ? CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  radius: 12,
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                )
-              : const CircleAvatar(
-                  backgroundColor: Color(0xFFD7D7D7),
-                  radius: 12,
-                ),
-        ),
-      )
-    ];
-
-    if (chat != null) {
-      child = ChatTile(
-        key: Key('Chat_${chat.id}'),
-        chat: chat,
-        selected: selected,
-        onTap: onTap,
-        darken: 0.05,
-        trailing: trailing,
-      );
-    } else {
-      child = ContactTile(
-        key: key,
-        contact: contact,
-        user: user,
-        darken: 0.05,
-        onTap: onTap,
-        selected: selected,
-        trailing: trailing,
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: child,
     );
   }
 }

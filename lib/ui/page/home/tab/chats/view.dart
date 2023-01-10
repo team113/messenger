@@ -33,7 +33,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
-import 'widget/selected_user_tile.dart';
+import 'widget/selected_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -257,7 +257,7 @@ class ChatsTabView extends StatelessWidget {
 
                               if (element is RecentElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedRecent
                                             .contains(element.user) ??
@@ -268,7 +268,7 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is ContactElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     contact: element.contact,
                                     selected: c.search.value?.selectedContacts
                                             .contains(element.contact) ??
@@ -279,7 +279,7 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is UserElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedUsers
                                             .contains(element.user) ??
@@ -290,7 +290,7 @@ class ChatsTabView extends StatelessWidget {
                                 });
                               } else if (element is MyUserElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     myUser: c.myUser.value,
                                     selected: true,
                                     subtitle: [
