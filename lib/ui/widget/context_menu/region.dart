@@ -44,7 +44,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.selector,
     this.width = 260,
     this.margin = EdgeInsets.zero,
-    this.darkenable = false,
+    this.indicateOpenedMenu = false,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -86,15 +86,18 @@ class ContextMenuRegion extends StatefulWidget {
   /// mobile.
   final EdgeInsets margin;
 
-  /// Indicator whether this [ContextMenuRegion] can be darkened.
-  final bool darkenable;
+  /// Indicator whether this [ContextMenuRegion] should display a [ColoredBox]
+  /// above the [child] when a [ContextMenu] is opened.
+  final bool indicateOpenedMenu;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
 }
 
+/// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  /// Indicator whether to darken this [ContextMenuRegion].
+  /// Indicator whether a [ColoredBox] should be displayed above the provided
+  /// child.
   bool _darkened = false;
 
   @override
@@ -107,9 +110,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         children: [
           widget.child,
           Positioned.fill(
-            child: Container(
-              color: style.cardHoveredColor.withOpacity(0.4),
-            ),
+            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
           ),
         ],
       );
@@ -149,13 +150,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     return child;
   }
 
-  /// Shows the [ContextMenu] wrapping the [widget.actions].
+  /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
     if (widget.actions.isEmpty) {
       return;
     }
 
-    if (widget.darkenable) {
+    if (widget.indicateOpenedMenu) {
       setState(() => _darkened = true);
     }
 
@@ -229,7 +230,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       );
     }
 
-    if (widget.darkenable) {
+    if (widget.indicateOpenedMenu) {
       setState(() => _darkened = false);
     }
   }

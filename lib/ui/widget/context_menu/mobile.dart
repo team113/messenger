@@ -301,40 +301,40 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final double width = MediaQuery.of(context).size.width;
     EdgeInsets padding;
 
     if (widget.alignment == Alignment.bottomLeft ||
         widget.alignment == Alignment.bottomRight) {
-      const double minMenuWidth = 230;
+      const double minWidth = 230;
       final double menuWidth = _bounds.right - _bounds.left;
 
       if (widget.alignment == Alignment.bottomLeft) {
         padding = EdgeInsets.only(
           left: _bounds.left - 5,
-          right: menuWidth < minMenuWidth
-              ? screenWidth - _bounds.left - minMenuWidth
-              : screenWidth - _bounds.right - 5,
+          right: menuWidth < minWidth
+              ? width - _bounds.left - minWidth
+              : width - _bounds.right - 5,
         );
       } else {
         padding = EdgeInsets.only(
-          left: menuWidth < minMenuWidth
-              ? _bounds.right - minMenuWidth
+          left: menuWidth < minWidth
+              ? _bounds.right - minWidth
               : _bounds.left - 5,
-          right: screenWidth - _bounds.right - 5,
+          right: width - _bounds.right - 5,
         );
       }
 
       if (padding.left < 3) {
         padding = EdgeInsets.only(
           left: 3,
-          right: screenWidth - minMenuWidth - 8,
+          right: width - minWidth - 8,
         );
       }
     } else {
       padding = EdgeInsets.only(
         left: _bounds.left - 10,
-        right: screenWidth - _bounds.right - 10,
+        right: width - _bounds.right - 10,
       );
     }
 

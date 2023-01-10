@@ -1413,7 +1413,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('CopyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_copy_text_short'.l10n
+                                  ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
@@ -1425,8 +1425,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_reply_short'.l10n
-                                  : 'btn_reply'.l10n,
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
                                 height: 18,
@@ -1437,8 +1437,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
                                 label: PlatformUtils.isMobile
-                                    ? 'btn_forward_short'.l10n
-                                    : 'btn_forward'.l10n,
+                                    ? 'btn_forward'.l10n
+                                    : 'btn_forward_message'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
@@ -1469,7 +1469,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_delete_message_short'.l10n
+                                  ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
@@ -1513,7 +1513,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Resend'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_resend_message_short'.l10n
+                                  ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/send_small.svg',
@@ -1525,7 +1525,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_delete_message_short'.l10n
+                                  ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',

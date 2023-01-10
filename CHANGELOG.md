@@ -49,13 +49,13 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
-        - Redesigned mobile context menu. ([#305], [#295]) 
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
     - Profile page:
         - Redesigned profile page. ([#244], [#257], [#243])
     - Redesigned desktop context menu. ([#245])
+    - Redesigned mobile context menu. ([#305], [#295])
     - Auth page:
         - Redesigned login modal. ([#249])
     - User page:
