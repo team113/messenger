@@ -104,7 +104,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
-btn_call_remove_participant = Kick participant
+btn_call_remove_participant = Remove from call
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,7 +113,7 @@ btn_call_screen_on = Share screen
 btn_call_screen_on_desc =
     Share
     screen
-btn_call_settings = Settings
+btn_call_settings = Call settings
 btn_call_switch_camera = Switch camera
 btn_call_switch_camera_desc =
     Switch
@@ -281,8 +281,8 @@ err_wrong_members_count = No more that 100 members is allowed
 err_wrong_items_count = Wrong items count
 err_wrong_old_password = Wrong password.
 err_wrong_recovery_code = Provided code is wrong.
-err_you_already_add_this_email = E-mail is already added.
-err_you_already_add_this_phone = Phone number is already added.
+err_you_already_add_this_email = Indicated E-mail has been added already.
+err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
@@ -359,7 +359,7 @@ label_attachments = [{$count} { $count ->
     }]
 label_audio_call = Audio call
 label_audio_notifications = Audio notifications
-label_away = Away
+label_away = away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
@@ -422,9 +422,9 @@ label_direct_chat_link_description =
     Users who came via a direct link to
     the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
-    - visit your profile,
-    - send you messages,
-    - make calls
+    - visit your profile;
+    - send you messages;
+    - call you.
 
     After the chat created by this link is deleted, your privacy
     settings are respected.
@@ -463,7 +463,7 @@ label_gallery = Gallery
 label_group_created = Group created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
-label_hidden = Status is hidden
+label_hidden = Last seen recently
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
@@ -501,7 +501,7 @@ label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
-label_media_output = Output
+label_media_output = Audio output
 label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
@@ -534,8 +534,8 @@ label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
-label_offline = Offline
-label_online = Online
+label_offline = offline
+label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
@@ -561,7 +561,7 @@ label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
-label_presence_hidden = Hidden
+label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
