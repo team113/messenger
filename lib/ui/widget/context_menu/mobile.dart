@@ -277,7 +277,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               bottom: false,
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                  left: widget.unconstrained ? 0 : _bounds.left,
+                                  left:
+                                      widget.unconstrained ? 10 : _bounds.left,
                                 ),
                                 child: SizedBox(
                                   width: widget.unconstrained
@@ -298,18 +299,25 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   else ...[
                     if (!widget.showAbove)
                       Positioned(
-                        left: widget.unconstrained ? 0 : _bounds.left,
-                        // left: widget.unconstrained
-                        //     ? (_bounds.left * (1 - _fading.value))
-                        //     : _bounds.left,
-                        // width: widget.unconstrained
-                        //     ? (_bounds.width +
-                        //         (MediaQuery.of(context).size.width -
-                        //                 _bounds.width) *
-                        //             _fading.value)
-                        //     : _bounds.width,
-                        width: widget.unconstrained ? 0 : _bounds.width,
-                        height: _bounds.height,
+                        // left: widget.unconstrained ? 0 : _bounds.left,
+                        left: widget.unconstrained
+                            ? (10 * _fading.value +
+                                _bounds.left * (1 - _fading.value))
+                            : _bounds.left,
+                        width: widget.unconstrained
+                            ? (_bounds.width +
+                                (MediaQuery.of(context).size.width -
+                                        _bounds.width) *
+                                    _fading.value)
+                            : _bounds.width,
+                        // width: widget.unconstrained ? 0 : _bounds.width,
+                        // height: _bounds.height,
+                        height: widget.unconstrained
+                            ? (_bounds.height +
+                                (MediaQuery.of(context).size.height / 2 -
+                                        _bounds.height) *
+                                    _fading.value)
+                            : _bounds.height,
                         bottom: (1 - _fading.value) *
                                 (constraints.maxHeight -
                                     _bounds.top -

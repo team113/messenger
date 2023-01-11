@@ -585,7 +585,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.54.0"
+    version: "1.59.0"
   flutter_spinkit:
     dependency: "direct dev"
     description:
@@ -987,14 +987,14 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.39f8181e33a20db445d16c1bfedd7d337a777fe3"
+    version: "0.8.0-dev+rev.cfbff37d4cbb98098eaea0eef1906a55336c3dd9"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0-dev+rev.83b7899d983d24165509d6f7b915948cc2276ab6"
+    version: "0.3.0-dev+rev.33cbf25a6feb0a3e3e47d3b6859aee066f5162ed"
   meta:
     dependency: transitive
     description:
@@ -1312,6 +1312,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  retry:
+    dependency: transitive
+    description:
+      name: retry
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   rive:
     dependency: "direct main"
     description:

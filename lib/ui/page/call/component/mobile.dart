@@ -221,9 +221,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                       key: Key(e.member.id.toString()),
                       duration: 200.milliseconds,
                       width:
-                          menu ? MediaQuery.of(context).size.width - 10 : null,
+                          menu ? MediaQuery.of(context).size.width - 20 : null,
                       height:
-                          menu ? MediaQuery.of(context).size.height - 10 : null,
+                          menu ? MediaQuery.of(context).size.height / 2 : null,
                       child: stack,
                     );
 
