@@ -22,18 +22,23 @@ import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
 
-class ListWrapper extends StatelessWidget {
-  ListWrapper({
+/// Widget used to add paddings on mobile phones to display [ListView] widgets
+/// correctly.
+class MobilePaddings extends StatelessWidget {
+  MobilePaddings({
     super.key,
     required BuildContext context,
     required this.child,
     this.bottomPadding,
   }) : _mediaQuery = context.mediaQuery;
 
+  /// Child of this widget.
   final Widget child;
 
+  /// Specified bottom padding.
   final double? bottomPadding;
 
+  /// [MediaQueryData] of parent widget.
   late final MediaQueryData _mediaQuery;
 
   @override

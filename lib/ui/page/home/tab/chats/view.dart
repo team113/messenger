@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '../../widget/android_list_wrapper.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/mobile_paddings.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -247,7 +247,7 @@ class ChatsTabView extends StatelessWidget {
                           child: center,
                         );
                       } else {
-                        child = ListWrapper(
+                        child = MobilePaddings(
                           bottomPadding: 0,
                           context: context,
                           child: Scrollbar(
@@ -377,7 +377,7 @@ class ChatsTabView extends StatelessWidget {
                           child: CircularProgressIndicator(),
                         );
                       } else if (c.elements.isNotEmpty) {
-                        child = ListWrapper(
+                        child = MobilePaddings(
                           context: context,
                           child: Scrollbar(
                             controller: c.scrollController,
@@ -470,7 +470,7 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      child = ListWrapper(
+                      child = MobilePaddings(
                         context: context,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
