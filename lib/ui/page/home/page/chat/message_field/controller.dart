@@ -37,7 +37,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -48,14 +47,14 @@ class MessageFieldController extends GetxController {
     this._chatService,
     this._userService, {
     this.onSubmit,
-    this.onMessageChanged,
+    this.onChanged,
     List<ChatItemQuote>? quotes,
     List<Attachment>? attachments,
   }) {
     if (quotes != null) {
       this.quotes.addAll(quotes);
     }
-    if (attachments != null && attachments.isNotEmpty) {
+    if (attachments != null) {
       this.attachments.addAll(
             attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
           );
@@ -63,8 +62,8 @@ class MessageFieldController extends GetxController {
   }
 
   /// [Attachment]s to be attached to a message.
-  final RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
-      RxObsList<MapEntry<GlobalKey, Attachment>>();
+  final RxList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxList<MapEntry<GlobalKey, Attachment>>();
 
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem> replied = RxList<ChatItem>();
@@ -94,7 +93,7 @@ class MessageFieldController extends GetxController {
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Callback, called when message was changed.
-  final void Function()? onMessageChanged;
+  final void Function()? onChanged;
 
   /// Initial message text.
   String? initialText;
@@ -120,7 +119,7 @@ class MessageFieldController extends GetxController {
   @override
   void onInit() {
     field = TextFieldState(
-      onChanged: (_) => onMessageChanged?.call(),
+      onChanged: (_) => onChanged?.call(),
       onSubmitted: (s) {
         field.unsubmit();
         onSubmit?.call();
@@ -166,8 +165,8 @@ class MessageFieldController extends GetxController {
       field.focus.requestFocus();
     }
 
-    _repliesWorker ??= ever(replied, (_) => onMessageChanged?.call());
-    _attachmentsWorker ??= ever(attachments, (_) => onMessageChanged?.call());
+    _repliesWorker ??= ever(replied, (_) => onChanged?.call());
+    _attachmentsWorker ??= ever(attachments, (_) => onChanged?.call());
 
     super.onInit();
   }
@@ -274,7 +273,7 @@ class MessageFieldController extends GetxController {
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
-          onMessageChanged?.call();
+          onChanged?.call();
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

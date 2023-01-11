@@ -277,7 +277,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
-      onMessageChanged: updateDraft,
+      onChanged: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
@@ -336,7 +336,7 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       onSubmit: () async {
-        ChatMessage item = edit.editedMessage.value as ChatMessage;
+        final ChatMessage item = edit.editedMessage.value as ChatMessage;
         if (edit.field.text == item.text?.val) {
           edit.editedMessage.value = null;
         } else if (edit.field.text.isNotEmpty || item.attachments.isNotEmpty) {

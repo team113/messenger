@@ -105,7 +105,7 @@ class ChatForwardController extends GetxController {
         send.field.editable.value = false;
 
         try {
-          List<Future> uploads = send.attachments
+          final List<Future> uploads = send.attachments
               .whereType<LocalAttachment>()
               .map((e) => e.upload.value?.future)
               .whereNotNull()
@@ -129,7 +129,7 @@ class ChatForwardController extends GetxController {
           final ChatMessageText? text =
               send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
 
-          List<Future<void>> futures = [
+          final List<Future<void>> futures = [
             ...searchResults.value!.chats.map((e) async {
               return _chatService.forwardChatItems(
                 from,

@@ -129,17 +129,18 @@ class SearchView extends StatelessWidget {
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
-                    if (c.searchStatus.value.isSuccess ||
-                        c.searchStatus.value.isEmpty) {
+                    if (c.searchStatus.value.isSuccess) {
                       return Center(
-                        child: Text(
-                          (c.searchStatus.value.isSuccess
-                                  ? 'label_nothing_found'
-                                  : 'label_use_search')
-                              .l10n,
-                          textAlign: TextAlign.center,
-                        ),
-                      );
+                          child: Text(
+                        'label_nothing_found'.l10n,
+                        textAlign: TextAlign.center,
+                      ));
+                    } else if (c.searchStatus.value.isEmpty) {
+                      return Center(
+                          child: Text(
+                        'label_use_search'.l10n,
+                        textAlign: TextAlign.center,
+                      ));
                     }
 
                     return const Center(child: CircularProgressIndicator());
@@ -151,7 +152,7 @@ class SearchView extends StatelessWidget {
                       controller: c.controller,
                       delegate: FlutterListViewDelegate(
                         (context, i) {
-                          dynamic e = c.getIndex(i);
+                          final dynamic e = c.getIndex(i);
                           Widget child = Container();
 
                           if (e is RxUser) {

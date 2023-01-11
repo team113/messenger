@@ -65,6 +65,7 @@ class SearchUserTile extends StatelessWidget {
           key: key,
           contact: contact,
           user: user,
+          darken: 0,
           onTap: onTap,
           selected: selected,
           subtitle: [

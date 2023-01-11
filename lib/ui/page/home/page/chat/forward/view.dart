@@ -64,8 +64,10 @@ class ChatForwardView extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints:
-          const BoxConstraints(maxWidth: double.infinity, maxHeight: 650),
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: 650,
+      ),
       mobilePadding: const EdgeInsets.all(0),
       desktopPadding: const EdgeInsets.all(0),
       child: ChatForwardView(

@@ -283,35 +283,33 @@ class MessageFieldView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (c.editedMessage.value != null)
-                      ConstrainedBox(
+                      Container(
+                        padding: const EdgeInsets.all(4),
                         constraints: BoxConstraints(
                           maxHeight: MediaQuery.of(context).size.height / 3,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Dismissible(
-                            key: Key('${c.editedMessage.value?.id}'),
-                            direction: DismissDirection.horizontal,
-                            onDismissed: (_) => c.editedMessage.value = null,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 2,
-                              ),
-                              child: WidgetButton(
-                                onPressed: () => onItemPressed
-                                    ?.call(c.editedMessage.value!.id),
-                                child: _buildMessage(
-                                  context,
-                                  c.editedMessage.value!,
-                                  c,
-                                  () => c.editedMessage.value = null,
-                                ),
+                        child: Dismissible(
+                          key: Key('${c.editedMessage.value?.id}'),
+                          direction: DismissDirection.horizontal,
+                          onDismissed: (_) => c.editedMessage.value = null,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                            ),
+                            child: WidgetButton(
+                              onPressed: () => onItemPressed
+                                  ?.call(c.editedMessage.value!.id),
+                              child: _buildMessage(
+                                context,
+                                c.editedMessage.value!,
+                                c,
+                                () => c.editedMessage.value = null,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    if (c.quotes.isNotEmpty)
+                      )
+                    else if (c.quotes.isNotEmpty)
                       ConstrainedBox(
                         constraints: BoxConstraints(
                           maxHeight: MediaQuery.of(context).size.height / 3,
@@ -334,10 +332,7 @@ class MessageFieldView extends StatelessWidget {
                             proxyDecorator: (child, _, animation) {
                               return AnimatedBuilder(
                                 animation: animation,
-                                builder: (
-                                  BuildContext context,
-                                  Widget? child,
-                                ) {
+                                builder: (_, child) {
                                   final double t = Curves.easeInOut
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
@@ -402,8 +397,8 @@ class MessageFieldView extends StatelessWidget {
                             }).toList(),
                           ),
                         ),
-                      ),
-                    if (c.replied.isNotEmpty)
+                      )
+                    else if (c.replied.isNotEmpty)
                       ConstrainedBox(
                         constraints: BoxConstraints(
                           maxHeight: MediaQuery.of(context).size.height / 3,
@@ -423,13 +418,10 @@ class MessageFieldView extends StatelessWidget {
 
                               HapticFeedback.lightImpact();
                             },
-                            proxyDecorator: (child, i, animation) {
+                            proxyDecorator: (child, _, animation) {
                               return AnimatedBuilder(
                                 animation: animation,
-                                builder: (
-                                  BuildContext context,
-                                  Widget? child,
-                                ) {
+                                builder: (_, child) {
                                   final double t = Curves.easeInOut
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
@@ -620,7 +612,7 @@ class MessageFieldView extends StatelessWidget {
 
         final List<Attachment> attachments = c.attachments
             .where((e) {
-              Attachment a = e.value;
+              final Attachment a = e.value;
               return a is ImageAttachment ||
                   (a is FileAttachment && a.isVideo) ||
                   (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
@@ -804,12 +796,11 @@ class MessageFieldView extends StatelessWidget {
                                 shape: BoxShape.circle,
                                 color: style.cardColor,
                               ),
-                              child: Center(
-                                child: SvgLoader.asset(
-                                  'assets/icons/close_primary.svg',
-                                  width: 7,
-                                  height: 7,
-                                ),
+                              alignment: Alignment.center,
+                              child: SvgLoader.asset(
+                                'assets/icons/close_primary.svg',
+                                width: 7,
+                                height: 7,
                               ),
                             ),
                           ),
@@ -973,9 +964,9 @@ class MessageFieldView extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            c.editedMessage.value != null
-                ? Expanded(
-                    child: Row(
+            Expanded(
+              child: c.editedMessage.value != null
+                  ? Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(width: 12),
@@ -1023,73 +1014,69 @@ class MessageFieldView extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
-                  )
-                : Expanded(
-                    child: FutureBuilder<RxUser?>(
-                        future: c.getUser(item.authorId),
-                        builder: (context, snapshot) {
-                          final Color color = snapshot.data?.user.value.id ==
-                                  c.me
-                              ? Theme.of(context).colorScheme.secondary
-                              : AvatarWidget.colors[
-                                  (snapshot.data?.user.value.num.val.sum() ??
-                                          3) %
-                                      AvatarWidget.colors.length];
+                    )
+                  : FutureBuilder<RxUser?>(
+                      future: c.getUser(item.authorId),
+                      builder: (context, snapshot) {
+                        final Color color = snapshot.data?.user.value.id == c.me
+                            ? Theme.of(context).colorScheme.secondary
+                            : AvatarWidget.colors[
+                                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                    AvatarWidget.colors.length];
 
-                          return Container(
-                            key: Key('Reply_${c.replied.indexOf(item)}'),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: BorderSide(width: 2, color: color),
-                              ),
+                        return Container(
+                          key: Key('Reply_${c.replied.indexOf(item)}'),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(width: 2, color: color),
                             ),
-                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                snapshot.data != null
-                                    ? Obx(() {
-                                        return Text(
-                                          snapshot.data!.user.value.name?.val ??
-                                              snapshot.data!.user.value.num.val,
-                                          style: style.boldBody
-                                              .copyWith(color: color),
-                                        );
-                                      })
-                                    : Text(
-                                        ('dot'.l10n * 3),
-                                        style: style.boldBody.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                        ),
+                          ),
+                          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              snapshot.data != null
+                                  ? Obx(() {
+                                      return Text(
+                                        snapshot.data!.user.value.name?.val ??
+                                            snapshot.data!.user.value.num.val,
+                                        style: style.boldBody
+                                            .copyWith(color: color),
+                                      );
+                                    })
+                                  : Text(
+                                      ('dot'.l10n * 3),
+                                      style: style.boldBody.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                       ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  DefaultTextStyle.merge(
-                                    maxLines: 1,
-                                    child: content,
-                                  ),
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Row(children: additional),
-                                ],
+                                    ),
+                              if (content != null) ...[
+                                const SizedBox(height: 2),
+                                DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  child: content,
+                                ),
                               ],
-                            ),
-                          );
-                        }),
-                  ),
+                              if (additional.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Row(children: additional),
+                              ],
+                            ],
+                          ),
+                        );
+                      }),
+            ),
             Obx(() {
               final Widget child;
 
               if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
                 child = WidgetButton(
                   key: const Key('CancelReplyButton'),
-                  onPressed: () => onClose.call(),
+                  onPressed: onClose,
                   child: Container(
                     width: 15,
                     height: 15,
@@ -1100,12 +1087,11 @@ class MessageFieldView extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: style.cardColor,
                       ),
-                      child: Center(
-                        child: SvgLoader.asset(
-                          'assets/icons/close_primary.svg',
-                          width: 7,
-                          height: 7,
-                        ),
+                      alignment: Alignment.center,
+                      child: SvgLoader.asset(
+                        'assets/icons/close_primary.svg',
+                        width: 7,
+                        height: 7,
                       ),
                     ),
                   ),

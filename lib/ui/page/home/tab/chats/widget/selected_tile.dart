@@ -58,13 +58,15 @@ class SelectedTile extends StatelessWidget {
   /// Indicator whether this [SelectedTile] is selected.
   final bool selected;
 
-  /// Optional subtitle [Widget]s to put into [ContactTile.subtitle].
+  /// Optional subtitle [Widget]s to put into [ContactTile.subtitle] or
+  /// [ChatTile.subtitle].
   final List<Widget> subtitle;
 
   /// Callback, called when this [SelectedTile] is pressed.
   final void Function()? onTap;
 
-  /// Amount of darkening to apply to the background of this [ContactTile].
+  /// Amount of darkening to apply to the background of [ContactTile] or
+  /// [ChatTile].
   final double darken;
 
   /// Indicator whether tap on avatar should navigate to [User]s profile or not.
@@ -100,6 +102,7 @@ class SelectedTile extends StatelessWidget {
               key: Key('Chat_${chat!.id}'),
               chat: chat,
               selected: selected,
+              subtitle: subtitle,
               onTap: onTap,
               darken: darken,
               trailing: _trailing(context),
