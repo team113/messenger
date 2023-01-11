@@ -83,6 +83,7 @@ class StatusView extends StatelessWidget {
                           state: c.status,
                           label: 'label_status'.l10n,
                           filled: true,
+                          maxLength: 25,
                           onSuffixPressed: c.status.text.isEmpty
                               ? null
                               : () {

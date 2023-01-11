@@ -886,7 +886,7 @@ abstract class UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] is muted already `until` the specified datetime (or unmuted).
+  /// [MyUser] is muted already `until` the specified [DateTime] (or unmuted).
   Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
     final variables = ToggleMyUserMuteArguments(mute: mute);
     final QueryResult result = await client.mutate(

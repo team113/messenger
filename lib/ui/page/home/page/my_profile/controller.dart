@@ -128,7 +128,7 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   @override
-  void onInit() async {
+  void onInit() {
     try {
       _jason = Jason();
       _mediaManager = _jason?.mediaManager();
