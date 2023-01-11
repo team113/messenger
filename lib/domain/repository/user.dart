@@ -69,9 +69,6 @@ abstract class AbstractUserRepository {
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].
   Future<void> unblacklistUser(UserId id);
-
-  /// Updates the locally stored [User]s dialog with the provided [chat] value.
-  void updateDialog(RxChat chat);
 }
 
 /// Unified reactive [User] entity.
@@ -90,4 +87,6 @@ abstract class RxUser {
 
   /// States that updates of this [user] are no longer required.
   void stopUpdates();
+
+  void updateDialog(RxChat? chat);
 }

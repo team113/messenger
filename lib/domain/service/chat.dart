@@ -25,7 +25,6 @@ import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
-import '../repository/user.dart';
 import '/api/backend/schema.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -35,16 +34,13 @@ import 'disposable_service.dart';
 
 /// Service responsible for [Chat]s related functionality.
 class ChatService extends DisposableService {
-  ChatService(this._chatRepository, this._authService, this._userRepository);
+  ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
   final AbstractChatRepository _chatRepository;
 
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
-
-  /// [AbstractUserRepository] to update [User]s dialog.
-  final AbstractUserRepository _userRepository;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [chats] value is fetched.
@@ -58,10 +54,7 @@ class ChatService extends DisposableService {
 
   @override
   void onInit() {
-    _chatRepository.init(
-      onMemberRemoved: _onMemberRemoved,
-      onDialogUpdated: _userRepository.updateDialog,
-    );
+    _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
   }
 

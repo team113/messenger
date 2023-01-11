@@ -26,7 +26,6 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
@@ -173,20 +172,6 @@ class UserRepository implements AbstractUserRepository {
         user.user.refresh();
       }
       rethrow;
-    }
-  }
-
-  @override
-  void updateDialog(RxChat chat) {
-    UserId userId =
-        chat.chat.value.members.firstWhere((e) => e.user.id != chat.me).user.id;
-    if (users[userId]?.dialog.value?.id != chat.id) {
-      HiveUser? hiveUser = _userLocal.get(userId);
-      users[userId]?.dialog.value = chat;
-      if (hiveUser != null && hiveUser.value.dialog == null) {
-        hiveUser.value.dialog = chat.chat.value;
-        put(hiveUser, ignoreVersion: true);
-      }
     }
   }
 

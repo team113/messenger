@@ -187,11 +187,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -265,11 +261,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -351,11 +343,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -431,11 +419,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -503,11 +487,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -589,11 +569,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 

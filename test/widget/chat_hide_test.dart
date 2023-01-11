@@ -254,7 +254,6 @@ void main() async {
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
-    Get.put(UserService(userRepository));
 
     Get.put(
       ContactService(
@@ -303,11 +302,8 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(UserService(authService, userRepository, chatRepository));
 
     Get.put(CallService(authService, chatService, callRepository));
 

@@ -232,11 +232,7 @@ void main() async {
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 
@@ -314,11 +310,7 @@ void main() async {
         me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await Future.delayed(Duration.zero);
 

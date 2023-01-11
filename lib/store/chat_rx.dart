@@ -236,10 +236,6 @@ class HiveRxChat extends RxChat {
         await Future.wait(futures);
       }
 
-      if (chat.value.isDialog) {
-        _chatRepository.updateDialog(this);
-      }
-
       status.value = RxStatus.success();
     });
   }

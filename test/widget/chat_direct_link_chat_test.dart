@@ -303,12 +303,8 @@ void main() async {
     );
 
     Get.put(ContactService(contactRepository));
-    Get.put(UserService(userRepository));
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    Get.put(UserService(authService, userRepository, chatRepository));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(

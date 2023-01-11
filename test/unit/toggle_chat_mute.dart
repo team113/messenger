@@ -166,11 +166,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.toggleChatMute(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -225,11 +221,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.toggleChatMute(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

@@ -195,11 +195,7 @@ void main() async {
       userRepository,
       sessionProvider,
     ));
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.uploadAttachment(
       LocalAttachment(
@@ -265,11 +261,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    ChatService chatService = Get.put(ChatService(
-      chatRepository,
-      authService,
-      userRepository,
-    ));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     var attachment = LocalAttachment(
       NativeFile(

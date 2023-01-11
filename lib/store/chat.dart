@@ -76,9 +76,6 @@ class ChatRepository implements AbstractChatRepository {
   /// removed from the specified [Chat].
   late final Future<void> Function(ChatId id, UserId userId) onMemberRemoved;
 
-  /// Callback, called when an [User]s dialog updated.
-  late final void Function(RxChat chat) onDialogUpdated;
-
   /// [UserId] of the currently authenticated [MyUser].
   final UserId? me;
 
@@ -131,10 +128,8 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
-    required void Function(RxChat chat) onDialogUpdated,
   }) async {
     this.onMemberRemoved = onMemberRemoved;
-    this.onDialogUpdated = onDialogUpdated;
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
@@ -685,9 +680,6 @@ class ChatRepository implements AbstractChatRepository {
       rethrow;
     }
   }
-
-  /// Updates [User.dialog] with provided [chat].
-  void updateDialog(RxChat chat) => onDialogUpdated(chat);
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

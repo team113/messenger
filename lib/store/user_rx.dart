@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/repository/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
@@ -67,6 +68,16 @@ class HiveRxUser extends RxUser {
     if (--_listeners == 0) {
       _remoteSubscription?.cancel();
       _remoteSubscription = null;
+    }
+  }
+
+  @override
+  void updateDialog(RxChat? chat) {
+    HiveUser? hiveUser = _userLocal.get(user.value.id);
+    dialog.value = chat;
+    if (hiveUser != null) {
+      hiveUser.value.dialog = chat?.chat.value;
+      _userLocal.put(hiveUser);
     }
   }
 

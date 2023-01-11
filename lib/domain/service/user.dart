@@ -20,15 +20,26 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
 class UserService extends DisposableService {
-  UserService(this._userRepository);
+  UserService(this._authService, this._userRepository, this._chatRepository);
 
   /// Repository to fetch [User]s from.
   final AbstractUserRepository _userRepository;
+
+  /// Repository to listen [AbstractChatRepository.chats].
+  final AbstractChatRepository _chatRepository;
+
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
+
+  /// Subscription for the listening changes of [AbstractChatRepository.chats].
+  late final StreamSubscription _chatsSubscription;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [users] value is fetched.
@@ -37,14 +48,27 @@ class UserService extends DisposableService {
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _authService.userId;
+
   @override
   void onInit() {
     _userRepository.init();
+    _chatsSubscription = _chatRepository.chats.changes.listen((e) {
+      if (e.value?.chat.value.isDialog == true) {
+        UserId userId = e.value!.chat.value.members
+            .firstWhere((e) => e.user.id != me)
+            .user
+            .id;
+        _userRepository.users[userId]?.updateDialog(e.value);
+      }
+    });
     super.onInit();
   }
 
   @override
   void onClose() {
+    _chatsSubscription.cancel();
     _userRepository.dispose();
     super.onClose();
   }
