@@ -19,50 +19,33 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
 
+import '/config.dart';
+import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
+import '/ui/page/home/page/my_profile/link_details/view.dart';
 import 'controller.dart';
 
+/// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
+///
+/// Intended to be displayed with the [show] method.
 class ChatsMoreView extends StatelessWidget {
   const ChatsMoreView({super.key});
 
-  /// Displays an [ChatsMoreView] wrapped in a [ModalPopup].
+  /// Displays a [ChatsMoreView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(context: context, child: const ChatsMoreView());
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    Widget header(String text) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              text,
-              style: style.systemMessageStyle
-                  .copyWith(color: Colors.black, fontSize: 18),
-            ),
-          ),
-        ),
-      );
-    }
-
     return GetBuilder(
+      key: const Key('ChatsMoreView'),
       init: ChatsMoreController(Get.find()),
       builder: (ChatsMoreController c) {
         return Column(
@@ -71,8 +54,11 @@ class ChatsMoreView extends StatelessWidget {
             ModalPopupHeader(
               header: Center(
                 child: Text(
-                  'Звуковые уведомления'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+                  'label_audio_notifications'.l10n,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(color: Colors.black, fontSize: 18),
                 ),
               ),
             ),
@@ -84,7 +70,7 @@ class ChatsMoreView extends StatelessWidget {
                   const SizedBox(height: 8),
                   _mute(context, c),
                   const SizedBox(height: 21),
-                  header('Прямая ссылка на чат с Вами'),
+                  _header(context, 'label_your_direct_link'.l10n),
                   const SizedBox(height: 4),
                   _link(context, c),
                 ],
@@ -97,10 +83,26 @@ class ChatsMoreView extends StatelessWidget {
     );
   }
 
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
+  /// Returns a styled as a header [Container] with the provided [text].
+  Widget _header(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Text(
+            text,
+            style: Theme.of(context)
+                .extension<Style>()!
+                .systemMessageStyle
+                .copyWith(color: Colors.black, fontSize: 18),
+          ),
+        ),
+      ),
+    );
+  }
 
+  /// Returns a [Switch] toggling [MyUser.muted].
   Widget _mute(BuildContext context, ChatsMoreController c) {
     return Obx(() {
       return Stack(
@@ -109,7 +111,10 @@ class ChatsMoreView extends StatelessWidget {
           IgnorePointer(
             child: ReactiveTextField(
               state: TextFieldState(
-                text: router.muted.value ? 'Отключены' : 'Включены',
+                text: (c.myUser.value?.muted == null
+                        ? 'label_enabled'
+                        : 'label_disabled')
+                    .l10n,
                 editable: false,
               ),
             ),
@@ -126,10 +131,11 @@ class ChatsMoreView extends StatelessWidget {
                     platform: TargetPlatform.macOS,
                   ),
                   child: Switch.adaptive(
+                    key: const Key('MuteMyUserSwitch'),
                     activeColor: Theme.of(context).colorScheme.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: !router.muted.value,
-                    onChanged: (m) => router.muted.toggle(),
+                    value: c.myUser.value?.muted == null,
+                    onChanged: c.isMuting.value ? null : c.toggleMute,
                   ),
                 ),
               ),
@@ -140,11 +146,8 @@ class ChatsMoreView extends StatelessWidget {
     });
   }
 
-  /// Returns [MyUser.chatDirectLink] editable field.
+  /// Returns a [MyUser.chatDirectLink] editable field.
   Widget _link(BuildContext context, ChatsMoreController c) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
     return Obx(() {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,14 +166,7 @@ class ChatsMoreView extends StatelessWidget {
                       ),
                     );
 
-                    // Clipboard.setData(
-                    //   ClipboardData(
-                    //     text:
-                    //         '${Config.origin}${Routes.chatDirectLink}/${c.myUser.value?.chatDirectLink?.slug.val}',
-                    //   ),
-                    // );
-
-                    // MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null
@@ -191,25 +187,33 @@ class ChatsMoreView extends StatelessWidget {
             child: Row(
               children: [
                 RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
+                  text: TextSpan(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.normal,
                     ),
                     children: [
                       TextSpan(
-                        text: 'Переходов: 0.',
-                        // style: TextStyle(color: Color(0xFF888888)),
-                        style: TextStyle(color: Color(0xFF888888)),
+                        text: 'label_transition_count'.l10nfmt({
+                              'count':
+                                  c.myUser.value?.chatDirectLink?.usageCount ??
+                                      0
+                            }) +
+                            'dot_space'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                      // TextSpan(
-                      //   text: 'Подробнее.',
-                      //   style: const TextStyle(color: Color(0xFF00A3FF)),
-                      //   recognizer: TapGestureRecognizer()
-                      //     ..onTap = () {
-                      //       LinkDetailsView.show(context);
-                      //     },
-                      // ),
+                      TextSpan(
+                        text: 'label_details'.l10n,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await LinkDetailsView.show(context);
+                          },
+                      ),
                     ],
                   ),
                 ),

@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -64,6 +65,9 @@ class UserController extends GetxController {
   /// - `status.isSuccess`, meaning [user] is successfully fetched.
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Temporary indicator whether the [user] is muted.
   final RxBool isMuted = RxBool(false);
@@ -246,7 +250,7 @@ class UserController extends GetxController {
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist() => _userService.unblacklistUser(id);
 
-  /// Marks the specified [ChatContact] identified by its [id] as favorited.
+  /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
       RxChatContact? contact = _contactService.contacts.values.firstWhereOrNull(
@@ -263,8 +267,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Removes the specified [ChatContact] identified by its [id] from the
-  /// favorites.
+  /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
       RxChatContact? contact =

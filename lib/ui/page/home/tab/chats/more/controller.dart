@@ -18,90 +18,37 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart'
-    show CreateChatDirectLinkException;
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
+    show CreateChatDirectLinkException, ToggleMyUserMuteException;
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
+/// Controller of a [ChatsMoreView].
 class ChatsMoreController extends GetxController {
   ChatsMoreController(this._myUserService);
-
-  final Rx<Presence?> presence = Rx(null);
-
-  late final TextFieldState status;
 
   /// [MyUser.chatDirectLink]'s copyable state.
   late final TextFieldState link;
 
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
+
+  /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  Timer? _statusTimer;
-
-  Worker? _worker;
-
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
-
-  /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
-      _myUserService.updateUserPresence(presence);
 
   @override
   void onInit() {
-    presence.value = myUser.value?.presence;
-
-    _worker = debounce(
-      presence,
-      (Presence? presence) {
-        if (myUser.value?.presence != presence && presence != null) {
-          setPresence(presence);
-        }
-      },
-      time: 250.milliseconds,
-    );
-
-    status = TextFieldState(
-      text: myUser.value?.status?.val,
-      approvable: true,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _statusTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
-            );
-            s.status.value = RxStatus.success();
-            _statusTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } catch (e) {
-            s.error.value = e.toString();
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
     link = TextFieldState(
       text: myUser.value?.chatDirectLink?.slug.val ??
           ChatDirectLinkSlug.generate(10).val,
@@ -133,7 +80,7 @@ class ChatsMoreController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            // await _myUserService.createChatDirectLink(slug!);
+            await _myUserService.createChatDirectLink(slug!);
             await Future.delayed(const Duration(seconds: 1));
             s.status.value = RxStatus.empty();
           } on CreateChatDirectLinkException catch (e) {
@@ -154,9 +101,23 @@ class ChatsMoreController extends GetxController {
     super.onInit();
   }
 
-  @override
-  void onClose() {
-    _worker?.dispose();
-    super.onClose();
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
+    }
   }
 }

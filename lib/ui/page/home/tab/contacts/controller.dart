@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -70,6 +71,14 @@ class ContactsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -161,9 +170,12 @@ class ContactsTabController extends GetxController {
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
+  Future<void> favoriteContact(
+    ChatContactId id, [
+    ChatContactPosition? position,
+  ]) async {
     try {
-      await _contactService.favoriteChatContact(id);
+      await _contactService.favoriteChatContact(id, position);
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -183,6 +195,30 @@ class ContactsTabController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reorders a [ChatContact] from the [from] position to the [to] position.
+  Future<void> reorderContact(int from, int to) async {
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.contact.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.contact.value.favoritePosition!.val * 2;
+    } else {
+      position = (favorites[to].contact.value.favoritePosition!.val +
+              favorites[to - 1].contact.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatContactId contactId = favorites[from].id;
+    favorites.insert(to, favorites.removeAt(from));
+
+    await favoriteContact(contactId, ChatContactPosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
@@ -385,8 +421,11 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Closes the [search]ing on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
-    if (e.logicalKey == LogicalKeyboardKey.escape) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
       if (search.value != null) {
         toggleSearch(false);
         return true;

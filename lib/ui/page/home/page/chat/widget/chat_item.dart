@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:path/path.dart' as p;
 
 import '../controller.dart'
@@ -55,6 +54,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item_reads.dart';
 import 'swipeable_status.dart';
@@ -488,6 +488,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// gesture is happening.
   Offset _offset = Offset.zero;
 
+  /// Total [Offset] applied to this [ChatItemWidget] by a swipe gesture.
+  Offset _totalOffset = Offset.zero;
+
   /// [Duration] to animate [_offset] changes with.
   ///
   /// Used to animate [_offset] resetting when swipe to reply gesture ends.
@@ -617,6 +620,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: SwipeableStatus(
         animation: widget.animation,
+        translate: false,
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
@@ -625,6 +629,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
+        padding: const EdgeInsets.only(bottom: 8),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1298,6 +1303,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      padding:
+          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,
@@ -1306,7 +1313,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           behavior: HitTestBehavior.translucent,
           onHorizontalDragStart: (d) {
             _draggingStarted = true;
-            _reallyDragging = false;
             setState(() => _offsetDuration = Duration.zero);
           },
           onHorizontalDragUpdate: (d) {
@@ -1322,28 +1328,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             }
 
             if (_dragging) {
-              if (_reallyDragging) {
+              // Distance [_totalOffset] should exceed in order for dragging to
+              // start.
+              const int delta = 10;
+
+              if (_totalOffset.dx > delta) {
                 _offset += d.delta;
 
-                if (_offset.dx > 30 + 10 && _offset.dx - d.delta.dx < 30 + 10) {
+                if (_offset.dx > 30 + delta &&
+                    _offset.dx - d.delta.dx < 30 + delta) {
                   HapticFeedback.selectionClick();
                   widget.onReply?.call();
                 }
-              } else {
-                _reallyOffset += d.delta;
-                _reallyDragging = _reallyOffset.dx > 10;
-              }
 
-              setState(() {});
+                setState(() {});
+              } else {
+                _totalOffset += d.delta;
+                if (_totalOffset.dx <= 0) {
+                  _dragging = false;
+                  widget.onDrag?.call(_dragging);
+                }
+              }
             }
           },
           onHorizontalDragEnd: (d) {
             if (_dragging) {
               _dragging = false;
-              _reallyDragging = false;
               _draggingStarted = false;
               _offset = Offset.zero;
-              _reallyOffset = Offset.zero;
+              _totalOffset = Offset.zero;
               _offsetDuration = 200.milliseconds;
               widget.onDrag?.call(_dragging);
               setState(() {});
@@ -1397,7 +1410,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     constraints: BoxConstraints(
                       maxWidth: min(
                         550,
-                        constraints.maxWidth * 0.84 - 20,
+                        (constraints.maxWidth +
+                                    (_fromMe ? SwipeableStatus.width : 0)) *
+                                0.84 -
+                            20,
                       ),
                     ),
                     child: Material(
@@ -1414,7 +1430,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('CopyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_copy_text_short'.l10n
+                                  ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/copy_small.svg',
@@ -1426,8 +1442,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_reply_short'.l10n
-                                  : 'btn_reply'.l10n,
+                                  ? 'btn_reply'.l10n
+                                  : 'btn_reply_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/reply.svg',
                                 height: 18,
@@ -1438,8 +1454,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('ForwardButton'),
                                 label: PlatformUtils.isMobile
-                                    ? 'btn_forward_short'.l10n
-                                    : 'btn_forward'.l10n,
+                                    ? 'btn_forward'.l10n
+                                    : 'btn_forward_message'.l10n,
                                 trailing: SvgLoader.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
@@ -1470,7 +1486,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_delete_message_short'.l10n
+                                  ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
@@ -1514,7 +1530,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Resend'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_resend_message_short'.l10n
+                                  ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/send_small.svg',
@@ -1526,7 +1542,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_delete_message_short'.l10n
+                                  ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
                               trailing: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',

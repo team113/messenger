@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -57,6 +58,9 @@ class ParticipantController extends GetxController {
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Callback, called when a [ParticipantView] this controller is bound to
   /// should be popped from the [Navigator].

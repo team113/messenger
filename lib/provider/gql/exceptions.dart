@@ -1190,6 +1190,29 @@ class UpdateUserCallCoverException
   }
 }
 
+/// Exception of `Mutation.toggleMyUserMute` described in the [code].
+class ToggleMyUserMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleMyUserMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleMyUserMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleMyUserMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleMyUserMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleMyUserMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.uploadUserGalleryItem` described in the [code].
 class UploadUserGalleryItemException
     with LocalizedExceptionMixin

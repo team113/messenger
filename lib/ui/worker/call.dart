@@ -28,11 +28,13 @@ import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -49,6 +51,7 @@ class CallWorker extends DisposableService {
     this._background,
     this._callService,
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
@@ -65,6 +68,9 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// [MyUserService] used to get [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -92,6 +98,9 @@ class CallWorker extends DisposableService {
   StreamSubscription? _onDataReceived;
 
   Timer? _repeatTimer;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -129,7 +138,7 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (calling) {
-              // play('ringing.mp3');
+              play('ringing.mp3');
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play('chinese.mp3');
               Vibration.hasVibrator().then((bool? v) {
@@ -172,7 +181,7 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification) {
+              if (showNotification && _myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
                   if (chat?.chat.value.muted == null) {
                     String? title = chat?.title.value ??
@@ -287,33 +296,35 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset) async {
-    runZonedGuarded(() async {
-      await _audioPlayer?.setAsset('assets/audio/$asset');
-      _audioPlayer?.play();
-      _playerStateSubscription =
-          _audioPlayer?.playerStateStream.listen((e) async {
-        switch (e.processingState) {
-          case ProcessingState.idle:
-          case ProcessingState.loading:
-          case ProcessingState.buffering:
-          case ProcessingState.ready:
-            break;
+    if (_myUser.value?.muted == null) {
+      runZonedGuarded(() async {
+        await _audioPlayer?.setAsset('assets/audio/$asset');
+        _audioPlayer?.play();
+        _playerStateSubscription =
+            _audioPlayer?.playerStateStream.listen((e) async {
+          switch (e.processingState) {
+            case ProcessingState.idle:
+            case ProcessingState.loading:
+            case ProcessingState.buffering:
+            case ProcessingState.ready:
+              break;
 
-          case ProcessingState.completed:
-            if (_playerStateSubscription != null) {
-              await _audioPlayer?.seek(Duration.zero);
+            case ProcessingState.completed:
               if (_playerStateSubscription != null) {
-                _audioPlayer?.play();
+                await _audioPlayer?.seek(Duration.zero);
+                if (_playerStateSubscription != null) {
+                  _audioPlayer?.play();
+                }
               }
-            }
-            break;
+              break;
+          }
+        });
+      }, (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
         }
       });
-    }, (e, _) {
-      if (!e.toString().contains('NotAllowedError')) {
-        throw e;
-      }
-    });
+    }
   }
 
   /// Stops the audio that is currently playing.

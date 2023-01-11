@@ -157,50 +157,53 @@ class IntroductionView extends StatelessWidget {
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: ListView(
-              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              children: [
-                ModalPopupHeader(
-                  onBack: c.stage.value == IntroductionViewStage.password
-                      ? () => c.stage.value = null
-                      : null,
-                  header: Center(
-                    child: Text(
-                      'label_account_created'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                children: [
+                  ModalPopupHeader(
+                    onBack: c.stage.value == IntroductionViewStage.password
+                        ? () => c.stage.value = null
+                        : null,
+                    header: Center(
+                      child: Text(
+                        'label_account_created'.l10n,
+                        style: thin?.copyWith(fontSize: 18),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: PlatformUtils.isMobile
-                      ? SharableTextField(
-                          key: const Key('NumCopyable'),
-                          text: c.num.text,
-                          label: 'label_num'.l10n,
-                          share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                          trailing: SvgLoader.asset(
-                            'assets/icons/share.svg',
-                            width: 18,
+                  const SizedBox(height: 25),
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: PlatformUtils.isMobile
+                        ? SharableTextField(
+                            key: const Key('NumCopyable'),
+                            text: c.num.text,
+                            label: 'label_num'.l10n,
+                            share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                            trailing: SvgLoader.asset(
+                              'assets/icons/share.svg',
+                              width: 18,
+                            ),
+                            style: thin,
+                          )
+                        : CopyableTextField(
+                            key: const Key('NumCopyable'),
+                            state: c.num,
+                            label: 'label_num'.l10n,
+                            copy: c.myUser.value?.num.val,
+                            style: thin?.copyWith(fontSize: 18),
                           ),
-                          style: thin,
-                        )
-                      : CopyableTextField(
-                          key: const Key('NumCopyable'),
-                          state: c.num,
-                          label: 'label_num'.l10n,
-                          copy: c.myUser.value?.num.val,
-                          style: thin?.copyWith(fontSize: 18),
-                        ),
-                ),
-                const SizedBox(height: 25),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 16),
-              ],
+                  ),
+                  const SizedBox(height: 25),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           );
         });

@@ -31,6 +31,7 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
@@ -77,6 +78,11 @@ class MyProfileController extends GetxController {
 
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
+
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
 
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
@@ -411,6 +417,26 @@ class MyProfileController extends GetxController {
 
     if (result != null && result.files.isNotEmpty) {
       _settingsRepo.setBackground(result.files.first.bytes);
+    }
+  }
+
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
     }
   }
 

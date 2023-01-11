@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
@@ -145,6 +146,9 @@ abstract class AbstractMyUserRepository {
   /// Updates or resets the [MyUser.callCover] field with the provided
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
   Future<void> updateCallCover(GalleryItemId? id);
+
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute);
 
   /// Disposes the repository.
   void dispose();

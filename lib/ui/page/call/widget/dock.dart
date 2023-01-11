@@ -36,7 +36,6 @@ class Dock<T extends Object> extends StatefulWidget {
     required this.itemBuilder,
     this.onReorder,
     this.itemWidth = 48,
-    this.itemHeight = 48,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -51,7 +50,6 @@ class Dock<T extends Object> extends StatefulWidget {
 
   /// Max width [itemBuilder] is allowed to build within.
   final double itemWidth;
-  final double itemHeight;
 
   /// Callback, called when the [items] are reordered.
   final Function(List<T>)? onReorder;
@@ -108,20 +106,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   OverlayEntry? _entry;
 
   /// Returns the width single [_DraggedItem] occupies.
-  double get _width => _items.isEmpty ||
+  double get _size => _items.isEmpty ||
           _items.first.key.currentState == null ||
           _items.first.key.currentState?.mounted == false ||
           _items.first.key.currentContext?.size == null
       ? widget.itemWidth
       : _items.first.key.currentContext!.size!.width;
-
-  /// Returns the width single [_DraggedItem] occupies.
-  double get _height => _items.isEmpty ||
-          _items.first.key.currentState == null ||
-          _items.first.key.currentState?.mounted == false ||
-          _items.first.key.currentContext?.size == null
-      ? widget.itemHeight
-      : _items.first.key.currentContext!.size!.height;
 
   @override
   void didUpdateWidget(covariant Dock<T> oldWidget) {
@@ -174,13 +164,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                 duration: _animateDuration,
                 width: _expanded == 0 && _expanded == i
                     ? _rect == null
-                        ? _width
+                        ? _size
                         : _rect!.width
                     : 0,
               ),
               if (_compressed == 0 && _compressed == i)
                 AnimatedDelayedWidth(
-                  beginWidth: _width,
+                  beginWidth: _size,
                   endWidth: 0,
                   duration: jumpDuration,
                 ),
@@ -196,8 +186,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
             Flexible(
               flex: 5,
               child: Container(
-                constraints:
-                    BoxConstraints(maxWidth: _width, maxHeight: _height),
+                constraints: BoxConstraints(maxWidth: _size, maxHeight: _size),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
@@ -287,13 +276,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               duration: _animateDuration,
               width: _expanded - 1 == i
                   ? _rect == null
-                      ? _width
+                      ? _size
                       : _rect!.width
                   : 0,
             ),
             if (_compressed - 1 == i)
               AnimatedDelayedWidth(
-                beginWidth: _width,
+                beginWidth: _size,
                 endWidth: 0,
                 duration: jumpDuration,
               ),
@@ -341,9 +330,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
       Offset dragOffset = Offset(
         item.offset.dx -
-            (_rect != null && _dragged != null ? _rect!.width : _width) / 2,
+            (_rect != null && _dragged != null ? _rect!.width : _size) / 2,
         item.offset.dy -
-            (_rect != null && _dragged != null ? _rect!.height : _height) / 2,
+            (_rect != null && _dragged != null ? _rect!.height : _size) / 2,
       );
 
       // Keep the provided [data] in the overlay for one frame.
@@ -354,8 +343,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           top: dragOffset.dy,
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: rect?.width ?? _width,
-              maxHeight: rect?.height ?? _height,
+              maxWidth: rect?.width ?? _size,
+              maxHeight: rect?.height ?? _size,
             ),
             child: widget.itemBuilder(data.item),
           ),
@@ -371,7 +360,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           begin = Rect.fromLTWH(
               dragOffset.dx, dragOffset.dy, _rect!.width, _rect!.height);
         } else {
-          begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _width, _height);
+          begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
         }
 
         // Display the appropriate sliding animation of the new item.

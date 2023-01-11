@@ -131,7 +131,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           margin:
               context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          // height: context.isMobile ? 50 : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
@@ -164,7 +163,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (context.isMobile && widget.trailing != null) ...[
+              if (PlatformUtils.isMobile && widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(

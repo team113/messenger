@@ -175,21 +175,27 @@ class RecentChatTile extends StatelessWidget {
           if (onHide != null)
             ContextMenuButton(
               key: const Key('ButtonHideChat'),
-              label: 'btn_hide_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_hide'.l10n
+                  : 'btn_hide_chat'.l10n,
               onPressed: () => _hideChat(context),
               trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
               key: const Key('MuteChatButton'),
-              label: 'btn_mute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
               onPressed: onMute,
               trailing: const Icon(Icons.notifications_off),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
               key: const Key('UnmuteChatButton'),
-              label: 'btn_unmute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_unmute'.l10n
+                  : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
               trailing: const Icon(Icons.notifications),
             ),

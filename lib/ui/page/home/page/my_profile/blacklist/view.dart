@@ -74,68 +74,72 @@ class BlacklistView extends StatelessWidget {
               }
 
               return Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  padding: ModalPopup.padding(context),
-                  itemBuilder: (context, i) {
-                    RxUser? user = c.blacklist[i];
+                child: Scrollbar(
+                  controller: c.scrollController,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: ModalPopup.padding(context),
+                    itemBuilder: (context, i) {
+                      RxUser? user = c.blacklist[i];
 
-                    return Obx(() {
-                      if (user.user.value.isBlacklisted == false) {
-                        return const SizedBox();
-                      }
+                      return Obx(() {
+                        if (user.user.value.isBlacklisted == false) {
+                          return const SizedBox();
+                        }
 
-                      return ContactTile(
-                        user: user,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          router.user(user.id, push: true);
-                        },
-                        darken: 0.03,
-                        subtitle: [
-                          const SizedBox(height: 5),
-                          Text(
-                            '28.12.2022',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 13,
-                            ),
-                          ),
-                          //   const SizedBox(height: 5),
-                          //   Text(
-                          //     'Причина: плохой человек',
-                          //     style: TextStyle(
-                          // color: Theme.of(context).colorScheme.primary,
-                          // fontSize: 13,
-                          //     ),
-                          //   ),
-                        ],
-                        trailing: [
-                          WidgetButton(
-                            onPressed: () => c.unblacklist(user),
-                            child: Text(
-                              'btn_unblock_short'.l10n,
+                        return ContactTile(
+                          user: user,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            router.user(user.id, push: true);
+                          },
+                          darken: 0.03,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            Text(
+                              '28.12.2022',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 13,
                               ),
                             ),
+                            //   const SizedBox(height: 5),
+                            //   Text(
+                            //     'Причина: плохой человек',
+                            //     style: TextStyle(
+                            // color: Theme.of(context).colorScheme.primary,
+                            // fontSize: 13,
+                            //     ),
+                            //   ),
+                          ],
+                          trailing: [
+                            WidgetButton(
+                              onPressed: () => c.unblacklist(user),
+                              child: Text(
+                                'btn_unblock_short'.l10n,
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontSize: 13,
+                                ),
+                              ),
 
-                            // child: Icon(
-                            //   Icons.remove_circle,
-                            //   color: Theme.of(context).colorScheme.secondary,
-                            // ),
-                            // child: SvgLoader.asset(
-                            //   'assets/icons/delete.svg',
-                            //   height: 14 * 1.5,
-                            // ),
-                          ),
-                          const SizedBox(width: 4),
-                        ],
-                      );
-                    });
-                  },
-                  itemCount: c.blacklist.length,
+                              // child: Icon(
+                              //   Icons.remove_circle,
+                              //   color: Theme.of(context).colorScheme.secondary,
+                              // ),
+                              // child: SvgLoader.asset(
+                              //   'assets/icons/delete.svg',
+                              //   height: 14 * 1.5,
+                              // ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        );
+                      });
+                    },
+                    itemCount: c.blacklist.length,
+                  ),
                 ),
               );
             }),

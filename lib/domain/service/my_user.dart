@@ -26,6 +26,7 @@ import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/repository/user.dart';
 import '/routes.dart';
@@ -193,6 +194,9 @@ class MyUserService extends DisposableService {
   /// [GalleryItem] from the gallery of the authenticated [MyUser].
   Future<void> updateCallCover(GalleryItemId? id) =>
       _userRepo.updateCallCover(id);
+
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async => await _userRepo.clearCache();

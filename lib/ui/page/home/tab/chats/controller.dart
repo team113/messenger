@@ -20,6 +20,7 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -82,6 +83,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
@@ -556,10 +560,16 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
-    if (e.logicalKey == LogicalKeyboardKey.escape) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
       if (searching.value) {
-        closeSearch(true);
+        closeSearch(!groupCreating.value);
+        return true;
+      } else if (groupCreating.value) {
+        closeGroupCreating();
         return true;
       }
     }

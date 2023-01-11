@@ -161,43 +161,46 @@ class UserView extends StatelessWidget {
                 ),
               ],
             ),
-            body: Obx(() {
-              return ListView(
-                key: const Key('UserColumn'),
-                children: [
-                  const SizedBox(height: 8),
-                  if (c.isBlacklisted == true)
-                    Block(
-                      title: 'Пользователь заблокирован'.l10n,
-                      children: [_blocked(c, context)],
-                    ),
-                  Block(
-                    title: 'label_public_information'.l10n,
-                    children: [
-                      AvatarWidget.fromRxUser(
-                        c.user,
-                        radius: 100,
-                        showBadge: false,
-                        quality: AvatarQuality.original,
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: Obx(() {
+                return ListView(
+                  key: const Key('UserColumn'),
+                  children: [
+                    const SizedBox(height: 8),
+                    if (c.isBlacklisted == true)
+                      Block(
+                        title: 'Пользователь заблокирован'.l10n,
+                        children: [_blocked(c, context)],
                       ),
-                      const SizedBox(height: 15),
-                      _name(c, context),
-                      _status(c, context),
-                      _presence(c, context),
-                    ],
-                  ),
-                  Block(
-                    title: 'label_contact_information'.l10n,
-                    children: [_num(c, context)],
-                  ),
-                  Block(
-                    title: 'label_actions'.l10n,
-                    children: [_actions(c, context)],
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              );
-            }),
+                    Block(
+                      title: 'label_public_information'.l10n,
+                      children: [
+                        AvatarWidget.fromRxUser(
+                          c.user,
+                          radius: 100,
+                          showBadge: false,
+                          quality: AvatarQuality.original,
+                        ),
+                        const SizedBox(height: 15),
+                        _name(c, context),
+                        _status(c, context),
+                        _presence(c, context),
+                      ],
+                    ),
+                    Block(
+                      title: 'label_contact_information'.l10n,
+                      children: [_num(c, context)],
+                    ),
+                    Block(
+                      title: 'label_actions'.l10n,
+                      children: [_actions(c, context)],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              }),
+            ),
             bottomNavigationBar: c.isBlacklisted == true
                 ? Padding(
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),

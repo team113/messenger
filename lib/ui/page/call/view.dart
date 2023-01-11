@@ -52,8 +52,8 @@ class CallView extends StatelessWidget {
           );
         }
 
-        c.isMobile = true;
-        return mobileCall(c, context);
+        // c.isMobile = true;
+        // return mobileCall(c, context);
 
         if (c.isMobile != context.isMobile) {
           c.isMobile = context.isMobile;
