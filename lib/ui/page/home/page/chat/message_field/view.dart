@@ -152,7 +152,7 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _fieldBuilder(c, style),
+                    _fieldHeader(c, style),
                     Container(
                       constraints: const BoxConstraints(minHeight: 56),
                       decoration: BoxDecoration(color: style.cardColor),
@@ -254,8 +254,8 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Returns message field.
-  Widget _fieldBuilder(MessageFieldController c, Style style) {
+  /// Returns message attachments, replies, quotes or edited message.
+  Widget _fieldHeader(MessageFieldController c, Style style) {
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
         final bool grab = c.attachments.isNotEmpty
