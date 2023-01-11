@@ -48,149 +48,147 @@ class UserView extends StatelessWidget {
       tag: id.val,
       builder: (UserController c) {
         return Obx(() {
-          if (c.status.value.isSuccess) {
+          if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: CustomAppBar(
-                title: Row(
-                  children: [
-                    Material(
-                      elevation: 6,
-                      type: MaterialType.circle,
-                      shadowColor: const Color(0x55000000),
-                      color: Colors.white,
-                      child: Center(
-                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
-                          final UserTextStatus? text =
-                              c.user?.user.value.status;
-                          final StringBuffer buffer = StringBuffer();
-
-                          if (status != null || text != null) {
-                            buffer.write(text ?? '');
-
-                            if (status != null && text != null) {
-                              buffer.write('space_vertical_space'.l10n);
-                            }
-
-                            buffer.write(status ?? '');
-                          }
-
-                          final String subtitle = buffer.toString();
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
-                              if (subtitle.isNotEmpty)
-                                Text(
-                                  subtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .caption
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                )
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                padding: const EdgeInsets.only(left: 4, right: 20),
-                leading: const [StyledBackButton()],
-                actions: [
-                  WidgetButton(
-                    onPressed: c.openChat,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
-                      ),
-                    ),
-                  ),
-                  if (!context.isNarrow) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
-                ],
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
               ),
-              body: Scrollbar(
-                controller: c.scrollController,
-                child: Obx(() {
-                  return ListView(
-                    key: const Key('UserColumn'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      Block(
-                        title: 'label_public_information'.l10n,
-                        children: [
-                          AvatarWidget.fromRxUser(
-                            c.user,
-                            radius: 100,
-                            showBadge: false,
-                          ),
-                          const SizedBox(height: 15),
-                          _name(c, context),
-                          _status(c, context),
-                          _presence(c, context),
-                        ],
-                      ),
-                      Block(
-                        title: 'label_contact_information'.l10n,
-                        children: [_num(c, context)],
-                      ),
-                      Block(
-                        title: 'label_actions'.l10n,
-                        children: [_actions(c, context)],
-                      ),
-                    ],
-                  );
-                }),
+              body: Center(
+                child: c.status.value.isEmpty
+                    ? Text('err_unknown_user'.l10n)
+                    : const CircularProgressIndicator(),
               ),
             );
           }
 
           return Scaffold(
-            appBar: const CustomAppBar(
-              padding: EdgeInsets.only(left: 4, right: 20),
-              leading: [StyledBackButton()],
+            appBar: CustomAppBar(
+              title: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: Center(
+                      child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: Obx(() {
+                        final String? status = c.user?.user.value.getStatus();
+                        final UserTextStatus? text = c.user?.user.value.status;
+                        final StringBuffer buffer = StringBuffer();
+
+                        if (status != null || text != null) {
+                          buffer.write(text ?? '');
+
+                          if (status != null && text != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(status ?? '');
+                        }
+
+                        final String subtitle = buffer.toString();
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                            if (subtitle.isNotEmpty)
+                              Text(
+                                subtitle,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                              )
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: const [StyledBackButton()],
+              actions: [
+                WidgetButton(
+                  onPressed: c.openChat,
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat.svg',
+                      width: 20.12,
+                      height: 21.62,
+                    ),
+                  ),
+                ),
+                if (!context.isNarrow) ...[
+                  const SizedBox(width: 28),
+                  WidgetButton(
+                    onPressed: () => c.call(true),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_video_call.svg',
+                      height: 17,
+                    ),
+                  ),
+                ],
+                const SizedBox(width: 28),
+                WidgetButton(
+                  onPressed: () => c.call(false),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_audio_call.svg',
+                    height: 19,
+                  ),
+                ),
+              ],
             ),
-            body: Center(
-              child: c.status.value.isEmpty
-                  ? Text('err_unknown_user'.l10n)
-                  : const CircularProgressIndicator(),
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: Obx(() {
+                return ListView(
+                  key: const Key('UserColumn'),
+                  controller: c.scrollController,
+                  children: [
+                    const SizedBox(height: 8),
+                    Block(
+                      title: 'label_public_information'.l10n,
+                      children: [
+                        AvatarWidget.fromRxUser(
+                          c.user,
+                          radius: 100,
+                          showBadge: false,
+                        ),
+                        const SizedBox(height: 15),
+                        _name(c, context),
+                        _status(c, context),
+                        _presence(c, context),
+                      ],
+                    ),
+                    Block(
+                      title: 'label_contact_information'.l10n,
+                      children: [_num(c, context)],
+                    ),
+                    Block(
+                      title: 'label_actions'.l10n,
+                      children: [_actions(c, context)],
+                    ),
+                  ],
+                );
+              }),
             ),
           );
         });
@@ -260,7 +258,8 @@ class UserView extends StatelessWidget {
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            onPressed: c.inFavorites,
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           ),
           action(
             text:
