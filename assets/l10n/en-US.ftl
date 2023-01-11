@@ -104,7 +104,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
-btn_call_remove_participant = Kick participant
+btn_call_remove_participant = Remove from call
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,7 +113,7 @@ btn_call_screen_on = Share screen
 btn_call_screen_on_desc =
     Share
     screen
-btn_call_settings = Settings
+btn_call_settings = Call settings
 btn_call_switch_camera = Switch camera
 btn_call_switch_camera_desc =
     Switch
@@ -138,6 +138,7 @@ btn_change_password = Change password
 btn_clear_chat = Clear chat
 btn_close = Close
 btn_confirm = Confirm
+btn_copy = Copy
 btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete
@@ -151,10 +152,12 @@ btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
-btn_forward = Forward message
+btn_forward = Forward
+btn_forward_message = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
+btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
@@ -164,6 +167,7 @@ btn_leave_group = Leave group
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
+btn_mute = Mute
 btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
@@ -175,20 +179,25 @@ btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
-btn_reply = Reply to message
+btn_reply = Reply
+btn_reply_message = Reply to message
 btn_report = Report
+btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
 btn_saved_messages = Saved messages
+btn_select = Select
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
 btn_unblock = Unblock
+btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -273,8 +282,8 @@ err_wrong_members_count = No more that 100 members is allowed
 err_wrong_items_count = Wrong items count
 err_wrong_old_password = Wrong password.
 err_wrong_recovery_code = Provided code is wrong.
-err_you_already_add_this_email = E-mail is already added.
-err_you_already_add_this_phone = Phone number is already added.
+err_you_already_add_this_email = Indicated E-mail has been added already.
+err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
@@ -351,7 +360,7 @@ label_attachments = [{$count} { $count ->
     }]
 label_audio_call = Audio call
 label_audio_notifications = Audio notifications
-label_away = Away
+label_away = away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
@@ -414,9 +423,9 @@ label_direct_chat_link_description =
     Users who came via a direct link to
     the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
-    - visit your profile,
-    - send you messages,
-    - make calls
+    - visit your profile;
+    - send you messages;
+    - call you.
 
     After the chat created by this link is deleted, your privacy
     settings are respected.
@@ -455,7 +464,7 @@ label_gallery = Gallery
 label_group_created = Group created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
-label_hidden = Status is hidden
+label_hidden = Last seen recently
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
@@ -493,7 +502,7 @@ label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
-label_media_output = Output
+label_media_output = Audio output
 label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
@@ -526,8 +535,8 @@ label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
-label_offline = Offline
-label_online = Online
+label_offline = offline
+label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
@@ -553,7 +562,7 @@ label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
-label_presence_hidden = Hidden
+label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information

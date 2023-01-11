@@ -1013,23 +1013,27 @@ Widget _background(BuildContext context, MyProfileController c) {
           ),
         ),
         Obx(() {
-          if (c.background.value == null) {
-            return const SizedBox();
-          }
-
           return Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Center(
-              child: WidgetButton(
-                onPressed:
-                    c.background.value == null ? null : c.removeBackground,
-                child: Text(
-                  'btn_delete'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed: c.background.value == null
+                        ? c.pickBackground
+                        : c.removeBackground,
+                    child: Text(
+                      c.background.value == null
+                          ? 'btn_upload'.l10n
+                          : 'btn_delete'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -1244,7 +1248,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'windows',
           width: 21.93,
           height: 22,
-          title: 'Windows'.l10n,
+          title: 'Windows',
           link: 'messenger-windows.zip',
         ),
         const SizedBox(height: 8),
@@ -1252,7 +1256,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'macOS'.l10n,
+          title: 'macOS',
           link: 'messenger-macos.zip',
         ),
         const SizedBox(height: 8),
@@ -1260,7 +1264,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'linux',
           width: 18.85,
           height: 22,
-          title: 'Linux'.l10n,
+          title: 'Linux',
           link: 'messenger-linux.zip',
         ),
         const SizedBox(height: 8),
@@ -1268,14 +1272,14 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'iOS'.l10n,
+          title: 'iOS',
         ),
         const SizedBox(height: 8),
         button(
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android'.l10n,
+          title: 'Android',
           link: 'messenger-android.apk',
         ),
       ],

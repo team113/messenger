@@ -207,8 +207,8 @@ class ContactsTabView extends StatelessWidget {
                 child: Scrollbar(
                   controller: c.scrollController,
                   child: ListView.builder(
-                    itemCount: c.elements.length,
                     controller: c.scrollController,
+                    itemCount: c.elements.length,
                     itemBuilder: (_, i) {
                       final ListElement element = c.elements[i];
                       final Widget child;
@@ -446,15 +446,22 @@ class ContactsTabView extends StatelessWidget {
                 key: const Key('UnfavoriteContactButton'),
                 label: 'btn_delete_from_favorites'.l10n,
                 onPressed: () => c.unfavoriteContact(contact.contact.value.id),
+                trailing: const Icon(Icons.star_border),
               )
             : ContextMenuButton(
                 key: const Key('FavoriteContactButton'),
                 label: 'btn_add_to_favorites'.l10n,
                 onPressed: () => c.favoriteContact(contact.contact.value.id),
+                trailing: const Icon(Icons.star),
               ),
         ContextMenuButton(
-          label: 'btn_delete_from_contacts'.l10n,
+          label: 'btn_delete'.l10n,
           onPressed: () => c.deleteFromContacts(contact.contact.value),
+          trailing: const Icon(Icons.delete),
+        ),
+        ContextMenuButton(
+          label: 'btn_select'.l10n,
+          trailing: const Icon(Icons.select_all),
         ),
       ],
       subtitle: [
