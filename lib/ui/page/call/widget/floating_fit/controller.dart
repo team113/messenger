@@ -113,8 +113,8 @@ class FloatingFitController extends GetxController {
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
-    if(relocateRect != null) {
-      relocateWorker = ever(relocateRect!, (Rect? rect) => relocateSecondary());
+    if (relocateRect != null) {
+      relocateWorker = ever(relocateRect!, (_) => relocateSecondary());
     }
   }
 

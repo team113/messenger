@@ -118,13 +118,13 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
             borderRadius: BorderRadius.circular(60),
             onHover: widget.hint != null
                 ? (b) {
-              if (b) {
-                _populateOverlay();
-              } else {
-                _hintEntry?.remove();
-                _hintEntry = null;
-              }
-            }
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
+                    }
+                  }
                 : null,
             onTap: widget.onPressed,
             child: widget.child ??
@@ -146,24 +146,24 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        button,
-        const SizedBox(height: 5),
-        Text(
-          widget.text!,
-          textAlign: TextAlign.center,
-          style: widget.style ??
-              context.textTheme.caption?.copyWith(
-                color: Colors.white,
-                fontSize: 13,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              button,
+              const SizedBox(height: 5),
+              Text(
+                widget.text!,
+                textAlign: TextAlign.center,
+                style: widget.style ??
+                    context.textTheme.caption?.copyWith(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                maxLines: 2,
               ),
-          maxLines: 2,
-        ),
-      ],
-    );
+            ],
+          );
   }
 
   /// Populates the [_hintEntry].

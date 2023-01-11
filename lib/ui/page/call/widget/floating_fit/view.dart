@@ -129,7 +129,6 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     return GetBuilder(
       init: FloatingFitController(relocateRect: widget.relocateRect),
       builder: (FloatingFitController c) {
-
         return IgnorePointer(
           ignoring: _locked != 0,
           child: LayoutBuilder(builder: (context, constraints) {
@@ -242,10 +241,12 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: ClipRRect(
                 key: const Key('SecondaryView'),
                 borderRadius: BorderRadius.circular(10),
-                child: _panelled.entry == null ? KeyedSubtree(
-                  key: _panelled.itemKey,
-                  child: widget.itemBuilder(_panelled.item),
-                ) : null,
+                child: _panelled.entry == null
+                    ? KeyedSubtree(
+                        key: _panelled.itemKey,
+                        child: widget.itemBuilder(_panelled.item),
+                      )
+                    : null,
               ),
             ),
           ),
