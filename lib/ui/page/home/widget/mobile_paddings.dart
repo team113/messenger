@@ -51,11 +51,15 @@ class MobilePaddings extends StatelessWidget {
             bottom: bottomPadding ?? CustomNavigationBar.height + 5,
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.only(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+          ),
+          margin: EdgeInsets.only(
             top: _mediaQuery.padding.top + 5,
             bottom: _mediaQuery.padding.bottom - CustomNavigationBar.height,
           ),
+          clipBehavior: Clip.hardEdge,
           child: child,
         ),
       );
