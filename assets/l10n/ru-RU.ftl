@@ -372,6 +372,7 @@ label_biography_hint = Несколько слов о Вас
 label_blocked_users = Заблокированные пользователи
 label_call_active = Активный звонок
 label_call_calling = Звоним
+label_call_connecting = Подготовка соединения
 label_call_joining = Подключение
 label_call_permissions_description =
     Необходим для отображения звонков напрямую в телефоне

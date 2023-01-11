@@ -27,6 +27,8 @@ import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/fit_view.dart';
+import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
@@ -40,6 +42,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -68,6 +71,47 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
+          if (c.primary.length == 1 && c.secondary.length == 1) {
+            return FloatingFit<Participant>(
+              items: c.primary,
+              panel: c.secondary.first,
+              showPanel: c.minimized.isFalse,
+              relocateRect: c.dockRect,
+              itemBuilder: (e) {
+                return Obx(() {
+                  final bool muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : e.audio.value?.isMuted.value ?? false;
+
+                  final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                      c.primaryDrags.value != 0 ||
+                      c.secondaryDragged.value;
+
+                  final bool isHovered =
+                      c.hoveredRenderer.value == e && !anyDragIsHappening;
+
+                  return Stack(
+                    children: [
+                      const ParticipantDecoratorWidget(),
+                      IgnorePointer(
+                        child: ParticipantWidget(
+                          e,
+                          offstageUntilDetermined: true,
+                        ),
+                      ),
+                      ParticipantOverlayWidget(
+                        e,
+                        muted: muted,
+                        hovered: isHovered,
+                        preferBackdrop: !c.minimized.value,
+                      ),
+                    ],
+                  );
+                });
+              },
+            );
+          }
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
             center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
@@ -150,13 +194,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                           height: 40,
                           child: Obx(() {
-                            bool isOutgoing = (c.outgoing ||
-                                    c.state.value == OngoingCallState.local) &&
-                                !c.started;
                             bool withDots = c.state.value !=
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
+                            bool isDialog =
+                                c.chat.value?.chat.value.isDialog == true;
+
                             String state =
                                 c.state.value == OngoingCallState.active
                                     ? c.duration.value
@@ -167,7 +211,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     : c.state.value == OngoingCallState.joining
                                         ? 'label_call_joining'.l10n
                                         : isOutgoing
-                                            ? 'label_call_calling'.l10n
+                                            ? isDialog
+                                                ? 'label_call_calling'.l10n
+                                                : 'label_call_connecting'.l10n
                                             : c.withVideo == true
                                                 ? 'label_video_call'.l10n
                                                 : 'label_audio_call'.l10n;
@@ -317,6 +363,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           );
         }),
       ),
+
       // Sliding from the bottom buttons panel.
       Obx(() {
         bool showUi =
@@ -460,8 +507,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
-                  listener: () =>
-                      Future.delayed(Duration.zero, c.relocateSecondary),
+                  listener: () => Future.delayed(
+                    Duration.zero,
+                    () => c.dockRect.value = c.dockKey.globalPaintBounds,
+                  ),
                   child: MediaQuery(
                     data: MediaQuery.of(context).copyWith(size: c.size),
                     child: SlidingUpPanel(
@@ -506,7 +555,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
-                        c.relocateSecondary();
+                        c.dockRect.value = c.dockKey.globalPaintBounds;
                       },
                       onPanelOpened: () {
                         c.keepUi(true);
@@ -548,10 +597,14 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
-                                    padding(AcceptAudioButton(c)
-                                        .build(expanded: true)),
-                                    padding(AcceptVideoButton(c)
-                                        .build(expanded: true)),
+                                    padding(AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ).build(expanded: true)),
+                                    padding(AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ).build(expanded: true)),
                                     padding(
                                         DeclineButton(c).build(expanded: true)),
                                   ],
