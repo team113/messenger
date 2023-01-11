@@ -120,8 +120,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
+          - ios
           - linux
           - macos
           - web
