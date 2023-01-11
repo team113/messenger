@@ -358,13 +358,17 @@ class ChatsTabController extends GetxController {
   /// takes part in an [OngoingCall] in a [Chat] identified by the provided
   /// [id].
   bool inCall(ChatId id) {
+    if (WebUtils.containsCall(id)) {
+      return true;
+    }
+
     final Rx<OngoingCall>? call = _callService.calls[id];
     if (call != null) {
       return call.value.state.value == OngoingCallState.active ||
           call.value.state.value == OngoingCallState.joining;
     }
 
-    return WebUtils.containsCall(id);
+    return false;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.

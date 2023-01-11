@@ -145,6 +145,8 @@ class CallService extends DisposableService {
       call.value.dispose();
     }
 
+    deviceId ??= WebUtils.getCall(chatId)?.deviceId;
+
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
     } else {
