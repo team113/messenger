@@ -207,8 +207,8 @@ class ContactsTabView extends StatelessWidget {
                 child: Scrollbar(
                   controller: c.scrollController,
                   child: ListView.builder(
-                    itemCount: c.elements.length,
                     controller: c.scrollController,
+                    itemCount: c.elements.length,
                     itemBuilder: (_, i) {
                       final ListElement element = c.elements[i];
                       final Widget child;

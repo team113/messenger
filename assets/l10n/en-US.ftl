@@ -197,6 +197,7 @@ btn_submit = Submit
 btn_unblock = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile

@@ -197,6 +197,7 @@ btn_submit = Применить
 btn_unblock = Разблокировать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
+btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
