@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/application_settings.dart';
@@ -457,6 +458,11 @@ class CallController extends GetxController {
   /// Indicator whether the inbound audio in the current [OngoingCall] is
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
+
+  PreciseDateTime get startedAt =>
+      _currentCall.value.call.value?.conversationStartedAt ??
+      _currentCall.value.call.value?.at ??
+      PreciseDateTime.now();
 
   /// Constructs the arguments to pass to [L10nExtension.l10nfmt] to get the
   /// title of this [OngoingCall].
@@ -1967,6 +1973,7 @@ class Participant {
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
   final GlobalKey redialingKey = GlobalKey();
+  final GlobalKey containerKey = GlobalKey();
 
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>

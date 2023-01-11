@@ -22,9 +22,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/widget/animated_cliprrect.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/page/home/page/chat/view.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -145,11 +147,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                       ContextMenuButton(
                         label: 'btn_call_uncenter'.l10n,
                         onPressed: c.focusAll,
+                        trailing: const Icon(Icons.center_focus_weak),
                       )
                     else
                       ContextMenuButton(
                         label: 'btn_call_center'.l10n,
                         onPressed: () => c.center(e),
+                        trailing: const Icon(Icons.center_focus_strong),
                       ),
                     if (e.member.id != c.me.id) ...[
                       if (e.video.value?.direction.value.isEmitting ?? false)
@@ -158,6 +162,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? 'btn_call_disable_video'.l10n
                               : 'btn_call_enable_video'.l10n,
                           onPressed: () => c.toggleVideoEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.videocam)
+                              : const Icon(Icons.videocam_off),
                         ),
                       if (e.audio.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -166,10 +173,14 @@ Widget mobileCall(CallController c, BuildContext context) {
                                   ? 'btn_call_disable_audio'.l10n
                                   : 'btn_call_enable_audio'.l10n,
                           onPressed: () => c.toggleAudioEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.volume_up)
+                              : const Icon(Icons.volume_off),
                         ),
                       ContextMenuButton(
                         label: 'btn_call_remove_participant'.l10n,
                         onPressed: () {},
+                        trailing: const Icon(Icons.remove_circle),
                       ),
                     ] else ...[
                       ContextMenuButton(
@@ -177,12 +188,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ? 'btn_call_video_off'.l10n
                             : 'btn_call_video_on'.l10n,
                         onPressed: c.toggleVideo,
+                        trailing: c.videoState.value.isEnabled
+                            ? const Icon(Icons.videocam)
+                            : const Icon(Icons.videocam_off),
                       ),
                       ContextMenuButton(
                         label: c.audioState.value.isEnabled
                             ? 'btn_call_audio_off'.l10n
                             : 'btn_call_audio_on'.l10n,
                         onPressed: c.toggleAudio,
+                        trailing: e.video.value?.renderer.value != null
+                            ? const Icon(Icons.mic)
+                            : const Icon(Icons.mic_off),
                       ),
                     ],
                   ],
@@ -204,7 +221,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         ParticipantOverlayWidget(
                           e,
                           muted: muted,
-                          hovered: isHovered,
+                          hovered: isHovered || menu,
                           preferBackdrop: !c.minimized.value,
                         ),
                       ],
@@ -217,14 +234,26 @@ Widget mobileCall(CallController c, BuildContext context) {
                       return stack;
                     }
 
-                    return AnimatedContainer(
+                    return AnimatedClipRRect(
                       key: Key(e.member.id.toString()),
-                      duration: 200.milliseconds,
-                      width:
-                          menu ? MediaQuery.of(context).size.width - 20 : null,
-                      height:
-                          menu ? MediaQuery.of(context).size.height / 2 : null,
-                      child: stack,
+                      duration: 250.milliseconds,
+                      borderRadius:
+                          menu ? BorderRadius.circular(10) : BorderRadius.zero,
+                      child: AnimatedContainer(
+                        duration: 200.milliseconds,
+                        decoration: BoxDecoration(
+                          color: menu
+                              ? const Color.fromARGB(255, 19, 33, 49)
+                              : const Color.fromARGB(0, 19, 33, 49),
+                        ),
+                        width: menu
+                            ? MediaQuery.of(context).size.width - 20
+                            : null,
+                        height: menu
+                            ? MediaQuery.of(context).size.height / 2
+                            : null,
+                        child: stack,
+                      ),
                     );
 
                     return UnconstrainedBox(
@@ -1048,12 +1077,34 @@ Widget _chat(BuildContext context, CallController c) {
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
+                            Text(
+                              c.duration.value.hhMmSs(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  ?.copyWith(color: Colors.white),
+                            ),
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 3),
+                          padding: const EdgeInsets.only(top: 5),
                           child: Row(
                             children: [
+                              Text(
+                                c.chat.value?.members.values
+                                        .firstWhereOrNull(
+                                            (e) => e.id != c.me.id.userId)
+                                        ?.user
+                                        .value
+                                        .status
+                                        ?.val ??
+                                    'online',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(color: Colors.white),
+                              ),
+                              const Spacer(),
                               Text(
                                 'label_a_of_b'.l10nfmt({
                                   'a': '${actualMembers.length}',
@@ -1064,22 +1115,24 @@ Widget _chat(BuildContext context, CallController c) {
                                     .subtitle2
                                     ?.copyWith(color: Colors.white),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                width: 1,
-                                height: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .subtitle2
-                                    ?.color,
-                              ),
-                              Text(
-                                c.duration.value.hhMmSs(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .subtitle2
-                                    ?.copyWith(color: Colors.white),
-                              ),
+                              // const Spacer(),
+                              // Container(
+                              //   margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              //   width: 1,
+                              //   height: 12,
+                              //   color: Theme.of(context)
+                              //       .textTheme
+                              //       .subtitle2
+                              //       ?.color,
+                              // ),
+                              // Text(
+                              //   c.startedAt.val.toRelative(),
+                              //   // c.duration.value.hhMmSs(),
+                              //   style: Theme.of(context)
+                              //       .textTheme
+                              //       .subtitle2
+                              //       ?.copyWith(color: Colors.white),
+                              // ),
                             ],
                           ),
                         ),

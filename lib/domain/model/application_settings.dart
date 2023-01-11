@@ -30,6 +30,8 @@ class ApplicationSettings extends HiveObject {
     this.showIntroduction,
     this.sideBarWidth,
     this.sortContactsByName = true,
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
     this.callButtons = const [],
   });
 

@@ -387,7 +387,7 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      double badgeSize = max(5, maxWidth / 12);
+      double badgeSize = max(5, maxWidth / 10);
       if (maxWidth < 40) {
         badgeSize = maxWidth / 8;
       }
@@ -421,17 +421,17 @@ class AvatarWidget extends StatelessWidget {
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
-        padding: EdgeInsets.all(badgeSize / 3),
+        padding: EdgeInsets.all(badgeSize / 8),
         badgeColor: Colors.white,
         toAnimate: false,
-        position: BadgePosition.bottomEnd(
-          bottom: -badgeSize / 5,
-          end: -badgeSize / 5,
-        ),
         // position: BadgePosition.bottomEnd(
-        //   bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
-        //   end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+        //   bottom: -badgeSize / 5 + 2,
+        //   end: -badgeSize / 5 + 2,
         // ),
+        position: BadgePosition.bottomEnd(
+          bottom: maxWidth >= 40 ? badgeSize / 4 + 0 : -badgeSize / 5,
+          end: maxWidth >= 40 ? badgeSize / 4 + 0 : -badgeSize / 5,
+        ),
         elevation: 0,
         child: Container(
           constraints: BoxConstraints(
