@@ -30,6 +30,7 @@ class MobilePaddings extends StatelessWidget {
     required BuildContext context,
     required this.child,
     this.bottomPadding,
+    this.borderRadius,
   }) : _mediaQuery = context.mediaQuery;
 
   /// Child of this widget.
@@ -37,6 +38,9 @@ class MobilePaddings extends StatelessWidget {
 
   /// Specified bottom padding.
   final double? bottomPadding;
+
+  /// [BorderRadiusGeometry] of this widget.
+  final BorderRadiusGeometry? borderRadius;
 
   /// [MediaQueryData] of parent widget.
   late final MediaQueryData _mediaQuery;
@@ -53,7 +57,7 @@ class MobilePaddings extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40),
+            borderRadius: borderRadius ?? BorderRadius.circular(40),
           ),
           margin: EdgeInsets.only(
             top: _mediaQuery.padding.top + 5,

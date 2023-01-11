@@ -249,6 +249,9 @@ class ChatsTabView extends StatelessWidget {
                       } else {
                         child = MobilePaddings(
                           bottomPadding: 0,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(40),
+                          ),
                           context: context,
                           child: Scrollbar(
                             controller: c.search.value!.controller,
