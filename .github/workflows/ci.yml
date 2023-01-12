@@ -176,6 +176,7 @@ jobs:
       - run: mkdir artifacts/
       - run: mv build/app/outputs/flutter-apk/app-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android.apk
+        if: ${{ matrix.platform == 'apk' }}
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
