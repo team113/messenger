@@ -314,8 +314,7 @@ class FloatingFitController extends GetxController {
     if (height != floatingHeight.value) {
       double heightDifference = height - floatingHeight.value;
       floatingHeight.value = height;
-      floatingTop.value =
-          _applyFTop(floatingTop.value! - heightDifference / 2);
+      floatingTop.value = _applyFTop(floatingTop.value! - heightDifference / 2);
       floatingPanningOffset =
           floatingPanningOffset?.translate(0, heightDifference / 2);
     }

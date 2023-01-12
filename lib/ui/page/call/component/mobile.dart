@@ -27,7 +27,6 @@ import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/fit_view.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
@@ -79,17 +78,17 @@ Widget mobileCall(CallController c, BuildContext context) {
               relocateRect: c.dockRect,
               onManipulating: (bool m) => c.secondaryManipulated.value = m,
               itemBuilder: (e) {
-                  return Stack(
-                    children: [
-                      const ParticipantDecoratorWidget(),
-                      IgnorePointer(
-                        child: ParticipantWidget(
-                          e,
-                          offstageUntilDetermined: true,
-                        ),
+                return Stack(
+                  children: [
+                    const ParticipantDecoratorWidget(),
+                    IgnorePointer(
+                      child: ParticipantWidget(
+                        e,
+                        offstageUntilDetermined: true,
                       ),
-                    ],
-                  );
+                    ),
+                  ],
+                );
               },
               itemDecorationBuilder: (e) {
                 return Obx(() {
