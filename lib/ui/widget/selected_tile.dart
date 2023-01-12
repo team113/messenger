@@ -16,13 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/routes.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/widget_button.dart';
@@ -101,7 +101,7 @@ class SelectedTile extends StatelessWidget {
     );
   }
 
-  /// Returns trailing selected indicator.
+  /// Returns an animated [CircleAvatar] representing selection circle.
   List<Widget> _trailing(BuildContext context) {
     return [
       if (myUser == null)

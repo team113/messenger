@@ -95,11 +95,6 @@ class MessageFieldController extends GetxController {
       ),
     );
 
-    if (edited.value != null && edited.value is ChatMessage) {
-      field.text = (edited.value! as ChatMessage).text?.val ?? '';
-      field.focus.requestFocus();
-    }
-
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
     _editedWorker ??= ever(edited, (_) => onChanged?.call());
@@ -148,13 +143,13 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// Worker capturing any [replied] changes.
+  /// Worker reacting on the [replied] changes.
   Worker? _repliesWorker;
 
-  /// Worker capturing any [attachments] changes.
+  /// Worker reacting on the [attachments] changes.
   Worker? _attachmentsWorker;
 
-  /// Worker capturing any [replied] changes.
+  /// Worker reacting on the [edited] changes.
   Worker? _editedWorker;
 
   /// Returns [MyUser]'s [UserId].
