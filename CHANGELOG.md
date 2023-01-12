@@ -66,7 +66,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])
     - Redesigned scrollbar. ([#276], [#262])
-- Android:
+- Mobile:
      - Transparent system bars. ([#211], [#208])
 
 ### Fixed
