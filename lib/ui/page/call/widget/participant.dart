@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
@@ -403,6 +404,26 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
                 if (participant.member.isConnected.value) {
                   child = Container();
+                } else if (participant.member.isRedialing.value) {
+                  child = Container(
+                    key: Key(
+                      'ParticipantRedialing_${participant.member.id}',
+                    ),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.black.withOpacity(0.4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(21.0),
+                      child: Center(
+                        child: SpinKitDoubleBounce(
+                          key: participant.redialingKey,
+                          color: const Color(0xFFEEEEEE),
+                          size: 100 / 1.5,
+                          duration: const Duration(milliseconds: 4500),
+                        ),
+                      ),
+                    ),
+                  );
                 } else {
                   child = Container(
                     key: Key('ParticipantConnecting_${participant.member.id}'),

@@ -75,6 +75,7 @@ dependencies:
   platform_detect: ^2.0.7
   rive: ^0.9.1
   sentry_flutter: ^6.9.1
+  flutter_spinkit: ^5.1.0
   share_plus: ^4.0.10+1
   sliding_up_panel: ^2.0.0+1
   toml: ^0.13.1
@@ -85,6 +86,7 @@ dependencies:
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.7
+  loading_indicator: ^3.1.0
 
 dev_dependencies:
   artemis: ^7.9.0-beta
