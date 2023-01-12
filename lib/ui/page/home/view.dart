@@ -33,6 +33,7 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
+import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/menu/status/view.dart';
@@ -205,12 +206,30 @@ class _HomeViewState extends State<HomeView> {
                                 badge: c.unreadChatsCount.value == 0
                                     ? null
                                     : '${c.unreadChatsCount.value}',
-                                child: tab(
-                                  tab: HomeTab.chats,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/chats.svg',
-                                    width: 36.06,
-                                    height: 30,
+                                badgeColor: c.myUser.value?.muted != null
+                                    ? const Color(0xFFC0C0C0)
+                                    : Colors.red,
+                                child: RmbDetector(
+                                  onPressed: () => ChatsMoreView.show(context),
+                                  child: tab(
+                                    tab: HomeTab.chats,
+                                    child: Obx(() {
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: SvgLoader.asset(
+                                          c.myUser.value?.muted != null
+                                              ? 'assets/icons/chats_muted.svg'
+                                              : 'assets/icons/chats.svg',
+                                          key: Key(
+                                            c.myUser.value?.muted != null
+                                                ? 'Muted'
+                                                : 'Unmuted',
+                                          ),
+                                          width: 36.06,
+                                          height: 30,
+                                        ),
+                                      );
+                                    }),
                                   ),
                                 ),
                               ),

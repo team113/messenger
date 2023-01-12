@@ -72,47 +72,51 @@ class BlacklistView extends StatelessWidget {
                 )
               else
                 Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: ModalPopup.padding(context),
-                    itemBuilder: (context, i) {
-                      RxUser? user = c.blacklist[i];
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: ModalPopup.padding(context),
+                      itemBuilder: (context, i) {
+                        RxUser? user = c.blacklist[i];
 
-                      return ContactTile(
-                        user: user,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          router.user(user.id, push: true);
-                        },
-                        darken: 0.03,
-                        subtitle: [
-                          const SizedBox(height: 5),
-                          Placeholder(
-                            child: Text(
-                              '28.12.2022',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 13,
+                        return ContactTile(
+                          user: user,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            router.user(user.id, push: true);
+                          },
+                          darken: 0.03,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            Placeholder(
+                              child: Text(
+                                '28.12.2022',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                        trailing: [
-                          WidgetButton(
-                            onPressed: () => c.unblacklist(user),
-                            child: Text(
-                              'btn_unblock_short'.l10n,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontSize: 13,
+                          ],
+                          trailing: [
+                            WidgetButton(
+                              onPressed: () => c.unblacklist(user),
+                              child: Text(
+                                'btn_unblock_short'.l10n,
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                        ],
-                      );
-                    },
-                    itemCount: c.blacklist.length,
+                            const SizedBox(width: 4),
+                          ],
+                        );
+                      },
+                      itemCount: c.blacklist.length,
+                    ),
                   ),
                 ),
               const SizedBox(height: 8),

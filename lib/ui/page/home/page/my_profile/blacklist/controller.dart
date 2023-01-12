@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -34,6 +35,9 @@ class BlacklistController extends GetxController {
   /// Callback, called when a [BlacklistView] this controller is bound to should
   /// be popped from the [Navigator].
   final void Function()? pop;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUserService] maintaining the blacklisted [User]s.
   final MyUserService _myUserService;

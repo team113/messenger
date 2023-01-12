@@ -78,138 +78,142 @@ class CallSettingsView extends StatelessWidget {
       builder: (CallSettingsController c) {
         return Stack(
           children: [
-            ListView(
-              shrinkWrap: true,
-              children: [
-                const SizedBox(height: 12),
-                header('label_media'.l10n),
-                _dense(
-                  context,
-                  WidgetButton(
-                    onPressed: () async {
-                      await CameraSwitchView.show(
-                        context,
-                        onChanged: (device) => c.setVideoDevice(device),
-                        camera: c.camera.value,
-                      );
+            Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                shrinkWrap: true,
+                children: [
+                  const SizedBox(height: 12),
+                  header('label_media'.l10n),
+                  _dense(
+                    context,
+                    WidgetButton(
+                      onPressed: () async {
+                        await CameraSwitchView.show(
+                          context,
+                          onChanged: (device) => c.setVideoDevice(device),
+                          camera: c.camera.value,
+                        );
 
-                      if (c.devices.video().isEmpty) {
-                        await c.enumerateDevices();
-                      }
-                    },
-                    child: IgnorePointer(
-                      child: Obx(() {
-                        return ReactiveTextField(
-                          label: 'label_media_camera'.l10n,
+                        if (c.devices.video().isEmpty) {
+                          await c.enumerateDevices();
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: Obx(() {
+                          return ReactiveTextField(
+                            label: 'label_media_camera'.l10n,
+                            state: TextFieldState(
+                              text: (c.devices.video().firstWhereOrNull((e) =>
+                                              e.deviceId() == c.camera.value) ??
+                                          c.devices.video().firstOrNull)
+                                      ?.label() ??
+                                  'label_media_no_device_available'.l10n,
+                              editable: false,
+                            ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _dense(
+                    context,
+                    WidgetButton(
+                      onPressed: () async {
+                        await MicrophoneSwitchView.show(
+                          context,
+                          onChanged: (device) => c.setAudioDevice(device),
+                          mic: c.mic.value,
+                        );
+
+                        if (c.devices.audio().isEmpty) {
+                          await c.enumerateDevices();
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: Obx(() {
+                          return ReactiveTextField(
+                            label: 'label_media_microphone'.l10n,
+                            state: TextFieldState(
+                              text: (c.devices.audio().firstWhereOrNull((e) =>
+                                              e.deviceId() == c.mic.value) ??
+                                          c.devices.audio().firstOrNull)
+                                      ?.label() ??
+                                  'label_media_no_device_available'.l10n,
+                              editable: false,
+                            ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _dense(
+                    context,
+                    WidgetButton(
+                      onPressed: () async {
+                        await OutputSwitchView.show(
+                          context,
+                          onChanged: (device) => c.setOutputDevice(device),
+                          output: c.output.value,
+                        );
+
+                        if (c.devices.output().isEmpty) {
+                          await c.enumerateDevices();
+                        }
+                      },
+                      child: IgnorePointer(
+                        child: Obx(() {
+                          return ReactiveTextField(
+                            label: 'label_media_output'.l10n,
+                            state: TextFieldState(
+                              text: (c.devices.output().firstWhereOrNull((e) =>
+                                              e.deviceId() == c.output.value) ??
+                                          c.devices.output().firstOrNull)
+                                      ?.label() ??
+                                  'label_media_no_device_available'.l10n,
+                              editable: false,
+                            ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  header('label_calls'.l10n),
+                  _dense(
+                    context,
+                    WidgetButton(
+                      onPressed: () => CallWindowSwitchView.show(context),
+                      child: IgnorePointer(
+                        child: ReactiveTextField(
                           state: TextFieldState(
-                            text: (c.devices.video().firstWhereOrNull((e) =>
-                                            e.deviceId() == c.camera.value) ??
-                                        c.devices.video().firstOrNull)
-                                    ?.label() ??
-                                'label_media_no_device_available'.l10n,
-                            editable: false,
+                            text: (c.settings.value?.enablePopups ?? true)
+                                ? 'label_open_calls_in_window'.l10n
+                                : 'label_open_calls_in_app'.l10n,
                           ),
+                          maxLines: null,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.secondary,
                           ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _dense(
-                  context,
-                  WidgetButton(
-                    onPressed: () async {
-                      await MicrophoneSwitchView.show(
-                        context,
-                        onChanged: (device) => c.setAudioDevice(device),
-                        mic: c.mic.value,
-                      );
-
-                      if (c.devices.audio().isEmpty) {
-                        await c.enumerateDevices();
-                      }
-                    },
-                    child: IgnorePointer(
-                      child: Obx(() {
-                        return ReactiveTextField(
-                          label: 'label_media_microphone'.l10n,
-                          state: TextFieldState(
-                            text: (c.devices.audio().firstWhereOrNull((e) =>
-                                            e.deviceId() == c.mic.value) ??
-                                        c.devices.audio().firstOrNull)
-                                    ?.label() ??
-                                'label_media_no_device_available'.l10n,
-                            editable: false,
-                          ),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _dense(
-                  context,
-                  WidgetButton(
-                    onPressed: () async {
-                      await OutputSwitchView.show(
-                        context,
-                        onChanged: (device) => c.setOutputDevice(device),
-                        output: c.output.value,
-                      );
-
-                      if (c.devices.output().isEmpty) {
-                        await c.enumerateDevices();
-                      }
-                    },
-                    child: IgnorePointer(
-                      child: Obx(() {
-                        return ReactiveTextField(
-                          label: 'label_media_output'.l10n,
-                          state: TextFieldState(
-                            text: (c.devices.output().firstWhereOrNull((e) =>
-                                            e.deviceId() == c.output.value) ??
-                                        c.devices.output().firstOrNull)
-                                    ?.label() ??
-                                'label_media_no_device_available'.l10n,
-                            editable: false,
-                          ),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                header('label_calls'.l10n),
-                _dense(
-                  context,
-                  WidgetButton(
-                    onPressed: () => CallWindowSwitchView.show(context),
-                    child: IgnorePointer(
-                      child: ReactiveTextField(
-                        state: TextFieldState(
-                          text: (c.settings.value?.enablePopups ?? true)
-                              ? 'label_open_calls_in_window'.l10n
-                              : 'label_open_calls_in_app'.l10n,
-                        ),
-                        maxLines: null,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
             const ModalPopupHeader(),
           ],

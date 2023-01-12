@@ -189,32 +189,36 @@ class ChatInfoView extends StatelessWidget {
                 ],
               ],
             ),
-            body: ListView(
-              key: const Key('ChatInfoListView'),
-              children: [
-                const SizedBox(height: 8),
-                Block(
-                  title: 'label_public_information'.l10n,
-                  children: [
-                    _avatar(c, context),
-                    const SizedBox(height: 15),
-                    _name(c, context),
-                  ],
-                ),
-                Block(
-                  title: 'label_chat_members'.l10n,
-                  children: [_members(c, context)],
-                ),
-                Block(
-                  title: 'label_direct_chat_link'.l10n,
-                  children: [_link(c, context)],
-                ),
-                Block(
-                  title: 'label_actions'.l10n,
-                  children: [_actions(c, context)],
-                ),
-                const SizedBox(height: 8),
-              ],
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                key: const Key('ChatInfoListView'),
+                children: [
+                  const SizedBox(height: 8),
+                  Block(
+                    title: 'label_public_information'.l10n,
+                    children: [
+                      _avatar(c, context),
+                      const SizedBox(height: 15),
+                      _name(c, context),
+                    ],
+                  ),
+                  Block(
+                    title: 'label_chat_members'.l10n,
+                    children: [_members(c, context)],
+                  ),
+                  Block(
+                    title: 'label_direct_chat_link'.l10n,
+                    children: [_link(c, context)],
+                  ),
+                  Block(
+                    title: 'label_actions'.l10n,
+                    children: [_actions(c, context)],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           );
         });

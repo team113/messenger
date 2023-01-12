@@ -18,6 +18,8 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -71,6 +73,9 @@ class ContactsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -127,6 +132,8 @@ class ContactsTabController extends GetxController {
       u.stopUpdates();
     }
 
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+
     super.onInit();
   }
 
@@ -140,6 +147,9 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
+
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+
     super.onClose();
   }
 
@@ -417,5 +427,19 @@ class ContactsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
     }
+  }
+
+  /// Closes the [search]ing on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (search.value != null) {
+        toggleSearch(false);
+        return true;
+      }
+    }
+
+    return false;
   }
 }

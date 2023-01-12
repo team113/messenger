@@ -23,6 +23,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -470,6 +471,24 @@ class MyUserRepository implements AbstractMyUserRepository {
       if (id == null) {
         myUser.update((u) => u?.avatar = avatar);
       }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> toggleMute(MuteDuration? mute) async {
+    final MuteDuration? muted = myUser.value?.muted;
+
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
+
+    myUser.update((u) => u?.muted = muting?.toModel());
+
+    try {
+      await _graphQlProvider.toggleMyUserMute(muting);
+    } catch (e) {
+      myUser.update((u) => u?.muted = muted);
       rethrow;
     }
   }
