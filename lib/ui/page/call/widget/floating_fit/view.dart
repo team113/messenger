@@ -34,7 +34,7 @@ class FloatingFit<T> extends StatefulWidget {
   const FloatingFit({
     super.key,
     required this.itemBuilder,
-    required this.itemDecorationBuilder,
+    required this.itemOverlayBuilder,
     required this.primary,
     required this.panel,
     this.showPanel = true,
@@ -45,7 +45,8 @@ class FloatingFit<T> extends StatefulWidget {
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  final Widget Function(T data) itemDecorationBuilder;
+  /// Builder building the provided item's overlay.
+  final Widget Function(T data) itemOverlayBuilder;
 
   /// Items of this [FloatingFit].
   final T primary;
@@ -124,8 +125,8 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                                 widget.itemBuilder(_primary.item),
                                 AnimatedDelayedSwitcher(
                                   duration: 100.milliseconds,
-                                  child: widget
-                                      .itemDecorationBuilder(_primary.item),
+                                  child:
+                                      widget.itemOverlayBuilder(_primary.item),
                                 ),
                               ],
                             ),
@@ -137,7 +138,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                         child: Stack(
                           children: [
                             widget.itemBuilder(_panelled.item),
-                            widget.itemDecorationBuilder(_panelled.item),
+                            widget.itemOverlayBuilder(_panelled.item),
                           ],
                         ),
                       ),
@@ -239,8 +240,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                             widget.itemBuilder(_panelled.item),
                             AnimatedDelayedSwitcher(
                               duration: 100.milliseconds,
-                              child:
-                                  widget.itemDecorationBuilder(_panelled.item),
+                              child: widget.itemOverlayBuilder(_panelled.item),
                             ),
                           ],
                         ),
@@ -250,7 +250,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
             ),
           ),
 
-          // [Listener] manipulating this panel.
+          // [GestureDetector] manipulating this panel.
           Positioned(
             left: left,
             right: right,
@@ -316,7 +316,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
   }
 
-  /// Swaps the [_panelled] and [_primary] items.
+  /// Swaps the [_panelled] and the [_primary] items.
   void _swap() {
     final _FloatingItem<T> panelled = _panelled;
     final _FloatingItem<T> primary = _primary;

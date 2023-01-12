@@ -47,7 +47,7 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
   /// Indicator whether the [AnimatedSwitcher] should be enabled.
   bool _show = false;
 
-  /// [Timer] switching the [AnimatedDelayedSwitcher.child] visibility.
+  /// [Timer] switching the [_show] indicator.
   Timer? _timer;
 
   @override

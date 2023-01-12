@@ -90,7 +90,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ],
                 );
               },
-              itemDecorationBuilder: (e) {
+              itemOverlayBuilder: (e) {
                 return Obx(() {
                   final bool muted = e.member.owner == MediaOwnerKind.local
                       ? !c.audioState.value.isEnabled
