@@ -513,7 +513,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     if (_fromMe) {
-      return chat.isRead(widget.item.value, widget.me);
+      return chat.isMonolog || chat.isRead(widget.item.value, widget.me);
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
@@ -615,6 +615,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     final bool isSent = widget.item.value.status.value == SendingStatus.sent;
+    final bool isMonolog = widget.chat.value?.isMonolog == true;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -624,8 +625,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
-            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
-        isRead: isSent && (!_fromMe || _isRead),
+            (widget.chat.value?.lastDelivery.isBefore(message.at) == false ||
+                isMonolog),
+        isRead: isSent && (!_fromMe || _isRead || isMonolog),
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
         swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
@@ -1272,9 +1274,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 future: widget.getUser?.call(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
+                    return AvatarWidget.fromRxUser(
+                      snapshot.data,
+                      radius: 10,
+                      // badge: false,
+                    );
                   }
-                  return AvatarWidget.fromUser(user, radius: 10);
+                  return AvatarWidget.fromUser(
+                    user,
+                    radius: 10,
+                    // badge: false,
+                  );
                 },
               ),
             ),
@@ -1292,14 +1302,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
 
+    final bool isMonolog = widget.chat.value?.isMonolog == true;
+
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
       isSent: isSent && _fromMe,
       isDelivered: isSent &&
           _fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(item.at) == false,
-      isRead: isSent && (!_fromMe || _isRead),
+          (widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
+              isMonolog),
+      isRead: isSent && (!_fromMe || _isRead || isMonolog),
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),

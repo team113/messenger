@@ -67,147 +67,152 @@ class UserView extends StatelessWidget {
             );
           }
 
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: Row(
-                children: [
-                  Material(
-                    elevation: 6,
-                    type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
-                    child: Center(
-                      child: AvatarWidget.fromRxUser(c.user, radius: 17),
+          return LayoutBuilder(builder: (context, constraints) {
+            return Scaffold(
+              appBar: CustomAppBar(
+                title: Row(
+                  children: [
+                    Material(
+                      elevation: 6,
+                      type: MaterialType.circle,
+                      shadowColor: const Color(0x55000000),
+                      color: Colors.white,
+                      child: Center(
+                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: DefaultTextStyle.merge(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      child: Obx(() {
-                        final String? status = c.user?.user.value.getStatus();
-                        final UserTextStatus? text = c.user?.user.value.status;
-                        final StringBuffer buffer = StringBuffer();
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: DefaultTextStyle.merge(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        child: Obx(() {
+                          final String? status = c.user?.user.value.getStatus();
+                          final UserTextStatus? text =
+                              c.user?.user.value.status;
+                          final StringBuffer buffer = StringBuffer();
 
-                        if (status != null || text != null) {
-                          buffer.write(text ?? '');
+                          if (status != null || text != null) {
+                            buffer.write(text ?? '');
 
-                          if (status != null && text != null) {
-                            buffer.write('space_vertical_space'.l10n);
+                            if (status != null && text != null) {
+                              buffer.write('space_vertical_space'.l10n);
+                            }
+
+                            buffer.write(status ?? '');
                           }
 
-                          buffer.write(status ?? '');
-                        }
+                          final String subtitle = buffer.toString();
 
-                        final String subtitle = buffer.toString();
-
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
-                            if (subtitle.isNotEmpty)
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                subtitle,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                              )
-                          ],
-                        );
-                      }),
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                              if (subtitle.isNotEmpty)
+                                Text(
+                                  subtitle,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .caption
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                )
+                            ],
+                          );
+                        }),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              padding: const EdgeInsets.only(left: 4, right: 20),
-              leading: const [StyledBackButton()],
-              actions: [
-                WidgetButton(
-                  onPressed: c.openChat,
-                  child: Transform.translate(
-                    offset: const Offset(0, 1),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat.svg',
-                      width: 20.12,
-                      height: 21.62,
-                    ),
-                  ),
+                    const SizedBox(width: 10),
+                  ],
                 ),
-                if (!context.isNarrow) ...[
+                padding: const EdgeInsets.only(left: 4, right: 20),
+                leading: const [StyledBackButton()],
+                actions: [
+                  WidgetButton(
+                    onPressed: c.openChat,
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat.svg',
+                        width: 20.12,
+                        height: 21.62,
+                      ),
+                    ),
+                  ),
+                  if (constraints.maxWidth > 400) ...[
+                    const SizedBox(width: 28),
+                    WidgetButton(
+                      onPressed: () => c.call(true),
+                      child: SvgLoader.asset(
+                        'assets/icons/chat_video_call.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ],
                   const SizedBox(width: 28),
                   WidgetButton(
-                    onPressed: () => c.call(true),
+                    onPressed: () => c.call(false),
                     child: SvgLoader.asset(
-                      'assets/icons/chat_video_call.svg',
-                      height: 17,
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
                     ),
                   ),
                 ],
-                const SizedBox(width: 28),
-                WidgetButton(
-                  onPressed: () => c.call(false),
-                  child: SvgLoader.asset(
-                    'assets/icons/chat_audio_call.svg',
-                    height: 19,
-                  ),
-                ),
-              ],
-            ),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: Obx(() {
-                return ListView(
-                  key: const Key('UserColumn'),
-                  children: [
-                    const SizedBox(height: 8),
-                    if (c.isBlacklisted == true)
-                      Block(
-                        title: 'Пользователь заблокирован'.l10n,
-                        children: [_blocked(c, context)],
-                      ),
-                    Block(
-                      title: 'label_public_information'.l10n,
-                      children: [
-                        AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 100,
-                          showBadge: false,
-                          quality: AvatarQuality.original,
+              ),
+              body: Scrollbar(
+                controller: c.scrollController,
+                child: Obx(() {
+                  return ListView(
+                    controller: c.scrollController,
+                    key: const Key('UserColumn'),
+                    children: [
+                      const SizedBox(height: 8),
+                      if (c.isBlacklisted == true)
+                        Block(
+                          title: 'Пользователь заблокирован'.l10n,
+                          children: [_blocked(c, context)],
                         ),
-                        const SizedBox(height: 15),
-                        _name(c, context),
-                        _status(c, context),
-                        _presence(c, context),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_contact_information'.l10n,
-                      children: [_num(c, context)],
-                    ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                );
-              }),
-            ),
-            bottomNavigationBar: c.isBlacklisted == true
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                    child: _blockedField(context, c),
-                  )
-                : null,
-          );
+                      Block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          AvatarWidget.fromRxUser(
+                            c.user,
+                            radius: 100,
+                            badge: false,
+                            quality: AvatarQuality.original,
+                          ),
+                          const SizedBox(height: 15),
+                          _name(c, context),
+                          _status(c, context),
+                          _presence(c, context),
+                        ],
+                      ),
+                      Block(
+                        title: 'label_contact_information'.l10n,
+                        children: [_num(c, context)],
+                      ),
+                      Block(
+                        title: 'label_actions'.l10n,
+                        children: [_actions(c, context)],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                }),
+              ),
+              bottomNavigationBar: c.isBlacklisted == true
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      child: _blockedField(context, c),
+                    )
+                  : null,
+            );
+          });
         });
       },
     );

@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: ["main", "new-design-preview"]
-    tags: ["v*"]
+    tags: ["helm/**", "v*"]
   pull_request:
     branches: ["main"]
 
@@ -120,8 +120,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
+          - ios
           - linux
           - macos
           - web
@@ -134,7 +133,7 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
@@ -182,6 +181,9 @@ jobs:
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/ios/iphoneos/
+        if: ${{ matrix.platform == 'ios' }}
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.6.2
@@ -191,11 +193,14 @@ jobs:
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
+                      || (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
         if: ${{ matrix.platform == 'linux'
              || matrix.platform == 'macos'
+             || matrix.platform == 'ios'
              || matrix.platform == 'web'
              || matrix.platform == 'windows' }}
 
@@ -270,6 +275,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-macos-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:

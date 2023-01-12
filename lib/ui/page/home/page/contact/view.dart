@@ -173,7 +173,7 @@ class ContactView extends StatelessWidget {
                       AvatarWidget.fromRxContact(
                         c.contact.value,
                         radius: 100,
-                        showBadge: false,
+                        badge: false,
                         quality: AvatarQuality.original,
                       ),
                       const SizedBox(height: 15),

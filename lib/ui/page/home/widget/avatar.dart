@@ -95,7 +95,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
     AvatarQuality quality = AvatarQuality.big,
   }) {
     if (contact == null) {
@@ -114,7 +114,8 @@ class AvatarWidget extends StatelessWidget {
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: contact.contact.value.users.length == 1 &&
+        isOnline: badge &&
+            contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
@@ -163,10 +164,13 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     AvatarQuality quality = AvatarQuality.big,
+    bool badge = true,
   }) =>
       AvatarWidget(
         key: key,
         avatar: user?.avatar,
+        isOnline: badge && user?.online == true,
+        isAway: user?.presence == Presence.away,
         title: user?.name?.val ?? user?.num.val,
         color: user?.num.val.sum(),
         radius: radius,
@@ -184,7 +188,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
     AvatarQuality quality = AvatarQuality.big,
   }) {
     if (user == null) {
@@ -196,13 +200,14 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         quality: quality,
+        badge: badge,
       );
     }
 
     return Obx(
       () => AvatarWidget(
         key: key,
-        isOnline: showBadge && user.user.value.online == true,
+        isOnline: badge && user.user.value.online == true,
         isAway: user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.user.value.name?.val ?? user.user.value.num.val,

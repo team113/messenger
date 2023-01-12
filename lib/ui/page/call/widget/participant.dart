@@ -123,7 +123,7 @@ class ParticipantWidget extends StatelessWidget {
                       child: AvatarWidget.fromRxUser(
                         participant.user.value,
                         radius: expanded ? 90 : 60,
-                        showBadge: false,
+                        badge: false,
                       ),
                     ),
                   ),

@@ -18,9 +18,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -35,7 +37,7 @@ export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser, this._settings);
+  HomeController(this._auth, this._myUser, this._chatService, this._settings);
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -71,6 +73,8 @@ class HomeController extends GetxController {
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
+
+  final ChatService _chatService;
 
   /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
   /// determine whether an [IntroductionView] was already shown.
@@ -172,10 +176,29 @@ class HomeController extends GetxController {
   }
 
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
-  void _displayIntroduction(MyUser myUser) {
+  Future<void> _displayIntroduction(MyUser myUser) async {
     if (!myUser.hasPassword && !router.directLink) {
-      IntroductionView.show(router.context!)
-          .then((_) => _settings.setShowIntroduction(false));
+      Worker? worker;
+
+      if (_chatService.isReady.value) {
+        if (_chatService.chats.values.none((e) => e.chat.value.isMonolog)) {
+          await _chatService.createDialogChat(_auth.credentials.value!.userId);
+        }
+      } else {
+        worker = ever(_chatService.isReady, (bool b) async {
+          if (b && worker != null) {
+            worker = null;
+            if (_chatService.chats.values.none((e) => e.chat.value.isMonolog)) {
+              await _chatService
+                  .createDialogChat(_auth.credentials.value!.userId);
+            }
+          }
+        });
+      }
+
+      await IntroductionView.show(router.context!);
+
+      _settings.setShowIntroduction(false);
     } else {
       _settings.setShowIntroduction(false);
     }

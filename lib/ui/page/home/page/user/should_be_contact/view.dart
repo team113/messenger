@@ -201,7 +201,7 @@ class UserView extends StatelessWidget {
                       AvatarWidget.fromRxUser(
                         c.user,
                         radius: 100,
-                        showBadge: false,
+                        badge: false,
                         quality: AvatarQuality.original,
                       ),
                       const SizedBox(height: 15),
