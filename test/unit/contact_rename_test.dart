@@ -22,7 +22,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -31,6 +33,7 @@ import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -100,8 +103,17 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo =
-        UserRepository(graphQlProvider, userHiveProvider, galleryItemProvider);
+    AuthService authService = AuthService(
+      Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
+      sessionData,
+    );
+    await authService.init();
+    UserRepository userRepo = UserRepository(
+      graphQlProvider,
+      userHiveProvider,
+      galleryItemProvider,
+      authService,
+    );
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(

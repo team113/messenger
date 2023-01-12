@@ -269,8 +269,12 @@ void main() async {
       ])),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository = Get.put(UserRepository(
+      graphQlProvider,
+      userProvider,
+      galleryItemProvider,
+      authService,
+    ));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -298,12 +302,17 @@ void main() async {
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       contactProvider,
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider),
+      UserRepository(
+        graphQlProvider,
+        userProvider,
+        galleryItemProvider,
+        authService,
+      ),
       sessionProvider,
     );
 
     Get.put(ContactService(contactRepository));
-    Get.put(UserService(authService, userRepository, chatRepository));
+    Get.put(UserService(userRepository, chatRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 

@@ -146,8 +146,12 @@ void main() async {
         backgroundProvider,
       ),
     );
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+    UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+      galleryItemProvider,
+      authService,
+    );
 
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
@@ -201,8 +205,12 @@ void main() async {
         backgroundProvider,
       ),
     );
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+    UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+      galleryItemProvider,
+      authService,
+    );
 
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,

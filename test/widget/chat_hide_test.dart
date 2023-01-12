@@ -252,8 +252,12 @@ void main() async {
       (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
     );
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+    UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+      galleryItemProvider,
+      authService,
+    );
 
     Get.put(
       ContactService(
@@ -303,7 +307,7 @@ void main() async {
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    Get.put(UserService(authService, userRepository, chatRepository));
+    Get.put(UserService(userRepository, chatRepository));
 
     Get.put(CallService(authService, chatService, callRepository));
 

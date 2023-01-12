@@ -32,7 +32,7 @@ abstract class AbstractUserRepository {
   RxBool get isReady;
 
   /// Initializes this repository.
-  Future<void> init();
+  Future<void> init({AbstractChatRepository? chatRepository});
 
   /// Disposes this repository.
   void dispose();
@@ -80,7 +80,7 @@ abstract class RxUser {
   UserId get id => user.value.id;
 
   /// Returns reactive value of the [RxChat] this [RxUser] dialog represents.
-  Rx<RxChat?> dialog = Rx<RxChat?>(null);
+  Rx<RxChat?> get dialog;
 
   /// States that this [user] should get its updates.
   void listenUpdates();
@@ -88,5 +88,6 @@ abstract class RxUser {
   /// States that updates of this [user] are no longer required.
   void stopUpdates();
 
+  /// Updates reactive value of [dialog].
   void updateDialog(RxChat? chat);
 }

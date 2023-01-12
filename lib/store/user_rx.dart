@@ -46,6 +46,9 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
+  /// Reactive value of the [RxChat] this [HiveRxUser] dialog represents.
+  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
@@ -55,6 +58,9 @@ class HiveRxUser extends RxUser {
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
+
+  @override
+  Rx<RxChat?> get dialog => _dialog;
 
   @override
   void listenUpdates() {
@@ -74,7 +80,7 @@ class HiveRxUser extends RxUser {
   @override
   void updateDialog(RxChat? chat) {
     HiveUser? hiveUser = _userLocal.get(user.value.id);
-    dialog.value = chat;
+    _dialog.value = chat;
     if (hiveUser != null) {
       hiveUser.value.dialog = chat?.chat.value;
       _userLocal.put(hiveUser);

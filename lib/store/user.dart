@@ -26,7 +26,9 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
@@ -44,6 +46,7 @@ class UserRepository implements AbstractUserRepository {
     this._graphQlProvider,
     this._userLocal,
     this._galleryItemLocal,
+    this._authService,
   );
 
   /// GraphQL API provider.
@@ -54,6 +57,12 @@ class UserRepository implements AbstractUserRepository {
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
+
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
+
+  /// Subscription for the listening changes of [AbstractChatRepository.chats].
+  StreamSubscription? _chatsSubscription;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -67,6 +76,9 @@ class UserRepository implements AbstractUserRepository {
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _authService.userId;
+
   @override
   RxBool get isReady => _isReady;
 
@@ -74,12 +86,21 @@ class UserRepository implements AbstractUserRepository {
   RxMap<UserId, RxUser> get users => _users;
 
   @override
-  Future<void> init() async {
+  Future<void> init({AbstractChatRepository? chatRepository}) async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
         _users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
+      _chatsSubscription = chatRepository?.chats.changes.listen((e) {
+        if (e.value?.chat.value.isDialog == true) {
+          UserId userId = e.value!.chat.value.members
+              .firstWhere((e) => e.user.id != me)
+              .user
+              .id;
+          _users[userId]?.updateDialog(e.value);
+        }
+      });
     }
 
     _initLocalSubscription();
@@ -90,6 +111,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   void dispose() {
+    _chatsSubscription?.cancel();
     _localSubscription?.cancel();
   }
 

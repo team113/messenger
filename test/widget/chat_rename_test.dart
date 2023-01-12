@@ -269,8 +269,12 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository = Get.put(UserRepository(
+      graphQlProvider,
+      userProvider,
+      galleryItemProvider,
+      authService,
+    ));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -296,7 +300,7 @@ void main() async {
       ),
     );
 
-    Get.put(UserService(authService, userRepository, chatRepository));
+    Get.put(UserService(userRepository, chatRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
