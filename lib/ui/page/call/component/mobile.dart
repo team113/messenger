@@ -168,7 +168,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             if (c.chat.value?.callCover != null)
               CallCoverWidget(c.chat.value?.callCover),
 
-            // Display call's title info only if not minimized.
+            // Display call's state info only if minimized.
             AnimatedSwitcher(
               duration: 200.milliseconds,
               child: c.minimized.value

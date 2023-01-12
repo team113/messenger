@@ -70,7 +70,7 @@ class RoundFloatingButton extends StatefulWidget {
   /// Optional [TextStyle] of the [text].
   final TextStyle? style;
 
-  /// Optional border of this [RoundFloatingButton].
+  /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
 
   @override
