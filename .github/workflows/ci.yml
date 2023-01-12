@@ -189,18 +189,18 @@ jobs:
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'linux'
+          directory: ${{ (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
+                      || (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
-                      || (matrix.platform == 'ios'
-                          && 'build/ios/iphoneos/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'linux'
+        if: ${{ matrix.platform == 'ios'
+             || matrix.platform == 'linux'
              || matrix.platform == 'macos'
-             || matrix.platform == 'ios'
              || matrix.platform == 'web'
              || matrix.platform == 'windows' }}
 
@@ -270,15 +270,15 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-macos-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
@@ -531,15 +531,15 @@ jobs:
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-macos-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-ios-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
