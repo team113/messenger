@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -126,6 +127,9 @@ class ChatsTabController extends GetxController {
   /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
   final List<RxUser> _recipients = [];
 
+  /// List of found [RxUser]s who get their updates.
+  final List<RxUser> _listenUsers = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -220,6 +224,10 @@ class ChatsTabController extends GetxController {
 
     for (RxUser v in _recipients) {
       v.stopUpdates();
+    }
+
+    for (RxUser u in _listenUsers) {
+      u.stopUpdates();
     }
 
     router.navigation.value = true;
@@ -424,11 +432,33 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Indicates whether this [chat] is blocked.
+  bool isBlocked(
+    RxChat chat,
+    Iterable<RxUser> members,
+  ) {
+    if (chat.chat.value.isDialog) {
+      return members
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .isBlacklisted ==
+          true;
+    }
+
+    return false;
+  }
+
   /// Enables and initializes or disables and disposes the [search].
   void _toggleSearch([bool enable = true]) {
     if (search.value != null && enable) {
       return;
     }
+
+    for (RxUser u in _listenUsers) {
+      u.stopUpdates();
+    }
+    _listenUsers.clear();
 
     search.value?.onClose();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -480,6 +510,13 @@ class ChatsTabController extends GetxController {
         if (search.value?.contacts.isNotEmpty == true) {
           elements.add(const DividerElement(SearchCategory.contact));
           for (RxChatContact c in search.value!.contacts.values) {
+            final RxUser? user = c.user.value;
+            if (user != null) {
+              if (_listenUsers.firstWhereOrNull((e) => e.id == user.id) ==
+                  null) {
+                _listenUsers.add(user..listenUpdates());
+              }
+            }
             elements.add(ContactElement(c));
           }
         }
@@ -487,6 +524,9 @@ class ChatsTabController extends GetxController {
         if (search.value?.users.isNotEmpty == true) {
           elements.add(const DividerElement(SearchCategory.user));
           for (RxUser c in search.value!.users.values) {
+            if (_listenUsers.firstWhereOrNull((e) => e.id == c.id) == null) {
+              _listenUsers.add(c..listenUpdates());
+            }
             elements.add(UserElement(c));
           }
         }

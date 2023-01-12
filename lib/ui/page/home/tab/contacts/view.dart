@@ -37,6 +37,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -447,7 +448,7 @@ class ContactsTabView extends StatelessWidget {
               ),
         ContextMenuButton(
           label: 'btn_delete_from_contacts'.l10n,
-          onPressed: () => c.deleteFromContacts(contact.contact.value),
+          onPressed: () => _removeFromContacts(c, context, contact),
         ),
       ],
       subtitle: [
@@ -466,6 +467,46 @@ class ContactsTabView extends StatelessWidget {
           }),
         ),
       ],
+      trailing: [
+        Obx(() {
+          if (contact.user.value?.user.value.isBlacklisted == false) {
+            return const SizedBox();
+          }
+
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Icon(
+              Icons.block,
+              color: Color.fromRGBO(192, 192, 192, 1),
+              size: 20,
+            ),
+          );
+        }),
+      ],
     );
+  }
+
+  /// Opens alert popup with confirm the deletion of the [contact] from address
+  /// book.
+  Future<void> _removeFromContacts(
+    ContactsTabController c,
+    BuildContext context,
+    RxChatContact contact,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_remove_from_contacts'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_wiil_be_removed1'.l10n),
+        TextSpan(
+          text: contact.contact.value.name.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_contact_wiil_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.deleteFromContacts(contact.contact.value);
+    }
   }
 }

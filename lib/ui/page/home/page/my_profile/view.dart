@@ -50,9 +50,6 @@ import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
-import 'delete_account/view.dart';
-import 'delete_email/view.dart';
-import 'delete_phone/view.dart';
 import 'language/view.dart';
 import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
@@ -207,6 +204,12 @@ class MyProfileView extends StatelessWidget {
                         return Block(
                           title: 'label_language'.l10n,
                           children: [_language(context, c)],
+                        );
+
+                      case ProfileTab.blocked:
+                        return Block(
+                          title: 'label_blocked_users'.l10n,
+                          children: [_blockedUsers(context, c)],
                         );
 
                       case ProfileTab.download:
@@ -541,7 +544,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                 Clipboard.setData(ClipboardData(text: e.val));
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
-              onTrailingPressed: () => DeleteEmailView.show(context, email: e),
+              onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -1),
@@ -649,9 +652,10 @@ Widget _emails(MyProfileController c, BuildContext context) {
               context,
               email: c.myUser.value!.emails.unconfirmed!,
             ),
-            onTrailingPressed: () => DeleteEmailView.show(
+            onTrailingPressed: () => _deleteEmail(
+              c,
               context,
-              email: c.myUser.value!.emails.unconfirmed!,
+              c.myUser.value!.emails.unconfirmed!,
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
@@ -714,7 +718,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                 Clipboard.setData(ClipboardData(text: e.val));
                 MessagePopup.success('label_copied_to_clipboard'.l10n);
               },
-              onTrailingPressed: () => DeletePhoneView.show(context, phone: e),
+              onTrailingPressed: () => _deletePhone(c, context, e),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
@@ -808,9 +812,10 @@ Widget _phones(MyProfileController c, BuildContext context) {
               context,
               phone: c.myUser.value!.phones.unconfirmed!,
             ),
-            onTrailingPressed: () => DeletePhoneView.show(
+            onTrailingPressed: () => _deletePhone(
+              c,
               context,
-              phone: c.myUser.value!.phones.unconfirmed!,
+              c.myUser.value!.phones.unconfirmed!,
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
@@ -876,14 +881,6 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         FieldButton(
-          text: 'label_blocked_users'.l10n,
-          onPressed: () => BlacklistView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ),
-      const SizedBox(height: 8),
-      _dense(
-        FieldButton(
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
@@ -892,7 +889,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
               child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
-          onPressed: () => DeleteAccountView.show(context),
+          onPressed: () => _deleteAccount(c, context),
           style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
@@ -1245,4 +1242,96 @@ Widget _language(BuildContext context, MyProfileController c) {
       style: TextStyle(color: Theme.of(context).colorScheme.secondary),
     ),
   );
+}
+
+/// Returns the contents of a [ProfileTab.blocked] section.
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      _dense(
+        FieldButton(
+          text: 'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: TextStyle(
+              color: c.blacklist.isEmpty
+                  ? Colors.black
+                  : Theme.of(context).colorScheme.secondary),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Opens alert popup with confirm the deletion [email] from the
+/// [MyUser.emails].
+Future<void> _deleteEmail(
+  MyProfileController c,
+  BuildContext context,
+  UserEmail email,
+) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_email'.l10n,
+    description: [
+      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
+      TextSpan(
+        text: email.val,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteEmail(email);
+  }
+}
+
+/// Opens alert popup with confirm the deletion [phone] from the
+/// [MyUser.phones].
+Future<void> _deletePhone(
+  MyProfileController c,
+  BuildContext context,
+  UserPhone phone,
+) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_phone_number'.l10n,
+    description: [
+      TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
+      TextSpan(
+        text: phone.val,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deletePhone(phone);
+  }
+}
+
+/// Opens alert popup with confirm the deleting the [MyUser]'s account.
+Future<void> _deleteAccount(
+  MyProfileController c,
+  BuildContext context,
+) async {
+  final bool? result = await MessagePopup.alert(
+    'label_delete_account'.l10n,
+    description: [
+      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
+      TextSpan(
+        text: c.myUser.value?.name?.val ??
+            c.myUser.value?.login?.val ??
+            c.myUser.value?.num.val ??
+            'dot'.l10n * 3,
+        style: const TextStyle(color: Colors.black),
+      ),
+      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteAccount();
+  }
 }

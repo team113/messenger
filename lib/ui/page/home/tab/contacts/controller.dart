@@ -36,7 +36,6 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
@@ -104,6 +103,9 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
+  /// List of found [RxUser]s who get their updates.
+  final List<RxUser> _listenUsers = [];
+
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
@@ -120,6 +122,10 @@ class ContactsTabController extends GetxController {
     _sortFavorites();
 
     _initUsersUpdates();
+
+    for (RxUser u in _listenUsers) {
+      u.stopUpdates();
+    }
 
     super.onInit();
   }
@@ -150,9 +156,7 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
-    }
+    await _contactService.deleteContact(contact.id);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
@@ -219,6 +223,11 @@ class ContactsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     _searchSubscription?.cancel();
 
+    for (RxUser u in _listenUsers) {
+      u.stopUpdates();
+    }
+    _listenUsers.clear();
+
     if (enable) {
       search.value = SearchController(
         _chatService,
@@ -246,6 +255,9 @@ class ContactsTabController extends GetxController {
         if (search.value?.users.isNotEmpty == true) {
           elements.add(const DividerElement(SearchCategory.user));
           for (RxUser c in search.value!.users.values) {
+            if (_listenUsers.firstWhereOrNull((e) => e.id == c.id) == null) {
+              _listenUsers.add(c..listenUpdates());
+            }
             elements.add(UserElement(c));
           }
         }

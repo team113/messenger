@@ -276,6 +276,15 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.blocked:
+                    child = card(
+                      key: const Key('Blocked'),
+                      icon: Icons.block,
+                      title: 'label_blocked_users'.l10n,
+                      subtitle: 'label_your_blacklist'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.download:
                     if (PlatformUtils.isWeb) {
                       child = card(

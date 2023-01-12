@@ -33,6 +33,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -76,6 +77,9 @@ class UserController extends GetxController {
   /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
+
+  /// [TextFieldState] to input the reason for being added to the blacklist.
+  late final TextFieldState blockReason;
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -154,6 +158,8 @@ class UserController extends GetxController {
       }
     });
 
+    blockReason = TextFieldState();
+
     super.onInit();
   }
 
@@ -184,26 +190,24 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-        status.value = RxStatus.loadingMore();
-        try {
-          RxChatContact? contact =
-              _contactService.contacts.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  ) ??
-                  _contactService.favorites.values.firstWhereOrNull(
-                    (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                  );
-          if (contact != null) {
-            await _contactService.deleteContact(contact.contact.value.id);
-          }
-          inContacts.value = false;
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        } finally {
-          status.value = RxStatus.success();
+      status.value = RxStatus.loadingMore();
+      try {
+        RxChatContact? contact =
+            _contactService.contacts.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                ) ??
+                _contactService.favorites.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                );
+        if (contact != null) {
+          await _contactService.deleteContact(contact.contact.value.id);
         }
+        inContacts.value = false;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.success();
       }
     }
   }

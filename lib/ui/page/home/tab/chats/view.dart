@@ -381,15 +381,21 @@ class ChatsTabView extends StatelessWidget {
                               child = Padding(
                                 padding:
                                     const EdgeInsets.only(left: 10, right: 10),
-                                child: RecentChatTile(
-                                  chat,
-                                  key: Key('SearchChat_${chat.id}'),
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onJoin: () => c.joinCall(chat.id),
-                                  onDrop: () => c.dropCall(chat.id),
-                                  inCall: () => c.inCall(chat.id),
-                                ),
+                                child: Obx(() {
+                                  return RecentChatTile(
+                                    chat,
+                                    key: Key('SearchChat_${chat.id}'),
+                                    me: c.me,
+                                    blocked: c.isBlocked(
+                                      chat,
+                                      chat.members.values,
+                                    ),
+                                    getUser: c.getUser,
+                                    onJoin: () => c.joinCall(chat.id),
+                                    onDrop: () => c.dropCall(chat.id),
+                                    inCall: () => c.inCall(chat.id),
+                                  );
+                                }),
                               );
                             } else if (element is ContactElement) {
                               child = SearchUserTile(
@@ -468,22 +474,29 @@ class ChatsTabView extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                     ),
-                                    child: RecentChatTile(
-                                      chat,
-                                      key: Key('RecentChat_${chat.id}'),
-                                      me: c.me,
-                                      getUser: c.getUser,
-                                      onJoin: () => c.joinCall(chat.id),
-                                      onDrop: () => c.dropCall(chat.id),
-                                      onLeave: () => c.leaveChat(chat.id),
-                                      onHide: () => c.hideChat(chat.id),
-                                      inCall: () => c.inCall(chat.id),
-                                      onMute: () => c.muteChat(chat.id),
-                                      onUnmute: () => c.unmuteChat(chat.id),
-                                      onFavorite: () => c.favoriteChat(chat.id),
-                                      onUnfavorite: () =>
-                                          c.unfavoriteChat(chat.id),
-                                    ),
+                                    child: Obx(() {
+                                      return RecentChatTile(
+                                        chat,
+                                        key: Key('RecentChat_${chat.id}'),
+                                        me: c.me,
+                                        blocked: c.isBlocked(
+                                          chat,
+                                          chat.members.values,
+                                        ),
+                                        getUser: c.getUser,
+                                        onJoin: () => c.joinCall(chat.id),
+                                        onDrop: () => c.dropCall(chat.id),
+                                        onLeave: () => c.leaveChat(chat.id),
+                                        onHide: () => c.hideChat(chat.id),
+                                        inCall: () => c.inCall(chat.id),
+                                        onMute: () => c.muteChat(chat.id),
+                                        onUnmute: () => c.unmuteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
+                                        onUnfavorite: () =>
+                                            c.unfavoriteChat(chat.id),
+                                      );
+                                    }),
                                   ),
                                 ),
                               ),

@@ -857,6 +857,17 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
+    bool blocked = false;
+
+    if (c.chat?.chat.value.isDialog == true) {
+      blocked = c.chat!.members.values
+              .firstWhereOrNull((e) => e.id != c.me)
+              ?.user
+              .value
+              .isBlacklisted ==
+          true;
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(
         shadowColor: const Color(0x55000000),
@@ -899,7 +910,11 @@ class _ChatViewState extends State<ChatView>
           ),
         ),
       ),
-      child: c.editedMessage.value == null ? _sendField(c) : _editField(c),
+      child: blocked
+          ? _blockedField(c)
+          : c.editedMessage.value == null
+              ? _sendField(c)
+              : _editField(c),
     );
   }
 
@@ -2113,6 +2128,76 @@ class _ChatViewState extends State<ChatView>
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns [WidgetButton] for removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return SafeArea(
+      child: Container(
+        key: const Key('BlockedField'),
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          boxShadow: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+            ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
+          ),
+          borderRadius: style.cardRadius,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(color: style.cardColor),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                      bottom: 13,
+                    ),
+                    child: Transform.translate(
+                      offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                      child: WidgetButton(
+                        onPressed: c.unblacklist,
+                        child: IgnorePointer(
+                          child: ReactiveTextField(
+                            onChanged: c.keepTyping,
+                            enabled: false,
+                            key: const Key('MessageField'),
+                            state: TextFieldState(text: 'btn_unblock'.l10n),
+                            filled: false,
+                            dense: true,
+                            textAlign: TextAlign.center,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(
+                              fontSize: 17,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            type: TextInputType.multiline,
+                            textInputAction: TextInputAction.newline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
