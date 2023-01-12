@@ -207,6 +207,7 @@ jobs:
                       ||     'build/web'}}
         if: ${{ matrix.platform == 'linux'
              || matrix.platform == 'macos'
+             || matrix.platform == 'ios'
              || matrix.platform == 'web'
              || matrix.platform == 'windows' }}
 
