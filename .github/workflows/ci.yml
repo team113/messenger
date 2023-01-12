@@ -285,6 +285,10 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
@@ -539,6 +543,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-macos-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-ios-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
