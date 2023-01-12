@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -51,13 +52,14 @@ import 'controller.dart';
 class MessageFieldView extends StatelessWidget {
   const MessageFieldView({
     super.key,
+    this.controller,
     this.onChanged,
     this.onItemPressed,
     this.fieldKey,
     this.sendKey,
     this.canForward = false,
     this.canAttach = true,
-    this.controller,
+    this.constraints,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -76,12 +78,14 @@ class MessageFieldView extends StatelessWidget {
   /// [MessageFieldView].
   final bool canAttach;
 
-  /// Callback, called when a [ChatItem] being a reply or edit message of this
-  /// [MessageFieldView] is pressed.
+  /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId id)? onItemPressed;
 
   /// Callback, called when the contents of this [MessageFieldView] changes.
   final void Function()? onChanged;
+
+  /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
+  final BoxConstraints? constraints;
 
   @override
   Widget build(BuildContext context) {
@@ -151,100 +155,7 @@ class MessageFieldView extends StatelessWidget {
                 borderRadius: style.cardRadius,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _fieldHeader(c, style),
-                    Container(
-                      constraints: const BoxConstraints(minHeight: 56),
-                      decoration: BoxDecoration(color: style.cardColor),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          WidgetButton(
-                            onPressed: canAttach
-                                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                                    ? c.pickFile
-                                    : () => AttachmentSourceSelector.show(
-                                          context,
-                                          onPickFile: c.pickFile,
-                                          onTakePhoto: c.pickImageFromCamera,
-                                          onPickMedia: c.pickMedia,
-                                          onTakeVideo: c.pickVideoFromCamera,
-                                        )
-                                : null,
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: Center(
-                                child: SvgLoader.asset(
-                                  'assets/icons/attach.svg',
-                                  height: 22,
-                                  width: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                                bottom: 13,
-                              ),
-                              child: Transform.translate(
-                                offset:
-                                    Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                                child: ReactiveTextField(
-                                  onChanged: onChanged,
-                                  key: fieldKey ?? const Key('MessageField'),
-                                  state: c.field,
-                                  hint: 'label_send_message_hint'.l10n,
-                                  minLines: 1,
-                                  maxLines: 7,
-                                  filled: false,
-                                  dense: true,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
-                                  style: style.boldBody.copyWith(fontSize: 17),
-                                  type: TextInputType.multiline,
-                                  textInputAction: TextInputAction.newline,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Obx(() {
-                            return GestureDetector(
-                              onLongPress:
-                                  canForward ? c.forwarding.toggle : null,
-                              child: WidgetButton(
-                                onPressed: c.field.submit,
-                                child: SizedBox(
-                                  width: 56,
-                                  height: 56,
-                                  child: Center(
-                                    child: AnimatedSwitcher(
-                                      duration: 300.milliseconds,
-                                      child: c.forwarding.value
-                                          ? SvgLoader.asset(
-                                              'assets/icons/forward.svg',
-                                              width: 26,
-                                              height: 22,
-                                            )
-                                          : SvgLoader.asset(
-                                              key: sendKey ?? const Key('Send'),
-                                              'assets/icons/send.svg',
-                                              height: 22.85,
-                                              width: 25.18,
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ],
+                  children: [_buildHeader(c, context), _buildField(c, context)],
                 ),
               ),
             ),
@@ -254,13 +165,197 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Returns message attachments, replies, quotes or edited message.
-  Widget _fieldHeader(MessageFieldController c, Style style) {
+  /// Returns a visual representation of the message attachments, replies,
+  /// quotes and edited message.
+  Widget _buildHeader(MessageFieldController c, BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return LayoutBuilder(builder: (context, constraints) {
       return Obx(() {
         final bool grab = c.attachments.isNotEmpty
             ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
             : false;
+
+        Widget? previews;
+
+        if (c.edited.value != null) {
+          previews = SingleChildScrollView(
+            controller: c.scrollController,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              child: Dismissible(
+                key: Key('${c.edited.value?.id}'),
+                direction: DismissDirection.horizontal,
+                onDismissed: (_) => c.edited.value = null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: WidgetButton(
+                    onPressed: () => onItemPressed?.call(c.edited.value!.id),
+                    child: _buildPreview(
+                      context,
+                      c.edited.value!,
+                      c,
+                      onClose: () => c.edited.value = null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else if (c.quotes.isNotEmpty) {
+          previews = ReorderableListView(
+            scrollController: c.scrollController,
+            shrinkWrap: true,
+            buildDefaultDragHandles: PlatformUtils.isMobile,
+            onReorder: (int old, int to) {
+              if (old < to) {
+                --to;
+              }
+
+              c.quotes.insert(to, c.quotes.removeAt(old));
+
+              HapticFeedback.lightImpact();
+            },
+            proxyDecorator: (child, _, animation) {
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (_, child) {
+                  final double t = Curves.easeInOut.transform(animation.value);
+                  final double elevation = lerpDouble(0, 6, t)!;
+                  final Color color = Color.lerp(
+                    const Color(0x00000000),
+                    const Color(0x33000000),
+                    t,
+                  )!;
+
+                  return InitCallback(
+                    callback: HapticFeedback.selectionClick,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          CustomBoxShadow(
+                            color: color,
+                            blurRadius: elevation,
+                          ),
+                        ],
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
+                child: child,
+              );
+            },
+            reverse: true,
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            children: c.quotes.map((e) {
+              return ReorderableDragStartListener(
+                key: Key('Handle_${e.item.id}'),
+                enabled: !PlatformUtils.isMobile,
+                index: c.quotes.indexOf(e),
+                child: Dismissible(
+                  key: Key('${e.item.id}'),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (_) {
+                    c.quotes.remove(e);
+                    if (c.quotes.isEmpty) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2,
+                    ),
+                    child: _buildPreview(
+                      context,
+                      e.item,
+                      c,
+                      onClose: () {
+                        c.quotes.remove(e);
+                        if (c.quotes.isEmpty) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        } else if (c.replied.isNotEmpty) {
+          previews = ReorderableListView(
+            scrollController: c.scrollController,
+            shrinkWrap: true,
+            buildDefaultDragHandles: PlatformUtils.isMobile,
+            onReorder: (int old, int to) {
+              if (old < to) {
+                --to;
+              }
+
+              c.replied.insert(to, c.replied.removeAt(old));
+
+              HapticFeedback.lightImpact();
+            },
+            proxyDecorator: (child, _, animation) {
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (_, child) {
+                  final double t = Curves.easeInOut.transform(animation.value);
+                  final double elevation = lerpDouble(0, 6, t)!;
+                  final Color color = Color.lerp(
+                    const Color(0x00000000),
+                    const Color(0x33000000),
+                    t,
+                  )!;
+
+                  return InitCallback(
+                    callback: HapticFeedback.selectionClick,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          CustomBoxShadow(
+                            color: color,
+                            blurRadius: elevation,
+                          ),
+                        ],
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
+                child: child,
+              );
+            },
+            reverse: true,
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            children: c.replied.map((e) {
+              return ReorderableDragStartListener(
+                key: Key('Handle_${e.id}'),
+                enabled: !PlatformUtils.isMobile,
+                index: c.replied.indexOf(e),
+                child: Dismissible(
+                  key: Key('${e.id}'),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (_) => c.replied.remove(e),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2,
+                    ),
+                    child: WidgetButton(
+                      onPressed: () => onItemPressed?.call(e.id),
+                      child: _buildPreview(
+                        context,
+                        e,
+                        c,
+                        onClose: () => c.replied.remove(e),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }
 
         return ConditionalBackdropFilter(
           condition: style.cardBlur > 0,
@@ -282,203 +377,18 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (c.editedMessage.value != null)
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height / 3,
-                        ),
-                        child: Dismissible(
-                          key: Key('${c.editedMessage.value?.id}'),
-                          direction: DismissDirection.horizontal,
-                          onDismissed: (_) => c.editedMessage.value = null,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 2,
-                            ),
-                            child: WidgetButton(
-                              onPressed: () => onItemPressed
-                                  ?.call(c.editedMessage.value!.id),
-                              child: _buildMessage(
-                                context,
-                                c.editedMessage.value!,
-                                c,
-                                () => c.editedMessage.value = null,
+                    if (previews != null)
+                      ConstrainedBox(
+                        constraints: this.constraints ??
+                            BoxConstraints(
+                              maxHeight: max(
+                                100,
+                                MediaQuery.of(context).size.height / 3.4,
                               ),
                             ),
-                          ),
-                        ),
-                      )
-                    else if (c.quotes.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height / 3,
-                        ),
                         child: Scrollbar(
                           controller: c.scrollController,
-                          child: ReorderableListView(
-                            scrollController: c.scrollController,
-                            shrinkWrap: true,
-                            buildDefaultDragHandles: PlatformUtils.isMobile,
-                            onReorder: (int old, int to) {
-                              if (old < to) {
-                                --to;
-                              }
-
-                              c.quotes.insert(to, c.quotes.removeAt(old));
-
-                              HapticFeedback.lightImpact();
-                            },
-                            proxyDecorator: (child, _, animation) {
-                              return AnimatedBuilder(
-                                animation: animation,
-                                builder: (_, child) {
-                                  final double t = Curves.easeInOut
-                                      .transform(animation.value);
-                                  final double elevation = lerpDouble(0, 6, t)!;
-                                  final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
-                                    t,
-                                  )!;
-
-                                  return InitCallback(
-                                    callback: HapticFeedback.selectionClick,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          CustomBoxShadow(
-                                            color: color,
-                                            blurRadius: elevation,
-                                          ),
-                                        ],
-                                      ),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: child,
-                              );
-                            },
-                            reverse: true,
-                            padding: const EdgeInsets.symmetric(horizontal: 1),
-                            children: c.quotes.map((e) {
-                              return ReorderableDragStartListener(
-                                key: Key('Handle_${e.item.id}'),
-                                enabled: !PlatformUtils.isMobile,
-                                index: c.quotes.indexOf(e),
-                                child: Dismissible(
-                                  key: Key('${e.item.id}'),
-                                  direction: DismissDirection.horizontal,
-                                  onDismissed: (_) {
-                                    c.quotes.remove(e);
-                                    if (c.quotes.isEmpty) {
-                                      Navigator.of(context).pop();
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 2,
-                                    ),
-                                    child: _buildMessage(
-                                      context,
-                                      e.item,
-                                      c,
-                                      () {
-                                        c.quotes.remove(e);
-                                        if (c.quotes.isEmpty) {
-                                          Navigator.of(context).pop();
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      )
-                    else if (c.replied.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height / 3,
-                        ),
-                        child: Scrollbar(
-                          controller: c.scrollController,
-                          child: ReorderableListView(
-                            scrollController: c.scrollController,
-                            shrinkWrap: true,
-                            buildDefaultDragHandles: PlatformUtils.isMobile,
-                            onReorder: (int old, int to) {
-                              if (old < to) {
-                                --to;
-                              }
-
-                              c.replied.insert(to, c.replied.removeAt(old));
-
-                              HapticFeedback.lightImpact();
-                            },
-                            proxyDecorator: (child, _, animation) {
-                              return AnimatedBuilder(
-                                animation: animation,
-                                builder: (_, child) {
-                                  final double t = Curves.easeInOut
-                                      .transform(animation.value);
-                                  final double elevation = lerpDouble(0, 6, t)!;
-                                  final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
-                                    t,
-                                  )!;
-
-                                  return InitCallback(
-                                    callback: HapticFeedback.selectionClick,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          CustomBoxShadow(
-                                            color: color,
-                                            blurRadius: elevation,
-                                          ),
-                                        ],
-                                      ),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: child,
-                              );
-                            },
-                            reverse: true,
-                            padding: const EdgeInsets.symmetric(horizontal: 1),
-                            children: c.replied.map((e) {
-                              return ReorderableDragStartListener(
-                                key: Key('Handle_${e.id}'),
-                                enabled: !PlatformUtils.isMobile,
-                                index: c.replied.indexOf(e),
-                                child: Dismissible(
-                                  key: Key('${e.id}'),
-                                  direction: DismissDirection.horizontal,
-                                  onDismissed: (_) => c.replied.remove(e),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 2,
-                                    ),
-                                    child: WidgetButton(
-                                      onPressed: () =>
-                                          onItemPressed?.call(e.id),
-                                      child: _buildMessage(
-                                        context,
-                                        e,
-                                        c,
-                                        () => c.replied.remove(e),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
+                          child: previews,
                         ),
                       ),
                     if (c.attachments.isNotEmpty) ...[
@@ -518,6 +428,101 @@ class MessageFieldView extends StatelessWidget {
         );
       });
     });
+  }
+
+  /// Builds a visual representation of the send field itself along with its
+  /// buttons.
+  Widget _buildField(MessageFieldController c, BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      decoration: BoxDecoration(color: style.cardColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          WidgetButton(
+            onPressed: canAttach
+                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
+                    ? c.pickFile
+                    : () => AttachmentSourceSelector.show(
+                          context,
+                          onPickFile: c.pickFile,
+                          onTakePhoto: c.pickImageFromCamera,
+                          onPickMedia: c.pickMedia,
+                          onTakeVideo: c.pickVideoFromCamera,
+                        )
+                : null,
+            child: SizedBox(
+              width: 56,
+              height: 56,
+              child: Center(
+                child: SvgLoader.asset(
+                  'assets/icons/attach.svg',
+                  height: 22,
+                  width: 22,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                bottom: 13,
+              ),
+              child: Transform.translate(
+                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                child: ReactiveTextField(
+                  onChanged: onChanged,
+                  key: fieldKey ?? const Key('MessageField'),
+                  state: c.field,
+                  hint: 'label_send_message_hint'.l10n,
+                  minLines: 1,
+                  maxLines: 7,
+                  filled: false,
+                  dense: true,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  style: style.boldBody.copyWith(fontSize: 17),
+                  type: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                ),
+              ),
+            ),
+          ),
+          Obx(() {
+            return GestureDetector(
+              onLongPress: canForward ? c.forwarding.toggle : null,
+              child: WidgetButton(
+                onPressed: c.field.submit,
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: 300.milliseconds,
+                      child: c.forwarding.value
+                          ? SvgLoader.asset(
+                              'assets/icons/forward.svg',
+                              width: 26,
+                              height: 22,
+                            )
+                          : SvgLoader.asset(
+                              key: sendKey ?? const Key('Send'),
+                              'assets/icons/send.svg',
+                              height: 22.85,
+                              width: 25.18,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   /// Returns a visual representation of the provided [Attachment].
@@ -623,12 +628,12 @@ class MessageFieldView extends StatelessWidget {
         return WidgetButton(
           key: key,
           onPressed: () {
-            final int index = c.attachments.indexOf(e);
+            final int index = c.attachments.indexWhere((m) => m.value == e);
             if (index != -1) {
               GalleryPopup.show(
                 context: context,
                 gallery: GalleryPopup(
-                  initial: c.attachments.indexOf(e),
+                  initial: index,
                   initialKey: key,
                   onTrashPressed: (int i) {
                     c.attachments.removeWhere((o) => o.value == attachments[i]);
@@ -637,13 +642,13 @@ class MessageFieldView extends StatelessWidget {
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
-                        e.original.url,
+                        o.original.url,
                         o.filename,
                         size: o.original.size,
                       );
                     }
                     return GalleryItem.video(
-                      e.original.url,
+                      o.original.url,
                       o.filename,
                       size: o.original.size,
                     );
@@ -830,13 +835,13 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Returns a visual representation of the provided [item].
-  Widget _buildMessage(
+  /// Returns a visual representation of the provided [item] as a preview.
+  Widget _buildPreview(
     BuildContext context,
     ChatItem item,
-    MessageFieldController c,
-    void Function() onClose,
-  ) {
+    MessageFieldController c, {
+    void Function()? onClose,
+  }) {
     final Style style = Theme.of(context).extension<Style>()!;
     final bool fromMe = item.authorId == c.me;
 
@@ -951,6 +956,100 @@ class MessageFieldView extends StatelessWidget {
       content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
+    final Widget expanded;
+
+    if (c.edited.value != null) {
+      expanded = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 12),
+          SvgLoader.asset('assets/icons/edit.svg', width: 17, height: 17),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    width: 2,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+              padding: const EdgeInsets.only(left: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'label_edit'.l10n,
+                    style: style.boldBody.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                  if (content != null) ...[
+                    const SizedBox(height: 2),
+                    DefaultTextStyle.merge(maxLines: 1, child: content),
+                  ],
+                  if (additional.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(children: additional),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      expanded = FutureBuilder<RxUser?>(
+        future: c.getUser(item.authorId),
+        builder: (context, snapshot) {
+          final Color color = snapshot.data?.user.value.id == c.me
+              ? Theme.of(context).colorScheme.secondary
+              : AvatarWidget.colors[
+                  (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                      AvatarWidget.colors.length];
+
+          return Container(
+            key: Key('Reply_${c.replied.indexOf(item)}'),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(width: 2, color: color)),
+            ),
+            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            padding: const EdgeInsets.only(left: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                snapshot.data != null
+                    ? Obx(() {
+                        return Text(
+                          snapshot.data!.user.value.name?.val ??
+                              snapshot.data!.user.value.num.val,
+                          style: style.boldBody.copyWith(color: color),
+                        );
+                      })
+                    : Text(
+                        'dot'.l10n * 3,
+                        style: style.boldBody.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(maxLines: 1, child: content),
+                ],
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(children: additional),
+                ],
+              ],
+            ),
+          );
+        },
+      );
+    }
+
     return MouseRegion(
       opaque: false,
       onEnter: (d) => c.hoveredReply.value = item,
@@ -964,112 +1063,7 @@ class MessageFieldView extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: c.editedMessage.value != null
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 12),
-                        SvgLoader.asset(
-                          'assets/icons/edit.svg',
-                          width: 17,
-                          height: 17,
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  width: 2,
-                                  color: Color(0xFF63B4FF),
-                                ),
-                              ),
-                            ),
-                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'label_edit'.l10n,
-                                  style: style.boldBody.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  DefaultTextStyle.merge(
-                                    maxLines: 1,
-                                    child: content,
-                                  ),
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Row(children: additional),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : FutureBuilder<RxUser?>(
-                      future: c.getUser(item.authorId),
-                      builder: (context, snapshot) {
-                        final Color color = snapshot.data?.user.value.id == c.me
-                            ? Theme.of(context).colorScheme.secondary
-                            : AvatarWidget.colors[
-                                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                    AvatarWidget.colors.length];
-
-                        return Container(
-                          key: Key('Reply_${c.replied.indexOf(item)}'),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              left: BorderSide(width: 2, color: color),
-                            ),
-                          ),
-                          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              snapshot.data != null
-                                  ? Obx(() {
-                                      return Text(
-                                        snapshot.data!.user.value.name?.val ??
-                                            snapshot.data!.user.value.num.val,
-                                        style: style.boldBody
-                                            .copyWith(color: color),
-                                      );
-                                    })
-                                  : Text(
-                                      ('dot'.l10n * 3),
-                                      style: style.boldBody.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                    ),
-                              if (content != null) ...[
-                                const SizedBox(height: 2),
-                                DefaultTextStyle.merge(
-                                  maxLines: 1,
-                                  child: content,
-                                ),
-                              ],
-                              if (additional.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Row(children: additional),
-                              ],
-                            ],
-                          ),
-                        );
-                      }),
-            ),
+            Expanded(child: expanded),
             Obx(() {
               final Widget child;
 

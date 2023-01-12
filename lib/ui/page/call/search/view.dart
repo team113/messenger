@@ -24,9 +24,9 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/tab/chats/widget/selected_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/selected_tile.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -131,16 +131,18 @@ class SearchView extends StatelessWidget {
                       c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
                       return Center(
-                          child: Text(
-                        'label_nothing_found'.l10n,
-                        textAlign: TextAlign.center,
-                      ));
+                        child: Text(
+                          'label_nothing_found'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
                     } else if (c.searchStatus.value.isEmpty) {
                       return Center(
-                          child: Text(
-                        'label_use_search'.l10n,
-                        textAlign: TextAlign.center,
-                      ));
+                        child: Text(
+                          'label_use_search'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
                     }
 
                     return const Center(child: CircularProgressIndicator());
@@ -153,7 +155,7 @@ class SearchView extends StatelessWidget {
                       delegate: FlutterListViewDelegate(
                         (context, i) {
                           final dynamic e = c.getIndex(i);
-                          Widget child = Container();
+                          final Widget child;
 
                           if (e is RxUser) {
                             child = Obx(() {
@@ -162,7 +164,6 @@ class SearchView extends StatelessWidget {
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
                                 darken: 0.05,
-                                filledSelector: true,
                                 onTap: selectable
                                     ? () => c.select(user: e)
                                     : enabled
@@ -176,7 +177,6 @@ class SearchView extends StatelessWidget {
                                 key: Key('SearchContact_${e.id}'),
                                 contact: e,
                                 darken: 0.05,
-                                filledSelector: true,
                                 selected: c.selectedContacts.contains(e),
                                 onTap: selectable
                                     ? () => c.select(contact: e)
@@ -190,7 +190,6 @@ class SearchView extends StatelessWidget {
                               return SelectedTile(
                                 chat: e,
                                 darken: 0.05,
-                                filledSelector: true,
                                 selected: c.selectedChats.contains(e),
                                 onTap: selectable
                                     ? () => c.select(chat: e)
@@ -199,6 +198,8 @@ class SearchView extends StatelessWidget {
                                         : null,
                               );
                             });
+                          } else {
+                            child = const SizedBox();
                           }
 
                           return child;

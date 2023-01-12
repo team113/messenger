@@ -26,6 +26,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -33,7 +34,6 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
-import 'widget/selected_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {

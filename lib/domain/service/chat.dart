@@ -103,9 +103,7 @@ class ChatService extends DisposableService {
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {
       text ??= const ChatMessageText(' ');
-    }
-
-    if (text != null) {
+    } else if (text != null) {
       text = ChatMessageText(text.val.trim());
 
       if (text.val.length > ChatMessageText.maxLength) {

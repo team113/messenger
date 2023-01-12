@@ -459,7 +459,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _bottomBar(c, context),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -847,27 +847,29 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c, BuildContext context) {
-    if (c.edit.editedMessage.value != null) {
-      return MessageFieldView(
-        key: const Key('EditMessageFieldView'),
-        controller: c.edit,
-        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-        canAttach: false,
-      );
-    }
+  Widget _bottomBar(ChatController c) {
+    return Obx(() {
+      if (c.edit.value != null) {
+        return MessageFieldView(
+          key: const Key('EditField'),
+          controller: c.edit.value,
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          canAttach: false,
+        );
+      }
 
-    return MessageFieldView(
-      key: const Key('SendMessageField'),
-      controller: c.send,
-      onChanged: c.keepTyping,
-      onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
-      canForward: true,
-    );
+      return MessageFieldView(
+        key: const Key('SendField'),
+        controller: c.send,
+        onChanged: c.keepTyping,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canForward: true,
+      );
+    });
   }
 
-  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
-  /// [duration].
+  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
+  /// the provided [duration].
   ///
   /// Defaults to 50 milliseconds if no [duration] is provided.
   void _resetHorizontalScroll(ChatController c, [Duration? duration]) {

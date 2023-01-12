@@ -116,7 +116,7 @@ class ChatController extends GetxController {
   late final MessageFieldController send;
 
   /// [MessageFieldController] for editing a [ChatMessage].
-  late final MessageFieldController edit;
+  final Rx<MessageFieldController?> edit = Rx(null);
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -322,45 +322,8 @@ class ChatController extends GetxController {
             _typingTimer?.cancel();
 
             if (!PlatformUtils.isMobile) {
-              Future.delayed(
-                Duration.zero,
-                () => send.field.focus.requestFocus(),
-              );
+              Future.delayed(Duration.zero, send.field.focus.requestFocus);
             }
-          }
-        }
-      },
-    );
-
-    edit = MessageFieldController(
-      _chatService,
-      _userService,
-      onSubmit: () async {
-        final ChatMessage item = edit.editedMessage.value as ChatMessage;
-        if (edit.field.text == item.text?.val) {
-          edit.editedMessage.value = null;
-        } else if (edit.field.text.isNotEmpty || item.attachments.isNotEmpty) {
-          ChatMessageText? text;
-          if (edit.field.text.isNotEmpty) {
-            text = ChatMessageText(edit.field.text);
-          }
-
-          try {
-            await _chatService.editChatMessage(item, text);
-            edit.editedMessage.value = null;
-
-            _typingSubscription?.cancel();
-            _typingSubscription = null;
-            _typingTimer?.cancel();
-
-            if (send.field.isEmpty.isFalse) {
-              send.field.focus.requestFocus();
-            }
-          } on EditChatMessageException catch (e) {
-            MessagePopup.error(e);
-          } catch (e) {
-            MessagePopup.error(e);
-            rethrow;
           }
         }
       },
@@ -392,6 +355,9 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+
+    send.onClose();
+    edit.value?.onClose();
 
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
@@ -462,13 +428,58 @@ class ChatController extends GetxController {
     }
 
     if (item is ChatMessage) {
-      edit.editedMessage.value = item;
+      edit.value ??= MessageFieldController(
+        _chatService,
+        _userService,
+        text: item.text?.val,
+        onSubmit: () async {
+          final ChatMessage item = edit.value?.edited.value as ChatMessage;
+
+          if (edit.value?.field.text == item.text?.val) {
+            edit.value?.onClose();
+            edit.value = null;
+          } else if (edit.value!.field.text.isNotEmpty ||
+              item.attachments.isNotEmpty) {
+            ChatMessageText? text;
+            if (edit.value!.field.text.isNotEmpty) {
+              text = ChatMessageText(edit.value!.field.text);
+            }
+
+            try {
+              await _chatService.editChatMessage(item, text);
+
+              edit.value?.onClose();
+              edit.value = null;
+
+              _typingSubscription?.cancel();
+              _typingSubscription = null;
+              _typingTimer?.cancel();
+
+              if (send.field.isEmpty.isFalse) {
+                send.field.focus.requestFocus();
+              }
+            } on EditChatMessageException catch (e) {
+              MessagePopup.error(e);
+            } catch (e) {
+              MessagePopup.error(e);
+              rethrow;
+            }
+          }
+        },
+        onChanged: () {
+          if (edit.value?.edited.value == null) {
+            edit.value?.onClose();
+            edit.value = null;
+          }
+        },
+      );
+
+      edit.value?.edited.value = item;
+      edit.value?.field.focus.requestFocus();
     }
   }
 
-  /// Updates [RxChat.draft] with the current [send] values,
-  /// [MessageFieldController.attachments] and [MessageFieldController.replied]
-  /// fields.
+  /// Updates [RxChat.draft] with the current values of the [send] field.
   void updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
@@ -498,9 +509,10 @@ class ChatController extends GetxController {
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
 
-      ChatMessage? draft = chat!.draft.value;
+      final ChatMessage? draft = chat!.draft.value;
 
-      send.initialText = draft?.text?.val;
+      send.field.unchecked = draft?.text?.val;
+      send.field.unsubmit();
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
@@ -964,8 +976,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Adds the specified [details] files to the
-  /// [MessageFieldController.attachments].
+  /// Adds the specified [details] files to the [send] field.
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
       send.addPlatformAttachment(PlatformFile(

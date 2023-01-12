@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,7 +68,7 @@ class ChatForwardView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
-        maxHeight: 650,
+        maxHeight: 800,
       ),
       mobilePadding: const EdgeInsets.all(0),
       desktopPadding: const EdgeInsets.all(0),
@@ -124,6 +126,12 @@ class ChatForwardView extends StatelessWidget {
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),
+                          constraints: BoxConstraints(
+                            maxHeight: min(
+                                    MediaQuery.of(context).size.height - 10,
+                                    800) /
+                                4,
+                          ),
                           controller: c.send,
                         ),
                       ),

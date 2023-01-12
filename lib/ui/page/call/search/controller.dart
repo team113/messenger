@@ -312,14 +312,6 @@ class SearchController extends GetxController {
       final List<RxChat> sorted = _chatService.chats.values.toList();
 
       sorted.sort((a, b) {
-        if (a.chat.value.ongoingCall != null &&
-            b.chat.value.ongoingCall == null) {
-          return -1;
-        } else if (a.chat.value.ongoingCall == null &&
-            b.chat.value.ongoingCall != null) {
-          return 1;
-        }
-
         if (a.chat.value.favoritePosition != null &&
             b.chat.value.favoritePosition == null) {
           return -1;
@@ -330,6 +322,14 @@ class SearchController extends GetxController {
             b.chat.value.favoritePosition != null) {
           return a.chat.value.favoritePosition!
               .compareTo(b.chat.value.favoritePosition!);
+        }
+
+        if (a.chat.value.ongoingCall != null &&
+            b.chat.value.ongoingCall == null) {
+          return -1;
+        } else if (a.chat.value.ongoingCall == null &&
+            b.chat.value.ongoingCall != null) {
+          return 1;
         }
 
         return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
@@ -534,7 +534,7 @@ class SearchViewResults {
   /// [RxChatContact]s themselves.
   final List<RxChatContact> contacts;
 
-  /// Recent [RxUser]s.
+  /// Recent [RxUser] themselves.
   final List<RxUser> recent;
 
   /// Indicates whether [chats], [users], [contacts] and [recent] are empty.

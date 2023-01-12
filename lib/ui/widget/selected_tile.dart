@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
@@ -39,8 +40,6 @@ class SelectedTile extends StatelessWidget {
     this.subtitle = const [],
     this.onTap,
     this.darken = 0,
-    this.navigateToUser = true,
-    this.filledSelector = false,
   });
 
   /// [RxUser] this [SelectedTile] is about.
@@ -69,12 +68,6 @@ class SelectedTile extends StatelessWidget {
   /// [ChatTile].
   final double darken;
 
-  /// Indicator whether tap on avatar should navigate to [User]s profile or not.
-  final bool navigateToUser;
-
-  /// Indicator whether selected indicator should be filled or not.
-  final bool filledSelector;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -88,14 +81,12 @@ class SelectedTile extends StatelessWidget {
               subtitle: subtitle,
               darken: darken,
               onTap: onTap,
-              avatarBuilder: navigateToUser
-                  ? (c) => WidgetButton(
-                        onPressed: () => router.user(
-                          user?.id ?? contact?.user.value?.id ?? myUser!.id,
-                        ),
-                        child: c,
-                      )
-                  : null,
+              avatarBuilder: (c) => WidgetButton(
+                onPressed: () => router.user(
+                  user?.id ?? contact?.user.value?.id ?? myUser!.id,
+                ),
+                child: c,
+              ),
               trailing: _trailing(context),
             )
           : ChatTile(
@@ -132,9 +123,8 @@ class SelectedTile extends StatelessWidget {
                 : Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: filledSelector ? const Color(0xFFD7D7D7) : null,
                       border: Border.all(
-                        color: const Color(0xFFD7D7D7),
+                        color: const Color(0xFFD7D7D7).darken(darken),
                         width: 1,
                       ),
                     ),

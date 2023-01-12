@@ -48,78 +48,17 @@ class MessageFieldController extends GetxController {
     this._userService, {
     this.onSubmit,
     this.onChanged,
+    String? text,
     List<ChatItemQuote>? quotes,
     List<Attachment>? attachments,
-  }) {
-    if (quotes != null) {
-      this.quotes.addAll(quotes);
-    }
-    if (attachments != null) {
-      this.attachments.addAll(
-            attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
-          );
-    }
-  }
-
-  /// [Attachment]s to be attached to a message.
-  final RxList<MapEntry<GlobalKey, Attachment>> attachments =
-      RxList<MapEntry<GlobalKey, Attachment>>();
-
-  /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> replied = RxList<ChatItem>();
-
-  /// [ChatItemQuote]s to be forwarded.
-  final RxList<ChatItemQuote> quotes = RxList<ChatItemQuote>();
-
-  /// [ChatItem] being edited.
-  final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
-
-  /// Callback, called when this [MessageFieldController] is submitted.
-  final void Function()? onSubmit;
-
-  /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment = Rx(null);
-
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding = RxBool(false);
-
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
-
-  /// Maximum allowed [NativeFile.size] of an [Attachment].
-  static const int maxAttachmentSize = 15 * 1024 * 1024;
-
-  /// Callback, called when message was changed.
-  final void Function()? onChanged;
-
-  /// Initial message text.
-  String? initialText;
-
-  /// [TextFieldState] for a [ChatMessageText].
-  late final TextFieldState field;
-
-  /// [Chat]s service uploading the [attachments].
-  final ChatService _chatService;
-
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
-  /// Worker capturing any [MessageFieldController.replied] changes.
-  Worker? _repliesWorker;
-
-  /// Worker capturing any [MessageFieldController.attachments] changes.
-  Worker? _attachmentsWorker;
-
-  /// Returns [MyUser]'s [UserId].
-  UserId? get me => _chatService.me;
-
-  @override
-  void onInit() {
+  })  : quotes = RxList(quotes ?? []),
+        attachments = RxList(
+          attachments?.map((e) => MapEntry(GlobalKey(), e)).toList() ?? [],
+        ) {
     field = TextFieldState(
+      text: text,
       onChanged: (_) => onChanged?.call(),
+      submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
         onSubmit?.call();
@@ -156,30 +95,81 @@ class MessageFieldController extends GetxController {
       ),
     );
 
-    if (initialText != null && initialText!.isNotEmpty) {
-      field.text = initialText!;
-    }
-
-    if (editedMessage.value != null && editedMessage.value is ChatMessage) {
-      field.text = (editedMessage.value! as ChatMessage).text?.val ?? '';
+    if (edited.value != null && edited.value is ChatMessage) {
+      field.text = (edited.value! as ChatMessage).text?.val ?? '';
       field.focus.requestFocus();
     }
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
-    _attachmentsWorker ??= ever(attachments, (_) => onChanged?.call());
-
-    super.onInit();
+    _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
+    _editedWorker ??= ever(edited, (_) => onChanged?.call());
   }
+
+  /// Callback, called when this [MessageFieldController] is submitted.
+  final void Function()? onSubmit;
+
+  /// Callback, called on the [field], [attachments], [replied], [edited]
+  /// changes.
+  final void Function()? onChanged;
+
+  /// [TextFieldState] for a [ChatMessageText].
+  late final TextFieldState field;
+
+  /// [Attachment]s to be attached to a message.
+  late final RxList<MapEntry<GlobalKey, Attachment>> attachments;
+
+  /// [ChatItem] being quoted to reply onto.
+  final RxList<ChatItem> replied = RxList<ChatItem>();
+
+  /// [ChatItemQuote]s to be forwarded.
+  late final RxList<ChatItemQuote> quotes;
+
+  /// [ChatItem] being edited.
+  final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
+
+  /// [Attachment] being hovered.
+  final Rx<Attachment?> hoveredAttachment = Rx(null);
+
+  /// Replied [ChatItem] being hovered.
+  final Rx<ChatItem?> hoveredReply = Rx(null);
+
+  /// Indicator whether forwarding mode is enabled.
+  final RxBool forwarding = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Maximum allowed [NativeFile.size] of an [Attachment].
+  static const int maxAttachmentSize = 15 * 1024 * 1024;
+
+  /// [Chat]s service uploading the [attachments].
+  final ChatService _chatService;
+
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
+
+  /// Worker capturing any [replied] changes.
+  Worker? _repliesWorker;
+
+  /// Worker capturing any [attachments] changes.
+  Worker? _attachmentsWorker;
+
+  /// Worker capturing any [replied] changes.
+  Worker? _editedWorker;
+
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _chatService.me;
 
   @override
   void onClose() {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
-
+    _editedWorker?.dispose();
+    clear();
     super.onClose();
   }
 
-  /// Clear local values.
+  /// Resets the [replied], [attachments] and [field].
   void clear() {
     replied.clear();
     attachments.clear();

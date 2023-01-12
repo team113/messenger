@@ -93,6 +93,7 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      text: text,
       quotes: quotes,
       attachments: attachments,
       onSubmit: () async {
@@ -181,6 +182,12 @@ class ChatForwardController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    send.onClose();
+    super.onClose();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
