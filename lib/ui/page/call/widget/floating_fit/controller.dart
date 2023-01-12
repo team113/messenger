@@ -32,10 +32,10 @@ class FloatingFitController extends GetxController {
   /// [Rect] to relocate the floating panel.
   final Rx<Rect?>? relocateRect;
 
-  /// Indicator whether the secondary view is being scaled.
+  /// Indicator whether the floating panel is being scaled.
   final RxBool floatingScaled = RxBool(false);
 
-  /// Indicator whether the secondary view is being dragged.
+  /// Indicator whether the floating panel is being dragged.
   final RxBool floatingDragged = RxBool(false);
 
   /// Secondary view current left position.
@@ -56,17 +56,17 @@ class FloatingFitController extends GetxController {
   /// Secondary view current height.
   late final RxDouble floatingHeight;
 
-  /// [floatingWidth] or [floatingHeight] of the secondary view before its
+  /// [floatingWidth] or [floatingHeight] of the floating panel before its
   /// scaling.
   double? floatingUnscaledSize;
 
-  /// [Offset] the secondary view has relative to the pan gesture position.
+  /// [Offset] the floating panel has relative to the pan gesture position.
   Offset? floatingPanningOffset;
 
-  /// [GlobalKey] of the secondary view.
+  /// [GlobalKey] of the floating panel.
   final GlobalKey floatingKey = GlobalKey();
 
-  /// [floatingBottom] value before the secondary view got relocated with the
+  /// [floatingBottom] value before the floating panel got relocated with the
   /// [relocateFloating] method.
   double? floatingBottomShifted = 10;
 
@@ -74,19 +74,19 @@ class FloatingFitController extends GetxController {
   /// current frame.
   bool _floatingRelocated = false;
 
-  /// [Worker] reacting on the [relocateRect] changes relocating secondary view.
+  /// [Worker] reacting on the [relocateRect] changes relocating floating panel.
   Worker? _relocateWorker;
 
-  /// Max width of the secondary view in percentage of the call width.
+  /// Max width of the floating panel in percentage of the call width.
   static const double _maxFWidth = 0.80;
 
-  /// Max height of the secondary view in percentage of the call height.
+  /// Max height of the floating panel in percentage of the call height.
   static const double _maxFHeight = 0.80;
 
-  /// Min width of the secondary view in pixels.
+  /// Min width of the floating panel in pixels.
   static const double _minFWidth = 125;
 
-  /// Min height of the secondary view in pixels.
+  /// Min height of the floating panel in pixels.
   static const double _minFHeight = 125;
 
   /// Returns actual size of the [FloatingFit] this controller is bound to.
@@ -96,11 +96,11 @@ class FloatingFitController extends GetxController {
   void onInit() {
     super.onInit();
 
-    double secondarySize = (size.shortestSide *
+    double floatingSize = (size.shortestSide *
             (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
         .clamp(_minFHeight, 250);
-    floatingWidth = RxDouble(secondarySize);
-    floatingHeight = RxDouble(secondarySize);
+    floatingWidth = RxDouble(floatingSize);
+    floatingHeight = RxDouble(floatingSize);
 
     if (relocateRect != null) {
       _relocateWorker = ever(relocateRect!, (_) => relocateFloating());
@@ -113,16 +113,16 @@ class FloatingFitController extends GetxController {
     _relocateWorker?.dispose();
   }
 
-  /// Relocates the secondary view accounting the possible intersections.
+  /// Relocates the floating panel accounting the possible intersections.
   void relocateFloating() {
     if (floatingDragged.isFalse &&
         floatingScaled.isFalse &&
         !_floatingRelocated) {
       _floatingRelocated = true;
 
-      final Rect? secondaryBounds = floatingKey.globalPaintBounds;
+      final Rect? floatingBounds = floatingKey.globalPaintBounds;
       Rect intersect =
-          secondaryBounds?.intersect(relocateRect?.value ?? Rect.zero) ??
+          floatingBounds?.intersect(relocateRect?.value ?? Rect.zero) ??
               Rect.zero;
 
       intersect = Rect.fromLTWH(
@@ -133,7 +133,7 @@ class FloatingFitController extends GetxController {
       );
 
       if (intersect.width > 0 && intersect.height > 0) {
-        // Intersection is non-zero, so move the secondary panel up.
+        // Intersection is non-zero, so move the floating panel up.
         if (floatingBottom.value != null) {
           floatingBottom.value = floatingBottom.value! + intersect.height;
         } else {
@@ -143,7 +143,7 @@ class FloatingFitController extends GetxController {
         applyFloatingConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
           floatingBottomShifted != null) {
-        // Intersection is less than zero and the secondary panel is higher than
+        // Intersection is less than zero and the floating panel is higher than
         // it was before, so move it to its original position.
         double bottom = floatingBottom.value ??
             size.height - floatingTop.value! - floatingHeight.value;
@@ -289,7 +289,7 @@ class FloatingFitController extends GetxController {
     floatingBottom.value = _applyFBottom(floatingBottom.value);
   }
 
-  /// Scales the secondary view by the provided [scale].
+  /// Scales the floating panel by the provided [scale].
   void scaleFloating(double scale) {
     _scaleFWidth(scale);
     _scaleFHeight(scale);
@@ -320,7 +320,7 @@ class FloatingFitController extends GetxController {
     }
   }
 
-  /// Returns corrected according to secondary constraints [width] value.
+  /// Returns corrected according to floating constraints [width] value.
   double _applyFWidth(double width) {
     if (_minFWidth > size.width * _maxFWidth) {
       return size.width * _maxFWidth;
@@ -332,7 +332,7 @@ class FloatingFitController extends GetxController {
     return width;
   }
 
-  /// Returns corrected according to secondary constraints [height] value.
+  /// Returns corrected according to floating constraints [height] value.
   double _applyFHeight(double height) {
     if (_minFHeight > size.height * _maxFHeight) {
       return size.height * _maxFHeight;
@@ -344,7 +344,7 @@ class FloatingFitController extends GetxController {
     return height;
   }
 
-  /// Returns corrected according to secondary constraints [left] value.
+  /// Returns corrected according to floating constraints [left] value.
   double? _applyFLeft(double? left) {
     if (left != null) {
       if (left + floatingWidth.value > size.width) {
@@ -357,7 +357,7 @@ class FloatingFitController extends GetxController {
     return left;
   }
 
-  /// Returns corrected according to secondary constraints [right] value.
+  /// Returns corrected according to floating constraints [right] value.
   double? _applyFRight(double? right) {
     if (right != null) {
       if (right + floatingWidth.value > size.width) {
@@ -370,7 +370,7 @@ class FloatingFitController extends GetxController {
     return right;
   }
 
-  /// Returns corrected according to secondary constraints [top] value.
+  /// Returns corrected according to floating constraints [top] value.
   double? _applyFTop(double? top) {
     if (top != null) {
       if (top + floatingHeight.value > size.height) {
@@ -383,7 +383,7 @@ class FloatingFitController extends GetxController {
     return top;
   }
 
-  /// Returns corrected according to secondary constraints [bottom] value.
+  /// Returns corrected according to floating constraints [bottom] value.
   double? _applyFBottom(double? bottom) {
     if (bottom != null) {
       if (bottom + floatingHeight.value > size.height) {

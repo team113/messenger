@@ -63,7 +63,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ),
     ];
 
-    // Layer of [MouseRegion]s to determine the hovered renderer.
+    // Layer to show error messages.
     List<Widget> overlay = [];
 
     // Active call.
@@ -117,13 +117,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                    c.primaryDrags.value != 0 ||
-                    c.secondaryDragged.value;
-
-                final bool isHovered =
-                    c.hoveredRenderer.value == e && !anyDragIsHappening;
-
                 return Stack(
                   children: [
                     const ParticipantDecoratorWidget(),
@@ -136,7 +129,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ParticipantOverlayWidget(
                       e,
                       muted: muted,
-                      hovered: isHovered,
+                      hovered: true,
                       preferBackdrop: !c.minimized.value,
                     ),
                   ],

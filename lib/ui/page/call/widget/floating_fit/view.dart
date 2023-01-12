@@ -262,10 +262,6 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  // final Participant participant = c.secondary.first;
-                  // c.unfocusAll();
-                  // c.focus(participant);
-                  // c.keepUi(false);
                   _swap();
                 },
                 onScaleStart: (d) {
