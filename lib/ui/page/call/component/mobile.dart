@@ -73,23 +73,12 @@ Widget mobileCall(CallController c, BuildContext context) {
         Obx(() {
           if (c.primary.length == 1 && c.secondary.length == 1) {
             return FloatingFit<Participant>(
-              items: c.primary,
+              primary: c.primary.first,
               panel: c.secondary.first,
               showPanel: c.minimized.isFalse,
               relocateRect: c.dockRect,
+              onManipulating: (bool m) => c.secondaryManipulated.value = m,
               itemBuilder: (e) {
-                return Obx(() {
-                  final bool muted = e.member.owner == MediaOwnerKind.local
-                      ? !c.audioState.value.isEnabled
-                      : e.audio.value?.isMuted.value ?? false;
-
-                  final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                      c.primaryDrags.value != 0 ||
-                      c.secondaryDragged.value;
-
-                  final bool isHovered =
-                      c.hoveredRenderer.value == e && !anyDragIsHappening;
-
                   return Stack(
                     children: [
                       const ParticipantDecoratorWidget(),
@@ -99,13 +88,20 @@ Widget mobileCall(CallController c, BuildContext context) {
                           offstageUntilDetermined: true,
                         ),
                       ),
-                      ParticipantOverlayWidget(
-                        e,
-                        muted: muted,
-                        hovered: isHovered,
-                        preferBackdrop: !c.minimized.value,
-                      ),
                     ],
+                  );
+              },
+              itemDecorationBuilder: (e) {
+                return Obx(() {
+                  final bool muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : e.audio.value?.isMuted.value ?? false;
+
+                  return ParticipantOverlayWidget(
+                    e,
+                    muted: muted,
+                    hovered: true,
+                    preferBackdrop: !c.minimized.value,
                   );
                 });
               },
@@ -306,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
       // Listen to the taps only if the call is not minimized.
       Obx(() {
-        return c.minimized.value
+        return c.minimized.isTrue
             ? Container()
             : Listener(
                 behavior: HitTestBehavior.translucent,
@@ -316,6 +312,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   c.downButtons = d.buttons;
                 },
                 onPointerUp: (d) {
+                  if (c.secondaryManipulated.isTrue) return;
                   if (c.downButtons & kPrimaryButton != 0) {
                     if (c.state.value == OngoingCallState.active) {
                       final distance = (d.localPosition.distanceSquared -

@@ -24,82 +24,64 @@ import '../animated_transition.dart';
 import '../fit_view.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
-/// TODO:
-/// 1. Primary view and floating secondary panel
-/// 2. Primary/secondary should be reported back (via callbacks?), or use RxLists directly to manipulate them here?
-/// 3. Clicking on secondary changes places with primary WITH ANIMATION
-// class FloatingFit<T> extends StatefulWidget {
-//   const FloatingFit({
-//     super.key,
-//     required this.primary,
-//     required this.secondary,
-//   });
-//
-//   final RxList<T> primary;
-//   final RxList<T> secondary;
-//
-//   @override
-//   State<FloatingFit> createState() => _FloatingFitState();
-// }
-//
-// class _FloatingFitState extends State<FloatingFit> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [],
-//     );
-//   }
-// }
-
-/// Widget placing its [items] in a stage with the provided [panel]ed item
-/// allowing to swap [items] back and forth.
+/// Widget placing its [panel]ed item in floating panel allowing to swap
+/// [primary] and [panel]ed items.
 class FloatingFit<T> extends StatefulWidget {
   const FloatingFit({
     super.key,
     required this.itemBuilder,
-    this.items = const [],
+    required this.itemDecorationBuilder,
+    required this.primary,
     required this.panel,
     this.showPanel = true,
     this.relocateRect,
+    this.onManipulating,
   });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  /// Items of this [FloatingFit].
-  final List<T> items;
+  final Widget Function(T data) itemDecorationBuilder;
 
-  /// Item to put in secondary panel.
+  /// Items of this [FloatingFit].
+  final T primary;
+
+  /// Item to put in floating panel.
   final T panel;
 
-  /// Indicator whether secondary view should be showed.
+  /// Indicator whether floating panel should be showed.
   final bool showPanel;
 
+  /// [Rect] used to relocate floating panel if intersected.
   final Rx<Rect?>? relocateRect;
+
+  /// Callback called when manipulating with floating panel starts or ends.
+  final void Function(bool)? onManipulating;
 
   @override
   State<FloatingFit> createState() => _FloatingFitState<T>();
 }
 
-/// State of a [FloatingFit] maintaining and animating the [_items].
+/// State of a [FloatingFit] maintaining and animating the [_primary].
 class _FloatingFitState<T> extends State<FloatingFit<T>> {
-  /// [_FloatingItem]s of this [FloatingFit].
-  late final List<_FloatingItem<T>> _items;
+  /// Primary [_FloatingItem] of this [FloatingFit].
+  late _FloatingItem<T> _primary;
 
-  /// Item to put in secondary panel.
+  /// Item to put in floating panel.
   late _FloatingItem<T> _panelled;
 
-  /// Count of the [_items] being animated.
+  /// Count of the items being animated.
   ///
-  /// Used to block interaction with [_items] when is not zero.
+  /// Used to block interaction when is not zero.
   int _locked = 0;
 
   @override
   void initState() {
-    _items = widget.items.map((e) => _FloatingItem(e)).toList();
+    _primary = _FloatingItem(widget.primary);
     _panelled = _FloatingItem(widget.panel);
 
     super.initState();
@@ -107,19 +89,15 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
 
   @override
   void didUpdateWidget(covariant FloatingFit<T> oldWidget) {
-    for (T e in widget.items) {
-      if (_items.none((p) => p.item == e)) {
-        _items.add(_FloatingItem(e));
+    if (widget.showPanel == oldWidget.showPanel) {
+      if (_primary.item != widget.primary) {
+        _primary = _FloatingItem(widget.primary);
+      }
+
+      if (_panelled.item != widget.panel) {
+        _panelled = _FloatingItem(widget.panel);
       }
     }
-
-    _items.removeWhere((e) => widget.items.none((p) => p == e.item));
-
-    Future.delayed(Duration.zero, () {
-      if (_panelled.item != widget.panel) {
-        _swap();
-      }
-    });
 
     super.didUpdateWidget(oldWidget);
   }
@@ -138,22 +116,34 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               children: [
                 FitView(
                   children: [
-                    ..._items.map(
-                      (e) => e.entry == null
-                          ? KeyedSubtree(
-                              key: e.itemKey,
-                              child: widget.itemBuilder(e.item),
-                            )
-                          : Container(),
-                    ),
+                    _primary.entry == null
+                        ? KeyedSubtree(
+                            key: _primary.itemKey,
+                            child: Stack(
+                              children: [
+                                widget.itemBuilder(_primary.item),
+                                AnimatedDelayedSwitcher(
+                                  duration: 100.milliseconds,
+                                  child: widget
+                                      .itemDecorationBuilder(_primary.item),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
                     if (!widget.showPanel)
                       KeyedSubtree(
                         key: _panelled.itemKey,
-                        child: widget.itemBuilder(_panelled.item),
+                        child: Stack(
+                          children: [
+                            widget.itemBuilder(_panelled.item),
+                            widget.itemDecorationBuilder(_panelled.item),
+                          ],
+                        ),
                       ),
                   ],
                 ),
-                if (widget.showPanel) _secondaryPanel(c, context, constraints),
+                if (widget.showPanel) _floatingPanel(c, context, constraints),
               ],
             );
           }),
@@ -162,26 +152,26 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     );
   }
 
-  /// [FitWrap] of the [CallController.secondary] widgets.
-  Widget _secondaryPanel(
+  /// Returns visual representation of a floating panel.
+  Widget _floatingPanel(
     FloatingFitController c,
     BuildContext context,
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      double? left = c.secondaryLeft.value;
-      double? top = c.secondaryTop.value;
-      double? right = c.secondaryRight.value;
-      double? bottom = c.secondaryBottom.value;
-      double width = c.secondaryWidth.value;
-      double height = c.secondaryHeight.value;
+      double? left = c.floatingLeft.value;
+      double? top = c.floatingTop.value;
+      double? right = c.floatingRight.value;
+      double? bottom = c.floatingBottom.value;
+      double width = c.floatingWidth.value;
+      double height = c.floatingHeight.value;
 
       return Stack(
         fit: StackFit.expand,
         children: [
           // Display a shadow below the view.
           Positioned(
-            key: c.secondaryKey,
+            key: c.floatingKey,
             left: left,
             right: right,
             top: top,
@@ -229,7 +219,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
             ),
           ),
 
-          // Secondary panel itself.
+          // Floating panel itself.
           Positioned(
             left: left,
             right: right,
@@ -244,22 +234,31 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 child: _panelled.entry == null
                     ? KeyedSubtree(
                         key: _panelled.itemKey,
-                        child: widget.itemBuilder(_panelled.item),
+                        child: Stack(
+                          children: [
+                            widget.itemBuilder(_panelled.item),
+                            AnimatedDelayedSwitcher(
+                              duration: 100.milliseconds,
+                              child:
+                                  widget.itemDecorationBuilder(_panelled.item),
+                            ),
+                          ],
+                        ),
                       )
                     : null,
               ),
             ),
           ),
 
-          // [Listener] manipulating secondary view.
+          // [Listener] manipulating this panel.
           Positioned(
             left: left,
             right: right,
             top: top,
             bottom: bottom,
             child: Listener(
-              onPointerDown: (_) => c.secondaryManipulated.value = true,
-              onPointerUp: (_) => c.secondaryManipulated.value = false,
+              onPointerDown: (_) => widget.onManipulating?.call(true),
+              onPointerUp: (_) => widget.onManipulating?.call(false),
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
@@ -270,43 +269,43 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                   _swap();
                 },
                 onScaleStart: (d) {
-                  c.secondaryBottomShifted = null;
+                  c.floatingBottomShifted = null;
 
-                  c.secondaryLeft.value ??= c.size.width -
-                      c.secondaryWidth.value -
-                      (c.secondaryRight.value ?? 0);
-                  c.secondaryTop.value ??= c.size.height -
-                      c.secondaryHeight.value -
-                      (c.secondaryBottom.value ?? 0);
+                  c.floatingLeft.value ??= c.size.width -
+                      c.floatingWidth.value -
+                      (c.floatingRight.value ?? 0);
+                  c.floatingTop.value ??= c.size.height -
+                      c.floatingHeight.value -
+                      (c.floatingBottom.value ?? 0);
 
-                  c.secondaryRight.value = null;
-                  c.secondaryBottom.value = null;
+                  c.floatingRight.value = null;
+                  c.floatingBottom.value = null;
 
                   if (d.pointerCount == 1) {
-                    c.secondaryDragged.value = true;
-                    c.calculateSecondaryPanning(d.focalPoint);
-                    c.applySecondaryConstraints();
+                    c.floatingDragged.value = true;
+                    c.calculateFloatingPanning(d.focalPoint);
+                    c.applyFloatingConstraints();
                   } else if (d.pointerCount == 2) {
-                    c.secondaryUnscaledSize =
-                        max(c.secondaryWidth.value, c.secondaryHeight.value);
-                    c.secondaryScaled.value = true;
-                    c.calculateSecondaryPanning(d.focalPoint);
+                    c.floatingUnscaledSize =
+                        max(c.floatingWidth.value, c.floatingHeight.value);
+                    c.floatingScaled.value = true;
+                    c.calculateFloatingPanning(d.focalPoint);
                   }
                 },
                 onScaleUpdate: (d) {
-                  c.updateSecondaryOffset(d.focalPoint);
+                  c.updateFloatingOffset(d.focalPoint);
                   if (d.pointerCount == 2) {
-                    c.scaleSecondary(d.scale);
+                    c.scaleFloating(d.scale);
                   }
 
-                  c.applySecondaryConstraints();
+                  c.applyFloatingConstraints();
                 },
                 onScaleEnd: (d) {
-                  c.secondaryDragged.value = false;
-                  c.secondaryScaled.value = false;
-                  c.secondaryUnscaledSize = null;
+                  c.floatingDragged.value = false;
+                  c.floatingScaled.value = false;
+                  c.floatingUnscaledSize = null;
 
-                  c.updateSecondaryAttach();
+                  c.updateFloatingAttach();
                 },
                 child: Container(
                   width: width,
@@ -321,16 +320,16 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
   }
 
-  /// Swaps the two provided items.
+  /// Swaps the [_panelled] and [_primary] items.
   void _swap() {
     final _FloatingItem<T> panelled = _panelled;
-    final _FloatingItem<T> item = _items.first;
+    final _FloatingItem<T> primary = _primary;
 
     ++_locked;
     panelled.entry = OverlayEntry(builder: (context) {
       return AnimatedTransition(
         beginRect: panelled.itemKey.globalPaintBounds ?? Rect.zero,
-        endRect: item.itemKey.globalPaintBounds ?? Rect.largest,
+        endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
         curve: Curves.ease,
         onEnd: () {
           panelled.entry?.remove();
@@ -343,26 +342,25 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
 
     ++_locked;
-    item.entry = OverlayEntry(builder: (context) {
+    primary.entry = OverlayEntry(builder: (context) {
       return AnimatedTransition(
-        beginRect: item.itemKey.globalPaintBounds ?? Rect.zero,
+        beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: panelled.itemKey.globalPaintBounds ?? Rect.largest,
         curve: Curves.ease,
         onEnd: () {
-          item.entry?.remove();
-          item.entry = null;
+          primary.entry?.remove();
+          primary.entry = null;
           --_locked;
           setState(() {});
         },
-        child: widget.itemBuilder(item.item),
+        child: widget.itemBuilder(primary.item),
       );
     });
 
-    _panelled = item;
-    _items.removeAt(0);
-    _items.insert(0, panelled);
+    Overlay.of(context)?.insertAll([panelled.entry, primary.entry].whereNotNull());
 
-    Overlay.of(context)?.insertAll([panelled.entry, item.entry].whereNotNull());
+    _panelled = primary;
+    _primary = panelled;
 
     setState(() {});
   }
@@ -372,7 +370,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
 class _FloatingItem<T> {
   _FloatingItem(this.item);
 
-  /// Swappable [Object] itself.
+  /// Item itself.
   final T item;
 
   /// [GlobalKey] of an [item] this [_FloatingItem] builds.

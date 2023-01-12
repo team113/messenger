@@ -20,87 +20,76 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
-import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
-import '/routes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
-/// Controller of an [OngoingCall] overlay.
+/// Controller of an [FloatingFit].
 class FloatingFitController extends GetxController {
   FloatingFitController({required this.relocateRect});
 
+  /// [Rect] to relocate the floating panel.
   final Rx<Rect?>? relocateRect;
 
   /// Indicator whether the secondary view is being scaled.
-  final RxBool secondaryScaled = RxBool(false);
+  final RxBool floatingScaled = RxBool(false);
 
   /// Indicator whether the secondary view is being dragged.
-  final RxBool secondaryDragged = RxBool(false);
-
-  /// Indicator whether the secondary view is being manipulated in any way, be
-  /// that scaling or panning.
-  final RxBool secondaryManipulated = RxBool(false);
+  final RxBool floatingDragged = RxBool(false);
 
   /// Secondary view current left position.
-  final RxnDouble secondaryLeft = RxnDouble(null);
+  final RxnDouble floatingLeft = RxnDouble(null);
 
   /// Secondary view current top position.
-  final RxnDouble secondaryTop = RxnDouble(null);
+  final RxnDouble floatingTop = RxnDouble(null);
 
   /// Secondary view current right position.
-  final RxnDouble secondaryRight = RxnDouble(10);
+  final RxnDouble floatingRight = RxnDouble(10);
 
   /// Secondary view current bottom position.
-  final RxnDouble secondaryBottom = RxnDouble(10);
+  final RxnDouble floatingBottom = RxnDouble(10);
 
   /// Secondary view current width.
-  late final RxDouble secondaryWidth;
+  late final RxDouble floatingWidth;
 
   /// Secondary view current height.
-  late final RxDouble secondaryHeight;
+  late final RxDouble floatingHeight;
 
-  /// [secondaryWidth] or [secondaryHeight] of the secondary view before its
+  /// [floatingWidth] or [floatingHeight] of the secondary view before its
   /// scaling.
-  double? secondaryUnscaledSize;
+  double? floatingUnscaledSize;
 
   /// [Offset] the secondary view has relative to the pan gesture position.
-  Offset? secondaryPanningOffset;
+  Offset? floatingPanningOffset;
 
   /// [GlobalKey] of the secondary view.
-  final GlobalKey secondaryKey = GlobalKey();
+  final GlobalKey floatingKey = GlobalKey();
 
-  /// [secondaryBottom] value before the secondary view got relocated with the
-  /// [relocateSecondary] method.
-  double? secondaryBottomShifted = 10;
+  /// [floatingBottom] value before the secondary view got relocated with the
+  /// [relocateFloating] method.
+  double? floatingBottomShifted = 10;
 
-  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// Indicator whether the [relocateFloating] is already invoked during the
   /// current frame.
-  bool _secondaryRelocated = false;
+  bool _floatingRelocated = false;
 
   /// [Worker] reacting on the [relocateRect] changes relocating secondary view.
-  Worker? relocateWorker;
+  Worker? _relocateWorker;
 
   /// Max width of the secondary view in percentage of the call width.
-  static const double _maxSWidth = 0.80;
+  static const double _maxFWidth = 0.80;
 
   /// Max height of the secondary view in percentage of the call height.
-  static const double _maxSHeight = 0.80;
+  static const double _maxFHeight = 0.80;
 
   /// Min width of the secondary view in pixels.
-  static const double _minSWidth = 125;
+  static const double _minFWidth = 125;
 
   /// Min height of the secondary view in pixels.
-  static const double _minSHeight = 125;
+  static const double _minFHeight = 125;
 
-  /// Returns actual size of the call view.
+  /// Returns actual size of the [FloatingFit] this controller is bound to.
   Size size = Size.zero;
 
   @override
@@ -109,34 +98,32 @@ class FloatingFitController extends GetxController {
 
     double secondarySize = (size.shortestSide *
             (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
-        .clamp(_minSHeight, 250);
-    secondaryWidth = RxDouble(secondarySize);
-    secondaryHeight = RxDouble(secondarySize);
+        .clamp(_minFHeight, 250);
+    floatingWidth = RxDouble(secondarySize);
+    floatingHeight = RxDouble(secondarySize);
 
     if (relocateRect != null) {
-      relocateWorker = ever(relocateRect!, (_) => relocateSecondary());
+      _relocateWorker = ever(relocateRect!, (_) => relocateFloating());
     }
   }
 
   @override
   void onClose() {
     super.onClose();
-    relocateWorker?.dispose();
+    _relocateWorker?.dispose();
   }
 
   /// Relocates the secondary view accounting the possible intersections.
-  void relocateSecondary() {
-    if (secondaryDragged.isFalse &&
-        secondaryScaled.isFalse &&
-        !_secondaryRelocated) {
-      _secondaryRelocated = true;
+  void relocateFloating() {
+    if (floatingDragged.isFalse &&
+        floatingScaled.isFalse &&
+        !_floatingRelocated) {
+      _floatingRelocated = true;
 
-      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
+      final Rect? secondaryBounds = floatingKey.globalPaintBounds;
       Rect intersect =
           secondaryBounds?.intersect(relocateRect?.value ?? Rect.zero) ??
               Rect.zero;
-      print(secondaryBounds);
-      print(relocateRect?.value);
 
       intersect = Rect.fromLTWH(
         intersect.left,
@@ -145,227 +132,224 @@ class FloatingFitController extends GetxController {
         intersect.height + 10,
       );
 
-      print(intersect.width);
-      print(intersect.height);
-
       if (intersect.width > 0 && intersect.height > 0) {
         // Intersection is non-zero, so move the secondary panel up.
-        if (secondaryBottom.value != null) {
-          secondaryBottom.value = secondaryBottom.value! + intersect.height;
+        if (floatingBottom.value != null) {
+          floatingBottom.value = floatingBottom.value! + intersect.height;
         } else {
-          secondaryTop.value = secondaryTop.value! - intersect.height;
+          floatingTop.value = floatingTop.value! - intersect.height;
         }
 
-        applySecondaryConstraints();
+        applyFloatingConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
-          secondaryBottomShifted != null) {
+          floatingBottomShifted != null) {
         // Intersection is less than zero and the secondary panel is higher than
         // it was before, so move it to its original position.
-        double bottom = secondaryBottom.value ??
-            size.height - secondaryTop.value! - secondaryHeight.value;
-        if (bottom > secondaryBottomShifted!) {
-          double difference = bottom - secondaryBottomShifted!;
-          if (secondaryBottom.value != null) {
+        double bottom = floatingBottom.value ??
+            size.height - floatingTop.value! - floatingHeight.value;
+        if (bottom > floatingBottomShifted!) {
+          double difference = bottom - floatingBottomShifted!;
+          if (floatingBottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              secondaryBottom.value = secondaryBottomShifted;
+              floatingBottom.value = floatingBottomShifted;
             } else {
-              secondaryBottom.value = secondaryBottom.value! + intersect.height;
+              floatingBottom.value = floatingBottom.value! + intersect.height;
             }
           } else {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              secondaryTop.value =
-                  size.height - secondaryHeight.value - secondaryBottomShifted!;
+              floatingTop.value =
+                  size.height - floatingHeight.value - floatingBottomShifted!;
             } else {
-              secondaryTop.value = secondaryTop.value! - intersect.height;
+              floatingTop.value = floatingTop.value! - intersect.height;
             }
           }
 
-          applySecondaryConstraints();
+          applyFloatingConstraints();
         }
       }
 
       SchedulerBinding.instance
-          .addPostFrameCallback((_) => _secondaryRelocated = false);
+          .addPostFrameCallback((_) => _floatingRelocated = false);
     }
   }
 
-  /// Calculates the appropriate [secondaryLeft], [secondaryRight],
-  /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
-  void updateSecondaryAttach() {
-    secondaryLeft.value ??=
-        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
-    secondaryTop.value ??=
-        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
+  /// Calculates the appropriate [floatingLeft], [floatingRight],
+  /// [floatingTop] and [floatingBottom] values according to the nearest edge.
+  void updateFloatingAttach() {
+    floatingLeft.value ??=
+        size.width - floatingWidth.value - (floatingRight.value ?? 0);
+    floatingTop.value ??=
+        size.height - floatingHeight.value - (floatingBottom.value ?? 0);
 
     List<MapEntry<Alignment, double>> alignments = [
       MapEntry(
         Alignment.topLeft,
         Point(
-          secondaryLeft.value!,
-          secondaryTop.value!,
+          floatingLeft.value!,
+          floatingTop.value!,
         ).squaredDistanceTo(const Point(0, 0)),
       ),
       MapEntry(
         Alignment.topRight,
         Point(
-          secondaryLeft.value! + secondaryWidth.value,
-          secondaryTop.value!,
+          floatingLeft.value! + floatingWidth.value,
+          floatingTop.value!,
         ).squaredDistanceTo(Point(size.width, 0)),
       ),
       MapEntry(
         Alignment.bottomLeft,
         Point(
-          secondaryLeft.value!,
-          secondaryTop.value! + secondaryHeight.value,
+          floatingLeft.value!,
+          floatingTop.value! + floatingHeight.value,
         ).squaredDistanceTo(Point(0, size.height)),
       ),
       MapEntry(
         Alignment.bottomRight,
         Point(
-          secondaryLeft.value! + secondaryWidth.value,
-          secondaryTop.value! + secondaryHeight.value,
+          floatingLeft.value! + floatingWidth.value,
+          floatingTop.value! + floatingHeight.value,
         ).squaredDistanceTo(Point(size.width, size.height)),
       ),
     ]..sort((e1, e2) => e1.value.compareTo(e2.value));
 
     Alignment align = alignments.first.key;
-    double left = secondaryLeft.value!;
-    double top = secondaryTop.value!;
+    double left = floatingLeft.value!;
+    double top = floatingTop.value!;
 
-    secondaryTop.value = null;
-    secondaryLeft.value = null;
-    secondaryRight.value = null;
-    secondaryBottom.value = null;
+    floatingTop.value = null;
+    floatingLeft.value = null;
+    floatingRight.value = null;
+    floatingBottom.value = null;
 
     if (align == Alignment.topLeft) {
-      secondaryTop.value = top;
-      secondaryLeft.value = left;
+      floatingTop.value = top;
+      floatingLeft.value = left;
     } else if (align == Alignment.topRight) {
-      secondaryTop.value = top;
-      secondaryRight.value = secondaryWidth.value + left <= size.width
-          ? secondaryRight.value = size.width - left - secondaryWidth.value
+      floatingTop.value = top;
+      floatingRight.value = floatingWidth.value + left <= size.width
+          ? floatingRight.value = size.width - left - floatingWidth.value
           : 0;
     } else if (align == Alignment.bottomLeft) {
-      secondaryLeft.value = left;
-      secondaryBottom.value = top + secondaryHeight.value <= size.height
-          ? size.height - top - secondaryHeight.value
+      floatingLeft.value = left;
+      floatingBottom.value = top + floatingHeight.value <= size.height
+          ? size.height - top - floatingHeight.value
           : 0;
     } else if (align == Alignment.bottomRight) {
-      secondaryRight.value = secondaryWidth.value + left <= size.width
-          ? size.width - left - secondaryWidth.value
+      floatingRight.value = floatingWidth.value + left <= size.width
+          ? size.width - left - floatingWidth.value
           : 0;
-      secondaryBottom.value = top + secondaryHeight.value <= size.height
-          ? size.height - top - secondaryHeight.value
+      floatingBottom.value = top + floatingHeight.value <= size.height
+          ? size.height - top - floatingHeight.value
           : 0;
     }
 
-    secondaryBottomShifted =
-        secondaryBottom.value ?? size.height - top - secondaryHeight.value;
-    relocateSecondary();
+    floatingBottomShifted =
+        floatingBottom.value ?? size.height - top - floatingHeight.value;
+    relocateFloating();
   }
 
-  /// Calculates the [secondaryPanningOffset] based on the provided [offset].
-  void calculateSecondaryPanning(Offset offset) {
+  /// Calculates the [floatingPanningOffset] based on the provided [offset].
+  void calculateFloatingPanning(Offset offset) {
     Offset position =
-        (secondaryKey.currentContext?.findRenderObject() as RenderBox?)
+        (floatingKey.currentContext?.findRenderObject() as RenderBox?)
                 ?.localToGlobal(Offset.zero) ??
             Offset.zero;
 
-    secondaryPanningOffset = Offset(
+    floatingPanningOffset = Offset(
       offset.dx - position.dx,
       offset.dy - position.dy,
     );
   }
 
-  /// Sets the [secondaryLeft] and [secondaryTop] correctly to the provided
+  /// Sets the [floatingLeft] and [floatingTop] correctly to the provided
   /// [offset].
-  void updateSecondaryOffset(Offset offset) {
-    secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
-    secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
+  void updateFloatingOffset(Offset offset) {
+    floatingLeft.value = offset.dx - floatingPanningOffset!.dx;
+    floatingTop.value = offset.dy - floatingPanningOffset!.dy;
 
-    if (secondaryLeft.value! < 0) {
-      secondaryLeft.value = 0;
+    if (floatingLeft.value! < 0) {
+      floatingLeft.value = 0;
     }
 
-    if (secondaryTop.value! < 0) {
-      secondaryTop.value = 0;
+    if (floatingTop.value! < 0) {
+      floatingTop.value = 0;
     }
   }
 
-  /// Applies constraints to the [secondaryWidth], [secondaryHeight],
-  /// [secondaryLeft] and [secondaryTop].
-  void applySecondaryConstraints() {
-    secondaryWidth.value = _applySWidth(secondaryWidth.value);
-    secondaryHeight.value = _applySHeight(secondaryHeight.value);
-    secondaryLeft.value = _applySLeft(secondaryLeft.value);
-    secondaryRight.value = _applySRight(secondaryRight.value);
-    secondaryTop.value = _applySTop(secondaryTop.value);
-    secondaryBottom.value = _applySBottom(secondaryBottom.value);
+  /// Applies constraints to the [floatingWidth], [floatingHeight],
+  /// [floatingLeft] and [floatingTop].
+  void applyFloatingConstraints() {
+    floatingWidth.value = _applyFWidth(floatingWidth.value);
+    floatingHeight.value = _applyFHeight(floatingHeight.value);
+    floatingLeft.value = _applyFLeft(floatingLeft.value);
+    floatingRight.value = _applyFRight(floatingRight.value);
+    floatingTop.value = _applyFTop(floatingTop.value);
+    floatingBottom.value = _applyFBottom(floatingBottom.value);
   }
 
   /// Scales the secondary view by the provided [scale].
-  void scaleSecondary(double scale) {
-    _scaleSWidth(scale);
-    _scaleSHeight(scale);
+  void scaleFloating(double scale) {
+    _scaleFWidth(scale);
+    _scaleFHeight(scale);
   }
 
-  /// Scales the [secondaryWidth] according to the provided [scale].
-  void _scaleSWidth(double scale) {
-    double width = _applySWidth(secondaryUnscaledSize! * scale);
-    if (width != secondaryWidth.value) {
-      double widthDifference = width - secondaryWidth.value;
-      secondaryWidth.value = width;
-      secondaryLeft.value =
-          _applySLeft(secondaryLeft.value! - widthDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(widthDifference / 2, 0);
+  /// Scales the [floatingWidth] according to the provided [scale].
+  void _scaleFWidth(double scale) {
+    double width = _applyFWidth(floatingUnscaledSize! * scale);
+    if (width != floatingWidth.value) {
+      double widthDifference = width - floatingWidth.value;
+      floatingWidth.value = width;
+      floatingLeft.value =
+          _applyFLeft(floatingLeft.value! - widthDifference / 2);
+      floatingPanningOffset =
+          floatingPanningOffset?.translate(widthDifference / 2, 0);
     }
   }
 
-  /// Scales the [secondaryHeight] according to the provided [scale].
-  void _scaleSHeight(double scale) {
-    double height = _applySHeight(secondaryUnscaledSize! * scale);
-    if (height != secondaryHeight.value) {
-      double heightDifference = height - secondaryHeight.value;
-      secondaryHeight.value = height;
-      secondaryTop.value =
-          _applySTop(secondaryTop.value! - heightDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(0, heightDifference / 2);
+  /// Scales the [floatingHeight] according to the provided [scale].
+  void _scaleFHeight(double scale) {
+    double height = _applyFHeight(floatingUnscaledSize! * scale);
+    if (height != floatingHeight.value) {
+      double heightDifference = height - floatingHeight.value;
+      floatingHeight.value = height;
+      floatingTop.value =
+          _applyFTop(floatingTop.value! - heightDifference / 2);
+      floatingPanningOffset =
+          floatingPanningOffset?.translate(0, heightDifference / 2);
     }
   }
 
   /// Returns corrected according to secondary constraints [width] value.
-  double _applySWidth(double width) {
-    if (_minSWidth > size.width * _maxSWidth) {
-      return size.width * _maxSWidth;
-    } else if (width > size.width * _maxSWidth) {
-      return (size.width * _maxSWidth);
-    } else if (width < _minSWidth) {
-      return _minSWidth;
+  double _applyFWidth(double width) {
+    if (_minFWidth > size.width * _maxFWidth) {
+      return size.width * _maxFWidth;
+    } else if (width > size.width * _maxFWidth) {
+      return (size.width * _maxFWidth);
+    } else if (width < _minFWidth) {
+      return _minFWidth;
     }
     return width;
   }
 
   /// Returns corrected according to secondary constraints [height] value.
-  double _applySHeight(double height) {
-    if (_minSHeight > size.height * _maxSHeight) {
-      return size.height * _maxSHeight;
-    } else if (height > size.height * _maxSHeight) {
-      return size.height * _maxSHeight;
-    } else if (height < _minSHeight) {
-      return _minSHeight;
+  double _applyFHeight(double height) {
+    if (_minFHeight > size.height * _maxFHeight) {
+      return size.height * _maxFHeight;
+    } else if (height > size.height * _maxFHeight) {
+      return size.height * _maxFHeight;
+    } else if (height < _minFHeight) {
+      return _minFHeight;
     }
     return height;
   }
 
   /// Returns corrected according to secondary constraints [left] value.
-  double? _applySLeft(double? left) {
+  double? _applyFLeft(double? left) {
     if (left != null) {
-      if (left + secondaryWidth.value > size.width) {
-        return size.width - secondaryWidth.value;
+      if (left + floatingWidth.value > size.width) {
+        return size.width - floatingWidth.value;
       } else if (left < 0) {
         return 0;
       }
@@ -375,10 +359,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [right] value.
-  double? _applySRight(double? right) {
+  double? _applyFRight(double? right) {
     if (right != null) {
-      if (right + secondaryWidth.value > size.width) {
-        return size.width - secondaryWidth.value;
+      if (right + floatingWidth.value > size.width) {
+        return size.width - floatingWidth.value;
       } else if (right < 0) {
         return 0;
       }
@@ -388,10 +372,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [top] value.
-  double? _applySTop(double? top) {
+  double? _applyFTop(double? top) {
     if (top != null) {
-      if (top + secondaryHeight.value > size.height) {
-        return size.height - secondaryHeight.value;
+      if (top + floatingHeight.value > size.height) {
+        return size.height - floatingHeight.value;
       } else if (top < 0) {
         return 0;
       }
@@ -401,10 +385,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [bottom] value.
-  double? _applySBottom(double? bottom) {
+  double? _applyFBottom(double? bottom) {
     if (bottom != null) {
-      if (bottom + secondaryHeight.value > size.height) {
-        return size.height - secondaryHeight.value;
+      if (bottom + floatingHeight.value > size.height) {
+        return size.height - floatingHeight.value;
       } else if (bottom < 0) {
         return 0;
       }
@@ -412,41 +396,4 @@ class FloatingFitController extends GetxController {
 
     return bottom;
   }
-}
-
-/// X-axis scale mode.
-enum ScaleModeX { left, right }
-
-/// Y-axis scale mode.
-enum ScaleModeY { top, bottom }
-
-/// Separate call entity participating in a call.
-class Participant {
-  Participant(
-    this.member, {
-    Track? video,
-    Track? audio,
-    RxUser? user,
-  })  : user = Rx(user),
-        video = Rx(video),
-        audio = Rx(audio);
-
-  /// [CallMember] this [Participant] represents.
-  final CallMember member;
-
-  /// [User] this [Participant] represents.
-  final Rx<RxUser?> user;
-
-  /// Reactive video track of this [Participant].
-  final Rx<Track?> video;
-
-  /// Reactive audio track of this [Participant].
-  final Rx<Track?> audio;
-
-  /// [GlobalKey] of this [Participant]'s [VideoView].
-  final GlobalKey videoKey = GlobalKey();
-
-  /// Returns the [MediaSourceKind] of this [Participant].
-  MediaSourceKind get source =>
-      video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 }
