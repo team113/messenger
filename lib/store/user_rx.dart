@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -26,6 +27,7 @@ import '/provider/gql/exceptions.dart'
     show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
@@ -50,6 +52,9 @@ class HiveRxUser extends RxUser {
   /// May be uninitialized if [_listeners] counter is equal to zero.
   StreamIterator<UserEvents>? _remoteSubscription;
 
+  /// [CancelToken] canceling the remote subscribing, if any.
+  final dio.CancelToken _remoteSubscriptionToken = dio.CancelToken();
+
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
@@ -67,6 +72,7 @@ class HiveRxUser extends RxUser {
     if (--_listeners == 0) {
       _remoteSubscription?.cancel();
       _remoteSubscription = null;
+      _remoteSubscriptionToken.cancel();
     }
   }
 
@@ -82,6 +88,13 @@ class HiveRxUser extends RxUser {
       return false;
     }).onError<StaleVersionException>((_, __) {
       _initRemoteSubscription(noVersion: true);
+      return false;
+    }).onError((e, __) {
+      Log.print(
+        'Unexpected error in user($id) remote subscription: $e',
+        'HiveRxUser',
+      );
+      Future.delayed(Duration.zero, () => _initRemoteSubscription());
       return false;
     })) {
       await _userEvent(_remoteSubscription!.current);

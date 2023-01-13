@@ -1091,7 +1091,14 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
+    _typingSubscription ??= (await _chatService.keepTyping(id)).listen(
+      (_) {},
+      onError: (_) {
+        _typingSubscription?.cancel();
+        _typingSubscription = null;
+        keepTyping(); // maybe with delay
+      },
+    );
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
       _typingSubscription?.cancel();

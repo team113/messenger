@@ -46,6 +46,7 @@ import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -563,6 +564,13 @@ class MyUserRepository implements AbstractMyUserRepository {
     }).onError<StaleVersionException>((_, __) {
       _initRemoteSubscription(noVersion: true);
       return false;
+    }).onError((e, __) {
+      Log.print(
+        'Unexpected error in my user remote subscription: $e',
+        'MyUserRepository',
+      );
+      Future.delayed(Duration.zero, () => _initRemoteSubscription());
+      return false;
     })) {
       _myUserRemoteEvent(_remoteSubscription!.current);
     }
@@ -572,15 +580,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _initKeepOnlineSubscription() async {
     _keepOnlineSubscription?.cancel();
     _keepOnlineSubscription = (await _graphQlProvider.keepOnline()).listen(
-      (_) {
-        // No-op.
+      (event) {
+        GraphQlProviderExceptions.fire(event);
       },
       onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _initKeepOnlineSubscription();
-        } else {
-          throw e;
-        }
+        _initKeepOnlineSubscription();
       },
     );
   }

@@ -468,19 +468,11 @@ class _BackgroundService {
         }
       },
       onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.l10n,
-            content: '${DateTime.now()}',
-          );
-          _subscribe();
-        } else {
-          _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.l10n,
-            content: e,
-          );
-          throw e;
-        }
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
+        _subscribe();
       },
     );
   }

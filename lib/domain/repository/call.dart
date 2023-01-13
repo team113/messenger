@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
 import '../model/chat.dart';
@@ -141,7 +142,8 @@ abstract class AbstractCallRepository {
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
-    ChatCallDeviceId deviceId,
+    ChatCallDeviceId deviceId,[
+  dio.CancelToken? cancelToken,]
   );
 }
 
