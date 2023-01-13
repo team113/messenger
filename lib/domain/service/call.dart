@@ -235,10 +235,9 @@ class CallService extends DisposableService {
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
-    ChatCallDeviceId deviceId,[
-        dio.CancelToken? cancelToken,]
-
-  ) =>
+    ChatCallDeviceId deviceId, [
+    dio.CancelToken? cancelToken,
+  ]) =>
       _callsRepo.heartbeat(id, deviceId, cancelToken);
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
