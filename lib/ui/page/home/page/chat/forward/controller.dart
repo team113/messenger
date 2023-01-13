@@ -46,7 +46,7 @@ class ChatForwardController extends GetxController {
     this._userService, {
     this.text,
     this.pop,
-    this.attachments,
+    this.attachments = const [],
     required this.from,
     required this.quotes,
   });
@@ -71,7 +71,7 @@ class ChatForwardController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// [Attachment]s to attach to the [quotes].
-  final List<Attachment>? attachments;
+  final List<Attachment> attachments;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -131,7 +131,7 @@ class ChatForwardController extends GetxController {
               send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
 
           final List<Future<void>> futures = [
-            ...searchResults.value!.chats.map((e) async {
+            ...searchResults.value!.chats.map((e) {
               return _chatService.forwardChatItems(
                 from,
                 e.chat.value.id,

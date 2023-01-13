@@ -49,12 +49,11 @@ class MessageFieldController extends GetxController {
     this.onSubmit,
     this.onChanged,
     String? text,
-    List<ChatItemQuote>? quotes,
-    List<Attachment>? attachments,
-  })  : quotes = RxList(quotes ?? []),
-        attachments = RxList(
-          attachments?.map((e) => MapEntry(GlobalKey(), e)).toList() ?? [],
-        ) {
+    List<ChatItemQuote> quotes = const [],
+    List<Attachment> attachments = const [],
+  })  : quotes = RxList(quotes),
+        attachments =
+            RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()) {
     field = TextFieldState(
       text: text,
       onChanged: (_) => onChanged?.call(),

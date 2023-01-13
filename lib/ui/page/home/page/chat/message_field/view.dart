@@ -81,7 +81,7 @@ class MessageFieldView extends StatelessWidget {
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId id)? onItemPressed;
 
-  /// Callback, called when the contents of this [MessageFieldView] changes.
+  /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
@@ -313,10 +313,7 @@ class MessageFieldView extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
-                          CustomBoxShadow(
-                            color: color,
-                            blurRadius: elevation,
-                          ),
+                          CustomBoxShadow(color: color, blurRadius: elevation),
                         ],
                       ),
                       child: child,
@@ -338,9 +335,7 @@ class MessageFieldView extends StatelessWidget {
                   direction: DismissDirection.horizontal,
                   onDismissed: (_) => c.replied.remove(e),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: WidgetButton(
                       onPressed: () => onItemPressed?.call(e.id),
                       child: _buildPreview(
