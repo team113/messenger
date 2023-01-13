@@ -251,7 +251,7 @@ class FloatingFitController extends GetxController {
                 ?.localToGlobal(Offset.zero) ??
             Offset.zero;
 
-    offset = Offset(
+    this.offset = Offset(
       offset.dx - position.dx,
       offset.dy - position.dy,
     );

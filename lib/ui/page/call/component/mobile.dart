@@ -63,7 +63,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ),
     ];
 
-    // Layer to show error messages.
+    // Layer of [Widget]s to display above the UI.
     List<Widget> overlay = [];
 
     // Active call.

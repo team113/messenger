@@ -203,8 +203,10 @@ class CallController extends GetxController {
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
 
-  /// [Rect] of the [Dock].
-  final Rx<Rect?> dockRect = Rx<Rect?>(null);
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
