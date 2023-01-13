@@ -67,6 +67,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])
     - Redesigned scrollbar. ([#276], [#262])
+    - Phone number parser. ([#322], [#314])
 
 ### Fixed
 
@@ -151,6 +152,8 @@ All user visible changes to this project will be documented in this file. This p
 [#305]: /../../pull/305
 [#310]: /../../pull/310
 [#313]: /../../pull/313
+[#314]: /../../issues/314
+[#322]: /../../pull/322
 
 
 
