@@ -20,6 +20,7 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -82,6 +83,9 @@ class ChatsTabController extends GetxController {
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
@@ -138,6 +142,9 @@ class ChatsTabController extends GetxController {
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
+
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+
     _sortChats();
 
     for (RxChat chat in chats) {
@@ -209,6 +216,8 @@ class ChatsTabController extends GetxController {
 
   @override
   void onClose() {
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+
     for (var data in _sortingData.values) {
       data.dispose();
     }
@@ -348,13 +357,17 @@ class ChatsTabController extends GetxController {
   /// takes part in an [OngoingCall] in a [Chat] identified by the provided
   /// [id].
   bool inCall(ChatId id) {
+    if (WebUtils.containsCall(id)) {
+      return true;
+    }
+
     final Rx<OngoingCall>? call = _callService.calls[id];
     if (call != null) {
       return call.value.state.value == OngoingCallState.active ||
           call.value.state.value == OngoingCallState.joining;
     }
 
-    return WebUtils.containsCall(id);
+    return false;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -501,14 +514,6 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -521,6 +526,14 @@ class ChatsTabController extends GetxController {
             .compareTo(b.chat.value.favoritePosition!);
       }
 
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
   }
@@ -531,6 +544,23 @@ class ChatsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
     }
+  }
+
+  /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (searching.value) {
+        closeSearch(!groupCreating.value);
+        return true;
+      } else if (groupCreating.value) {
+        closeGroupCreating();
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

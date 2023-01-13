@@ -1492,6 +1492,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         return Container();
       }
 
+      // [BorderRadius] to decorate the secondary panel with.
+      final BorderRadius borderRadius = BorderRadius.circular(10);
+
       double? left, right;
       double? top, bottom;
       Axis? axis;
@@ -1689,6 +1692,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
       return Stack(
         fit: StackFit.expand,
         children: [
+          // Secondary panel shadow.
           Positioned(
             left: left,
             right: right,
@@ -1700,14 +1704,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   return Container(
                     width: width,
                     height: height,
-                    decoration: const BoxDecoration(
-                      boxShadow: [
+                    decoration: BoxDecoration(
+                      boxShadow: const [
                         CustomBoxShadow(
                           color: Color(0x44000000),
                           blurRadius: 9,
                           blurStyle: BlurStyle.outer,
                         )
                       ],
+                      borderRadius: borderRadius,
                     ),
                   );
                 }
@@ -1717,6 +1722,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
+          // Secondary panel background.
           Positioned(
             left: left,
             right: right,
@@ -1729,16 +1735,19 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 child: Obx(() {
                   if (c.secondaryAlignment.value == null) {
                     return IgnorePointer(
-                      child: Stack(
-                        children: [
-                          SvgLoader.asset(
-                            'assets/images/background_dark.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(color: const Color(0x11FFFFFF)),
-                        ],
+                      child: ClipRRect(
+                        borderRadius: borderRadius,
+                        child: Stack(
+                          children: [
+                            SvgLoader.asset(
+                              'assets/images/background_dark.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            Container(color: const Color(0x11FFFFFF)),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -1797,6 +1806,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
+          // Secondary panel itself.
           ReorderableFit<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
@@ -1971,6 +1981,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             children:
                 c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
+            borderRadius:
+                c.secondaryAlignment.value == null ? borderRadius : null,
           ),
 
           // Discards the pointer when hovered over videos.
@@ -2053,32 +2065,41 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           key: const ValueKey('TitleBar'),
                           opacity: c.secondaryHovered.value ? 1 : 0,
-                          child: ConditionalBackdropFilter(
-                            condition: PlatformUtils.isWeb,
-                            child: Container(
-                              color: PlatformUtils.isWeb
-                                  ? const Color(0x9D165084)
-                                  : const Color(0xE9165084),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 7),
-                                  const Expanded(
-                                    child: Text(
-                                      'Draggable',
-                                      style: TextStyle(color: Colors.white),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                          child: ClipRRect(
+                            borderRadius: c.secondaryAlignment.value == null
+                                ? BorderRadius.only(
+                                    topLeft: borderRadius.topLeft,
+                                    topRight: borderRadius.topRight,
+                                  )
+                                : BorderRadius.zero,
+                            child: ConditionalBackdropFilter(
+                              condition: PlatformUtils.isWeb &&
+                                  (c.minimized.isFalse || c.fullscreen.isTrue),
+                              child: Container(
+                                color: PlatformUtils.isWeb
+                                    ? const Color(0x9D165084)
+                                    : const Color(0xE9165084),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 7),
+                                    const Expanded(
+                                      child: Text(
+                                        'Draggable',
+                                        style: TextStyle(color: Colors.white),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  InkResponse(
-                                    onTap: isAnyDrag ? null : c.focusAll,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close.svg',
-                                      height: 10.25,
+                                    InkResponse(
+                                      onTap: isAnyDrag ? null : c.focusAll,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/close.svg',
+                                        height: 10.25,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 7),
-                                ],
+                                    const SizedBox(width: 7),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -2115,6 +2136,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
+          // Secondary panel drag target indicator.
           Positioned(
             left: left,
             right: right,
@@ -2170,6 +2192,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
+          // Secondary panel border.
           Positioned(
             left: left == null ? null : (left - Scaler.size / 2),
             right: right == null ? null : (right - Scaler.size / 2),
@@ -2190,40 +2213,53 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         child: AnimatedContainer(
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
-                          decoration: BoxDecoration(
-                            border: (c.secondaryHovered.value ||
-                                    c.primaryDrags.value != 0)
+                          decoration: ShapeDecoration(
+                            shape: c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0
                                 ? c.secondaryAlignment.value == null
-                                    ? Border.all(
-                                        color: const Color(0xFF888888),
-                                        width: 1,
+                                    ? RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 1,
+                                        ),
+                                        borderRadius: borderRadius,
                                       )
                                     : Border(
                                         top: c.secondaryAlignment.value ==
                                                 Alignment.bottomCenter
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         left: c.secondaryAlignment.value ==
                                                 Alignment.centerRight
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         right: c.secondaryAlignment.value ==
                                                 Alignment.centerLeft
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,
                                         bottom: c.secondaryAlignment.value ==
                                                 Alignment.topCenter
-                                            ? const BorderSide(
-                                                color: Color(0xFF888888),
+                                            ? BorderSide(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
                                                 width: 1,
                                               )
                                             : BorderSide.none,

@@ -101,6 +101,7 @@ class CustomNavigationBar extends StatelessWidget {
                                         fontSize: 11,
                                       ),
                                     ),
+                              badgeColor: b.badgeColor,
                               showBadge: b.badge != null,
                               child: InkResponse(
                                 hoverColor: Colors.transparent,
@@ -129,6 +130,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
+    this.badgeColor = Colors.red,
     this.child,
   });
 
@@ -137,6 +139,9 @@ class CustomNavigationBarItem {
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  /// [Color] of the provided [badge], if any.
+  final Color badgeColor;
 
   /// [Widget] to display.
   final Widget? child;

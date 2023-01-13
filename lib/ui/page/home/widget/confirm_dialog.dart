@@ -99,6 +99,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
   late ConfirmDialogVariant _variant;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   @override
   void didUpdateWidget(ConfirmDialog oldWidget) {
     if (!widget.variants.contains(_variant)) {
@@ -194,12 +197,16 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            child: ListView.separated(
-              physics: const ClampingScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (c, i) => button(widget.variants[i]),
-              separatorBuilder: (c, i) => const SizedBox(height: 10),
-              itemCount: widget.variants.length,
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (c, i) => button(widget.variants[i]),
+                separatorBuilder: (c, i) => const SizedBox(height: 10),
+                itemCount: widget.variants.length,
+              ),
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)

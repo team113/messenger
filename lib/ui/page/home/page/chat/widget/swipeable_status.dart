@@ -23,7 +23,7 @@ import '/themes.dart';
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
   const SwipeableStatus({
-    Key? key,
+    super.key,
     required this.child,
     required this.swipeable,
     this.animation,
@@ -35,7 +35,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
-  }) : super(key: key);
+  });
 
   /// Expanded width of the [swipeable].
   static const double width = 65;
@@ -84,7 +84,15 @@ class SwipeableStatus extends StatelessWidget {
           ? Alignment.bottomRight
           : Alignment.centerRight,
       children: [
-        translate ? _animatedBuilder(child, translated: false) : child,
+        translate
+            ? _animatedBuilder(
+                Padding(
+                  padding: const EdgeInsets.only(left: width),
+                  child: child,
+                ),
+                translated: false,
+              )
+            : child,
         _animatedBuilder(
           Padding(
             padding: padding,

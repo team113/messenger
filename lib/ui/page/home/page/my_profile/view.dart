@@ -83,154 +83,163 @@ class MyProfileView extends StatelessWidget {
                 return const CircularProgressIndicator();
               }
 
-              return FlutterListView(
+              return Scrollbar(
                 controller: c.listController,
-                delegate: FlutterListViewDelegate(
-                  (context, i) {
-                    switch (ProfileTab.values[i]) {
-                      case ProfileTab.public:
-                        return Block(
-                          title: 'label_public_information'.l10n,
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.uploadAvatar,
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    radius: 100,
-                                    badge: false,
+                child: FlutterListView(
+                  controller: c.listController,
+                  delegate: FlutterListViewDelegate(
+                    (context, i) {
+                      switch (ProfileTab.values[i]) {
+                        case ProfileTab.public:
+                          return Block(
+                            title: 'label_public_information'.l10n,
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  WidgetButton(
+                                    onPressed: c.uploadAvatar,
+                                    child: AvatarWidget.fromMyUser(
+                                      c.myUser.value,
+                                      radius: 100,
+                                      badge: false,
+                                    ),
                                   ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0x22000000),
-                                              ),
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            Obx(() {
-                              if (c.myUser.value?.avatar == null) {
-                                return const SizedBox();
-                              }
+                                  Positioned.fill(
+                                    child: Obx(() {
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: c.avatarUpload.value.isLoading
+                                            ? Container(
+                                                width: 200,
+                                                height: 200,
+                                                decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Color(0x22000000),
+                                                ),
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Obx(() {
+                                if (c.myUser.value?.avatar == null) {
+                                  return const SizedBox();
+                                }
 
-                              return Center(
-                                child: WidgetButton(
-                                  key: const Key('DeleteAvatar'),
-                                  onPressed: c.deleteAvatar,
-                                  child: SizedBox(
-                                    height: 20,
-                                    child: Text(
-                                      'btn_delete'.l10n,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontSize: 11,
+                                return Center(
+                                  child: WidgetButton(
+                                    key: const Key('DeleteAvatar'),
+                                    onPressed: c.deleteAvatar,
+                                    child: SizedBox(
+                                      height: 20,
+                                      child: Text(
+                                        'btn_delete'.l10n,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          fontSize: 11,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }),
-                            const SizedBox(height: 10),
-                            _name(c),
-                            _presence(c, context),
-                            _status(c),
-                          ],
-                        );
-
-                      case ProfileTab.signing:
-                        return Block(
-                          title: 'label_login_options'.l10n,
-                          children: [
-                            _num(c),
-                            _login(c, context),
-                            const SizedBox(height: 10),
-                            _emails(c, context),
-                            _phones(c, context),
-                            _password(context, c),
-                          ],
-                        );
-
-                      case ProfileTab.link:
-                        return Block(
-                          title: 'label_your_direct_link'.l10n,
-                          children: [_link(context, c)],
-                        );
-
-                      case ProfileTab.background:
-                        return Block(
-                          title: 'label_background'.l10n,
-                          children: [_background(context, c)],
-                        );
-
-                      case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_calls'.l10n,
-                            children: [_call(context, c)],
+                                );
+                              }),
+                              const SizedBox(height: 10),
+                              _name(c),
+                              _presence(c, context),
+                              _status(c),
+                            ],
                           );
-                        }
 
-                        return const SizedBox();
-
-                      case ProfileTab.media:
-                        if (!PlatformUtils.isMobile) {
+                        case ProfileTab.signing:
                           return Block(
-                            title: 'label_media'.l10n,
-                            children: [_media(context, c)],
+                            title: 'label_login_options'.l10n,
+                            children: [
+                              _num(c),
+                              _login(c, context),
+                              const SizedBox(height: 10),
+                              _emails(c, context),
+                              _phones(c, context),
+                              _password(context, c),
+                            ],
                           );
-                        }
 
-                        return const SizedBox();
-
-                      case ProfileTab.language:
-                        return Block(
-                          title: 'label_language'.l10n,
-                          children: [_language(context, c)],
-                        );
-
-                      case ProfileTab.download:
-                        if (PlatformUtils.isWeb) {
+                        case ProfileTab.link:
                           return Block(
-                            title: 'label_download_application'.l10n,
-                            children: [_downloads(context, c)],
+                            title: 'label_your_direct_link'.l10n,
+                            children: [_link(context, c)],
                           );
-                        }
 
-                        return const SizedBox();
+                        case ProfileTab.background:
+                          return Block(
+                            title: 'label_background'.l10n,
+                            children: [_background(context, c)],
+                          );
 
-                      case ProfileTab.danger:
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          children: [_danger(context, c)],
-                        );
+                        case ProfileTab.calls:
+                          if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
+                            return Block(
+                              title: 'label_calls'.l10n,
+                              children: [_call(context, c)],
+                            );
+                          }
 
-                      case ProfileTab.logout:
-                        return const SizedBox();
-                    }
-                  },
-                  initIndex: c.listInitIndex,
-                  childCount: ProfileTab.values.length,
+                          return const SizedBox();
+
+                        case ProfileTab.media:
+                          if (!PlatformUtils.isMobile) {
+                            return Block(
+                              title: 'label_media'.l10n,
+                              children: [_media(context, c)],
+                            );
+                          }
+
+                          return const SizedBox();
+
+                        case ProfileTab.notifications:
+                          return Block(
+                            title: 'label_audio_notifications'.l10n,
+                            children: [_notifications(context, c)],
+                          );
+
+                        case ProfileTab.language:
+                          return Block(
+                            title: 'label_language'.l10n,
+                            children: [_language(context, c)],
+                          );
+
+                        case ProfileTab.download:
+                          if (PlatformUtils.isWeb) {
+                            return Block(
+                              title: 'label_download_application'.l10n,
+                              children: [_downloads(context, c)],
+                            );
+                          }
+
+                          return const SizedBox();
+
+                        case ProfileTab.danger:
+                          return Block(
+                            title: 'label_danger_zone'.l10n,
+                            children: [_danger(context, c)],
+                          );
+
+                        case ProfileTab.logout:
+                          return const SizedBox();
+                      }
+                    },
+                    initIndex: c.listInitIndex,
+                    childCount: ProfileTab.values.length,
+                  ),
                 ),
               );
             }),
@@ -1004,23 +1013,27 @@ Widget _background(BuildContext context, MyProfileController c) {
           ),
         ),
         Obx(() {
-          if (c.background.value == null) {
-            return const SizedBox();
-          }
-
           return Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Center(
-              child: WidgetButton(
-                onPressed:
-                    c.background.value == null ? null : c.removeBackground,
-                child: Text(
-                  'btn_delete'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed: c.background.value == null
+                        ? c.pickBackground
+                        : c.removeBackground,
+                    child: Text(
+                      c.background.value == null
+                          ? 'btn_upload'.l10n
+                          : 'btn_delete'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 11,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
@@ -1131,6 +1144,51 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns the contents of a [ProfileTab.notifications] section.
+Widget _notifications(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: (c.myUser.value?.muted == null
+                        ? 'label_enabled'
+                        : 'label_disabled')
+                    .l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(
+                    platform: TargetPlatform.macOS,
+                  ),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.myUser.value?.muted == null,
+                    onChanged: c.isMuting.value ? null : c.toggleMute,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
+}
+
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   Widget button({
@@ -1190,7 +1248,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'windows',
           width: 21.93,
           height: 22,
-          title: 'Windows'.l10n,
+          title: 'Windows',
           link: 'messenger-windows.zip',
         ),
         const SizedBox(height: 8),
@@ -1198,7 +1256,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'macOS'.l10n,
+          title: 'macOS',
           link: 'messenger-macos.zip',
         ),
         const SizedBox(height: 8),
@@ -1206,7 +1264,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'linux',
           width: 18.85,
           height: 22,
-          title: 'Linux'.l10n,
+          title: 'Linux',
           link: 'messenger-linux.zip',
         ),
         const SizedBox(height: 8),
@@ -1214,14 +1272,14 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           asset: 'apple',
           width: 23,
           height: 29,
-          title: 'iOS'.l10n,
+          title: 'iOS',
         ),
         const SizedBox(height: 8),
         button(
           asset: 'google',
           width: 20.33,
           height: 22.02,
-          title: 'Android'.l10n,
+          title: 'Android',
           link: 'messenger-android.apk',
         ),
       ],

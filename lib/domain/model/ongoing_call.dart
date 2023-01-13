@@ -1185,6 +1185,19 @@ class OngoingCall {
               : screenShareState.value;
 
       try {
+        if (audioState.value != LocalTrackState.enabled &&
+            audioState.value != LocalTrackState.enabling) {
+          await _room?.muteAudio();
+        }
+        if (videoState.value != LocalTrackState.enabled &&
+            videoState.value != LocalTrackState.enabling) {
+          await _room?.disableVideo(MediaSourceKind.Device);
+        }
+        if (screenShareState.value != LocalTrackState.enabled &&
+            screenShareState.value != LocalTrackState.enabling) {
+          await _room?.disableVideo(MediaSourceKind.Display);
+        }
+
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(
