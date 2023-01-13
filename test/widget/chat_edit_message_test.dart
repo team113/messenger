@@ -314,7 +314,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(
-      find.byKey(const Key('MessageEditField')),
+      find.byKey(const Key('MessageField')),
       'new text',
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
