@@ -618,6 +618,9 @@ class CallController extends GetxController {
         );
 
         keepUi();
+      } else if (state == OngoingCallState.joining) {
+        SchedulerBinding.instance
+            .addPostFrameCallback((_) => relocateSecondary());
       }
 
       refresh();
@@ -1164,7 +1167,6 @@ class CallController extends GetxController {
         secondaryDragged.isFalse &&
         secondaryScaled.isFalse &&
         !_secondaryRelocated) {
-      print('relocateSecondary');
       _secondaryRelocated = true;
 
       final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
@@ -1809,6 +1811,11 @@ class CallController extends GetxController {
             }
           } else {
             paneled.add(participant);
+          }
+
+          if (state.value == OngoingCallState.local || outgoing) {
+            SchedulerBinding.instance
+                .addPostFrameCallback((_) => relocateSecondary());
           }
           break;
 
