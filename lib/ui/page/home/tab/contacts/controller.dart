@@ -108,9 +108,6 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// List of found [RxUser]s who get their updates.
-  final List<RxUser> _listenUsers = [];
-
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
 
@@ -127,10 +124,6 @@ class ContactsTabController extends GetxController {
     _sortFavorites();
 
     _initUsersUpdates();
-
-    for (RxUser u in _listenUsers) {
-      u.stopUpdates();
-    }
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
 
@@ -233,11 +226,6 @@ class ContactsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     _searchSubscription?.cancel();
 
-    for (RxUser u in _listenUsers) {
-      u.stopUpdates();
-    }
-    _listenUsers.clear();
-
     if (enable) {
       search.value = SearchController(
         _chatService,
@@ -265,9 +253,6 @@ class ContactsTabController extends GetxController {
         if (search.value?.users.isNotEmpty == true) {
           elements.add(const DividerElement(SearchCategory.user));
           for (RxUser c in search.value!.users.values) {
-            if (_listenUsers.firstWhereOrNull((e) => e.id == c.id) == null) {
-              _listenUsers.add(c..listenUpdates());
-            }
             elements.add(UserElement(c));
           }
         }
