@@ -1134,10 +1134,12 @@ class CallController extends GetxController {
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
-    panelController.close().then((_) {
-      isPanelOpen.value = false;
-      keepUi(false);
-    });
+    if (isMobile) {
+      panelController.close().then((_) {
+        isPanelOpen.value = false;
+        keepUi(false);
+      });
+    }
 
     await ParticipantView.show(
       context,

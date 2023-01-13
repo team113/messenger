@@ -25,104 +25,102 @@ import '/ui/page/home/widget/gallery_popup.dart';
 
 export 'view.dart';
 
-/// Controller of an [FloatingFit].
+/// Controller of a [FloatingFit].
 class FloatingFitController extends GetxController {
-  FloatingFitController({required this.relocateRect});
+  FloatingFitController({this.intersection});
 
-  /// [Rect] to relocate the floating panel.
-  final Rx<Rect?>? relocateRect;
+  /// Optional reactive [Rect] relocating the floating panel on its
+  /// intersections.
+  final Rx<Rect?>? intersection;
 
   /// Indicator whether the floating panel is being scaled.
-  final RxBool floatingScaled = RxBool(false);
+  final RxBool scaled = RxBool(false);
 
   /// Indicator whether the floating panel is being dragged.
-  final RxBool floatingDragged = RxBool(false);
+  final RxBool dragged = RxBool(false);
 
   /// Secondary view current left position.
-  final RxnDouble floatingLeft = RxnDouble(null);
+  final RxnDouble left = RxnDouble(null);
 
   /// Secondary view current top position.
-  final RxnDouble floatingTop = RxnDouble(null);
+  final RxnDouble top = RxnDouble(null);
 
   /// Secondary view current right position.
-  final RxnDouble floatingRight = RxnDouble(10);
+  final RxnDouble right = RxnDouble(10);
 
   /// Secondary view current bottom position.
-  final RxnDouble floatingBottom = RxnDouble(10);
+  final RxnDouble bottom = RxnDouble(10);
 
   /// Secondary view current width.
-  late final RxDouble floatingWidth;
+  late final RxDouble width;
 
   /// Secondary view current height.
-  late final RxDouble floatingHeight;
+  late final RxDouble height;
 
-  /// [floatingWidth] or [floatingHeight] of the floating panel before its
-  /// scaling.
-  double? floatingUnscaledSize;
+  /// Actual size of the [FloatingFit] this controller is bound to.
+  Size size = Size.zero;
+
+  /// [width] or [height] of the floating panel before its scaling.
+  double? unscaledSize;
 
   /// [Offset] the floating panel has relative to the pan gesture position.
-  Offset? floatingPanningOffset;
+  Offset? offset;
 
   /// [GlobalKey] of the floating panel.
   final GlobalKey floatingKey = GlobalKey();
 
-  /// [floatingBottom] value before the floating panel got relocated with the
-  /// [relocateFloating] method.
-  double? floatingBottomShifted = 10;
+  /// [bottom] value before the floating panel got relocated with the [relocate]
+  /// method.
+  double? bottomShifted = 10;
 
-  /// Indicator whether the [relocateFloating] is already invoked during the
-  /// current frame.
+  /// Indicator whether the [relocate] is already invoked during the current
+  /// frame.
   bool _floatingRelocated = false;
 
-  /// [Worker] reacting on the [relocateRect] changes relocating floating panel.
+  /// [Worker] reacting on the [intersection] changes relocating floating panel.
   Worker? _relocateWorker;
 
-  /// Max width of the floating panel in percentage of the call width.
-  static const double _maxFWidth = 0.80;
+  /// Max width of the floating panel in percentage of the layout width.
+  static const double _maxWidth = 0.80;
 
-  /// Max height of the floating panel in percentage of the call height.
-  static const double _maxFHeight = 0.80;
+  /// Max height of the floating panel in percentage of the layout height.
+  static const double _maxHeight = 0.80;
 
   /// Min width of the floating panel in pixels.
-  static const double _minFWidth = 125;
+  static const double _minWidth = 125;
 
   /// Min height of the floating panel in pixels.
-  static const double _minFHeight = 125;
-
-  /// Returns actual size of the [FloatingFit] this controller is bound to.
-  Size size = Size.zero;
+  static const double _minHeight = 125;
 
   @override
   void onInit() {
-    super.onInit();
-
     double floatingSize = (size.shortestSide *
             (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
-        .clamp(_minFHeight, 250);
-    floatingWidth = RxDouble(floatingSize);
-    floatingHeight = RxDouble(floatingSize);
+        .clamp(_minHeight, 250);
+    width = RxDouble(floatingSize);
+    height = RxDouble(floatingSize);
 
-    if (relocateRect != null) {
-      _relocateWorker = ever(relocateRect!, (_) => relocateFloating());
+    if (intersection != null) {
+      _relocateWorker = ever(intersection!, (_) => relocate());
     }
+
+    super.onInit();
   }
 
   @override
   void onClose() {
-    super.onClose();
     _relocateWorker?.dispose();
+    super.onClose();
   }
 
   /// Relocates the floating panel accounting the possible intersections.
-  void relocateFloating() {
-    if (floatingDragged.isFalse &&
-        floatingScaled.isFalse &&
-        !_floatingRelocated) {
+  void relocate() {
+    if (dragged.isFalse && scaled.isFalse && !_floatingRelocated) {
       _floatingRelocated = true;
 
       final Rect? floatingBounds = floatingKey.globalPaintBounds;
       Rect intersect =
-          floatingBounds?.intersect(relocateRect?.value ?? Rect.zero) ??
+          floatingBounds?.intersect(intersection?.value ?? Rect.zero) ??
               Rect.zero;
 
       intersect = Rect.fromLTWH(
@@ -134,39 +132,38 @@ class FloatingFitController extends GetxController {
 
       if (intersect.width > 0 && intersect.height > 0) {
         // Intersection is non-zero, so move the floating panel up.
-        if (floatingBottom.value != null) {
-          floatingBottom.value = floatingBottom.value! + intersect.height;
+        if (bottom.value != null) {
+          bottom.value = bottom.value! + intersect.height;
         } else {
-          floatingTop.value = floatingTop.value! - intersect.height;
+          top.value = top.value! - intersect.height;
         }
 
-        applyFloatingConstraints();
+        applyConstraints();
       } else if ((intersect.height < 0 || intersect.width < 0) &&
-          floatingBottomShifted != null) {
+          bottomShifted != null) {
         // Intersection is less than zero and the floating panel is higher than
         // it was before, so move it to its original position.
-        double bottom = floatingBottom.value ??
-            size.height - floatingTop.value! - floatingHeight.value;
-        if (bottom > floatingBottomShifted!) {
-          double difference = bottom - floatingBottomShifted!;
-          if (floatingBottom.value != null) {
+        double bottom =
+            this.bottom.value ?? size.height - top.value! - height.value;
+        if (bottom > bottomShifted!) {
+          double difference = bottom - bottomShifted!;
+          if (this.bottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              floatingBottom.value = floatingBottomShifted;
+              this.bottom.value = bottomShifted;
             } else {
-              floatingBottom.value = floatingBottom.value! + intersect.height;
+              this.bottom.value = this.bottom.value! + intersect.height;
             }
           } else {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              floatingTop.value =
-                  size.height - floatingHeight.value - floatingBottomShifted!;
+              top.value = size.height - height.value - bottomShifted!;
             } else {
-              floatingTop.value = floatingTop.value! - intersect.height;
+              top.value = top.value! - intersect.height;
             }
           }
 
-          applyFloatingConstraints();
+          applyConstraints();
         }
       }
 
@@ -175,180 +172,173 @@ class FloatingFitController extends GetxController {
     }
   }
 
-  /// Calculates the appropriate [floatingLeft], [floatingRight],
-  /// [floatingTop] and [floatingBottom] values according to the nearest edge.
-  void updateFloatingAttach() {
-    floatingLeft.value ??=
-        size.width - floatingWidth.value - (floatingRight.value ?? 0);
-    floatingTop.value ??=
-        size.height - floatingHeight.value - (floatingBottom.value ?? 0);
+  /// Calculates the appropriate [left], [right], [top] and [bottom] values
+  /// according to the nearest edge.
+  void updateAttach() {
+    this.left.value ??= size.width - width.value - (right.value ?? 0);
+    this.top.value ??= size.height - height.value - (bottom.value ?? 0);
 
     List<MapEntry<Alignment, double>> alignments = [
       MapEntry(
         Alignment.topLeft,
         Point(
-          floatingLeft.value!,
-          floatingTop.value!,
+          this.left.value!,
+          this.top.value!,
         ).squaredDistanceTo(const Point(0, 0)),
       ),
       MapEntry(
         Alignment.topRight,
         Point(
-          floatingLeft.value! + floatingWidth.value,
-          floatingTop.value!,
+          this.left.value! + width.value,
+          this.top.value!,
         ).squaredDistanceTo(Point(size.width, 0)),
       ),
       MapEntry(
         Alignment.bottomLeft,
         Point(
-          floatingLeft.value!,
-          floatingTop.value! + floatingHeight.value,
+          this.left.value!,
+          this.top.value! + height.value,
         ).squaredDistanceTo(Point(0, size.height)),
       ),
       MapEntry(
         Alignment.bottomRight,
         Point(
-          floatingLeft.value! + floatingWidth.value,
-          floatingTop.value! + floatingHeight.value,
+          this.left.value! + width.value,
+          this.top.value! + height.value,
         ).squaredDistanceTo(Point(size.width, size.height)),
       ),
     ]..sort((e1, e2) => e1.value.compareTo(e2.value));
 
     Alignment align = alignments.first.key;
-    double left = floatingLeft.value!;
-    double top = floatingTop.value!;
+    double left = this.left.value!;
+    double top = this.top.value!;
 
-    floatingTop.value = null;
-    floatingLeft.value = null;
-    floatingRight.value = null;
-    floatingBottom.value = null;
+    this.top.value = null;
+    this.left.value = null;
+    right.value = null;
+    bottom.value = null;
 
     if (align == Alignment.topLeft) {
-      floatingTop.value = top;
-      floatingLeft.value = left;
+      this.top.value = top;
+      this.left.value = left;
     } else if (align == Alignment.topRight) {
-      floatingTop.value = top;
-      floatingRight.value = floatingWidth.value + left <= size.width
-          ? floatingRight.value = size.width - left - floatingWidth.value
+      this.top.value = top;
+      right.value = width.value + left <= size.width
+          ? right.value = size.width - left - width.value
           : 0;
     } else if (align == Alignment.bottomLeft) {
-      floatingLeft.value = left;
-      floatingBottom.value = top + floatingHeight.value <= size.height
-          ? size.height - top - floatingHeight.value
+      this.left.value = left;
+      bottom.value = top + height.value <= size.height
+          ? size.height - top - height.value
           : 0;
     } else if (align == Alignment.bottomRight) {
-      floatingRight.value = floatingWidth.value + left <= size.width
-          ? size.width - left - floatingWidth.value
+      right.value = width.value + left <= size.width
+          ? size.width - left - width.value
           : 0;
-      floatingBottom.value = top + floatingHeight.value <= size.height
-          ? size.height - top - floatingHeight.value
+      bottom.value = top + height.value <= size.height
+          ? size.height - top - height.value
           : 0;
     }
 
-    floatingBottomShifted =
-        floatingBottom.value ?? size.height - top - floatingHeight.value;
-    relocateFloating();
+    bottomShifted = bottom.value ?? size.height - top - height.value;
+    relocate();
   }
 
-  /// Calculates the [floatingPanningOffset] based on the provided [offset].
-  void calculateFloatingPanning(Offset offset) {
+  /// Calculates the [offset] based on the provided [offset].
+  void calculatePanning(Offset offset) {
     Offset position =
         (floatingKey.currentContext?.findRenderObject() as RenderBox?)
                 ?.localToGlobal(Offset.zero) ??
             Offset.zero;
 
-    floatingPanningOffset = Offset(
+    offset = Offset(
       offset.dx - position.dx,
       offset.dy - position.dy,
     );
   }
 
-  /// Sets the [floatingLeft] and [floatingTop] correctly to the provided
+  /// Sets the [left] and [top] correctly to the provided
   /// [offset].
-  void updateFloatingOffset(Offset offset) {
-    floatingLeft.value = offset.dx - floatingPanningOffset!.dx;
-    floatingTop.value = offset.dy - floatingPanningOffset!.dy;
+  void updateOffset(Offset offset) {
+    left.value = offset.dx - this.offset!.dx;
+    top.value = offset.dy - this.offset!.dy;
 
-    if (floatingLeft.value! < 0) {
-      floatingLeft.value = 0;
+    if (left.value! < 0) {
+      left.value = 0;
     }
 
-    if (floatingTop.value! < 0) {
-      floatingTop.value = 0;
+    if (top.value! < 0) {
+      top.value = 0;
     }
   }
 
-  /// Applies constraints to the [floatingWidth], [floatingHeight],
-  /// [floatingLeft] and [floatingTop].
-  void applyFloatingConstraints() {
-    floatingWidth.value = _applyFWidth(floatingWidth.value);
-    floatingHeight.value = _applyFHeight(floatingHeight.value);
-    floatingLeft.value = _applyFLeft(floatingLeft.value);
-    floatingRight.value = _applyFRight(floatingRight.value);
-    floatingTop.value = _applyFTop(floatingTop.value);
-    floatingBottom.value = _applyFBottom(floatingBottom.value);
+  /// Applies constraints to the [width], [height], [left] and [top].
+  void applyConstraints() {
+    width.value = _applyWidth(width.value);
+    height.value = _applyHeight(height.value);
+    left.value = _applyLeft(left.value);
+    right.value = _applyRight(right.value);
+    top.value = _applyTop(top.value);
+    bottom.value = _applyBottom(bottom.value);
   }
 
   /// Scales the floating panel by the provided [scale].
   void scaleFloating(double scale) {
-    _scaleFWidth(scale);
-    _scaleFHeight(scale);
+    _scaleWidth(scale);
+    _scaleHeight(scale);
   }
 
-  /// Scales the [floatingWidth] according to the provided [scale].
-  void _scaleFWidth(double scale) {
-    double width = _applyFWidth(floatingUnscaledSize! * scale);
-    if (width != floatingWidth.value) {
-      double widthDifference = width - floatingWidth.value;
-      floatingWidth.value = width;
-      floatingLeft.value =
-          _applyFLeft(floatingLeft.value! - widthDifference / 2);
-      floatingPanningOffset =
-          floatingPanningOffset?.translate(widthDifference / 2, 0);
+  /// Scales the [width] according to the provided [scale].
+  void _scaleWidth(double scale) {
+    double width = _applyWidth(unscaledSize! * scale);
+    if (width != this.width.value) {
+      double widthDifference = width - this.width.value;
+      this.width.value = width;
+      left.value = _applyLeft(left.value! - widthDifference / 2);
+      offset = offset?.translate(widthDifference / 2, 0);
     }
   }
 
-  /// Scales the [floatingHeight] according to the provided [scale].
-  void _scaleFHeight(double scale) {
-    double height = _applyFHeight(floatingUnscaledSize! * scale);
-    if (height != floatingHeight.value) {
-      double heightDifference = height - floatingHeight.value;
-      floatingHeight.value = height;
-      floatingTop.value = _applyFTop(floatingTop.value! - heightDifference / 2);
-      floatingPanningOffset =
-          floatingPanningOffset?.translate(0, heightDifference / 2);
+  /// Scales the [height] according to the provided [scale].
+  void _scaleHeight(double scale) {
+    double height = _applyHeight(unscaledSize! * scale);
+    if (height != this.height.value) {
+      double heightDifference = height - this.height.value;
+      this.height.value = height;
+      top.value = _applyTop(top.value! - heightDifference / 2);
+      offset = offset?.translate(0, heightDifference / 2);
     }
   }
 
   /// Returns corrected according to floating constraints [width] value.
-  double _applyFWidth(double width) {
-    if (_minFWidth > size.width * _maxFWidth) {
-      return size.width * _maxFWidth;
-    } else if (width > size.width * _maxFWidth) {
-      return (size.width * _maxFWidth);
-    } else if (width < _minFWidth) {
-      return _minFWidth;
+  double _applyWidth(double width) {
+    if (_minWidth > size.width * _maxWidth) {
+      return size.width * _maxWidth;
+    } else if (width > size.width * _maxWidth) {
+      return (size.width * _maxWidth);
+    } else if (width < _minWidth) {
+      return _minWidth;
     }
     return width;
   }
 
   /// Returns corrected according to floating constraints [height] value.
-  double _applyFHeight(double height) {
-    if (_minFHeight > size.height * _maxFHeight) {
-      return size.height * _maxFHeight;
-    } else if (height > size.height * _maxFHeight) {
-      return size.height * _maxFHeight;
-    } else if (height < _minFHeight) {
-      return _minFHeight;
+  double _applyHeight(double height) {
+    if (_minHeight > size.height * _maxHeight) {
+      return size.height * _maxHeight;
+    } else if (height > size.height * _maxHeight) {
+      return size.height * _maxHeight;
+    } else if (height < _minHeight) {
+      return _minHeight;
     }
     return height;
   }
 
   /// Returns corrected according to floating constraints [left] value.
-  double? _applyFLeft(double? left) {
+  double? _applyLeft(double? left) {
     if (left != null) {
-      if (left + floatingWidth.value > size.width) {
-        return size.width - floatingWidth.value;
+      if (left + width.value > size.width) {
+        return size.width - width.value;
       } else if (left < 0) {
         return 0;
       }
@@ -358,10 +348,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to floating constraints [right] value.
-  double? _applyFRight(double? right) {
+  double? _applyRight(double? right) {
     if (right != null) {
-      if (right + floatingWidth.value > size.width) {
-        return size.width - floatingWidth.value;
+      if (right + width.value > size.width) {
+        return size.width - width.value;
       } else if (right < 0) {
         return 0;
       }
@@ -371,10 +361,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to floating constraints [top] value.
-  double? _applyFTop(double? top) {
+  double? _applyTop(double? top) {
     if (top != null) {
-      if (top + floatingHeight.value > size.height) {
-        return size.height - floatingHeight.value;
+      if (top + height.value > size.height) {
+        return size.height - height.value;
       } else if (top < 0) {
         return 0;
       }
@@ -384,10 +374,10 @@ class FloatingFitController extends GetxController {
   }
 
   /// Returns corrected according to floating constraints [bottom] value.
-  double? _applyFBottom(double? bottom) {
+  double? _applyBottom(double? bottom) {
     if (bottom != null) {
-      if (bottom + floatingHeight.value > size.height) {
-        return size.height - floatingHeight.value;
+      if (bottom + height.value > size.height) {
+        return size.height - height.value;
       } else if (bottom < 0) {
         return 0;
       }

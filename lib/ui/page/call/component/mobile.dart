@@ -70,13 +70,13 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
-          if (c.primary.length == 1 && c.secondary.length == 1) {
+          if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
             return FloatingFit<Participant>(
               primary: c.primary.first,
               panel: c.secondary.first,
-              showPanel: c.minimized.isFalse,
-              relocateRect: c.dockRect,
-              onManipulating: (bool m) => c.secondaryManipulated.value = m,
+              fit: !c.minimized.isFalse,
+              intersection: c.dockRect,
+              onManipulated: (bool m) => c.secondaryManipulated.value = m,
               itemBuilder: (e) {
                 return Stack(
                   children: [
@@ -90,16 +90,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ],
                 );
               },
-              itemOverlayBuilder: (e) {
+              overlayBuilder: (e) {
                 return Obx(() {
                   final bool muted = e.member.owner == MediaOwnerKind.local
                       ? !c.audioState.value.isEnabled
                       : e.audio.value?.isMuted.value ?? false;
 
+                  // TODO: Implement opened context menu detection for
+                  //       `hovered` indicator.
                   return ParticipantOverlayWidget(
                     e,
                     muted: muted,
-                    hovered: true,
+                    hovered: false,
                     preferBackdrop: !c.minimized.value,
                   );
                 });
@@ -117,6 +119,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
+                // TODO: Implement opened context menu detection for
+                //       `hovered` indicator.
                 return Stack(
                   children: [
                     const ParticipantDecoratorWidget(),
@@ -129,7 +133,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ParticipantOverlayWidget(
                       e,
                       muted: muted,
-                      hovered: true,
+                      hovered: false,
                       preferBackdrop: !c.minimized.value,
                     ),
                   ],
