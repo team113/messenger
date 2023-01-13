@@ -1099,8 +1099,6 @@ class ChatController extends GetxController {
     });
   }
 
-
-
   /// Removes a [User] being a recipient of this [chat] from the blacklist.
   ///
   /// Only meaningful, if this [chat] is a dialog.
