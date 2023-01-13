@@ -459,6 +459,7 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
+label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
