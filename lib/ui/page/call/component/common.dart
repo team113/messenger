@@ -269,22 +269,10 @@ class RemoteAudioButton extends CallButton {
 }
 
 /// [CallButton] accepting a call without video.
-class PaddingButton extends CallButton {
-  const PaddingButton(super.c);
-
-  @override
-  String get hint => '';
-
-  @override
-  Widget build({bool hinted = true, bool expanded = false}) {
-    return const SizedBox(width: 8);
-  }
-}
-
-/// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
   const AcceptAudioButton(super.c, {this.highlight = false});
 
+  /// Indicator whether button should be highlighted or not.
   final bool highlight;
 
   @override
@@ -311,6 +299,7 @@ class AcceptAudioButton extends CallButton {
 class AcceptVideoButton extends CallButton {
   const AcceptVideoButton(super.c, {this.highlight = false});
 
+  /// Indicator whether button should be highlighted or not.
   final bool highlight;
 
   @override
@@ -473,31 +462,33 @@ Widget withDescription(Widget child, Widget description) {
 }
 
 /// Title call information.
-Widget callTitle(CallController c) => Obx(() {
-      final bool isOutgoing =
-          (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
-      final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+Widget callTitle(CallController c) => Obx(
+      () {
+        final bool isOutgoing =
+            (c.outgoing || c.state.value == OngoingCallState.local) &&
+                !c.started;
+        final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+        final bool withDots = c.state.value != OngoingCallState.active &&
+            (c.state.value == OngoingCallState.joining || isOutgoing);
+        final String? state = c.state.value == OngoingCallState.active
+            ? c.duration.value.toString().split('.').first.padLeft(8, '0')
+            : c.state.value == OngoingCallState.joining
+                ? 'label_call_joining'.l10n
+                : isOutgoing
+                    ? isDialog
+                        ? null
+                        : 'label_call_connecting'.l10n
+                    : c.withVideo == true
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
 
-      final bool withDots = c.state.value != OngoingCallState.active &&
-          (c.state.value == OngoingCallState.joining || isOutgoing);
-      final String? state = c.state.value == OngoingCallState.active
-          ? c.duration.value.toString().split('.').first.padLeft(8, '0')
-          : c.state.value == OngoingCallState.joining
-              ? 'label_call_joining'.l10n
-              : isOutgoing
-                  ? isDialog
-                      ? null
-                      : 'label_call_connecting'.l10n
-                  : c.withVideo == true
-                      ? 'label_video_call'.l10n
-                      : 'label_audio_call'.l10n;
-
-      return CallTitle(
-        c.me.id.userId,
-        chat: c.chat.value?.chat.value,
-        title: c.chat.value?.title.value,
-        avatar: c.chat.value?.avatar.value,
-        state: state,
-        withDots: withDots,
-      );
-    });
+        return CallTitle(
+          c.me.id.userId,
+          chat: c.chat.value?.chat.value,
+          title: c.chat.value?.title.value,
+          avatar: c.chat.value?.avatar.value,
+          state: state,
+          withDots: withDots,
+        );
+      },
+    );

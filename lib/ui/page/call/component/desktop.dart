@@ -122,13 +122,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                     child: Stack(
                       children: [
                         Obx(() {
-                          bool isIncoming =
+                          final bool isIncoming =
                               c.state.value != OngoingCallState.active &&
                                   c.state.value != OngoingCallState.joining &&
                                   !(c.outgoing ||
                                       c.state.value == OngoingCallState.local);
 
-                          bool isDialog =
+                          final bool isDialog =
                               c.chat.value?.chat.value.isDialog == true;
 
                           final Widget child;
@@ -227,11 +227,11 @@ Widget desktopCall(CallController c, BuildContext context) {
       /// Builds the [Dock] containing the [CallController.buttons].
       Widget dock() {
         return Obx(() {
-          final bool isOutgoing =
+          bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
 
-          final bool showBottomUi = (c.showUi.isTrue ||
+          bool showBottomUi = (c.showUi.isTrue ||
               c.draggedButton.value != null ||
               c.state.value != OngoingCallState.active ||
               (c.state.value == OngoingCallState.active &&
@@ -288,7 +288,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           horizontal: 5,
                         ),
                         child: Obx(() {
-                          bool answer =
+                          final bool answer =
                               (c.state.value != OngoingCallState.joining &&
                                   c.state.value != OngoingCallState.active &&
                                   !isOutgoing);
@@ -321,54 +321,27 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 const SizedBox(width: 11),
                               ],
                             );
-                          }
-
-                          return Dock<CallButton>(
-                            items: answer
-                                ? [
-                                    AcceptAudioButton(
-                                      c,
-                                      highlight: !c.withVideo,
-                                    ),
-                                    PaddingButton(c),
-                                    AcceptVideoButton(
-                                      c,
-                                      highlight: c.withVideo,
-                                    ),
-                                    PaddingButton(c),
-                                    DeclineButton(c),
-                                  ]
-                                // ignore: invalid_use_of_protected_member
-                                : c.buttons.value,
-                            itemWidth: CallController.buttonSize,
-                            itemBuilder: (e) {
-                              // if (answer) {
-                              //   return Padding(
-                              //     padding:
-                              //         const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              //     child: e.build(
-                              //       hinted: c.draggedButton.value == null,
-                              //     ),
-                              //   );
-                              // }
-
-                              return e.build(
+                          } else {
+                            return Dock<CallButton>(
+                              items: c.buttons,
+                              itemWidth: CallController.buttonSize,
+                              itemBuilder: (e) => e.build(
                                 hinted: c.draggedButton.value == null,
-                              );
-                            },
-                            onReorder: (buttons) {
-                              c.buttons.clear();
-                              c.buttons.addAll(buttons);
-                              c.relocateSecondary();
-                            },
-                            onDragStarted: (b) {
-                              c.showDragAndDropButtonsHint = false;
-                              c.draggedButton.value = b;
-                            },
-                            onDragEnded: (_) => c.draggedButton.value = null,
-                            onLeave: (_) => c.displayMore.value = true,
-                            onWillAccept: (d) => d?.c == c,
-                          );
+                              ),
+                              onReorder: (buttons) {
+                                c.buttons.clear();
+                                c.buttons.addAll(buttons);
+                                c.relocateSecondary();
+                              },
+                              onDragStarted: (b) {
+                                c.showDragAndDropButtonsHint = false;
+                                c.draggedButton.value = b;
+                              },
+                              onDragEnded: (_) => c.draggedButton.value = null,
+                              onLeave: (_) => c.displayMore.value = true,
+                              onWillAccept: (d) => d?.c == c,
+                            );
+                          }
                         }),
                       ),
                     ),
@@ -611,11 +584,11 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Sliding from the top title bar.
         Obx(() {
-          bool isOutgoing =
+          final bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
 
-          bool preferTitle =
+          final bool preferTitle =
               c.state.value != OngoingCallState.active && !isOutgoing;
 
           return AnimatedSwitcher(
@@ -735,59 +708,56 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
-        if (c.state.value == OngoingCallState.active) ...[
-          // Secondary panel itself.
-          Obx(() {
-            bool isIncoming = c.state.value != OngoingCallState.active &&
-                c.state.value != OngoingCallState.joining &&
-                !(c.outgoing || c.state.value == OngoingCallState.local);
+        // Secondary panel itself.
+        Obx(() {
+          final bool isIncoming = c.state.value != OngoingCallState.active &&
+              c.state.value != OngoingCallState.joining &&
+              !(c.outgoing || c.state.value == OngoingCallState.local);
 
-            if (isIncoming) {
-              return const SizedBox();
-            }
+          if (isIncoming) {
+            return const SizedBox();
+          }
 
-            return _secondaryView(c, context);
-          }),
+          return _secondaryView(c, context);
+        }),
 
-          // Show a hint if any renderer is draggable.
-          Obx(() {
-            bool hideSecondary = c.size.width < 500 && c.size.height < 500;
-            bool mayDragVideo = !hideSecondary &&
-                (c.focused.length > 1 ||
-                    (c.focused.isEmpty &&
-                        c.primary.length + c.secondary.length > 1));
+        // Show a hint if any renderer is draggable.
+        Obx(() {
+          bool hideSecondary = c.size.width < 500 && c.size.height < 500;
+          bool mayDragVideo = !hideSecondary &&
+              (c.focused.length > 1 ||
+                  (c.focused.isEmpty &&
+                      c.primary.length + c.secondary.length > 1));
 
-            return AnimatedSwitcher(
-              duration: 150.milliseconds,
-              child: c.showDragAndDropVideosHint && mayDragVideo
-                  ? Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: SizedBox(
-                          width: 320,
-                          child: HintWidget(
-                            text: 'label_hint_drag_n_drop_video'.l10n,
-                            onTap: () => c.showDragAndDropVideosHint = false,
-                          ),
+          return AnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: c.showDragAndDropVideosHint && mayDragVideo
+                ? Padding(
+                    padding: EdgeInsets.only(
+                      top: c.secondary.isNotEmpty &&
+                              c.secondaryAlignment.value == Alignment.topCenter
+                          ? 10 + c.secondaryHeight.value
+                          : 10,
+                      right: c.secondary.isNotEmpty &&
+                              c.secondaryAlignment.value ==
+                                  Alignment.centerRight
+                          ? 10 + c.secondaryWidth.value
+                          : 10,
+                    ),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 320,
+                        child: HintWidget(
+                          text: 'label_hint_drag_n_drop_video'.l10n,
+                          onTap: () => c.showDragAndDropVideosHint = false,
                         ),
                       ),
-                    )
-                  : Container(),
-            );
-          }),
-        ],
+                    ),
+                  )
+                : Container(),
+          );
+        }),
 
         // If there's any error to show, display it.
         Obx(() {
