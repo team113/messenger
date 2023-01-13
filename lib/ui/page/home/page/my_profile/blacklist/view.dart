@@ -90,13 +90,11 @@ class BlacklistView extends StatelessWidget {
                           darken: 0.03,
                           subtitle: [
                             const SizedBox(height: 5),
-                            Placeholder(
-                              child: Text(
-                                '28.12.2022',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 13,
-                                ),
+                            Text(
+                              '28.12.2022',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 13,
                               ),
                             ),
                           ],
