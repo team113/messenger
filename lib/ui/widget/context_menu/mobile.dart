@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -333,8 +334,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     } else {
       padding = EdgeInsets.only(
-        left: _bounds.left - 10,
-        right: width - _bounds.right - 10,
+        left: max(0, _bounds.left - 10),
+        right: max(0, width - _bounds.right - 10),
       );
     }
 
