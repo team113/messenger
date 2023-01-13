@@ -2140,7 +2140,7 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Returns [WidgetButton] for removing this [Chat] from the blacklist.
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
   Widget _blockedField(ChatController c) {
     final Style style = Theme.of(context).extension<Style>()!;
 

@@ -43,9 +43,8 @@ class MessagePopup {
     );
   }
 
-  /// Shows an alert popup with [title], [description], [additional] and
-  /// `proceed` button that returns `true` or `null` based on whether the
-  /// `proceed` button was pressed.
+  /// Shows a confirmation popup with the specified [title], [description],
+  /// and [additional] widgets to put under the [description].
   static Future<bool?> alert(
     String title, {
     List<TextSpan> description = const [],

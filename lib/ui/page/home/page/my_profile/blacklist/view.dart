@@ -75,6 +75,7 @@ class BlacklistView extends StatelessWidget {
                   child: Scrollbar(
                     controller: c.scrollController,
                     child: ListView.builder(
+                      controller: c.scrollController,
                       shrinkWrap: true,
                       padding: ModalPopup.padding(context),
                       itemBuilder: (context, i) {

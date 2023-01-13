@@ -128,7 +128,7 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  /// Returns the [User]s blacklisted by the authenticated [MyUser].
   RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
@@ -495,7 +495,7 @@ class MyProfileController extends GetxController {
     devices.refresh();
   }
 
-  /// Deletes [email] address from [MyUser.emails].
+  /// Deletes the provided [email] from [MyUser.emails].
   Future<void> deleteEmail(UserEmail email) async {
     try {
       await _myUserService.deleteUserEmail(email);
@@ -505,7 +505,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Deletes [phone] from [MyUser.phones].
+  /// Deletes the provided [phone] from [MyUser.phones].
   Future<void> deletePhone(UserPhone phone) async {
     try {
       await _myUserService.deleteUserPhone(phone);

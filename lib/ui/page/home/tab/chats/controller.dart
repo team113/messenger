@@ -445,13 +445,13 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Indicates whether this [chat] is blocked.
-  bool isBlocked(
-    RxChat chat,
-    Iterable<RxUser> members,
-  ) {
+  /// Indicates whether the provided [chat] with the specified [members] is
+  /// blocked.
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  bool isBlocked(RxChat chat, [Iterable<RxUser>? members]) {
     if (chat.chat.value.isDialog) {
-      return members
+      return (members ?? chat.members.values)
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value

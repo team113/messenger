@@ -304,7 +304,6 @@ class MenuTabView extends StatelessWidget {
                       } else {
                         return const SizedBox();
                       }
-
                       break;
 
                     case ProfileTab.danger:

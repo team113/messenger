@@ -1321,7 +1321,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Opens alert popup with confirm the deletion [email] from the
+/// Opens a confirmation popup deleting the provided [email] from the
 /// [MyUser.emails].
 Future<void> _deleteEmail(
   MyProfileController c,
@@ -1345,7 +1345,7 @@ Future<void> _deleteEmail(
   }
 }
 
-/// Opens alert popup with confirm the deletion [phone] from the
+/// Opens a confirmation popup deleting the provided [phone] from the
 /// [MyUser.phones].
 Future<void> _deletePhone(
   MyProfileController c,
@@ -1369,11 +1369,8 @@ Future<void> _deletePhone(
   }
 }
 
-/// Opens alert popup with confirm the deleting the [MyUser]'s account.
-Future<void> _deleteAccount(
-  MyProfileController c,
-  BuildContext context,
-) async {
+/// Opens a confirmation popup deleting the [MyUser]'s account.
+Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
   final bool? result = await MessagePopup.alert(
     'label_delete_account'.l10n,
     description: [

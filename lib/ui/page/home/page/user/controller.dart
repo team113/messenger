@@ -84,8 +84,8 @@ class UserController extends GetxController {
   /// list.
   final RxInt galleryIndex = RxInt(0);
 
-  /// [TextFieldState] to input the reason for being added to the blacklist.
-  late final TextFieldState blockReason;
+  /// [TextFieldState] for blacklisting reason.
+  final TextFieldState reason = TextFieldState();
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -170,8 +170,6 @@ class UserController extends GetxController {
       }
     });
 
-    blockReason = TextFieldState();
-
     super.onInit();
   }
 
@@ -204,7 +202,7 @@ class UserController extends GetxController {
     if (inContacts.value) {
       status.value = RxStatus.loadingMore();
       try {
-        RxChatContact? contact =
+        final RxChatContact? contact =
             _contactService.contacts.values.firstWhereOrNull(
                   (e) => e.contact.value.users.every((m) => m.id == user?.id),
                 ) ??
@@ -247,7 +245,10 @@ class UserController extends GetxController {
   }
 
   /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() => _userService.blacklistUser(id);
+  Future<void> blacklist() async {
+    await _userService.blacklistUser(id);
+    reason.clear();
+  }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist() => _userService.unblacklistUser(id);

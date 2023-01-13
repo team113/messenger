@@ -500,7 +500,7 @@ class ContactsTabView extends StatelessWidget {
     );
   }
 
-  /// Opens alert popup with confirm the deletion of the [contact] from address
+  /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
   Future<void> _removeFromContacts(
     ContactsTabController c,
@@ -510,12 +510,12 @@ class ContactsTabView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_remove_from_contacts'.l10n,
       description: [
-        TextSpan(text: 'alert_contact_wiil_be_removed1'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_contact_wiil_be_removed2'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
 

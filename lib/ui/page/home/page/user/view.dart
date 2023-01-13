@@ -171,7 +171,7 @@ class UserView extends StatelessWidget {
                     const SizedBox(height: 8),
                     if (c.isBlacklisted == true)
                       Block(
-                        title: 'label_blocked_user'.l10n,
+                        title: 'label_user_is_blocked'.l10n,
                         children: [_blocked(c, context)],
                       ),
                     Block(
@@ -396,7 +396,7 @@ class UserView extends StatelessWidget {
     });
   }
 
-  /// Returns the date and reason for blocking the [User].
+  /// Returns the blacklisted information of this [User].
   Widget _blocked(UserController c, BuildContext context) {
     return Column(
       children: [
@@ -418,7 +418,7 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns [WidgetButton] for removing the [User] from the blacklist.
+  /// Returns a [WidgetButton] for removing the [User] from the blacklist.
   Widget _blockedField(BuildContext context, UserController c) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -530,8 +530,7 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Opens alert popup with confirm the deletion of the [User] from address
-  /// book.
+  /// Opens a confirmation popup deleting the [User] from address book.
   Future<void> _removeFromContacts(
     UserController c,
     BuildContext context,
@@ -539,12 +538,12 @@ class UserView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_remove_from_contacts'.l10n,
       description: [
-        TextSpan(text: 'alert_contact_wiil_be_removed1'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_contact_wiil_be_removed2'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
 
@@ -553,74 +552,64 @@ class UserView extends StatelessWidget {
     }
   }
 
-  /// Opens alert popup with confirm hide the [Chat]-dialog with the [User].
-  Future<void> _hideChat(
-    UserController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
+  Future<void> _hideChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_dialog_wiil_be_hidden1'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_dialog_wiil_be_hidden2'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
     );
 
-    if (result == true) {}
+    if (result == true) {
+      // TODO: Hide the [Chat]-dialog.
+    }
   }
 
-  /// Opens alert popup with confirm clear the [Chat]-dialog with the [User].
-  Future<void> _clearChat(
-    UserController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
+  Future<void> _clearChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_clear_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_dialog_wiil_be_cleared1'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_dialog_wiil_be_cleared2'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
     );
 
-    if (result == true) {}
+    if (result == true) {
+      // TODO: Clear the [Chat]-dialog.
+    }
   }
 
-  /// Opens alert popup with confirm the addition of the [User] to the
-  /// blacklist.
-  Future<void> _blacklistUser(
-    UserController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup blacklisting the [User].
+  Future<void> _blacklistUser(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
-        TextSpan(text: 'alert_user_wiil_be_blocked1'.l10n),
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_user_wiil_be_blocked2'.l10n),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(
-          state: c.blockReason,
-          label: 'label_reason'.l10n,
-        ),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
       ],
     );
 
     if (result == true) {
       await c.blacklist();
-      c.blockReason.clear();
     }
   }
 }

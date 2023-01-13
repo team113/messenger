@@ -818,7 +818,7 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Opens alert popup with confirm the deletion of the chat member.
+  /// Opens a confirmation popup removing the provided [user].
   Future<void> _removeChatMember(
     ChatInfoController c,
     BuildContext context,
@@ -845,20 +845,17 @@ class ChatInfoView extends StatelessWidget {
     }
   }
 
-  /// Opens alert popup with confirm hide the [Chat].
-  Future<void> _hideChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_wiil_be_hidden1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_chat_wiil_be_hidden2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
 
@@ -867,28 +864,26 @@ class ChatInfoView extends StatelessWidget {
     }
   }
 
-  /// Opens alert popup with confirm clear the [Chat].
-  Future<void> _clearChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_clear_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_wiil_be_cleared1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_chat_wiil_be_cleared2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
 
-    if (result == true) {}
+    if (result == true) {
+      // TODO: Hide this [Chat].
+    }
   }
 
-  /// Opens alert popup with confirm the addition of the [Chat] to the
-  /// blacklist.
+  /// Opens a confirmation popup blacklisting this [Chat].
   Future<void> _blacklistChat(
     ChatInfoController c,
     BuildContext context,
@@ -896,15 +891,17 @@ class ChatInfoView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_wiil_be_blocked1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_chat_wiil_be_blocked2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );
 
-    if (result == true) {}
+    if (result == true) {
+      // TODO: Blacklist this [Chat].
+    }
   }
 }

@@ -68,7 +68,8 @@ class RecentChatTile extends StatelessWidget {
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
 
-  /// Indicator whether this [rxChat] is blocked.
+  /// Indicator whether this [RecentChatTile] should display a blocked icon in
+  /// its trailing.
   final bool blocked;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
