@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
@@ -50,6 +51,7 @@ class RecentChatTile extends StatelessWidget {
     this.rxChat, {
     Key? key,
     this.me,
+    this.myUser,
     this.blocked = false,
     this.getUser,
     this.inCall,
@@ -68,6 +70,8 @@ class RecentChatTile extends StatelessWidget {
 
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
+
+  final MyUser? myUser;
 
   final bool blocked;
 
@@ -118,6 +122,9 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        avatarBuilder: chat.isMonolog
+            ? (_) => AvatarWidget.fromMyUser(myUser, radius: 30)
+            : null,
         status: [
           _status(context),
           Text(

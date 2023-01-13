@@ -29,7 +29,7 @@ import '/ui/widget/context_menu/region.dart';
 /// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
   const ChatTile({
-    Key? key,
+    super.key,
     this.chat,
     this.title = const [],
     this.status = const [],
@@ -40,7 +40,8 @@ class ChatTile extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.height = 94,
-  }) : super(key: key);
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -71,6 +72,12 @@ class ChatTile extends StatelessWidget {
 
   /// Height of this [ChatTile].
   final double height;
+
+  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +111,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(
@@ -149,4 +156,7 @@ class ChatTile extends StatelessWidget {
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

@@ -50,7 +50,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
-import 'chat_item_reads.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.

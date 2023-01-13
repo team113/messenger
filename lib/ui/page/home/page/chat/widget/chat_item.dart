@@ -56,7 +56,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
-import 'chat_item_reads.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -82,6 +82,8 @@ class ChatItemWidget extends StatefulWidget {
     this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
+    this.displayAvatar = true,
+    this.padding = const EdgeInsets.fromLTRB(0, 6, 0, 6),
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -140,6 +142,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
+
+  final bool displayAvatar;
+  final EdgeInsets padding;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -679,7 +684,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!_fromMe && widget.chat.value?.isGroup == true) &&
+    if ((!_fromMe &&
+            widget.chat.value?.isGroup == true &&
+            widget.displayAvatar) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
@@ -717,7 +724,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 2, 6),
+        padding: EdgeInsets.fromLTRB(
+          5,
+          widget.padding.top,
+          2,
+          widget.padding.bottom,
+        ),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -769,7 +781,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     );
                   }),
-                if (!_fromMe && widget.chat.value?.isGroup == true)
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.displayAvatar)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
@@ -795,10 +809,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        (!_fromMe && widget.chat.value?.isGroup == true)
+                        (!_fromMe &&
+                                widget.chat.value?.isGroup == true &&
+                                widget.displayAvatar)
                             ? 0
                             : 10,
-                        9,
+                        12,
                         files.isEmpty ? 10 : 0,
                       ),
                       child: Obx(() {
@@ -842,14 +858,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.only(
                       topLeft: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.displayAvatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
                       topRight: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.displayAvatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -1001,7 +1021,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: EdgeInsets.fromLTRB(
+          5,
+          widget.padding.top + 1,
+          5,
+          widget.padding.bottom + 1,
+        ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1274,17 +1299,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 future: widget.getUser?.call(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return AvatarWidget.fromRxUser(
-                      snapshot.data,
-                      radius: 10,
-                      // badge: false,
-                    );
+                    return AvatarWidget.fromRxUser(snapshot.data, radius: 10);
                   }
-                  return AvatarWidget.fromUser(
-                    user,
-                    radius: 10,
-                    // badge: false,
-                  );
+                  return AvatarWidget.fromUser(user, radius: 10);
                 },
               ),
             ),
@@ -1414,7 +1431,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(item.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 15),
+                    child: Opacity(
+                      opacity: widget.displayAvatar ? 1 : 0,
+                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+                    ),
                   ),
                 ),
               Flexible(
@@ -1591,18 +1611,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child,
                             if (avatars.isNotEmpty)
                               Transform.translate(
-                                offset: const Offset(-12, -4),
+                                offset:
+                                    Offset(-12, widget.displayAvatar ? -7 : -7),
                                 child: WidgetButton(
                                   onPressed: () => ChatItemReads.show(
                                     context,
                                     reads: widget.reads,
                                     getUser: widget.getUser,
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: avatars,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
                                   ),
                                 ),
                               ),

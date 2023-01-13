@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -24,6 +26,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import 'controller.dart';
 
 /// View displaying the provided [reads] along with corresponding [User]s.
 ///
@@ -59,42 +62,66 @@ class ChatItemReads extends StatelessWidget {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
-    return ListView(
-      shrinkWrap: true,
-      children: [
-        const SizedBox(height: 4),
-        ModalPopupHeader(
-          header: Center(
-            child: Text(
-              'label_read_by'.l10n,
-              style: thin?.copyWith(fontSize: 18),
-            ),
-          ),
-        ),
-        const SizedBox(height: 13),
-        ...reads.map((e) {
-          return Padding(
-            padding: ModalPopup.padding(context),
-            child: FutureBuilder<RxUser?>(
-              future: getUser?.call(e.memberId),
-              builder: (context, snapshot) {
+    return GetBuilder(
+      init: ChatItemReadsController(reads: reads, getUser: getUser),
+      builder: (ChatItemReadsController c) {
+        return Obx(() {
+          return ListView(
+            shrinkWrap: true,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(
+                header: Center(
+                  child: Text(
+                    'label_read_by'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Center(
+                  child: ReactiveTextField(
+                    key: const Key('SearchTextField'),
+                    state: c.search,
+                    label: 'label_search'.l10n,
+                    style: thin,
+                    onChanged: () => c.query.value = c.search.text,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              ...c.users.where((p) {
+                if (c.query.value != null) {
+                  return p.user.value.name?.val
+                          .toLowerCase()
+                          .contains(c.query.value!.toLowerCase()) ==
+                      true;
+                }
+
+                return true;
+              }).map((e) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: ContactTile(
-                    user: snapshot.data,
-                    darken: 0.05,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      router.user(e.memberId, push: true);
-                    },
+                  padding: ModalPopup.padding(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: ContactTile(
+                      user: e,
+                      darken: 0.05,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        router.user(e.id, push: true);
+                      },
+                    ),
                   ),
                 );
-              },
-            ),
+              }),
+              const SizedBox(height: 16),
+            ],
           );
-        }),
-        const SizedBox(height: 16),
-      ],
+        });
+      },
     );
   }
 }

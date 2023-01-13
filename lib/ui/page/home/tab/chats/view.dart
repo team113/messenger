@@ -404,6 +404,7 @@ class ChatsTabView extends StatelessWidget {
                                       chat,
                                       key: Key('SearchChat_${chat.id}'),
                                       me: c.me,
+                                      myUser: c.myUser.value,
                                       blocked: c.isBlocked(
                                         chat,
                                         chat.members.values,
@@ -511,6 +512,7 @@ class ChatsTabView extends StatelessWidget {
                                         chat,
                                         key: Key('RecentChat_${chat.id}'),
                                         me: c.me,
+                                        myUser: c.myUser.value,
                                         getUser: c.getUser,
                                         onJoin: () => c.joinCall(chat.id),
                                         onDrop: () => c.dropCall(chat.id),

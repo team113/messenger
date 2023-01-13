@@ -134,6 +134,7 @@ class MenuTabView extends StatelessWidget {
               controller: c.scrollController,
               child: ListView.builder(
                 key: const Key('MenuListView'),
+                controller: c.scrollController,
                 itemCount: ProfileTab.values.length,
                 itemBuilder: (context, i) {
                   final Widget child;
