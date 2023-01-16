@@ -358,7 +358,7 @@ void main() async {
 
     ChatController chatController =
         Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -369,6 +369,7 @@ void main() async {
 
     AttachmentId id1 =
         Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .send
             .attachments
             .first
             .value
@@ -382,7 +383,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,

@@ -59,6 +59,7 @@ abstract class CallButton {
     bool withBlur = false,
     Color color = const Color(0x794E5A78),
     double assetWidth = 60,
+    BoxBorder? border,
   }) {
     return RoundFloatingButton(
       asset: asset,
@@ -67,6 +68,7 @@ abstract class CallButton {
       hint: !expanded && hinted ? hint : null,
       text: expanded ? hint : null,
       withBlur: withBlur,
+      border: border,
       onPressed: onPressed,
     );
   }
@@ -268,7 +270,10 @@ class RemoteAudioButton extends CallButton {
 
 /// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
-  const AcceptAudioButton(CallController c) : super(c);
+  const AcceptAudioButton(super.c, {this.highlight = false});
+
+  /// Indicator whether this [AcceptAudioButton] should be highlighted.
+  final bool highlight;
 
   @override
   String get hint => 'btn_call_answer_with_audio'.l10n;
@@ -276,12 +281,15 @@ class AcceptAudioButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
     return _common(
-      asset: 'audio_call_start',
-      assetWidth: 29,
+      asset: expanded ? 'audio_call_start' : 'audio_call',
+      assetWidth: expanded ? 29 : 24,
       color: CallController.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      border: highlight
+          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          : null,
       onPressed: () => c.join(withVideo: false),
     );
   }
@@ -289,7 +297,10 @@ class AcceptAudioButton extends CallButton {
 
 /// [RoundFloatingButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
-  const AcceptVideoButton(CallController c) : super(c);
+  const AcceptVideoButton(super.c, {this.highlight = false});
+
+  /// Indicator whether this [AcceptVideoButton] should be highlighted.
+  final bool highlight;
 
   @override
   String get hint => 'btn_call_answer_with_video'.l10n;
@@ -302,6 +313,9 @@ class AcceptVideoButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      border: highlight
+          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          : null,
       onPressed: () => c.join(withVideo: true),
     );
   }

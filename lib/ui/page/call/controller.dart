@@ -52,6 +52,7 @@ import 'component/common.dart';
 import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
+import 'widget/dock.dart';
 
 export 'view.dart';
 
@@ -201,6 +202,11 @@ class CallController extends GetxController {
 
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
+
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
@@ -596,8 +602,12 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) {
+            dockRect.value = dockKey.globalPaintBounds;
+            relocateSecondary();
+          },
+        );
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -798,7 +808,6 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
-
           break;
 
         case OperationKind.updated:
@@ -1127,7 +1136,13 @@ class CallController extends GetxController {
 
   /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<void> openAddMember(BuildContext context) async {
-    keepUi(false);
+    if (isMobile) {
+      panelController.close().then((_) {
+        isPanelOpen.value = false;
+        keepUi(false);
+      });
+    }
+
     await ParticipantView.show(
       context,
       call: _currentCall,
