@@ -74,6 +74,7 @@ import 'steps/sees_as_online.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
@@ -117,6 +118,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,

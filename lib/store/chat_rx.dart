@@ -518,6 +518,8 @@ class HiveRxChat extends RxChat {
           _local.put(item);
         } else {
           if (saved.value.id.val != item.value.id.val) {
+            // TODO: Sort items by their [DateTime] and their [ID]s (if the
+            //       posting [DateTime] is the same).
             // If there's collision, then decrease timestamp with 1 millisecond
             // offset and save this item again.
             item.value.at =
