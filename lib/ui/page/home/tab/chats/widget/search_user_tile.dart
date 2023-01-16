@@ -78,6 +78,18 @@ class SearchUserTile extends StatelessWidget {
               style: const TextStyle(color: Color(0xFF888888)),
             ),
           ],
+          trailing: [
+            if (user?.user.value.isBlacklisted == true ||
+                contact?.user.value?.user.value.isBlacklisted == true)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: Color(0xFFC0C0C0),
+                  size: 20,
+                ),
+              )
+          ],
         ),
       );
     });

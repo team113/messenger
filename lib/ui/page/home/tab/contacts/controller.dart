@@ -39,7 +39,6 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
@@ -165,9 +164,7 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
-    }
+    await _contactService.deleteContact(contact.id);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.

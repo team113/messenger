@@ -42,6 +42,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -848,6 +849,10 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return _blockedField(c);
+    }
+
     return Obx(() {
       if (c.edit.value != null) {
         return MessageFieldView(
@@ -903,6 +908,112 @@ class _ChatViewState extends State<ChatView>
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        shadowColor: const Color(0x55000000),
+        iconTheme: const IconThemeData(color: Colors.blue),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          filled: false,
+          isDense: true,
+          contentPadding: EdgeInsets.fromLTRB(
+            15,
+            PlatformUtils.isDesktop ? 30 : 23,
+            15,
+            0,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(color: style.cardColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                        bottom: 13,
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
