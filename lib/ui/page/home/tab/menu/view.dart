@@ -285,7 +285,7 @@ class MenuTabView extends StatelessWidget {
                       );
                       break;
 
-                    case ProfileTab.blocked:
+                    case ProfileTab.blacklist:
                       child = card(
                         key: const Key('Blocked'),
                         icon: Icons.block,

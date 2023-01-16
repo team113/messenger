@@ -214,7 +214,7 @@ class MyProfileView extends StatelessWidget {
                             children: [_language(context, c)],
                           );
 
-                        case ProfileTab.blocked:
+                        case ProfileTab.blacklist:
                           return Block(
                             title: 'label_blocked_users'.l10n,
                             children: [_blockedUsers(context, c)],
@@ -1302,7 +1302,7 @@ Widget _language(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.blocked] section.
+/// Returns the contents of a [ProfileTab.blacklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   return Column(
     children: [
