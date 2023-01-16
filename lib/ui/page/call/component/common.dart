@@ -272,7 +272,7 @@ class RemoteAudioButton extends CallButton {
 class AcceptAudioButton extends CallButton {
   const AcceptAudioButton(super.c, {this.highlight = false});
 
-  /// Indicator whether button should be highlighted or not.
+  /// Indicator whether this [AcceptAudioButton] should be highlighted.
   final bool highlight;
 
   @override
@@ -299,7 +299,7 @@ class AcceptAudioButton extends CallButton {
 class AcceptVideoButton extends CallButton {
   const AcceptVideoButton(super.c, {this.highlight = false});
 
-  /// Indicator whether button should be highlighted or not.
+  /// Indicator whether this [AcceptVideoButton] should be highlighted.
   final bool highlight;
 
   @override

@@ -2213,10 +2213,24 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                               )
                                             : BorderSide.none,
                                       )
-                                : Border.all(
-                                    color: const Color(0x00888888),
-                                    width: 1,
-                                  ),
+                                : c.secondaryAlignment.value == null
+                                    ? RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0),
+                                          width: 1,
+                                        ),
+                                        borderRadius: borderRadius,
+                                      )
+                                    : Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0),
+                                        width: 1,
+                                      ),
                           ),
                         ),
                       ),
