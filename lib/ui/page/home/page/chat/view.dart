@@ -849,18 +849,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
-    bool blocked = false;
-
-    if (c.chat?.chat.value.isDialog == true) {
-      blocked = c.chat!.members.values
-              .firstWhereOrNull((e) => e.id != c.me)
-              ?.user
-              .value
-              .isBlacklisted ==
-          true;
-    }
-
-    if (blocked) {
+    if (c.chat?.blacklisted == true) {
       return _blockedField(c);
     }
 
