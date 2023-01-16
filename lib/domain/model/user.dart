@@ -289,7 +289,7 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
-  /// Regular expression for basic [UserPassword] validation.
+  /// Regular expression for basic [UserPhone] validation.
   static final RegExp _regExp = RegExp(
       r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$');
 }
