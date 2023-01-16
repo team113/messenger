@@ -168,7 +168,6 @@ void main() async {
     graphQlProvider,
     userProvider,
     galleryItemProvider,
-    authService,
   ));
   CallRepository callRepository = Get.put(
     CallRepository(

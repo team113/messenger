@@ -112,7 +112,6 @@ void main() async {
       graphQlProvider,
       userHiveProvider,
       galleryItemProvider,
-      authService,
     );
 
     AbstractContactRepository contactRepository =

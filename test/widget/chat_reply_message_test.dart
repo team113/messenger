@@ -336,7 +336,6 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     ));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

@@ -179,7 +179,6 @@ void main() async {
       graphQlProvider,
       userHiveProvider,
       galleryItemProvider,
-      authService,
     );
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -270,7 +269,6 @@ void main() async {
       graphQlProvider,
       userHiveProvider,
       galleryItemProvider,
-      authService,
     );
     CallRepository callRepository = Get.put(
       CallRepository(

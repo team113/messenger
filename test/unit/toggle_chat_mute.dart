@@ -150,7 +150,6 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     );
 
     AbstractCallRepository callRepository = CallRepository(
@@ -209,7 +208,6 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     );
 
     AbstractCallRepository callRepository = CallRepository(

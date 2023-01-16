@@ -59,11 +59,10 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     ));
     var profileService = Get.put(
       MyUserService(
-        Get.find(),
+        authService,
         MyUserRepository(
           graphQlProvider,
           myUserProvider,

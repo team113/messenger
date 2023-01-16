@@ -46,7 +46,6 @@ class UserRepository implements AbstractUserRepository {
     this._graphQlProvider,
     this._userLocal,
     this._galleryItemLocal,
-    this._authService,
   );
 
   /// GraphQL API provider.
@@ -59,10 +58,7 @@ class UserRepository implements AbstractUserRepository {
   final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [AuthService] to get an authorized user.
-  final AuthService _authService;
-
-  /// Subscription for the listening changes of [AbstractChatRepository.chats].
-  StreamSubscription? _chatsSubscription;
+  late final AbstractChatRepository _chatRepository;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -76,9 +72,6 @@ class UserRepository implements AbstractUserRepository {
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
-  /// Returns [MyUser]'s [UserId].
-  UserId? get me => _authService.userId;
-
   @override
   RxBool get isReady => _isReady;
 
@@ -86,21 +79,13 @@ class UserRepository implements AbstractUserRepository {
   RxMap<UserId, RxUser> get users => _users;
 
   @override
-  Future<void> init({AbstractChatRepository? chatRepository}) async {
+  Future<void> init({required AbstractChatRepository chatRepository}) async {
     if (!_userLocal.isEmpty) {
+      _chatRepository = chatRepository;
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
+        _users[c.value.id] = HiveRxUser(this, _userLocal, _chatRepository, c);
       }
       isReady.value = true;
-      _chatsSubscription = chatRepository?.chats.changes.listen((e) {
-        if (e.value?.chat.value.isDialog == true) {
-          UserId userId = e.value!.chat.value.members
-              .firstWhere((e) => e.user.id != me)
-              .user
-              .id;
-          _users[userId]?.updateDialog(e.value);
-        }
-      });
     }
 
     _initLocalSubscription();
@@ -111,7 +96,6 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   void dispose() {
-    _chatsSubscription?.cancel();
     _localSubscription?.cancel();
   }
 
@@ -143,7 +127,7 @@ class UserRepository implements AbstractUserRepository {
         if (query != null) {
           HiveUser stored = query.toHive();
           put(stored);
-          var fetched = HiveRxUser(this, _userLocal, stored);
+          var fetched = HiveRxUser(this, _userLocal, _chatRepository, stored);
           users[id] = fetched;
           user = fetched;
         }
@@ -267,7 +251,8 @@ class UserRepository implements AbstractUserRepository {
       } else {
         RxUser? user = _users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
+          _users[UserId(event.key)] =
+              HiveRxUser(this, _userLocal, _chatRepository, event.value);
         } else {
           user.user.value = event.value.value;
           user.user.refresh();

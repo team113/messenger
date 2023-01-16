@@ -256,7 +256,6 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     );
 
     Get.put(

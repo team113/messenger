@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/chat.dart';
@@ -34,6 +35,7 @@ class HiveRxUser extends RxUser {
   HiveRxUser(
     this._userRepository,
     this._userLocal,
+    this._chatRepository,
     HiveUser hiveUser,
   ) : user = Rx<User>(hiveUser.value);
 
@@ -49,6 +51,8 @@ class HiveRxUser extends RxUser {
   /// Reactive value of the [RxChat] this [HiveRxUser] dialog represents.
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
 
+  final AbstractChatRepository _chatRepository;
+
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
@@ -60,7 +64,14 @@ class HiveRxUser extends RxUser {
   int _listeners = 0;
 
   @override
-  Rx<RxChat?> get dialog => _dialog;
+  Rx<RxChat?> get dialog {
+    _dialog.value ??= _chatRepository.chats.values.firstWhereOrNull((e) =>
+        e.chat.value.isDialog &&
+        e.chat.value.members
+                .firstWhereOrNull((e2) => e2.user.id == user.value.id) !=
+            null);
+    return _dialog;
+  }
 
   @override
   void listenUpdates() {
@@ -74,16 +85,6 @@ class HiveRxUser extends RxUser {
     if (--_listeners == 0) {
       _remoteSubscription?.cancel();
       _remoteSubscription = null;
-    }
-  }
-
-  @override
-  void updateDialog(RxChat? chat) {
-    HiveUser? hiveUser = _userLocal.get(user.value.id);
-    _dialog.value = chat;
-    if (hiveUser != null) {
-      hiveUser.value.dialog = chat?.chat.value;
-      _userLocal.put(hiveUser);
     }
   }
 

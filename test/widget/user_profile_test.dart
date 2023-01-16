@@ -364,7 +364,6 @@ void main() async {
       graphQlProvider,
       userProvider,
       galleryItemProvider,
-      authService,
     );
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,

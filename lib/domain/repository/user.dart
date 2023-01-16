@@ -32,7 +32,7 @@ abstract class AbstractUserRepository {
   RxBool get isReady;
 
   /// Initializes this repository.
-  Future<void> init({AbstractChatRepository? chatRepository});
+  Future<void> init({required AbstractChatRepository chatRepository});
 
   /// Disposes this repository.
   void dispose();
@@ -87,7 +87,4 @@ abstract class RxUser {
 
   /// States that updates of this [user] are no longer required.
   void stopUpdates();
-
-  /// Updates reactive value of [dialog].
-  void updateDialog(RxChat? chat);
 }
