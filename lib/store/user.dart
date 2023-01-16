@@ -230,7 +230,11 @@ class UserRepository implements AbstractUserRepository {
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver || ignoreVersion) {
+
+    if (saved == null ||
+        saved.ver < user.ver ||
+        saved.blacklistedVer < user.blacklistedVer ||
+        ignoreVersion) {
       await _userLocal.put(user);
     }
   }

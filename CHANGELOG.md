@@ -32,7 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#310], [#260], [#259])
     - User page:
-        - Blacklisting. ([#277], [#234], [#229])
+        - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
@@ -44,12 +44,13 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned mobile interface. ([#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
+        - Redesigned forwarding modal. ([#189], [#181])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
@@ -86,7 +87,9 @@ All user visible changes to this project will be documented in this file. This p
 [#164]: /../../pull/164
 [#172]: /../../pull/172
 [#173]: /../../pull/173
+[#181]: /../../issues/181
 [#188]: /../../pull/188
+[#189]: /../../pull/189
 [#190]: /../../issues/190
 [#191]: /../../pull/191
 [#192]: /../../issues/192
@@ -152,6 +155,8 @@ All user visible changes to this project will be documented in this file. This p
 [#305]: /../../pull/305
 [#310]: /../../pull/310
 [#313]: /../../pull/313
+[#316]: /../../pull/316
+[#317]: /../../pull/317
 
 
 

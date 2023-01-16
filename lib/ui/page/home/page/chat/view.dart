@@ -16,11 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -28,15 +26,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 
-import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -48,22 +40,18 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
-import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'component/attachment_selector.dart';
 import 'controller.dart';
-import 'forward/view.dart';
+import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
+import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -143,7 +131,8 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
-          return DropTarget(
+          return CustomDropTarget(
+            key: Key('ChatView_${widget.id}'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -471,7 +460,7 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: SizeChangedLayoutNotifier(
                           key: c.bottomBarKey,
-                          child: _bottomBar(c, context),
+                          child: _bottomBar(c),
                         ),
                       ),
                     ),
@@ -561,10 +550,10 @@ class _ChatViewState extends State<ChatView>
             onHide: () => c.hideChatItem(e.value),
             onDelete: () => c.deleteMessage(e.value),
             onReply: () {
-              if (c.repliedMessages.any((i) => i.id == e.value.id)) {
-                c.repliedMessages.removeWhere((i) => i.id == e.value.id);
+              if (c.send.replied.any((i) => i.id == e.value.id)) {
+                c.send.replied.removeWhere((i) => i.id == e.value.id);
               } else {
-                c.repliedMessages.insert(0, e.value);
+                c.send.replied.insert(0, e.value);
               }
             },
             onCopy: c.copyText,
@@ -628,25 +617,25 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (element.forwards.any((e) =>
-                      c.repliedMessages.any((i) => i.id == e.value.id)) ||
-                  c.repliedMessages
+              if (element.forwards.any(
+                      (e) => c.send.replied.any((i) => i.id == e.value.id)) ||
+                  c.send.replied
                       .any((i) => i.id == element.note.value?.value.id)) {
                 for (Rx<ChatItem> e in element.forwards) {
-                  c.repliedMessages.removeWhere((i) => i.id == e.value.id);
+                  c.send.replied.removeWhere((i) => i.id == e.value.id);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages
+                  c.send.replied
                       .removeWhere((i) => i.id == element.note.value!.value.id);
                 }
               } else {
                 for (Rx<ChatItem> e in element.forwards.reversed) {
-                  c.repliedMessages.insert(0, e.value);
+                  c.send.replied.insert(0, e.value);
                 }
 
                 if (element.note.value != null) {
-                  c.repliedMessages.insert(0, element.note.value!.value);
+                  c.send.replied.insert(0, element.note.value!.value);
                 }
               }
             },
@@ -859,7 +848,75 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c, BuildContext context) {
+  Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return _blockedField(c);
+    }
+
+    return Obx(() {
+      if (c.edit.value != null) {
+        return MessageFieldView(
+          key: const Key('EditField'),
+          controller: c.edit.value,
+          onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+          canAttach: false,
+        );
+      }
+
+      return MessageFieldView(
+        key: const Key('SendField'),
+        controller: c.send,
+        onChanged: c.keepTyping,
+        onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: true),
+        canForward: true,
+      );
+    });
+  }
+
+  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
+  /// the provided [duration].
+  ///
+  /// Defaults to 50 milliseconds if no [duration] is provided.
+  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
+    c.isHorizontalScroll.value = true;
+    c.horizontalScrollTimer.value?.cancel();
+    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
+      if (_animation.value >= 0.5) {
+        _animation.forward();
+      } else {
+        _animation.reverse();
+      }
+      c.isHorizontalScroll.value = false;
+      c.horizontalScrollTimer.value = null;
+    });
+  }
+
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _unreadLabel(BuildContext context, ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+          style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Theme(
       data: Theme.of(context).copyWith(
         shadowColor: const Color(0x55000000),
@@ -902,434 +959,29 @@ class _ChatViewState extends State<ChatView>
           ),
         ),
       ),
-      child: c.editedMessage.value == null ? _sendField(c) : _editField(c),
-    );
-  }
-
-  /// Returns a [ReactiveTextField] for sending a message in this [Chat].
-  Widget _sendField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
-
-    return SafeArea(
-      child: Container(
-        key: const Key('SendField'),
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x22000000),
-            ),
-          ],
-        ),
-        child: ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(
-            sigmaX: style.cardBlur,
-            sigmaY: style.cardBlur,
-          ),
-          borderRadius: style.cardRadius,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LayoutBuilder(builder: (context, constraints) {
-                return Obx(() {
-                  bool grab = (125 + 2) * c.attachments.length >
-                      constraints.maxWidth - 16;
-
-                  return ConditionalBackdropFilter(
-                    condition: style.cardBlur > 0,
-                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    borderRadius: BorderRadius.only(
-                      topLeft: style.cardRadius.topLeft,
-                      topRight: style.cardRadius.topRight,
-                    ),
-                    child: Container(
-                      color: Colors.white.withOpacity(0.4),
-                      child: AnimatedSize(
-                        duration: 400.milliseconds,
-                        curve: Curves.ease,
-                        child: Obx(() {
-                          return Container(
-                            width: double.infinity,
-                            padding: c.repliedMessages.isNotEmpty ||
-                                    c.attachments.isNotEmpty
-                                ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                : EdgeInsets.zero,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (c.repliedMessages.isNotEmpty)
-                                  ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxHeight:
-                                          MediaQuery.of(context).size.height /
-                                              3,
-                                    ),
-                                    child: Scrollbar(
-                                      controller: c.scrollController,
-                                      child: ReorderableListView(
-                                        scrollController: c.scrollController,
-                                        shrinkWrap: true,
-                                        buildDefaultDragHandles:
-                                            PlatformUtils.isMobile,
-                                        onReorder: (int old, int to) {
-                                          if (old < to) {
-                                            --to;
-                                          }
-
-                                          final ChatItem item =
-                                              c.repliedMessages.removeAt(old);
-                                          c.repliedMessages.insert(to, item);
-
-                                          HapticFeedback.lightImpact();
-                                        },
-                                        proxyDecorator: (child, i, animation) {
-                                          return AnimatedBuilder(
-                                            animation: animation,
-                                            builder: (
-                                              BuildContext context,
-                                              Widget? child,
-                                            ) {
-                                              final double t = Curves.easeInOut
-                                                  .transform(animation.value);
-                                              final double elevation =
-                                                  lerpDouble(0, 6, t)!;
-                                              final Color color = Color.lerp(
-                                                const Color(0x00000000),
-                                                const Color(0x33000000),
-                                                t,
-                                              )!;
-
-                                              return InitCallback(
-                                                callback: HapticFeedback
-                                                    .selectionClick,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    boxShadow: [
-                                                      CustomBoxShadow(
-                                                        color: color,
-                                                        blurRadius: elevation,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: child,
-                                                ),
-                                              );
-                                            },
-                                            child: child,
-                                          );
-                                        },
-                                        reverse: true,
-                                        padding: const EdgeInsets.fromLTRB(
-                                          1,
-                                          0,
-                                          1,
-                                          0,
-                                        ),
-                                        children: c.repliedMessages.map((e) {
-                                          return ReorderableDragStartListener(
-                                            key: Key('Handle_${e.id}'),
-                                            enabled: !PlatformUtils.isMobile,
-                                            index: c.repliedMessages.indexOf(e),
-                                            child: Dismissible(
-                                              key: Key('${e.id}'),
-                                              direction:
-                                                  DismissDirection.horizontal,
-                                              onDismissed: (_) {
-                                                c.repliedMessages.remove(e);
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  vertical: 2,
-                                                ),
-                                                child: _repliedMessage(c, e),
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                if (c.attachments.isNotEmpty &&
-                                    c.repliedMessages.isNotEmpty)
-                                  const SizedBox(height: 4),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: MouseRegion(
-                                    cursor: grab
-                                        ? SystemMouseCursors.grab
-                                        : MouseCursor.defer,
-                                    opaque: false,
-                                    child: ScrollConfiguration(
-                                      behavior: CustomScrollBehavior(),
-                                      child: SingleChildScrollView(
-                                        clipBehavior: Clip.none,
-                                        physics: grab
-                                            ? null
-                                            : const NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: c.attachments
-                                              .map(
-                                                (e) => _buildAttachment(
-                                                  c,
-                                                  e.value,
-                                                  e.key,
-                                                ),
-                                              )
-                                              .toList(),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                  );
-                });
-              }),
-              Container(
-                constraints: const BoxConstraints(minHeight: 56),
-                decoration: BoxDecoration(color: style.cardColor),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
-                      WidgetButton(
-                        onPressed: c.pickFile,
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
-                                height: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      WidgetButton(
-                        onPressed: () =>
-                            AttachmentSourceSelector.show(context, c),
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: Center(
-                            child: SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
-                                height: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                          bottom: 13,
-                        ),
-                        child: Transform.translate(
-                          offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                          child: ReactiveTextField(
-                            onChanged: c.keepTyping,
-                            key: const Key('MessageField'),
-                            state: c.send,
-                            hint: 'label_send_message_hint'.l10n,
-                            minLines: 1,
-                            maxLines: 7,
-                            filled: false,
-                            dense: true,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            style: style.boldBody.copyWith(fontSize: 17),
-                            type: TextInputType.multiline,
-                            textInputAction: TextInputAction.newline,
-                          ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onLongPress: c.forwarding.toggle,
-                      child: Obx(() {
-                        final Widget child;
-
-                        if (c.forwarding.value) {
-                          child = WidgetButton(
-                            onPressed: () async {
-                              if (c.repliedMessages.isNotEmpty) {
-                                final bool? result = await ChatForwardView.show(
-                                  context,
-                                  c.id,
-                                  c.repliedMessages
-                                      .map((e) => ChatItemQuote(item: e))
-                                      .toList(),
-                                  text: c.send.text,
-                                  attachments: c.attachments
-                                      .map((e) => e.value)
-                                      .toList(),
-                                );
-
-                                if (result == true) {
-                                  c.repliedMessages.clear();
-                                  c.forwarding.value = false;
-                                  c.attachments.clear();
-                                  c.send.clear();
-                                }
-                              }
-                            },
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: Center(
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 150),
-                                  child: SizedBox(
-                                    width: 26,
-                                    height: 22,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/forward.svg',
-                                      width: 26,
-                                      height: 22,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          child = WidgetButton(
-                            onPressed: c.send.isEmpty.value &&
-                                    c.attachments.isEmpty &&
-                                    c.repliedMessages.isEmpty
-                                ? () {}
-                                : c.send.submit,
-                            child: SizedBox(
-                              width: 56,
-                              height: 56,
-                              child: Center(
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 150),
-                                  child: SizedBox(
-                                    key: const Key('Send'),
-                                    width: 25.18,
-                                    height: 22.85,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/send.svg',
-                                      height: 22.85,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        return AnimatedSwitcher(
-                          duration: 300.milliseconds,
-                          child: child,
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Returns a [ReactiveTextField] for editing a [ChatMessage].
-  Widget _editField(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
-    const double iconSize = 22;
-
-    return Container(
-      key: const Key('EditField'),
-      decoration: BoxDecoration(
-        borderRadius: style.cardRadius,
-        color: const Color(0xFFFFFFFF).withOpacity(0.4),
-        boxShadow: const [
-          CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
-        ],
-      ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-        borderRadius: style.cardRadius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LayoutBuilder(builder: (context, constraints) {
-              return Stack(
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height / 3,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                      child: Dismissible(
-                        key: Key('${c.editedMessage.value?.id}'),
-                        direction: DismissDirection.horizontal,
-                        onDismissed: (_) => c.editedMessage.value = null,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                          ),
-                          child: _editedMessage(c),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            }),
-            Container(
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
               constraints: const BoxConstraints(minHeight: 56),
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               decoration: BoxDecoration(color: style.cardColor),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  IgnorePointer(
-                    child: WidgetButton(
-                      child: SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: Center(
-                          child: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
-                            child: SvgLoader.asset(
-                              'assets/icons/attach.svg',
-                              height: iconSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -1338,788 +990,30 @@ class _ChatViewState extends State<ChatView>
                       ),
                       child: Transform.translate(
                         offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                        child: ReactiveTextField(
-                          onChanged: c.keepTyping,
-                          key: const Key('MessageEditField'),
-                          state: c.edit!,
-                          hint: 'label_send_message_hint'.l10n,
-                          minLines: 1,
-                          maxLines: 7,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
-                          type: PlatformUtils.isDesktop
-                              ? TextInputType.text
-                              : TextInputType.multiline,
-                          textInputAction: PlatformUtils.isDesktop
-                              ? TextInputAction.send
-                              : TextInputAction.newline,
-                        ),
-                      ),
-                    ),
-                  ),
-                  WidgetButton(
-                    onPressed: c.edit!.submit,
-                    child: SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: SizedBox(
-                            key: const Key('Edit'),
-                            width: 25.18,
-                            height: 22.85,
-                            child: SvgLoader.asset(
-                              'assets/icons/send.svg',
-                              height: 22.85,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns a visual representation of the provided [Attachment].
-  Widget _buildAttachment(ChatController c, Attachment e, GlobalKey key) {
-    bool isImage =
-        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    bool isVideo = (e is FileAttachment && e.isVideo) ||
-        (e is LocalAttachment && e.file.isVideo);
-
-    const double size = 125;
-
-    // Builds the visual representation of the provided [Attachment] itself.
-    Widget content() {
-      if (isImage || isVideo) {
-        Widget child;
-
-        if (isImage) {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              if (e.file.path == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.file(
-                    File(e.file.path!),
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.file(
-                    File(e.file.path!),
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              if (e.file.isSvg) {
-                child = SvgLoader.bytes(
-                  e.file.bytes!,
-                  width: size,
-                  height: size,
-                );
-              } else {
-                child = Image.memory(
-                  e.file.bytes!,
-                  fit: BoxFit.cover,
-                  width: size,
-                  height: size,
-                );
-              }
-            }
-          } else {
-            child = RetryImage(
-              e.original.url,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            );
-          }
-        } else {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              child = const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-            }
-          } else {
-            child = VideoThumbnail.url(url: e.original.url);
-          }
-        }
-
-        List<Attachment> attachments = c.attachments
-            .where((e) {
-              Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
-
-        return WidgetButton(
-          key: key,
-          onPressed: () {
-            int index = attachments.indexOf(e);
-            if (index != -1) {
-              GalleryPopup.show(
-                context: context,
-                gallery: GalleryPopup(
-                  initial: attachments.indexOf(e),
-                  initialKey: key,
-                  onTrashPressed: (int i) {
-                    Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o.value == a);
-                  },
-                  children: attachments.map((o) {
-                    if (o is ImageAttachment ||
-                        (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(
-                        o.original.url,
-                        o.filename,
-                        size: o.original.size,
-                      );
-                    }
-                    return GalleryItem.video(
-                      o.original.url,
-                      o.filename,
-                      size: o.original.size,
-                    );
-                  }).toList(),
-                ),
-              );
-            }
-          },
-          child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0x80000000),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : child,
-        );
-      }
-
-      return Container(
-        width: size,
-        height: size,
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      p.basenameWithoutExtension(e.filename),
-                      style: const TextStyle(fontSize: 13),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    p.extension(e.filename),
-                    style: const TextStyle(fontSize: 13),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Builds the [content] along with manipulation buttons and statuses.
-    Widget attachment() {
-      Style style = Theme.of(context).extension<Style>()!;
-      return MouseRegion(
-        key: Key('Attachment_${e.id}'),
-        opaque: false,
-        onEnter: (_) => c.hoveredAttachment.value = e,
-        onExit: (_) => c.hoveredAttachment.value = null,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0xFFF5F5F5),
-          ),
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: content(),
-              ),
-              Center(
-                child: SizedBox.square(
-                  dimension: 30,
-                  child: ElasticAnimatedSwitcher(
-                    child: e is LocalAttachment
-                        ? e.status.value == SendingStatus.error
-                            ? Container(
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
-                                ),
-                              )
-                            : const SizedBox()
-                        : const SizedBox(),
-                  ),
-                ),
-              ),
-              if (!c.send.status.value.isLoading)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4, top: 4),
-                    child: Obx(() {
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: (c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile)
-                            ? InkWell(
-                                key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments
-                                    .removeWhere((a) => a.value == e),
-                                child: Container(
-                                  width: 15,
-                                  height: 15,
-                                  margin:
-                                      const EdgeInsets.only(left: 8, bottom: 8),
-                                  child: Container(
-                                    key: const Key('Close'),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: style.cardColor,
-                                    ),
-                                    child: Center(
-                                      child: SvgLoader.asset(
-                                        'assets/icons/close_primary.svg',
-                                        width: 7,
-                                        height: 7,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
-                      );
-                    }),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
-    );
-  }
-
-  /// Builds a visual representation of the provided [item] being replied.
-  Widget _repliedMessage(ChatController c, ChatItem item) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = item.authorId == c.me;
-
-    Widget? content;
-    List<Widget> additional = [];
-
-    if (item is ChatMessage) {
-      if (item.attachments.isNotEmpty) {
-        additional = item.attachments.map((a) {
-          ImageAttachment? image;
-
-          if (a is ImageAttachment) {
-            image = a;
-          }
-
-          return Container(
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: fromMe
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            width: 30,
-            height: 30,
-            child: image == null
-                ? Icon(
-                    Icons.file_copy,
-                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                    size: 16,
-                  )
-                : RetryImage(
-                    image.small.url,
-                    fit: BoxFit.cover,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-          );
-        }).toList();
-      }
-
-      if (item.text != null && item.text!.val.isNotEmpty) {
-        content = Text(
-          item.text!.val.toString(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
-        );
-      }
-    } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = c.me == item.authorId;
-      bool isMissed = false;
-
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
-
-        if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time = item.conversationStartedAt!.val
-              .difference(item.finishedAt!.val)
-              .localizedString();
-        }
-      } else {
-        title = item.authorId == c.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ],
-      );
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
-    } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
-    }
-
-    return MouseRegion(
-      opaque: false,
-      onEnter: (d) => c.hoveredReply.value = item,
-      onExit: (d) => c.hoveredReply.value = null,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == c.me
-                        ? Theme.of(context).colorScheme.secondary
-                        : AvatarWidget.colors[
-                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                AvatarWidget.colors.length];
-
-                    return Container(
-                      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(width: 2, color: color),
-                        ),
-                      ),
-                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Builder(
-                            builder: (context) {
-                              String? name;
-
-                              if (snapshot.hasData) {
-                                name = snapshot.data?.user.value.name?.val;
-                                if (snapshot.data?.user.value != null) {
-                                  return Obx(() {
-                                    return Text(
-                                      snapshot.data!.user.value.name?.val ??
-                                          snapshot.data!.user.value.num.val,
-                                      style:
-                                          style.boldBody.copyWith(color: color),
-                                    );
-                                  });
-                                }
-                              }
-
-                              return Text(
-                                name ?? ('dot'.l10n * 3),
-                                style: style.boldBody.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                              );
-                            },
-                          ),
-                          if (content != null) ...[
-                            const SizedBox(height: 2),
-                            DefaultTextStyle.merge(maxLines: 1, child: content),
-                          ],
-                          if (additional.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Row(children: additional),
-                          ],
-                        ],
-                      ),
-                    );
-                  }),
-            ),
-            AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.hoveredReply.value == item || PlatformUtils.isMobile
-                  ? WidgetButton(
-                      key: const Key('CancelReplyButton'),
-                      onPressed: () {
-                        c.repliedMessages.remove(item);
-                      },
-                      child: Container(
-                        width: 15,
-                        height: 15,
-                        margin: const EdgeInsets.only(right: 4, top: 4),
-                        child: Container(
-                          key: const Key('Close'),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.cardColor,
-                          ),
-                          child: Center(
-                            child: SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
-                              width: 7,
-                              height: 7,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds a visual representation of a [ChatController.editedMessage].
-  Widget _editedMessage(ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final bool fromMe = c.editedMessage.value?.authorId == c.me;
-
-    if (c.editedMessage.value != null && c.edit != null) {
-      if (c.editedMessage.value is ChatMessage) {
-        Widget? content;
-        List<Widget> additional = [];
-
-        final ChatMessage item = c.editedMessage.value as ChatMessage;
-
-        var desc = StringBuffer();
-        if (item.text != null) {
-          desc.write(item.text!.val);
-        }
-
-        if (item.attachments.isNotEmpty) {
-          additional = item.attachments.map((a) {
-            ImageAttachment? image;
-
-            if (a is ImageAttachment) {
-              image = a;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(right: 2),
-              decoration: BoxDecoration(
-                color: fromMe
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.03),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              width: 30,
-              height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                      size: 16,
-                    )
-                  : RetryImage(
-                      image.small.url,
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-            );
-          }).toList();
-        }
-
-        if (item.text != null) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
-
-        return WidgetButton(
-          onPressed: () => c.animateTo(item.id, offsetBasedOnBottom: true),
-          child: MouseRegion(
-            opaque: false,
-            onEnter: (d) => c.hoveredReply.value = item,
-            onExit: (d) => c.hoveredReply.value = null,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(width: 12),
-                        SvgLoader.asset(
-                          'assets/icons/edit.svg',
-                          width: 17,
-                          height: 17,
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                  width: 2,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
-                            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'label_edit'.l10n,
-                                  style: style.boldBody.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  DefaultTextStyle.merge(
-                                    maxLines: 1,
-                                    child: content,
-                                  ),
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Row(children: additional),
-                                ],
-                              ],
-                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  Obx(() {
-                    return AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: c.hoveredReply.value == item ||
-                              PlatformUtils.isMobile
-                          ? WidgetButton(
-                              key: const Key('CancelEditButton'),
-                              onPressed: () => c.editedMessage.value = null,
-                              child: Container(
-                                width: 15,
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 4, top: 4),
-                                child: Container(
-                                  key: const Key('Close'),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: style.cardColor,
-                                  ),
-                                  child: Center(
-                                    child: SvgLoader.asset(
-                                      'assets/icons/close_primary.svg',
-                                      width: 7,
-                                      height: 7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
-                    );
-                  }),
                 ],
               ),
             ),
           ),
-        );
-      }
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
-  /// [duration].
-  ///
-  /// Defaults to 50 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.isHorizontalScroll.value = false;
-      c.horizontalScrollTimer.value = null;
-    });
-  }
-
-  /// Builds a visual representation of an [UnreadMessagesElement].
-  Widget _unreadLabel(BuildContext context, ChatController c) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: style.systemMessageBorder,
-        color: style.systemMessageColor,
-      ),
-      child: Center(
-        child: Text(
-          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
-          style: style.systemMessageStyle,
         ),
       ),
     );

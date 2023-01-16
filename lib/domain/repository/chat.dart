@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -232,6 +233,16 @@ abstract class RxChat {
 
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
+
+  /// Indicates whether this [RxChat] is blacklisted or not.
+  bool get blacklisted =>
+      chat.value.isDialog &&
+      members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .isBlacklisted ==
+          true;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();

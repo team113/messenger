@@ -15,35 +15,40 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 
+import '../configuration.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Long presses a [Chat] with the provided name.
+/// Taps on a [Chat]-dialog with the provided [User].
 ///
 /// Examples:
-/// - When I long press "Name" chat.
-final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
-  'I long press {string} chat',
-  (name, context) async {
+/// - When I tap on chat with Bob
+final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
+  'I tap on chat with {user}',
+  (TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      try {
-        final finder = context.world.appDriver.findBy(
-          'Chat_${context.world.groups[name]}',
-          FindType.key,
-        );
+      final finder = context.world.appDriver
+          .findByKeySkipOffstage(
+            'Chat_${context.world.sessions[user.name]!.dialog!.val}',
+          )
+          .last;
 
-        await context.world.appDriver.nativeDriver.longPress(finder);
+      if (await context.world.appDriver.isPresent(finder)) {
+        await context.world.appDriver.scrollIntoView(finder);
         await context.world.appDriver.waitForAppToSettle();
-
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
         return true;
-      } catch (e) {
-        return false;
       }
+
+      return false;
     });
   },
 );
