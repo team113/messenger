@@ -402,6 +402,7 @@ label_blocked_users = Заблокированные пользователи
 label_blocked_count = Заблокировано: {$count}
 label_call_active = Активный звонок
 label_call_calling = Звоним
+label_call_connecting = Подготовка соединения
 label_call_joining = Подключение
 label_call_permissions_description =
     Необходим для отображения звонков напрямую в телефоне
