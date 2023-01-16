@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import 'localized_exception.dart';
 
 /// Helper to display a popup message in UI.
@@ -41,29 +43,84 @@ class MessagePopup {
     );
   }
 
-  /// Shows an alert popup with [title], [description] and `yes`/`no` buttons
-  /// that returns `true`, `false` or `null` based on the button that was
-  /// pressed.
-  static Future<bool?> alert(String title, {String? description}) => showDialog(
-        context: router.context!,
-        builder: (context) => AlertDialog(
-          key: const Key('AlertDialog'),
-          title: Text(title),
-          content: description == null ? null : Text(description),
-          actions: [
-            TextButton(
-              key: const Key('AlertNoButton'),
-              child: Text('label_are_you_sure_no'.l10n),
-              onPressed: () => Navigator.pop(context, false),
-            ),
-            TextButton(
-              key: const Key('AlertYesButton'),
-              child: Text('label_are_you_sure_yes'.l10n),
-              onPressed: () => Navigator.pop(context, true),
-            ),
-          ],
-        ),
-      );
+  /// Shows a confirmation popup with the specified [title], [description],
+  /// and [additional] widgets to put under the [description].
+  static Future<bool?> alert(
+    String title, {
+    List<TextSpan> description = const [],
+    List<Widget> additional = const [],
+  }) {
+    return ModalPopup.show(
+      context: router.context!,
+      child: Builder(
+        builder: (context) {
+          final TextStyle? thin = Theme.of(context)
+              .textTheme
+              .bodyText1
+              ?.copyWith(color: Colors.black);
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(
+                header: Center(
+                  child: Text(
+                    title,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 13),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    if (description.isNotEmpty)
+                      Padding(
+                        padding: ModalPopup.padding(context),
+                        child: Center(
+                          child: RichText(
+                            text: TextSpan(
+                              children: description,
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ...additional.map(
+                      (e) => Padding(
+                        padding: ModalPopup.padding(context),
+                        child: e,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
+              Padding(
+                padding: ModalPopup.padding(context),
+                child: OutlinedRoundedButton(
+                  key: const Key('Proceed'),
+                  maxWidth: double.infinity,
+                  title: Text(
+                    'btn_proceed'.l10n,
+                    style: thin?.copyWith(color: Colors.white),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
   /// Shows a [SnackBar] with the [title] message.
   static void success(String title) =>

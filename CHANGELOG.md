@@ -32,7 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#310], [#260], [#259])
     - User page:
-        - Blacklisting. ([#277], [#234], [#229])
+        - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
@@ -152,6 +152,7 @@ All user visible changes to this project will be documented in this file. This p
 [#310]: /../../pull/310
 [#313]: /../../pull/313
 [#316]: /../../pull/316
+[#317]: /../../pull/317
 
 
 

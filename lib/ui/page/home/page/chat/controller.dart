@@ -1031,6 +1031,19 @@ class ChatController extends GetxController {
     });
   }
 
+  /// Removes a [User] being a recipient of this [chat] from the blacklist.
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  Future<void> unblacklist() async {
+    if (chat?.chat.value.isDialog == true) {
+      final RxUser? recipient =
+          chat!.members.values.firstWhereOrNull((e) => e.id != me);
+      if (recipient != null) {
+        await _userService.unblacklistUser(recipient.id);
+      }
+    }
+  }
+
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
   Future<void> download(ChatItem item, FileAttachment attachment) async {
