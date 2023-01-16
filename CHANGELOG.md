@@ -44,7 +44,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned mobile interface. ([#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
     - Chat page:
@@ -153,6 +153,7 @@ All user visible changes to this project will be documented in this file. This p
 [#310]: /../../pull/310
 [#313]: /../../pull/313
 [#314]: /../../issues/314
+[#316]: /../../pull/316
 [#322]: /../../pull/322
 
 
