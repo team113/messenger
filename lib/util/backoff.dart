@@ -36,7 +36,7 @@ class Backoff {
         }
 
         return await callback();
-      } catch (e) {
+      } catch (_) {
         if (backoff.inMilliseconds == 0) {
           backoff = 125.milliseconds;
         } else if (backoff < 64.seconds) {
@@ -47,5 +47,5 @@ class Backoff {
   }
 }
 
-/// Exception indicates tha operation has been canceled.
+/// Exception indicates that operation has been canceled.
 class OperationCanceledException implements Exception {}

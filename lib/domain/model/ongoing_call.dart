@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
@@ -264,8 +264,8 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
-  /// [CancelToken] canceling the remote subscribing, if any.
-  final dio.CancelToken _heartbeatToken = dio.CancelToken();
+  /// [CancelToken] canceling the heartbeat subscribing, if any.
+  final CancelToken _heartbeatToken = CancelToken();
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();

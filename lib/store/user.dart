@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -199,7 +199,7 @@ class UserRepository implements AbstractUserRepository {
   Future<Stream<UserEvents>> userEvents(
     UserId id,
     UserVersion? ver, [
-    dio.CancelToken? cancelToken,
+    CancelToken? cancelToken,
   ]) =>
       Backoff.run(
         () async => (await _graphQlProvider.userEvents(id, ver))

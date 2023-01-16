@@ -17,7 +17,7 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -377,30 +377,33 @@ class CallRepository extends DisposableInterface
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId, [
-    dio.CancelToken? cancelToken,
+    CancelToken? cancelToken,
   ]) async =>
-      Backoff.run(() async => (await _graphQlProvider.callEvents(id, deviceId))
-              .asyncExpand((event) async* {
-            GraphQlProviderExceptions.fire(event);
-            var events =
-                CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+      Backoff.run(
+        () async => (await _graphQlProvider.callEvents(id, deviceId))
+            .asyncExpand((event) async* {
+          GraphQlProviderExceptions.fire(event);
+          var events =
+              CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
-            if (events.$$typename == 'SubscriptionInitialized') {
-              yield const ChatCallEventsInitialized();
-            } else if (events.$$typename == 'ChatCall') {
-              var call =
-                  events as CallEvents$Subscription$ChatCallEvents$ChatCall;
-              yield ChatCallEventsChatCall(call.toModel(), call.ver);
-            } else if (events.$$typename == 'ChatCallEventsVersioned') {
-              var mixin = events as ChatCallEventsVersionedMixin;
-              yield ChatCallEventsEvent(
-                CallEventsVersioned(
-                  mixin.events.map((e) => _callEvent(e)).toList(),
-                  mixin.ver,
-                ),
-              );
-            }
-          }));
+          if (events.$$typename == 'SubscriptionInitialized') {
+            yield const ChatCallEventsInitialized();
+          } else if (events.$$typename == 'ChatCall') {
+            var call =
+                events as CallEvents$Subscription$ChatCallEvents$ChatCall;
+            yield ChatCallEventsChatCall(call.toModel(), call.ver);
+          } else if (events.$$typename == 'ChatCallEventsVersioned') {
+            var mixin = events as ChatCallEventsVersionedMixin;
+            yield ChatCallEventsEvent(
+              CallEventsVersioned(
+                mixin.events.map((e) => _callEvent(e)).toList(),
+                mixin.ver,
+              ),
+            );
+          }
+        }),
+        cancelToken,
+      );
 
   /// Returns a [Stream] of [IncomingChatCallsTopEvent]s.
   ///
@@ -620,7 +623,7 @@ class CallRepository extends DisposableInterface
       },
       onError: (e) {
         if (e is! ResubscriptionRequiredException) {
-          Log.print(e.toString(), 'CallService');
+          Log.print(e.toString(), 'CallRepository');
         }
 
         _subscribe(count);

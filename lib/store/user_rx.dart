@@ -17,7 +17,7 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -53,7 +53,7 @@ class HiveRxUser extends RxUser {
   StreamIterator<UserEvents>? _remoteSubscription;
 
   /// [CancelToken] canceling the remote subscribing, if any.
-  final dio.CancelToken _remoteSubscriptionToken = dio.CancelToken();
+  final CancelToken _remoteSubscriptionToken = CancelToken();
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
@@ -79,8 +79,9 @@ class HiveRxUser extends RxUser {
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
     var ver = noVersion ? null : _userLocal.get(id)?.ver;
-    _remoteSubscription =
-        StreamIterator(await _userRepository.userEvents(id, ver));
+    _remoteSubscription = StreamIterator(
+      await _userRepository.userEvents(id, ver, _remoteSubscriptionToken),
+    );
     while (await _remoteSubscription!
         .moveNext()
         .onError<ResubscriptionRequiredException>((_, __) {
@@ -94,7 +95,7 @@ class HiveRxUser extends RxUser {
         'Unexpected error in user($id) remote subscription: $e',
         'HiveRxUser',
       );
-      Future.delayed(Duration.zero, () => _initRemoteSubscription());
+      _initRemoteSubscription();
       return false;
     })) {
       await _userEvent(_remoteSubscription!.current);

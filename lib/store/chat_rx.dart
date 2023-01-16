@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -142,7 +142,7 @@ class HiveRxChat extends RxChat {
   StreamSubscription? _messagesSubscription;
 
   /// [CancelToken] canceling the remote subscribing, if any.
-  final dio.CancelToken _remoteSubscriptionToken = dio.CancelToken();
+  final CancelToken _remoteSubscriptionToken = CancelToken();
 
   @override
   UserId? get me => _chatRepository.me;

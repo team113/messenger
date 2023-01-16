@@ -18,7 +18,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -88,7 +88,7 @@ class ContactRepository implements AbstractContactRepository {
   StreamIterator? _remoteSubscription;
 
   /// [CancelToken] canceling the remote subscribing, if any.
-  final dio.CancelToken _remoteSubscriptionToken = dio.CancelToken();
+  final CancelToken _remoteSubscriptionToken = CancelToken();
 
   @override
   Future<void> init() async {

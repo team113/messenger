@@ -17,7 +17,7 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../model/chat.dart';
@@ -143,7 +143,7 @@ abstract class AbstractCallRepository {
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId, [
-    dio.CancelToken? cancelToken,
+    CancelToken? cancelToken,
   ]);
 }
 

@@ -1032,7 +1032,7 @@ class ChatRepository implements AbstractChatRepository {
         'Unexpected error in recent chats remote subscription: $e',
         'ChatRepository',
       );
-      Future.delayed(Duration.zero, () => _initRemoteSubscription());
+      _initRemoteSubscription();
       return false;
     })) {
       await _recentChatsRemoteEvent(_remoteSubscription!.current);
@@ -1104,6 +1104,7 @@ class ChatRepository implements AbstractChatRepository {
   /// Fetches __all__ [HiveChat]s from the remote.
   Future<HashMap<ChatId, ChatData>> _recentChats() async {
     const maxInt = 120;
+    // TODO: Should be called with backoff algorithm.
     RecentChats$Query$RecentChats query =
         (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
 
@@ -1223,7 +1224,7 @@ class ChatRepository implements AbstractChatRepository {
         'Unexpected error in favorite chats subscription: $e',
         'ChatRepository',
       );
-      Future.delayed(Duration.zero, () => _initRemoteSubscription());
+      _initFavoriteChatsSubscription();
       return false;
     })) {
       await _favoriteChatsEvent(_favoriteChatsSubscription!.current);

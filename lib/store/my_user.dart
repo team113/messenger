@@ -46,6 +46,7 @@ import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
@@ -97,6 +98,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
+  /// [CancelToken] canceling the keep online subscribing, if any.
+  final dio.CancelToken _keepOnlineToken = dio.CancelToken();
+
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
 
@@ -143,6 +147,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _blacklistSubscription?.cancel();
     _remoteSubscription?.cancel();
     _keepOnlineSubscription?.cancel();
+    _keepOnlineToken.cancel();
   }
 
   @override
@@ -569,7 +574,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         'Unexpected error in my user remote subscription: $e',
         'MyUserRepository',
       );
-      Future.delayed(Duration.zero, () => _initRemoteSubscription());
+      _initRemoteSubscription();
       return false;
     })) {
       _myUserRemoteEvent(_remoteSubscription!.current);
@@ -579,13 +584,16 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
   Future<void> _initKeepOnlineSubscription() async {
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = (await _graphQlProvider.keepOnline()).listen(
-      (event) {
-        GraphQlProviderExceptions.fire(event);
-      },
-      onError: (e) {
-        _initKeepOnlineSubscription();
-      },
+    _keepOnlineSubscription = await Backoff.run(
+      () async => (await _graphQlProvider.keepOnline()).listen(
+        (event) {
+          GraphQlProviderExceptions.fire(event);
+        },
+        onError: (_) {
+          _initKeepOnlineSubscription();
+        },
+      ),
+      _keepOnlineToken,
     );
   }
 

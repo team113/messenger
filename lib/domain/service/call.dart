@@ -17,7 +17,7 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -236,7 +236,7 @@ class CallService extends DisposableService {
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId, [
-    dio.CancelToken? cancelToken,
+    CancelToken? cancelToken,
   ]) =>
       _callsRepo.heartbeat(id, deviceId, cancelToken);
 

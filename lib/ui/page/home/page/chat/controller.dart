@@ -1096,7 +1096,7 @@ class ChatController extends GetxController {
       onError: (_) {
         _typingSubscription?.cancel();
         _typingSubscription = null;
-        keepTyping(); // maybe with delay
+        keepTyping();
       },
     );
     _typingTimer?.cancel();
