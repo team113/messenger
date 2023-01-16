@@ -16,7 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -39,9 +41,12 @@ import 'controller.dart';
 class ChatItemReads extends StatelessWidget {
   const ChatItemReads({
     super.key,
+    this.id,
     this.reads = const [],
     this.getUser,
   });
+
+  final ChatItemId? id;
 
   /// [LastChatRead]s themselves.
   final Iterable<LastChatRead> reads;
@@ -53,12 +58,13 @@ class ChatItemReads extends StatelessWidget {
   /// Displays a [ChatItemReads] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
+    ChatItemId? id,
     Iterable<LastChatRead> reads = const [],
     Future<RxUser?> Function(UserId userId)? getUser,
   }) {
     return ModalPopup.show(
       context: context,
-      child: ChatItemReads(reads: reads, getUser: getUser),
+      child: ChatItemReads(id: id, reads: reads, getUser: getUser),
     );
   }
 
@@ -90,26 +96,93 @@ class ChatItemReads extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'label_read_by'.l10n,
+                    'btn_message_info'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              if (id != null) ...[
+                Padding(
+                  padding: ModalPopup.padding(context)
+                      .subtract(const EdgeInsets.symmetric(horizontal: 0)),
+                  child: WidgetButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: id?.val));
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'ID: ',
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        Text(
+                          '$id',
+                          style: thin?.copyWith(fontSize: 13),
+                          // maxLines: 1,
+                          // overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(width: 8),
+                        SvgLoader.asset('assets/icons/copy.svg', height: 12),
+                      ],
+                    ),
+                  ),
+                  // RichText(
+                  //   text: TextSpan(
+                  //     children: [
+                  //       TextSpan(
+                  //         text: 'ID: ',
+                  //         style: thin?.copyWith(
+                  //             fontSize: 15,
+                  //             color: Theme.of(context).colorScheme.primary),
+                  //       ),
+                  //       TextSpan(
+                  //         text: '$id',
+                  //         style: thin?.copyWith(fontSize: 15),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                ),
+                const SizedBox(height: 8),
+              ],
               Padding(
                 padding: ModalPopup.padding(context),
-                child: CustomAppBar(
-                  border: c.search.value == null
-                      ? null
-                      : Border.all(
-                          color: Theme.of(context).colorScheme.secondary,
-                          width: 2,
-                        ),
-                  title: Obx(() {
-                    final Widget child;
-
-                    if (c.search.value != null) {
-                      child = Theme(
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Отправлено: ',
+                        style: thin?.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      TextSpan(
+                        text: '16.01.2023, 10:04',
+                        style: thin?.copyWith(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (c.query.value != null || c.users.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                if (reads.length >= 3) ...[
+                  Padding(
+                    padding: ModalPopup.padding(context)
+                        .subtract(const EdgeInsets.only(left: 8, right: 8)),
+                    child: CustomAppBar(
+                      border: c.search.isEmpty.value || !c.search.focus.hasFocus
+                          ? null
+                          : Border.all(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
+                            ),
+                      title: Theme(
                         data: Theme.of(context).copyWith(
                           shadowColor: const Color(0x55000000),
                           iconTheme: const IconThemeData(color: Colors.blue),
@@ -157,109 +230,116 @@ class ChatItemReads extends StatelessWidget {
                             offset: const Offset(0, 1),
                             child: ReactiveTextField(
                               key: const Key('SearchField'),
-                              state: c.search.value!,
+                              state: c.search,
                               hint: 'label_search'.l10n,
                               maxLines: 1,
                               filled: false,
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.boldBody.copyWith(fontSize: 17),
-                              onChanged: () =>
-                                  c.query.value = c.search.value!.text,
+                              onChanged: () => c.query.value = c.search.text,
                             ),
                           ),
                         ),
-                      );
-                    } else {
-                      child = Text('label_search'.l10n, key: const Key('2'));
-                    }
-
-                    return AnimatedSwitcher(
-                      duration: 250.milliseconds,
-                      child: child,
-                    );
-                  }),
-                  leading: [
-                    Obx(() {
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: WidgetButton(
-                          key: const Key('SearchButton'),
-                          onPressed:
-                              c.search.value == null ? null : c.startSearch,
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
-                            height: double.infinity,
-                            child: SvgLoader.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ],
-                  actions: [
-                    Obx(() {
-                      final Widget? child;
-
-                      if (c.search.value != null) {
-                        child = SvgLoader.asset(
-                          'assets/icons/close_primary.svg',
-                          height: 15,
-                        );
-                      } else {
-                        child = null;
-                      }
-
-                      return WidgetButton(
-                        onPressed: () {},
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 12, right: 18),
+                      ),
+                      leading: [
+                        Container(
+                          padding: const EdgeInsets.only(left: 20, right: 12),
                           height: double.infinity,
-                          child: SizedBox(
-                            width: 21.77,
-                            child: AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            ),
+                          child: SvgLoader.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
                           ),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              // Padding(
-              //   padding: ModalPopup.padding(context),
-              //   child: Center(
-              //     child: ReactiveTextField(
-              //       key: const Key('SearchTextField'),
-              //       state: c.search,
-              //       label: 'label_search'.l10n,
-              //       style: thin,
-              //       onChanged: () => c.query.value = c.search.text,
-              //     ),
-              //   ),
-              // ),
-              const SizedBox(height: 18),
-              if (users.isEmpty) const Center(child: Text('Nothing was found')),
-              ...users.map((e) {
-                return Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: ContactTile(
-                      user: e,
-                      darken: 0.05,
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        router.user(e.id, push: true);
-                      },
+                        )
+                      ],
+                      actions: [
+                        Obx(() {
+                          final Widget? child;
+
+                          if (!c.search.isEmpty.value) {
+                            child = SvgLoader.asset(
+                              'assets/icons/close_primary.svg',
+                              height: 15,
+                            );
+                          } else {
+                            child = null;
+                          }
+
+                          return WidgetButton(
+                            onPressed: () {
+                              c.search.clear();
+                              c.search.unsubmit();
+                              c.query.value = null;
+                            },
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.only(left: 12, right: 18),
+                              height: double.infinity,
+                              child: SizedBox(
+                                width: 21.77,
+                                child: AnimatedSwitcher(
+                                  duration: 250.milliseconds,
+                                  child: child,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
                     ),
                   ),
-                );
-              }),
+                  // Padding(
+                  //   padding: ModalPopup.padding(context),
+                  //   child: Center(
+                  //     child: ReactiveTextField(
+                  //       key: const Key('SearchTextField'),
+                  //       state: c.search,
+                  //       label: 'label_search'.l10n,
+                  //       style: thin,
+                  //       onChanged: () => c.query.value = c.search.text,
+                  //     ),
+                  //   ),
+                  // ),
+                  const SizedBox(height: 12),
+                ],
+                if (users.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: Text('Nothing was found')),
+                  ),
+                ...users.map((e) {
+                  return Padding(
+                    padding: ModalPopup.padding(context),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: ContactTile(
+                        user: e,
+                        darken: 0.05,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          router.user(e.id, push: true);
+                        },
+                        subtitle: [
+                          const SizedBox(height: 3),
+                          Text(
+                            'Доставлено: 16.01.2023, 09:56',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            'Прочитано: 16.01.2023, 10:04',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
               const SizedBox(height: 16),
             ],
           );

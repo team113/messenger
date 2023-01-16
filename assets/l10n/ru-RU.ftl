@@ -704,3 +704,5 @@ alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
 btn_select = Выбрать
 btn_upload = Загрузить
+btn_message_info = Информация о сообщении
+btn_info = Информация

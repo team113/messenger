@@ -687,3 +687,5 @@ alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
 btn_select = Select
 btn_upload = Upload
+btn_message_info = Message info
+btn_info = Info

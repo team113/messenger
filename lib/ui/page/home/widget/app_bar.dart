@@ -69,7 +69,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             width: double.infinity,
             color: Colors.white,
           ),
-        Expanded(
+        Flexible(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
             child: Container(

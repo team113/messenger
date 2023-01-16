@@ -954,6 +954,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   child: WidgetButton(
                                     onPressed: () => ChatItemReads.show(
                                       context,
+                                      id: widget.forwards.firstOrNull?.value.id,
                                       reads: widget.reads,
                                       getUser: widget.getUser,
                                     ),
