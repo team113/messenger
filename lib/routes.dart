@@ -103,6 +103,7 @@ enum ProfileTab {
   media,
   notifications,
   language,
+  blacklist,
   download,
   danger,
   logout,
