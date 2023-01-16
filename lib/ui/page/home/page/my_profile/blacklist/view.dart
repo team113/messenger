@@ -15,16 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View displaying the blacklisted [User]s.
@@ -50,42 +49,37 @@ class BlacklistView extends StatelessWidget {
         pop: Navigator.of(context).pop,
       ),
       builder: (BlacklistController c) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 4),
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_blocked_count'.l10nfmt({'count': c.blacklist.length}),
-                  style: thin?.copyWith(fontSize: 18),
-                  textAlign: TextAlign.center,
+        return Obx(() {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(
+                header: Center(
+                  child: Text(
+                    'label_blocked_count'
+                        .l10nfmt({'count': c.blacklist.length}),
+                    style: thin?.copyWith(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Obx(() {
-              if (c.blacklist.isEmpty ||
-                  c.blacklist.none((e) => e.user.value.isBlacklisted)) {
-                return Padding(
+              const SizedBox(height: 4),
+              if (c.blacklist.isEmpty)
+                Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('label_no_users'.l10n),
-                );
-              }
-
-              return Flexible(
-                child: Scrollbar(
-                  controller: c.scrollController,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    padding: ModalPopup.padding(context),
-                    itemBuilder: (context, i) {
-                      RxUser? user = c.blacklist[i];
-
-                      return Obx(() {
-                        if (user.user.value.isBlacklisted == false) {
-                          return const SizedBox();
-                        }
+                )
+              else
+                Flexible(
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView.builder(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      padding: ModalPopup.padding(context),
+                      itemBuilder: (context, i) {
+                        RxUser? user = c.blacklist[i];
 
                         return ContactTile(
                           user: user,
@@ -103,14 +97,6 @@ class BlacklistView extends StatelessWidget {
                                 fontSize: 13,
                               ),
                             ),
-                            //   const SizedBox(height: 5),
-                            //   Text(
-                            //     'Причина: плохой человек',
-                            //     style: TextStyle(
-                            // color: Theme.of(context).colorScheme.primary,
-                            // fontSize: 13,
-                            //     ),
-                            //   ),
                           ],
                           trailing: [
                             WidgetButton(
@@ -123,29 +109,19 @@ class BlacklistView extends StatelessWidget {
                                   fontSize: 13,
                                 ),
                               ),
-
-                              // child: Icon(
-                              //   Icons.remove_circle,
-                              //   color: Theme.of(context).colorScheme.secondary,
-                              // ),
-                              // child: SvgLoader.asset(
-                              //   'assets/icons/delete.svg',
-                              //   height: 14 * 1.5,
-                              // ),
                             ),
                             const SizedBox(width: 4),
                           ],
                         );
-                      });
-                    },
-                    itemCount: c.blacklist.length,
+                      },
+                      itemCount: c.blacklist.length,
+                    ),
                   ),
                 ),
-              );
-            }),
-            const SizedBox(height: 8),
-          ],
-        );
+              const SizedBox(height: 8),
+            ],
+          );
+        });
       },
     );
   }

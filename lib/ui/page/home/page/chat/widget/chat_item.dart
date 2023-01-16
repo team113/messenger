@@ -172,6 +172,7 @@ class ChatItemWidget extends StatefulWidget {
     if (isVideo) {
       attachment = Stack(
         alignment: Alignment.center,
+        fit: filled ? StackFit.expand : StackFit.loose,
         children: [
           isLocal
               ? e.file.bytes == null
@@ -187,14 +188,17 @@ class ChatItemWidget extends StatefulWidget {
                   height: 300,
                   onError: onError,
                 ),
-          Container(
-            width: 60,
-            height: 60,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0x80000000),
+          Center(
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0x80000000),
+              ),
+              child:
+                  const Icon(Icons.play_arrow, color: Colors.white, size: 48),
             ),
-            child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
           ),
         ],
       );
@@ -216,6 +220,7 @@ class ChatItemWidget extends StatefulWidget {
           (e as ImageAttachment).big.url,
           key: key,
           fit: BoxFit.cover,
+          width: filled ? double.infinity : null,
           height: 300,
           onForbidden: onError,
         ),
@@ -1260,9 +1265,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       },
     );
   }
-
-  bool _reallyDragging = false;
-  Offset _reallyOffset = Offset.zero;
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(

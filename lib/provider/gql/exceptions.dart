@@ -398,7 +398,7 @@ class DeclineChatCallException
   final DeclineChatCallErrorCode code;
 
   @override
-  String toString() => 'LeaveChatCallException($code)';
+  String toString() => 'DeclineChatCallException($code)';
 
   @override
   String toMessage() {

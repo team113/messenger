@@ -27,15 +27,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/native_file.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -45,6 +43,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -65,6 +64,8 @@ import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'forward/view.dart';
+import 'message_field/controller.dart';
 
 export 'view.dart';
 
@@ -114,20 +115,11 @@ class ChatController extends GetxController {
   /// [RxSplayTreeMap] of the [ListElement]s to display.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
-  /// State of a send message field.
-  late final TextFieldState send;
+  /// [MessageFieldController] for sending a [ChatMessage].
+  late final MessageFieldController send;
 
-  /// [ChatItem]s being quoted to reply onto.
-  final RxList<ChatItem> repliedMessages = RxList();
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding = RxBool(false);
-
-  /// State of an edit message field.
-  TextFieldState? edit;
-
-  /// [ChatItem] being edited.
-  final Rx<ChatItem?> editedMessage = Rx<ChatItem?>(null);
+  /// [MessageFieldController] for editing a [ChatMessage].
+  final Rx<MessageFieldController?> edit = Rx(null);
 
   /// Interval of a [ChatMessage] since its creation within which this
   /// [ChatMessage] is allowed to be edited.
@@ -135,10 +127,6 @@ class ChatController extends GetxController {
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
-
-  /// [Attachment]s to be attached to a message.
-  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
-      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -168,15 +156,6 @@ class ChatController extends GetxController {
 
   /// [Rect] the bottom bar takes.
   final Rx<Rect?> bottomBarRect = Rx(null);
-
-  /// Maximum allowed [NativeFile.size] of an [Attachment].
-  static const int maxAttachmentSize = 15 * 1024 * 1024;
-
-  /// [Attachment] being hovered.
-  final Rx<Attachment?> hoveredAttachment = Rx(null);
-
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
@@ -271,12 +250,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
-  /// Worker capturing any [repliedMessages] changes.
-  Worker? _repliesWorker;
-
-  /// Worker capturing any [attachments] changes.
-  Worker? _attachmentsWorker;
-
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -308,105 +281,59 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
-    send = TextFieldState(
-      onChanged: (s) {},
-      onSubmitted: (s) {
-        if (s.text.isNotEmpty ||
-            attachments.isNotEmpty ||
-            repliedMessages.isNotEmpty) {
-          _chatService
-              .sendChatMessage(
-                chat!.chat.value.id,
-                text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessages.reversed.toList(),
-                attachments: attachments.map((e) => e.value).toList(),
-              )
-              .then((_) => _playMessageSent())
-              .onError<PostChatMessageException>(
-                  (e, _) => MessagePopup.error(e))
-              .onError<UploadAttachmentException>(
-                  (e, _) => MessagePopup.error(e))
-              .onError<ConnectionException>((e, _) {});
+    send = MessageFieldController(
+      _chatService,
+      _userService,
+      onChanged: updateDraft,
+      onSubmit: () async {
+        if (send.forwarding.value) {
+          if (send.replied.isNotEmpty) {
+            bool? result = await ChatForwardView.show(
+              router.context!,
+              id,
+              send.replied.map((e) => ChatItemQuote(item: e)).toList(),
+              text: send.field.text,
+              attachments: send.attachments.map((e) => e.value).toList(),
+            );
 
-          repliedMessages.clear();
-          attachments.clear();
-          s.clear();
-          s.unsubmit();
+            if (result == true) {
+              send.clear();
+            }
+          }
+        } else {
+          if (send.field.text.trim().isNotEmpty ||
+              send.attachments.isNotEmpty ||
+              send.replied.isNotEmpty) {
+            _chatService
+                .sendChatMessage(
+                  chat!.chat.value.id,
+                  text: send.field.text.trim().isEmpty
+                      ? null
+                      : ChatMessageText(send.field.text.trim()),
+                  repliesTo: send.replied.reversed.toList(),
+                  attachments: send.attachments.map((e) => e.value).toList(),
+                )
+                .then((_) => _playMessageSent())
+                .onError<PostChatMessageException>(
+                    (e, _) => MessagePopup.error(e))
+                .onError<UploadAttachmentException>(
+                    (e, _) => MessagePopup.error(e))
+                .onError<ConnectionException>((e, _) {});
 
-          chat?.setDraft();
+            send.clear();
 
-          _typingSubscription?.cancel();
-          _typingSubscription = null;
-          _typingTimer?.cancel();
+            chat?.setDraft();
 
-          if (!PlatformUtils.isMobile) {
-            Future.delayed(Duration.zero, () => s.focus.requestFocus());
+            _typingSubscription?.cancel();
+            _typingSubscription = null;
+            _typingTimer?.cancel();
+
+            if (!PlatformUtils.isMobile) {
+              Future.delayed(Duration.zero, send.field.focus.requestFocus);
+            }
           }
         }
       },
-      focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
-          // if (const SingleActivator(LogicalKeyboardKey.paste, control: true)
-          //         .accepts(e, RawKeyboard.instance) ||
-          //     const SingleActivator(LogicalKeyboardKey.paste, meta: true)
-          //         .accepts(e, RawKeyboard.instance)) {
-          //   Pasteboard.image.then((bytes) {
-          //     print(bytes);
-          //     if (bytes != null) {
-          //       addPlatformAttachment(
-          //         PlatformFile(
-          //           name: 'paste',
-          //           size: bytes.length,
-          //           bytes: bytes,
-          //         ),
-          //       );
-          //     }
-          //   });
-
-          //   return KeyEventResult.handled;
-          // }
-
-          if ((e.logicalKey == LogicalKeyboardKey.enter ||
-                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-              e is RawKeyDownEvent) {
-            bool handled = e.isShiftPressed;
-
-            if (!PlatformUtils.isWeb) {
-              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = handled || e.isAltPressed || e.isControlPressed;
-              }
-            }
-
-            if (!handled) {
-              if (e.isAltPressed ||
-                  e.isControlPressed ||
-                  e.isMetaPressed ||
-                  e.isShiftPressed) {
-                int cursor;
-
-                if (send.controller.selection.isCollapsed) {
-                  cursor = send.controller.selection.base.offset;
-                  send.text =
-                      '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-                } else {
-                  cursor = send.controller.selection.start;
-                  send.text =
-                      '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
-                }
-
-                send.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-              } else {
-                send.submit();
-                return KeyEventResult.handled;
-              }
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
     );
 
     super.onInit();
@@ -423,8 +350,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _repliesWorker?.dispose();
-    _attachmentsWorker?.dispose();
     _messagesSubscription?.cancel();
     _chatSubscription?.cancel();
     _messagesWorker?.dispose();
@@ -437,6 +362,9 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+
+    send.onClose();
+    edit.value?.onClose();
 
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
@@ -507,33 +435,35 @@ class ChatController extends GetxController {
     }
 
     if (item is ChatMessage) {
-      editedMessage.value = item;
-      edit = TextFieldState(
+      edit.value ??= MessageFieldController(
+        _chatService,
+        _userService,
         text: item.text?.val,
-        onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
-            ? s.status.value = RxStatus.error()
-            : s.status.value = RxStatus.empty(),
-        onSubmitted: (s) async {
-          if (s.text == item.text?.val) {
-            editedMessage.value = null;
-            edit = null;
-          } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
+        onSubmit: () async {
+          final ChatMessage item = edit.value?.edited.value as ChatMessage;
+
+          if (edit.value?.field.text == item.text?.val) {
+            edit.value?.onClose();
+            edit.value = null;
+          } else if (edit.value!.field.text.isNotEmpty ||
+              item.attachments.isNotEmpty) {
             ChatMessageText? text;
-            if (s.text.isNotEmpty) {
-              text = ChatMessageText(s.text);
+            if (edit.value!.field.text.isNotEmpty) {
+              text = ChatMessageText(edit.value!.field.text);
             }
 
             try {
               await _chatService.editChatMessage(item, text);
-              editedMessage.value = null;
-              edit = null;
+
+              edit.value?.onClose();
+              edit.value = null;
 
               _typingSubscription?.cancel();
               _typingSubscription = null;
               _typingTimer?.cancel();
 
-              if (send.isEmpty.isFalse) {
-                send.focus.requestFocus();
+              if (send.field.isEmpty.isFalse) {
+                send.field.focus.requestFocus();
               }
             } on EditChatMessageException catch (e) {
               MessagePopup.error(e);
@@ -543,29 +473,37 @@ class ChatController extends GetxController {
             }
           }
         },
-      )..focus.requestFocus();
+        onChanged: () {
+          if (edit.value?.edited.value == null) {
+            edit.value?.onClose();
+            edit.value = null;
+          }
+        },
+      );
+
+      edit.value?.edited.value = item;
+      edit.value?.field.focus.requestFocus();
     }
   }
 
-  /// Updates [RxChat.draft] with the current [send], [attachments] and
-  /// [repliedMessages] fields.
+  /// Updates [RxChat.draft] with the current values of the [send] field.
   void updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 
     // Only persist uploaded [Attachment]s on Web to minimize byte writing lags.
     if (PlatformUtils.isWeb) {
-      persisted = attachments.where(
+      persisted = send.attachments.where(
         (e) => e.value is ImageAttachment || e.value is FileAttachment,
       );
     } else {
-      persisted = List.from(attachments, growable: false);
+      persisted = List.from(send.attachments, growable: false);
     }
 
     chat?.setDraft(
-      text: send.text.isEmpty ? null : ChatMessageText(send.text),
+      text: send.field.text.isEmpty ? null : ChatMessageText(send.field.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: List.from(repliedMessages, growable: false),
+      repliesTo: List.from(send.replied, growable: false),
     );
   }
 
@@ -578,18 +516,15 @@ class ChatController extends GetxController {
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
 
-      ChatMessage? draft = chat!.draft.value;
+      final ChatMessage? draft = chat!.draft.value;
 
-      send.text = draft?.text?.val ?? '';
-      repliedMessages.value = List.from(draft?.repliesTo ?? []);
+      send.field.unchecked = draft?.text?.val;
+      send.field.unsubmit();
+      send.replied.value = List.from(draft?.repliesTo ?? []);
 
       for (Attachment e in draft?.attachments ?? []) {
-        attachments.add(MapEntry(GlobalKey(), e));
+        send.attachments.add(MapEntry(GlobalKey(), e));
       }
-
-      send.onChanged = (s) => updateDraft();
-      _repliesWorker ??= ever(repliedMessages, (_) => updateDraft());
-      _attachmentsWorker ??= ever(attachments, (_) => updateDraft());
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -955,7 +890,8 @@ class ChatController extends GetxController {
     if (item != null &&
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
-        !status.value.isLoadingMore) {
+        !status.value.isLoadingMore &&
+        item.status.value == SendingStatus.sent) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
@@ -993,16 +929,6 @@ class ChatController extends GetxController {
         );
       } else {
         initIndex = index;
-      }
-    }
-  }
-
-  Future<void> unblacklist() async {
-    if (chat?.chat.value.isDialog == true) {
-      final RxUser? recipient =
-          chat!.members.values.firstWhereOrNull((e) => e.id != me);
-      if (recipient != null) {
-        await _userService.unblacklistUser(recipient.id);
       }
     }
   }
@@ -1057,47 +983,10 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Opens a media choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
-
-  /// Opens the camera app and adds the captured image to the [attachments].
-  Future<void> pickImageFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? photo = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 90,
-    );
-
-    if (photo != null) {
-      _addXFileAttachment(photo);
-    }
-  }
-
-  /// Opens the camera app and adds the captured video to the [attachments].
-  Future<void> pickVideoFromCamera() async {
-    // TODO: Remove the limitations when bigger files are supported on backend.
-    final XFile? video = await ImagePicker().pickVideo(
-      source: ImageSource.camera,
-      maxDuration: const Duration(seconds: 15),
-    );
-
-    if (video != null) {
-      _addXFileAttachment(video);
-    }
-  }
-
-  /// Opens a file choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
-
-  /// Adds the specified [details] files to the [attachments].
+  /// Adds the specified [details] files to the [send] field.
   void dropFiles(DropDoneDetails details) async {
     for (var file in details.files) {
-      addPlatformAttachment(PlatformFile(
+      send.addPlatformAttachment(PlatformFile(
         path: file.path,
         name: file.name,
         size: await file.length(),
@@ -1148,6 +1037,19 @@ class ChatController extends GetxController {
     });
   }
 
+  /// Removes a [User] being a recipient of this [chat] from the blacklist.
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  Future<void> unblacklist() async {
+    if (chat?.chat.value.isDialog == true) {
+      final RxUser? recipient =
+          chat!.members.values.firstWhereOrNull((e) => e.id != me);
+      if (recipient != null) {
+        await _userService.unblacklistUser(recipient.id);
+      }
+    }
+  }
+
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
   Future<void> download(ChatItem item, FileAttachment attachment) async {
@@ -1166,64 +1068,6 @@ class ChatController extends GetxController {
         await chat?.updateAttachments(item);
         await Future.delayed(Duration.zero);
         await attachment.download();
-      }
-    }
-  }
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  @visibleForTesting
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
-  }
-
-  /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
-  /// [attachments].
-  Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
-    await _addAttachment(nativeFile);
-  }
-
-  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
-  /// the [attachments] list.
-  ///
-  /// May be used to test a [file] upload since [FilePicker] can't be mocked.
-  Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < maxAttachmentSize) {
-      try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
-
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
-
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
-        if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
-          updateDraft();
-        }
-      } on UploadAttachmentException catch (e) {
-        MessagePopup.error(e);
-      } on ConnectionException {
-        // No-op.
-      }
-    } else {
-      MessagePopup.error('err_size_too_big'.l10n);
-    }
-  }
-
-  /// Opens a file choose popup of the specified [type] and adds the selected
-  /// files to the [attachments].
-  Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowMultiple: true,
-      withReadStream: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
       }
     }
   }

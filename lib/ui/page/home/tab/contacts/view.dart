@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -38,6 +37,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -228,26 +228,18 @@ class ContactsTabView extends StatelessWidget {
                         final Widget child;
 
                         if (element is ContactElement) {
-                          child = Obx(() {
-                            return SearchUserTile(
-                              key: Key('SearchContact_${element.contact.id}'),
-                              contact: element.contact,
-                              onTap: () =>
-                                  router.user(element.contact.user.value!.id),
-                              blocked: c.blacklist.any((e) =>
-                                  e.id == element.contact.user.value?.id),
-                            );
-                          });
+                          child = SearchUserTile(
+                            key: Key('SearchContact_${element.contact.id}'),
+                            contact: element.contact,
+                            onTap: () =>
+                                router.user(element.contact.user.value!.id),
+                          );
                         } else if (element is UserElement) {
-                          child = Obx(() {
-                            return SearchUserTile(
-                              key: Key('SearchUser_${element.user.id}'),
-                              user: element.user,
-                              onTap: () => router.user(element.user.id),
-                              blocked: c.blacklist
-                                  .any((e) => e.id == element.user.id),
-                            );
-                          });
+                          child = SearchUserTile(
+                            key: Key('SearchUser_${element.user.id}'),
+                            user: element.user,
+                            onTap: () => router.user(element.user.id),
+                          );
                         } else if (element is DividerElement) {
                           child = Center(
                             child: Container(
@@ -497,25 +489,6 @@ class ContactsTabView extends StatelessWidget {
           trailing: const Icon(Icons.select_all),
         ),
       ],
-      trailing: [
-        Obx(() {
-          final bool blocked =
-              c.blacklist.any((e) => e.id == contact.user.value?.id);
-
-          if (!blocked) {
-            return const SizedBox();
-          }
-
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5),
-            child: Icon(
-              Icons.block,
-              color: Color.fromRGBO(192, 192, 192, 1),
-              size: 20,
-            ),
-          );
-        }),
-      ],
       subtitle: [
         Padding(
           padding: const EdgeInsets.only(top: 5),
@@ -532,23 +505,41 @@ class ContactsTabView extends StatelessWidget {
           }),
         ),
       ],
+      trailing: [
+        Obx(() {
+          if (contact.user.value?.user.value.isBlacklisted == false) {
+            return const SizedBox();
+          }
+
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Icon(
+              Icons.block,
+              color: Color(0xFFC0C0C0),
+              size: 20,
+            ),
+          );
+        }),
+      ],
     );
   }
 
+  /// Opens a confirmation popup deleting the provided [contact] from address
+  /// book.
   Future<void> _removeFromContacts(
     ContactsTabController c,
     BuildContext context,
     RxChatContact contact,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'Remove from contacts'.l10n,
+      'label_remove_from_contacts'.l10n,
       description: [
-        TextSpan(text: 'Contact '.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: ' will be removed.'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
 

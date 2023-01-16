@@ -27,7 +27,9 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui//widget/svg/svg.dart';
+import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
@@ -36,6 +38,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -324,29 +327,6 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.name] copyable field.
-  Widget _blocked(UserController c, BuildContext context) {
-    return Column(
-      children: [
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(text: '28.12.2022'),
-            label: 'Дата'.l10n,
-            enabled: false,
-          ),
-        ),
-        // const SizedBox(height: 4),
-        _padding(
-          ReactiveTextField(
-            state: TextFieldState(text: 'Эх, Семён Семёныч...'),
-            label: 'Причина'.l10n,
-            enabled: false,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Returns a [User.name] copyable field.
   Widget _name(UserController c, BuildContext context) {
     return _padding(
       CopyableTextField(
@@ -424,6 +404,29 @@ class UserView extends StatelessWidget {
     });
   }
 
+  /// Returns the blacklisted information of this [User].
+  Widget _blocked(UserController c, BuildContext context) {
+    return Column(
+      children: [
+        _padding(
+          ReactiveTextField(
+            state: TextFieldState(),
+            label: 'label_date'.l10n,
+            enabled: false,
+          ),
+        ),
+        _padding(
+          ReactiveTextField(
+            state: TextFieldState(),
+            label: 'label_reason'.l10n,
+            enabled: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [WidgetButton] for removing the [User] from the blacklist.
   Widget _blockedField(BuildContext context, UserController c) {
     final Style style = Theme.of(context).extension<Style>()!;
 
@@ -509,7 +512,7 @@ class UserView extends StatelessWidget {
                             child: ReactiveTextField(
                               enabled: false,
                               key: const Key('MessageField'),
-                              state: TextFieldState(text: 'Разблокировать'),
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
                               filled: false,
                               dense: true,
                               textAlign: TextAlign.center,
@@ -535,19 +538,20 @@ class UserView extends StatelessWidget {
     );
   }
 
+  /// Opens a confirmation popup deleting the [User] from address book.
   Future<void> _removeFromContacts(
     UserController c,
     BuildContext context,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'Remove from contacts'.l10n,
+      'label_remove_from_contacts'.l10n,
       description: [
-        TextSpan(text: 'Contact '.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: ' will be removed.'.l10n),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );
 
@@ -556,70 +560,64 @@ class UserView extends StatelessWidget {
     }
   }
 
-  Future<void> _blacklistUser(
-    UserController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
+  Future<void> _hideChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'Block'.l10n,
+      'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'Пользователь '.l10n),
+        TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
           text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: ' будет заблокирован.'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      // TODO: Hide the [Chat]-dialog.
+    }
+  }
+
+  /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
+  Future<void> _clearChat(UserController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_clear_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      // TODO: Clear the [Chat]-dialog.
+    }
+  }
+
+  /// Opens a confirmation popup blacklisting the [User].
+  Future<void> _blacklistUser(UserController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(
-          state: c.blockReason,
-          label: 'Причина',
-        ),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
       ],
     );
 
     if (result == true) {
       await c.blacklist();
-      c.blockReason.clear();
     }
-  }
-
-  Future<void> _clearChat(
-    UserController c,
-    BuildContext context,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'Clear chat'.l10n,
-      description: [
-        TextSpan(text: 'Диалог с пользователем '.l10n),
-        TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: ' будет очищен.'.l10n),
-      ],
-    );
-
-    if (result == true) {}
-  }
-
-  Future<void> _hideChat(
-    UserController c,
-    BuildContext context,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'Hide chat'.l10n,
-      description: [
-        TextSpan(text: 'Диалог с пользователем '.l10n),
-        TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: ' будет скрыт.'.l10n),
-      ],
-    );
-
-    if (result == true) {}
   }
 }

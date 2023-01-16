@@ -26,6 +26,7 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/selected_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -33,7 +34,6 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
-import 'widget/selected_user_tile.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -269,40 +269,40 @@ class ChatsTabView extends StatelessWidget {
 
                               if (element is RecentElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedRecent
                                             .contains(element.user) ??
                                         false,
                                     onTap: () => c.search.value
-                                        ?.selectRecent(element.user),
+                                        ?.select(recent: element.user),
                                   );
                                 });
                               } else if (element is ContactElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     contact: element.contact,
                                     selected: c.search.value?.selectedContacts
                                             .contains(element.contact) ??
                                         false,
                                     onTap: () => c.search.value
-                                        ?.selectContact(element.contact),
+                                        ?.select(contact: element.contact),
                                   );
                                 });
                               } else if (element is UserElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     user: element.user,
                                     selected: c.search.value?.selectedUsers
                                             .contains(element.user) ??
                                         false,
                                     onTap: () => c.search.value
-                                        ?.selectUser(element.user),
+                                        ?.select(user: element.user),
                                   );
                                 });
                               } else if (element is MyUserElement) {
                                 child = Obx(() {
-                                  return SelectedUserTile(
+                                  return SelectedTile(
                                     myUser: c.myUser.value,
                                     selected: true,
                                     subtitle: [
@@ -388,7 +388,7 @@ class ChatsTabView extends StatelessWidget {
                           controller: c.scrollController,
                           child: ListView.builder(
                             key: const Key('Search'),
-                            controller: ScrollController(),
+                            controller: c.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
@@ -398,18 +398,16 @@ class ChatsTabView extends StatelessWidget {
                                 final RxChat chat = element.chat;
                                 child = Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 10, right: 10),
+                                    left: 10,
+                                    right: 10,
+                                  ),
                                   child: Obx(() {
                                     return RecentChatTile(
                                       chat,
                                       key: Key('SearchChat_${chat.id}'),
                                       me: c.me,
                                       myUser: c.myUser.value,
-                                      blocked: c.isBlocked(
-                                        chat,
-                                        chat.members.values,
-                                        c.blacklist,
-                                      ),
+                                      blocked: chat.blacklisted,
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
@@ -418,27 +416,19 @@ class ChatsTabView extends StatelessWidget {
                                   }),
                                 );
                               } else if (element is ContactElement) {
-                                child = Obx(() {
-                                  return SearchUserTile(
-                                    key: Key(
-                                        'SearchContact_${element.contact.id}'),
-                                    contact: element.contact,
-                                    onTap: () =>
-                                        c.openChat(contact: element.contact),
-                                    blocked: c.blacklist.any((e) =>
-                                        e.id == element.contact.user.value?.id),
-                                  );
-                                });
+                                child = SearchUserTile(
+                                  key: Key(
+                                      'SearchContact_${element.contact.id}'),
+                                  contact: element.contact,
+                                  onTap: () =>
+                                      c.openChat(contact: element.contact),
+                                );
                               } else if (element is UserElement) {
-                                child = Obx(() {
-                                  return SearchUserTile(
-                                    key: Key('SearchUser_${element.user.id}'),
-                                    user: element.user,
-                                    onTap: () => c.openChat(user: element.user),
-                                    blocked: c.blacklist
-                                        .any((e) => e.id == element.user.id),
-                                  );
-                                });
+                                child = SearchUserTile(
+                                  key: Key('SearchUser_${element.user.id}'),
+                                  user: element.user,
+                                  onTap: () => c.openChat(user: element.user),
+                                );
                               } else if (element is DividerElement) {
                                 child = Center(
                                   child: Container(
@@ -508,24 +498,27 @@ class ChatsTabView extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 10,
                                       ),
-                                      child: RecentChatTile(
-                                        chat,
-                                        key: Key('RecentChat_${chat.id}'),
-                                        me: c.me,
-                                        myUser: c.myUser.value,
-                                        getUser: c.getUser,
-                                        onJoin: () => c.joinCall(chat.id),
-                                        onDrop: () => c.dropCall(chat.id),
-                                        onLeave: () => c.leaveChat(chat.id),
-                                        onHide: () => c.hideChat(chat.id),
-                                        inCall: () => c.inCall(chat.id),
-                                        onMute: () => c.muteChat(chat.id),
-                                        onUnmute: () => c.unmuteChat(chat.id),
-                                        onFavorite: () =>
-                                            c.favoriteChat(chat.id),
-                                        onUnfavorite: () =>
-                                            c.unfavoriteChat(chat.id),
-                                      ),
+                                      child: Obx(() {
+                                        return RecentChatTile(
+                                          chat,
+                                          key: Key('RecentChat_${chat.id}'),
+                                          me: c.me,
+                                          myUser: c.myUser.value,
+                                          blocked: chat.blacklisted,
+                                          getUser: c.getUser,
+                                          onJoin: () => c.joinCall(chat.id),
+                                          onDrop: () => c.dropCall(chat.id),
+                                          onLeave: () => c.leaveChat(chat.id),
+                                          onHide: () => c.hideChat(chat.id),
+                                          inCall: () => c.inCall(chat.id),
+                                          onMute: () => c.muteChat(chat.id),
+                                          onUnmute: () => c.unmuteChat(chat.id),
+                                          onFavorite: () =>
+                                              c.favoriteChat(chat.id),
+                                          onUnfavorite: () =>
+                                              c.unfavoriteChat(chat.id),
+                                        );
+                                      }),
                                     ),
                                   ),
                                 ),

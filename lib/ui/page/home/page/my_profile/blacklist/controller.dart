@@ -32,6 +32,8 @@ export 'view.dart';
 class BlacklistController extends GetxController {
   BlacklistController(this._myUserService, this._userService, {this.pop});
 
+  /// Callback, called when a [BlacklistView] this controller is bound to should
+  /// be popped from the [Navigator].
   final void Function()? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
@@ -43,6 +45,7 @@ class BlacklistController extends GetxController {
   /// [UserService] un-blacklisting the [User]s.
   final UserService _userService;
 
+  /// [Worker] to react on the [blacklist] updates.
   late final Worker _worker;
 
   /// Returns [User]s blacklisted by the authenticated [MyUser].
@@ -53,7 +56,7 @@ class BlacklistController extends GetxController {
     _worker = ever(
       _myUserService.blacklist,
       (List<RxUser> users) {
-        if (users.where((e) => e.user.value.isBlacklisted).isEmpty) {
+        if (users.isEmpty) {
           pop?.call();
         }
       },
@@ -70,7 +73,7 @@ class BlacklistController extends GetxController {
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist(RxUser user) async {
-    if (blacklist.where((e) => e.user.value.isBlacklisted).length == 1) {
+    if (blacklist.length == 1) {
       pop?.call();
     }
 

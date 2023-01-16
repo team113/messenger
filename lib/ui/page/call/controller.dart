@@ -203,6 +203,11 @@ class CallController extends GetxController {
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
 
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
+
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
@@ -602,10 +607,12 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
-        if (isMobile) {
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => relocateSecondary());
-        }
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) {
+            dockRect.value = dockKey.globalPaintBounds;
+            relocateSecondary();
+          },
+        );
 
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
@@ -627,9 +634,6 @@ class CallController extends GetxController {
         );
 
         keepUi();
-      } else if (state == OngoingCallState.joining) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
       }
 
       refresh();
@@ -1867,11 +1871,6 @@ class CallController extends GetxController {
             }
           } else {
             paneled.add(participant);
-          }
-
-          if (state.value == OngoingCallState.local || outgoing) {
-            SchedulerBinding.instance
-                .addPostFrameCallback((_) => relocateSecondary());
           }
           break;
 

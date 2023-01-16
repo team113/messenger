@@ -498,21 +498,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 // ignore: invalid_use_of_protected_member
                                 : c.buttons.value,
                             itemWidth: CallController.buttonSize,
-                            itemBuilder: (e) {
-                              // if (answer) {
-                              //   return Padding(
-                              //     padding:
-                              //         const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              //     child: e.build(
-                              //       hinted: c.draggedButton.value == null,
-                              //     ),
-                              //   );
-                              // }
-
-                              return e.build(
-                                hinted: c.draggedButton.value == null,
-                              );
-                            },
+                            itemBuilder: (e) => e.build(
+                              hinted: c.draggedButton.value == null,
+                            ),
                             onReorder: (buttons) {
                               c.buttons.clear();
                               c.buttons.addAll(buttons);
@@ -771,7 +759,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
-          bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
           bool preferTitle =
               c.state.value != OngoingCallState.active && !isOutgoing;
@@ -2403,10 +2390,24 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                               )
                                             : BorderSide.none,
                                       )
-                                : Border.all(
-                                    color: const Color(0x00888888),
-                                    width: 1,
-                                  ),
+                                : c.secondaryAlignment.value == null
+                                    ? RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0),
+                                          width: 1,
+                                        ),
+                                        borderRadius: borderRadius,
+                                      )
+                                    : Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0),
+                                        width: 1,
+                                      ),
                           ),
                         ),
                       ),

@@ -73,6 +73,8 @@ class RecentChatTile extends StatelessWidget {
 
   final MyUser? myUser;
 
+  /// Indicator whether this [RecentChatTile] should display a blocked icon in
+  /// its trailing.
   final bool blocked;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
@@ -730,14 +732,14 @@ class RecentChatTile extends StatelessWidget {
 
   Future<void> _hideChat(BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'Hide chat'.l10n,
+      'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'Чат '.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: rxChat.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: ' будет скрыт.'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
 

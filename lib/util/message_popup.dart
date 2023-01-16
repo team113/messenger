@@ -43,9 +43,8 @@ class MessagePopup {
     );
   }
 
-  /// Shows an alert popup with [title], [description] and `yes`/`no` buttons
-  /// that returns `true`, `false` or `null` based on the button that was
-  /// pressed.
+  /// Shows a confirmation popup with the specified [title], [description],
+  /// and [additional] widgets to put under the [description].
   static Future<bool?> alert(
     String title, {
     List<TextSpan> description = const [],
@@ -80,12 +79,14 @@ class MessagePopup {
                     if (description.isNotEmpty)
                       Padding(
                         padding: ModalPopup.padding(context),
-                        child: RichText(
-                          text: TextSpan(
-                            children: description,
-                            style: thin?.copyWith(
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.primary,
+                        child: Center(
+                          child: RichText(
+                            text: TextSpan(
+                              children: description,
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
                         ),

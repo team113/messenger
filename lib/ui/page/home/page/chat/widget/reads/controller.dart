@@ -16,7 +16,7 @@ class ChatItemReadsController extends GetxController {
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
-  final TextFieldState search = TextFieldState();
+  final Rx<TextFieldState?> search = Rx(null);
 
   final RxnString query = RxnString(null);
   final RxList<RxUser> users = RxList();
@@ -42,5 +42,13 @@ class ChatItemReadsController extends GetxController {
         .toList();
 
     await Future.wait(futures);
+  }
+
+  void startSearch() {
+    search.value = TextFieldState();
+  }
+
+  void closeSearch() {
+    search.value = null;
   }
 }

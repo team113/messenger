@@ -40,6 +40,7 @@ class ChatTile extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.height = 94,
+    this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
@@ -73,6 +74,9 @@ class ChatTile extends StatelessWidget {
   /// Height of this [ChatTile].
   final double height;
 
+  /// Amount of darkening to apply to the background of this [ChatTile].
+  final double darken;
+
   /// Builder for building an [AvatarWidget] this [ContactTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
@@ -94,14 +98,14 @@ class ChatTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
             selectedColor: style.cardSelectedColor,
-            unselectedColor: style.cardColor,
+            unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
                 selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
+            unselectedHoverColor: style.cardHoveredColor.darken(darken),
             selectedHoverColor: style.cardSelectedColor,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(

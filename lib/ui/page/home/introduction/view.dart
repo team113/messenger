@@ -160,6 +160,7 @@ class IntroductionView extends StatelessWidget {
             child: Scrollbar(
               controller: c.scrollController,
               child: ListView(
+                controller: c.scrollController,
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),

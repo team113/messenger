@@ -285,6 +285,7 @@ class PaddingButton extends CallButton {
 class AcceptAudioButton extends CallButton {
   const AcceptAudioButton(super.c, {this.highlight = false});
 
+  /// Indicator whether this [AcceptAudioButton] should be highlighted.
   final bool highlight;
 
   @override
@@ -311,6 +312,7 @@ class AcceptAudioButton extends CallButton {
 class AcceptVideoButton extends CallButton {
   const AcceptVideoButton(super.c, {this.highlight = false});
 
+  /// Indicator whether this [AcceptVideoButton] should be highlighted.
   final bool highlight;
 
   @override

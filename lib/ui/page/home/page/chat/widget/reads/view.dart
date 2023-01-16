@@ -17,7 +17,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -61,11 +66,23 @@ class ChatItemReads extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return GetBuilder(
       init: ChatItemReadsController(reads: reads, getUser: getUser),
       builder: (ChatItemReadsController c) {
         return Obx(() {
+          final users = c.users.where((p) {
+            if (c.query.value != null) {
+              return p.user.value.name?.val
+                      .toLowerCase()
+                      .contains(c.query.value!.toLowerCase()) ==
+                  true;
+            }
+
+            return true;
+          });
+
           return ListView(
             shrinkWrap: true,
             children: [
@@ -80,28 +97,154 @@ class ChatItemReads extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Center(
-                  child: ReactiveTextField(
-                    key: const Key('SearchTextField'),
-                    state: c.search,
-                    label: 'label_search'.l10n,
-                    style: thin,
-                    onChanged: () => c.query.value = c.search.text,
-                  ),
+                padding: ModalPopup.padding(context),
+                child: CustomAppBar(
+                  border: c.search.value == null
+                      ? null
+                      : Border.all(
+                          color: Theme.of(context).colorScheme.secondary,
+                          width: 2,
+                        ),
+                  title: Obx(() {
+                    final Widget child;
+
+                    if (c.search.value != null) {
+                      child = Theme(
+                        data: Theme.of(context).copyWith(
+                          shadowColor: const Color(0x55000000),
+                          iconTheme: const IconThemeData(color: Colors.blue),
+                          inputDecorationTheme: InputDecorationTheme(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusColor: Colors.white,
+                            fillColor: Colors.white,
+                            hoverColor: Colors.transparent,
+                            filled: true,
+                            isDense: true,
+                            contentPadding: EdgeInsets.fromLTRB(
+                              15,
+                              PlatformUtils.isDesktop ? 30 : 23,
+                              15,
+                              0,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Transform.translate(
+                            offset: const Offset(0, 1),
+                            child: ReactiveTextField(
+                              key: const Key('SearchField'),
+                              state: c.search.value!,
+                              hint: 'label_search'.l10n,
+                              maxLines: 1,
+                              filled: false,
+                              dense: true,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(fontSize: 17),
+                              onChanged: () =>
+                                  c.query.value = c.search.value!.text,
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      child = Text('label_search'.l10n, key: const Key('2'));
+                    }
+
+                    return AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: child,
+                    );
+                  }),
+                  leading: [
+                    Obx(() {
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: WidgetButton(
+                          key: const Key('SearchButton'),
+                          onPressed:
+                              c.search.value == null ? null : c.startSearch,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
+                            child: SvgLoader.asset(
+                              'assets/icons/search.svg',
+                              width: 17.77,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                  actions: [
+                    Obx(() {
+                      final Widget? child;
+
+                      if (c.search.value != null) {
+                        child = SvgLoader.asset(
+                          'assets/icons/close_primary.svg',
+                          height: 15,
+                        );
+                      } else {
+                        child = null;
+                      }
+
+                      return WidgetButton(
+                        onPressed: () {},
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 12, right: 18),
+                          height: double.infinity,
+                          child: SizedBox(
+                            width: 21.77,
+                            child: AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
+              // Padding(
+              //   padding: ModalPopup.padding(context),
+              //   child: Center(
+              //     child: ReactiveTextField(
+              //       key: const Key('SearchTextField'),
+              //       state: c.search,
+              //       label: 'label_search'.l10n,
+              //       style: thin,
+              //       onChanged: () => c.query.value = c.search.text,
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 18),
-              ...c.users.where((p) {
-                if (c.query.value != null) {
-                  return p.user.value.name?.val
-                          .toLowerCase()
-                          .contains(c.query.value!.toLowerCase()) ==
-                      true;
-                }
-
-                return true;
-              }).map((e) {
+              if (users.isEmpty) const Center(child: Text('Nothing was found')),
+              ...users.map((e) {
                 return Padding(
                   padding: ModalPopup.padding(context),
                   child: Padding(

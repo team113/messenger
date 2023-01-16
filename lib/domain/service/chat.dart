@@ -103,9 +103,7 @@ class ChatService extends DisposableService {
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {
       text ??= const ChatMessageText(' ');
-    }
-
-    if (text != null) {
+    } else if (text != null) {
       text = ChatMessageText(text.val.trim());
 
       if (text.val.length > ChatMessageText.maxLength) {
@@ -126,7 +124,7 @@ class ChatService extends DisposableService {
 
     return _chatRepository.sendChatMessage(
       chatId,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
       repliesTo: repliesTo,
     );
@@ -269,11 +267,15 @@ class ChatService extends DisposableService {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {
+    if (text != null) {
+      text = ChatMessageText(text.val.trim());
+    }
+
     return _chatRepository.forwardChatItems(
       from,
       to,
       items,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
     );
   }

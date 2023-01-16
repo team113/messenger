@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -515,14 +514,6 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -535,25 +526,16 @@ class ChatsTabController extends GetxController {
             .compareTo(b.chat.value.favoritePosition!);
       }
 
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
-  }
-
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
-
-  bool isBlocked(
-    RxChat chat,
-    Iterable<RxUser> members,
-    Iterable<RxUser> blacklist,
-  ) {
-    if (chat.chat.value.isDialog) {
-      final RxUser? recipient = members.firstWhereOrNull((e) => e.id != me);
-      if (recipient != null) {
-        return blacklist.any((e) => e.id == recipient.id);
-      }
-    }
-
-    return false;
   }
 
   /// Disables the [search], if its focus is lost or its query is empty.

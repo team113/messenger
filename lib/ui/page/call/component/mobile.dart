@@ -33,6 +33,7 @@ import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
@@ -46,6 +47,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -67,56 +69,49 @@ Widget mobileCall(CallController c, BuildContext context) {
       ),
     ];
 
-    // Layer of [MouseRegion]s to determine the hovered renderer.
+    // Layer of [Widget]s to display above the UI.
     List<Widget> overlay = [];
 
     // Active call.
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
-          if (c.primary.length == 1 && c.secondary.length == 1 && c.isDialog) {
-            return Stack(
-              children: [
-                FitView(
+          if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
+            return FloatingFit<Participant>(
+              primary: c.primary.first,
+              panel: c.secondary.first,
+              fit: !c.minimized.isFalse,
+              intersection: c.dockRect,
+              onManipulated: (bool m) => c.secondaryManipulated.value = m,
+              itemBuilder: (e) {
+                return Stack(
                   children: [
-                    ...c.primary,
-                    if (c.minimized.value) ...c.secondary,
-                  ].map((e) {
-                    return Obx(() {
-                      final bool muted = e.member.owner == MediaOwnerKind.local
-                          ? !c.audioState.value.isEnabled
-                          : e.audio.value?.isMuted.value ?? false;
+                    const ParticipantDecoratorWidget(),
+                    IgnorePointer(
+                      child: ParticipantWidget(
+                        e,
+                        offstageUntilDetermined: true,
+                      ),
+                    ),
+                  ],
+                );
+              },
+              overlayBuilder: (e) {
+                return Obx(() {
+                  final bool muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : e.audio.value?.isMuted.value ?? false;
 
-                      final bool anyDragIsHappening =
-                          c.secondaryDrags.value != 0 ||
-                              c.primaryDrags.value != 0 ||
-                              c.secondaryDragged.value;
-
-                      final bool isHovered =
-                          c.hoveredRenderer.value == e && !anyDragIsHappening;
-
-                      return Stack(
-                        children: [
-                          const ParticipantDecoratorWidget(),
-                          IgnorePointer(
-                            child: ParticipantWidget(
-                              e,
-                              offstageUntilDetermined: true,
-                            ),
-                          ),
-                          ParticipantOverlayWidget(
-                            e,
-                            muted: muted,
-                            hovered: isHovered,
-                            preferBackdrop: !c.minimized.value,
-                          ),
-                        ],
-                      );
-                    });
-                  }).toList(),
-                ),
-                if (!c.minimized.value) _secondaryView(c, context, constraints),
-              ],
+                  // TODO: Implement opened context menu detection for
+                  //       `hovered` indicator.
+                  return ParticipantOverlayWidget(
+                    e,
+                    muted: muted,
+                    hovered: false,
+                    preferBackdrop: !c.minimized.value,
+                  );
+                });
+              },
             );
           }
 
@@ -133,13 +128,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                 final bool muted = e.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
-
-                final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                    c.primaryDrags.value != 0 ||
-                    c.secondaryDragged.value;
-
-                final bool isHovered =
-                    c.hoveredRenderer.value == e && !anyDragIsHappening;
 
                 return ContextMenuRegion(
                   actions: [
@@ -221,14 +209,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                         ParticipantOverlayWidget(
                           e,
                           muted: muted,
-                          hovered: isHovered || menu,
+                          hovered: menu,
                           preferBackdrop: !c.minimized.value,
                         ),
                       ],
                     );
-
-                    print(
-                        '$menu, ${ContextMenuRegion.displayed.value} vs ${e.member.id.toString()}');
 
                     if (!menu) {
                       return stack;
@@ -307,7 +292,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             if (c.chat.value?.callCover != null)
               CallCoverWidget(c.chat.value?.callCover),
 
-            // Display call's title info only if not minimized.
+            // Display call's state info only if minimized.
             AnimatedSwitcher(
               duration: 200.milliseconds,
               child: c.minimized.value
@@ -325,7 +310,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
-
                             bool isDialog =
                                 c.chat.value?.chat.value.isDialog == true;
 
@@ -454,7 +438,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
       // Listen to the taps only if the call is not minimized.
       Obx(() {
-        return c.minimized.value
+        return c.minimized.isTrue
             ? Container()
             : Listener(
                 behavior: HitTestBehavior.translucent,
@@ -464,8 +448,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   c.downButtons = d.buttons;
                 },
                 onPointerUp: (d) {
-                  if (c.draggedRenderer.value != null) return;
-                  if (c.secondaryDragged.value) return;
+                  if (c.secondaryManipulated.isTrue) return;
                   if (c.downButtons & kPrimaryButton != 0) {
                     if (c.state.value == OngoingCallState.active) {
                       final distance = (d.localPosition.distanceSquared -
@@ -513,6 +496,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           );
         }),
       ),
+
       // Sliding from the bottom buttons panel.
       Obx(() {
         bool showUi =
@@ -656,8 +640,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
-                  listener: () =>
-                      Future.delayed(Duration.zero, c.relocateSecondary),
+                  listener: () => Future.delayed(
+                    Duration.zero,
+                    () => c.dockRect.value = c.dockKey.globalPaintBounds,
+                  ),
                   child: MediaQuery(
                     data: MediaQuery.of(context).copyWith(size: c.size),
                     child: SlidingUpPanel(
@@ -702,7 +688,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
-                        c.relocateSecondary();
+                        c.dockRect.value = c.dockKey.globalPaintBounds;
                       },
                       onPanelOpened: () {
                         c.keepUi(true);
@@ -827,210 +813,6 @@ Widget mobileCall(CallController c, BuildContext context) {
   });
 }
 
-/// [FitWrap] of the [CallController.secondary] widgets.
-Widget _secondaryView(
-  CallController c,
-  BuildContext context,
-  BoxConstraints constraints,
-) {
-  return MediaQuery(
-    data: MediaQuery.of(context).copyWith(size: c.size),
-    child: Obx(() {
-      if (c.secondary.isEmpty) {
-        return Container();
-      }
-
-      double? left = c.secondaryLeft.value;
-      double? top = c.secondaryTop.value;
-      double? right = c.secondaryRight.value;
-      double? bottom = c.secondaryBottom.value;
-      double width = c.secondaryWidth.value;
-      double height = c.secondaryHeight.value;
-
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          // Display a shadow below the view.
-          Positioned(
-            key: c.secondaryKey,
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: IgnorePointer(
-              child: Obx(() {
-                if (c.secondaryAlignment.value == null &&
-                    !(c.secondary.length == 1 &&
-                        c.draggedRenderer.value != null)) {
-                  return Container(
-                    width: width,
-                    height: height,
-                    decoration: const BoxDecoration(
-                      boxShadow: [
-                        CustomBoxShadow(
-                          color: Color(0x44000000),
-                          blurRadius: 9,
-                          blurStyle: BlurStyle.outer,
-                        )
-                      ],
-                    ),
-                  );
-                }
-
-                return Container();
-              }),
-            ),
-          ),
-
-          // Display the background.
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Obx(() {
-                  if (c.secondaryAlignment.value == null) {
-                    return Stack(
-                      children: [
-                        SvgLoader.asset(
-                          'assets/images/background_dark.svg',
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                        Container(color: const Color(0x11FFFFFF)),
-                      ],
-                    );
-                  }
-
-                  return Container();
-                }),
-              ),
-            ),
-          ),
-
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: FitView(
-                  key: const Key('SecondaryFitView'),
-                  children: c.secondary.map((e) {
-                    return Obx(() {
-                      final bool muted = e.member.owner == MediaOwnerKind.local
-                          ? !c.audioState.value.isEnabled
-                          : e.audio.value?.isMuted.value ?? false;
-
-                      final bool anyDragIsHappening =
-                          c.secondaryDrags.value != 0 ||
-                              c.primaryDrags.value != 0 ||
-                              c.secondaryDragged.value;
-
-                      final bool isHovered =
-                          c.hoveredRenderer.value == e && !anyDragIsHappening;
-
-                      return Stack(
-                        children: [
-                          const ParticipantDecoratorWidget(),
-                          IgnorePointer(
-                            child: ParticipantWidget(
-                              e,
-                              offstageUntilDetermined: true,
-                            ),
-                          ),
-                          ParticipantOverlayWidget(
-                            e,
-                            muted: muted,
-                            hovered: isHovered,
-                            preferBackdrop: !c.minimized.value,
-                          ),
-                        ],
-                      );
-                    });
-                  }).toList(),
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: Listener(
-              onPointerDown: (_) => c.secondaryManipulated.value = true,
-              onPointerUp: (_) => c.secondaryManipulated.value = false,
-              child: GestureDetector(
-                onTap: () {
-                  final Participant participant = c.secondary.first;
-                  c.unfocusAll();
-                  c.focus(participant);
-                  c.keepUi(false);
-                },
-                onScaleStart: (d) {
-                  c.secondaryBottomShifted = null;
-
-                  c.secondaryLeft.value ??= c.size.width -
-                      c.secondaryWidth.value -
-                      (c.secondaryRight.value ?? 0);
-                  c.secondaryTop.value ??= c.size.height -
-                      c.secondaryHeight.value -
-                      (c.secondaryBottom.value ?? 0);
-
-                  c.secondaryRight.value = null;
-                  c.secondaryBottom.value = null;
-
-                  if (d.pointerCount == 1) {
-                    c.secondaryDragged.value = true;
-                    c.calculateSecondaryPanning(d.focalPoint);
-                    c.applySecondaryConstraints();
-                  } else if (d.pointerCount == 2) {
-                    c.secondaryUnscaledSize =
-                        max(c.secondaryWidth.value, c.secondaryHeight.value);
-                    c.secondaryScaled.value = true;
-                    c.calculateSecondaryPanning(d.focalPoint);
-                  }
-                },
-                onScaleUpdate: (d) {
-                  c.updateSecondaryOffset(d.focalPoint);
-                  if (d.pointerCount == 2) {
-                    c.scaleSecondary(d.scale);
-                  }
-
-                  c.applySecondaryConstraints();
-                },
-                onScaleEnd: (d) {
-                  c.secondaryDragged.value = false;
-                  c.secondaryScaled.value = false;
-                  c.secondaryUnscaledSize = null;
-                  c.updateSecondaryAttach();
-                },
-                child: Container(
-                  width: width,
-                  height: height,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }),
-  );
-}
-
 /// Builds a tile representation of the [CallController.chat].
 Widget _chat(BuildContext context, CallController c) {
   return Obx(() {
@@ -1115,24 +897,6 @@ Widget _chat(BuildContext context, CallController c) {
                                     .subtitle2
                                     ?.copyWith(color: Colors.white),
                               ),
-                              // const Spacer(),
-                              // Container(
-                              //   margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              //   width: 1,
-                              //   height: 12,
-                              //   color: Theme.of(context)
-                              //       .textTheme
-                              //       .subtitle2
-                              //       ?.color,
-                              // ),
-                              // Text(
-                              //   c.startedAt.val.toRelative(),
-                              //   // c.duration.value.hhMmSs(),
-                              //   style: Theme.of(context)
-                              //       .textTheme
-                              //       .subtitle2
-                              //       ?.copyWith(color: Colors.white),
-                              // ),
                             ],
                           ),
                         ),

@@ -42,6 +42,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/obs/obs.dart';
@@ -280,7 +281,7 @@ class PublicController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < ChatController.maxAttachmentSize) {
+    if (file.size < MessageFieldController.maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(attachment);

@@ -20,8 +20,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -35,7 +33,10 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
+    show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -83,7 +84,8 @@ class UserController extends GetxController {
   /// list.
   final RxInt galleryIndex = RxInt(0);
 
-  late final TextFieldState blockReason;
+  /// [TextFieldState] for blacklisting reason.
+  final TextFieldState reason = TextFieldState();
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -168,8 +170,6 @@ class UserController extends GetxController {
       }
     });
 
-    blockReason = TextFieldState();
-
     super.onInit();
   }
 
@@ -202,7 +202,7 @@ class UserController extends GetxController {
     if (inContacts.value) {
       status.value = RxStatus.loadingMore();
       try {
-        RxChatContact? contact =
+        final RxChatContact? contact =
             _contactService.contacts.values.firstWhereOrNull(
                   (e) => e.contact.value.users.every((m) => m.id == user?.id),
                 ) ??
@@ -245,7 +245,10 @@ class UserController extends GetxController {
   }
 
   /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() => _userService.blacklistUser(id);
+  Future<void> blacklist() async {
+    await _userService.blacklistUser(id);
+    reason.clear();
+  }
 
   /// Removes the [user] from the blacklist of the authenticated [MyUser].
   Future<void> unblacklist() => _userService.unblacklistUser(id);

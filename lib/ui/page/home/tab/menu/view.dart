@@ -287,8 +287,8 @@ class MenuTabView extends StatelessWidget {
                     case ProfileTab.notifications:
                       child = card(
                         icon: Icons.notifications,
-                        title: 'Уведомления'.l10n,
-                        subtitle: 'Звук и вибрация'.l10n,
+                        title: 'label_notifications'.l10n,
+                        subtitle: 'label_sound_and_vibrations'.l10n,
                       );
                       break;
 
@@ -302,12 +302,12 @@ class MenuTabView extends StatelessWidget {
                       );
                       break;
 
-                    case ProfileTab.blocked:
+                    case ProfileTab.blacklist:
                       child = card(
                         key: const Key('Blocked'),
                         icon: Icons.block,
                         title: 'label_blocked_users'.l10n,
-                        subtitle: 'Ваш чёрный список'.l10n,
+                        subtitle: 'label_your_blacklist'.l10n,
                       );
                       break;
 
