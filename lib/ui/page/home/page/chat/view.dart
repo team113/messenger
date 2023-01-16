@@ -589,8 +589,8 @@ class _ChatViewState extends State<ChatView>
             me: c.me!,
             displayAvatar: !previousSame,
             padding: EdgeInsets.only(
-              top: previousSame ? 1 : 6,
-              bottom: nextSame ? 1 : 6,
+              top: previousSame ? 1.5 : 6,
+              bottom: nextSame ? 1.5 : 6,
             ),
             reads: c.chat!.members.length > 10
                 ? []
