@@ -27,6 +27,7 @@ import '../controller.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/floating_fit/view.dart';
 import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
@@ -40,6 +41,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -61,13 +63,52 @@ Widget mobileCall(CallController c, BuildContext context) {
       ),
     ];
 
-    // Layer of [MouseRegion]s to determine the hovered renderer.
+    // Layer of [Widget]s to display above the UI.
     List<Widget> overlay = [];
 
     // Active call.
     if (c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
+          if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
+            return FloatingFit<Participant>(
+              primary: c.primary.first,
+              panel: c.secondary.first,
+              fit: !c.minimized.isFalse,
+              intersection: c.dockRect,
+              onManipulated: (bool m) => c.secondaryManipulated.value = m,
+              itemBuilder: (e) {
+                return Stack(
+                  children: [
+                    const ParticipantDecoratorWidget(),
+                    IgnorePointer(
+                      child: ParticipantWidget(
+                        e,
+                        offstageUntilDetermined: true,
+                      ),
+                    ),
+                  ],
+                );
+              },
+              overlayBuilder: (e) {
+                return Obx(() {
+                  final bool muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : e.audio.value?.isMuted.value ?? false;
+
+                  // TODO: Implement opened context menu detection for
+                  //       `hovered` indicator.
+                  return ParticipantOverlayWidget(
+                    e,
+                    muted: muted,
+                    hovered: false,
+                    preferBackdrop: !c.minimized.value,
+                  );
+                });
+              },
+            );
+          }
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
             center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
@@ -78,13 +119,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                    c.primaryDrags.value != 0 ||
-                    c.secondaryDragged.value;
-
-                final bool isHovered =
-                    c.hoveredRenderer.value == e && !anyDragIsHappening;
-
+                // TODO: Implement opened context menu detection for
+                //       `hovered` indicator.
                 return Stack(
                   children: [
                     const ParticipantDecoratorWidget(),
@@ -97,7 +133,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ParticipantOverlayWidget(
                       e,
                       muted: muted,
-                      hovered: isHovered,
+                      hovered: false,
                       preferBackdrop: !c.minimized.value,
                     ),
                   ],
@@ -136,7 +172,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             if (c.chat.value?.callCover != null)
               CallCoverWidget(c.chat.value?.callCover),
 
-            // Display call's title info only if not minimized.
+            // Display call's state info only if minimized.
             AnimatedSwitcher(
               duration: 200.milliseconds,
               child: c.minimized.value
@@ -150,13 +186,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                           height: 40,
                           child: Obx(() {
-                            bool isOutgoing = (c.outgoing ||
-                                    c.state.value == OngoingCallState.local) &&
-                                !c.started;
                             bool withDots = c.state.value !=
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
+                            bool isDialog =
+                                c.chat.value?.chat.value.isDialog == true;
+
                             String state =
                                 c.state.value == OngoingCallState.active
                                     ? c.duration.value
@@ -167,7 +203,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     : c.state.value == OngoingCallState.joining
                                         ? 'label_call_joining'.l10n
                                         : isOutgoing
-                                            ? 'label_call_calling'.l10n
+                                            ? isDialog
+                                                ? 'label_call_calling'.l10n
+                                                : 'label_call_connecting'.l10n
                                             : c.withVideo == true
                                                 ? 'label_video_call'.l10n
                                                 : 'label_audio_call'.l10n;
@@ -260,7 +298,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
       // Listen to the taps only if the call is not minimized.
       Obx(() {
-        return c.minimized.value
+        return c.minimized.isTrue
             ? Container()
             : Listener(
                 behavior: HitTestBehavior.translucent,
@@ -270,6 +308,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   c.downButtons = d.buttons;
                 },
                 onPointerUp: (d) {
+                  if (c.secondaryManipulated.isTrue) return;
                   if (c.downButtons & kPrimaryButton != 0) {
                     if (c.state.value == OngoingCallState.active) {
                       final distance = (d.localPosition.distanceSquared -
@@ -317,6 +356,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           );
         }),
       ),
+
       // Sliding from the bottom buttons panel.
       Obx(() {
         bool showUi =
@@ -460,8 +500,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
-                  listener: () =>
-                      Future.delayed(Duration.zero, c.relocateSecondary),
+                  listener: () => Future.delayed(
+                    Duration.zero,
+                    () => c.dockRect.value = c.dockKey.globalPaintBounds,
+                  ),
                   child: MediaQuery(
                     data: MediaQuery.of(context).copyWith(size: c.size),
                     child: SlidingUpPanel(
@@ -506,7 +548,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
-                        c.relocateSecondary();
+                        c.dockRect.value = c.dockKey.globalPaintBounds;
                       },
                       onPanelOpened: () {
                         c.keepUi(true);
@@ -548,10 +590,14 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
-                                    padding(AcceptAudioButton(c)
-                                        .build(expanded: true)),
-                                    padding(AcceptVideoButton(c)
-                                        .build(expanded: true)),
+                                    padding(AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ).build(expanded: true)),
+                                    padding(AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ).build(expanded: true)),
                                     padding(
                                         DeclineButton(c).build(expanded: true)),
                                   ],

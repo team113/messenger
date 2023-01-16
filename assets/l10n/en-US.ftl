@@ -367,6 +367,7 @@ label_biography_hint = Write about yourself
 label_blocked_users = Blocked users
 label_call_active = Active call
 label_call_calling = Calling
+label_call_connecting = Connection preparing
 label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
