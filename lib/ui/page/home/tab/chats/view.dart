@@ -57,10 +57,24 @@ class ChatsTabView extends StatelessWidget {
         return Stack(
           children: [
             Obx(() {
+              return AnimatedContainer(
+                duration: 200.milliseconds,
+                color: c.search.value != null || c.searching.value
+                    ? const Color(0xFFEBEBEB)
+                    : const Color(0x00EBEBEB),
+              );
+            }),
+            Obx(() {
               return Scaffold(
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
+                  border: c.search.value == null && !c.searching.value
+                      ? null
+                      : Border.all(
+                          color: Theme.of(context).colorScheme.secondary,
+                          width: 2,
+                        ),
                   title: Obx(() {
                     final Widget child;
 
@@ -150,22 +164,23 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }),
                   leading: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: WidgetButton(
-                            key: const Key('SearchButton'),
-                            onPressed: c.searching.value ? null : c.startSearch,
+                    Obx(() {
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: WidgetButton(
+                          key: const Key('SearchButton'),
+                          onPressed: c.searching.value ? null : c.startSearch,
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
                             child: SvgLoader.asset(
                               'assets/icons/search.svg',
                               width: 17.77,
                             ),
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      );
+                    }),
                   ],
                   actions: [
                     Padding(
@@ -484,7 +499,7 @@ class ChatsTabView extends StatelessWidget {
                                       ),
                                       child: RecentChatTile(
                                         chat,
-                                        key: Key('Chat_${chat.id}'),
+                                        key: Key('RecentChat_${chat.id}'),
                                         me: c.me,
                                         getUser: c.getUser,
                                         onJoin: () => c.joinCall(chat.id),
