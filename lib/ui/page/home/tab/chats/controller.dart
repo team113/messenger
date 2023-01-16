@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -436,23 +435,6 @@ class ChatsTabController extends GetxController {
     } finally {
       creatingStatus.value = RxStatus.empty();
     }
-  }
-
-  /// Indicates whether the provided [chat] with the specified [members] is
-  /// blocked.
-  ///
-  /// Only meaningful, if this [chat] is a dialog.
-  bool isBlocked(RxChat chat, [Iterable<RxUser>? members]) {
-    if (chat.chat.value.isDialog) {
-      return (members ?? chat.members.values)
-              .firstWhereOrNull((e) => e.id != me)
-              ?.user
-              .value
-              .isBlacklisted ==
-          true;
-    }
-
-    return false;
   }
 
   /// Enables and initializes or disables and disposes the [search].

@@ -848,7 +848,6 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-
   Widget _bottomBar(ChatController c) {
     bool blocked = false;
 
@@ -977,10 +976,7 @@ class _ChatViewState extends State<ChatView>
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             boxShadow: const [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: Color(0x22000000),
-              ),
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
             ],
           ),
           child: ConditionalBackdropFilter(
@@ -1009,9 +1005,7 @@ class _ChatViewState extends State<ChatView>
                           onPressed: c.unblacklist,
                           child: IgnorePointer(
                             child: ReactiveTextField(
-                              onChanged: c.keepTyping,
                               enabled: false,
-                              key: const Key('MessageField'),
                               state: TextFieldState(text: 'btn_unblock'.l10n),
                               filled: false,
                               dense: true,
@@ -1021,8 +1015,6 @@ class _ChatViewState extends State<ChatView>
                                 fontSize: 17,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
-                              type: TextInputType.multiline,
-                              textInputAction: TextInputAction.newline,
                             ),
                           ),
                         ),

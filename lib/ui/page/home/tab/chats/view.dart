@@ -394,10 +394,7 @@ class ChatsTabView extends StatelessWidget {
                                       chat,
                                       key: Key('SearchChat_${chat.id}'),
                                       me: c.me,
-                                      blocked: c.isBlocked(
-                                        chat,
-                                        chat.members.values,
-                                      ),
+                                      blocked: chat.blocked,
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
@@ -493,10 +490,7 @@ class ChatsTabView extends StatelessWidget {
                                           chat,
                                           key: Key('RecentChat_${chat.id}'),
                                           me: c.me,
-                                          blocked: c.isBlocked(
-                                            chat,
-                                            chat.members.values,
-                                          ),
+                                          blocked: chat.blocked,
                                           getUser: c.getUser,
                                           onJoin: () => c.joinCall(chat.id),
                                           onDrop: () => c.dropCall(chat.id),
@@ -520,6 +514,7 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     }
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: ContextMenuInterceptor(
