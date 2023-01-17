@@ -147,6 +147,9 @@ class ContactsTabController extends GetxController {
     _userWorkers.forEach((_, v) => v.dispose());
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
 
     super.onClose();
   }

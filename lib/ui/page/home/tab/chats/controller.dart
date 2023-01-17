@@ -222,6 +222,9 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
 
     for (var data in _sortingData.values) {
       data.dispose();
