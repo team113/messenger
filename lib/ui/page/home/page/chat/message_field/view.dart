@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -33,10 +32,10 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
@@ -539,76 +538,8 @@ class MessageFieldView extends StatelessWidget {
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       if (isImage || isVideo) {
-        final Widget child;
+        final Widget child = MediaAttachment(attachment: e, size: size);
 
-        if (isImage) {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              if (e.file.path == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.file(
-                    File(e.file.path!),
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.file(
-                    File(e.file.path!),
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              if (e.file.isSvg) {
-                child = SvgLoader.bytes(
-                  e.file.bytes!,
-                  width: size,
-                  height: size,
-                );
-              } else {
-                child = Image.memory(
-                  e.file.bytes!,
-                  fit: BoxFit.cover,
-                  width: size,
-                  height: size,
-                );
-              }
-            }
-          } else {
-            child = RetryImage(
-              e.original.url,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            );
-          }
-        } else {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              child = const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-            }
-          } else {
-            child = VideoThumbnail.url(url: e.original.url);
-          }
-        }
 
         final List<Attachment> attachments = c.attachments
             .where((e) {

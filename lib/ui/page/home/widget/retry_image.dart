@@ -73,9 +73,6 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// Naive [_FIFOCache] caching the images.
-  static final _FIFOCache _cache = _FIFOCache();
-
   /// [Timer] retrying the image fetching.
   Timer? _timer;
 
@@ -170,10 +167,10 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads the [_image] from the provided URL.
   ///
   /// Retries itself using exponential backoff algorithm on a failure.
-  Future<void> _loadImage() async {
+  FutureOr<void> _loadImage() async {
     _timer?.cancel();
 
-    Uint8List? cached = _cache[widget.url];
+    Uint8List? cached = FIFOCache.get(widget.url);
     if (cached != null) {
       _image = cached;
       _backoffPeriod = _minBackoffPeriod;
@@ -203,7 +200,7 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data!.statusCode == 200) {
-        _cache[widget.url] = data.data;
+        FIFOCache.set(widget.url, data.data);
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;
         if (mounted) {
@@ -229,7 +226,7 @@ class _RetryImageState extends State<RetryImage> {
 ///
 /// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
 /// [_maxLength], then the first inserted element is removed.
-class _FIFOCache {
+class FIFOCache {
   /// Maximum allowed length of [_cache].
   static const int _maxLength = 1000;
 
@@ -237,15 +234,15 @@ class _FIFOCache {
   static const int _maxSize = 100 << 20; // 100 MiB
 
   /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  final LinkedHashMap<String, Uint8List> _cache =
+  static final LinkedHashMap<String, Uint8List> _cache =
       LinkedHashMap<String, Uint8List>();
 
   /// Returns the total size [_cache] occupies.
-  int get size =>
+  static int get size =>
       _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
 
   /// Puts the provided [bytes] to the cache.
-  void operator []=(String key, Uint8List bytes) {
+  static void set(String key, Uint8List bytes) {
     if (!_cache.containsKey(key)) {
       while (size >= _maxSize) {
         _cache.remove(_cache.keys.first);
@@ -260,5 +257,5 @@ class _FIFOCache {
   }
 
   /// Returns the [Uint8List] of the provided [key], if any is cached.
-  Uint8List? operator [](String key) => _cache[key];
+  static Uint8List? get(String key) => _cache[key];
 }
