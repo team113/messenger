@@ -75,7 +75,7 @@ class GraphQlProviderExceptions {
             null) {
           return const AuthorizationException();
         } else if (RegExp(
-          r'''^Variable "[$]phone" got invalid value[.] Expected input scalar `UserPhone`[.] Got: `"[+][-()\d ]{4,20}"`[.] Details: Cannot parse input scalar `UserPhone`: doesn't represent a valid phone number[.]$''',
+          r'''^Variable "\$phone" got invalid value\. Expected input scalar `UserPhone`\. Got: `"\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}"`\. Details: Cannot parse input scalar `UserPhone`: doesn't represent a valid phone number\.$''',
         ).hasMatch(result.exception!.graphqlErrors.first.message)) {
           return const FormatException('Does not match validation RegExp');
         }
