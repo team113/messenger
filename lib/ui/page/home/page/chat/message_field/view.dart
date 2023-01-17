@@ -539,7 +539,7 @@ class MessageFieldView extends StatelessWidget {
     Widget content() {
       if (isImage || isVideo) {
         final Widget child = MediaAttachment(attachment: e, size: size);
-        
+
         final List<Attachment> attachments = c.attachments
             .where((e) {
               final Attachment a = e.value;
