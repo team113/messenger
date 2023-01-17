@@ -74,10 +74,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
-        } else if (result.exception!.graphqlErrors.firstWhereOrNull((e) =>
-                e.message.contains(
-                    'Details: Cannot parse input scalar `UserPhone`: doesn\'t represent a valid phone number.')) !=
-            null) {
+        } else if (RegExp(
+          r'''^Variable "[$]phone" got invalid value[.] Expected input scalar `UserPhone`[.] Got: `"[+][-()\d ]{4,20}"`[.] Details: Cannot parse input scalar `UserPhone`: doesn't represent a valid phone number[.]$''',
+        ).hasMatch(result.exception!.graphqlErrors.first.message)) {
           return const FormatException('Does not match validation RegExp');
         }
 
