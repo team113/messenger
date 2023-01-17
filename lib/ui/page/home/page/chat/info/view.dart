@@ -325,6 +325,7 @@ class ChatInfoView extends StatelessWidget {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.name.text));
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.name.text.isEmpty
               ? null
@@ -359,6 +360,7 @@ class ChatInfoView extends StatelessWidget {
                             '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                       ),
                     );
+                    MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null
@@ -510,6 +512,7 @@ class ChatInfoView extends StatelessWidget {
 
             return ContactTile(
               user: e,
+              dense: true,
               darken: 0.05,
               onTap: () => router.user(e.id, push: true),
               trailing: [

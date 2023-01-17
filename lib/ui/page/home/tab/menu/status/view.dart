@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -90,6 +91,7 @@ class StatusView extends StatelessWidget {
                                   Clipboard.setData(
                                     ClipboardData(text: c.status.text),
                                   );
+                                  MessagePopup.success('label_copied'.l10n);
                                 },
                           trailing: c.status.text.isEmpty
                               ? null

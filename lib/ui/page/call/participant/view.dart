@@ -203,6 +203,7 @@ class ParticipantView extends StatelessWidget {
         moveDownwards: false,
         child: ContactTile(
           user: user,
+          dense: true,
           onTap: () {
             // TODO: Open the [Routes.user] page.
           },

@@ -108,6 +108,7 @@ class SharableTextField extends StatelessWidget {
   /// Puts the [share] into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: share ?? state.text));
+    MessagePopup.success('label_copied'.l10n);
   }
 
   /// Opens a [Share] modal sharing the [share].

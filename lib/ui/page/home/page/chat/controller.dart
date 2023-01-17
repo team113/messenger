@@ -998,6 +998,7 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
+    MessagePopup.success('label_copied'.l10n);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the

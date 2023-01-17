@@ -24,6 +24,7 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/chat.dart';
@@ -96,196 +97,228 @@ class ChatItemReads extends StatelessWidget {
               ModalPopupHeader(
                 header: Center(
                   child: Text(
-                    'btn_message_info'.l10n,
+                    'label_message'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
               if (id != null) ...[
+                // Padding(
+                //   padding: ModalPopup.padding(context)
+                //       .subtract(const EdgeInsets.symmetric(horizontal: 0)),
+                //   child: WidgetButton(
+                //     onPressed: () =>
+                //         Clipboard.setData(ClipboardData(text: id?.val)),
+                //     child: Row(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       children: [
+                //         // Text(
+                //         //   'Message ID: ',
+                //         //   style: thin?.copyWith(
+                //         //     fontSize: 15,
+                //         //     color: Theme.of(context).colorScheme.primary,
+                //         //   ),
+                //         // ),
+                //         Expanded(
+                //           child: Text(
+                //             '$id',
+                //             style: thin?.copyWith(fontSize: 15),
+                //             // maxLines: null,
+                //             // overflow: TextOverflow.ellipsis,
+                //           ),
+                //         ),
+                //         // const SizedBox(width: 8),
+                //         // SvgLoader.asset('assets/icons/copy.svg', height: 12),
+                //       ],
+                //     ),
+                //   ),
+                //   // RichText(
+                //   //   text: TextSpan(
+                //   //     children: [
+                //   //       TextSpan(
+                //   //         text: 'ID: ',
+                //   //         style: thin?.copyWith(
+                //   //             fontSize: 15,
+                //   //             color: Theme.of(context).colorScheme.primary),
+                //   //       ),
+                //   //       TextSpan(
+                //   //         text: '$id',
+                //   //         style: thin?.copyWith(fontSize: 15),
+                //   //       ),
+                //   //     ],
+                //   //   ),
+                //   // ),
+                // ),
+                // const SizedBox(height: 4),
                 Padding(
                   padding: ModalPopup.padding(context)
                       .subtract(const EdgeInsets.symmetric(horizontal: 0)),
-                  child: WidgetButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: id?.val));
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'ID: ',
-                          style: thin?.copyWith(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
+                  child: Center(
+                    child: WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: id?.val));
+                        MessagePopup.success('label_copied'.l10n);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'ID: $id',
+                            style: thin?.copyWith(fontSize: 13),
+                            maxLines: null,
+                            // overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        Text(
-                          '$id',
-                          style: thin?.copyWith(fontSize: 13),
-                          // maxLines: 1,
-                          // overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(width: 8),
-                        SvgLoader.asset('assets/icons/copy.svg', height: 12),
-                      ],
+                          const SizedBox(width: 8),
+                          SvgLoader.asset('assets/icons/copy.svg', height: 12),
+                        ],
+                      ),
                     ),
                   ),
-                  // RichText(
-                  //   text: TextSpan(
-                  //     children: [
-                  //       TextSpan(
-                  //         text: 'ID: ',
-                  //         style: thin?.copyWith(
-                  //             fontSize: 15,
-                  //             color: Theme.of(context).colorScheme.primary),
-                  //       ),
-                  //       TextSpan(
-                  //         text: '$id',
-                  //         style: thin?.copyWith(fontSize: 15),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ),
-                const SizedBox(height: 8),
+                // const SizedBox(height: 8),
               ],
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Отправлено: ',
-                        style: thin?.copyWith(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
-                      TextSpan(
-                        text: '16.01.2023, 10:04',
-                        style: thin?.copyWith(fontSize: 15),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: ModalPopup.padding(context),
+              //   child: RichText(
+              //     text: TextSpan(
+              //       children: [
+              //         TextSpan(
+              //           text: 'Отправлено: ',
+              //           style: thin?.copyWith(
+              //               fontSize: 15,
+              //               color: Theme.of(context).colorScheme.primary),
+              //         ),
+              //         TextSpan(
+              //           text: '16.01.2023, 10:04',
+              //           style: thin?.copyWith(fontSize: 15),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               if (c.query.value != null || c.users.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 if (reads.length >= 3) ...[
                   Padding(
                     padding: ModalPopup.padding(context)
                         .subtract(const EdgeInsets.only(left: 8, right: 8)),
-                    child: CustomAppBar(
-                      border: c.search.isEmpty.value || !c.search.focus.hasFocus
-                          ? null
-                          : Border.all(
-                              color: Theme.of(context).colorScheme.secondary,
-                              width: 2,
-                            ),
-                      title: Theme(
-                        data: Theme.of(context).copyWith(
-                          shadowColor: const Color(0x55000000),
-                          iconTheme: const IconThemeData(color: Colors.blue),
-                          inputDecorationTheme: InputDecorationTheme(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusColor: Colors.white,
-                            fillColor: Colors.white,
-                            hoverColor: Colors.transparent,
-                            filled: true,
-                            isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(
-                              15,
-                              PlatformUtils.isDesktop ? 30 : 23,
-                              15,
-                              0,
-                            ),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Transform.translate(
-                            offset: const Offset(0, 1),
-                            child: ReactiveTextField(
-                              key: const Key('SearchField'),
-                              state: c.search,
-                              hint: 'label_search'.l10n,
-                              maxLines: 1,
-                              filled: false,
-                              dense: true,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.boldBody.copyWith(fontSize: 17),
-                              onChanged: () => c.query.value = c.search.text,
-                            ),
-                          ),
-                        ),
-                      ),
-                      leading: [
-                        Container(
-                          padding: const EdgeInsets.only(left: 20, right: 12),
-                          height: double.infinity,
-                          child: SvgLoader.asset(
-                            'assets/icons/search.svg',
-                            width: 17.77,
-                          ),
-                        )
-                      ],
-                      actions: [
-                        Obx(() {
-                          final Widget? child;
-
-                          if (!c.search.isEmpty.value) {
-                            child = SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
-                              height: 15,
-                            );
-                          } else {
-                            child = null;
-                          }
-
-                          return WidgetButton(
-                            onPressed: () {
-                              c.search.clear();
-                              c.search.unsubmit();
-                              c.query.value = null;
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.only(left: 12, right: 18),
-                              height: double.infinity,
-                              child: SizedBox(
-                                width: 21.77,
-                                child: AnimatedSwitcher(
-                                  duration: 250.milliseconds,
-                                  child: child,
-                                ),
+                    child: SizedBox(
+                      height: 50,
+                      child: CustomAppBar(
+                        border: c.search.isEmpty.value ||
+                                !c.search.focus.hasFocus
+                            ? null
+                            : Border.all(
+                                color: Theme.of(context).colorScheme.secondary,
+                                width: 2,
+                              ),
+                        title: Theme(
+                          data: Theme.of(context).copyWith(
+                            shadowColor: const Color(0x55000000),
+                            iconTheme: const IconThemeData(color: Colors.blue),
+                            inputDecorationTheme: InputDecorationTheme(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              disabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusColor: Colors.white,
+                              fillColor: Colors.white,
+                              hoverColor: Colors.transparent,
+                              filled: true,
+                              isDense: true,
+                              contentPadding: EdgeInsets.fromLTRB(
+                                15,
+                                PlatformUtils.isDesktop ? 30 : 23,
+                                15,
+                                0,
                               ),
                             ),
-                          );
-                        }),
-                      ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Transform.translate(
+                              offset: const Offset(0, 1),
+                              child: ReactiveTextField(
+                                key: const Key('SearchField'),
+                                state: c.search,
+                                hint: 'label_search'.l10n,
+                                maxLines: 1,
+                                filled: false,
+                                dense: true,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                style: style.boldBody.copyWith(fontSize: 17),
+                                onChanged: () => c.query.value = c.search.text,
+                              ),
+                            ),
+                          ),
+                        ),
+                        leading: [
+                          Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
+                            child: SvgLoader.asset(
+                              'assets/icons/search.svg',
+                              width: 17.77,
+                            ),
+                          )
+                        ],
+                        actions: [
+                          Obx(() {
+                            final Widget? child;
+
+                            if (!c.search.isEmpty.value) {
+                              child = SvgLoader.asset(
+                                'assets/icons/close_primary.svg',
+                                height: 15,
+                              );
+                            } else {
+                              child = null;
+                            }
+
+                            return WidgetButton(
+                              onPressed: () {
+                                c.search.clear();
+                                c.search.unsubmit();
+                                c.query.value = null;
+                              },
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 18),
+                                height: double.infinity,
+                                child: SizedBox(
+                                  width: 21.77,
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
                     ),
                   ),
                   // Padding(
@@ -305,37 +338,35 @@ class ChatItemReads extends StatelessWidget {
                 if (users.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(child: Text('Nothing was found')),
+                    child: Center(child: Text('label_not_found')),
                   ),
                 ...users.map((e) {
                   return Padding(
                     padding: ModalPopup.padding(context),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 3),
-                      child: ContactTile(
-                        user: e,
-                        darken: 0.05,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          router.user(e.id, push: true);
-                        },
-                        subtitle: [
-                          const SizedBox(height: 3),
-                          Text(
-                            'Доставлено: 16.01.2023, 09:56',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                    child: ContactTile(
+                      user: e,
+                      dense: true,
+                      darken: 0.05,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        router.user(e.id, push: true);
+                      },
+                      subtitle: [
+                        // const SizedBox(height: 3),
+                        // Text(
+                        //   'Доставлено: 16.01.2023, 09:56',
+                        //   style: TextStyle(
+                        //     color: Theme.of(context).colorScheme.primary,
+                        //   ),
+                        // ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Прочитано: 16.01.2023, 10:04',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Прочитано: 16.01.2023, 10:04',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 }),

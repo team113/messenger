@@ -37,6 +37,7 @@ class ContactTile extends StatelessWidget {
     this.contact,
     this.user,
     this.myUser,
+    this.dense = false,
     this.leading = const [],
     this.trailing = const [],
     this.onTap,
@@ -60,6 +61,8 @@ class ContactTile extends StatelessWidget {
 
   /// [RxUser] to display.
   final RxUser? user;
+
+  final bool dense;
 
   /// Optional leading [Widget]s.
   final List<Widget> leading;
@@ -134,16 +137,30 @@ class ContactTile extends StatelessWidget {
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                 : null,
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            padding: EdgeInsets.fromLTRB(
+              12,
+              dense ? 11 : 14,
+              12,
+              dense ? 11 : 14,
+            ),
             child: Row(
               children: [
                 ...leading,
                 avatarBuilder(
                   contact != null
-                      ? AvatarWidget.fromRxContact(contact, radius: radius)
+                      ? AvatarWidget.fromRxContact(
+                          contact,
+                          radius: dense ? 17 : radius,
+                        )
                       : user != null
-                          ? AvatarWidget.fromRxUser(user, radius: radius)
-                          : AvatarWidget.fromMyUser(myUser, radius: radius),
+                          ? AvatarWidget.fromRxUser(
+                              user,
+                              radius: dense ? 17 : radius,
+                            )
+                          : AvatarWidget.fromMyUser(
+                              myUser,
+                              radius: dense ? 17 : radius,
+                            ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

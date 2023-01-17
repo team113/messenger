@@ -706,3 +706,7 @@ btn_select = Выбрать
 btn_upload = Загрузить
 btn_message_info = Информация о сообщении
 btn_info = Информация
+label_message = Сообщение
+label_message_id = ID сообщения
+label_not_found = Не найдено
+label_copied = Скопировано
