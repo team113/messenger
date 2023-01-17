@@ -276,11 +276,8 @@ void main() async {
         backgroundProvider,
       ),
     );
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
@@ -299,7 +296,7 @@ void main() async {
       ),
     );
 
-    Get.put(UserService(userRepository, chatRepository));
+    Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 

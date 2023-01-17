@@ -451,6 +451,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
+              userRepository.getChat = chatRepository.get;
               AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
@@ -472,7 +473,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
 
               deps.put(MyUserService(Get.find(), myUserRepository));
-              deps.put(UserService(userRepository, chatRepository));
+              deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               ChatService chatService =
                   deps.put(ChatService(chatRepository, Get.find()));
@@ -553,6 +554,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 me: me,
               ),
             );
+            userRepository.getChat = chatRepository.get;
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
@@ -575,7 +577,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
-            deps.put(UserService(userRepository, chatRepository));
+            deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));

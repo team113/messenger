@@ -32,7 +32,7 @@ abstract class AbstractUserRepository {
   RxBool get isReady;
 
   /// Initializes this repository.
-  Future<void> init({AbstractChatRepository? chatRepository});
+  Future<void> init();
 
   /// Disposes this repository.
   void dispose();

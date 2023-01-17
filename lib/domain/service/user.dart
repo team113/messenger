@@ -20,19 +20,15 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
 class UserService extends DisposableService {
-  UserService(this._userRepository, this._chatRepository);
+  UserService(this._userRepository);
 
   /// Repository to fetch [User]s from.
   final AbstractUserRepository _userRepository;
-
-  /// Repository to put it in [_userRepository].
-  final AbstractChatRepository _chatRepository;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [users] value is fetched.
@@ -43,7 +39,7 @@ class UserService extends DisposableService {
 
   @override
   void onInit() {
-    _userRepository.init(chatRepository: _chatRepository);
+    _userRepository.init();
     super.onInit();
   }
 

@@ -157,11 +157,8 @@ void main() async {
     AuthService authService = Get.put(AuthService(authRepository, provider));
     await authService.init();
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -288,11 +285,8 @@ void main() async {
     AuthService authService = Get.put(AuthService(authRepository, provider));
     await authService.init();
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
@@ -367,11 +361,8 @@ void main() async {
         backgroundProvider,
       ),
     );
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
 
     CallRepository callRepository = Get.put(
       CallRepository(

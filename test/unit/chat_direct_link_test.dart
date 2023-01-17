@@ -177,11 +177,8 @@ void main() async {
   );
   await authService.init();
 
-  UserRepository userRepository = Get.put(UserRepository(
-    graphQlProvider,
-    userProvider,
-    galleryItemProvider,
-  ));
+  UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider, galleryItemProvider));
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
@@ -262,11 +259,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -319,11 +313,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -397,11 +388,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -451,11 +439,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -516,11 +501,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -572,11 +554,8 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,

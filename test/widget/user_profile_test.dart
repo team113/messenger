@@ -360,11 +360,9 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+    Get.put(UserService(userRepository));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
@@ -400,7 +398,6 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    Get.put(UserService(userRepository, chatRepository));
     Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(

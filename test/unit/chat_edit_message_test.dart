@@ -152,11 +152,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -219,11 +216,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    );
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
 
     CallRepository callRepository = Get.put(
       CallRepository(

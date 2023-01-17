@@ -17,11 +17,11 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '/domain/repository/chat.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -35,21 +35,21 @@ class HiveRxUser extends RxUser {
   HiveRxUser(
     this._userRepository,
     this._userLocal,
-    this._chatRepository,
-    HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+    HiveUser hiveUser, {
+    this.getChat,
+  }) : user = Rx<User>(hiveUser.value);
 
   @override
   final Rx<User> user;
+
+  /// [Function] returns [RxChat] by [ChatId].
+  final Future<RxChat?> Function(ChatId id)? getChat;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
-
-  /// [AbstractChatRepository] used to find [HiveRxUser]s dialog chat.
-  final AbstractChatRepository? _chatRepository;
 
   /// Reactive value of the [RxChat] this [HiveRxUser] dialog represents.
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
@@ -66,11 +66,10 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    _dialog.value ??= _chatRepository?.chats.values.firstWhereOrNull((e) =>
-        e.chat.value.isDialog &&
-        e.chat.value.members
-                .firstWhereOrNull((e2) => e2.user.id == user.value.id) !=
-            null);
+    ChatId? dialogId = user.value.dialog?.id;
+    if (dialogId != null && getChat != null) {
+      getChat!(dialogId).then((value) => _dialog.value = value);
+    }
     return _dialog;
   }
 

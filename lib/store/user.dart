@@ -24,6 +24,7 @@ import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -47,6 +48,9 @@ class UserRepository implements AbstractUserRepository {
     this._galleryItemLocal,
   );
 
+  /// [Function] returns [RxChat] by [ChatId].
+  late final Future<RxChat?> Function(ChatId id)? getChat;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -55,9 +59,6 @@ class UserRepository implements AbstractUserRepository {
 
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
-
-  /// [AbstractChatRepository] used to put it in [HiveRxUser].
-  AbstractChatRepository? _chatRepository;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -78,11 +79,15 @@ class UserRepository implements AbstractUserRepository {
   RxMap<UserId, RxUser> get users => _users;
 
   @override
-  Future<void> init({AbstractChatRepository? chatRepository}) async {
+  Future<void> init() async {
     if (!_userLocal.isEmpty) {
-      _chatRepository = chatRepository;
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(this, _userLocal, _chatRepository, c);
+        _users[c.value.id] = HiveRxUser(
+          this,
+          _userLocal,
+          c,
+          getChat: getChat,
+        );
       }
       isReady.value = true;
     }
@@ -126,7 +131,12 @@ class UserRepository implements AbstractUserRepository {
         if (query != null) {
           HiveUser stored = query.toHive();
           put(stored);
-          var fetched = HiveRxUser(this, _userLocal, _chatRepository, stored);
+          var fetched = HiveRxUser(
+            this,
+            _userLocal,
+            stored,
+            getChat: getChat,
+          );
           users[id] = fetched;
           user = fetched;
         }
@@ -254,8 +264,12 @@ class UserRepository implements AbstractUserRepository {
       } else {
         RxUser? user = _users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] =
-              HiveRxUser(this, _userLocal, _chatRepository, event.value);
+          _users[UserId(event.key)] = HiveRxUser(
+            this,
+            _userLocal,
+            event.value,
+            getChat: getChat,
+          );
         } else {
           user.user.value = event.value.value;
           user.user.refresh();

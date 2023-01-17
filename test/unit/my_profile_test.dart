@@ -52,17 +52,13 @@ void main() async {
     final getStorage = SessionDataHiveProvider();
     final graphQlProvider = FakeGraphQlProvider();
 
-    AuthService authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
+    Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     var profileService = Get.put(
       MyUserService(
-        authService,
+        Get.find(),
         MyUserRepository(
           graphQlProvider,
           myUserProvider,

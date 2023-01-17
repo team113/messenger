@@ -278,11 +278,8 @@ void main() async {
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
@@ -349,11 +346,8 @@ void main() async {
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(UserRepository(
-      graphQlProvider,
-      userProvider,
-      galleryItemProvider,
-    ));
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
