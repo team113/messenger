@@ -264,6 +264,7 @@ class ChatsTabView extends StatelessWidget {
                         );
                       } else {
                         child = SafeScrollbar(
+                          bottomPadding: false,
                           controller: c.search.value!.controller,
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(40),

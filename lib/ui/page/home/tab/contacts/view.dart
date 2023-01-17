@@ -210,9 +210,9 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
-                controller: c.scrollController,
-                child: AnimationLimiter(
-                  key: const Key('Search'),
+                  controller: c.scrollController,
+                  child: AnimationLimiter(
+                    key: const Key('Search'),
                     child: ListView.builder(
                       controller: c.scrollController,
                       itemCount: c.elements.length,
@@ -287,7 +287,7 @@ class ContactsTabView extends StatelessWidget {
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                          top: CustomAppBar.height,
+                            top: CustomAppBar.height,
                             left: 10,
                             right: 10,
                           ),
