@@ -21,7 +21,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
-        - Searching. ([#310], [#206], [#205])
+        - Searching. ([#323], [#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
         - Quick mute and link changing menu. ([#288], [#278])
@@ -30,9 +30,9 @@ All user visible changes to this project will be documented in this file. This p
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
-        - Searching. ([#310], [#260], [#259])
+        - Searching. ([#323], [#310], [#260], [#259])
     - User page:
-        - Blacklisting. ([#277], [#234], [#229])
+        - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
@@ -44,7 +44,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned mobile interface. ([#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
     - Chat page:
@@ -151,6 +151,9 @@ All user visible changes to this project will be documented in this file. This p
 [#305]: /../../pull/305
 [#310]: /../../pull/310
 [#313]: /../../pull/313
+[#316]: /../../pull/316
+[#317]: /../../pull/317
+[#323]: /../../pull/323
 
 
 

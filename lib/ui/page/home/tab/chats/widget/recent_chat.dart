@@ -49,6 +49,7 @@ class RecentChatTile extends StatelessWidget {
     this.rxChat, {
     Key? key,
     this.me,
+    this.blocked = false,
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -66,6 +67,10 @@ class RecentChatTile extends StatelessWidget {
 
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
+
+  /// Indicator whether this [RecentChatTile] should display a blocked icon in
+  /// its trailing.
+  final bool blocked;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -129,6 +134,15 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
+                if (blocked) ...[
+                  const SizedBox(width: 5),
+                  const Icon(
+                    Icons.block,
+                    color: Color(0xFFC0C0C0),
+                    size: 20,
+                  ),
+                  if (chat.muted == null) const SizedBox(width: 5),
+                ],
                 if (chat.muted != null) ...[
                   const SizedBox(width: 5),
                   SvgLoader.asset(
