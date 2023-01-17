@@ -48,10 +48,11 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
+  /// [AbstractChatRepository] used to find [HiveRxUser]s dialog chat.
+  final AbstractChatRepository? _chatRepository;
+
   /// Reactive value of the [RxChat] this [HiveRxUser] dialog represents.
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
-
-  final AbstractChatRepository _chatRepository;
 
   /// [UserRepository.userEvents] subscription.
   ///
@@ -65,7 +66,7 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    _dialog.value ??= _chatRepository.chats.values.firstWhereOrNull((e) =>
+    _dialog.value ??= _chatRepository?.chats.values.firstWhereOrNull((e) =>
         e.chat.value.isDialog &&
         e.chat.value.members
                 .firstWhereOrNull((e2) => e2.user.id == user.value.id) !=

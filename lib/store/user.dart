@@ -28,7 +28,6 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/domain/service/auth.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
@@ -57,8 +56,8 @@ class UserRepository implements AbstractUserRepository {
   /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
 
-  /// [AuthService] to get an authorized user.
-  late final AbstractChatRepository _chatRepository;
+  /// [AbstractChatRepository] used to put it in [HiveRxUser].
+  AbstractChatRepository? _chatRepository;
 
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
@@ -79,7 +78,7 @@ class UserRepository implements AbstractUserRepository {
   RxMap<UserId, RxUser> get users => _users;
 
   @override
-  Future<void> init({required AbstractChatRepository chatRepository}) async {
+  Future<void> init({AbstractChatRepository? chatRepository}) async {
     if (!_userLocal.isEmpty) {
       _chatRepository = chatRepository;
       for (HiveUser c in _userLocal.users) {
