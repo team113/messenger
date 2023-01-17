@@ -42,7 +42,7 @@ class HiveRxUser extends RxUser {
   @override
   final Rx<User> user;
 
-  /// [Function] returns [RxChat] by [ChatId].
+  /// [Function] returns [RxChat] by specified [ChatId].
   final Future<RxChat?> Function(ChatId id)? getChat;
 
   /// [UserRepository] providing the [UserEvent]s.

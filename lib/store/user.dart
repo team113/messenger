@@ -48,8 +48,8 @@ class UserRepository implements AbstractUserRepository {
     this._galleryItemLocal,
   );
 
-  /// [Function] returns [RxChat] by [ChatId].
-  late final Future<RxChat?> Function(ChatId id)? getChat;
+  /// [Function] returns [RxChat] by specified [ChatId].
+  Future<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
