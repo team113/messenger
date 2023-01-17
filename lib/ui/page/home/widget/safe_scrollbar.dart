@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/routes.dart';
 import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
@@ -27,23 +28,26 @@ import 'navigation_bar.dart';
 class SafeScrollbar extends StatelessWidget {
   SafeScrollbar({
     super.key,
-    required BuildContext context,
     required this.child,
-    this.bottomPadding,
+    this.bottomPadding = true,
     this.borderRadius,
-  }) : _mediaQuery = context.mediaQuery;
+    ScrollController? controller,
+  }) : controller = controller ?? ScrollController();
 
   /// Child of this widget.
   final Widget child;
 
-  /// Specified bottom padding.
-  final double? bottomPadding;
+  /// Indicator whether bottom padding is enabled or not.
+  final bool bottomPadding;
 
   /// [BorderRadiusGeometry] of this widget.
   final BorderRadiusGeometry? borderRadius;
 
+  /// Custom [ScrollController] for [Scrollbar] of [child] widget.
+  final ScrollController controller;
+
   /// [MediaQueryData] of parent widget.
-  late final MediaQueryData _mediaQuery;
+  final MediaQueryData _mediaQuery = router.context!.mediaQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,7 @@ class SafeScrollbar extends StatelessWidget {
         data: _mediaQuery.copyWith(
           padding: _mediaQuery.padding.copyWith(
             top: CustomAppBar.height,
-            bottom: bottomPadding ?? CustomNavigationBar.height + 5,
+            bottom: bottomPadding ? CustomNavigationBar.height + 5 : 0,
           ),
         ),
         child: Container(
@@ -61,10 +65,13 @@ class SafeScrollbar extends StatelessWidget {
           ),
           margin: EdgeInsets.only(
             top: _mediaQuery.padding.top + 5,
-            bottom: _mediaQuery.padding.bottom - CustomNavigationBar.height,
+            bottom: bottomPadding ? _mediaQuery.padding.bottom + 5 : 0,
           ),
           clipBehavior: Clip.hardEdge,
-          child: child,
+          child: Scrollbar(
+            controller: controller,
+            child: child,
+          ),
         ),
       );
     } else {

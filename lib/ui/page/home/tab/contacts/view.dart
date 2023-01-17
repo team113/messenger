@@ -205,62 +205,59 @@ class ContactsTabView extends StatelessWidget {
               );
             } else if (c.elements.isNotEmpty) {
               child = SafeScrollbar(
-                context: context,
+                controller: c.scrollController,
                 child: AnimationLimiter(
                   key: const Key('Search'),
-                  child: Scrollbar(
+                  child: ListView.builder(
                     controller: c.scrollController,
-                    child: ListView.builder(
-                      controller: c.scrollController,
-                      itemCount: c.elements.length,
-                      itemBuilder: (_, i) {
-                        final ListElement element = c.elements[i];
-                        final Widget child;
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      final ListElement element = c.elements[i];
+                      final Widget child;
 
-                        if (element is ContactElement) {
-                          child = SearchUserTile(
-                            key: Key('SearchContact_${element.contact.id}'),
-                            contact: element.contact,
-                            onTap: () =>
-                                router.user(element.contact.user.value!.id),
-                          );
-                        } else if (element is UserElement) {
-                          child = SearchUserTile(
-                            key: Key('SearchUser_${element.user.id}'),
-                            user: element.user,
-                            onTap: () => router.user(element.user.id),
-                          );
-                        } else if (element is DividerElement) {
-                          child = Center(
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                              width: double.infinity,
-                              child: Center(
-                                child: Text(
-                                  element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
+                      if (element is ContactElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchContact_${element.contact.id}'),
+                          contact: element.contact,
+                          onTap: () =>
+                              router.user(element.contact.user.value!.id),
+                        );
+                      } else if (element is UserElement) {
+                        child = SearchUserTile(
+                          key: Key('SearchUser_${element.user.id}'),
+                          user: element.user,
+                          onTap: () => router.user(element.user.id),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style: style.systemMessageStyle.copyWith(
+                                  color: Colors.black,
+                                  fontSize: 15,
                                 ),
                               ),
                             ),
-                          );
-                        } else {
-                          child = const SizedBox();
-                        }
-
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50,
-                            child: FadeInAnimation(child: child),
                           ),
                         );
-                      },
-                    ),
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(child: child),
+                        ),
+                      );
+                    },
                   ),
                 ),
               );
@@ -279,130 +276,127 @@ class ContactsTabView extends StatelessWidget {
             } else {
               child = AnimationLimiter(
                 child: SafeScrollbar(
-                  context: context,
-                  child: Scrollbar(
+                  controller: c.scrollController,
+                  child: CustomScrollView(
                     controller: c.scrollController,
-                    child: CustomScrollView(
-                      controller: c.scrollController,
-                      slivers: [
-                        SliverPadding(
-                          padding: const EdgeInsets.only(
-                            top: CustomAppBar.height,
-                            left: 10,
-                            right: 10,
-                          ),
-                          sliver: SliverReorderableList(
-                            onReorderStart: (_) => c.reordering.value = true,
-                            proxyDecorator: (child, _, animation) {
-                              return AnimatedBuilder(
-                                animation: animation,
-                                builder: (_, Widget? child) {
-                                  final double t = Curves.easeInOut
-                                      .transform(animation.value);
-                                  final double elevation = lerpDouble(0, 6, t)!;
-                                  final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
-                                    t,
-                                  )!;
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.only(
+                          top: CustomAppBar.height,
+                          left: 10,
+                          right: 10,
+                        ),
+                        sliver: SliverReorderableList(
+                          onReorderStart: (_) => c.reordering.value = true,
+                          proxyDecorator: (child, _, animation) {
+                            return AnimatedBuilder(
+                              animation: animation,
+                              builder: (_, Widget? child) {
+                                final double t =
+                                    Curves.easeInOut.transform(animation.value);
+                                final double elevation = lerpDouble(0, 6, t)!;
+                                final Color color = Color.lerp(
+                                  const Color(0x00000000),
+                                  const Color(0x33000000),
+                                  t,
+                                )!;
 
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        CustomBoxShadow(
-                                          color: color,
-                                          blurRadius: elevation,
-                                        ),
-                                      ],
-                                      borderRadius: style.cardRadius.copyWith(
-                                        topLeft: Radius.circular(
-                                          style.cardRadius.topLeft.x * 1.75,
-                                        ),
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      CustomBoxShadow(
+                                        color: color,
+                                        blurRadius: elevation,
+                                      ),
+                                    ],
+                                    borderRadius: style.cardRadius.copyWith(
+                                      topLeft: Radius.circular(
+                                        style.cardRadius.topLeft.x * 1.75,
                                       ),
                                     ),
-                                    child: child,
-                                  );
-                                },
-                                child: child,
-                              );
-                            },
-                            itemBuilder: (_, i) {
-                              RxChatContact contact = c.favorites.elementAt(i);
-                              return KeyedSubtree(
-                                key: Key(contact.id.val),
-                                child: Obx(() {
-                                  final Widget child = _contact(
-                                    context,
-                                    contact,
-                                    c,
-                                    avatarBuilder: (child) {
-                                      if (PlatformUtils.isMobile) {
-                                        return ReorderableDelayedDragStartListener(
-                                          key: Key(
-                                              'ReorderHandle_${contact.id.val}'),
-                                          index: i,
-                                          child: child,
-                                        );
-                                      }
-
-                                      return ReorderableDragStartListener(
+                                  ),
+                                  child: child,
+                                );
+                              },
+                              child: child,
+                            );
+                          },
+                          itemBuilder: (_, i) {
+                            RxChatContact contact = c.favorites.elementAt(i);
+                            return KeyedSubtree(
+                              key: Key(contact.id.val),
+                              child: Obx(() {
+                                final Widget child = _contact(
+                                  context,
+                                  contact,
+                                  c,
+                                  avatarBuilder: (child) {
+                                    if (PlatformUtils.isMobile) {
+                                      return ReorderableDelayedDragStartListener(
                                         key: Key(
                                             'ReorderHandle_${contact.id.val}'),
                                         index: i,
                                         child: child,
                                       );
-                                    },
-                                  );
+                                    }
 
-                                  // Ignore the animation, if there's an ongoing
-                                  // reordering happening.
-                                  if (c.reordering.value) {
-                                    return child;
-                                  }
+                                    return ReorderableDragStartListener(
+                                      key: Key(
+                                          'ReorderHandle_${contact.id.val}'),
+                                      index: i,
+                                      child: child,
+                                    );
+                                  },
+                                );
 
-                                  return AnimationConfiguration.staggeredList(
-                                    position: i,
-                                    duration: const Duration(milliseconds: 375),
-                                    child: SlideAnimation(
-                                      horizontalOffset: 50,
-                                      child: FadeInAnimation(child: child),
-                                    ),
-                                  );
-                                }),
-                              );
-                            },
-                            itemCount: c.favorites.length,
-                            onReorder: (a, b) {
-                              c.reorderContact(a, b);
-                              c.reordering.value = false;
-                            },
-                          ),
-                        ),
-                        SliverPadding(
-                          padding: const EdgeInsets.only(
-                            bottom: CustomNavigationBar.height + 5,
-                            left: 10,
-                            right: 10,
-                          ),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate.fixed(
-                              c.contacts.mapIndexed((i, e) {
+                                // Ignore the animation, if there's an ongoing
+                                // reordering happening.
+                                if (c.reordering.value) {
+                                  return child;
+                                }
+
                                 return AnimationConfiguration.staggeredList(
                                   position: i,
                                   duration: const Duration(milliseconds: 375),
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
-                                    ),
+                                    child: FadeInAnimation(child: child),
                                   ),
                                 );
-                              }).toList(),
-                            ),
+                              }),
+                            );
+                          },
+                          itemCount: c.favorites.length,
+                          onReorder: (a, b) {
+                            c.reorderContact(a, b);
+                            c.reordering.value = false;
+                          },
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.only(
+                          bottom: CustomNavigationBar.height + 5,
+                          left: 10,
+                          right: 10,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate.fixed(
+                            c.contacts.mapIndexed((i, e) {
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: _contact(context, e, c),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );
