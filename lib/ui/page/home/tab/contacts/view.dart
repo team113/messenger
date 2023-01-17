@@ -31,8 +31,8 @@ import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/page/home/widget/mobile_paddings.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -204,7 +204,7 @@ class ContactsTabView extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             } else if (c.elements.isNotEmpty) {
-              child = MobilePaddings(
+              child = SafeScrollbar(
                 context: context,
                 child: AnimationLimiter(
                   key: const Key('Search'),
@@ -278,7 +278,7 @@ class ContactsTabView extends StatelessWidget {
               );
             } else {
               child = AnimationLimiter(
-                child: MobilePaddings(
+                child: SafeScrollbar(
                   context: context,
                   child: Scrollbar(
                     controller: c.scrollController,

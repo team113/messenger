@@ -25,7 +25,7 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/mobile_paddings.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -112,7 +112,7 @@ class MenuTabView extends StatelessWidget {
                 ? const [StyledBackButton()]
                 : const [SizedBox(width: 30)],
           ),
-          body: MobilePaddings(
+          body: SafeScrollbar(
             context: context,
             child: Scrollbar(
               controller: c.scrollController,

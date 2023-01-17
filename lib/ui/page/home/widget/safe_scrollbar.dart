@@ -22,10 +22,10 @@ import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
 
-/// Widget used to add paddings on mobile phones to display [ListView] widgets
-/// correctly.
-class MobilePaddings extends StatelessWidget {
-  MobilePaddings({
+/// [Widget] adding [MediaQueryData.padding] and clipping to its [child]
+/// accounting [CustomAppBar.height] and [CustomNavigationBar.height].
+class SafeScrollbar extends StatelessWidget {
+  SafeScrollbar({
     super.key,
     required BuildContext context,
     required this.child,
