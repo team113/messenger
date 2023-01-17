@@ -568,7 +568,7 @@ class ChatsTabController extends GetxController {
     return false;
   }
 
-  /// Invokes [closeSearch] if [searching] or [closeGroupCreating] if
+  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
   /// [groupCreating].
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
@@ -576,11 +576,7 @@ class ChatsTabController extends GetxController {
   /// `false`.
   bool _onBack(bool _, RouteInfo __) {
     if (searching.isTrue) {
-      if (groupCreating.isTrue) {
-        closeSearch(false);
-      } else {
-        closeSearch(true);
-      }
+      closeSearch(!groupCreating.value);
       return true;
     } else if (groupCreating.isTrue) {
       closeGroupCreating();
