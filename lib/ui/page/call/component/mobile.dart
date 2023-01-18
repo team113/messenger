@@ -91,6 +91,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       child: ParticipantWidget(
                         e,
                         offstageUntilDetermined: true,
+                        useCallCover: true,
                       ),
                     ),
                   ],
@@ -204,6 +205,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                           child: ParticipantWidget(
                             e,
                             offstageUntilDetermined: true,
+                            useCallCover: true,
                           ),
                         ),
                         ParticipantOverlayWidget(

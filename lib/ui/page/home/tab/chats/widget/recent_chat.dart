@@ -146,7 +146,7 @@ class RecentChatTile extends StatelessWidget {
                   const SizedBox(width: 5),
                   const Icon(
                     Icons.block,
-                    color: Color.fromRGBO(192, 192, 192, 1),
+                    color: Color(0xFFC0C0C0),
                     size: 20,
                   ),
                   if (chat.muted == null) const SizedBox(width: 5),

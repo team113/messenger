@@ -207,13 +207,13 @@ class ChatsTabView extends StatelessWidget {
                       return WidgetButton(
                         onPressed: () {
                           if (c.searching.value) {
-                            c.groupCreating.value
-                                ? () => c.closeSearch(false)
-                                : () => c.closeSearch(true);
+                            c.closeSearch(!c.groupCreating.value);
                           } else {
-                            c.groupCreating.value
-                                ? c.closeGroupCreating()
-                                : c.startGroupCreating();
+                            if (c.groupCreating.value) {
+                              c.closeGroupCreating();
+                            } else {
+                              c.startGroupCreating();
+                            }
                           }
                         },
                         child: Container(
@@ -232,315 +232,312 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
-                  if (c.chatsReady.value) {
-                    final Widget? child;
+                  if (!c.chatsReady.value || c.loader.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                    if (c.groupCreating.value) {
-                      Widget? center;
+                  final Widget? child;
 
-                      if (c.search.value?.query.isNotEmpty == true &&
-                          c.search.value?.recent.isEmpty == true &&
-                          c.search.value?.contacts.isEmpty == true &&
-                          c.search.value?.users.isEmpty == true) {
-                        if (c.search.value?.searchStatus.value.isSuccess ==
-                            true) {
-                          center =
-                              Center(child: Text('label_nothing_found'.l10n));
-                        } else {
-                          center =
-                              const Center(child: CircularProgressIndicator());
-                        }
-                      }
+                  if (c.groupCreating.value) {
+                    Widget? center;
 
-                      if (center != null) {
-                        child = Padding(
-                          padding: const EdgeInsets.only(top: 67),
-                          child: center,
-                        );
+                    if (c.search.value?.query.isNotEmpty == true &&
+                        c.search.value?.recent.isEmpty == true &&
+                        c.search.value?.contacts.isEmpty == true &&
+                        c.search.value?.users.isEmpty == true) {
+                      if (c.search.value?.searchStatus.value.isSuccess ==
+                          true) {
+                        center =
+                            Center(child: Text('label_nothing_found'.l10n));
                       } else {
-                        child = Scrollbar(
-                          controller: c.search.value!.controller,
-                          child: ListView.builder(
-                            controller: c.search.value!.controller,
-                            itemCount: c.elements.length,
-                            itemBuilder: (context, i) {
-                              final ListElement element = c.elements[i];
-                              final Widget child;
-
-                              if (element is RecentElement) {
-                                child = Obx(() {
-                                  return SelectedTile(
-                                    user: element.user,
-                                    selected: c.search.value?.selectedRecent
-                                            .contains(element.user) ??
-                                        false,
-                                    onTap: () => c.search.value
-                                        ?.select(recent: element.user),
-                                  );
-                                });
-                              } else if (element is ContactElement) {
-                                child = Obx(() {
-                                  return SelectedTile(
-                                    contact: element.contact,
-                                    selected: c.search.value?.selectedContacts
-                                            .contains(element.contact) ??
-                                        false,
-                                    onTap: () => c.search.value
-                                        ?.select(contact: element.contact),
-                                  );
-                                });
-                              } else if (element is UserElement) {
-                                child = Obx(() {
-                                  return SelectedTile(
-                                    user: element.user,
-                                    selected: c.search.value?.selectedUsers
-                                            .contains(element.user) ??
-                                        false,
-                                    onTap: () => c.search.value
-                                        ?.select(user: element.user),
-                                  );
-                                });
-                              } else if (element is MyUserElement) {
-                                child = Obx(() {
-                                  return SelectedTile(
-                                    myUser: c.myUser.value,
-                                    selected: true,
-                                    subtitle: [
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        'label_required'.l10n,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                });
-                              } else if (element is DividerElement) {
-                                final String text;
-
-                                switch (element.category) {
-                                  case SearchCategory.recent:
-                                    text = 'label_recent'.l10n;
-                                    break;
-
-                                  case SearchCategory.contact:
-                                    text = 'label_contact'.l10n;
-                                    break;
-
-                                  case SearchCategory.user:
-                                    text = 'label_user'.l10n;
-                                    break;
-
-                                  case SearchCategory.chat:
-                                    text = 'label_chat'.l10n;
-                                    break;
-                                }
-
-                                child = Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.fromLTRB(
-                                      10,
-                                      2,
-                                      10,
-                                      2,
-                                    ),
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      10,
-                                      12,
-                                      6,
-                                    ),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        text,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                child = const SizedBox();
-                              }
-
-                              return child;
-                            },
-                          ),
-                        );
+                        center =
+                            const Center(child: CircularProgressIndicator());
                       }
-                    } else if (c.searching.value &&
-                        c.search.value?.search.isEmpty.value == false) {
-                      if (c.search.value!.searchStatus.value.isLoading &&
-                          c.elements.isEmpty) {
-                        child = const Center(
-                          key: Key('Loading'),
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (c.elements.isNotEmpty) {
-                        child = Scrollbar(
-                          controller: c.scrollController,
-                          child: ListView.builder(
-                            key: const Key('Search'),
-                            controller: c.scrollController,
-                            itemCount: c.elements.length,
-                            itemBuilder: (_, i) {
-                              final ListElement element = c.elements[i];
-                              final Widget child;
+                    }
 
-                              if (element is ChatElement) {
-                                final RxChat chat = element.chat;
-                                child = Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                  ),
-                                  child: Obx(() {
-                                    return RecentChatTile(
-                                      chat,
-                                      key: Key('SearchChat_${chat.id}'),
-                                      me: c.me,
-                                      myUser: c.myUser.value,
-                                      blocked: chat.blacklisted,
-                                      getUser: c.getUser,
-                                      onJoin: () => c.joinCall(chat.id),
-                                      onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.inCall(chat.id),
-                                    );
-                                  }),
-                                );
-                              } else if (element is ContactElement) {
-                                child = SearchUserTile(
-                                  key: Key(
-                                      'SearchContact_${element.contact.id}'),
-                                  contact: element.contact,
-                                  onTap: () =>
-                                      c.openChat(contact: element.contact),
-                                );
-                              } else if (element is UserElement) {
-                                child = SearchUserTile(
-                                  key: Key('SearchUser_${element.user.id}'),
-                                  user: element.user,
-                                  onTap: () => c.openChat(user: element.user),
-                                );
-                              } else if (element is DividerElement) {
-                                child = Center(
-                                  child: Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12, 10, 12, 6),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        element.category.name.capitalizeFirst!,
-                                        style:
-                                            style.systemMessageStyle.copyWith(
-                                          color: Colors.black,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                child = const SizedBox();
-                              }
-                              return AnimationConfiguration.staggeredList(
-                                position: i,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  horizontalOffset: 50,
-                                  child: FadeInAnimation(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        top: i == 0 ? 3 : 0,
-                                        bottom:
-                                            i == c.elements.length - 1 ? 4 : 0,
-                                      ),
-                                      child: child,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      } else {
-                        child = Center(
-                          key: const Key('NothingFound'),
-                          child: Text('label_nothing_found'.l10n),
-                        );
-                      }
+                    if (center != null) {
+                      child = Padding(
+                        padding: const EdgeInsets.only(top: 67),
+                        child: center,
+                      );
                     } else {
-                      child = AnimationLimiter(
-                        key: const Key('Chats'),
-                        child: Scrollbar(
-                          controller: c.scrollController,
-                          child: ListView.builder(
-                            controller: c.scrollController,
-                            itemCount: c.chats.length,
-                            itemBuilder: (_, i) {
-                              final RxChat chat = c.chats[i];
-                              return AnimationConfiguration.staggeredList(
-                                position: i,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  horizontalOffset: 50,
-                                  child: FadeInAnimation(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
+                      child = Scrollbar(
+                        controller: c.search.value!.controller,
+                        child: ListView.builder(
+                          controller: c.search.value!.controller,
+                          itemCount: c.elements.length,
+                          itemBuilder: (context, i) {
+                            final ListElement element = c.elements[i];
+                            final Widget child;
+
+                            if (element is RecentElement) {
+                              child = Obx(() {
+                                return SelectedTile(
+                                  user: element.user,
+                                  selected: c.search.value?.selectedRecent
+                                          .contains(element.user) ??
+                                      false,
+                                  onTap: () => c.search.value
+                                      ?.select(recent: element.user),
+                                );
+                              });
+                            } else if (element is ContactElement) {
+                              child = Obx(() {
+                                return SelectedTile(
+                                  contact: element.contact,
+                                  selected: c.search.value?.selectedContacts
+                                          .contains(element.contact) ??
+                                      false,
+                                  onTap: () => c.search.value
+                                      ?.select(contact: element.contact),
+                                );
+                              });
+                            } else if (element is UserElement) {
+                              child = Obx(() {
+                                return SelectedTile(
+                                  user: element.user,
+                                  selected: c.search.value?.selectedUsers
+                                          .contains(element.user) ??
+                                      false,
+                                  onTap: () => c.search.value
+                                      ?.select(user: element.user),
+                                );
+                              });
+                            } else if (element is MyUserElement) {
+                              child = Obx(() {
+                                return SelectedTile(
+                                  myUser: c.myUser.value,
+                                  selected: true,
+                                  subtitle: [
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'label_required'.l10n,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
-                                      child: Obx(() {
-                                        return RecentChatTile(
-                                          chat,
-                                          key: Key('RecentChat_${chat.id}'),
-                                          me: c.me,
-                                          myUser: c.myUser.value,
-                                          blocked: chat.blacklisted,
-                                          getUser: c.getUser,
-                                          onJoin: () => c.joinCall(chat.id),
-                                          onDrop: () => c.dropCall(chat.id),
-                                          onLeave: () => c.leaveChat(chat.id),
-                                          onHide: () => c.hideChat(chat.id),
-                                          inCall: () => c.inCall(chat.id),
-                                          onMute: () => c.muteChat(chat.id),
-                                          onUnmute: () => c.unmuteChat(chat.id),
-                                          onFavorite: () =>
-                                              c.favoriteChat(chat.id),
-                                          onUnfavorite: () =>
-                                              c.unfavoriteChat(chat.id),
-                                        );
-                                      }),
+                                    ),
+                                  ],
+                                );
+                              });
+                            } else if (element is DividerElement) {
+                              final String text;
+
+                              switch (element.category) {
+                                case SearchCategory.recent:
+                                  text = 'label_recent'.l10n;
+                                  break;
+
+                                case SearchCategory.contact:
+                                  text = 'label_contact'.l10n;
+                                  break;
+
+                                case SearchCategory.user:
+                                  text = 'label_user'.l10n;
+                                  break;
+
+                                case SearchCategory.chat:
+                                  text = 'label_chat'.l10n;
+                                  break;
+                              }
+
+                              child = Center(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(
+                                    10,
+                                    2,
+                                    10,
+                                    2,
+                                  ),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    12,
+                                    10,
+                                    12,
+                                    6,
+                                  ),
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      text,
+                                      style: style.systemMessageStyle.copyWith(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                      ),
                                     ),
                                   ),
                                 ),
                               );
-                            },
-                          ),
+                            } else {
+                              child = const SizedBox();
+                            }
+
+                            return child;
+                          },
                         ),
                       );
                     }
+                  } else if (c.searching.value &&
+                      c.search.value?.search.isEmpty.value == false) {
+                    if (c.search.value!.searchStatus.value.isLoading &&
+                        c.elements.isEmpty) {
+                      child = const Center(
+                        key: Key('Loading'),
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (c.elements.isNotEmpty) {
+                      child = Scrollbar(
+                        controller: c.scrollController,
+                        child: ListView.builder(
+                          key: const Key('Search'),
+                          controller: c.scrollController,
+                          itemCount: c.elements.length,
+                          itemBuilder: (_, i) {
+                            final ListElement element = c.elements[i];
+                            final Widget child;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: ContextMenuInterceptor(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 250),
-                          child: child,
+                            if (element is ChatElement) {
+                              final RxChat chat = element.chat;
+                              child = Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                ),
+                                child: Obx(() {
+                                  return RecentChatTile(
+                                    chat,
+                                    key: Key('SearchChat_${chat.id}'),
+                                    me: c.me,
+                                    myUser: c.myUser.value,
+                                    blocked: chat.blacklisted,
+                                    getUser: c.getUser,
+                                    onJoin: () => c.joinCall(chat.id),
+                                    onDrop: () => c.dropCall(chat.id),
+                                    inCall: () => c.inCall(chat.id),
+                                  );
+                                }),
+                              );
+                            } else if (element is ContactElement) {
+                              child = SearchUserTile(
+                                key: Key('SearchContact_${element.contact.id}'),
+                                contact: element.contact,
+                                onTap: () =>
+                                    c.openChat(contact: element.contact),
+                              );
+                            } else if (element is UserElement) {
+                              child = SearchUserTile(
+                                key: Key('SearchUser_${element.user.id}'),
+                                user: element.user,
+                                onTap: () => c.openChat(user: element.user),
+                              );
+                            } else if (element is DividerElement) {
+                              child = Center(
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      element.category.name.capitalizeFirst!,
+                                      style: style.systemMessageStyle.copyWith(
+                                        color: Colors.black,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              child = const SizedBox();
+                            }
+                            return AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      top: i == 0 ? 3 : 0,
+                                      bottom:
+                                          i == c.elements.length - 1 ? 4 : 0,
+                                    ),
+                                    child: child,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      child = Center(
+                        key: const Key('NothingFound'),
+                        child: Text('label_nothing_found'.l10n),
+                      );
+                    }
+                  } else {
+                    child = AnimationLimiter(
+                      key: const Key('Chats'),
+                      child: Scrollbar(
+                        controller: c.scrollController,
+                        child: ListView.builder(
+                          controller: c.scrollController,
+                          itemCount: c.chats.length,
+                          itemBuilder: (_, i) {
+                            final RxChat chat = c.chats[i];
+                            return AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: Obx(() {
+                                      return RecentChatTile(
+                                        chat,
+                                        key: Key('RecentChat_${chat.id}'),
+                                        me: c.me,
+                                        myUser: c.myUser.value,
+                                        blocked: chat.blacklisted,
+                                        getUser: c.getUser,
+                                        onJoin: () => c.joinCall(chat.id),
+                                        onDrop: () => c.dropCall(chat.id),
+                                        onLeave: () => c.leaveChat(chat.id),
+                                        onHide: () => c.hideChat(chat.id),
+                                        inCall: () => c.inCall(chat.id),
+                                        onMute: () => c.muteChat(chat.id),
+                                        onUnmute: () => c.unmuteChat(chat.id),
+                                        onFavorite: () =>
+                                            c.favoriteChat(chat.id),
+                                        onUnfavorite: () =>
+                                            c.unfavoriteChat(chat.id),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     );
                   }
 
-                  return const Center(child: CircularProgressIndicator());
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: ContextMenuInterceptor(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        child: child,
+                      ),
+                    ),
+                  );
                 }),
                 bottomNavigationBar:
                     c.groupCreating.value ? _createGroup(context, c) : null,

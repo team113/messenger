@@ -141,6 +141,8 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
+  RxBool loader = RxBool(true);
+
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
@@ -149,6 +151,8 @@ class ChatsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    Future.delayed(5.seconds, () => loader.value = false);
 
     _sortChats();
 

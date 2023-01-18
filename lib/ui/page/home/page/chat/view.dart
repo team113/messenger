@@ -16,11 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -28,15 +26,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 
-import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -48,24 +40,18 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
-import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'widget/attachment_selector.dart';
 import 'controller.dart';
-import 'forward/view.dart';
 import 'message_field/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -103,7 +89,6 @@ class _ChatViewState extends State<ChatView>
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -190,25 +175,10 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            c.chat!.title.value,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        // if (c.chat?.chat.value.muted !=
-                                        //     null) ...[
-                                        //   const SizedBox(width: 5),
-                                        //   SvgLoader.asset(
-                                        //     'assets/icons/muted.svg',
-                                        //     width: 19.99 * 0.6,
-                                        //     height: 15 * 0.6,
-                                        //   ),
-                                        // ]
-                                      ],
+                                    Text(
+                                      c.chat!.title.value,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -833,7 +803,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               if (c.chat?.chat.value.muted != null) ...[
                 SvgLoader.asset(
-                  'assets/icons/muted_darken.svg',
+                  'assets/icons/muted_dark.svg',
                   width: 19.99 * 0.6,
                   height: 15 * 0.6,
                 ),

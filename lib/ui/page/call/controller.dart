@@ -517,7 +517,7 @@ class CallController extends GetxController {
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 

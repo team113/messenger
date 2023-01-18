@@ -43,7 +43,6 @@ import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -58,7 +57,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
@@ -77,7 +75,6 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._myUserService,
     this._settingsRepository, {
     this.itemId,
   });
@@ -239,10 +236,6 @@ class ChatController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
-
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
-
-  final MyUserService _myUserService;
 
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
