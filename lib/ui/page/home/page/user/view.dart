@@ -262,11 +262,11 @@ class UserView extends StatelessWidget {
       );
     }
 
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          action(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Obx(() {
+          return action(
             key: Key(c.inContacts.value
                 ? 'DeleteFromContactsButton'
                 : 'AddToContactsButton'),
@@ -278,18 +278,25 @@ class UserView extends StatelessWidget {
                 : c.inContacts.value
                     ? () => _removeFromContacts(c, context)
                     : c.addToContacts,
-          ),
-          action(
+          );
+        }),
+        Obx(() {
+          return action(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
             onPressed:
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
-          ),
-          action(
-            text:
-                c.isMuted.value ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: c.isMuted.value
+          );
+        }),
+        Obx(() {
+          final chat =
+              c.user?.dialog.value?.chat.value ?? c.user?.user.value.dialog;
+          final bool isMuted = chat?.muted != null;
+
+          return action(
+            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+            trailing: isMuted
                 ? SvgLoader.asset(
                     'assets/icons/btn_mute.svg',
                     width: 18.68,
@@ -300,30 +307,32 @@ class UserView extends StatelessWidget {
                     width: 17.86,
                     height: 15,
                   ),
-            onPressed: c.isMuted.toggle,
-          ),
-          action(
-            text: 'btn_hide_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => _hideChat(c, context),
-          ),
-          action(
-            text: 'btn_clear_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () => _clearChat(c, context),
-          ),
-          action(
+            onPressed: isMuted ? c.unmuteChat : c.muteChat,
+          );
+        }),
+        action(
+          text: 'btn_hide_chat'.l10n,
+          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          onPressed: () => _hideChat(c, context),
+        ),
+        action(
+          text: 'btn_clear_chat'.l10n,
+          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+          onPressed: () => _clearChat(c, context),
+        ),
+        Obx(() {
+          return action(
             key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
             text:
                 c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
             onPressed: c.isBlacklisted == true
                 ? c.unblacklist
                 : () => _blacklistUser(c, context),
-          ),
-          action(text: 'btn_report'.l10n, onPressed: () {}),
-        ],
-      );
-    });
+          );
+        }),
+        action(text: 'btn_report'.l10n, onPressed: () {}),
+      ],
+    );
   }
 
   /// Returns a [User.name] copyable field.
@@ -575,7 +584,7 @@ class UserView extends StatelessWidget {
     );
 
     if (result == true) {
-      // TODO: Hide the [Chat]-dialog.
+      await c.hideChat();
     }
   }
 

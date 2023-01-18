@@ -77,7 +77,7 @@ class ChatTile extends StatelessWidget {
   /// Amount of darkening to apply to the background of this [ChatTile].
   final double darken;
 
-  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  /// Builder for building an [AvatarWidget] this [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].

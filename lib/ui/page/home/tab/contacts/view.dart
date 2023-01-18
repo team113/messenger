@@ -182,18 +182,15 @@ class ContactsTabView extends StatelessWidget {
             ],
             leading: [
               Obx(() {
-                return AnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  child: WidgetButton(
-                    key: const Key('SearchButton'),
-                    onPressed: c.search.value != null ? null : c.toggleSearch,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      height: double.infinity,
-                      child: SvgLoader.asset(
-                        'assets/icons/search.svg',
-                        width: 17.77,
-                      ),
+                return WidgetButton(
+                  key: const Key('SearchButton'),
+                  onPressed: c.search.value != null ? null : c.toggleSearch,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 20, right: 12),
+                    height: double.infinity,
+                    child: SvgLoader.asset(
+                      'assets/icons/search.svg',
+                      width: 17.77,
                     ),
                   ),
                 );
@@ -418,12 +415,14 @@ class ContactsTabView extends StatelessWidget {
 
             return Stack(
               children: [
-                AnimatedContainer(
-                  duration: 200.milliseconds,
-                  color: c.search.value != null
-                      ? const Color(0xFFEBEBEB)
-                      : const Color(0x00EBEBEB),
-                ),
+                Obx(() {
+                  return AnimatedContainer(
+                    duration: 200.milliseconds,
+                    color: c.search.value != null
+                        ? const Color(0xFFEBEBEB)
+                        : const Color(0x00EBEBEB),
+                  );
+                }),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: ContextMenuInterceptor(
@@ -506,6 +505,23 @@ class ContactsTabView extends StatelessWidget {
         ),
       ],
       trailing: [
+        Obx(() {
+          final dialog = contact.user.value?.dialog.value;
+
+          if (dialog?.chat.value.muted == null) {
+            return const SizedBox();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: SvgLoader.asset(
+              'assets/icons/muted.svg',
+              key: Key('MuteIndicator_${contact.id}'),
+              width: 19.99,
+              height: 15,
+            ),
+          );
+        }),
         Obx(() {
           if (contact.user.value?.user.value.isBlacklisted == false) {
             return const SizedBox();
