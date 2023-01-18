@@ -50,7 +50,6 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
-    Hive.maybeRegisterAdapter(BytesRxAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatAvatarAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
@@ -86,6 +85,7 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(RxBytesAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());

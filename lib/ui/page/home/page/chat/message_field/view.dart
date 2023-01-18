@@ -557,36 +557,40 @@ class MessageFieldView extends StatelessWidget {
 
         return WidgetButton(
           key: key,
-          onPressed: () {
-            final int index = c.attachments.indexWhere((m) => m.value == e);
-            if (index != -1) {
-              GalleryPopup.show(
-                context: context,
-                gallery: GalleryPopup(
-                  initial: index,
-                  initialKey: key,
-                  onTrashPressed: (int i) {
-                    c.attachments.removeWhere((o) => o.value == attachments[i]);
-                  },
-                  children: attachments.map((o) {
-                    if (o is ImageAttachment ||
-                        (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(
-                        o.original,
-                        o.filename,
-                        size: o.original.size,
-                      );
-                    }
-                    return GalleryItem.video(
-                      o.original,
-                      o.filename,
-                      size: o.original.size,
+          onPressed: e is LocalAttachment
+              ? null
+              : () {
+                  final int index =
+                      c.attachments.indexWhere((m) => m.value == e);
+                  if (index != -1) {
+                    GalleryPopup.show(
+                      context: context,
+                      gallery: GalleryPopup(
+                        initial: index,
+                        initialKey: key,
+                        onTrashPressed: (int i) {
+                          c.attachments
+                              .removeWhere((o) => o.value == attachments[i]);
+                        },
+                        children: attachments.map((o) {
+                          if (o is ImageAttachment ||
+                              (o is LocalAttachment && o.file.isImage)) {
+                            return GalleryItem.image(
+                              o.original,
+                              o.filename,
+                              size: o.original.size,
+                            );
+                          }
+                          return GalleryItem.video(
+                            o.original,
+                            o.filename,
+                            size: o.original.size,
+                          );
+                        }).toList(),
+                      ),
                     );
-                  }).toList(),
-                ),
-              );
-            }
-          },
+                  }
+                },
           child: isVideo
               ? IgnorePointer(
                   child: Stack(

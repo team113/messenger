@@ -46,7 +46,7 @@ class MediaAttachment extends StatefulWidget {
   /// Height of this [MediaAttachment].
   final double? height;
 
-  /// [BoxFit] of this [MediaAttachment].
+  /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
 
   /// Callback, called on the [Attachment] fetching errors.

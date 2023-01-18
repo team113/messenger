@@ -88,7 +88,7 @@ class GalleryItem {
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
-  /// Original URL to the file this [GalleryItem] represents.
+  /// [StorageFile] representing this [GalleryItem].
   StorageFile file;
 
   /// Name of the file this [GalleryItem] represents.

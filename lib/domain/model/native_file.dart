@@ -248,7 +248,7 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
 }
 
 /// [Hive] adapter for a [Rx<Uint8List?>].
-class BytesRxAdapter extends TypeAdapter<Rx<Uint8List?>> {
+class RxBytesAdapter extends TypeAdapter<Rx<Uint8List?>> {
   @override
   int get typeId => ModelTypeId.reactiveBytes;
 
