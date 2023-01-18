@@ -19,7 +19,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/user.dart';
+import '/domain/model/user.dart';
+import 'chat.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -74,6 +75,9 @@ abstract class AbstractUserRepository {
 abstract class RxUser {
   /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
+
+  /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
+  Rx<RxChat?> get dialog;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;

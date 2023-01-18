@@ -501,6 +501,23 @@ class ContactsTabView extends StatelessWidget {
       ],
       trailing: [
         Obx(() {
+          final dialog = contact.user.value?.dialog.value;
+
+          if (dialog?.chat.value.muted == null) {
+            return const SizedBox();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: SvgLoader.asset(
+              'assets/icons/muted.svg',
+              key: Key('MuteIndicator_${contact.id}'),
+              width: 19.99,
+              height: 15,
+            ),
+          );
+        }),
+        Obx(() {
           if (contact.user.value?.user.value.isBlacklisted == false) {
             return const SizedBox();
           }
