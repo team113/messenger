@@ -144,34 +144,39 @@ class ContactsTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.search.value != null) {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
                     key: const Key('CloseSearch'),
-                    onPressed: () => c.toggleSearch(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/close_primary.svg',
-                      height: 15,
-                      width: 15,
-                    ),
+                    'assets/icons/close_primary.svg',
+                    height: 15,
+                    width: 15,
                   );
                 } else {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                     key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    onPressed: c.toggleSorting,
-                    child: SvgLoader.asset(
-                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                      width: 29.69,
-                      height: 21,
-                    ),
+                    width: 29.69,
+                    height: 21,
                   );
                 }
-                return Container(
-                  alignment: Alignment.center,
-                  width: 29.69,
-                  height: 21,
-                  margin: const EdgeInsets.only(left: 12, right: 18),
-                  child: AnimatedSwitcher(
-                    duration: 250.milliseconds,
-                    child: child,
+
+                return WidgetButton(
+                  onPressed: () {
+                    if (c.search.value != null) {
+                      c.toggleSearch(false);
+                    } else {
+                      c.toggleSorting();
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 29.69 + 12 + 18,
+                    height: double.infinity,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: child,
+                      ),
+                    ),
                   ),
                 );
               }),

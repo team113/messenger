@@ -175,27 +175,10 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            c.chat!.title.value,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        if (c.chat?.chat.value.muted !=
-                                            null) ...[
-                                          const SizedBox(width: 5),
-                                          Icon(
-                                            Icons.volume_off,
-                                            color: Theme.of(context)
-                                                .primaryIconTheme
-                                                .color,
-                                            size: 17,
-                                          ),
-                                        ]
-                                      ],
+                                    Text(
+                                      c.chat!.title.value,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -762,35 +745,50 @@ class _ChatViewState extends State<ChatView>
         final ChatMember? partner =
             chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
         if (partner != null) {
-          return FutureBuilder<RxUser?>(
-            future: c.getUser(partner.user.id),
-            builder: (_, snapshot) {
-              if (snapshot.data != null) {
-                return Obx(() {
-                  final String? subtitle = c.chat!.chat.value
-                      .getSubtitle(partner: snapshot.data!.user.value);
+          return Row(
+            children: [
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgLoader.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(partner.user.id),
+                  builder: (_, snapshot) {
+                    if (snapshot.data != null) {
+                      return Obx(() {
+                        final String? subtitle = c.chat!.chat.value
+                            .getSubtitle(partner: snapshot.data!.user.value);
 
-                  final UserTextStatus? status =
-                      snapshot.data!.user.value.status;
+                        final UserTextStatus? status =
+                            snapshot.data!.user.value.status;
 
-                  if (status != null || subtitle != null) {
-                    final StringBuffer buffer = StringBuffer(status ?? '');
+                        if (status != null || subtitle != null) {
+                          final StringBuffer buffer =
+                              StringBuffer(status ?? '');
 
-                    if (status != null && subtitle != null) {
-                      buffer.write('space_vertical_space'.l10n);
+                          if (status != null && subtitle != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(subtitle ?? '');
+
+                          return Text(buffer.toString(), style: style);
+                        }
+
+                        return const SizedBox();
+                      });
                     }
 
-                    buffer.write(subtitle ?? '');
-
-                    return Text(buffer.toString(), style: style);
-                  }
-
-                  return const SizedBox();
-                });
-              }
-
-              return const SizedBox();
-            },
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
           );
         }
       }
@@ -807,8 +805,7 @@ class _ChatViewState extends State<ChatView>
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
-        translate: false,
-        padding: const EdgeInsets.only(right: 8, top: 2),
+        padding: const EdgeInsets.only(right: 8),
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
