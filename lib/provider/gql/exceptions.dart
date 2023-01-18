@@ -246,7 +246,7 @@ class RenewSessionException implements Exception {
   String toString() => 'RenewSessionException($code)';
 }
 
-/// GraphQl request thrown on wrong `$phone` message.
+/// GraphQl request thrown on wrong phone number format.
 class GraphQlPhoneFormatException implements Exception {
   const GraphQlPhoneFormatException();
 
