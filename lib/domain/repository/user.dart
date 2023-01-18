@@ -76,11 +76,11 @@ abstract class RxUser {
   /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
 
+  /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
+  Rx<RxChat?> get dialog;
+
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
-
-  /// Returns reactive value of the [RxChat] this [RxUser] dialog represents.
-  Rx<RxChat?> get dialog;
 
   /// States that this [user] should get its updates.
   void listenUpdates();

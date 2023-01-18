@@ -451,7 +451,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
+
               userRepository.getChat = chatRepository.get;
+
               AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
@@ -554,7 +556,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 me: me,
               ),
             );
+
             userRepository.getChat = chatRepository.get;
+
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(

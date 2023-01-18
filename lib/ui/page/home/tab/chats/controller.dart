@@ -259,7 +259,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.dialog.value?.chat.value;
+        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
         dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
         router.chat(dialog.id);
       }

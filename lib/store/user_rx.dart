@@ -35,15 +35,11 @@ class HiveRxUser extends RxUser {
   HiveRxUser(
     this._userRepository,
     this._userLocal,
-    HiveUser hiveUser, {
-    this.getChat,
-  }) : user = Rx<User>(hiveUser.value);
+    HiveUser hiveUser,
+  ) : user = Rx<User>(hiveUser.value);
 
   @override
   final Rx<User> user;
-
-  /// [Function] returns [RxChat] by specified [ChatId].
-  final Future<RxChat?> Function(ChatId id)? getChat;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
@@ -51,7 +47,7 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
-  /// Reactive value of the [RxChat] this [HiveRxUser] dialog represents.
+  /// Reactive value of the [RxChat]-dialog with this [RxUser].
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
 
   /// [UserRepository.userEvents] subscription.
@@ -66,10 +62,12 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    ChatId? dialogId = user.value.dialog?.id;
-    if (dialogId != null && getChat != null) {
-      getChat!(dialogId).then((value) => _dialog.value = value);
+    final Chat? chat = user.value.dialog;
+
+    if (_dialog.value == null && chat != null) {
+      _userRepository.getChat?.call(chat.id).then((v) => _dialog.value = v);
     }
+
     return _dialog;
   }
 

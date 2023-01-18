@@ -48,7 +48,10 @@ class UserRepository implements AbstractUserRepository {
     this._galleryItemLocal,
   );
 
-  /// [Function] returns [RxChat] by specified [ChatId].
+  /// Callback, called when a [RxChat] with the provided [ChatId] is required
+  /// by this [UserRepository].
+  ///
+  /// Used to populate the [RxUser.dialog] values.
   Future<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
@@ -82,12 +85,7 @@ class UserRepository implements AbstractUserRepository {
   Future<void> init() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(
-          this,
-          _userLocal,
-          c,
-          getChat: getChat,
-        );
+        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -131,12 +129,7 @@ class UserRepository implements AbstractUserRepository {
         if (query != null) {
           HiveUser stored = query.toHive();
           put(stored);
-          var fetched = HiveRxUser(
-            this,
-            _userLocal,
-            stored,
-            getChat: getChat,
-          );
+          var fetched = HiveRxUser(this, _userLocal, stored);
           users[id] = fetched;
           user = fetched;
         }
@@ -264,12 +257,7 @@ class UserRepository implements AbstractUserRepository {
       } else {
         RxUser? user = _users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(
-            this,
-            _userLocal,
-            event.value,
-            getChat: getChat,
-          );
+          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
           user.user.value = event.value.value;
           user.user.refresh();
