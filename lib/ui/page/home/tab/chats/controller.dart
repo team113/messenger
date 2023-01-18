@@ -152,7 +152,7 @@ class ChatsTabController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    Future.delayed(50.seconds, () => loader.value = false);
+    // Future.delayed(50.seconds, () => loader.value = false);
 
     _sortChats();
 
