@@ -172,7 +172,7 @@ class _RetryImageState extends State<RetryImage> {
     _timer?.cancel();
 
     Uint8List? cached;
-    if(widget.image.checksum != null) {
+    if (widget.image.checksum != null) {
       cached = FIFOCache.get(widget.image.checksum!);
     }
 
@@ -205,7 +205,7 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data!.statusCode == 200) {
-        if(widget.image.checksum != null) {
+        if (widget.image.checksum != null) {
           FIFOCache.set(widget.image.checksum!, data.data);
         }
         _image = data.data;

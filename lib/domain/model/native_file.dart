@@ -270,6 +270,7 @@ class BytesRxAdapter extends TypeAdapter<Rx<Uint8List?>> {
   }
 }
 
+/// [Hive] adapter for a [NativeFile].
 class NativeFileAdapter extends TypeAdapter<NativeFile> {
   @override
   final int typeId = ModelTypeId.nativeFile;
@@ -311,8 +312,7 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is NativeFileAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
+      other is NativeFileAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
-
