@@ -538,7 +538,12 @@ class MessageFieldView extends StatelessWidget {
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       if (isImage || isVideo) {
-        final Widget child = MediaAttachment(attachment: e, size: size);
+        final Widget child = MediaAttachment(
+          attachment: e,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        );
 
         final List<Attachment> attachments = c.attachments
             .where((e) {

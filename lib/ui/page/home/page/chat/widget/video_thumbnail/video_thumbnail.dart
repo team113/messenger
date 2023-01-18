@@ -39,7 +39,7 @@ class VideoThumbnail extends StatefulWidget {
         super(key: key);
 
   /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.file({
+  factory VideoThumbnail.storageFile({
     Key? key,
     required StorageFile file,
     double? height,
@@ -174,7 +174,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       }
 
       if (bytes != null) {
-        _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
+        _controller = VideoPlayerControllerExt.bytes(bytes);
       } else {
         _controller = VideoPlayerController.network(widget.file!.url);
       }

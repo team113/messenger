@@ -33,13 +33,11 @@ final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
   (context) async {
     final MyUserService service = Get.find();
 
-    final Rx<Uint8List> bytes = Rx(
-      base64Decode(
-        '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
-      ),
+    final Uint8List bytes = base64Decode(
+      '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
     );
     final NativeFile file =
-        NativeFile(name: 'avatar.png', size: bytes.value.length, bytes: bytes);
+        NativeFile(name: 'avatar.png', size: bytes.length, bytes: bytes);
 
     final ImageGalleryItem? galleryItem = await service.uploadGalleryItem(file);
     await service.updateAvatar(galleryItem?.id);

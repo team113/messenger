@@ -36,10 +36,11 @@ class NativeFile {
     required this.name,
     required this.size,
     this.path,
-    required this.bytes,
+    Uint8List? bytes,
     Stream<List<int>>? stream,
     this.mime,
-  }) : _readStream = stream {
+  })  : bytes = Rx(bytes),
+        _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
       if (path != null) {
@@ -47,8 +48,8 @@ class NativeFile {
         if (type != null) {
           mime = MediaType.parse(type);
         }
-      } else if (bytes.value != null) {
-        var type = lookupMimeType(name, headerBytes: bytes.value);
+      } else if (bytes != null) {
+        var type = lookupMimeType(name, headerBytes: bytes);
         if (type != null) {
           mime = MediaType.parse(type);
         }
@@ -61,7 +62,7 @@ class NativeFile {
         name: file.name,
         size: file.size,
         path: PlatformUtils.isWeb ? null : file.path,
-        bytes: Rx(file.bytes),
+        bytes: file.bytes,
         stream: file.readStream?.asBroadcastStream(),
       );
 
@@ -71,7 +72,6 @@ class NativeFile {
         size: size,
         path: PlatformUtils.isWeb ? null : file.path,
         stream: file.openRead().asBroadcastStream(),
-        bytes: Rx(null),
       );
 
   /// Absolute path for a cached copy of this file.
@@ -285,7 +285,7 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
       name: fields[1] as String,
       size: fields[3] as int,
       path: fields[0] as String?,
-      bytes: fields[2] as Rx<Uint8List?>,
+      bytes: (fields[2] as Rx<Uint8List?>).value,
       mime: fields[4] as MediaType?,
     );
   }

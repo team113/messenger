@@ -292,7 +292,7 @@ void main() async {
 
     await myUserService.uploadGalleryItem(
       NativeFile(
-        bytes: Rx(Uint8List.fromList([1, 1])),
+        bytes: Uint8List.fromList([1, 1]),
         size: 2,
         name: 'test',
       ),
@@ -363,7 +363,7 @@ void main() async {
     try {
       await myUserService.uploadGalleryItem(
         NativeFile(
-          bytes: Rx(Uint8List.fromList([1, 1])),
+          bytes: Uint8List.fromList([1, 1]),
           size: 2,
           name: 'test',
         ),

@@ -200,7 +200,7 @@ void main() async {
     await chatService.uploadAttachment(
       LocalAttachment(
         NativeFile(
-          bytes: Rx(Uint8List.fromList([1, 1])),
+          bytes: Uint8List.fromList([1, 1]),
           size: 2,
           name: 'test',
         ),
@@ -265,7 +265,7 @@ void main() async {
 
     var attachment = LocalAttachment(
       NativeFile(
-        bytes: Rx(Uint8List.fromList([1, 1])),
+        bytes: Uint8List.fromList([1, 1]),
         size: 2,
         name: 'test',
       ),

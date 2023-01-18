@@ -28,18 +28,35 @@ import '/ui/widget/svg/svg.dart';
 
 /// Visual representation of an media [Attachment].
 class MediaAttachment extends StatefulWidget {
-  const MediaAttachment({required this.attachment, this.size, super.key});
+  const MediaAttachment({
+    required this.attachment,
+    this.width,
+    this.height,
+    this.fit,
+    this.onError,
+    super.key,
+  });
 
   /// [Attachment] to display.
   final Attachment attachment;
 
-  /// Size of this [MediaAttachment].
-  final double? size;
+  /// Width of this [MediaAttachment].
+  final double? width;
+
+  /// Height of this [MediaAttachment].
+  final double? height;
+
+  /// [BoxFit] of this [MediaAttachment].
+  final BoxFit? fit;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onError;
 
   @override
   State<MediaAttachment> createState() => _MediaAttachmentState();
 }
 
+/// State of a [MediaAttachment] caching an attachment data.
 class _MediaAttachmentState extends State<MediaAttachment> {
   @override
   void initState() {
@@ -67,8 +84,6 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
-    // final bool isVideo = (attachment is FileAttachment && attachment.isVideo) ||
-    //     (attachment is LocalAttachment && attachment.file.isVideo);
 
     if (isImage) {
       if (attachment is LocalAttachment) {
@@ -85,15 +100,15 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             if (attachment.file.isSvg) {
               return SvgLoader.bytes(
                 attachment.file.bytes.value!,
-                width: widget.size,
-                height: widget.size,
+                width: widget.width,
+                height: widget.height,
               );
             } else {
               return Image.memory(
                 attachment.file.bytes.value!,
-                fit: BoxFit.cover,
-                width: widget.size,
-                height: widget.size,
+                fit: widget.fit,
+                width: widget.width,
+                height: widget.height,
               );
             }
           }
@@ -101,9 +116,10 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       } else {
         return RetryImage(
           attachment.original,
-          fit: BoxFit.cover,
-          width: widget.size,
-          height: widget.size,
+          fit: widget.fit,
+          width: widget.width,
+          height: widget.height,
+          onForbidden: widget.onError,
         );
       }
     } else {
@@ -118,11 +134,17 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               ),
             );
           } else {
-            return VideoThumbnail.bytes(bytes: attachment.file.bytes.value!);
+            return VideoThumbnail.bytes(
+              bytes: attachment.file.bytes.value!,
+              height: widget.height,
+            );
           }
         });
       } else {
-        return VideoThumbnail.file(file: attachment.original);
+        return VideoThumbnail.storageFile(
+          file: attachment.original,
+          height: widget.height,
+        );
       }
     }
   }

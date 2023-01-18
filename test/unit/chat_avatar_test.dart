@@ -205,7 +205,7 @@ void main() async {
       file: NativeFile(
         name: 'test',
         size: 2,
-        bytes: Rx(Uint8List.fromList([1, 1])),
+        bytes: Uint8List.fromList([1, 1]),
       ),
       onSendProgress: null,
     );
@@ -298,7 +298,7 @@ void main() async {
         file: NativeFile(
           name: 'test',
           size: 2,
-          bytes: Rx(Uint8List.fromList([1, 1])),
+          bytes: Uint8List.fromList([1, 1]),
         ),
         onSendProgress: null,
       );

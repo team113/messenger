@@ -58,8 +58,8 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item_reads.dart';
+import 'media_attachment.dart';
 import 'swipeable_status.dart';
-import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
@@ -164,26 +164,13 @@ class ChatItemWidget extends StatefulWidget {
       isVideo = e is FileAttachment;
     }
 
-    final Widget attachment;
+    Widget attachment;
     if (isVideo) {
       attachment = Stack(
         alignment: Alignment.center,
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
-          isLocal
-              ? e.file.bytes.value == null
-                  ? const CircularProgressIndicator()
-                  : VideoThumbnail.bytes(
-                      bytes: e.file.bytes.value!,
-                      key: key,
-                      height: 300,
-                    )
-              : VideoThumbnail.file(
-                  file: e.original,
-                  key: key,
-                  height: 300,
-                  onError: onError,
-                ),
+          MediaAttachment(key: key, attachment: e, height: 300),
           Center(
             child: Container(
               width: 60,
@@ -198,29 +185,21 @@ class ChatItemWidget extends StatefulWidget {
           ),
         ],
       );
-    } else if (isLocal) {
-      if (e.file.bytes.value == null) {
-        attachment = const CircularProgressIndicator();
-      } else {
-        attachment = Image.memory(
-          e.file.bytes.value!,
-          key: key,
-          fit: BoxFit.cover,
-          height: 300,
+    } else {
+      attachment = MediaAttachment(
+        key: key,
+        attachment: e,
+        height: 300,
+        width: filled ? double.infinity : null,
+        fit: BoxFit.cover,
+      );
+
+      if (!isLocal) {
+        attachment = KeyedSubtree(
+          key: const Key('SentImage'),
+          child: attachment,
         );
       }
-    } else {
-      attachment = KeyedSubtree(
-        key: const Key('SentImage'),
-        child: RetryImage(
-          (e as ImageAttachment).big,
-          key: key,
-          fit: BoxFit.cover,
-          width: filled ? double.infinity : null,
-          height: 300,
-          onForbidden: onError,
-        ),
-      );
     }
 
     return Padding(
