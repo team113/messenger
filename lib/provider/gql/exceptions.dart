@@ -77,7 +77,7 @@ class GraphQlProviderExceptions {
         } else if (RegExp(
           r'''^Variable "\$phone" got invalid value\. Expected input scalar `UserPhone`\. Got: `"\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}"`\. Details: Cannot parse input scalar `UserPhone`: doesn't represent a valid phone number\.$''',
         ).hasMatch(result.exception!.graphqlErrors.first.message)) {
-          return const FormatException('Does not match validation RegExp');
+          return const GraphQlPhoneFormatException();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -244,6 +244,14 @@ class RenewSessionException implements Exception {
 
   @override
   String toString() => 'RenewSessionException($code)';
+}
+
+/// GraphQl request thrown on wrong `$phone` message.
+class GraphQlPhoneFormatException implements Exception {
+  const GraphQlPhoneFormatException();
+
+  @override
+  String toString() => 'GraphQlFormatException()';
 }
 
 /// Exception of `Mutation.createChatDialog` described in the [code].

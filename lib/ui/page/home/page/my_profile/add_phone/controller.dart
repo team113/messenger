@@ -100,7 +100,7 @@ class AddPhoneController extends GetxController {
             await _myUserService.addUserPhone(phone!);
             _setResendPhoneTimer(true);
             stage.value = AddPhoneFlowStage.code;
-          } on FormatException {
+          } on GraphQlPhoneFormatException {
             s.error.value = 'err_incorrect_phone'.l10n;
           } on AddUserPhoneException catch (e) {
             s.error.value = e.toMessage();
