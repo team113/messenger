@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/config.dart';
@@ -58,7 +59,7 @@ class ChatInfoView extends StatelessWidget {
           if (c.status.value.isLoading) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
@@ -277,7 +278,7 @@ class ChatInfoView extends StatelessWidget {
                             color: Color(0x22000000),
                           ),
                           child: const Center(
-                            child: CircularProgressIndicator(),
+                            child: CustomProgressIndicator(),
                           ),
                         )
                       : const SizedBox.shrink(),

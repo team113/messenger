@@ -25,6 +25,7 @@ import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/my_user/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -61,7 +62,7 @@ class UserView extends StatelessWidget {
           if (c.status.value.isLoading) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
@@ -273,7 +274,7 @@ class UserView extends StatelessWidget {
           } else {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
         });
@@ -351,7 +352,7 @@ class UserView extends StatelessWidget {
           } else {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
         });

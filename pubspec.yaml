@@ -94,6 +94,7 @@ dependencies:
   just_audio_mpv: ^0.1.4
   loading_indicator: ^3.1.0
   bot_toast: ^4.0.3
+  loading_animation_widget: ^1.2.0+4
 
 dev_dependencies:
   artemis: ^7.9.0-beta

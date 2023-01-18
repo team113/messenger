@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -78,7 +79,7 @@ class ParticipantView extends StatelessWidget {
       builder: (ParticipantController c) {
         return Obx(() {
           if (c.chat.value == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomProgressIndicator());
           }
 
           final Widget child;

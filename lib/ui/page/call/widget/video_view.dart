@@ -20,6 +20,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/widget/svg/svg.dart';
@@ -193,7 +194,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           children: [
             Offstage(child: video),
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CircularProgressIndicator())
+            const Center(child: CustomProgressIndicator())
           ],
         );
       }
@@ -212,7 +213,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           return Stack(
             children: [
               Offstage(child: video),
-              const Center(child: CircularProgressIndicator())
+              const Center(child: CustomProgressIndicator())
             ],
           );
         }

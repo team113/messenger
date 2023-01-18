@@ -31,6 +31,7 @@ import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -260,7 +261,7 @@ class ContactsTabView extends StatelessWidget {
               if (c.searchStatus.value.isSuccess) {
                 center = Center(child: Text('No user found'.l10n));
               } else {
-                center = const Center(child: CircularProgressIndicator());
+                center = const Center(child: CustomProgressIndicator());
               }
             }
 

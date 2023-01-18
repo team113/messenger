@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
@@ -50,7 +51,7 @@ class ScreenShareView extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget framelessBuilder = const SizedBox(
       height: videoSize * (9 / 16),
-      child: Center(child: CircularProgressIndicator()),
+      child: Center(child: CustomProgressIndicator()),
     );
 
     return GetBuilder(

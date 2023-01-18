@@ -27,6 +27,7 @@ import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import 'progress_bar.dart';
@@ -188,7 +189,7 @@ class _DesktopControlsState extends State<DesktopControls>
               ),
             ),
             _latestValue.isBuffering
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CustomProgressIndicator())
                 : _buildHitArea(),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,

@@ -22,6 +22,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -549,7 +550,7 @@ class MessageFieldView extends StatelessWidget {
                   child: SizedBox(
                     width: 40,
                     height: 40,
-                    child: CircularProgressIndicator(),
+                    child: CustomProgressIndicator(),
                   ),
                 );
               } else {
@@ -599,7 +600,7 @@ class MessageFieldView extends StatelessWidget {
                 child: SizedBox(
                   width: 40,
                   height: 40,
-                  child: CircularProgressIndicator(),
+                  child: CustomProgressIndicator(),
                 ),
               );
             } else {

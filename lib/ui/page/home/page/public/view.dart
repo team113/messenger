@@ -50,6 +50,7 @@ import 'package:messenger/ui/widget/animations.dart';
 import 'package:messenger/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -104,7 +105,7 @@ class _PublicViewState extends State<PublicView>
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
 
@@ -185,7 +186,7 @@ class _PublicViewState extends State<PublicView>
             ),
             body: Obx(() {
               if (c.status.value.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CustomProgressIndicator());
               }
 
               if (c.chat!.messages.isEmpty) {
@@ -659,7 +660,7 @@ class _PublicViewState extends State<PublicView>
                   child: SizedBox(
                     width: 40,
                     height: 40,
-                    child: CircularProgressIndicator(),
+                    child: CustomProgressIndicator(),
                   ),
                 );
               } else {
@@ -709,7 +710,7 @@ class _PublicViewState extends State<PublicView>
                 child: SizedBox(
                   width: 40,
                   height: 40,
-                  child: CircularProgressIndicator(),
+                  child: CustomProgressIndicator(),
                 ),
               );
             } else {

@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -65,7 +66,7 @@ class UserView extends StatelessWidget {
               body: Center(
                 child: c.status.value.isEmpty
                     ? Text('err_unknown_user'.l10n)
-                    : const CircularProgressIndicator(),
+                    : const CustomProgressIndicator(),
               ),
             );
           }

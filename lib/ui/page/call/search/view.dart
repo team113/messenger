@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -145,7 +146,7 @@ class SearchView extends StatelessWidget {
                       );
                     }
 
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomProgressIndicator());
                   }
 
                   return Scrollbar(

@@ -20,6 +20,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -146,7 +147,7 @@ class SearchContactView extends StatelessWidget {
                   );
                 }
 
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CustomProgressIndicator());
               }
 
               return FlutterListView(

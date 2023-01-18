@@ -19,6 +19,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import 'desktop_controls.dart';
@@ -132,7 +133,7 @@ class _VideoState extends State<Video> {
                         color: const Color(0x00000000),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: const Center(child: CustomProgressIndicator()),
                     ),
                   ),
                 ),

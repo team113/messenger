@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
@@ -430,7 +431,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     color: Colors.black.withOpacity(0.2),
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: const Center(child: CustomProgressIndicator()),
                   );
                 }
 

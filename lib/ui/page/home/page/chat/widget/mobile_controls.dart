@@ -24,6 +24,7 @@ import 'package:chewie/src/center_play_button.dart';
 import 'package:chewie/src/helpers/utils.dart';
 import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import '/util/platform_utils.dart';
@@ -115,7 +116,7 @@ class _MobileControlsState extends State<MobileControls>
         child: Stack(
           children: [
             _latestValue.isBuffering
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CustomProgressIndicator())
                 : _buildHitArea(),
 
             // Bottom controls bar.

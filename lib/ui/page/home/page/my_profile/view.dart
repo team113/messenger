@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -86,7 +87,7 @@ class MyProfileView extends StatelessWidget {
             ),
             body: Obx(() {
               if (c.myUser.value == null) {
-                return const CircularProgressIndicator();
+                return const CustomProgressIndicator();
               }
 
               return Scrollbar(
@@ -126,7 +127,7 @@ class MyProfileView extends StatelessWidget {
                                                 ),
                                                 child: const Center(
                                                   child:
-                                                      CircularProgressIndicator(),
+                                                      CustomProgressIndicator(),
                                                 ),
                                               )
                                             : const SizedBox.shrink(),

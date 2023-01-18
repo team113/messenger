@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -233,7 +234,7 @@ class ChatsTabView extends StatelessWidget {
                 ),
                 body: Obx(() {
                   if (!c.chatsReady.value || c.loader.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CustomProgressIndicator());
                   }
 
                   final Widget? child;
@@ -250,8 +251,7 @@ class ChatsTabView extends StatelessWidget {
                         center =
                             Center(child: Text('label_nothing_found'.l10n));
                       } else {
-                        center =
-                            const Center(child: CircularProgressIndicator());
+                        center = const Center(child: CustomProgressIndicator());
                       }
                     }
 
@@ -383,7 +383,7 @@ class ChatsTabView extends StatelessWidget {
                         c.elements.isEmpty) {
                       child = const Center(
                         key: Key('Loading'),
-                        child: CircularProgressIndicator(),
+                        child: CustomProgressIndicator(),
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = Scrollbar(
@@ -551,7 +551,7 @@ class ChatsTabView extends StatelessWidget {
                   width: double.infinity,
                   height: double.infinity,
                   color: const Color(0x33000000),
-                  child: const Center(child: CircularProgressIndicator()),
+                  child: const Center(child: CustomProgressIndicator()),
                 );
               } else {
                 child = const SizedBox();

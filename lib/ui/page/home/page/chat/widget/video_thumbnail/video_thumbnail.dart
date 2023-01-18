@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:video_player/video_player.dart';
 
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -158,7 +159,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               height: widget.height ?? 250,
               child: _hasError
                   ? null
-                  : const Center(child: CircularProgressIndicator()),
+                  : const Center(child: CustomProgressIndicator()),
             ),
     );
   }

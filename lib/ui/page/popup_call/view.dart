@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '../call/view.dart';
 import '/domain/model/chat.dart';
@@ -62,7 +63,7 @@ class _PopupCallViewState extends State<PopupCallView> {
   @override
   Widget build(BuildContext context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CustomProgressIndicator()));
     }
 
     return GetBuilder<PopupCallController>(

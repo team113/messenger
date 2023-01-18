@@ -35,6 +35,7 @@ import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/init_callback.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -597,7 +598,7 @@ class PublicsTabView extends StatelessWidget {
                     if (c.searchStatus.value.isSuccess) {
                       center = Center(child: Text('No user found'.l10n));
                     } else {
-                      center = const Center(child: CircularProgressIndicator());
+                      center = const Center(child: CustomProgressIndicator());
                     }
                   } else {
                     if ((!c.searching.value ||
@@ -1050,7 +1051,7 @@ class PublicsTabView extends StatelessWidget {
                   );
                 }
 
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CustomProgressIndicator());
               }),
               bottomNavigationBar: Obx(() {
                 final Widget child;
@@ -1076,7 +1077,7 @@ class PublicsTabView extends StatelessWidget {
                   height: double.infinity,
                   color: const Color(0x33000000),
                   child: const Center(
-                    child: CircularProgressIndicator(),
+                    child: CustomProgressIndicator(),
                   ),
                 );
               } else {
@@ -1236,7 +1237,7 @@ class PublicsTabView extends StatelessWidget {
                             rxChat.updateAttachments(chat.lastItem!);
                           }
                         },
-                        child: const Center(child: CircularProgressIndicator()),
+                        child: const Center(child: CustomProgressIndicator()),
                       );
                     },
                   ),

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:path/path.dart' as p;
 
 import '../controller.dart'
@@ -176,7 +177,7 @@ class ChatItemWidget extends StatefulWidget {
         children: [
           isLocal
               ? e.file.bytes == null
-                  ? const CircularProgressIndicator()
+                  ? const CustomProgressIndicator()
                   : VideoThumbnail.bytes(
                       bytes: e.file.bytes!,
                       key: key,
@@ -204,7 +205,7 @@ class ChatItemWidget extends StatefulWidget {
       );
     } else if (isLocal) {
       if (e.file.bytes == null) {
-        attachment = const CircularProgressIndicator();
+        attachment = const CustomProgressIndicator();
       } else {
         attachment = Image.memory(
           e.file.bytes!,
@@ -302,7 +303,7 @@ class ChatItemWidget extends StatefulWidget {
                           color: Colors.green,
                         )
                       : e.status.value == SendingStatus.sending
-                          ? CircularProgressIndicator(
+                          ? CustomProgressIndicator(
                               key: const Key('Sending'),
                               value: e.progress.value,
                               backgroundColor: Colors.white,
@@ -344,7 +345,7 @@ class ChatItemWidget extends StatefulWidget {
                 ),
                 SizedBox.square(
                   dimension: 26.3,
-                  child: CircularProgressIndicator(
+                  child: CustomProgressIndicator(
                     strokeWidth: 2.3,
                     key: const Key('Downloading'),
                     value: e.progress.value == 0 ? null : e.progress.value,
@@ -382,7 +383,7 @@ class ChatItemWidget extends StatefulWidget {
           leading = SizedBox.square(
             key: const Key('Sending'),
             dimension: 18,
-            child: CircularProgressIndicator(
+            child: CustomProgressIndicator(
               value: e.progress.value,
               backgroundColor: Colors.white,
               strokeWidth: 5,

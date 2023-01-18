@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -127,7 +128,7 @@ class _ChatViewState extends State<ChatView>
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           }
 
@@ -384,7 +385,7 @@ class _ChatViewState extends State<ChatView>
                               }
                               if (c.chat!.status.value.isLoading) {
                                 return const Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CustomProgressIndicator(),
                                 );
                               }
 
@@ -401,7 +402,7 @@ class _ChatViewState extends State<ChatView>
                         child: AnimatedSwitcher(
                           duration: 200.milliseconds,
                           child: c.chat!.status.value.isLoadingMore
-                              ? const CircularProgressIndicator()
+                              ? const CustomProgressIndicator()
                               : c.canGoBack.isTrue
                                   ? FloatingActionButton(
                                       onPressed: c.animateToBack,

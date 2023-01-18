@@ -47,6 +47,7 @@ import 'package:messenger/ui/widget/animations.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -1440,7 +1441,7 @@ class _PostWidgetState extends State<PostWidget> {
                 ),
                 SizedBox.square(
                   dimension: 26.3,
-                  child: CircularProgressIndicator(
+                  child: CustomProgressIndicator(
                     strokeWidth: 2.3,
                     key: const Key('Downloading'),
                     value: e.progress.value,
@@ -1549,7 +1550,7 @@ class _PostWidgetState extends State<PostWidget> {
             children: [
               isLocal
                   ? e.file.bytes == null
-                      ? const CircularProgressIndicator()
+                      ? const CustomProgressIndicator()
                       : VideoThumbnail.bytes(
                           bytes: e.file.bytes!,
                           key: _galleryKeys[i],
@@ -1578,7 +1579,7 @@ class _PostWidgetState extends State<PostWidget> {
           )
         : isLocal
             ? e.file.bytes == null
-                ? const CircularProgressIndicator()
+                ? const CustomProgressIndicator()
                 : Image.memory(
                     e.file.bytes!,
                     key: _galleryKeys[i],
@@ -1596,7 +1597,7 @@ class _PostWidgetState extends State<PostWidget> {
                     child: const SizedBox(
                       height: 300,
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CustomProgressIndicator(),
                       ),
                     ),
                   );
@@ -1667,7 +1668,7 @@ class _PostWidgetState extends State<PostWidget> {
                         color: Colors.green,
                       )
                     : e.status.value == SendingStatus.sending
-                        ? CircularProgressIndicator(
+                        ? CustomProgressIndicator(
                             value: e.progress.value,
                             backgroundColor: Colors.white,
                             strokeWidth: 10,

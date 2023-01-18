@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -92,7 +93,7 @@ class AuthView extends StatelessWidget {
                 : constraints.maxHeight <= 140
                     ? 140
                     : height,
-            child: const Center(child: CircularProgressIndicator()),
+            child: const Center(child: CustomProgressIndicator()),
           );
 
           return ConstrainedBox(

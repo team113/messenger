@@ -21,6 +21,7 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -49,7 +50,7 @@ class ContactView extends StatelessWidget {
           if (c.status.value.isLoading) {
             return Scaffold(
               appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
+              body: const Center(child: CustomProgressIndicator()),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(

@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -93,7 +94,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CustomProgressIndicator()));
     }
 
     return GetBuilder(
@@ -324,7 +325,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator()),
                   )
               ],
             );

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
@@ -54,7 +55,7 @@ class AddChatMemberView extends StatelessWidget {
       builder: (AddChatMemberController c) {
         return Obx(() {
           if (c.chat.value == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CustomProgressIndicator());
           }
 
           return SearchView(

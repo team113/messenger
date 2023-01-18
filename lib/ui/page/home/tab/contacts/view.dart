@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -200,7 +201,7 @@ class ContactsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           body: Obx(() {
             if (!c.contactsReady.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CustomProgressIndicator());
             }
 
             final Widget? child;
@@ -210,7 +211,7 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = const Center(
                   key: Key('Loading'),
-                  child: CircularProgressIndicator(),
+                  child: CustomProgressIndicator(),
                 );
               } else if (c.elements.isNotEmpty) {
                 child = AnimationLimiter(

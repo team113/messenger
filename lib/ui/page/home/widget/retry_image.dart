@@ -22,6 +22,7 @@ import 'dart:collection';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/util/platform_utils.dart';
 
@@ -152,7 +153,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
           child: AspectRatio(
             aspectRatio: 1,
-            child: CircularProgressIndicator(
+            child: CustomProgressIndicator(
               value: _progress == 0 ? null : _progress.clamp(0, 1),
             ),
           ),

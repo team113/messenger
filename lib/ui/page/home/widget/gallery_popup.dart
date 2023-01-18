@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
@@ -438,7 +439,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     },
                     child: const SizedBox(
                       height: 300,
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: CustomProgressIndicator()),
                     ),
                   );
                 },
@@ -492,7 +493,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             child: SizedBox(
               width: 20.0,
               height: 20.0,
-              child: CircularProgressIndicator(
+              child: CustomProgressIndicator(
                 value: event == null
                     ? 0
                     : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
