@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
@@ -34,7 +35,11 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show FavoriteChatContactException, UnfavoriteChatContactException;
+    show
+        FavoriteChatContactException,
+        HideChatException,
+        ToggleChatMuteException,
+        UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -69,9 +74,6 @@ class UserController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
-
-  /// Temporary indicator whether the [user] is muted.
-  final RxBool isMuted = RxBool(false);
 
   /// Temporary indicator whether the [user] is favorite.
   late final RxBool inFavorites;
@@ -285,6 +287,57 @@ class UserController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Mutes a [Chat]-dialog with the [user].
+  Future<void> muteChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.toggleChatMute(dialog, MuteDuration.forever());
+      } on ToggleChatMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Unmutes a [Chat]-dialog with the [user].
+  Future<void> unmuteChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.toggleChatMute(dialog, null);
+      } on ToggleChatMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Hides a [Chat]-dialog with the [user].
+  Future<void> hideChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.hideChat(dialog);
+      } on HideChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
     }
   }
 
