@@ -49,9 +49,9 @@ class SafeScrollbar extends StatelessWidget {
   /// [BorderRadius] to clip the [child] with.
   final BorderRadius? borderRadius;
 
-  /// Optional [ScrollController], used in a [Scrollbar].
+  /// Optional [ScrollController] used in a [Scrollbar].
   ///
-  /// If `null`, then no [Scrollbar] is applied.
+  /// If `null`, then no [Scrollbar] is added.
   final ScrollController? controller;
 
   /// [Widget] to add padding and clipping to.
