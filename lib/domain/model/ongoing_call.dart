@@ -273,6 +273,8 @@ class OngoingCall {
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
 
+  /// List of [Timer]s to remove member from call who was not connected after
+  /// timeout.
   final Map<CallMemberId, Timer> _timers = {};
 
   /// [ChatItemId] of this [OngoingCall].
@@ -353,8 +355,8 @@ class OngoingCall {
         if (members.values.none((e) => e.id.userId == id.userId)) {
           _timers[id] = Timer(120.seconds, () {
             final CallMember? member = members[id];
+            _timers.remove(id);
             if (member?.isConnected.value == false) {
-              _timers.remove(id);
               members.remove(id);
             }
           });

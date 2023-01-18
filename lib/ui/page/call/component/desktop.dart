@@ -140,7 +140,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                               child = CallCoverWidget(c.chat.value?.callCover);
                             } else {
                               if (c.chat.value?.avatar.value != null) {
-                                Avatar avatar = c.chat.value!.avatar.value!;
+                                final Avatar avatar =
+                                    c.chat.value!.avatar.value!;
                                 child = CallCoverWidget(
                                   UserCallCover(
                                     full: avatar.full,
@@ -227,7 +228,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       /// Builds the [Dock] containing the [CallController.buttons].
       Widget dock() {
         return Obx(() {
-          bool isOutgoing =
+          final bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
 
@@ -723,8 +724,8 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Show a hint if any renderer is draggable.
         Obx(() {
-          bool hideSecondary = c.size.width < 500 && c.size.height < 500;
-          bool mayDragVideo = !hideSecondary &&
+          final bool hideSecondary = c.size.width < 500 && c.size.height < 500;
+          final bool mayDragVideo = !hideSecondary &&
               (c.focused.length > 1 ||
                   (c.focused.isEmpty &&
                       c.primary.length + c.secondary.length > 1));
@@ -1570,7 +1571,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.topRight) {
           widget = scaler(
-            cursor: SystemMouseCursors.resizeUpRightDownLeft,
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1583,7 +1586,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.bottomLeft) {
           widget = scaler(
-            cursor: SystemMouseCursors.resizeUpRightDownLeft,
+            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpRightDownLeft,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -2024,7 +2029,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               condition: PlatformUtils.isWeb &&
                                   (c.minimized.isFalse || c.fullscreen.isTrue),
                               child: Container(
-                                // TODO: Wait for fix on `Flutter` end.
                                 color: PlatformUtils.isWeb
                                     ? const Color(0x9D165084)
                                     : const Color(0xE9165084),
