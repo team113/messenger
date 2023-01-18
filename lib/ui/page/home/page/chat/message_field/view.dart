@@ -567,13 +567,13 @@ class MessageFieldView extends StatelessWidget {
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(
-                        o.original.url,
+                        o.original,
                         o.filename,
                         size: o.original.size,
                       );
                     }
                     return GalleryItem.video(
-                      o.original.url,
+                      o.original,
                       o.filename,
                       size: o.original.size,
                     );
@@ -796,7 +796,7 @@ class MessageFieldView extends StatelessWidget {
                       size: 16,
                     )
                   : RetryImage(
-                      image.small.url,
+                      image.small,
                       fit: BoxFit.cover,
                       height: double.infinity,
                       width: double.infinity,

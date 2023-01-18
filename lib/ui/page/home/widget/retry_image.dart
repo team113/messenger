@@ -23,18 +23,19 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '/domain/model/file.dart';
 import '/util/platform_utils.dart';
 
-/// [Image.memory] displaying an image fetched from the provided [url].
+/// [Image.memory] displaying an image fetched from the provided [image].
 ///
-/// Uses exponential backoff algorithm to re-fetch the [url] in case an error
+/// Uses exponential backoff algorithm to re-fetch the [image] in case an error
 /// occurs.
 ///
 /// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
 /// errors.
 class RetryImage extends StatefulWidget {
   const RetryImage(
-    this.url, {
+    this.image, {
     Key? key,
     this.fit,
     this.height,
@@ -44,10 +45,10 @@ class RetryImage extends StatefulWidget {
     this.filter,
   }) : super(key: key);
 
-  /// URL of an image to display.
-  final String url;
+  /// [StorageFile] of an image to display.
+  final StorageFile image;
 
-  /// Callback, called when loading an image from the provided [url] fails with
+  /// Callback, called when loading an image from the provided [image] fails with
   /// a forbidden network error.
   final Future<void> Function()? onForbidden;
 
@@ -99,7 +100,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.url != widget.url) {
+    if (oldWidget.image.url != widget.image.url) {
       _loadImage();
     }
     super.didUpdateWidget(oldWidget);
@@ -158,7 +159,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     return AnimatedSwitcher(
-      key: Key('Image_${widget.url}'),
+      key: Key('Image_${widget.image.url}'),
       duration: const Duration(milliseconds: 150),
       child: child,
     );
@@ -170,7 +171,11 @@ class _RetryImageState extends State<RetryImage> {
   FutureOr<void> _loadImage() async {
     _timer?.cancel();
 
-    Uint8List? cached = FIFOCache.get(widget.url);
+    Uint8List? cached;
+    if(widget.image.checksum != null) {
+      cached = FIFOCache.get(widget.image.checksum!);
+    }
+
     if (cached != null) {
       _image = cached;
       _backoffPeriod = _minBackoffPeriod;
@@ -182,7 +187,7 @@ class _RetryImageState extends State<RetryImage> {
 
       try {
         data = await PlatformUtils.dio.get(
-          widget.url,
+          widget.image.url,
           onReceiveProgress: (received, total) {
             if (total > 0) {
               _progress = received / total;
@@ -200,7 +205,9 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data!.statusCode == 200) {
-        FIFOCache.set(widget.url, data.data);
+        if(widget.image.checksum != null) {
+          FIFOCache.set(widget.image.checksum!, data.data);
+        }
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;
         if (mounted) {

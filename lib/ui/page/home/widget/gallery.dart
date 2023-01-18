@@ -94,7 +94,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   children: (widget.items ?? [])
                       .map(
                         (e) => GalleryItem.image(
-                          e.original.url,
+                          e.original,
                           'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.id}',
                           size: e.original.size,
                         ),
@@ -115,7 +115,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   child: Container(
                     key: ValueKey(widget.index),
                     child: RetryImage(
-                      widget.items![widget.index].original.url,
+                      widget.items![widget.index].original,
                       fit: BoxFit.cover,
                       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                       width: double.infinity,
@@ -146,7 +146,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   : widget.items!
                       .map(
                         (e) => RetryImage(
-                          e.original.url,
+                          e.original,
                           height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),

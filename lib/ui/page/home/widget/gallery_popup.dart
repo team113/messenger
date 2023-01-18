@@ -27,6 +27,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
+import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -47,7 +48,7 @@ import '/util/web/web_utils.dart';
 /// otherwise.
 class GalleryItem {
   GalleryItem({
-    required this.link,
+    required this.file,
     required this.name,
     required this.size,
     this.isVideo = false,
@@ -56,13 +57,13 @@ class GalleryItem {
 
   /// Constructs a [GalleryItem] treated as an image.
   factory GalleryItem.image(
-    String link,
+    StorageFile file,
     String name, {
     int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
-        link: link,
+        file: file,
         name: name,
         size: size,
         isVideo: false,
@@ -71,13 +72,13 @@ class GalleryItem {
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
-    String link,
+    StorageFile file,
     String name, {
     int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
-        link: link,
+        file: file,
         name: name,
         size: size,
         isVideo: true,
@@ -88,7 +89,7 @@ class GalleryItem {
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  String link;
+  StorageFile file;
 
   /// Name of the file this [GalleryItem] represents.
   final String name;
@@ -424,7 +425,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
             if (!e.isVideo) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.link),
+                imageProvider: NetworkImage(e.file.url),
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
@@ -451,7 +452,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 padding: const EdgeInsets.symmetric(horizontal: 1),
                 child: e.isVideo
                     ? Video(
-                        e.link,
+                        e.file.url,
                         showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
@@ -474,7 +475,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         },
                       )
                     : RetryImage(
-                        e.link,
+                        e.file,
                         onForbidden: () async {
                           await e.onError?.call();
                           if (mounted) {
@@ -541,7 +542,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
                 ? Video(
-                    e.link,
+                    e.file.url,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
@@ -574,9 +575,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _toggleFullscreen();
                     },
                     child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.link))
+                        ? IgnorePointer(child: WebImage(e.file.url))
                         : RetryImage(
-                            e.link,
+                            e.file,
                             onForbidden: () async {
                               await e.onError?.call();
                               if (mounted) {
@@ -605,48 +606,50 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     final List<Widget> widgets = [];
 
-    if (widget.children.length > 1 && !PlatformUtils.isMobile) {
+    if (!PlatformUtils.isMobile) {
       widgets.addAll([
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayLeft && left) || _showControls ? 1 : 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32, bottom: 32),
-                child: WidgetButton(
-                  onPressed: left
-                      ? () {
-                          node.requestFocus();
-                          _pageController.animateToPage(
-                            _page - 1,
-                            curve: Curves.linear,
-                            duration: const Duration(milliseconds: 200),
-                          );
-                        }
-                      : null,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    width: 60 + 16,
-                    height: double.infinity,
-                    child: Center(
-                      child: ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(60),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x794E5A78),
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_left_rounded,
-                              color: left ? Colors.white : Colors.grey,
-                              size: 36,
+        if (widget.children.length > 1) ...[
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: left
+                        ? () {
+                            node.requestFocus();
+                            _pageController.animateToPage(
+                              _page - 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_left_rounded,
+                                color: left ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
                             ),
                           ),
                         ),
@@ -657,47 +660,47 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-        ),
-        FadeTransition(
-          opacity: fade,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 250),
-              opacity: (_displayRight && right) || _showControls ? 1 : 0,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 32, bottom: 32),
-                child: WidgetButton(
-                  onPressed: right
-                      ? () {
-                          node.requestFocus();
-                          _pageController.animateToPage(
-                            _page + 1,
-                            curve: Curves.linear,
-                            duration: const Duration(milliseconds: 200),
-                          );
-                        }
-                      : null,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    width: 60 + 16,
-                    height: double.infinity,
-                    child: Center(
-                      child: ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(60),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: const Color(0x794E5A78),
-                            borderRadius: BorderRadius.circular(60),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_right_rounded,
-                              color: right ? Colors.white : Colors.grey,
-                              size: 36,
+          FadeTransition(
+            opacity: fade,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: (_displayRight && right) || _showControls ? 1 : 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 32),
+                  child: WidgetButton(
+                    onPressed: right
+                        ? () {
+                            node.requestFocus();
+                            _pageController.animateToPage(
+                              _page + 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(60),
+                          child: Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0x794E5A78),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_right_rounded,
+                                color: right ? Colors.white : Colors.grey,
+                                size: 36,
+                              ),
                             ),
                           ),
                         ),
@@ -708,7 +711,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               ),
             ),
           ),
-        ),
+        ],
         FadeTransition(
           opacity: fade,
           child: Align(
@@ -1021,11 +1024,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await PlatformUtils.download(item.file.url, item.name, item.size);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          await PlatformUtils.download(item.file.url, item.name, item.size);
         } else {
           rethrow;
         }
@@ -1043,11 +1046,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
+        await PlatformUtils.saveToGallery(item.file.url, item.name);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
+          await PlatformUtils.saveToGallery(item.file.url, item.name);
         } else {
           rethrow;
         }
@@ -1065,11 +1068,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(item.file.url, item.name);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(item.file.url, item.name);
         } else {
           rethrow;
         }

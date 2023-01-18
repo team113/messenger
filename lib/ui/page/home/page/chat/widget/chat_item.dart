@@ -34,6 +34,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -170,15 +171,15 @@ class ChatItemWidget extends StatefulWidget {
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
           isLocal
-              ? e.file.bytes == null
+              ? e.file.bytes.value == null
                   ? const CircularProgressIndicator()
                   : VideoThumbnail.bytes(
-                      bytes: e.file.bytes!,
+                      bytes: e.file.bytes.value!,
                       key: key,
                       height: 300,
                     )
-              : VideoThumbnail.url(
-                  url: e.original.url,
+              : VideoThumbnail.file(
+                  file: e.original,
                   key: key,
                   height: 300,
                   onError: onError,
@@ -198,11 +199,11 @@ class ChatItemWidget extends StatefulWidget {
         ],
       );
     } else if (isLocal) {
-      if (e.file.bytes == null) {
+      if (e.file.bytes.value == null) {
         attachment = const CircularProgressIndicator();
       } else {
         attachment = Image.memory(
-          e.file.bytes!,
+          e.file.bytes.value!,
           key: key,
           fit: BoxFit.cover,
           height: 300,
@@ -212,7 +213,7 @@ class ChatItemWidget extends StatefulWidget {
       attachment = KeyedSubtree(
         key: const Key('SentImage'),
         child: RetryImage(
-          (e as ImageAttachment).big.url,
+          (e as ImageAttachment).big,
           key: key,
           fit: BoxFit.cover,
           width: filled ? double.infinity : null,
@@ -238,27 +239,27 @@ class ChatItemWidget extends StatefulWidget {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  String link = o.original.url;
+                  StorageFile file = o.original;
                   GalleryItem? item;
 
                   if (o is FileAttachment) {
                     item = GalleryItem.video(
-                      link,
+                      file,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
                       onError: () async {
                         await onError?.call();
-                        item?.link = o.original.url;
+                        item?.file = o.original;
                       },
                     );
                   } else if (o is ImageAttachment) {
                     item = GalleryItem.image(
-                      link,
+                      file,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
                       onError: () async {
                         await onError?.call();
-                        item?.link = o.original.url;
+                        item?.file = o.original;
                       },
                     );
                   }
@@ -1060,7 +1061,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         size: 28,
                       )
                     : RetryImage(
-                        image.medium.url,
+                        image.medium,
                         onForbidden: widget.onAttachmentError,
                         fit: BoxFit.cover,
                         width: double.infinity,

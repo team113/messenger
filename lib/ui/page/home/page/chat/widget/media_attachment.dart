@@ -15,10 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:io';
+
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
@@ -50,9 +52,10 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     if (oldWidget.attachment is LocalAttachment &&
         widget.attachment is! LocalAttachment) {
       int size = (oldWidget.attachment as LocalAttachment).file.size;
-      Uint8List? bytes = (oldWidget.attachment as LocalAttachment).file.bytes;
+      Uint8List? bytes =
+          (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        FIFOCache.set(widget.attachment.original.url, bytes);
+        FIFOCache.set(sha256.convert(bytes).toString(), bytes);
       }
     }
 
@@ -70,8 +73,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     if (isImage) {
       if (attachment is LocalAttachment) {
-        if (attachment.file.bytes == null) {
-          if (attachment.file.path == null) {
+        return Obx(() {
+          if (attachment.file.bytes.value == null) {
             return const Center(
               child: SizedBox(
                 width: 40,
@@ -81,39 +84,24 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             );
           } else {
             if (attachment.file.isSvg) {
-              return SvgLoader.file(
-                File(attachment.file.path!),
+              return SvgLoader.bytes(
+                attachment.file.bytes.value!,
                 width: widget.size,
                 height: widget.size,
               );
             } else {
-              return Image.file(
-                File(attachment.file.path!),
+              return Image.memory(
+                attachment.file.bytes.value!,
                 fit: BoxFit.cover,
                 width: widget.size,
                 height: widget.size,
               );
             }
           }
-        } else {
-          if (attachment.file.isSvg) {
-            return SvgLoader.bytes(
-              attachment.file.bytes!,
-              width: widget.size,
-              height: widget.size,
-            );
-          } else {
-            return Image.memory(
-              attachment.file.bytes!,
-              fit: BoxFit.cover,
-              width: widget.size,
-              height: widget.size,
-            );
-          }
-        }
+        });
       } else {
         return RetryImage(
-          attachment.original.url,
+          attachment.original,
           fit: BoxFit.cover,
           width: widget.size,
           height: widget.size,
@@ -121,19 +109,21 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       }
     } else {
       if (attachment is LocalAttachment) {
-        if (attachment.file.bytes == null) {
-          return const Center(
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else {
-          return VideoThumbnail.bytes(bytes: attachment.file.bytes!);
-        }
+        return Obx(() {
+          if (attachment.file.bytes.value == null) {
+            return const Center(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else {
+            return VideoThumbnail.bytes(bytes: attachment.file.bytes.value!);
+          }
+        });
       } else {
-        return VideoThumbnail.url(url: attachment.original.url);
+        return VideoThumbnail.file(file: attachment.original);
       }
     }
   }

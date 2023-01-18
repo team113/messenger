@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
+import '/domain/model/file.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
@@ -28,24 +30,24 @@ import 'src/interface.dart'
 class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
     Key? key,
-    this.url,
+    this.file,
     this.bytes,
     this.height,
     this.onError,
   })  : assert(
-            (url != null && bytes == null) || (url == null && bytes != null)),
+            (file != null && bytes == null) || (file == null && bytes != null)),
         super(key: key);
 
   /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.url({
+  factory VideoThumbnail.file({
     Key? key,
-    required String url,
+    required StorageFile file,
     double? height,
     Future<void> Function()? onError,
   }) =>
       VideoThumbnail._(
         key: key,
-        url: url,
+        file: file,
         height: height,
         onError: onError,
       );
@@ -64,8 +66,8 @@ class VideoThumbnail extends StatefulWidget {
         onError: onError,
       );
 
-  /// URL of the video to display.
-  final String? url;
+  /// [StorageFile] of the video to display.
+  final StorageFile? file;
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
@@ -103,7 +105,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void didUpdateWidget(VideoThumbnail oldWidget) {
-    if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
+    if (oldWidget.bytes != widget.bytes || oldWidget.file != widget.file) {
       _initVideo();
     }
 
@@ -166,10 +168,15 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     try {
-      if (widget.bytes != null) {
+      Uint8List? bytes = widget.bytes;
+      if(widget.file?.checksum != null) {
+        bytes ??= FIFOCache.get(widget.file!.checksum!);
+      }
+
+      if (bytes != null) {
         _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
       } else {
-        _controller = VideoPlayerController.network(widget.url!);
+        _controller = VideoPlayerController.network(widget.file!.url);
       }
 
       await _controller.initialize();
