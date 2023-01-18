@@ -33,7 +33,7 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
 
       try {
         final finder = context.world.appDriver.findBy(
-          'RecentChat_${context.world.groups[name]}',
+          'Chat_${context.world.groups[name]}',
           FindType.key,
         );
 

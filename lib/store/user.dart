@@ -27,6 +27,7 @@ import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
@@ -46,6 +47,12 @@ class UserRepository implements AbstractUserRepository {
     this._userLocal,
     this._galleryItemLocal,
   );
+
+  /// Callback, called when a [RxChat] with the provided [ChatId] is required
+  /// by this [UserRepository].
+  ///
+  /// Used to populate the [RxUser.dialog] values.
+  Future<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -241,8 +248,14 @@ class UserRepository implements AbstractUserRepository {
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     var saved = _userLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver || ignoreVersion) {
-      if (saved?.value.dialog != null && saved!.value.dialog!.id.isLocal) {
+
+    if (saved == null ||
+        saved.ver < user.ver ||
+        saved.blacklistedVer < user.blacklistedVer ||
+        ignoreVersion) {
+      if (saved?.value.dialog != null &&
+          saved!.value.dialog!.id.isLocal &&
+          user.value.dialog == null) {
         user.value.dialog = saved.value.dialog;
       }
       await _userLocal.put(user);

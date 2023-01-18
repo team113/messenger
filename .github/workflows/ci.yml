@@ -120,8 +120,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
+          - ios
           - linux
           - macos
           - web
@@ -161,7 +160,6 @@ jobs:
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
-                  split-per-abi=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
@@ -176,32 +174,32 @@ jobs:
           regex: '^${{ github.repository_owner }}/(.+)$'
 
       - run: mkdir artifacts/
-      - run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-x86_64-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
+      - run: mv build/app/outputs/flutter-apk/app-release.apk
+                artifacts/${{ steps.app.outputs.group1 }}-android.apk
         if: ${{ matrix.platform == 'apk' }}
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/ios/iphoneos/
+        if: ${{ matrix.platform == 'ios' }}
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.6.2
+      - uses: thedoctor0/zip-release@0.7.0
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'linux'
+          directory: ${{ (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
+                      || (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'linux'
+        if: ${{ matrix.platform == 'ios'
+             || matrix.platform == 'linux'
              || matrix.platform == 'macos'
              || matrix.platform == 'web'
              || matrix.platform == 'windows' }}
@@ -269,6 +267,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-appbundle-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
@@ -529,6 +531,10 @@ jobs:
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
@@ -548,7 +554,7 @@ jobs:
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.6.2
+      - uses: thedoctor0/zip-release@0.7.0
         with:
           filename: artifacts/docs.zip
           path: .cache/dartdoc/

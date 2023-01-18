@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -38,13 +39,13 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -127,6 +128,9 @@ class ContactsTabController extends GetxController {
     _initUsersUpdates();
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
 
     super.onInit();
   }
@@ -143,6 +147,9 @@ class ContactsTabController extends GetxController {
     _userWorkers.forEach((_, v) => v.dispose());
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
 
     super.onClose();
   }
@@ -160,9 +167,7 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
-    }
+    await _contactService.deleteContact(contact.id);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
@@ -426,6 +431,20 @@ class ContactsTabController extends GetxController {
         toggleSearch(false);
         return true;
       }
+    }
+
+    return false;
+  }
+
+  /// Invokes [toggleSearch], if [search]ing.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (search.value != null) {
+      toggleSearch(false);
+      return true;
     }
 
     return false;

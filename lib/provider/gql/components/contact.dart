@@ -223,8 +223,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] has such name already.
   Future<ChatContactEventsVersionedMixin> changeContactName(
       ChatContactId id, UserName name) async {
-    UpdateChatContactNameArguments variables =
-        UpdateChatContactNameArguments(id: id, name: name);
+    final variables = UpdateChatContactNameArguments(id: id, name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UpdateChatContactName',

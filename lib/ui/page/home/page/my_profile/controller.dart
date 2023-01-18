@@ -30,11 +30,13 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -75,6 +77,11 @@ class MyProfileController extends GetxController {
 
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
+
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
 
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
@@ -121,8 +128,11 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
+  /// Returns the [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
+
   @override
-  void onInit() async {
+  void onInit() {
     try {
       _jason = Jason();
       _mediaManager = _jason?.mediaManager();
@@ -410,6 +420,26 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
+    }
+  }
+
   /// Deletes the [MyUser.avatar] and [MyUser.callCover].
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
@@ -463,6 +493,38 @@ class MyProfileController extends GetxController {
         .whereNot((e) => e.deviceId().isEmpty)
         .toList();
     devices.refresh();
+  }
+
+  /// Deletes the provided [email] from [MyUser.emails].
+  Future<void> deleteEmail(UserEmail email) async {
+    try {
+      await _myUserService.deleteUserEmail(email);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes the provided [phone] from [MyUser.phones].
+  Future<void> deletePhone(UserPhone phone) async {
+    try {
+      await _myUserService.deleteUserPhone(phone);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes [myUser]'s account.
+  Future<void> deleteAccount() async {
+    try {
+      await _myUserService.deleteMyUser();
+      router.go(Routes.auth);
+      router.tab = HomeTab.chats;
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]

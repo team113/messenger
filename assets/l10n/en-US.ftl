@@ -24,6 +24,18 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_chat_will_be_blocked1 = Chat{" "}
+alert_chat_will_be_blocked2 = {" "}will be blocked.
+alert_chat_will_be_cleared1 = Chat{" "}
+alert_chat_will_be_cleared2 = {" "}will be cleared.
+alert_chat_will_be_hidden1 = Chat{" "}
+alert_chat_will_be_hidden2 = {" "}will be hidden.
+alert_contact_will_be_removed1 = Contact{" "}
+alert_contact_will_be_removed2 = {" "}will be removed.
+alert_dialog_will_be_cleared1 = Dialog with user{" "}
+alert_dialog_will_be_cleared2 = {" "}will be cleared.
+alert_dialog_will_be_hidden1 = Dialog with user{" "}
+alert_dialog_will_be_hidden2 = {" "}will be hidden.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}will be deleted.
 alert_phone_will_be_deleted1 = Phone{" "}
@@ -40,6 +52,11 @@ alert_popup_permissions_description =
 
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
+alert_user_will_be_blocked1 = User{" "}
+alert_user_will_be_blocked2 = {" "}will be blocked.
+alert_user_will_be_removed1 = User{" "}
+alert_user_will_be_removed2 = {" "}will be removed from the group.
+alert_you_will_leave_group = You will leave the group.
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
@@ -104,7 +121,7 @@ btn_call_remote_video_on = Enable incoming video
 btn_call_remote_video_on_desc =
     Enable
     incoming video
-btn_call_remove_participant = Kick participant
+btn_call_remove_participant = Remove from call
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_off_desc =
     Stop screen
@@ -113,7 +130,7 @@ btn_call_screen_on = Share screen
 btn_call_screen_on_desc =
     Share
     screen
-btn_call_settings = Settings
+btn_call_settings = Call settings
 btn_call_switch_camera = Switch camera
 btn_call_switch_camera_desc =
     Switch
@@ -138,6 +155,7 @@ btn_change_password = Change password
 btn_clear_chat = Clear chat
 btn_close = Close
 btn_confirm = Confirm
+btn_copy = Copy
 btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete
@@ -151,10 +169,12 @@ btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
-btn_forward = Forward message
+btn_forward = Forward
+btn_forward_message = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
+btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
 btn_join_call = Join call
@@ -164,6 +184,7 @@ btn_leave_group = Leave group
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
+btn_mute = Mute
 btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
@@ -175,20 +196,26 @@ btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
-btn_reply = Reply to message
+btn_reply = Reply
+btn_reply_message = Reply to message
 btn_report = Report
+btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_to_gallery = Save to gallery
 btn_saved_messages = Saved messages
+btn_select = Select
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
 btn_start = Start
 btn_submit = Submit
 btn_unblock = Unblock
+btn_unblock_short = Unblock
+btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
+btn_upload = Upload
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -273,8 +300,8 @@ err_wrong_members_count = No more that 100 members is allowed
 err_wrong_items_count = Wrong items count
 err_wrong_old_password = Wrong password.
 err_wrong_recovery_code = Provided code is wrong.
-err_you_already_add_this_email = E-mail is already added.
-err_you_already_add_this_phone = Phone number is already added.
+err_you_already_add_this_email = Indicated E-mail has been added already.
+err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
@@ -350,13 +377,17 @@ label_attachments = [{$count} { $count ->
     *[other] attachments
     }]
 label_audio_call = Audio call
-label_away = Away
+label_audio_notifications = Audio notifications
+label_away = away
 label_background = Background
 label_biography = Biography
 label_biography_hint = Write about yourself
+label_block = Block
 label_blocked_users = Blocked users
+label_blocked_count = Blocked: {$count}
 label_call_active = Active call
 label_call_calling = Calling
+label_call_connecting = Connection preparing
 label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
@@ -386,6 +417,7 @@ label_chat_call_unanswered = Unanswered call
 label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
+label_clear_chat = Clear chat
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_contact = Contact
@@ -399,6 +431,7 @@ label_create_group_users = user(s)
 label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
+label_date = Date
 label_delete_account = Delete account
 label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
@@ -413,9 +446,9 @@ label_direct_chat_link_description =
     Users who came via a direct link to
     the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
-    - visit your profile,
-    - send you messages,
-    - make calls
+    - visit your profile;
+    - send you messages;
+    - call you.
 
     After the chat created by this link is deleted, your privacy
     settings are respected.
@@ -426,6 +459,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_disabled = Disabled
 label_download = Download
 label_download_application = Download application
 label_draft = Draft
@@ -440,6 +474,7 @@ label_email = E-mail
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
+label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -447,12 +482,14 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
+label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
-label_hidden = Status is hidden
+label_hidden = Last seen recently
+label_hide_chat = Hide chat
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
@@ -479,6 +516,7 @@ label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
+label_leave_group = Leave group
 label_link_to_chat = Chat link
 label_login = Login
 label_login_hint = Your unique login
@@ -490,7 +528,7 @@ label_media = Media
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
-label_media_output = Output
+label_media_output = Audio output
 label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
@@ -521,9 +559,10 @@ label_no_registration = no registration
 label_no_users = No users
 label_nobody = No one
 label_nothing_found = Nothing was found
+label_notifications = Notifications
 label_num = Gapopa ID
-label_offline = Offline
-label_online = Online
+label_offline = offline
+label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
@@ -549,18 +588,21 @@ label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
 label_presence = Presence
 label_presence_away = Away
-label_presence_hidden = Hidden
+label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
 label_public_information = Public information
 label_public_section_hint = Avatar and name
 label_read_by = Read by
+label_reason = Reason
 label_recent = Recent
 label_recover_account = Access recovery
 label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
+label_remove_from_contacts = Remove from contacts
+label_remove_member = Remove member
 label_repeat_password = Repeat password
 label_replies = [{$count} { $count ->
     [1] reply
@@ -594,6 +636,7 @@ label_short_weekday =
     }
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sound_and_vibrations = Sound and vibration
 label_start_screen_sharing = Start screen sharing
 label_status = Status
 label_subtitle_participants = participants
@@ -610,6 +653,7 @@ label_unread_messages = { $quantity ->
 }
 label_use_search = Use search to find an user
 label_user = User
+label_user_is_blocked = User is blocked
 label_users = Users
 label_verify_email = Verify E-mail
 label_verify_number = Verify phone number
@@ -622,6 +666,7 @@ label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_your_blacklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
 plus = +
 space = {" "}

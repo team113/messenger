@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -56,6 +57,7 @@ import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -144,6 +146,9 @@ class ChatsTabController extends GetxController {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
 
     _sortChats();
 
@@ -217,6 +222,9 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
 
     for (var data in _sortingData.values) {
       data.dispose();
@@ -251,7 +259,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.user.value.dialog;
+        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
         dialog ??= await _chatService.createLocalDialog(user.user.value);
         router.chat(dialog.id);
       }
@@ -357,13 +365,17 @@ class ChatsTabController extends GetxController {
   /// takes part in an [OngoingCall] in a [Chat] identified by the provided
   /// [id].
   bool inCall(ChatId id) {
+    if (WebUtils.containsCall(id)) {
+      return true;
+    }
+
     final Rx<OngoingCall>? call = _callService.calls[id];
     if (call != null) {
       return call.value.state.value == OngoingCallState.active ||
           call.value.state.value == OngoingCallState.joining;
     }
 
-    return WebUtils.containsCall(id);
+    return false;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -510,14 +522,6 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -528,6 +532,14 @@ class ChatsTabController extends GetxController {
           b.chat.value.favoritePosition != null) {
         return a.chat.value.favoritePosition!
             .compareTo(b.chat.value.favoritePosition!);
+      }
+
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
       }
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
@@ -554,6 +566,24 @@ class ChatsTabController extends GetxController {
         closeGroupCreating();
         return true;
       }
+    }
+
+    return false;
+  }
+
+  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
+  /// [groupCreating].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (searching.isTrue) {
+      closeSearch(!groupCreating.value);
+      return true;
+    } else if (groupCreating.isTrue) {
+      closeGroupCreating();
+      return true;
     }
 
     return false;

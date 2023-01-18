@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -301,15 +302,47 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+    final double width = MediaQuery.of(context).size.width;
+    EdgeInsets padding;
+
+    if (widget.alignment == Alignment.bottomLeft ||
+        widget.alignment == Alignment.bottomRight) {
+      const double minWidth = 230;
+      final double menuWidth = _bounds.right - _bounds.left;
+
+      if (widget.alignment == Alignment.bottomLeft) {
+        padding = EdgeInsets.only(
+          left: _bounds.left - 5,
+          right: menuWidth < minWidth
+              ? width - _bounds.left - minWidth
+              : width - _bounds.right - 5,
+        );
+      } else {
+        padding = EdgeInsets.only(
+          left: menuWidth < minWidth
+              ? _bounds.right - minWidth
+              : _bounds.left - 5,
+          right: width - _bounds.right - 5,
+        );
+      }
+
+      if (padding.left < 3) {
+        padding = EdgeInsets.only(
+          left: 3,
+          right: width - minWidth - 8,
+        );
+      }
+    } else {
+      padding = EdgeInsets.only(
+        left: max(0, _bounds.left - 10),
+        right: max(0, width - _bounds.right - 10),
+      );
+    }
+
     return Align(
       alignment: widget.alignment,
       child: Padding(
-        padding: widget.margin.add(
-          EdgeInsets.only(
-            left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
-            right: widget.alignment == Alignment.bottomRight ? 10 : 0,
-          ),
-        ),
+        padding: widget.margin.add(padding),
         child: SlideTransition(
           position: slide,
           child: FadeTransition(
@@ -352,16 +385,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
         child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minWidth: 240),
+          margin: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             color: style.contextMenuBackgroundColor,
             borderRadius: style.contextMenuRadius,
           ),
-          child: IntrinsicWidth(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
           ),
         ),
       ),

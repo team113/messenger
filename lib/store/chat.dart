@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -121,6 +122,9 @@ class ChatRepository implements AbstractChatRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _favoriteChatsSubscription;
 
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<ChatId, Mutex> _locks = {};
+
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
@@ -183,9 +187,16 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    HiveRxChat? chat = _chats[id];
-    if (chat == null) {
-      if (!id.isLocal) {
+    Mutex? mutex = _locks[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _locks[id] = mutex;
+    }
+
+    return mutex.protect(() async {
+      HiveRxChat? chat = _chats[id];
+      if (chat == null) {
+        if (!id.isLocal) {
         var query = (await _graphQlProvider.getChat(id)).chat;
         if (query != null) {
           return _putEntry(_chat(query));
@@ -197,9 +208,10 @@ class ChatRepository implements AbstractChatRepository {
           chat.init();
         }
       }
-    }
+      }
 
-    return chat;
+      return chat;
+    });
   }
 
   @override
