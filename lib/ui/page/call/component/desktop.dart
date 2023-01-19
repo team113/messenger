@@ -1021,6 +1021,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: scaler(
+                  // TODO: https://github.com/flutter/flutter/issues/89351
                   cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                       ? SystemMouseCursors.resizeRow
                       : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1556,6 +1557,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.topLeft) {
           widget = scaler(
+            // TODO: https://github.com/flutter/flutter/issues/89351
             cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                 ? SystemMouseCursors.resizeRow
                 : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1601,6 +1603,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.bottomRight) {
           widget = scaler(
+            // TODO: https://github.com/flutter/flutter/issues/89351
             cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                 ? SystemMouseCursors.resizeRow
                 : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1692,6 +1695,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         borderRadius: borderRadius,
                         child: Stack(
                           children: [
+                            Container(color: const Color(0xFF0A1724)),
                             SvgLoader.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,

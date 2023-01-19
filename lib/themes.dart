@@ -32,9 +32,19 @@ class Themes {
           onBackground: Colors.black,
         );
 
-    SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-        ? SystemUiOverlayStyle.dark
-        : SystemUiOverlayStyle.light);
+    SystemChrome.setSystemUIOverlayStyle(
+      colors.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.light,
+    );
 
     return ThemeData.light().copyWith(
         extensions: [
@@ -89,7 +99,7 @@ class Themes {
                   ?.copyWith(color: colors.primary),
               systemOverlayStyle: const SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.blue,
-                statusBarColor: Color(0xFFF8F8F8),
+                statusBarColor: Colors.transparent,
               ),
               elevation: 0,
               centerTitle: true,

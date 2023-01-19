@@ -37,11 +37,13 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- Android:
+    - Transparent status and navigation. ([#211], [#208])
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142])
+        - Redesigned chats tab. ([#211], [#142])
         - Redesigned introduction and logout modals. ([#249])
-        - Redesigned menu tab. ([#313], [#244], [#243])
+        - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned mobile interface. ([#316], [#287], [#246])
@@ -100,7 +102,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#205]: /../../issues/205
 [#206]: /../../pull/206
+[#208]: /../../issues/208
 [#209]: /../../issues/209
+[#211]: /../../pull/211
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#215]: /../../issues/215
