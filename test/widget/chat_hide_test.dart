@@ -317,6 +317,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('ButtonHideChat')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('chatname'), findsNothing);
 
