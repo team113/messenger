@@ -273,10 +273,6 @@ class OngoingCall {
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
 
-  /// List of [Timer]s to remove member from call who was not connected after
-  /// timeout.
-  final Map<CallMemberId, Timer> _timers = {};
-
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -319,7 +315,7 @@ class OngoingCall {
         return;
       }
 
-      members[_me] = CallMember.me(_me, isConnected: true);
+      members[_me] = CallMember.me(_me);
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
@@ -346,33 +342,6 @@ class OngoingCall {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
-
-    calls.getChat(chatId.value).then((v) {
-      for (var m in (v?.chat.value.members ?? [])
-          .where((e) => e.user.id != me.id.userId)) {
-        final CallMemberId id = CallMemberId(m.user.id, null);
-
-        if (members.values.none((e) => e.id.userId == id.userId)) {
-          _timers[id] = Timer(120.seconds, () {
-            final CallMember? member = members[id];
-            _timers.remove(id);
-            if (member?.isConnected.value == false) {
-              members.remove(id);
-            }
-          });
-
-          members[id] = CallMember(
-            id,
-            null,
-            isHandRaised: call.value?.members
-                    .firstWhereOrNull((e) => e.user.id == id.userId)
-                    ?.handRaised ??
-                false,
-            isConnected: false,
-          );
-        }
-      }
-    });
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members.move(_me, id);
@@ -455,20 +424,9 @@ class OngoingCall {
                 case ChatCallEventKind.memberJoined:
                   var node = event as EventChatCallMemberJoined;
 
-                  final CallMemberId notConnectedId =
-                      CallMemberId(node.user.id, null);
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
-
-                  final CallMember? notConnected = members[notConnectedId];
-                  if (notConnected?.isConnected.value == false) {
-                    notConnected?.id = id;
-                    members.move(notConnectedId, id);
-                  }
-
-                  final CallMember? member = members[id];
-
-                  if (member == null) {
+                  if (!members.containsKey(id)) {
                     members[id] = CallMember(
                       id,
                       null,
@@ -479,6 +437,7 @@ class OngoingCall {
                       isConnected: false,
                     );
                   }
+
                   break;
 
                 case ChatCallEventKind.handLowered:
@@ -509,11 +468,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.declined:
-                  var node = event as EventChatCallDeclined;
-                  final CallMemberId id = CallMemberId(node.user.id, null);
-                  if (members[id]?.isConnected.value == false) {
-                    members.remove(id);
-                  }
+                  // TODO: Implement EventChatCallDeclined.
                   break;
 
                 case ChatCallEventKind.callMoved:
@@ -556,7 +511,6 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() {
-    _timers.forEach((_, v) => v.cancel());
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
       if (_jason != null) {
@@ -1006,14 +960,6 @@ class OngoingCall {
 
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
-      final CallMemberId notConnectedId = CallMemberId(id.userId, null);
-
-      final CallMember? notConnected = members[notConnectedId];
-      if (notConnected?.isConnected.value == false) {
-        notConnected?.id = id;
-        members.move(notConnectedId, id);
-      }
-
       final CallMember? member = members[id];
 
       if (member != null) {
@@ -1599,7 +1545,7 @@ class CallMember {
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
-  CallMemberId id;
+  final CallMemberId id;
 
   /// List of [Track]s of this [CallMember].
   final ObsList<Track> tracks = ObsList();

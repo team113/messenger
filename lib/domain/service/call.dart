@@ -265,7 +265,4 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callsRepo.removeCredentials(id);
-
-  /// Returns a [RxChat] by the provided [id].
-  Future<RxChat?> getChat(ChatId id) => _chatService.get(id);
 }
