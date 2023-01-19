@@ -186,7 +186,6 @@ class ParticipantController extends GetxController {
       }
 
       stage.value = ParticipantsFlowStage.participants;
-      MessagePopup.success('label_participants_added_successfully'.l10n);
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {
@@ -201,8 +200,6 @@ class ParticipantController extends GetxController {
 
   /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
   Future<void> redialChatCallMember(UserId memberId) async {
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
-
     try {
       await _callService.redialChatCallMember(chatId.value, memberId);
     } on RedialChatCallMemberException catch (e) {
