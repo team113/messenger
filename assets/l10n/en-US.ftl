@@ -666,6 +666,7 @@ label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blacklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
+label_participants_of = Participants: {$a} of {$b}
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}

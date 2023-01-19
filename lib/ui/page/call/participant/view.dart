@@ -15,24 +15,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
-import '/domain/repository/chat.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/animated_size_and_fade.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import 'controller.dart';
 
 /// [OngoingCall.members] enumeration and administration view.
@@ -105,20 +102,22 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
+              final Set<UserId> actualMembers =
+                  call.value.members.keys.map((k) => k.userId).toSet();
+
               List<Widget> children = [
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: _chat(context, c.chat.value),
-                ),
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    'label_participants'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                ModalPopupHeader(
+                  header: Center(
+                    child: Text(
+                      'label_participants_of'.l10nfmt({
+                        'a': actualMembers.length,
+                        'b': c.chat.value?.members.length ?? 1,
+                      }),
+                      style: thin?.copyWith(fontSize: 18),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 Expanded(
                   child: Scrollbar(
                     controller: c.scrollController,
@@ -181,152 +180,110 @@ class ParticipantView extends StatelessWidget {
     );
   }
 
-  /// Returns a visual representation of the provided [chat].
-  Widget _chat(BuildContext context, RxChat? chat) {
-    Style style = Theme.of(context).extension<Style>()!;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          color: Colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: style.cardColor.darken(0.05),
-          child: InkWell(
-            borderRadius: style.cardRadius,
-            onTap: () {
-              // TODO: Open the [Routes.chat] page.
-            },
-            hoverColor: style.cardSelectedColor.withOpacity(0.8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Obx(() {
-                                return Text(
-                                  chat?.title.value ?? '',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Row(
-                            children: [
-                              Obx(() {
-                                return Text(
-                                  'label_a_of_b'.l10nfmt({
-                                    'a':
-                                        '${call.value.members.keys.map((k) => k.userId).toSet().length}',
-                                    'b': '${chat?.members.length}',
-                                  }),
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                );
-                              }),
-                              Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                width: 1,
-                                height: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .subtitle2
-                                    ?.color,
-                              ),
-                              Obx(() {
-                                return Text(
-                                  duration.value.hhMmSs(),
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
-    return ContextMenuRegion(
-      actions: [
-        ContextMenuButton(
-          label: user.id != c.me ? 'btn_remove'.l10n : 'btn_leave'.l10n,
-          onPressed: () => c.removeChatMember(user.id),
-          trailing: SvgLoader.asset(
-            'assets/icons/delete_small.svg',
-            width: 17.75,
-            height: 17,
-          ),
-        ),
-      ],
-      moveDownwards: false,
-      child: ContactTile(
+    return Obx(() {
+      final bool inCall =
+          call.value.members.keys.where((e) => e.userId == user.id).isNotEmpty;
+
+      return ContactTile(
         user: user,
+        dense: true,
         onTap: () {
           // TODO: Open the [Routes.user] page.
         },
         darken: 0.05,
         trailing: [
-          Obx(() {
-            bool inCall = call.value.members.keys
-                .where((e) => e.userId == user.id)
-                .isNotEmpty;
-
-            if (!inCall) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Material(
-                  color: Theme.of(context).colorScheme.secondary,
-                  type: MaterialType.circle,
-                  child: InkWell(
-                    onTap: () => c.redialChatCallMember(user.id),
-                    borderRadius: BorderRadius.circular(60),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Center(
-                        child: SvgLoader.asset(
-                          'assets/icons/audio_call_start.svg',
-                          width: 13,
-                          height: 13,
+          if (user.id != c.me)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+              child: inCall
+                  ? WidgetButton(
+                      key: const Key('Drop'),
+                      onPressed: () {},
+                      child: Container(
+                        height: 30,
+                        width: 30,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: SvgLoader.asset(
+                            'assets/icons/call_end.svg',
+                            width: 30,
+                            height: 30,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Material(
+                      color: Theme.of(context).colorScheme.secondary,
+                      type: MaterialType.circle,
+                      child: InkWell(
+                        onTap: () => c.redialChatCallMember(user.id),
+                        borderRadius: BorderRadius.circular(60),
+                        child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Center(
+                            child: SvgLoader.asset(
+                              'assets/icons/audio_call_start.svg',
+                              width: 13,
+                              height: 13,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+            ),
+          if (user.id == c.me)
+            WidgetButton(
+              onPressed: () => _removeChatMember(c, user),
+              child: Text(
+                'btn_leave'.l10n,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 15,
                 ),
-              );
-            }
-
-            return Container();
-          }),
+              ),
+            )
+          else
+            WidgetButton(
+              onPressed: () => _removeChatMember(c, user),
+              child: SvgLoader.asset(
+                'assets/icons/delete.svg',
+                height: 14 * 1.5,
+              ),
+            ),
+          const SizedBox(width: 6),
         ],
-      ),
+      );
+    });
+  }
+
+  Future<void> _removeChatMember(
+    ParticipantController c,
+    RxUser user,
+  ) async {
+    bool? result = await MessagePopup.alert(
+      c.me == user.id ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
+      description: [
+        if (c.me == user.id)
+          TextSpan(text: 'alert_you_will_leave_group'.l10n)
+        else ...[
+          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+          TextSpan(
+            text: user.user.value.name?.val ?? user.user.value.num.val,
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+        ],
+      ],
     );
+
+    if (result == true) {
+      await c.removeChatMember(user.id);
+    }
   }
 }

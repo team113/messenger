@@ -686,6 +686,7 @@ label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blacklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
+label_participants_of = Участников: {$a} из {$b}
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
