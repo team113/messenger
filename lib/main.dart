@@ -64,17 +64,31 @@ Future<void> main() async {
 
     await _initHive();
 
-    WindowPreferences? prefs;
-
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
 
       final WindowPreferencesHiveProvider preferences = Get.find();
-      prefs = preferences.get();
+      final WindowPreferences? prefs = preferences.get();
 
-      // TODO: Remove `if` when leanflutter/window_manager#284 is fixed:
+      // TODO: Remove when leanflutter/window_manager#284 is fixed:
       //       https://github.com/leanflutter/window_manager/issues/284
-      if (!PlatformUtils.isWindows) {
+      if (PlatformUtils.isWindows) {
+        doWhenWindowReady(() {
+          if (!appWindow.isVisible) {
+            appWindow.size =
+                (prefs?.size ?? appWindow.size) + const Offset(0, 1);
+
+            if (prefs?.position != null) {
+              appWindow.position = Offset(
+                prefs!.position!.dx * appWindow.scaleFactor,
+                prefs.position!.dy * appWindow.scaleFactor,
+              );
+            }
+
+            appWindow.show();
+          }
+        });
+      } else {
         if (prefs?.size != null) {
           await windowManager.setSize(prefs!.size!);
         }
@@ -111,25 +125,6 @@ Future<void> main() async {
         child: const App(),
       ),
     );
-
-    // TODO: Remove when leanflutter/window_manager#284 is fixed:
-    //       https://github.com/leanflutter/window_manager/issues/284
-    if (PlatformUtils.isWindows) {
-      doWhenWindowReady(() {
-        if (!appWindow.isVisible) {
-          appWindow.size = (prefs?.size ?? appWindow.size) + const Offset(0, 1);
-
-          if (prefs?.position != null) {
-            appWindow.position = Offset(
-              prefs!.position!.dx * appWindow.scaleFactor,
-              prefs.position!.dy * appWindow.scaleFactor,
-            );
-          }
-
-          appWindow.show();
-        }
-      });
-    }
   }
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless

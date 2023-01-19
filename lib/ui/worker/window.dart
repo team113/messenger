@@ -36,12 +36,8 @@ class WindowWorker extends DisposableService {
 
   @override
   void onInit() {
-    _onResized = PlatformUtils.onResized.listen(
-      (v) => _windowProvider.set(
-        size: v.size,
-        position: v.position,
-      ),
-    );
+    _onResized = PlatformUtils.onResized
+        .listen((v) => _windowProvider.set(size: v.key, position: v.value));
     _onMoved =
         PlatformUtils.onMoved.listen((v) => _windowProvider.set(position: v));
     super.onInit();
