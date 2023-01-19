@@ -77,9 +77,6 @@ abstract class AbstractChatRepository {
   /// authenticated [MyUser].
   Future<Chat> createLocalDialog(User responder);
 
-  /// Replaces [local] [Chat]-dialog with a remote.
-  Future<RxChat> replaceLocalDialog(RxChat local);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});
@@ -154,7 +151,7 @@ abstract class AbstractChatRepository {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId id);
+  Future<Stream<dynamic>?> keepTyping(ChatId id);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
@@ -191,6 +188,9 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  /// Replaces [local] [Chat]-dialog with a remote.
+  Future<RxChat> replaceLocalDialog(ChatId local);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

@@ -139,11 +139,9 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        if (!c.value.id.isLocal || _draftLocal.get(c.value.id) != null) {
-          final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
-          _chats[c.value.id] = entry;
-          entry.init();
-        }
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
+        _chats[c.value.id] = entry;
+        entry.init();
       }
       _isReady.value = true;
     }
@@ -197,17 +195,17 @@ class ChatRepository implements AbstractChatRepository {
       HiveRxChat? chat = _chats[id];
       if (chat == null) {
         if (!id.isLocal) {
-        var query = (await _graphQlProvider.getChat(id)).chat;
-        if (query != null) {
-          return _putEntry(_chat(query));
+          var query = (await _graphQlProvider.getChat(id)).chat;
+          if (query != null) {
+            return _putEntry(_chat(query));
+          }
+        } else {
+          HiveChat? hiveChat = _chatLocal.get(id);
+          if (hiveChat != null) {
+            chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
+            chat.init();
+          }
         }
-      } else {
-        HiveChat? hiveChat = _chatLocal.get(id);
-        if (hiveChat != null) {
-          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
-          chat.init();
-        }
-      }
       }
 
       return chat;
@@ -244,16 +242,22 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<HiveRxChat> replaceLocalDialog(RxChat local) async {
-    var chat = _chat(
-      await _graphQlProvider.createDialogChat(
-          local.members.values.firstWhere((e) => e.id != me).id),
-    );
-    chats.remove(local.id);
-    remove(local.id);
-    _draftLocal.move(local.id, chat.chat.value.id);
+  Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
+    assert(localId.isLocal);
 
-    return _putEntry(chat);
+    HiveRxChat local = _chats[localId] ?? (await get(localId))!;
+
+    ChatData chat = _chat(
+      await _graphQlProvider.createDialogChat(
+        local.members.values.firstWhere((e) => e.id != me).id,
+      ),
+    );
+
+    chats.move(local.id, chat.chat.value.id);
+    await local.updateChat(chat.chat.value);
+    await remove(localId);
+
+    return local;
   }
 
   @override
@@ -271,7 +275,13 @@ class ChatRepository implements AbstractChatRepository {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
+    HiveRxChat? rxChat;
+    if (chatId.isLocal) {
+      rxChat = await replaceLocalDialog(chatId);
+    } else {
+      rxChat = _chats[chatId] ?? (await get(chatId));
+    }
+
     await rxChat?.postChatMessage(
       text: text,
       attachments: attachments,
@@ -795,8 +805,13 @@ class ChatRepository implements AbstractChatRepository {
       });
 
   @override
-  Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
-      _graphQlProvider.keepTyping(chatId);
+  Future<Stream<dynamic>?> keepTyping(ChatId chatId) async {
+    if (!chatId.isLocal) {
+      return await _graphQlProvider.keepTyping(chatId);
+    }
+
+    return null;
+  }
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
@@ -1023,10 +1038,6 @@ class ChatRepository implements AbstractChatRepository {
       if (event.deleted) {
         await _chats.remove(chatId)?.dispose();
       } else {
-        if (chatId.isLocal) {
-          return;
-        }
-
         HiveRxChat? chat = _chats[chatId];
         if (chat == null) {
           HiveRxChat entry =
@@ -1049,19 +1060,9 @@ class ChatRepository implements AbstractChatRepository {
       BoxEvent event = _draftSubscription!.current;
       ChatId chatId = ChatId(event.key);
       if (event.deleted) {
-        if (chatId.isLocal) {
-          _chats.remove(chatId);
-        }
         _chats[chatId]?.draft.value = null;
       } else {
         HiveRxChat? chat;
-
-        if (chatId.isLocal) {
-          chat = await get(chatId);
-          if (chat != null) {
-            _chats[chatId] = chat;
-          }
-        }
 
         chat ??= _chats[chatId];
         if (chat != null) {

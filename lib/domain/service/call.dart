@@ -66,6 +66,10 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
+    if (chatId.isLocal) {
+      chatId = (await _chatService.replaceLocalDialog(chatId)).id;
+    }
+
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
     if (WebUtils.containsCall(chatId)) {

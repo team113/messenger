@@ -75,8 +75,8 @@ class ChatService extends DisposableService {
       _chatRepository.createLocalDialog(responder);
 
   /// Replaces [local] [Chat]-dialog with a remote.
-  Future<RxChat> replaceLocalDialog(RxChat local) =>
-      _chatRepository.replaceLocalDialog(local);
+  Future<RxChat> replaceLocalDialog(ChatId id) =>
+      _chatRepository.replaceLocalDialog(id);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
@@ -258,7 +258,7 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
+  Future<Stream<dynamic>?> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated

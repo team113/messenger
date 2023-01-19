@@ -203,9 +203,6 @@ class ChatController extends GetxController {
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
 
-  /// Subscription for the [RxChat.chat] updating the [_durationTimer].
-  StreamSubscription? _chatSubscription;
-
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -250,6 +247,9 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// Worker capturing any [RxChat.chat] changes.
+  Worker? _chatWorker;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -279,10 +279,6 @@ class ChatController extends GetxController {
       _userService,
       onChanged: updateDraft,
       onSubmit: () async {
-        if (chat!.chat.value.id.isLocal) {
-            await replaceLocalDialog();
-          }
-          
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             bool? result = await ChatForwardView.show(
@@ -310,7 +306,10 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => _playMessageSent())
+                .then((_) {
+                  chat?.setDraft();
+                  return _playMessageSent();
+                })
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -318,8 +317,6 @@ class ChatController extends GetxController {
                 .onError<ConnectionException>((e, _) {});
 
             send.clear();
-
-            chat?.setDraft();
 
             _typingSubscription?.cancel();
             _typingSubscription = null;
@@ -348,9 +345,9 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _messagesSubscription?.cancel();
-    _chatSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
+    _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     _durationTimer?.cancel();
@@ -378,10 +375,6 @@ class ChatController extends GetxController {
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    if (chat!.chat.value.id.isLocal) {
-      await replaceLocalDialog();
-    }
-
     _callService.call(id, withVideo: withVideo);
   }
 
@@ -520,7 +513,7 @@ class ChatController extends GetxController {
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val ?? send.field.unchecked;
+      send.field.unchecked = draft?.text?.val ?? send.field.text;
       send.field.unsubmit();
       send.replied.value = List.from(draft?.repliesTo ?? []);
 
@@ -750,7 +743,15 @@ class ChatController extends GetxController {
       }
 
       updateTimer(chat!.chat.value);
-      _chatSubscription = chat!.chat.listen(updateTimer);
+
+      _chatWorker = ever(chat!.chat, (Chat e) async {
+        if (e.id != id) {
+          router.replaceInRoute(id.val, e.id.val);
+          id = e.id;
+        }
+
+        updateTimer(e);
+      });
 
       _messagesWorker ??= ever(
         chat!.messages,
@@ -1032,15 +1033,12 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    if (!id.isLocal) {
-      _typingSubscription ??=
-          (await _chatService.keepTyping(id)).listen((_) {});
-      _typingTimer?.cancel();
-      _typingTimer = Timer(_typingDuration, () {
-        _typingSubscription?.cancel();
-        _typingSubscription = null;
-      });
-    }
+    _typingSubscription ??= (await _chatService.keepTyping(id))?.listen((_) {});
+    _typingTimer?.cancel();
+    _typingTimer = Timer(_typingDuration, () {
+      _typingSubscription?.cancel();
+      _typingSubscription = null;
+    });
   }
 
   /// Removes a [User] being a recipient of this [chat] from the blacklist.
@@ -1176,14 +1174,6 @@ class ChatController extends GetxController {
         elements[_unreadElement!.id] = _unreadElement!;
       }
     }
-  }
-
-  /// Replaces a local [Chat]-dialog with a remote.
-  Future<void> replaceLocalDialog() async {
-    RxChat chat = await _chatService.replaceLocalDialog(this.chat!);
-    router.replaceInRoute(this.chat!.id.val, chat.id.val);
-    id = chat.id;
-    await _fetchChat();
   }
 
   /// Calculates a [_ListViewIndexCalculationResult] of a [FlutterListView].

@@ -104,7 +104,7 @@ class HiveRxChat extends RxChat {
   final DraftHiveProvider _draftLocal;
 
   /// [ChatItem]s local [Hive] storage.
-  final ChatItemHiveProvider _local;
+  ChatItemHiveProvider _local;
 
   /// Guard used to guarantee synchronous access to the [_local] storage.
   final Mutex _guard = Mutex();
@@ -501,6 +501,20 @@ class HiveRxChat extends RxChat {
     } finally {
       put(message, ignoreVersion: true);
     }
+  }
+
+  /// Updates the [chat] value with provided.
+  Future<void> updateChat(Chat chat) async {
+    this.chat.value = chat;
+
+    _initRemoteSubscription(chat.id);
+
+    _local = ChatItemHiveProvider(chat.id);
+    await _local.init(userId: me);
+    _localSubscription?.cancel();
+    _initLocalSubscription();
+
+    await fetchMessages();
   }
 
   /// Puts the provided [item] to [Hive].
