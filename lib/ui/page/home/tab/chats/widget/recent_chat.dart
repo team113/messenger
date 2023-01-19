@@ -41,6 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -179,7 +180,7 @@ class RecentChatTile extends StatelessWidget {
               label: PlatformUtils.isMobile
                   ? 'btn_hide'.l10n
                   : 'btn_hide_chat'.l10n,
-              onPressed: onHide,
+              onPressed: () => _hideChat(context),
               trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
@@ -720,6 +721,25 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
+  }
+
+  /// Hides the [rxChat].
+  Future<void> _hideChat(BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(
+          text: rxChat.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      onHide?.call();
+    }
   }
 }
 

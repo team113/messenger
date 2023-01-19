@@ -32,6 +32,7 @@ import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -143,34 +144,39 @@ class ContactsTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.search.value != null) {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
                     key: const Key('CloseSearch'),
-                    onPressed: () => c.toggleSearch(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/close_primary.svg',
-                      height: 15,
-                      width: 15,
-                    ),
+                    'assets/icons/close_primary.svg',
+                    height: 15,
+                    width: 15,
                   );
                 } else {
-                  child = WidgetButton(
+                  child = SvgLoader.asset(
+                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
                     key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    onPressed: c.toggleSorting,
-                    child: SvgLoader.asset(
-                      'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                      width: 29.69,
-                      height: 21,
-                    ),
+                    width: 29.69,
+                    height: 21,
                   );
                 }
-                return Container(
-                  alignment: Alignment.center,
-                  width: 29.69,
-                  height: 21,
-                  margin: const EdgeInsets.only(left: 12, right: 18),
-                  child: AnimatedSwitcher(
-                    duration: 250.milliseconds,
-                    child: child,
+
+                return WidgetButton(
+                  onPressed: () {
+                    if (c.search.value != null) {
+                      c.toggleSearch(false);
+                    } else {
+                      c.toggleSorting();
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 29.69 + 12 + 18,
+                    height: double.infinity,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: child,
+                      ),
+                    ),
                   ),
                 );
               }),
@@ -208,10 +214,10 @@ class ContactsTabView extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 );
               } else if (c.elements.isNotEmpty) {
-                child = AnimationLimiter(
-                  key: const Key('Search'),
-                  child: Scrollbar(
-                    controller: c.scrollController,
+                child = SafeScrollbar(
+                  controller: c.scrollController,
+                  child: AnimationLimiter(
+                    key: const Key('Search'),
                     child: ListView.builder(
                       controller: c.scrollController,
                       itemCount: c.elements.length,
@@ -279,15 +285,14 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = AnimationLimiter(
-                  child: Scrollbar(
+                  child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
                       controller: c.scrollController,
                       slivers: [
                         SliverPadding(
-                          padding: EdgeInsets.only(
-                            top: CustomAppBar.height +
-                                MediaQuery.of(context).viewPadding.top,
+                          padding: const EdgeInsets.only(
+                            top: CustomAppBar.height,
                             left: 10,
                             right: 10,
                           ),
@@ -500,6 +505,23 @@ class ContactsTabView extends StatelessWidget {
         ),
       ],
       trailing: [
+        Obx(() {
+          final dialog = contact.user.value?.dialog.value;
+
+          if (dialog?.chat.value.muted == null) {
+            return const SizedBox();
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: SvgLoader.asset(
+              'assets/icons/muted.svg',
+              key: Key('MuteIndicator_${contact.id}'),
+              width: 19.99,
+              height: 15,
+            ),
+          );
+        }),
         Obx(() {
           if (contact.user.value?.user.value.isBlacklisted == false) {
             return const SizedBox();
