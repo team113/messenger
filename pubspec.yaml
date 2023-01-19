@@ -95,6 +95,8 @@ dependencies:
   loading_indicator: ^3.1.0
   bot_toast: ^4.0.3
   loading_animation_widget: ^1.2.0+4
+  skeletons: ^0.0.3
+  shimmer: ^2.0.0
 
 dev_dependencies:
   artemis: ^7.9.0-beta

@@ -94,6 +94,13 @@ class ParticipantWidget extends StatelessWidget {
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
+        return [
+          CallCoverWidget(
+            participant.user.value?.user.value.callCover,
+            user: participant.user.value?.user.value,
+          )
+        ];
+
         return useCallCover &&
                 participant.user.value?.user.value.callCover != null
             ? [CallCoverWidget(participant.user.value?.user.value.callCover)]

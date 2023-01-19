@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
+import 'package:skeletons/skeletons.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -234,7 +235,24 @@ class ChatsTabView extends StatelessWidget {
                 ),
                 body: Obx(() {
                   if (!c.chatsReady.value || c.loader.value) {
-                    return const Center(child: CustomProgressIndicator());
+                    // return const Center(child: CustomProgressIndicator());
+                    return LayoutBuilder(builder: (context, constraints) {
+                      final int howMuch = constraints.maxHeight ~/ 80;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: howMuch,
+                          itemBuilder: (context, i) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: RecentChatTile(null),
+                            );
+                          },
+                        ),
+                      );
+                    });
                   }
 
                   final Widget? child;
@@ -452,6 +470,7 @@ class ChatsTabView extends StatelessWidget {
                             } else {
                               child = const SizedBox();
                             }
+
                             return AnimationConfiguration.staggeredList(
                               position: i,
                               duration: const Duration(milliseconds: 375),
