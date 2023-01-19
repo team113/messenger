@@ -107,6 +107,9 @@ void main() async {
 
     when(graphQlProvider.keepOnline())
         .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+      (_) => Future.value(const Stream.empty()),
+    );
 
     when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
       (_) => Future.value(ToggleMyUserMute$Mutation.fromJson({

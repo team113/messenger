@@ -291,7 +291,8 @@ class UserPhone extends NewType<String> {
 
   /// Regular expression for basic [UserPhone] validation.
   static final RegExp _regExp = RegExp(
-      r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$');
+    r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
+  );
 }
 
 /// Direct link to a `Chat`.

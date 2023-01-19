@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/util/localized_exception.dart';
 
@@ -74,10 +75,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
-        } else if (RegExp(
-          r'''^Variable "\$phone" got invalid value\. Expected input scalar `UserPhone`\. Got: `"\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}"`\. Details: Cannot parse input scalar `UserPhone`: doesn't represent a valid phone number\.$''',
-        ).hasMatch(result.exception!.graphqlErrors.first.message)) {
-          return const GraphQlPhoneFormatException();
+        } else if (result.exception!.graphqlErrors.first.message
+            .contains('Expected input scalar `UserPhone`')) {
+          return const InvalidScalarException<UserPhone>();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -246,12 +246,12 @@ class RenewSessionException implements Exception {
   String toString() => 'RenewSessionException($code)';
 }
 
-/// GraphQl request thrown on wrong phone number format.
-class GraphQlPhoneFormatException implements Exception {
-  const GraphQlPhoneFormatException();
+/// GraphQl request thrown on wrong format.
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
 
   @override
-  String toString() => 'GraphQlFormatException()';
+  String toString() => 'InvalidScalarException<$T>()';
 }
 
 /// Exception of `Mutation.createChatDialog` described in the [code].
