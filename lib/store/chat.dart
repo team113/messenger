@@ -252,14 +252,16 @@ class ChatRepository implements AbstractChatRepository {
 
     chats.move(local.id, chat.chat.value.id);
     remove(localId);
-    await local.updateChat(chat.chat.value);
+    local.updateChat(chat.chat.value);
 
     return local;
   }
 
   @override
-  Future<HiveRxChat> createGroupChat(List<UserId> memberIds,
-      {ChatName? name}) async {
+  Future<HiveRxChat> createGroupChat(
+    List<UserId> memberIds, {
+    ChatName? name,
+  }) async {
     var chat =
         _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
     return _putEntry(chat);
