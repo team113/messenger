@@ -146,17 +146,12 @@ class PreciseDateTime extends NewType<DateTime>
   /// ```
   static PreciseDateTime now() => PreciseDateTime(DateTime.now());
 
-  /// Constructs a new [PreciseDateTime] instance
-  /// with the given [millisecondsSinceEpoch].
+  /// Constructs a new [PreciseDateTime] instance from the given
+  /// [millisecondsSinceEpoch].
   ///
-  /// If [isUtc] is false then the date is in the local time zone.
-  ///
-  /// The constructed [PreciseDateTime] represents
-  /// 1970-01-01T00:00:00Z + [millisecondsSinceEpoch] ms in the given
-  /// time zone (local or UTC).
   /// ```dart
   /// final newYearsDay =
-  ///     DateTime.fromMillisecondsSinceEpoch(1640979000000, isUtc:true);
+  ///     DateTime.fromMillisecondsSinceEpoch(1640979000000, isUtc: true);
   /// print(newYearsDay); // 2022-01-01 10:00:00.000Z
   /// ```
   static PreciseDateTime fromMillisecondsSinceEpoch(

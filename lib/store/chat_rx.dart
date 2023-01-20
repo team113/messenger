@@ -91,12 +91,6 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
-  @override
-  bool get hasNextPage => _fragment?.hasNextPage ?? true;
-
-  @override
-  bool get hasPreviousPage => _fragment?.hasPreviousPage ?? true;
-
   /// Cursor ot this [HiveRxChat].
   final RecentChatsCursor? cursor;
 
@@ -153,6 +147,12 @@ class HiveRxChat extends RxChat {
 
   @override
   UserId? get me => _chatRepository.me;
+
+  @override
+  bool get hasNextPage => _fragment?.hasNextPage ?? true;
+
+  @override
+  bool get hasPreviousPage => _fragment?.hasPreviousPage ?? true;
 
   @override
   UserCallCover? get callCover {
@@ -227,7 +227,6 @@ class HiveRxChat extends RxChat {
           );
         },
         initialCursor: lastReadItemCursor?.val,
-        pageSize: 120,
       );
 
       _fragmentSubscription = _fragment!.elements.changes.listen((event) {
@@ -238,9 +237,11 @@ class HiveRxChat extends RxChat {
               (e) => event.element.value.at.compareTo(e.value.at) == 1,
             );
             break;
+
           case OperationKind.removed:
             messages.removeWhere((e) => e.value.id == event.element.value.id);
             break;
+
           case OperationKind.updated:
             // No-op.
             break;

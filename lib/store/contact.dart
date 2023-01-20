@@ -131,7 +131,6 @@ class ContactRepository implements AbstractContactRepository {
 
         return query;
       },
-      pageSize: 120,
     );
 
     _fragmentSubscription = _fragment!.elements.changes.listen((event) {

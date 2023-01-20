@@ -180,7 +180,6 @@ class ChatRepository implements AbstractChatRepository {
 
         return query;
       },
-      pageSize: 120,
     );
 
     _fragmentSubscription = _fragment!.elements.changes.listen((event) {
@@ -189,9 +188,11 @@ class ChatRepository implements AbstractChatRepository {
           _chats[event.element.value.id] =
               HiveRxChat(this, _chatLocal, _draftLocal, event.element)..init();
           break;
+
         case OperationKind.removed:
           _chats.remove(event.element.value.id)?.dispose();
           break;
+
         case OperationKind.updated:
           // No-op.
           break;
