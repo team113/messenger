@@ -274,11 +274,11 @@ class UserPhone extends NewType<String> {
 
   UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
-      throw const FormatException('Phone number doesn\'t starts with plus');
+      throw const FormatException('Must start with plus');
     }
 
     if (val.length < 8) {
-      throw const FormatException('Phone number length smaller then 8 symbols');
+      throw const FormatException('Must contain no less than 8 symbols');
     }
 
     if (!_regExp.hasMatch(val)) {

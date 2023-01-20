@@ -75,8 +75,8 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
-        } else if (result.exception!.graphqlErrors.first.message
-            .contains('Expected input scalar `UserPhone`')) {
+        } else if (result.exception!.graphqlErrors.any(
+            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
           return const InvalidScalarException<UserPhone>();
         }
 
@@ -212,6 +212,14 @@ class ResubscriptionRequiredException implements Exception {
   String toString() => 'ResubscriptionRequiredException()';
 }
 
+/// Exception of an invalid GraphQL scalar being parsed when expecting the [T].
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
+
+  @override
+  String toString() => 'InvalidScalarException<$T>()';
+}
+
 /// Exception of `Mutation.createSession` described in the [code].
 class CreateSessionException with LocalizedExceptionMixin implements Exception {
   const CreateSessionException(this.code);
@@ -244,14 +252,6 @@ class RenewSessionException implements Exception {
 
   @override
   String toString() => 'RenewSessionException($code)';
-}
-
-/// GraphQl request thrown on wrong format.
-class InvalidScalarException<T> implements Exception {
-  const InvalidScalarException();
-
-  @override
-  String toString() => 'InvalidScalarException<$T>()';
 }
 
 /// Exception of `Mutation.createChatDialog` described in the [code].
