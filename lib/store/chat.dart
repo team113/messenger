@@ -236,7 +236,7 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     await _putChat(hiveChat);
-    await _userRepo.attachLocalDialog(responder.id, Chat(chatId));
+    await _userRepo.attachLocalDialog(responder.id, hiveChat.value);
 
     return hiveChat.value;
   }
@@ -1171,15 +1171,17 @@ class ChatRepository implements AbstractChatRepository {
 
     if (entry == null) {
       if (data.chat.value.isDialog) {
-        ChatMember? member =
-            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me);
-        HiveRxChat? localDialog = chats.values.firstWhereOrNull(
-          (e) => e.id.isLocal && e.members.keys.contains(member?.user.id),
+        ChatMember member =
+            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
+        HiveChat? localDialog = _chatLocal.chats.firstWhereOrNull(
+          (e) =>
+              e.value.id.isLocal &&
+              e.value.members.any((e) => e.user.id == member.user.id),
         );
 
         if (localDialog != null) {
-          remove(localDialog.id);
-          _draftLocal.move(localDialog.id, data.chat.value.id);
+          remove(localDialog.value.id);
+          _draftLocal.move(localDialog.value.id, data.chat.value.id);
         }
       }
 
