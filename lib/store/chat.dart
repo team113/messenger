@@ -236,7 +236,7 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     await _putChat(hiveChat);
-    await _userRepo.attachLocalDialog(responder.id, hiveChat.value);
+    await _userRepo.attachLocalDialog(responder.id, Chat(chatId));
 
     return hiveChat.value;
   }
