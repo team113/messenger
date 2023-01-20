@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/util/localized_exception.dart';
 
@@ -74,6 +75,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
+        } else if (result.exception!.graphqlErrors.any(
+            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          return const InvalidScalarException<UserPhone>();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -206,6 +210,14 @@ class ResubscriptionRequiredException implements Exception {
 
   @override
   String toString() => 'ResubscriptionRequiredException()';
+}
+
+/// Exception of an invalid GraphQL scalar being parsed when expecting the [T].
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
+
+  @override
+  String toString() => 'InvalidScalarException<$T>()';
 }
 
 /// Exception of `Mutation.createSession` described in the [code].
