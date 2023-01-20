@@ -374,9 +374,8 @@ class ChatController extends GetxController {
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) async {
-    _callService.call(id, withVideo: withVideo);
-  }
+  Future<void> call(bool withVideo) =>
+      _callService.call(id, withVideo: withVideo);
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);
@@ -747,7 +746,6 @@ class ChatController extends GetxController {
       _chatWorker = ever(chat!.chat, (Chat e) async {
         if (e.id != id) {
           router.replaceInRoute(id.val, e.id.val);
-          id = e.id;
         }
 
         updateTimer(e);

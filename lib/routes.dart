@@ -228,6 +228,8 @@ class RouterState extends ChangeNotifier {
     if (routes.isNotEmpty) {
       routes[routes.length - 1] = routes.last.replaceFirst(from, to);
       WebUtils.replaceInUrl(from, to);
+
+      notifyListeners();
     }
   }
 

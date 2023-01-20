@@ -152,7 +152,7 @@ class ChatRepository implements AbstractChatRepository {
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
     for (HiveChat c in _chatLocal.chats) {
-      if (!chats.containsKey(c.value.id) && !c.value.id.isLocal) {
+      if (!c.value.id.isLocal && !chats.containsKey(c.value.id)) {
         _chatLocal.remove(c.value.id);
       }
     }
@@ -254,8 +254,9 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     chats.move(local.id, chat.chat.value.id);
+    remove(localId);
+    _draftLocal.remove(localId);
     await local.updateChat(chat.chat.value);
-    await remove(localId);
 
     return local;
   }
@@ -1177,7 +1178,6 @@ class ChatRepository implements AbstractChatRepository {
         );
 
         if (localDialog != null) {
-          _chats.remove(localDialog.id);
           remove(localDialog.id);
           _draftLocal.move(localDialog.id, data.chat.value.id);
         }

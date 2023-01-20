@@ -504,6 +504,8 @@ class HiveRxChat extends RxChat {
   }
 
   /// Updates the [chat] value with provided.
+  ///
+  /// Intended to be used to update a local dialog with a remote.
   Future<void> updateChat(Chat chat) async {
     this.chat.value = chat;
 
@@ -513,8 +515,6 @@ class HiveRxChat extends RxChat {
     await _local.init(userId: me);
     _localSubscription?.cancel();
     _initLocalSubscription();
-
-    await fetchMessages();
   }
 
   /// Puts the provided [item] to [Hive].
