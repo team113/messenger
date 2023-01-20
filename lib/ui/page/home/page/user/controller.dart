@@ -234,6 +234,7 @@ class UserController extends GetxController {
       dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value.id;
     } else {
       if (dialog?.isLocal ?? false) {
+        // Check if local dialog exists.
         dialog = (await _chatService.get(dialog!))?.chat.value.id;
       }
       dialog ??= (await _chatService.createLocalDialog(user!.user.value)).id;

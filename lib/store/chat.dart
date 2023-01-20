@@ -1024,9 +1024,9 @@ class ChatRepository implements AbstractChatRepository {
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Hive].
-  Future<void> _putChat(HiveChat chat, {bool ignoreVersion = false}) async {
+  Future<void> _putChat(HiveChat chat) async {
     var saved = _chatLocal.get(chat.value.id);
-    if (saved == null || saved.ver < chat.ver || ignoreVersion) {
+    if (saved == null || saved.ver < chat.ver) {
       await _chatLocal.put(chat);
     }
   }

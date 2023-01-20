@@ -201,12 +201,12 @@ class UserRepository implements AbstractUserRepository {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
-  /// Attaches the provided local [dialogId] to the specified [User].
-  Future<void> attachLocalDialog(UserId id, ChatId dialogId) async {
+  /// Attaches the provided local [dialog] to the specified [User].
+  Future<void> attachLocalDialog(UserId id, ChatId dialog) async {
     RxUser? user = await get(id);
 
     if (user != null) {
-      user.user.value.dialog = dialogId;
+      user.user.value.dialog = dialog;
       update(user.user.value);
     }
   }
