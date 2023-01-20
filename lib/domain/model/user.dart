@@ -129,7 +129,7 @@ class User extends HiveObject {
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
   @HiveField(13)
-  Chat? dialog;
+  ChatId? dialog;
 
   /// Indicator whether this [User] is blacklisted by the authenticated
   /// [MyUser].

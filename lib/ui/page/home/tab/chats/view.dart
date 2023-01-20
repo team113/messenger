@@ -500,8 +500,7 @@ class ChatsTabView extends StatelessWidget {
                             itemBuilder: (_, i) {
                               final RxChat chat = c.chats[i];
                               return Obx(() {
-                                if (!chat.id.isLocal ||
-                                    chat.draft.value != null) {
+                                if (!chat.id.isLocal) {
                                   return AnimationConfiguration.staggeredList(
                                     position: i,
                                     duration: const Duration(milliseconds: 375),

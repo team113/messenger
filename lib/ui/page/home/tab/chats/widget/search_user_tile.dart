@@ -50,7 +50,7 @@ class SearchUserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final ChatId? chatId = user?.dialog.value?.id ??
-          user?.user.value.dialog?.id ??
+          user?.user.value.dialog ??
           contact?.user.value?.dialog.value?.id;
 
       final UserId? userId = user?.id ?? contact?.user.value?.id;

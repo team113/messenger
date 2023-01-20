@@ -306,10 +306,7 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.reversed.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) {
-                  chat?.setDraft();
-                  return _playMessageSent();
-                })
+                .then((_) => _playMessageSent())
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -317,6 +314,8 @@ class ChatController extends GetxController {
                 .onError<ConnectionException>((e, _) {});
 
             send.clear();
+
+            chat?.setDraft();
 
             _typingSubscription?.cancel();
             _typingSubscription = null;

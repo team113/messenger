@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -223,7 +222,7 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<Chat> createLocalDialog(User responder) async {
-    ChatId chatId = ChatId.local();
+    ChatId chatId = ChatId.local(responder.id.val);
     final hiveChat = HiveChat(
       Chat(
         chatId,
@@ -236,15 +235,13 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     await _putChat(hiveChat);
-    await _userRepo.attachLocalDialog(responder.id, Chat(chatId));
+    await _userRepo.attachLocalDialog(responder.id, chatId);
 
     return hiveChat.value;
   }
 
   @override
   Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
-    assert(localId.isLocal);
-
     HiveRxChat local = _chats[localId] ?? (await get(localId))!;
 
     ChatData chat = _chat(
@@ -255,7 +252,6 @@ class ChatRepository implements AbstractChatRepository {
 
     chats.move(local.id, chat.chat.value.id);
     remove(localId);
-    _draftLocal.remove(localId);
     await local.updateChat(chat.chat.value);
 
     return local;
@@ -655,22 +651,27 @@ class ChatRepository implements AbstractChatRepository {
     List<ChatItemQuote> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-  }) =>
-      _graphQlProvider.forwardChatItems(
-        from,
-        to,
-        items
-            .map(
-              (i) => ChatItemQuoteInput(
-                id: i.item.id,
-                attachments: i.attachments,
-                withText: i.withText,
-              ),
-            )
-            .toList(),
-        text: text,
-        attachments: attachments,
-      );
+  }) async {
+    if (to.isLocal) {
+      to = (await replaceLocalDialog(to)).id;
+    }
+
+    await _graphQlProvider.forwardChatItems(
+      from,
+      to,
+      items
+          .map(
+            (i) => ChatItemQuoteInput(
+              id: i.item.id,
+              attachments: i.attachments,
+              withText: i.withText,
+            ),
+          )
+          .toList(),
+      text: text,
+      attachments: attachments,
+    );
+  }
 
   @override
   Future<void> updateChatAvatar(
@@ -1023,9 +1024,9 @@ class ChatRepository implements AbstractChatRepository {
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Hive].
-  Future<void> _putChat(HiveChat chat) async {
+  Future<void> _putChat(HiveChat chat, {bool ignoreVersion = false}) async {
     var saved = _chatLocal.get(chat.value.id);
-    if (saved == null || saved.ver < chat.ver) {
+    if (saved == null || saved.ver < chat.ver || ignoreVersion) {
       await _chatLocal.put(chat);
     }
   }
@@ -1173,16 +1174,10 @@ class ChatRepository implements AbstractChatRepository {
       if (data.chat.value.isDialog) {
         ChatMember member =
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
-        HiveChat? localDialog = _chatLocal.chats.firstWhereOrNull(
-          (e) =>
-              e.value.id.isLocal &&
-              e.value.members.any((e) => e.user.id == member.user.id),
-        );
+        ChatId localId = ChatId.local(member.user.id.val);
 
-        if (localDialog != null) {
-          remove(localDialog.value.id);
-          _draftLocal.move(localDialog.value.id, data.chat.value.id);
-        }
+        remove(localId);
+        _draftLocal.move(localId, data.chat.value.id);
       }
 
       entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);

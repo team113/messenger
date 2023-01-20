@@ -201,12 +201,12 @@ class UserRepository implements AbstractUserRepository {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
-  /// Attaches the provided [chat]-dialog to the specified [User].
-  Future<void> attachLocalDialog(UserId id, Chat chat) async {
+  /// Attaches the provided local [dialogId] to the specified [User].
+  Future<void> attachLocalDialog(UserId id, ChatId dialogId) async {
     RxUser? user = await get(id);
 
     if (user != null) {
-      user.user.value.dialog = chat;
+      user.user.value.dialog = dialogId;
       update(user.user.value);
     }
   }
@@ -254,7 +254,7 @@ class UserRepository implements AbstractUserRepository {
         saved.blacklistedVer < user.blacklistedVer ||
         ignoreVersion) {
       if (saved?.value.dialog != null &&
-          saved!.value.dialog!.id.isLocal &&
+          saved!.value.dialog!.isLocal &&
           user.value.dialog == null) {
         user.value.dialog = saved.value.dialog;
       }

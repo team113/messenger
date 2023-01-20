@@ -286,8 +286,7 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
-          final chat =
-              c.user?.dialog.value?.chat.value ?? c.user?.user.value.dialog;
+          final chat = c.user?.dialog.value?.chat.value;
           final bool isMuted = chat?.muted != null;
 
           return action(

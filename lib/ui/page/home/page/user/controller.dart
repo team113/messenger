@@ -228,27 +228,27 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    Chat? dialog = user?.user.value.dialog;
+    ChatId? dialog = user?.user.value.dialog;
 
     if (user!.id == me) {
-      dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+      dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value.id;
     } else {
-      if (dialog?.id.isLocal ?? false) {
-        dialog = (await _chatService.get(dialog!.id))?.chat.value;
+      if (dialog?.isLocal ?? false) {
+        dialog = (await _chatService.get(dialog!))?.chat.value.id;
       }
-      dialog ??= await _chatService.createLocalDialog(user!.user.value);
+      dialog ??= (await _chatService.createLocalDialog(user!.user.value)).id;
     }
 
-    router.chat(dialog.id, push: true);
+    router.chat(dialog, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
+    ChatId? dialog = user?.user.value.dialog;
+    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value.id;
 
     try {
-      await _callService.call(dialog.id, withVideo: withVideo);
+      await _callService.call(dialog, withVideo: withVideo);
     } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
     }
@@ -300,8 +300,7 @@ class UserController extends GetxController {
 
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -317,8 +316,7 @@ class UserController extends GetxController {
 
   /// Unmutes a [Chat]-dialog with the [user].
   Future<void> unmuteChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
 
     if (dialog != null) {
       try {
@@ -334,8 +332,7 @@ class UserController extends GetxController {
 
   /// Hides a [Chat]-dialog with the [user].
   Future<void> hideChat() async {
-    final ChatId? dialog =
-        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+    final ChatId? dialog = user?.dialog.value?.id ?? user?.user.value.dialog;
 
     if (dialog != null) {
       try {

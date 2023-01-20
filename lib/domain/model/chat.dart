@@ -247,7 +247,8 @@ class ChatId extends NewType<String> {
   const ChatId(String val) : super(val);
 
   /// Constructs a dummy [ChatId].
-  factory ChatId.local() => ChatId('local_${const Uuid().v4()}');
+  factory ChatId.local([String? id]) =>
+      ChatId('local_${id ?? const Uuid().v4()}');
 
   /// Indicates whether this [ChatId] is a dummy ID.
   bool get isLocal => val.startsWith('local_');
