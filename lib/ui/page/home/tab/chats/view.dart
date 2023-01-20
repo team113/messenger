@@ -235,24 +235,24 @@ class ChatsTabView extends StatelessWidget {
                 ),
                 body: Obx(() {
                   if (!c.chatsReady.value || c.loader.value) {
-                    // return const Center(child: CustomProgressIndicator());
-                    return LayoutBuilder(builder: (context, constraints) {
-                      final int howMuch = constraints.maxHeight ~/ 80;
+                    return const Center(child: CustomProgressIndicator());
+                    // return LayoutBuilder(builder: (context, constraints) {
+                    //   final int howMuch = constraints.maxHeight ~/ 80;
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: howMuch,
-                          itemBuilder: (context, i) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: RecentChatTile(null),
-                            );
-                          },
-                        ),
-                      );
-                    });
+                    //   return Padding(
+                    //     padding: const EdgeInsets.symmetric(vertical: 5),
+                    //     child: ListView.builder(
+                    //       physics: const NeverScrollableScrollPhysics(),
+                    //       itemCount: howMuch,
+                    //       itemBuilder: (context, i) {
+                    //         return const Padding(
+                    //           padding: EdgeInsets.symmetric(horizontal: 10),
+                    //           child: RecentChatTile(null),
+                    //         );
+                    //       },
+                    //     ),
+                    //   );
+                    // });
                   }
 
                   final Widget? child;

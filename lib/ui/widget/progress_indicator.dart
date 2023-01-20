@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({
@@ -39,10 +40,64 @@ class CustomProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F0F0).withOpacity(1),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(12),
+      child: CircularProgressIndicator(
+        value: value,
+        color: color ?? Theme.of(context).colorScheme.secondary,
+        backgroundColor: backgroundColor,
+        valueColor: valueColor,
+        strokeWidth: strokeWidth,
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+          // shape: BoxShape.circle,
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withOpacity(0.2),
+          //     blurRadius: 8,
+          //     blurStyle: BlurStyle.outer,
+          //   ),
+          // ],
+          ),
+      child: ConditionalBackdropFilter(
+        borderRadius: BorderRadius.circular(100),
+        child: Container(
+          decoration: BoxDecoration(
+            // color: const Color(0xFFF0F0F0).withOpacity(0.2),
+            color: Colors.black.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(12),
+          child: CircularProgressIndicator(
+            value: value,
+            color: Colors.white,
+            // color: color ?? Theme.of(context).colorScheme.secondary,
+            backgroundColor: backgroundColor,
+            valueColor: valueColor,
+            strokeWidth: strokeWidth,
+          ),
+        ),
+      ),
+    );
+
     // if (value != null) {
     return CircularProgressIndicator(
       value: value,
-      color: color ?? Theme.of(context).colorScheme.secondary,
+      color: color ?? Theme.of(context).colorScheme.primary,
       backgroundColor: backgroundColor,
       valueColor: valueColor,
       strokeWidth: strokeWidth,

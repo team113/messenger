@@ -26,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/chat.dart';
@@ -395,26 +396,31 @@ class _ChatViewState extends State<ChatView>
                         ),
                       ),
                     ),
+                    // floatingActionButtonLocation:
+                    //     FloatingActionButtonLocation.centerFloat,
                     floatingActionButton: Obx(() {
                       return SizedBox(
                         width: 50,
                         height: 50,
                         child: AnimatedSwitcher(
                           duration: 200.milliseconds,
-                          child: c.chat!.status.value.isLoadingMore
-                              ? const CustomProgressIndicator()
-                              : c.canGoBack.isTrue
-                                  ? FloatingActionButton(
-                                      onPressed: c.animateToBack,
-                                      child: const Icon(Icons.arrow_upward),
+                          child: c.canGoBack.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBack,
+                                  child: const Icon(Icons.arrow_upward),
+                                )
+                              : c.canGoDown.isTrue
+                                  ? FloatingActionButton.small(
+                                      onPressed: c.animateToBottom,
+                                      child: const Icon(Icons.arrow_downward),
                                     )
-                                  : c.canGoDown.isTrue
-                                      ? FloatingActionButton(
-                                          onPressed: c.animateToBottom,
-                                          child:
-                                              const Icon(Icons.arrow_downward),
-                                        )
-                                      : const SizedBox(),
+                                  : const SizedBox(),
+                          // : c.chat!.status.value.isLoadingMore || true
+                          //     ? const SizedBox.square(
+                          //         dimension: 40,
+                          //         child: CustomProgressIndicator(),
+                          //       )
+                          //     : const SizedBox(),
                         ),
                       );
                     }),
@@ -694,6 +700,30 @@ class _ChatViewState extends State<ChatView>
       return _timeLabel(element.id.at.val, c, i);
     } else if (element is UnreadMessagesElement) {
       return _unreadLabel(context, c);
+    } else if (element is LoaderElement) {
+      return Obx(() {
+        final Widget child;
+
+        if (c.bottomLoader.value || i == 0) {
+          child = Center(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0, i == 0 ? 36 : 12, 0, 12),
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tight(const Size.square(40)),
+                child: const Center(child: CustomProgressIndicator()),
+              ),
+            ),
+          );
+        } else {
+          child = const SizedBox();
+        }
+
+        return AnimatedSizeAndFade(
+          fadeDuration: const Duration(milliseconds: 200),
+          sizeDuration: const Duration(milliseconds: 200),
+          child: child,
+        );
+      });
     }
 
     return const SizedBox();

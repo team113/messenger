@@ -171,6 +171,11 @@ class ChatController extends GetxController {
   /// Duration of a [Chat.ongoingCall].
   final Rx<Duration?> duration = Rx(null);
 
+  final RxBool bottomLoader = RxBool(false);
+
+  LoaderElement? _topLoader;
+  LoaderElement? _bottomLoader;
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -621,6 +626,11 @@ class ChatController extends GetxController {
         add(e);
       }
 
+      _topLoader = LoaderElement(
+        PreciseDateTime(DateTime.fromMicrosecondsSinceEpoch(0)),
+      );
+      elements[_topLoader!.id] = _topLoader!;
+
       _messagesSubscription = chat!.messages.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
@@ -849,6 +859,32 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
+      Timer? _timer = Timer(const Duration(seconds: 1), () {
+        if (!status.value.isSuccess || status.value.isLoadingMore) {
+          bottomLoader.value = true;
+          _bottomLoader = LoaderElement(
+            (chat?.messages.lastOrNull?.value.at
+                    .add(const Duration(microseconds: 1)) ??
+                PreciseDateTime.now()),
+          );
+          elements[_bottomLoader!.id] = _bottomLoader!;
+
+          if (listController.position.pixels >=
+              listController.position.maxScrollExtent - 100) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              listController.sliverController.animateToIndex(
+                elements.length - 1,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+                offsetBasedOnBottom: true,
+              );
+            });
+          }
+          print('${_bottomLoader!.id}');
+        }
+      });
+
+      await Future.delayed(const Duration(seconds: 2));
       await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -867,6 +903,17 @@ class ChatController extends GetxController {
       }
 
       status.value = RxStatus.success();
+
+      if (_bottomLoader != null) {
+        bottomLoader.value = false;
+
+        Timer(const Duration(milliseconds: 200), () {
+          if (_bottomLoader != null) {
+            elements.remove(_bottomLoader!.id);
+            _bottomLoader = null;
+          }
+        });
+      }
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
@@ -1352,6 +1399,11 @@ class DateTimeElement extends ListElement {
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
       : super(ListElementId(at, const ChatItemId('1')));
+}
+
+class LoaderElement extends ListElement {
+  LoaderElement(PreciseDateTime at)
+      : super(ListElementId(at, const ChatItemId('2')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
