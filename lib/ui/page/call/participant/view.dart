@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,7 +25,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/animated_size_and_fade.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';

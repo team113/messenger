@@ -49,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned mobile interface. ([#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. 
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])

@@ -62,6 +62,7 @@ class ContactTile extends StatelessWidget {
   /// [RxUser] to display.
   final RxUser? user;
 
+  /// Indicator whether this [ContactTile] should be dense or not.
   final bool dense;
 
   /// Optional leading [Widget]s.
@@ -137,11 +138,9 @@ class ContactTile extends StatelessWidget {
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                 : null,
-            padding: EdgeInsets.fromLTRB(
-              12,
-              dense ? 11 : 14,
-              12,
-              dense ? 11 : 14,
+            padding: EdgeInsets.symmetric(
+              vertical: dense ? 11 : 14,
+              horizontal: 12,
             ),
             child: Row(
               children: [
