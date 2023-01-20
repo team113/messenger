@@ -431,7 +431,7 @@ class UpdateUserLoginException
       case UpdateUserLoginErrorCode.occupied:
         return 'err_login_occupied'.l10n;
       case UpdateUserLoginErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
     }
   }
 }
