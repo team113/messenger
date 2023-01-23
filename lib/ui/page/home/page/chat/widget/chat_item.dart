@@ -56,7 +56,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
-import 'chat_item_reads.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -1416,6 +1416,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
                         actions: [
+                          ContextMenuButton(
+                            label: PlatformUtils.isMobile
+                                ? 'btn_info'.l10n
+                                : 'btn_message_info'.l10n,
+                            trailing: SvgLoader.asset(
+                              'assets/icons/copy_small.svg',
+                              height: 18,
+                            ),
+                            onPressed: () => ChatItemReads.show(
+                              context,
+                              id: widget.item.value.id,
+                              reads: widget.chat.value?.lastReads.where(
+                                    (e) =>
+                                        !e.at.val.isBefore(
+                                            widget.item.value.at.val) &&
+                                        e.memberId !=
+                                            widget.item.value.authorId,
+                                  ) ??
+                                  [],
+                              getUser: widget.getUser,
+                            ),
+                          ),
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),

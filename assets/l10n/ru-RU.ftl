@@ -689,3 +689,7 @@ label_your_direct_link = Прямая ссылка на чат с Вами
 plus = +
 space = {" "}
 space_vertical_space = {" "}|{" "}
+label_message = Сообщение
+btn_message_info = Информация о сообщении
+label_not_found = Не найдено
+label_copied = Скопировано
