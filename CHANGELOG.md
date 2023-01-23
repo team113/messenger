@@ -37,16 +37,19 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- Android:
+    - Transparent status and navigation. ([#211], [#208])
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142])
+        - Redesigned chats tab. ([#211], [#142])
         - Redesigned introduction and logout modals. ([#249])
-        - Redesigned menu tab. ([#313], [#244], [#243])
+        - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
         - Redesigned mobile interface. ([#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. ([#332], [#328])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
@@ -99,7 +102,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#205]: /../../issues/205
 [#206]: /../../pull/206
+[#208]: /../../issues/208
 [#209]: /../../issues/209
+[#211]: /../../pull/211
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#215]: /../../issues/215
@@ -154,6 +159,8 @@ All user visible changes to this project will be documented in this file. This p
 [#316]: /../../pull/316
 [#317]: /../../pull/317
 [#323]: /../../pull/323
+[#328]: /../../issues/328
+[#332]: /../../pull/332
 
 
 
