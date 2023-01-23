@@ -49,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned mobile interface. ([#319], [#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. ([#332], [#328])
         - Redesigned desktop interface. ([#319], [#309])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
@@ -161,6 +162,8 @@ All user visible changes to this project will be documented in this file. This p
 [#317]: /../../pull/317
 [#319]: /../../pull/319
 [#323]: /../../pull/323
+[#328]: /../../issues/328
+[#332]: /../../pull/332
 
 
 

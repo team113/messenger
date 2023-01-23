@@ -507,6 +507,7 @@ class ChatInfoView extends StatelessWidget {
             return ContactTile(
               user: e,
               darken: 0.05,
+              dense: true,
               onTap: () => router.user(e.id, push: true),
               trailing: [
                 if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
