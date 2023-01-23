@@ -586,7 +586,6 @@ label_open_calls_in_app = Отображать звонки в окне прил
 label_open_calls_in_window = Отображать звонки в отдельном окне.
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
-label_participants = Участники
 label_participants_of = Участников: {$a} из {$b}
 label_password = Пароль
 label_password_changed = Пароль изменён.

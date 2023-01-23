@@ -37,7 +37,6 @@ class ContactTile extends StatelessWidget {
     this.contact,
     this.user,
     this.myUser,
-    this.dense = false,
     this.leading = const [],
     this.trailing = const [],
     this.onTap,
@@ -48,6 +47,7 @@ class ContactTile extends StatelessWidget {
     this.radius = 30,
     this.actions,
     this.folded = false,
+    this.dense = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     Widget Function(Widget)? avatarBuilder,
@@ -61,9 +61,6 @@ class ContactTile extends StatelessWidget {
 
   /// [RxUser] to display.
   final RxUser? user;
-
-  /// Indicator whether this [ContactTile] should be dense or not.
-  final bool dense;
 
   /// Optional leading [Widget]s.
   final List<Widget> leading;
@@ -82,6 +79,9 @@ class ContactTile extends StatelessWidget {
 
   /// Indicator whether this [ContactTile] should have its corner folded.
   final bool folded;
+
+  /// Indicator whether this [ContactTile] should be dense.
+  final bool dense;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
@@ -139,8 +139,8 @@ class ContactTile extends StatelessWidget {
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                 : null,
             padding: EdgeInsets.symmetric(
-              vertical: dense ? 11 : 14,
               horizontal: 12,
+              vertical: dense ? 11 : 14,
             ),
             child: Row(
               children: [

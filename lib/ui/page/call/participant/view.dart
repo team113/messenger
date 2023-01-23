@@ -102,7 +102,7 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final Set<UserId> actualMembers =
+              final Set<UserId> ids =
                   call.value.members.keys.map((k) => k.userId).toSet();
 
               child = Container(
@@ -115,7 +115,7 @@ class ParticipantView extends StatelessWidget {
                       header: Center(
                         child: Text(
                           'label_participants_of'.l10nfmt({
-                            'a': actualMembers.length,
+                            'a': ids.length,
                             'b': c.chat.value?.members.length ?? 1,
                           }),
                           style: thin?.copyWith(fontSize: 18),
@@ -130,10 +130,7 @@ class ParticipantView extends StatelessWidget {
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           children: c.chat.value!.members.values.map((e) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: _user(context, c, e),
-                            );
+                            return _user(context, c, e);
                           }).toList(),
                         ),
                       ),

@@ -567,7 +567,6 @@ label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
-label_participants = Participants
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
