@@ -29,17 +29,30 @@ import 'src/interface.dart'
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
-    Key? key,
+    super.key,
+    this.url,
     this.file,
     this.bytes,
     this.height,
     this.onError,
-  })  : assert(
-            (file != null && bytes == null) || (file == null && bytes != null)),
-        super(key: key);
+  }) : assert(file != null || bytes != null || url != null);
 
   /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.storageFile({
+  factory VideoThumbnail.url({
+    Key? key,
+    required String url,
+    double? height,
+    Future<void> Function()? onError,
+  }) =>
+      VideoThumbnail._(
+        key: key,
+        url: url,
+        height: height,
+        onError: onError,
+      );
+
+  /// Constructs a [VideoThumbnail] from the provided [url].
+  factory VideoThumbnail.file({
     Key? key,
     required StorageFile file,
     double? height,
@@ -66,7 +79,10 @@ class VideoThumbnail extends StatefulWidget {
         onError: onError,
       );
 
-  /// [StorageFile] of the video to display.
+  /// URL of the video to display.
+  final String? url;
+
+  /// [StorageFile] representing the video to display.
   final StorageFile? file;
 
   /// Byte data of the video to display.
@@ -105,7 +121,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void didUpdateWidget(VideoThumbnail oldWidget) {
-    if (oldWidget.bytes != widget.bytes || oldWidget.file != widget.file) {
+    if (oldWidget.bytes != widget.bytes ||
+        oldWidget.url != widget.url ||
+        oldWidget.file != widget.file) {
       _initVideo();
     }
 
@@ -176,7 +194,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       if (bytes != null) {
         _controller = VideoPlayerControllerExt.bytes(bytes);
       } else {
-        _controller = VideoPlayerController.network(widget.file!.url);
+        _controller =
+            VideoPlayerController.network(widget.file?.url ?? widget.url!);
       }
 
       await _controller.initialize();

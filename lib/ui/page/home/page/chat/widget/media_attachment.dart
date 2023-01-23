@@ -26,15 +26,15 @@ import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Visual representation of an media [Attachment].
+/// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
   const MediaAttachment({
+    super.key,
     required this.attachment,
     this.width,
     this.height,
     this.fit,
     this.onError,
-    super.key,
   });
 
   /// [Attachment] to display.
@@ -56,19 +56,15 @@ class MediaAttachment extends StatefulWidget {
   State<MediaAttachment> createState() => _MediaAttachmentState();
 }
 
-/// State of a [MediaAttachment] caching an attachment data.
+/// State of a [MediaAttachment] caching [LocalAttachment]s on the
+/// [didUpdateWidget] callbacks.
 class _MediaAttachmentState extends State<MediaAttachment> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   void didUpdateWidget(covariant MediaAttachment oldWidget) {
     if (oldWidget.attachment is LocalAttachment &&
         widget.attachment is! LocalAttachment) {
-      int size = (oldWidget.attachment as LocalAttachment).file.size;
-      Uint8List? bytes =
+      final int size = (oldWidget.attachment as LocalAttachment).file.size;
+      final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
         FIFOCache.set(sha256.convert(bytes).toString(), bytes);
@@ -141,7 +137,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        return VideoThumbnail.storageFile(
+        return VideoThumbnail.file(
           file: attachment.original,
           height: widget.height,
         );
