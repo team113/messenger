@@ -40,6 +40,7 @@ abstract class AbstractChatRepository {
   /// Indicates whether this repository was initialized and [chats] can be
   /// used.
   RxBool get isReady;
+  Rx<RxStatus> get status;
 
   /// Initializes this repository.
   ///

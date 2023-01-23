@@ -80,6 +80,9 @@ class ChatRepository implements AbstractChatRepository {
   /// [UserId] of the currently authenticated [MyUser].
   final UserId? me;
 
+  @override
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -144,9 +147,13 @@ class ChatRepository implements AbstractChatRepository {
       _isReady.value = true;
     }
 
+    status.value =
+        _chatLocal.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
     _initLocalSubscription();
     _initDraftSubscription();
 
+    await Future.delayed(Duration(seconds: 5));
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
     for (HiveChat c in _chatLocal.chats) {
@@ -164,6 +171,7 @@ class ChatRepository implements AbstractChatRepository {
     _initFavoriteChatsSubscription();
 
     _isReady.value = true;
+    status.value = RxStatus.success();
   }
 
   @override

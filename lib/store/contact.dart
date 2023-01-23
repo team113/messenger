@@ -64,6 +64,9 @@ class ContactRepository implements AbstractContactRepository {
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
+  @override
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -100,6 +103,9 @@ class ContactRepository implements AbstractContactRepository {
     } else {
       isReady.value = _sessionLocal.getChatContactsListVersion() != null;
     }
+
+    status.value =
+        _contactLocal.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -305,7 +311,9 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
-        // No-op.
+        if (_sessionLocal.getChatContactsListVersion() != null) {
+          status.value = RxStatus.success();
+        }
         break;
 
       case ChatContactsEventsKind.chatContactsList:
@@ -324,6 +332,7 @@ class ContactRepository implements AbstractContactRepository {
         }
 
         isReady.value = true;
+        status.value = RxStatus.success();
         break;
 
       case ChatContactsEventsKind.event:

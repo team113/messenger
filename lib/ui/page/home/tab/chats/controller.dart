@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -74,7 +75,7 @@ class ChatsTabController extends GetxController {
   );
 
   /// Reactive list of sorted [Chat]s.
-  late final RxList<RxChat> chats;
+  late final RxList<ListElement> chats;
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -90,6 +91,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
+
+  final Rx<LoaderElement?> loader = Rx(null);
+  late final Rx<Timer?> timer;
 
   /// Status of the [createGroup] progression.
   ///
@@ -140,25 +144,58 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
-
-  RxBool loader = RxBool(false);
+  Rx<RxStatus> get status => _chatService.status;
 
   @override
   void onInit() {
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
+    chats = RxList<ListElement>(
+      _chatService.chats.values.map((e) => ChatElement(e)).toList(),
+    );
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    // Future.delayed(1.seconds, () => loader.value = false);
+    timer = Rx(Timer(2.seconds, () => timer.value = null));
+    chats.add(const LoaderElement());
+
+    // _timer = Timer(
+    //   2.seconds,
+    //   () {
+    //     if (!status.value.isSuccess || status.value.isLoadingMore) {
+    //       const LoaderElement element = LoaderElement();
+    //       chats.insert(0, element);
+
+    //       SchedulerBinding.instance.addPostFrameCallback((_) {
+    //         loader.value = element;
+    //       });
+
+    //       Worker? worker;
+    //       worker = ever(status, (RxStatus status) {
+    //         if (status.isSuccess && !status.isLoadingMore && worker != null) {
+    //           worker = null;
+    //           loader.value = null;
+
+    //           Future.delayed(
+    //             const Duration(milliseconds: 200),
+    //             () => chats.removeWhere((e) => e is LoaderElement),
+    //           );
+    //         }
+    //       });
+    //     }
+    //   },
+    // );
+
+    Future.delayed(30.seconds, () => loader.value = null);
 
     _sortChats();
 
-    for (RxChat chat in chats) {
-      _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, _sortChats);
+    for (ListElement chat in chats) {
+      if (chat is ChatElement) {
+        _sortingData[chat.chat.chat.value.id] =
+            _ChatSortingData(chat.chat.chat, _sortChats);
+      }
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -179,11 +216,15 @@ class ChatsTabController extends GetxController {
       }
     }
 
-    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
+    chats
+        .whereType<ChatElement>()
+        .where((c) => c.chat.chat.value.isDialog)
+        .map((e) => e.chat)
+        .forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(event.value!);
+          chats.add(ChatElement(event.value!));
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
@@ -195,7 +236,9 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          chats.removeWhere((e) => e.chat.value.id == event.key);
+          chats.removeWhere(
+            (e) => e is ChatElement && e.chat.chat.value.id == event.key,
+          );
 
           if (event.value!.chat.value.isDialog) {
             final UserId? userId = event.value!.chat.value.members
@@ -526,27 +569,38 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
+      if (a is LoaderElement) {
         return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
+      } else if (b is LoaderElement) {
+        return -1;
+      } else if (a is ChatElement && b is ChatElement) {
+        final RxChat c = a.chat;
+        final RxChat d = b.chat;
+
+        if (c.chat.value.favoritePosition != null &&
+            d.chat.value.favoritePosition == null) {
+          return -1;
+        } else if (c.chat.value.favoritePosition == null &&
+            d.chat.value.favoritePosition != null) {
+          return 1;
+        } else if (c.chat.value.favoritePosition != null &&
+            d.chat.value.favoritePosition != null) {
+          return c.chat.value.favoritePosition!
+              .compareTo(d.chat.value.favoritePosition!);
+        }
+
+        if (c.chat.value.ongoingCall != null &&
+            d.chat.value.ongoingCall == null) {
+          return -1;
+        } else if (c.chat.value.ongoingCall == null &&
+            d.chat.value.ongoingCall != null) {
+          return 1;
+        }
+
+        return c.chat.value.updatedAt.compareTo(d.chat.value.updatedAt);
       }
 
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
+      return 0;
     });
   }
 
@@ -677,4 +731,8 @@ class RecentElement extends ListElement {
 
   /// [RxUser] itself.
   final RxUser user;
+}
+
+class LoaderElement extends ListElement {
+  const LoaderElement();
 }

@@ -859,7 +859,7 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      Timer? _timer = Timer(const Duration(seconds: 1), () {
+      Timer? _timer = Timer(const Duration(seconds: 2), () {
         if (!status.value.isSuccess || status.value.isLoadingMore) {
           bottomLoader.value = true;
           _bottomLoader = LoaderElement(

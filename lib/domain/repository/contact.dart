@@ -36,6 +36,8 @@ abstract class AbstractContactRepository {
   /// used.
   RxBool get isReady;
 
+  Rx<RxStatus> get status;
+
   /// Initializes this repository.
   Future<void> init();
 

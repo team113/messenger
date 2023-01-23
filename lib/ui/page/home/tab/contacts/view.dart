@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/repository/contact.dart';
@@ -135,7 +136,35 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Text('label_contacts'.l10n);
+                final bool isLoading = c.timer.value == null &&
+                    (c.status.value.isLoadingMore || !c.status.value.isSuccess);
+
+                child = Column(
+                  key: const Key('2'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('label_contacts'.l10n),
+                    AnimatedSizeAndFade(
+                      sizeDuration: const Duration(milliseconds: 300),
+                      fadeDuration: const Duration(milliseconds: 300),
+                      child: isLoading
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Center(
+                                child: Text(
+                                  'Синхронизация...',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity),
+                    ),
+                  ],
+                );
               }
 
               return AnimatedSwitcher(duration: 250.milliseconds, child: child);
@@ -392,18 +421,34 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              c.contacts.mapIndexed((i, e) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                              [
+                                ...c.contacts.mapIndexed((i, e) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: _contact(context, e, c),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                Center(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints.tight(
+                                        const Size.square(40),
+                                      ),
+                                      child: const Center(
+                                        child: CustomProgressIndicator(),
+                                      ),
                                     ),
                                   ),
-                                );
-                              }).toList(),
+                                ),
+                              ],
                             ),
                           ),
                         ),

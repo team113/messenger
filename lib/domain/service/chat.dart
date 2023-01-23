@@ -46,6 +46,8 @@ class ChatService extends DisposableService {
   /// [chats] value is fetched.
   RxBool get isReady => _chatRepository.isReady;
 
+  Rx<RxStatus> get status => _chatRepository.status;
+
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 

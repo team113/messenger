@@ -211,6 +211,25 @@ Widget desktopCall(CallController c, BuildContext context) {
             ],
           ),
 
+          // Dim the primary view in a non-active call.
+          Obx(() {
+            final Widget child;
+
+            if (c.state.value == OngoingCallState.active) {
+              child = const SizedBox();
+            } else {
+              child = IgnorePointer(
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: const Color(0x70000000),
+                ),
+              );
+            }
+
+            return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+          }),
+
           possibleContainer(),
 
           // Makes UI appear on click.

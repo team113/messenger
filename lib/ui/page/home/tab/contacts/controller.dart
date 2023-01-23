@@ -79,6 +79,8 @@ class ContactsTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  late final Rx<Timer?> timer;
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
@@ -112,6 +114,7 @@ class ContactsTabController extends GetxController {
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
+  Rx<RxStatus> get status => _chatService.status;
 
   /// Indicates whether [contacts] should be sorted by their names or otherwise
   /// by their [User.lastSeenAt] dates.
@@ -131,6 +134,8 @@ class ContactsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
+
+    timer = Rx(Timer(2.seconds, () => timer.value = null));
 
     super.onInit();
   }

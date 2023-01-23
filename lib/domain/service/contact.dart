@@ -33,6 +33,7 @@ class ContactService extends DisposableService {
   /// Changes to `true` once the underlying data storage is initialized and
   /// [contacts] value is fetched.
   RxBool get isReady => _contactRepository.isReady;
+  Rx<RxStatus> get status => _contactRepository.status;
 
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>

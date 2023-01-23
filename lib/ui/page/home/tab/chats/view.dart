@@ -18,6 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:skeletons/skeletons.dart';
 
@@ -159,7 +161,37 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else {
-                      child = Text('label_chats'.l10n, key: const Key('2'));
+                      final bool isLoading = c.timer.value == null &&
+                          (c.status.value.isLoadingMore ||
+                              !c.status.value.isSuccess);
+
+                      child = Column(
+                        key: const Key('2'),
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('label_chats'.l10n),
+                          AnimatedSizeAndFade(
+                            sizeDuration: const Duration(milliseconds: 300),
+                            fadeDuration: const Duration(milliseconds: 300),
+                            child: isLoading
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Center(
+                                      child: Text(
+                                        'Синхронизация...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox(width: double.infinity),
+                          ),
+                        ],
+                      );
                     }
 
                     return AnimatedSwitcher(
@@ -237,9 +269,9 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
-                  if (!c.chatsReady.value || c.loader.value) {
-                    return const Center(child: CustomProgressIndicator());
-                  }
+                  // if (!c.chatsReady.value || c.loader.value) {
+                  //   return const Center(child: CustomProgressIndicator());
+                  // }
 
                   final Widget? child;
 
@@ -275,8 +307,9 @@ class ChatsTabView extends StatelessWidget {
                           controller: c.search.value!.controller,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
-                            final ListElement element = c.elements[i];
                             final Widget child;
+
+                            final ListElement element = c.elements[i];
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -496,42 +529,98 @@ class ChatsTabView extends StatelessWidget {
                           controller: c.scrollController,
                           itemCount: c.chats.length,
                           itemBuilder: (_, i) {
-                            final RxChat chat = c.chats[i];
-                            return AnimationConfiguration.staggeredList(
-                              position: i,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                horizontalOffset: 50,
-                                child: FadeInAnimation(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
+                            final ListElement element = c.chats[i];
+
+                            if (element is LoaderElement) {
+                              return Center(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints.tight(
+                                      const Size.square(40),
                                     ),
-                                    child: Obx(() {
-                                      return RecentChatTile(
-                                        chat,
-                                        key: Key('RecentChat_${chat.id}'),
-                                        me: c.me,
-                                        myUser: c.myUser.value,
-                                        blocked: chat.blacklisted,
-                                        getUser: c.getUser,
-                                        onJoin: () => c.joinCall(chat.id),
-                                        onDrop: () => c.dropCall(chat.id),
-                                        onLeave: () => c.leaveChat(chat.id),
-                                        onHide: () => c.hideChat(chat.id),
-                                        inCall: () => c.inCall(chat.id),
-                                        onMute: () => c.muteChat(chat.id),
-                                        onUnmute: () => c.unmuteChat(chat.id),
-                                        onFavorite: () =>
-                                            c.favoriteChat(chat.id),
-                                        onUnfavorite: () =>
-                                            c.unfavoriteChat(chat.id),
-                                      );
-                                    }),
+                                    child: const Center(
+                                      child: CustomProgressIndicator(),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
+
+                              return Obx(() {
+                                final Widget child;
+
+                                if (c.loader.value != null) {
+                                  child = Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        0,
+                                        12,
+                                        0,
+                                        12,
+                                      ),
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints.tight(
+                                          const Size.square(40),
+                                        ),
+                                        child: const Center(
+                                            child: CustomProgressIndicator()),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  child = const SizedBox();
+                                }
+
+                                return AnimatedSizeAndFade(
+                                  fadeDuration:
+                                      const Duration(milliseconds: 200),
+                                  sizeDuration:
+                                      const Duration(milliseconds: 200),
+                                  child: child,
+                                );
+                              });
+                            } else if (element is ChatElement) {
+                              final RxChat chat = element.chat;
+
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      child: Obx(() {
+                                        return RecentChatTile(
+                                          chat,
+                                          key: Key('RecentChat_${chat.id}'),
+                                          me: c.me,
+                                          myUser: c.myUser.value,
+                                          blocked: chat.blacklisted,
+                                          getUser: c.getUser,
+                                          onJoin: () => c.joinCall(chat.id),
+                                          onDrop: () => c.dropCall(chat.id),
+                                          onLeave: () => c.leaveChat(chat.id),
+                                          onHide: () => c.hideChat(chat.id),
+                                          inCall: () => c.inCall(chat.id),
+                                          onMute: () => c.muteChat(chat.id),
+                                          onUnmute: () => c.unmuteChat(chat.id),
+                                          onFavorite: () =>
+                                              c.favoriteChat(chat.id),
+                                          onUnfavorite: () =>
+                                              c.unfavoriteChat(chat.id),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return const SizedBox();
                           },
                         ),
                       ),
@@ -545,6 +634,28 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
+                // floatingActionButtonLocation:
+                //     FloatingActionButtonLocation.centerFloat,
+                // floatingActionButton: Padding(
+                //   padding:
+                //       const EdgeInsets.only(bottom: CustomNavigationBar.height),
+                //   child: Obx(() {
+                //     final bool isLoading = !c.chatsReady.value ||
+                //         c.loader.value != null ||
+                //         c.status.value.isLoading ||
+                //         c.status.value.isLoadingMore;
+
+                //     if (isLoading) {
+                //       return ConstrainedBox(
+                //         constraints:
+                //             BoxConstraints.tight(const Size.square(40)),
+                //         child: const Center(child: CustomProgressIndicator()),
+                //       );
+                //     }
+
+                //     return const SizedBox();
+                //   }),
+                // ),
                 bottomNavigationBar:
                     c.groupCreating.value ? _createGroup(context, c) : null,
               );
