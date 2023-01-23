@@ -56,11 +56,11 @@ class CallCoverWidget extends StatelessWidget {
                     height: double.infinity,
                     fit: BoxFit.cover,
                   ),
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: const Color(0x55000000),
-                  )
+                  // Container(
+                  //   width: double.infinity,
+                  //   height: double.infinity,
+                  //   color: const Color(0x55000000),
+                  // )
                 ],
               ),
         if (user != null && cover == null)

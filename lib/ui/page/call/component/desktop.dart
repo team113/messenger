@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/avatar.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -140,8 +141,22 @@ Widget desktopCall(CallController c, BuildContext context) {
                               child = _primaryView(c);
                             } else {
                               if (isDialog) {
-                                child =
-                                    CallCoverWidget(c.chat.value?.callCover);
+                                final User? user = c.chat.value?.members.values
+                                        .firstWhereOrNull(
+                                          (e) => e.id != c.me.id.userId,
+                                        )
+                                        ?.user
+                                        .value ??
+                                    c.chat.value?.chat.value.members
+                                        .firstWhereOrNull(
+                                          (e) => e.user.id != c.me.id.userId,
+                                        )
+                                        ?.user;
+
+                                child = CallCoverWidget(
+                                  c.chat.value?.callCover,
+                                  user: user,
+                                );
                               } else {
                                 if (c.chat.value?.avatar.value != null) {
                                   Avatar avatar = c.chat.value!.avatar.value!;

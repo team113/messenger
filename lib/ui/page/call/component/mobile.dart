@@ -22,6 +22,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/avatar.dart';
+import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/ui/page/call/widget/animated_cliprrect.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
@@ -279,20 +281,70 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         return Stack(
           children: [
-            // Show an [AvatarWidget], if no [CallCover] is available.
-            if (!c.isGroup &&
-                c.chat.value?.callCover == null &&
-                c.minimized.value)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AvatarWidget.fromRxChat(c.chat.value, radius: 60),
-                ),
-              ),
+            // Display a [CallCover] of the call.
+            Obx(() {
+              final bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
-            // Or a [CallCover] otherwise.
-            if (c.chat.value?.callCover != null)
-              CallCoverWidget(c.chat.value?.callCover),
+              if (isDialog) {
+                final User? user = c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        ?.user
+                        .value ??
+                    c.chat.value?.chat.value.members
+                        .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
+                        ?.user;
+
+                return CallCoverWidget(c.chat.value?.callCover, user: user);
+              } else {
+                if (c.chat.value?.avatar.value != null) {
+                  final Avatar avatar = c.chat.value!.avatar.value!;
+                  return CallCoverWidget(
+                    UserCallCover(
+                      full: avatar.full,
+                      original: avatar.original,
+                      square: avatar.full,
+                      vertical: avatar.full,
+                    ),
+                  );
+                }
+              }
+
+              return const SizedBox();
+            }),
+
+            // Dim the primary view in a non-active call.
+            Obx(() {
+              final Widget child;
+
+              if (c.state.value == OngoingCallState.active) {
+                child = const SizedBox();
+              } else {
+                child = IgnorePointer(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: const Color(0x55000000),
+                  ),
+                );
+              }
+
+              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+            }),
+
+            // // Show an [AvatarWidget], if no [CallCover] is available.
+            // if (!c.isGroup &&
+            //     c.chat.value?.callCover == null &&
+            //     c.minimized.value)
+            //   Center(
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(8.0),
+            //       child: AvatarWidget.fromRxChat(c.chat.value, radius: 60),
+            //     ),
+            //   ),
+
+            // // Or a [CallCover] otherwise.
+            // if (c.chat.value?.callCover != null)
+            //   CallCoverWidget(c.chat.value?.callCover),
 
             // Display call's state info only if minimized.
             AnimatedSwitcher(

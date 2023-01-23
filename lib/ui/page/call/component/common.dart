@@ -447,7 +447,7 @@ class SwitchButton extends CallButton {
         assetWidth: 28,
         hinted: hinted,
         withBlur: blur,
-        onPressed: c.toggleSpeaker,
+        onPressed: c.switchCamera,
       );
     });
   }
@@ -474,23 +474,21 @@ Widget withDescription(Widget child, Widget description) {
   );
 }
 
-/// Title call information.
+/// Returns a [Widget] building the title call information.
 Widget callTitle(CallController c) {
   return Obx(() {
-    bool isOutgoing =
+    final bool isOutgoing =
         (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
-    bool isDialog = c.chat.value?.chat.value.isDialog == true;
-
-    bool withDots = c.state.value != OngoingCallState.active &&
+    final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+    final bool withDots = c.state.value != OngoingCallState.active &&
         (c.state.value == OngoingCallState.joining || isOutgoing);
-    String? state = c.state.value == OngoingCallState.active
+    final String? state = c.state.value == OngoingCallState.active
         ? c.duration.value.toString().split('.').first.padLeft(8, '0')
         : c.state.value == OngoingCallState.joining
             ? 'label_call_joining'.l10n
             : isOutgoing
                 ? isDialog
                     ? null
-                    // ? 'label_call_calling'.l10n
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
                     ? 'label_video_call'.l10n
