@@ -18,6 +18,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,6 +38,7 @@ import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -122,22 +124,34 @@ Widget desktopCall(CallController c, BuildContext context) {
                     child: Stack(
                       children: [
                         Obx(() {
-                          final bool isIncoming =
-                              c.state.value != OngoingCallState.active &&
-                                  c.state.value != OngoingCallState.joining &&
-                                  !(c.outgoing ||
-                                      c.state.value == OngoingCallState.local);
-
                           final bool isDialog =
                               c.chat.value?.chat.value.isDialog == true;
 
                           final Widget child;
 
-                          if (!isIncoming) {
+                          // TODO: Replace with `!isIncoming` when this PR is
+                          //       merged:
+                          //       https://github.com/team113/messenger/pull/286
+                          if (c.state.value == OngoingCallState.active) {
                             child = _primaryView(c);
                           } else {
                             if (isDialog) {
-                              child = CallCoverWidget(c.chat.value?.callCover);
+                              final User? user = c.chat.value?.members.values
+                                      .firstWhereOrNull(
+                                        (e) => e.id != c.me.id.userId,
+                                      )
+                                      ?.user
+                                      .value ??
+                                  c.chat.value?.chat.value.members
+                                      .firstWhereOrNull(
+                                        (e) => e.user.id != c.me.id.userId,
+                                      )
+                                      ?.user;
+
+                              child = CallCoverWidget(
+                                c.chat.value?.callCover,
+                                user: user,
+                              );
                             } else {
                               if (c.chat.value?.avatar.value != null) {
                                 final Avatar avatar =
@@ -161,14 +175,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: child,
                           );
                         }),
-                        Obx(
-                          () => MouseRegion(
-                            opaque: false,
-                            cursor: c.isCursorHidden.value
-                                ? SystemMouseCursors.none
-                                : SystemMouseCursors.basic,
-                          ),
-                        ),
+                        Obx(() => MouseRegion(
+                              opaque: false,
+                              cursor: c.isCursorHidden.value
+                                  ? SystemMouseCursors.none
+                                  : SystemMouseCursors.basic,
+                            )),
                       ],
                     ),
                   ),
@@ -192,6 +204,25 @@ Widget desktopCall(CallController c, BuildContext context) {
                 )),
           ],
         ),
+
+        // Dim the primary view in a non-active call.
+        Obx(() {
+          final Widget child;
+
+          if (c.state.value == OngoingCallState.active) {
+            child = const SizedBox();
+          } else {
+            child = IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color(0x55000000),
+              ),
+            );
+          }
+
+          return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
 
         possibleContainer(),
 
@@ -1358,13 +1389,8 @@ Widget _primaryView(CallController c) {
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemConstraints: (_DragData data) {
-            if (data.participant.video.value != null ||
-                data.participant.user.value?.user.value.callCover != null) {
-              final double size = (c.size.longestSide * 0.33).clamp(100, 250);
-              return BoxConstraints(maxWidth: size, maxHeight: size);
-            }
-
-            return null;
+            final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+            return BoxConstraints(maxWidth: size, maxHeight: size);
           },
           itemBuilder: (_DragData data) {
             var participant = data.participant;
@@ -1914,13 +1940,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
             },
             decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
             itemConstraints: (_DragData data) {
-              if (data.participant.video.value != null ||
-                  data.participant.user.value?.user.value.callCover != null) {
-                final double size = (c.size.longestSide * 0.33).clamp(100, 250);
-                return BoxConstraints(maxWidth: size, maxHeight: size);
-              }
-
-              return null;
+              final double size = (c.size.longestSide * 0.33).clamp(100, 250);
+              return BoxConstraints(maxWidth: size, maxHeight: size);
             },
             itemBuilder: (_DragData data) {
               var participant = data.participant;

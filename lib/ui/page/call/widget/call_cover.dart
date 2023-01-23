@@ -48,28 +48,55 @@ class CallCoverWidget extends StatelessWidget {
                 height: double.infinity,
                 fit: BoxFit.cover,
               )
-            : Stack(
-                children: [
-                  RetryImage(
-                    cover!.full.url,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: const Color(0x55000000),
-                  )
-                ],
+            : RetryImage(
+                cover!.full.url,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
         if (user != null && cover == null)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AvatarWidget.fromUser(user, radius: 60),
-            ),
-          ),
+          LayoutBuilder(builder: (context, constraints) {
+            Color gradient;
+
+            final String? title = user?.name?.val ?? user?.num.val;
+            final int? color = user?.num.val.sum();
+
+            if (color != null) {
+              gradient =
+                  AvatarWidget.colors[color % AvatarWidget.colors.length];
+            } else if (title != null) {
+              gradient = AvatarWidget
+                  .colors[(title.hashCode) % AvatarWidget.colors.length];
+            } else {
+              gradient = const Color(0xFF555555);
+            }
+
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  (title ?? '??').initials(),
+                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                        fontSize: (15 * constraints.biggest.shortestSide / 100)
+                            .clamp(15, 108),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaleFactor: 1,
+                ),
+              ),
+            );
+          }),
       ],
     );
   }

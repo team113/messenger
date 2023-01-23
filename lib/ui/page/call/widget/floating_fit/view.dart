@@ -185,8 +185,9 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: Container(
                 width: width,
                 height: height,
-                decoration: const BoxDecoration(
-                  boxShadow: [
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
                     CustomBoxShadow(
                       color: Color(0x44000000),
                       blurRadius: 9,
