@@ -241,8 +241,8 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<HiveRxChat> replaceLocalDialog(ChatId id) async {
-    HiveRxChat local = _chats[id]!;
+  Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
+    HiveRxChat local = _chats[localId]!;
 
     ChatData chat = _chat(
       await _graphQlProvider.createDialogChat(
@@ -251,14 +251,14 @@ class ChatRepository implements AbstractChatRepository {
     );
 
     if (chats[chat.chat.value.id] == null) {
-      chats.move(local.id, chat.chat.value.id);
+      chats.move(localId, chat.chat.value.id);
     } else {
-      chats.remove(local.id);
+      chats.remove(localId);
       await Future.delayed(Duration.zero);
     }
 
     await local.updateChat(chat.chat.value);
-    remove(local.id);
+    remove(localId);
 
     return local;
   }
