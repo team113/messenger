@@ -677,15 +677,15 @@ class HiveRxChat extends RxChat {
 
     for (ChatItem item in messages.map((e) => e.value)) {
       if (item is ChatMessage) {
-        futures.addAll(item.attachments
-            .whereType<FileAttachment>()
-            .map((e) => e.init()));
+        futures.addAll(
+          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
+        );
       } else if (item is ChatForward) {
         ChatItem nested = item.item;
         if (nested is ChatMessage) {
-          futures.addAll(nested.attachments
-              .whereType<FileAttachment>()
-              .map((e) => e.init()));
+          futures.addAll(
+            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
+          );
         }
       }
     }
