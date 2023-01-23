@@ -47,6 +47,7 @@ class ContactTile extends StatelessWidget {
     this.radius = 30,
     this.actions,
     this.folded = false,
+    this.dense = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
     Widget Function(Widget)? avatarBuilder,
@@ -78,6 +79,9 @@ class ContactTile extends StatelessWidget {
 
   /// Indicator whether this [ContactTile] should have its corner folded.
   final bool folded;
+
+  /// Indicator whether this [ContactTile] should be dense.
+  final bool dense;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
@@ -134,16 +138,28 @@ class ContactTile extends StatelessWidget {
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                 : null,
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            padding: EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: dense ? 11 : 14,
+            ),
             child: Row(
               children: [
                 ...leading,
                 avatarBuilder(
                   contact != null
-                      ? AvatarWidget.fromRxContact(contact, radius: radius)
+                      ? AvatarWidget.fromRxContact(
+                          contact,
+                          radius: dense ? 17 : radius,
+                        )
                       : user != null
-                          ? AvatarWidget.fromRxUser(user, radius: radius)
-                          : AvatarWidget.fromMyUser(myUser, radius: radius),
+                          ? AvatarWidget.fromRxUser(
+                              user,
+                              radius: dense ? 17 : radius,
+                            )
+                          : AvatarWidget.fromMyUser(
+                              myUser,
+                              radius: dense ? 17 : radius,
+                            ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
