@@ -70,7 +70,7 @@ class RecentChatTile extends StatelessWidget {
   }) : super(key: key);
 
   /// [RxChat] this [RecentChatTile] is about.
-  final RxChat? rxChat;
+  final RxChat rxChat;
 
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
@@ -118,191 +118,8 @@ class RecentChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (rxChat == null) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
-      final Widget skeleton;
-      if (!PlatformUtils.isWeb) {
-        skeleton = SkeletonItem(
-          child: Row(
-            children: [
-              const SkeletonAvatar(
-                style: SkeletonAvatarStyle(
-                  width: 60,
-                  height: 60,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SkeletonLine(
-                              style: SkeletonLineStyle(
-                                height: 16,
-                                width: double.infinity,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // ...status,
-                      ],
-                    ),
-                    SkeletonParagraph(
-                      style: SkeletonParagraphStyle(
-                        lines: 2,
-                        spacing: 6,
-                        lineStyle: SkeletonLineStyle(
-                          randomLength: true,
-                          height: 10,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        skeleton = Row(
-          children: [
-            const SkeletonContainer(
-              width: 60,
-              height: 60,
-              shape: BoxShape.circle,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: const [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: SkeletonContainer(
-                            width: double.infinity,
-                            height: 16,
-                          ),
-                        ),
-                      ),
-                      // ...status,
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  const SkeletonContainer(
-                    width: double.infinity,
-                    height: 10,
-                  ),
-                  const SizedBox(height: 6),
-                  const SkeletonContainer(
-                    width: double.infinity,
-                    height: 10,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      }
-
-      // final Widget skeleton = Shimmer.fromColors(
-      //   baseColor: Colors.red,
-      //   highlightColor: Colors.yellow,
-      //   child: const Text(
-      //     'Shimmer',
-      //     textAlign: TextAlign.center,
-      //     style: TextStyle(
-      //       fontSize: 40.0,
-      //       fontWeight: FontWeight.bold,
-      //     ),
-      //   ),
-      // );
-
-      return SizedBox(
-        height: 94,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 3),
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-          decoration: BoxDecoration(
-            color: style.cardColor,
-            borderRadius: style.cardRadius,
-          ),
-          child: skeleton,
-        ),
-      );
-
-      // return SkeletonItem(
-      //   child: ChatTile(
-      //     chat: rxChat,
-      //     avatarBuilder: (_) => const SkeletonAvatar(
-      //       style: SkeletonAvatarStyle(
-      //         width: 60,
-      //         height: 60,
-      //         shape: BoxShape.circle,
-      //       ),
-      //     ),
-      //     status: [
-      //       SkeletonLine(
-      //         style: SkeletonLineStyle(
-      //           height: 16,
-      //           width: 64,
-      //           borderRadius: BorderRadius.circular(8),
-      //         ),
-      //       )
-      //     ],
-      //     subtitle: [
-      //       const SizedBox(height: 5),
-      //       ConstrainedBox(
-      //         constraints: const BoxConstraints(maxHeight: 38),
-      //         child: Row(
-      //           children: [
-      //             const SizedBox(height: 3),
-      //             Expanded(
-      //               child: SkeletonParagraph(
-      //                 style: SkeletonParagraphStyle(
-      //                   lines: 2,
-      //                   spacing: 6,
-      //                   lineStyle: SkeletonLineStyle(
-      //                     randomLength: true,
-      //                     height: 10,
-      //                     borderRadius: BorderRadius.circular(8),
-      //                     // minLength: 10,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //             if (blocked) ...[
-      //               const SizedBox(width: 5),
-      //               const Icon(
-      //                 Icons.block,
-      //                 color: Color(0xFFC0C0C0),
-      //                 size: 20,
-      //               ),
-      //               const SizedBox(width: 5),
-      //             ],
-      //           ],
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // );
-    }
-
     return Obx(() {
-      final Chat chat = rxChat!.chat.value;
+      final Chat chat = rxChat.chat.value;
 
       final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith(Routes.chat))
@@ -409,7 +226,7 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context) {
-    final Chat chat = rxChat!.chat.value;
+    final Chat chat = rxChat.chat.value;
 
     if (chat.ongoingCall != null) {
       final Widget trailing = WidgetButton(
@@ -480,19 +297,19 @@ class RecentChatTile extends StatelessWidget {
     }
 
     final ChatItem? item;
-    if (rxChat!.messages.isNotEmpty) {
-      item = rxChat!.messages.last.value;
+    if (rxChat.messages.isNotEmpty) {
+      item = rxChat.messages.last.value;
     } else {
       item = chat.lastItem;
     }
 
     List<Widget> subtitle = [];
 
-    final Iterable<String> typings = rxChat!.typingUsers
+    final Iterable<String> typings = rxChat.typingUsers
         .where((User user) => user.id != me)
         .map((User user) => user.name?.val ?? user.num.val);
 
-    ChatMessage? draft = rxChat!.draft.value;
+    ChatMessage? draft = rxChat.draft.value;
 
     if (draft != null && router.routes.last != '${Routes.chat}/${chat.id}') {
       final StringBuffer desc = StringBuffer();
@@ -551,7 +368,7 @@ class RecentChatTile extends StatelessWidget {
           ),
       ];
     } else if (typings.isNotEmpty) {
-      if (!rxChat!.chat.value.isGroup) {
+      if (!rxChat.chat.value.isGroup) {
         subtitle = [
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -631,7 +448,7 @@ class RecentChatTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 2),
                   child: _attachment(
                     e,
-                    onError: () => rxChat!.updateAttachments(item!),
+                    onError: () => rxChat.updateAttachments(item!),
                   ),
                 );
               }),
@@ -642,7 +459,7 @@ class RecentChatTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: _attachment(
                   item.attachments.first,
-                  onError: () => rxChat!.updateAttachments(item!),
+                  onError: () => rxChat.updateAttachments(item!),
                 ),
               ),
             );
@@ -842,11 +659,11 @@ class RecentChatTile extends StatelessWidget {
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context) {
     return Obx(() {
-      final Chat chat = rxChat!.chat.value;
+      final Chat chat = rxChat.chat.value;
 
       final ChatItem? item;
-      if (rxChat!.messages.isNotEmpty) {
-        item = rxChat!.messages.last.value;
+      if (rxChat.messages.isNotEmpty) {
+        item = rxChat.messages.last.value;
       } else {
         item = chat.lastItem;
       }
@@ -885,9 +702,9 @@ class RecentChatTile extends StatelessWidget {
   /// Returns a visual representation of the [Chat.unreadCount] counter.
   Widget _counter() {
     return Obx(() {
-      final Chat? chat = rxChat?.chat.value;
+      final Chat chat = rxChat.chat.value;
 
-      if ((chat?.unreadCount ?? 0) > 0) {
+      if (chat.unreadCount > 0) {
         return Container(
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 4),
@@ -895,14 +712,12 @@ class RecentChatTile extends StatelessWidget {
           height: 23,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: chat?.muted == null ? Colors.red : const Color(0xFFC0C0C0),
+            color: chat.muted == null ? Colors.red : const Color(0xFFC0C0C0),
           ),
           alignment: Alignment.center,
           child: Text(
             // TODO: Implement and test notations like `4k`, `54m`, etc.
-            (chat?.unreadCount ?? 0) > 99
-                ? '99${'plus'.l10n}'
-                : '${chat?.unreadCount}',
+            chat.unreadCount > 99 ? '99${'plus'.l10n}' : '${chat.unreadCount}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
@@ -919,13 +734,14 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
+  /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
-          text: rxChat?.title.value,
+          text: rxChat.title.value,
           style: const TextStyle(color: Colors.black),
         ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),

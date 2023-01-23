@@ -40,8 +40,6 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
-import '../delete_email/view.dart';
-import '../delete_phone/view.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -412,7 +410,7 @@ class UserView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => DeleteEmailView.show(context, email: e),
+              // onPressed: () => DeleteEmailView.show(context, email: e),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
                 width: 30,
@@ -487,7 +485,7 @@ class UserView extends StatelessWidget {
               ),
             ),
             WidgetButton(
-              onPressed: () => DeletePhoneView.show(context, phone: e),
+              // onPressed: () => DeletePhoneView.show(context, phone: e),
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
                 width: 30,

@@ -88,30 +88,6 @@ class ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final Widget header;
-
-    if (chat == null) {
-      header = Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: SkeletonLine(
-          style: SkeletonLineStyle(
-            height: 16,
-            width: double.infinity,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      );
-    } else {
-      header = Obx(() {
-        return Text(
-          chat?.title.value ?? ('dot'.l10n * 3),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-          style: Theme.of(context).textTheme.headline5,
-        );
-      });
-    }
-
     return ContextMenuRegion(
       key: Key('ChatTile_${chat?.chat.value.id}'),
       preventContextMenu: false,
@@ -153,7 +129,18 @@ class ChatTile extends StatelessWidget {
                             Expanded(
                               child: Row(
                                 children: [
-                                  Flexible(child: header),
+                                  Flexible(
+                                    child: Obx(() {
+                                      return Text(
+                                        chat?.title.value ?? ('dot'.l10n * 3),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5,
+                                      );
+                                    }),
+                                  ),
                                   ...title,
                                 ],
                               ),

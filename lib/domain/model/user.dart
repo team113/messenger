@@ -274,7 +274,11 @@ class UserPhone extends NewType<String> {
 
   UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
-      throw const FormatException('Does not match validation RegExp');
+      throw const FormatException('Must start with plus');
+    }
+
+    if (val.length < 8) {
+      throw const FormatException('Must contain no less than 8 symbols');
     }
 
     if (!_regExp.hasMatch(val)) {
@@ -285,10 +289,10 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
-  // TODO: Add unit test covering this [RegExp].
-  /// Regular expression for basic [UserPassword] validation.
-  static final RegExp _regExp =
-      RegExp(r'(^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$)');
+  /// Regular expression for basic [UserPhone] validation.
+  static final RegExp _regExp = RegExp(
+    r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
+  );
 }
 
 /// Direct link to a `Chat`.

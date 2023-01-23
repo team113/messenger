@@ -165,6 +165,7 @@ class ChatsMoreView extends StatelessWidget {
                             '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                       ),
                     );
+
                     MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value

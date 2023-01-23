@@ -172,13 +172,13 @@ class UserView extends StatelessWidget {
                 controller: c.scrollController,
                 child: Obx(() {
                   return ListView(
-                    controller: c.scrollController,
                     key: const Key('UserColumn'),
+                    controller: c.scrollController,
                     children: [
                       const SizedBox(height: 8),
                       if (c.isBlacklisted == true)
                         Block(
-                          title: 'Пользователь заблокирован'.l10n,
+                          title: 'label_user_is_blocked'.l10n,
                           children: [_blocked(c, context)],
                         ),
                       Block(

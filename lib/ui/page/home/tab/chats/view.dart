@@ -23,9 +23,11 @@ import 'package:skeletons/skeletons.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/selected_tile.dart';
@@ -191,6 +193,7 @@ class ChatsTabView extends StatelessWidget {
                       if (c.searching.value) {
                         child = SvgLoader.asset(
                           'assets/icons/close_primary.svg',
+                          key: const Key('CloseSearch'),
                           height: 15,
                         );
                       } else {
@@ -236,23 +239,6 @@ class ChatsTabView extends StatelessWidget {
                 body: Obx(() {
                   if (!c.chatsReady.value || c.loader.value) {
                     return const Center(child: CustomProgressIndicator());
-                    // return LayoutBuilder(builder: (context, constraints) {
-                    //   final int howMuch = constraints.maxHeight ~/ 80;
-
-                    //   return Padding(
-                    //     padding: const EdgeInsets.symmetric(vertical: 5),
-                    //     child: ListView.builder(
-                    //       physics: const NeverScrollableScrollPhysics(),
-                    //       itemCount: howMuch,
-                    //       itemBuilder: (context, i) {
-                    //         return const Padding(
-                    //           padding: EdgeInsets.symmetric(horizontal: 10),
-                    //           child: RecentChatTile(null),
-                    //         );
-                    //       },
-                    //     ),
-                    //   );
-                    // });
                   }
 
                   final Widget? child;
@@ -279,8 +265,12 @@ class ChatsTabView extends StatelessWidget {
                         child: center,
                       );
                     } else {
-                      child = Scrollbar(
+                      child = SafeScrollbar(
+                        bottom: false,
                         controller: c.search.value!.controller,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(40),
+                        ),
                         child: ListView.builder(
                           controller: c.search.value!.controller,
                           itemCount: c.elements.length,
@@ -548,13 +538,10 @@ class ChatsTabView extends StatelessWidget {
                     );
                   }
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: ContextMenuInterceptor(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: child,
-                      ),
+                  return ContextMenuInterceptor(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: child,
                     ),
                   );
                 }),
@@ -598,30 +585,32 @@ class ChatsTabView extends StatelessWidget {
           Color? color,
         }) {
           return Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 7, bottom: 7),
-              decoration: const BoxDecoration(
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: Color(0x22000000),
-                    blurStyle: BlurStyle.outer,
-                  ),
-                ],
-              ),
-              child: OutlinedRoundedButton(
-                key: key,
-                leading: leading,
-                title: child,
-                onPressed: onPressed,
-                color: color ?? Colors.white,
-              ),
+            child: OutlinedRoundedButton(
+              key: key,
+              leading: leading,
+              title: child,
+              onPressed: onPressed,
+              color: color,
+              shadows: const [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: Color(0x22000000),
+                  blurStyle: BlurStyle.outer,
+                ),
+              ],
             ),
           );
         }
 
-        child = Container(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 5),
+        child = Padding(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            7,
+            8,
+            PlatformUtils.isMobile && !PlatformUtils.isWeb
+                ? router.context!.mediaQuery.padding.bottom + 7
+                : 12,
+          ),
           child: Row(
             children: [
               button(

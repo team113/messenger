@@ -19,8 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/util/platform_utils.dart';
-
 /// Application themes constants.
 class Themes {
   /// Returns a light theme.
@@ -34,20 +32,19 @@ class Themes {
           onBackground: Colors.black,
         );
 
-    if (PlatformUtils.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Color(0xFFF0F0F0),
-        ),
-      );
-    } else {
-      SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light);
-    }
+    SystemChrome.setSystemUIOverlayStyle(
+      colors.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarIconBrightness: Brightness.dark,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            )
+          : SystemUiOverlayStyle.light,
+    );
 
     return ThemeData.light().copyWith(
         extensions: [
@@ -105,7 +102,7 @@ class Themes {
                   ?.copyWith(color: colors.primary),
               systemOverlayStyle: const SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.blue,
-                statusBarColor: Color(0xFFF8F8F8),
+                statusBarColor: Colors.transparent,
               ),
               elevation: 0,
               centerTitle: true,

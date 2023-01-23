@@ -15,9 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -25,9 +25,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/animated_size_and_fade.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -79,7 +76,7 @@ class ParticipantView extends StatelessWidget {
       builder: (ParticipantController c) {
         return Obx(() {
           if (c.chat.value == null) {
-            return const Center(child: CustomProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           final Widget child;
@@ -105,56 +102,8 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final Set<UserId> actualMembers =
+              final Set<UserId> ids =
                   call.value.members.keys.map((k) => k.userId).toSet();
-
-              List<Widget> children = [
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'label_participants_of'.l10nfmt({
-                        'a': actualMembers.length,
-                        'b': c.chat.value?.members.length ?? 1,
-                      }),
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: ListView(
-                      controller: c.scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      children: c.chat.value!.members.values.map((e) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: _user(context, c, e),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: OutlinedRoundedButton(
-                    maxWidth: double.infinity,
-                    title: Text(
-                      'btn_add_participants'.l10n,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {
-                      c.status.value = RxStatus.empty();
-                      c.stage.value = ParticipantsFlowStage.search;
-                    },
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ];
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -162,7 +111,48 @@ class ParticipantView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    ...children,
+                    ModalPopupHeader(
+                      header: Center(
+                        child: Text(
+                          'label_participants_of'.l10nfmt({
+                            'a': ids.length,
+                            'b': c.chat.value?.members.length ?? 1,
+                          }),
+                          style: thin?.copyWith(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: Scrollbar(
+                        controller: c.scrollController,
+                        child: ListView(
+                          controller: c.scrollController,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          children: c.chat.value!.members.values.map((e) {
+                            return _user(context, c, e);
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: OutlinedRoundedButton(
+                        maxWidth: double.infinity,
+                        title: Text(
+                          'btn_add_participants'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          c.status.value = RxStatus.empty();
+                          c.stage.value = ParticipantsFlowStage.search;
+                        },
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -186,124 +176,90 @@ class ParticipantView extends StatelessWidget {
   /// Returns a visual representation of the provided [user].
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     return Obx(() {
-      bool inCall =
+      final bool inCall =
           call.value.members.keys.where((e) => e.userId == user.id).isNotEmpty;
 
-      return ContextMenuRegion(
-        actions: [
-          ContextMenuButton(
-            label: user.id != c.me ? 'btn_remove'.l10n : 'btn_leave'.l10n,
-            onPressed: () => c.removeChatMember(user.id),
-            trailing: SvgLoader.asset(
-              'assets/icons/delete_small.svg',
-              width: 17.75,
-              height: 17,
-            ),
-          ),
-        ],
-        moveDownwards: false,
-        child: ContactTile(
-          user: user,
-          dense: true,
-          onTap: () {
-            // TODO: Open the [Routes.user] page.
-          },
-          darken: 0.05,
-          trailing: [
-            if (user.id != c.me)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
-                child: inCall
-                    ? WidgetButton(
-                        key: const Key('Drop'),
-                        onPressed: () {},
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: SvgLoader.asset(
-                              'assets/icons/call_end.svg',
-                              width: 30,
-                              height: 30,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Material(
-                        color: Theme.of(context).colorScheme.secondary,
-                        type: MaterialType.circle,
-                        child: InkWell(
-                          onTap: () => c.redialChatCallMember(user.id),
-                          borderRadius: BorderRadius.circular(60),
-                          child: SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: Center(
-                              child: SvgLoader.asset(
+      return ContactTile(
+        user: user,
+        dense: true,
+        onTap: () {
+          // TODO: Open the [Routes.user] page.
+        },
+        darken: 0.05,
+        trailing: [
+          if (user.id != c.me)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Material(
+                  key: Key(inCall ? 'inCall' : 'NotInCall'),
+                  color: inCall
+                      ? Colors.red
+                      : Theme.of(context).colorScheme.secondary,
+                  type: MaterialType.circle,
+                  child: InkWell(
+                    onTap:
+                        inCall ? () {} : () => c.redialChatCallMember(user.id),
+                    borderRadius: BorderRadius.circular(60),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Center(
+                        child: inCall
+                            ? SvgLoader.asset('assets/icons/call_end.svg')
+                            : SvgLoader.asset(
                                 'assets/icons/audio_call_start.svg',
                                 width: 13,
                                 height: 13,
                               ),
-                            ),
-                          ),
-                        ),
                       ),
-              ),
-            if (user.id == c.me)
-              WidgetButton(
-                // onPressed: () => c.removeChatMember(e.id),
-                onPressed: () => _removeChatMember(c, context, user),
-                child: Text(
-                  'Leave',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 15,
+                    ),
                   ),
                 ),
-              )
-            else
-              WidgetButton(
-                // onPressed: () => c.removeChatMember(e.id),
-                onPressed: () => _removeChatMember(c, context, user),
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14 * 1.5,
-                ),
               ),
-            const SizedBox(width: 6),
-          ],
-        ),
+            ),
+          WidgetButton(
+            onPressed: () async {
+              final bool? result = await MessagePopup.alert(
+                user.id == c.me
+                    ? 'label_leave_group'.l10n
+                    : 'label_remove_member'.l10n,
+                description: [
+                  if (c.me == user.id)
+                    TextSpan(text: 'alert_you_will_leave_group'.l10n)
+                  else ...[
+                    TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                    TextSpan(
+                      text:
+                          user.user.value.name?.val ?? user.user.value.num.val,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                    TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                  ],
+                ],
+              );
+
+              if (result == true) {
+                await c.removeChatMember(user.id);
+              }
+            },
+            child: user.id == c.me
+                ? Text(
+                    'btn_leave'.l10n,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 15,
+                    ),
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/delete.svg',
+                    height: 14 * 1.5,
+                  ),
+          ),
+          const SizedBox(width: 6),
+        ],
       );
     });
-  }
-
-  Future<void> _removeChatMember(
-    ParticipantController c,
-    BuildContext context,
-    RxUser user,
-  ) async {
-    bool? result = await MessagePopup.alert(
-      c.me == user.id ? 'Leave group'.l10n : 'Remove member'.l10n,
-      description: [
-        if (c.me == user.id)
-          const TextSpan(text: 'Вы покидаете группу.')
-        else ...[
-          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-          TextSpan(
-            text: user.user.value.name?.val ?? user.user.value.num.val,
-            style: const TextStyle(color: Colors.black),
-          ),
-          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-        ],
-      ],
-    );
-
-    if (result == true) {
-      await c.removeChatMember(user.id);
-    }
   }
 }

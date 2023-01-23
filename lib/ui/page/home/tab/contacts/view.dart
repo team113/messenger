@@ -33,6 +33,7 @@ import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
@@ -53,7 +54,6 @@ class ContactsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -146,6 +146,7 @@ class ContactsTabView extends StatelessWidget {
 
                 if (c.search.value != null) {
                   child = SvgLoader.asset(
+                    key: const Key('CloseSearch'),
                     'assets/icons/close_primary.svg',
                     height: 15,
                     width: 15,
@@ -214,10 +215,10 @@ class ContactsTabView extends StatelessWidget {
                   child: CustomProgressIndicator(),
                 );
               } else if (c.elements.isNotEmpty) {
-                child = AnimationLimiter(
-                  key: const Key('Search'),
-                  child: Scrollbar(
-                    controller: c.scrollController,
+                child = SafeScrollbar(
+                  controller: c.scrollController,
+                  child: AnimationLimiter(
+                    key: const Key('Search'),
                     child: ListView.builder(
                       controller: c.scrollController,
                       itemCount: c.elements.length,
@@ -285,15 +286,14 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = AnimationLimiter(
-                  child: Scrollbar(
+                  child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
                       controller: c.scrollController,
                       slivers: [
                         SliverPadding(
-                          padding: EdgeInsets.only(
-                            top: CustomAppBar.height +
-                                MediaQuery.of(context).viewPadding.top,
+                          padding: const EdgeInsets.only(
+                            top: CustomAppBar.height,
                             left: 10,
                             right: 10,
                           ),

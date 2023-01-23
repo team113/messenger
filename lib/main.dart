@@ -23,7 +23,6 @@ library main;
 
 import 'dart:async';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -166,12 +165,8 @@ class App extends StatelessWidget {
       routerDelegate: router.delegate,
       routeInformationParser: router.parser,
       routeInformationProvider: router.provider,
-      navigatorObservers: [
-        SentryNavigatorObserver(),
-        BotToastNavigatorObserver()
-      ],
+      navigatorObservers: [SentryNavigatorObserver()],
       onGenerateTitle: (context) => 'Gapopa',
-      builder: BotToastInit(),
       theme: Themes.light(),
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,

@@ -277,9 +277,7 @@ class ChatInfoView extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: Color(0x22000000),
                           ),
-                          child: const Center(
-                            child: CustomProgressIndicator(),
-                          ),
+                          child: const Center(child: CustomProgressIndicator()),
                         )
                       : const SizedBox.shrink(),
                 );
@@ -361,6 +359,7 @@ class ChatInfoView extends StatelessWidget {
                             '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
                       ),
                     );
+
                     MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
@@ -504,17 +503,14 @@ class ChatInfoView extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           ...members.map((e) {
-            // final bool inCall = c.chat?.chat.value.ongoingCall?.members
-            //         .none((u) => u.user.id == e.id) ==
-            //     false;
             final bool inCall = c.chat?.chat.value.ongoingCall?.members
                     .any((u) => u.user.id == e.id) ==
                 true;
 
             return ContactTile(
               user: e,
-              dense: true,
               darken: 0.05,
+              dense: true,
               onTap: () => router.user(e.id, push: true),
               trailing: [
                 if (e.id != c.me && c.chat?.chat.value.ongoingCall != null) ...[
@@ -573,6 +569,7 @@ class ChatInfoView extends StatelessWidget {
                   )
                 else
                   WidgetButton(
+                    key: const Key('DeleteMemberButton'),
                     onPressed: () => _removeChatMember(c, context, e),
                     child: SvgLoader.asset(
                       'assets/icons/delete.svg',
@@ -825,16 +822,17 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
+  /// Opens a confirmation popup removing the provided [user].
   Future<void> _removeChatMember(
     ChatInfoController c,
     BuildContext context,
     RxUser user,
   ) async {
     final bool? result = await MessagePopup.alert(
-      c.me == user.id ? 'Leave group'.l10n : 'Remove member'.l10n,
+      c.me == user.id ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
       description: [
         if (c.me == user.id)
-          const TextSpan(text: 'Вы покидаете группу.')
+          TextSpan(text: 'alert_you_will_leave_group'.l10n)
         else ...[
           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
           TextSpan(
@@ -851,62 +849,63 @@ class ChatInfoView extends StatelessWidget {
     }
   }
 
-  Future<void> _blacklistChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'Block'.l10n,
+      'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'Чат '.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: ' будет заблокирован.'.l10n),
-      ],
-    );
-
-    if (result == true) {}
-  }
-
-  Future<void> _clearChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'Clear chat'.l10n,
-      description: [
-        TextSpan(text: 'Чат '.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: ' будет очищен.'.l10n),
-      ],
-    );
-
-    if (result == true) {}
-  }
-
-  Future<void> _hideChat(
-    ChatInfoController c,
-    BuildContext context,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'Hide chat'.l10n,
-      description: [
-        TextSpan(text: 'Чат '.l10n),
-        TextSpan(
-          text: c.chat?.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
-        TextSpan(text: ' будет скрыт.'.l10n),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
 
     if (result == true) {
       await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_clear_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      // TODO: Hide this [Chat].
+    }
+  }
+
+  /// Opens a confirmation popup blacklisting this [Chat].
+  Future<void> _blacklistChat(
+    ChatInfoController c,
+    BuildContext context,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      // TODO: Blacklist this [Chat].
     }
   }
 }
