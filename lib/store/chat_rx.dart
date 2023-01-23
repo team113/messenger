@@ -392,6 +392,33 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Posts a new local [ChatMessage] to the specified [Chat] by the
+  /// authenticated [MyUser].
+  ChatItem putLocalMessage({
+    PreciseDateTime? existingDateTime,
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+    List<ChatItem> repliesTo = const [],
+  }) {
+    HiveChatMessage message = HiveChatMessage.sending(
+      chatId: chat.value.id,
+      me: me!,
+      text: text,
+      repliesTo: repliesTo,
+      attachments: attachments ?? [],
+      existingDateTime: existingDateTime,
+    );
+
+    messages.insertAfter(
+      Rx(message.value),
+      (e) => message.value.at.compareTo(e.value.at) == 1,
+    );
+
+    put(message, ignoreVersion: true);
+
+    return message.value;
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -409,13 +436,12 @@ class HiveRxChat extends RxChat {
   }) async {
     // Copy the [attachments] list since we're going to manipulate it here.
     List<Attachment> uploaded = List.from(attachments ?? []);
-    List<ChatItem> replies = List.from(repliesTo, growable: false);
 
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
       text: text,
-      repliesTo: replies,
+      repliesTo: repliesTo,
       attachments: uploaded,
       existingId: existingId,
       existingDateTime: existingDateTime,
@@ -481,7 +507,7 @@ class HiveRxChat extends RxChat {
         text: text,
         attachments:
             uploaded.isNotEmpty ? uploaded.map((e) => e.id).toList() : null,
-        repliesTo: replies.map((e) => e.id).toList(),
+        repliesTo: repliesTo.map((e) => e.id).toList(),
       );
 
       var event = response?.events
@@ -511,10 +537,30 @@ class HiveRxChat extends RxChat {
 
     _initRemoteSubscription(chat.id);
 
+    _localSubscription?.cancel();
+
+    final saved = _local.messages.toList();
+    await _local.clear();
+    _local.close();
+
     _local = ChatItemHiveProvider(chat.id);
     await _local.init(userId: me);
-    _localSubscription?.cancel();
+
+    if (!_local.isEmpty) {
+      for (HiveChatItem i in _local.messages) {
+        if (messages.none((e) => e.value.id == i.value.id)) {
+          messages.add(Rx<ChatItem>(i.value));
+        }
+      }
+    }
+
     _initLocalSubscription();
+
+    for (var e in saved) {
+      _local.put(e);
+    }
+
+    fetchMessages();
   }
 
   /// Puts the provided [item] to [Hive].

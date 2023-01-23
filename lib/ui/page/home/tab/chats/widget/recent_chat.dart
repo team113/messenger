@@ -113,10 +113,20 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
+      final String? route =
+          router.routes.lastWhereOrNull((e) => e.startsWith(Routes.chat));
+
+      bool selected = false;
+      if (route != null) {
+        ChatMember? member =
+            chat.members.firstWhereOrNull((e) => e.user.id != me);
+
+        selected = route.startsWith('${Routes.chat}/${chat.id}') ||
+            (chat.isDialog &&
+                route.startsWith(
+                  '${Routes.chat}/${ChatId.local(member?.user.id.val)}',
+                ));
+      }
 
       return ChatTile(
         chat: rxChat,
@@ -207,7 +217,11 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         selected: selected,
-        onTap: () => router.chat(chat.id),
+        onTap: () {
+          if (!selected) {
+            router.chat(chat.id);
+          }
+        },
       );
     });
   }

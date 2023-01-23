@@ -241,8 +241,8 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
-    HiveRxChat local = _chats[localId] ?? (await get(localId))!;
+  Future<HiveRxChat> replaceLocalDialog(ChatId id) async {
+    HiveRxChat local = _chats[id]!;
 
     ChatData chat = _chat(
       await _graphQlProvider.createDialogChat(
@@ -250,9 +250,15 @@ class ChatRepository implements AbstractChatRepository {
       ),
     );
 
-    chats.move(local.id, chat.chat.value.id);
-    remove(localId);
-    local.updateChat(chat.chat.value);
+    if (chats[chat.chat.value.id] == null) {
+      chats.move(local.id, chat.chat.value.id);
+    } else {
+      chats.remove(local.id);
+      await Future.delayed(Duration.zero);
+    }
+
+    await local.updateChat(chat.chat.value);
+    remove(local.id);
 
     return local;
   }
@@ -274,14 +280,23 @@ class ChatRepository implements AbstractChatRepository {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    HiveRxChat? rxChat;
+    HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
+    ChatItem? local;
+
     if (chatId.isLocal) {
+      local = rxChat?.putLocalMessage(
+        existingDateTime: PreciseDateTime.now().add(1.seconds),
+        text: text,
+        attachments: attachments,
+        repliesTo: repliesTo,
+      );
+
       rxChat = await replaceLocalDialog(chatId);
-    } else {
-      rxChat = _chats[chatId] ?? (await get(chatId));
     }
 
     await rxChat?.postChatMessage(
+      existingId: local?.id,
+      existingDateTime: local?.at,
       text: text,
       attachments: attachments,
       repliesTo: repliesTo,
@@ -1178,7 +1193,6 @@ class ChatRepository implements AbstractChatRepository {
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
         ChatId localId = ChatId.local(member.user.id.val);
 
-        remove(localId);
         _draftLocal.move(localId, data.chat.value.id);
       }
 
