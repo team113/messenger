@@ -394,7 +394,7 @@ class ChatsTabView extends StatelessWidget {
                         child: CustomProgressIndicator(),
                       );
                     } else if (c.elements.isNotEmpty) {
-                      child = Scrollbar(
+                      child = SafeScrollbar(
                         controller: c.scrollController,
                         child: ListView.builder(
                           key: const Key('Search'),
@@ -488,10 +488,10 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
                   } else {
-                    child = AnimationLimiter(
-                      key: const Key('Chats'),
-                      child: Scrollbar(
-                        controller: c.scrollController,
+                    child = SafeScrollbar(
+                      controller: c.scrollController,
+                      child: AnimationLimiter(
+                        key: const Key('Chats'),
                         child: ListView.builder(
                           controller: c.scrollController,
                           itemCount: c.chats.length,

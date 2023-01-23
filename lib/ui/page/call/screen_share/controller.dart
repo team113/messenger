@@ -141,7 +141,7 @@ class ScreenShareController extends GetxController {
 
     DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
     constraints.deviceId(screenDevice);
-    constraints.idealFrameRate(5);
+    constraints.idealFrameRate(30);
 
     settings.displayVideo(constraints);
     return settings;

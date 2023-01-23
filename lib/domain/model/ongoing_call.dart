@@ -1392,7 +1392,9 @@ class OngoingCall {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
           audioDevice == null ? MediaKind.Video : MediaKind.Audio,
-          MediaSourceKind.Device,
+          screenDevice == null
+              ? MediaSourceKind.Device
+              : MediaSourceKind.Display,
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
