@@ -580,7 +580,7 @@ label_no_messages = Нет сообщений
 label_no_registration = без регистрации
 label_no_users = Нет пользователей
 label_nobody = Никто
-label_not_found
+label_not_found = Не найдено
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID

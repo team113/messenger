@@ -24,6 +24,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/ui/widget/text_field.dart';
 
+/// Controller of the [ChatItemReads] popup.
 class ChatItemReadsController extends GetxController {
   ChatItemReadsController({this.reads = const [], this.getUser});
 
@@ -34,19 +35,25 @@ class ChatItemReadsController extends GetxController {
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  final RxBool isFocus = RxBool(false);
+  /// Indicator whether [search] field is focused or not.
+  final RxBool isFocused = RxBool(false);
 
+  /// Searching field state.
   final TextFieldState search = TextFieldState();
 
-  final RxnString query = RxnString(null);
+  /// Reactive value of the [search] field.
+  final RxString query = RxString('');
+
+  /// Reactive list of [RxUser]s who read [ChatItem] of this popup.
   final RxList<RxUser> users = RxList();
 
   @override
   void onInit() {
     search.focus.addListener(_focusListener);
-    init();
+    _init();
 
     super.onInit();
   }
@@ -57,20 +64,16 @@ class ChatItemReadsController extends GetxController {
     super.onClose();
   }
 
-  Future<void> init() async {
+  /// Initialize this [ChatItemReadsController].
+  Future<void> _init() async {
     final List<Future> futures = reads
-        .map((e) => getUser?.call(e.memberId)
-          ?..then((v) {
-            users.add(v!);
-            users.add(v!);
-            users.add(v!);
-            users.add(v!);
-          }))
+        .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))
         .whereNotNull()
         .toList();
 
     await Future.wait(futures);
   }
 
-  void _focusListener() => isFocus.value = search.focus.hasFocus;
+  /// Listener of [search] focus indicator.
+  void _focusListener() => isFocused.value = search.focus.hasFocus;
 }

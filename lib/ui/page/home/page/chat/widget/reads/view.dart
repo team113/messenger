@@ -84,184 +84,169 @@ class ChatItemReads extends StatelessWidget {
     return GetBuilder(
       init: ChatItemReadsController(reads: reads, getUser: getUser),
       builder: (ChatItemReadsController c) {
-        return Obx(() {
-          final users = c.users.where((p) {
-            if (c.query.value != null) {
-              return p.user.value.name?.val
-                      .toLowerCase()
-                      .contains(c.query.value!.toLowerCase()) ==
-                  true;
-            }
-
-            return true;
-          });
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_message'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            ModalPopupHeader(
+              header: Center(
+                child: Text(
+                  'label_message'.l10n,
+                  style: thin?.copyWith(fontSize: 18),
+                ),
+              ),
+            ),
+            if (id != null)
+              Container(
+                margin: const EdgeInsets.only(top: 8, bottom: 16),
+                padding: ModalPopup.padding(context),
+                alignment: Alignment.center,
+                child: WidgetButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: id!.val));
+                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${'label_id'.l10n}${'colon_space'.l10n}$id',
+                        style: thin?.copyWith(fontSize: 13),
+                      ),
+                      const SizedBox(width: 8),
+                      SvgLoader.asset(
+                        'assets/icons/copy.svg',
+                        height: 12,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              if (id != null) ...[
-                const SizedBox(height: 8),
-                Padding(
-                  padding: ModalPopup.padding(context)
-                      .subtract(const EdgeInsets.symmetric(horizontal: 0)),
-                  child: Center(
-                    child: WidgetButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: id!.val));
-                        MessagePopup.success('label_copied_to_clipboard'.l10n);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${'label_id'.l10n}${'colon_space'.l10n}$id',
-                            style: thin?.copyWith(fontSize: 13),
-                          ),
-                          const SizedBox(width: 8),
-                          SvgLoader.asset(
-                            'assets/icons/copy.svg',
-                            height: 12,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (c.query.value != null || c.users.isNotEmpty) ...[
-                if (reads.length >= 3) ...[
-                  Padding(
-                    padding: context.isMobile
+            Obx(() {
+              if (c.users.length > 2) {
+                return Container(
+                  padding: ModalPopup.padding(context).subtract(
+                    context.isMobile
                         ? EdgeInsets.zero
-                        : ModalPopup.padding(context)
-                            .subtract(const EdgeInsets.only(left: 8, right: 8)),
-                    child: SizedBox(
-                      height: 50,
-                      child: CustomAppBar(
-                        padding: EdgeInsets.zero,
-                        border: !c.search.isEmpty.value || c.isFocus.value
-                            ? Border.all(
-                                color: Theme.of(context).colorScheme.secondary,
-                                width: 2,
-                              )
-                            : null,
-                        title: Theme(
-                          data: Theme.of(context).copyWith(
-                            shadowColor: const Color(0x55000000),
-                            iconTheme: const IconThemeData(color: Colors.blue),
-                            inputDecorationTheme: InputDecorationTheme(
-                              border: inputStyle,
-                              errorBorder: inputStyle,
-                              enabledBorder: inputStyle,
-                              focusedBorder: inputStyle,
-                              disabledBorder: inputStyle,
-                              focusedErrorBorder: inputStyle,
-                              focusColor: Colors.white,
-                              fillColor: Colors.white,
-                              hoverColor: Colors.transparent,
-                              filled: true,
-                              isDense: true,
-                              contentPadding: EdgeInsets.fromLTRB(
-                                15,
-                                PlatformUtils.isDesktop ? 30 : 23,
-                                15,
-                                0,
-                              ),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Transform.translate(
-                              offset: const Offset(0, 1),
-                              child: ReactiveTextField(
-                                key: const Key('SearchField'),
-                                state: c.search,
-                                hint: 'label_search'.l10n,
-                                maxLines: 1,
-                                filled: false,
-                                dense: true,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                style: style.boldBody.copyWith(fontSize: 17),
-                                onChanged: () => c.query.value = c.search.text,
-                              ),
+                        : const EdgeInsets.only(left: 8, right: 8),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: SizedBox(
+                    height: 50,
+                    child: CustomAppBar(
+                      padding: EdgeInsets.zero,
+                      border: !c.search.isEmpty.value || c.isFocused.value
+                          ? Border.all(
+                              color: Theme.of(context).colorScheme.secondary,
+                              width: 2,
+                            )
+                          : null,
+                      title: Theme(
+                        data: Theme.of(context).copyWith(
+                          shadowColor: const Color(0x55000000),
+                          iconTheme: const IconThemeData(color: Colors.blue),
+                          inputDecorationTheme: InputDecorationTheme(
+                            border: inputStyle,
+                            errorBorder: inputStyle,
+                            enabledBorder: inputStyle,
+                            focusedBorder: inputStyle,
+                            disabledBorder: inputStyle,
+                            focusedErrorBorder: inputStyle,
+                            focusColor: Colors.white,
+                            fillColor: Colors.white,
+                            hoverColor: Colors.transparent,
+                            filled: true,
+                            isDense: true,
+                            contentPadding: EdgeInsets.fromLTRB(
+                              15,
+                              PlatformUtils.isDesktop ? 40 : 33,
+                              15,
+                              10,
                             ),
                           ),
                         ),
-                        leading: [
-                          Container(
-                            padding: const EdgeInsets.only(left: 20, right: 12),
-                            height: double.infinity,
-                            child: SvgLoader.asset(
-                              'assets/icons/search.svg',
-                              width: 17.77,
-                            ),
-                          )
-                        ],
-                        actions: [
-                          Obx(() {
-                            final Widget? child;
-
-                            if (!c.search.isEmpty.value) {
-                              child = WidgetButton(
-                                onPressed: () {
-                                  c.search.clear();
-                                  c.search.unsubmit();
-                                  c.query.value = null;
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 18,
-                                  ),
-                                  child: SvgLoader.asset(
-                                    'assets/icons/close_primary.svg',
-                                    height: 15,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              child = null;
-                            }
-
-                            return AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            );
-                          }),
-                        ],
+                        child: Transform.translate(
+                          offset: const Offset(0, 1),
+                          child: ReactiveTextField(
+                            key: const Key('SearchField'),
+                            state: c.search,
+                            hint: 'label_search'.l10n,
+                            maxLines: 1,
+                            filled: false,
+                            dense: true,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(fontSize: 17),
+                            onChanged: () => c.query.value = c.search.text,
+                          ),
+                        ),
                       ),
+                      leading: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 12),
+                          child: SvgLoader.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
+                          ),
+                        )
+                      ],
+                      actions: [
+                        Obx(() {
+                          return AnimatedSwitcher(
+                            duration: 250.milliseconds,
+                            child: !c.search.isEmpty.value
+                                ? WidgetButton(
+                                    onPressed: () {
+                                      c.search.clear();
+                                      c.search.unsubmit();
+                                      c.query.value = '';
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 12,
+                                        right: 18,
+                                      ),
+                                      child: SvgLoader.asset(
+                                        'assets/icons/close_primary.svg',
+                                        height: 15,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                          );
+                        }),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                ],
-              ],
-              Flexible(
-                child: Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: ListView(
+                );
+              }
+              return const SizedBox();
+            }),
+            Flexible(
+              child: Padding(
+                padding: ModalPopup.padding(context),
+                child: Scrollbar(
+                  controller: c.scrollController,
+                  child: Obx(() {
+                    final users = c.users.where((u) {
+                      if (c.query.isNotEmpty) {
+                        return u.user.value.name?.val
+                                .toLowerCase()
+                                .contains(c.query.toLowerCase()) ==
+                            true;
+                      }
+
+                      return true;
+                    });
+                    return ListView(
                       controller: c.scrollController,
                       shrinkWrap: true,
                       children: [
-                        if (c.query.value != null || c.users.isNotEmpty) ...[
-                          if (users.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child:
-                                  Center(child: Text('label_not_found'.l10n)),
-                            ),
+                        if (users.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: Text('label_not_found'.l10n)),
+                          )
+                        else
                           ...users.map((e) {
                             return ContactTile(
                               user: e,
@@ -286,16 +271,15 @@ class ChatItemReads extends StatelessWidget {
                               ],
                             );
                           }),
-                        ],
                       ],
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
-          );
-        });
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
       },
     );
   }

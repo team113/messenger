@@ -564,8 +564,11 @@ class ChatController extends GetxController {
           ChatMemberInfoElement element = ChatMemberInfoElement(e);
           elements[element.id] = element;
         } else if (item is ChatForward) {
-          ChatForwardElement element =
-              ChatForwardElement(forwards: [e], e.value.at, itemId: item.id);
+          ChatForwardElement element = ChatForwardElement(
+            forwards: [e],
+            e.value.at,
+            itemId: item.id,
+          );
 
           ListElementId? previousKey = elements.lastKeyBefore(element.id);
           ListElement? previous = elements[previousKey];
@@ -1342,6 +1345,7 @@ class ChatForwardElement extends ListElement {
   /// [UserId] being an author of the [forwards].
   final UserId authorId;
 
+  /// [ChatItemId] of this [ListElement].
   final ChatItemId? itemId;
 }
 
