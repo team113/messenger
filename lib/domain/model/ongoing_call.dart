@@ -343,7 +343,7 @@ class OngoingCall {
           }
         }
 
-        _pickMicrophoneDevice(previous, added, removed);
+        _pickAudioDevice(previous, added, removed);
         _pickOutputDevice(previous, added, removed);
       });
 
@@ -1526,66 +1526,37 @@ class OngoingCall {
     }
   }
 
-  /// Updates the [outputDevice] on Android.
-  ///
-  /// The following priority is used:
-  /// 1. bluetooth headset;
-  /// 2. speakerphone.
+  /// Picks the [outputDevice] based on the provided [previous], [added] and
+  /// [removed].
   void _pickOutputDevice([
     List<MediaDeviceInfo> previous = const [],
     List<MediaDeviceInfo> added = const [],
     List<MediaDeviceInfo> removed = const [],
   ]) {
-    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) {
-      var output = devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'bluetooth-headset')
-              ?.deviceId() ??
-          devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'speakerphone')
-              ?.deviceId();
-      if (output != null && outputDevice.value != output) {
-        setOutputDevice(output);
-      }
-    } else {
-      try {
-        if (removed.any((e) => e.deviceId() == outputDevice.value) ||
-            (outputDevice.value == null &&
-                removed.any((e) =>
-                    e.deviceId() ==
-                    previous.output().firstOrNull?.deviceId()))) {
-          setOutputDevice(devices.output().first.deviceId());
-        }
-
-        if (added.output().isNotEmpty) {
-          setOutputDevice(added.output().first.deviceId());
-        }
-      } catch (_) {
-        // No-op?
-        // NativeInvalidOutputAudioDeviceIdException
-      }
+    if (added.output().isNotEmpty) {
+      setOutputDevice(added.output().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+        (outputDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+      setOutputDevice(devices.output().first.deviceId());
     }
   }
 
-  void _pickMicrophoneDevice([
+  /// Picks the [audioDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickAudioDevice([
     List<MediaDeviceInfo> previous = const [],
     List<MediaDeviceInfo> added = const [],
     List<MediaDeviceInfo> removed = const [],
   ]) {
-    print('previous: ${previous.map((e) => e.label())}');
-    print('added: ${added.map((e) => e.label())}');
-    print('removed: ${removed.map((e) => e.label())}');
-
-    if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+    if (added.audio().isNotEmpty) {
+      setAudioDevice(added.audio().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       setAudioDevice(devices.audio().first.deviceId());
-    }
-
-    if (added.audio().isNotEmpty) {
-      setAudioDevice(added.audio().first.deviceId());
     }
   }
 }
