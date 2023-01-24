@@ -42,6 +42,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -57,8 +58,9 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [FlutterListViewController] of the profile's [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [CustomFlutterListViewController] of the profile's [FlutterListView].
+  final CustomFlutterListViewController listController =
+      CustomFlutterListViewController();
 
   /// Index of the initial profile page section to show in a [FlutterListView].
   int listInitIndex = 0;
@@ -400,6 +402,7 @@ class MyProfileController extends GetxController {
     _jason?.free();
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
+    listController.dispose();
     super.onClose();
   }
 

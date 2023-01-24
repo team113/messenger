@@ -23,7 +23,6 @@ library main;
 
 import 'dart:async';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -70,35 +69,15 @@ Future<void> main() async {
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();
 
-      // TODO: Remove when leanflutter/window_manager#284 is fixed:
-      //       https://github.com/leanflutter/window_manager/issues/284
-      if (PlatformUtils.isWindows) {
-        doWhenWindowReady(() {
-          if (!appWindow.isVisible) {
-            appWindow.size =
-                (prefs?.size ?? appWindow.size) + const Offset(0, 1);
-
-            if (prefs?.position != null) {
-              appWindow.position = Offset(
-                prefs!.position!.dx * appWindow.scaleFactor,
-                prefs.position!.dy * appWindow.scaleFactor,
-              );
-            }
-
-            appWindow.show();
-          }
-        });
-      } else {
-        if (prefs?.size != null) {
-          await windowManager.setSize(prefs!.size!);
-        }
-
-        if (prefs?.position != null) {
-          await windowManager.setPosition(prefs!.position!);
-        }
-
-        await windowManager.show();
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
       }
+
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
+      }
+
+      await windowManager.show();
 
       Get.put(WindowWorker(preferences));
     }

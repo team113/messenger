@@ -24,6 +24,7 @@ import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/custom_scroll_controller.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
@@ -32,8 +33,8 @@ export 'view.dart';
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [AuthService] used in a [logout].
   final AuthService _authService;
@@ -43,6 +44,12 @@ class MenuTabController extends GetxController {
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
 
   /// Determines whether the [logout] action may be invoked or not.
   ///

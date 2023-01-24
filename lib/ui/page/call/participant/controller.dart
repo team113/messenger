@@ -34,6 +34,7 @@ import '/provider/gql/exceptions.dart'
         RedialChatCallMemberException,
         RemoveChatMemberException,
         TransformDialogCallIntoGroupCallException;
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -59,8 +60,8 @@ class ParticipantController extends GetxController {
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// Callback, called when a [ParticipantView] this controller is bound to
   /// should be popped from the [Navigator].
@@ -147,6 +148,7 @@ class ParticipantController extends GetxController {
     _chatsSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);

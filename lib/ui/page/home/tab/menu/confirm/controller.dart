@@ -24,6 +24,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// Possible [ConfirmLogoutView] flow stage.
 enum ConfirmLogoutViewStage {
@@ -38,8 +39,8 @@ class ConfirmLogoutController extends GetxController {
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// Field for password input.
   late final TextFieldState password;
@@ -113,6 +114,12 @@ class ConfirmLogoutController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   /// Validates and sets the [password] of the currently authenticated [MyUser].

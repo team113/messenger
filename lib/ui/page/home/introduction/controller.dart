@@ -24,6 +24,7 @@ import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// Possible [IntroductionViewStage] flow stage.
 enum IntroductionViewStage {
@@ -38,8 +39,8 @@ class IntroductionController extends GetxController {
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState num;
@@ -117,6 +118,12 @@ class IntroductionController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   /// Validates and sets the [password] of the currently authenticated [MyUser].

@@ -31,6 +31,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 export 'view.dart';
 
@@ -104,9 +105,10 @@ class SearchController extends GetxController {
   /// [Chat]s found under the [SearchCategory.chat] category.
   final RxMap<ChatId, RxChat> chats = RxMap();
 
-  /// [FlutterListViewController] of a [FlutterListView] displaying the search
+  /// [CustomFlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
-  final FlutterListViewController controller = FlutterListViewController();
+  final CustomFlutterListViewController controller =
+      CustomFlutterListViewController();
 
   /// [TextFieldState] of the search field.
   late final TextFieldState search;
@@ -172,6 +174,7 @@ class SearchController extends GetxController {
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
     _searchStatusWorker = null;
+    controller.dispose();
     super.onClose();
   }
 

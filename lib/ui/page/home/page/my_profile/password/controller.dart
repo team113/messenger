@@ -26,6 +26,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 export 'view.dart';
 
@@ -39,8 +40,8 @@ class ChangePasswordController extends GetxController {
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;
@@ -103,6 +104,12 @@ class ChangePasswordController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   /// Validates and updates current [myUser]'s password with the one specified

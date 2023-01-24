@@ -57,6 +57,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
@@ -122,8 +123,9 @@ class ChatController extends GetxController {
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
-  /// [FlutterListViewController] of a messages [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [CustomFlutterListViewController] of a messages [FlutterListView].
+  final CustomFlutterListViewController listController =
+      CustomFlutterListViewController();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -135,9 +137,6 @@ class ChatController extends GetxController {
 
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
-
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
 
   /// Indicator whether an ongoing horizontal scroll is happening.
   ///

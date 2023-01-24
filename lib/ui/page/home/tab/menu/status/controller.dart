@@ -26,6 +26,7 @@ import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// Controller of a [StatusView].
 class StatusController extends GetxController {
@@ -34,8 +35,8 @@ class StatusController extends GetxController {
   /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
@@ -119,6 +120,7 @@ class StatusController extends GetxController {
   @override
   void onClose() {
     _worker?.dispose();
+    scrollController.dispose();
     super.onClose();
   }
 

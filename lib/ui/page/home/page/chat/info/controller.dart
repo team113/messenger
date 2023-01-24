@@ -34,6 +34,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 
@@ -65,8 +66,8 @@ class ChatInfoController extends GetxController {
   /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -220,6 +221,7 @@ class ChatInfoController extends GetxController {
     _nameTimer?.cancel();
     _linkTimer?.cancel();
     _avatarTimer?.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 

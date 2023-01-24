@@ -26,6 +26,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -44,8 +45,8 @@ class AddEmailController extends GetxController {
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [UserEmail] field state.
   late final TextFieldState email;
@@ -159,6 +160,7 @@ class AddEmailController extends GetxController {
   @override
   void onClose() {
     _setResendEmailTimer(false);
+    scrollController.dispose();
     super.onClose();
   }
 

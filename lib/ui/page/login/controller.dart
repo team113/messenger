@@ -32,6 +32,7 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
@@ -74,8 +75,8 @@ class LoginController extends GetxController {
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);
@@ -140,6 +141,12 @@ class LoginController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   /// Signs in and redirects to the [Routes.home] page.

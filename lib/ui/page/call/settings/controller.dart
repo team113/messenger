@@ -22,6 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/obs/obs.dart';
 
 export 'view.dart';
@@ -30,8 +31,8 @@ export 'view.dart';
 class CallSettingsController extends GetxController {
   CallSettingsController(this._call, this._settingsRepo, {required this.onPop});
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// The [OngoingCall] that this settings are bound to.
   final Rx<OngoingCall> _call;
@@ -79,6 +80,7 @@ class CallSettingsController extends GetxController {
   void onClose() {
     super.onClose();
     _stateWorker.dispose();
+    scrollController.dispose();
   }
 
   /// Sets device with [id] as a used by default camera device.

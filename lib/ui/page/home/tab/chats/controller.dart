@@ -55,6 +55,7 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -85,8 +86,8 @@ class ChatsTabController extends GetxController {
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
@@ -234,6 +235,8 @@ class ChatsTabController extends GetxController {
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
+
+    scrollController.dispose();
 
     for (RxUser v in _recipients) {
       v.stopUpdates();

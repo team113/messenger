@@ -42,6 +42,7 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -72,8 +73,8 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// Temporary indicator whether the [user] is favorite.
   late final RxBool inFavorites;
@@ -180,6 +181,7 @@ class UserController extends GetxController {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 

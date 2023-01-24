@@ -22,6 +22,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// Variant of a [ConfirmDialog].
 class ConfirmDialogVariant {
@@ -99,8 +100,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
   late ConfirmDialogVariant _variant;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   @override
   void didUpdateWidget(ConfirmDialog oldWidget) {
@@ -115,6 +116,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   void initState() {
     _variant = widget.variants[widget.initial];
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override

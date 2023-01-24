@@ -24,11 +24,12 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/custom_scroll_controller.dart';
 
 /// View displaying the provided [reads] along with corresponding [User]s.
 ///
 /// Intended to be displayed with the [show] method.
-class ChatItemReads extends StatelessWidget {
+class ChatItemReads extends StatefulWidget {
   const ChatItemReads({
     super.key,
     this.reads = const [],
@@ -55,12 +56,28 @@ class ChatItemReads extends StatelessWidget {
   }
 
   @override
+  State<ChatItemReads> createState() => _ChatItemReadsState();
+}
+
+/// State of the [ChatItemReads] maintaining the [_scrollController].
+class _ChatItemReadsState extends State<ChatItemReads> {
+  /// [CustomScrollController] to pass to a [ListView].
+  final CustomScrollController _scrollController = CustomScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
         Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return ListView(
       shrinkWrap: true,
+      controller: _scrollController,
       children: [
         const SizedBox(height: 4),
         ModalPopupHeader(
@@ -72,11 +89,11 @@ class ChatItemReads extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 13),
-        ...reads.map((e) {
+        ...widget.reads.map((e) {
           return Padding(
             padding: ModalPopup.padding(context),
             child: FutureBuilder<RxUser?>(
-              future: getUser?.call(e.memberId),
+              future: widget.getUser?.call(e.memberId),
               builder: (context, snapshot) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),

@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -76,8 +77,8 @@ class ContactsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -150,6 +151,8 @@ class ContactsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    scrollController.dispose();
 
     super.onClose();
   }

@@ -24,6 +24,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/util/custom_scroll_controller.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -36,8 +37,8 @@ class BlacklistController extends GetxController {
   /// be popped from the [Navigator].
   final void Function()? pop;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [MyUserService] maintaining the blacklisted [User]s.
   final MyUserService _myUserService;
@@ -68,6 +69,7 @@ class BlacklistController extends GetxController {
   @override
   void onClose() {
     _worker.dispose();
+    scrollController.dispose();
     super.onClose();
   }
 

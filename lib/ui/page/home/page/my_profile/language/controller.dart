@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
+import '/util/custom_scroll_controller.dart';
 
 export 'view.dart';
 
@@ -32,8 +33,8 @@ class LanguageSelectionController extends GetxController {
   /// Currently selected [Language].
   late final Rx<Language?> selected;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// Settings repository updating the [ApplicationSettings.locale].
   final AbstractSettingsRepository? _settingsRepository;
@@ -42,6 +43,12 @@ class LanguageSelectionController extends GetxController {
   void onInit() {
     selected = Rx(L10n.chosen.value);
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 
   /// Sets the provided [language] to be [L10n.chosen].

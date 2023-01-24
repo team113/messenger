@@ -26,6 +26,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
+import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -44,8 +45,8 @@ class AddPhoneController extends GetxController {
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [CustomScrollController] to pass to a [Scrollbar].
+  final CustomScrollController scrollController = CustomScrollController();
 
   /// [UserPhone] field state.
   late final TextFieldState phone;
@@ -159,6 +160,7 @@ class AddPhoneController extends GetxController {
   @override
   void onClose() {
     _setResendPhoneTimer(false);
+    scrollController.dispose();
     super.onClose();
   }
 
