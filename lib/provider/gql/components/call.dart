@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -136,6 +137,7 @@ abstract class CallGraphQlMixin {
   Future<Stream<QueryResult>> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
+    CancelToken cancelToken,
   ) {
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
@@ -144,6 +146,7 @@ abstract class CallGraphQlMixin {
         document: CallEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -186,7 +189,10 @@ abstract class CallGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Future<Stream<QueryResult>> incomingCallsTopEvents(
+    int count, [
+    CancelToken? cancelToken,
+  ]) {
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -195,6 +201,7 @@ abstract class CallGraphQlMixin {
             IncomingCallsTopEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 

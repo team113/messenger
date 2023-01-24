@@ -131,8 +131,11 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
 
-  /// Indicator whether [_remoteSubscription] is initialized or is being
-  /// initialized used in [subscribe].
+  /// Indicator whether [_remoteSubscription] is started or is being
+  /// started used in [subscribe].
+  bool _remoteSubscriptionStarted = false;
+
+  /// Indicator whether [_remoteSubscription] is initialized.
   bool _remoteSubscriptionInitialized = false;
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
@@ -255,6 +258,7 @@ class HiveRxChat extends RxChat {
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
       _messagesSubscription?.cancel();
+      _remoteSubscriptionStarted = false;
       _remoteSubscriptionInitialized = false;
       _remoteSubscriptionToken.cancel();
       await _local.close();
@@ -269,7 +273,7 @@ class HiveRxChat extends RxChat {
 
   /// Subscribes to the remote updates of the [chat] if not subscribed already.
   void subscribe() {
-    if (!_remoteSubscriptionInitialized) {
+    if (!_remoteSubscriptionStarted) {
       _initRemoteSubscription();
     }
   }
@@ -776,7 +780,7 @@ class HiveRxChat extends RxChat {
   Future<void> _initRemoteSubscription({
     bool noVersion = false,
   }) async {
-    _remoteSubscriptionInitialized = true;
+    _remoteSubscriptionStarted = true;
     var ver = noVersion ? null : _chatLocal.get(id)?.ver;
 
     _remoteSubscription?.cancel();
@@ -805,6 +809,11 @@ class HiveRxChat extends RxChat {
       await _chatEvent(_remoteSubscription!.current);
     }
 
+    if (_remoteSubscriptionInitialized) {
+      _initRemoteSubscription();
+    }
+
+    _remoteSubscriptionStarted = false;
     _remoteSubscriptionInitialized = false;
   }
 
@@ -812,7 +821,7 @@ class HiveRxChat extends RxChat {
   Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
-        // No-op.
+        _remoteSubscriptionInitialized = true;
         break;
 
       case ChatEventsKind.chat:
@@ -833,12 +842,12 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = _remoteSubscriptionInitialized;
+        bool putChat = _remoteSubscriptionStarted;
         for (var event in versioned.events) {
-          putChat = _remoteSubscriptionInitialized;
+          putChat = _remoteSubscriptionStarted;
 
           // Subscription was already disposed while processing the events.
-          if (!_remoteSubscriptionInitialized) {
+          if (!_remoteSubscriptionStarted) {
             return;
           }
 

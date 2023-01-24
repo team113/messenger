@@ -87,6 +87,9 @@ class ContactRepository implements AbstractContactRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
 
+  /// Indicator whether [_remoteSubscription] is initialized.
+  bool _remoteSubscriptionInitialized = false;
+
   /// [CancelToken] canceling the remote subscribing, if any.
   final CancelToken _remoteSubscriptionToken = CancelToken();
 
@@ -117,6 +120,7 @@ class ContactRepository implements AbstractContactRepository {
     favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _remoteSubscriptionInitialized = false;
     _remoteSubscriptionToken.cancel();
   }
 
@@ -312,6 +316,12 @@ class ContactRepository implements AbstractContactRepository {
     })) {
       await _contactRemoteEvent(_remoteSubscription!.current);
     }
+
+    if (_remoteSubscriptionInitialized) {
+      _initRemoteSubscription();
+    }
+
+    _remoteSubscriptionInitialized = false;
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
@@ -319,7 +329,7 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
-        // No-op.
+        _remoteSubscriptionInitialized = true;
         break;
 
       case ChatContactsEventsKind.chatContactsList:
@@ -490,45 +500,47 @@ class ContactRepository implements AbstractContactRepository {
   /// client side is expected to handle all the events idempotently considering
   /// the [ChatContactVersion].
   Future<Stream<ChatContactsEvents>> _chatContactsRemoteEvents(
-          ChatContactsListVersion? ver) =>
-      Backoff.run(
-        () async => (await _graphQlProvider.contactsEvents(ver))
-            .asyncExpand((event) async* {
-          GraphQlProviderExceptions.fire(event);
-          var events = ContactsEvents$Subscription.fromJson(event.data!)
-              .chatContactsEvents;
+    ChatContactsListVersion? ver,
+  ) async {
+    await Future.delayed(Backoff.get('contactsEvents'));
 
-          if (events.$$typename == 'SubscriptionInitialized') {
-            events
-                as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
-            yield const ChatContactsEventsInitialized();
-          } else if (events.$$typename == 'ChatContactsList') {
-            var list = events
-                as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-            for (var u in list.chatContacts.nodes
-                .map((e) => e.getHiveUsers())
-                .expand((e) => e)) {
-              _userRepo.put(u);
-            }
-            yield ChatContactsEventsChatContactsList(
-              list.chatContacts.nodes.map((e) => e.toHive()).toList(),
-              list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
-              list.chatContacts.ver,
-            );
-          } else if (events.$$typename == 'ChatContactEventsVersioned') {
-            var mixin = events
-                as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
-            yield ChatContactsEventsEvent(
-              ChatContactEventsVersioned(
-                mixin.events.map((e) => _contactEvent(e)).toList(),
-                mixin.ver,
-                mixin.listVer,
-              ),
-            );
-          }
-        }),
-        _remoteSubscriptionToken,
-      );
+    return (await _graphQlProvider.contactsEvents(
+            ver, _remoteSubscriptionToken))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events =
+          ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events
+            as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
+        yield const ChatContactsEventsInitialized();
+      } else if (events.$$typename == 'ChatContactsList') {
+        var list = events
+            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
+        for (var u in list.chatContacts.nodes
+            .map((e) => e.getHiveUsers())
+            .expand((e) => e)) {
+          _userRepo.put(u);
+        }
+        yield ChatContactsEventsChatContactsList(
+          list.chatContacts.nodes.map((e) => e.toHive()).toList(),
+          list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
+          list.chatContacts.ver,
+        );
+      } else if (events.$$typename == 'ChatContactEventsVersioned') {
+        var mixin = events
+            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
+        yield ChatContactsEventsEvent(
+          ChatContactEventsVersioned(
+            mixin.events.map((e) => _contactEvent(e)).toList(),
+            mixin.ver,
+            mixin.listVer,
+          ),
+        );
+      }
+    });
+  }
 
   /// Constructs a [ChatContactEvent] from the
   /// [ChatContactEventsVersionedMixin$Event].

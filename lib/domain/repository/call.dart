@@ -142,9 +142,9 @@ abstract class AbstractCallRepository {
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
-    ChatCallDeviceId deviceId, [
-    CancelToken? cancelToken,
-  ]);
+    ChatCallDeviceId deviceId,
+    CancelToken cancelToken,
+  );
 }
 
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists

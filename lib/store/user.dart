@@ -206,41 +206,39 @@ class UserRepository implements AbstractUserRepository {
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Future<Stream<UserEvents>> userEvents(
     UserId id,
-    UserVersion? ver, [
-    CancelToken? cancelToken,
-  ]) =>
-      Backoff.run(
-        () async => (await _graphQlProvider.userEvents(id, ver))
-            .asyncExpand((event) async* {
-          GraphQlProviderExceptions.fire(event);
-          var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
-          if (events.$$typename == 'SubscriptionInitialized') {
-            events
-                as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
-            yield const UserEventsInitialized();
-          } else if (events.$$typename == 'User') {
-            var mixin = events as UserEvents$Subscription$UserEvents$User;
-            yield UserEventsUser(mixin.toHive());
-          } else if (events.$$typename == 'UserEventsVersioned') {
-            var mixin = events as UserEventsVersionedMixin;
-            yield UserEventsEvent(UserEventsVersioned(
-              mixin.events.map((e) => _userEvent(e)).toList(),
-              mixin.ver,
-            ));
-          } else if (events.$$typename == 'BlacklistEventsVersioned') {
-            var mixin = events as BlacklistEventsVersionedMixin;
-            yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
-              mixin.events.map((e) => _blacklistEvent(e)).toList(),
-              mixin.myVer,
-            ));
-          } else if (events.$$typename == 'IsBlacklisted') {
-            var node =
-                events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-            yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
-          }
-        }),
-        cancelToken,
-      );
+    UserVersion? ver,
+    CancelToken cancelToken,
+  ) async {
+    await Future.delayed(Backoff.get('userEvents_$id'));
+
+    return (await _graphQlProvider.userEvents(id, ver, cancelToken))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
+        yield const UserEventsInitialized();
+      } else if (events.$$typename == 'User') {
+        var mixin = events as UserEvents$Subscription$UserEvents$User;
+        yield UserEventsUser(mixin.toHive());
+      } else if (events.$$typename == 'UserEventsVersioned') {
+        var mixin = events as UserEventsVersionedMixin;
+        yield UserEventsEvent(UserEventsVersioned(
+          mixin.events.map((e) => _userEvent(e)).toList(),
+          mixin.ver,
+        ));
+      } else if (events.$$typename == 'BlacklistEventsVersioned') {
+        var mixin = events as BlacklistEventsVersionedMixin;
+        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+          mixin.events.map((e) => _blacklistEvent(e)).toList(),
+          mixin.myVer,
+        ));
+      } else if (events.$$typename == 'IsBlacklisted') {
+        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
+        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+      }
+    });
+  }
 
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {

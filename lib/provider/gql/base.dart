@@ -19,12 +19,14 @@ import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioError, Options, Response;
+import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
 import '/domain/model/session.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'exceptions.dart';
@@ -177,8 +179,14 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> subscribe(SubscriptionOptions options) async {
-    var stream = (await client).subscribe(options);
+  Future<Stream<QueryResult>> subscribe(
+    SubscriptionOptions options, [
+    CancelToken? cancelToken,
+  ]) async {
+    var stream = await Backoff.run(
+      () async => (await client).subscribe(options),
+      cancelToken,
+    );
 
     final connection = SubscriptionConnection(stream.expand((event) {
       Exception? e = GraphQlProviderExceptions.parse(event);

@@ -57,6 +57,9 @@ class HiveRxUser extends RxUser {
   /// May be uninitialized if [_listeners] counter is equal to zero.
   StreamIterator<UserEvents>? _remoteSubscription;
 
+  /// Indicator whether [_remoteSubscription] is initialized.
+  bool _remoteSubscriptionInitialized = false;
+
   /// [CancelToken] canceling the remote subscribing, if any.
   final CancelToken _remoteSubscriptionToken = CancelToken();
 
@@ -87,6 +90,7 @@ class HiveRxUser extends RxUser {
   void stopUpdates() {
     if (--_listeners == 0) {
       _remoteSubscription?.cancel();
+      _remoteSubscriptionInitialized = false;
       _remoteSubscription = null;
       _remoteSubscriptionToken.cancel();
     }
@@ -116,13 +120,19 @@ class HiveRxUser extends RxUser {
     })) {
       await _userEvent(_remoteSubscription!.current);
     }
+
+    if (_remoteSubscriptionInitialized) {
+      _initRemoteSubscription();
+    }
+
+    _remoteSubscriptionInitialized = false;
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEvents events) async {
     switch (events.kind) {
       case UserEventsKind.initialized:
-        // No-op.
+        _remoteSubscriptionInitialized = true;
         break;
 
       case UserEventsKind.user:

@@ -19,6 +19,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioError;
+import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -467,7 +468,10 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
+  Future<Stream<QueryResult>> recentChatsTopEvents(
+    int count,
+    CancelToken cancelToken,
+  ) {
     final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -476,6 +480,7 @@ abstract class ChatGraphQlMixin {
             RecentChatsTopEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -533,7 +538,11 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
+  Future<Stream<QueryResult>> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    CancelToken cancelToken,
+  ) {
     final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
@@ -541,6 +550,7 @@ abstract class ChatGraphQlMixin {
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -866,7 +876,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  Future<Stream<QueryResult>> keepTyping(ChatId id) {
+  Future<Stream<QueryResult>> keepTyping(ChatId id, CancelToken cancelToken) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -874,6 +884,7 @@ abstract class ChatGraphQlMixin {
         document: KeepTypingSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -1243,7 +1254,9 @@ abstract class ChatGraphQlMixin {
   /// side is expected to handle all the events idempotently considering the
   /// `Chat.ver`.
   Future<Stream<QueryResult>> favoriteChatsEvents(
-      FavoriteChatsListVersion? ver) {
+    FavoriteChatsListVersion? ver,
+    CancelToken cancelToken,
+  ) {
     final variables = FavoriteChatsEventsArguments(ver: ver);
     return client.subscribe(
       SubscriptionOptions(
@@ -1252,6 +1265,7 @@ abstract class ChatGraphQlMixin {
             FavoriteChatsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 }

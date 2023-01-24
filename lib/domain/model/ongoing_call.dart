@@ -264,6 +264,9 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
+  /// Indicator whether [_heartbeat] is initialized.
+  bool _heartbeatInitialized = false;
+
   /// [CancelToken] canceling the heartbeat subscribing, if any.
   final CancelToken _heartbeatToken = CancelToken();
 
@@ -362,7 +365,7 @@ class OngoingCall {
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
-            // No-op.
+            _heartbeatInitialized = true;
             break;
 
           case ChatCallEventsKind.chatCall:
@@ -510,9 +513,17 @@ class OngoingCall {
         }
 
         connected = false;
+        _heartbeatInitialized = false;
         connect(calls);
       },
-      onDone: () => calls.remove(chatId.value),
+      onDone: () {
+        if (_heartbeatInitialized) {
+          connect(calls);
+          _heartbeatInitialized = false;
+        }
+
+        calls.remove(chatId.value);
+      },
     );
   }
 
@@ -528,6 +539,7 @@ class OngoingCall {
         _jason = null;
       }
       _heartbeat?.cancel();
+      _heartbeatInitialized = false;
       _heartbeatToken.cancel();
       connected = false;
     });

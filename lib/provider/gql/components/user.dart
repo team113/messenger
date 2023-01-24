@@ -19,6 +19,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioError;
+import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -365,7 +366,10 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) {
+  Future<Stream<QueryResult>> myUserEvents(
+    MyUserVersion? ver,
+    CancelToken cancelToken,
+  ) {
     final variables = MyUserEventsArguments(ver: ver);
     return client.subscribe(
       SubscriptionOptions(
@@ -373,6 +377,7 @@ abstract class UserGraphQlMixin {
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -430,7 +435,11 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
+  Future<Stream<QueryResult>> userEvents(
+    UserId id,
+    UserVersion? ver,
+    CancelToken cancelToken,
+  ) {
     final variables = UserEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
@@ -438,6 +447,7 @@ abstract class UserGraphQlMixin {
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      cancelToken,
     );
   }
 
@@ -1021,11 +1031,14 @@ abstract class UserGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> keepOnline() {
-    return client.subscribe(SubscriptionOptions(
-      operationName: 'KeepOnline',
-      document: KeepOnlineSubscription().document,
-    ));
+  Future<Stream<QueryResult>> keepOnline(CancelToken cancelToken) {
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'KeepOnline',
+        document: KeepOnlineSubscription().document,
+      ),
+      cancelToken,
+    );
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].

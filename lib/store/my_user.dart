@@ -20,6 +20,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -95,8 +96,17 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// May be uninitialized since connection establishment may fail.
   StreamIterator<MyUserEventsVersioned>? _remoteSubscription;
 
+  /// Indicator whether [_remoteSubscription] is initialized.
+  bool _remoteSubscriptionInitialized = false;
+
+  /// [CancelToken] canceling the remote subscribing, if any.
+  final CancelToken _remoteSubscriptionToken = CancelToken();
+
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
+
+  /// Indicator whether [_keepOnlineSubscription] is initialized.
+  bool _keepOnlineSubscriptionInitialized = false;
 
   /// [CancelToken] canceling the keep online subscribing, if any.
   final dio.CancelToken _keepOnlineToken = dio.CancelToken();
@@ -146,7 +156,10 @@ class MyUserRepository implements AbstractMyUserRepository {
     _localSubscription?.cancel();
     _blacklistSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _remoteSubscriptionInitialized = false;
+    _remoteSubscriptionToken.cancel();
     _keepOnlineSubscription?.cancel();
+    _keepOnlineSubscriptionInitialized = false;
     _keepOnlineToken.cancel();
   }
 
@@ -579,22 +592,36 @@ class MyUserRepository implements AbstractMyUserRepository {
     })) {
       _myUserRemoteEvent(_remoteSubscription!.current);
     }
+
+    if (_remoteSubscriptionInitialized) {
+      _initRemoteSubscription();
+    }
+
+    _remoteSubscriptionInitialized = false;
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
   Future<void> _initKeepOnlineSubscription() async {
+    await Future.delayed(Backoff.get('keepOnline'));
+
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = await Backoff.run(
-      () async => (await _graphQlProvider.keepOnline()).listen(
-        (event) {
-          GraphQlProviderExceptions.fire(event);
-        },
-        onError: (_) {
-          _initKeepOnlineSubscription();
-        },
-      ),
-      _keepOnlineToken,
+    _keepOnlineSubscription =
+        (await _graphQlProvider.keepOnline(_keepOnlineToken)).listen(
+      (event) {
+        GraphQlProviderExceptions.fire(event);
+
+        _keepOnlineSubscriptionInitialized = true;
+      },
+      onError: (_) {
+        _initKeepOnlineSubscription();
+      },
     );
+
+    if (_keepOnlineSubscriptionInitialized) {
+      _initKeepOnlineSubscription();
+    }
+
+    _keepOnlineSubscriptionInitialized = false;
   }
 
   /// Saves the provided [user] in [Hive].
@@ -835,26 +862,29 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
   Future<Stream<MyUserEventsVersioned>> _myUserRemoteEvents(
     MyUserVersion? ver,
-  ) async =>
-      (await _graphQlProvider.myUserEvents(ver)).asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
-        var events =
-            MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+  ) async {
+    await Future.delayed(Backoff.get('myUserEvents'));
 
-        if (events.$$typename == 'SubscriptionInitialized') {
-          events
-              as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
-          // No-op.
-        } else if (events.$$typename == 'MyUser') {
-          _setMyUser((events as MyUserMixin).toHive());
-        } else if (events.$$typename == 'MyUserEventsVersioned') {
-          var mixin = events as MyUserEventsVersionedMixin;
-          yield MyUserEventsVersioned(
-            mixin.events.map((e) => _myUserEvent(e)).toList(),
-            mixin.ver,
-          );
-        }
-      });
+    return (await _graphQlProvider.myUserEvents(ver, _remoteSubscriptionToken))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events
+            as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
+        _remoteSubscriptionInitialized = true;
+      } else if (events.$$typename == 'MyUser') {
+        _setMyUser((events as MyUserMixin).toHive());
+      } else if (events.$$typename == 'MyUserEventsVersioned') {
+        var mixin = events as MyUserEventsVersionedMixin;
+        yield MyUserEventsVersioned(
+          mixin.events.map((e) => _myUserEvent(e)).toList(),
+          mixin.ver,
+        );
+      }
+    });
+  }
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {

@@ -78,7 +78,13 @@ class CallRepository extends DisposableInterface
   final Map<ChatId, ChatCallCredentials> _credentials = {};
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
-  StreamSubscription? _events;
+  StreamIterator? _events;
+
+  /// Indicator whether [_events] is initialized.
+  bool _topEventsInitialized = false;
+
+  /// [CancelToken] canceling the top events subscribing, if any.
+  final CancelToken _topEventsToken = CancelToken();
 
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
@@ -99,6 +105,8 @@ class CallRepository extends DisposableInterface
   @override
   void onClose() {
     _events?.cancel();
+    _topEventsInitialized = false;
+    _topEventsToken.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
       remove(call.value.chatId.value);
@@ -376,68 +384,70 @@ class CallRepository extends DisposableInterface
   @override
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
-    ChatCallDeviceId deviceId, [
-    CancelToken? cancelToken,
-  ]) async =>
-      Backoff.run(
-        () async => (await _graphQlProvider.callEvents(id, deviceId))
-            .asyncExpand((event) async* {
-          GraphQlProviderExceptions.fire(event);
-          var events =
-              CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+    ChatCallDeviceId deviceId,
+    CancelToken cancelToken,
+  ) async {
+    await Future.delayed(Backoff.get('callEvents_$id'));
 
-          if (events.$$typename == 'SubscriptionInitialized') {
-            yield const ChatCallEventsInitialized();
-          } else if (events.$$typename == 'ChatCall') {
-            var call =
-                events as CallEvents$Subscription$ChatCallEvents$ChatCall;
-            yield ChatCallEventsChatCall(call.toModel(), call.ver);
-          } else if (events.$$typename == 'ChatCallEventsVersioned') {
-            var mixin = events as ChatCallEventsVersionedMixin;
-            yield ChatCallEventsEvent(
-              CallEventsVersioned(
-                mixin.events.map((e) => _callEvent(e)).toList(),
-                mixin.ver,
-              ),
-            );
-          }
-        }),
-        cancelToken,
-      );
+    return (await _graphQlProvider.callEvents(id, deviceId, cancelToken))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        yield const ChatCallEventsInitialized();
+      } else if (events.$$typename == 'ChatCall') {
+        var call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
+        yield ChatCallEventsChatCall(call.toModel(), call.ver);
+      } else if (events.$$typename == 'ChatCallEventsVersioned') {
+        var mixin = events as ChatCallEventsVersionedMixin;
+        yield ChatCallEventsEvent(
+          CallEventsVersioned(
+            mixin.events.map((e) => _callEvent(e)).toList(),
+            mixin.ver,
+          ),
+        );
+      }
+    });
+  }
 
   /// Returns a [Stream] of [IncomingChatCallsTopEvent]s.
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
-  Future<Stream<IncomingChatCallsTopEvent>> _incomingEvents(int count) async =>
-      (await _graphQlProvider.incomingCallsTopEvents(count))
-          .asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
-        var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
-            .incomingChatCallsTopEvents;
+  Future<Stream<IncomingChatCallsTopEvent>> _incomingEvents(int count) async {
+    await Future.delayed(Backoff.get('incomingCallsTopEvents'));
 
-        if (events.$$typename == 'SubscriptionInitialized') {
-          yield const IncomingChatCallsTopInitialized();
-        } else if (events.$$typename == 'IncomingChatCallsTop') {
-          var list = (events
-                  as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
-              .list;
-          for (var u in list.map((e) => e.members).expand((e) => e)) {
-            _userRepo.put(u.user.toHive());
-          }
-          yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
-        } else if (events.$$typename ==
-            'EventIncomingChatCallsTopChatCallAdded') {
-          var data = events
-              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
-          yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
-        } else if (events.$$typename ==
-            'EventIncomingChatCallsTopChatCallRemoved') {
-          var data = events
-              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
-          yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+    return (await _graphQlProvider.incomingCallsTopEvents(
+            count, _topEventsToken))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
+          .incomingChatCallsTopEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        yield const IncomingChatCallsTopInitialized();
+      } else if (events.$$typename == 'IncomingChatCallsTop') {
+        var list = (events
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
+            .list;
+        for (var u in list.map((e) => e.members).expand((e) => e)) {
+          _userRepo.put(u.user.toHive());
         }
-      });
+        yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
+      } else if (events.$$typename ==
+          'EventIncomingChatCallsTopChatCallAdded') {
+        var data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+        yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
+      } else if (events.$$typename ==
+          'EventIncomingChatCallsTopChatCallRemoved') {
+        var data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
+        yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+      }
+    });
+  }
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
@@ -592,42 +602,46 @@ class CallRepository extends DisposableInterface
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
     _events?.cancel();
-    _events = (await _incomingEvents(count)).listen(
-      (e) async {
-        switch (e.kind) {
-          case IncomingChatCallsTopEventKind.initialized:
-            // No-op.
-            break;
+    _events = StreamIterator(await _incomingEvents(count));
+    while (await _events!.moveNext().onError((e, __) {
+      if (e is! ResubscriptionRequiredException) {
+        Log.print(e.toString(), 'CallRepository');
+      }
 
-          case IncomingChatCallsTopEventKind.list:
-            e as IncomingChatCallsTop;
-            e.list.forEach(add);
-            break;
+      _subscribe(count);
+      return false;
+    })) {
+      switch (_events!.current.kind) {
+        case IncomingChatCallsTopEventKind.initialized:
+          _topEventsInitialized = true;
+          break;
 
-          case IncomingChatCallsTopEventKind.added:
-            e as EventIncomingChatCallsTopChatCallAdded;
-            add(e.call);
-            break;
+        case IncomingChatCallsTopEventKind.list:
+          _events!.current as IncomingChatCallsTop;
+          _events!.current.list.forEach(add);
+          break;
 
-          case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            final Rx<OngoingCall>? call = calls[e.call.chatId];
-            // If call is not yet connected to remote updates, then it's still
-            // just a notification and it should be removed.
-            if (call?.value.connected == false &&
-                call?.value.isActive == false) {
-              remove(e.call.chatId);
-            }
-            break;
-        }
-      },
-      onError: (e) {
-        if (e is! ResubscriptionRequiredException) {
-          Log.print(e.toString(), 'CallRepository');
-        }
+        case IncomingChatCallsTopEventKind.added:
+          _events!.current as EventIncomingChatCallsTopChatCallAdded;
+          add(_events!.current.call);
+          break;
 
-        _subscribe(count);
-      },
-    );
+        case IncomingChatCallsTopEventKind.removed:
+          _events!.current as EventIncomingChatCallsTopChatCallRemoved;
+          final Rx<OngoingCall>? call = calls[_events!.current.call.chatId];
+          // If call is not yet connected to remote updates, then it's still
+          // just a notification and it should be removed.
+          if (call?.value.connected == false && call?.value.isActive == false) {
+            remove(_events!.current.call.chatId);
+          }
+          break;
+      }
+    }
+
+    if (_topEventsInitialized) {
+      _subscribe(count);
+    }
+
+    _topEventsInitialized = false;
   }
 }
