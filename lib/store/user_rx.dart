@@ -20,7 +20,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -47,6 +49,9 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
+  /// Reactive value of the [RxChat]-dialog with this [RxUser].
+  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
@@ -59,6 +64,17 @@ class HiveRxUser extends RxUser {
   ///
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
+
+  @override
+  Rx<RxChat?> get dialog {
+    final Chat? chat = user.value.dialog;
+
+    if (_dialog.value == null && chat != null) {
+      _userRepository.getChat?.call(chat.id).then((v) => _dialog.value = v);
+    }
+
+    return _dialog;
+  }
 
   @override
   void listenUpdates() {

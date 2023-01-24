@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
@@ -275,20 +274,25 @@ class UserPhone extends NewType<String> {
 
   UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
-      throw const FormatException('Does not match validation RegExp');
+      throw const FormatException('Must start with plus');
     }
-    try {
-      PhoneNumber number = PhoneNumber.parse(val);
-      if (!number.isValid()) {
-        throw const FormatException('Does not match validation RegExp');
-      }
-    } on PhoneNumberException {
+
+    if (val.length < 8) {
+      throw const FormatException('Must contain no less than 8 symbols');
+    }
+
+    if (!_regExp.hasMatch(val)) {
       throw const FormatException('Does not match validation RegExp');
     }
   }
 
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
+
+  /// Regular expression for basic [UserPhone] validation.
+  static final RegExp _regExp = RegExp(
+    r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
+  );
 }
 
 /// Direct link to a `Chat`.

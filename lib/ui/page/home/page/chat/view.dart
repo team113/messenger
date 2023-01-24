@@ -42,6 +42,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -174,27 +175,10 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            c.chat!.title.value,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        if (c.chat?.chat.value.muted !=
-                                            null) ...[
-                                          const SizedBox(width: 5),
-                                          Icon(
-                                            Icons.volume_off,
-                                            color: Theme.of(context)
-                                                .primaryIconTheme
-                                                .color,
-                                            size: 17,
-                                          ),
-                                        ]
-                                      ],
+                                    Text(
+                                      c.chat!.title.value,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     _chatSubtitle(c),
                                   ],
@@ -761,35 +745,50 @@ class _ChatViewState extends State<ChatView>
         final ChatMember? partner =
             chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
         if (partner != null) {
-          return FutureBuilder<RxUser?>(
-            future: c.getUser(partner.user.id),
-            builder: (_, snapshot) {
-              if (snapshot.data != null) {
-                return Obx(() {
-                  final String? subtitle = c.chat!.chat.value
-                      .getSubtitle(partner: snapshot.data!.user.value);
+          return Row(
+            children: [
+              if (c.chat?.chat.value.muted != null) ...[
+                SvgLoader.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(partner.user.id),
+                  builder: (_, snapshot) {
+                    if (snapshot.data != null) {
+                      return Obx(() {
+                        final String? subtitle = c.chat!.chat.value
+                            .getSubtitle(partner: snapshot.data!.user.value);
 
-                  final UserTextStatus? status =
-                      snapshot.data!.user.value.status;
+                        final UserTextStatus? status =
+                            snapshot.data!.user.value.status;
 
-                  if (status != null || subtitle != null) {
-                    final StringBuffer buffer = StringBuffer(status ?? '');
+                        if (status != null || subtitle != null) {
+                          final StringBuffer buffer =
+                              StringBuffer(status ?? '');
 
-                    if (status != null && subtitle != null) {
-                      buffer.write('space_vertical_space'.l10n);
+                          if (status != null && subtitle != null) {
+                            buffer.write('space_vertical_space'.l10n);
+                          }
+
+                          buffer.write(subtitle ?? '');
+
+                          return Text(buffer.toString(), style: style);
+                        }
+
+                        return const SizedBox();
+                      });
                     }
 
-                    buffer.write(subtitle ?? '');
-
-                    return Text(buffer.toString(), style: style);
-                  }
-
-                  return const SizedBox();
-                });
-              }
-
-              return const SizedBox();
-            },
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
           );
         }
       }
@@ -806,8 +805,7 @@ class _ChatViewState extends State<ChatView>
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: SwipeableStatus(
         animation: _animation,
-        translate: false,
-        padding: const EdgeInsets.only(right: 8, top: 2),
+        padding: const EdgeInsets.only(right: 8),
         crossAxisAlignment: CrossAxisAlignment.center,
         swipeable: Padding(
           padding: const EdgeInsets.only(right: 4),
@@ -848,6 +846,10 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
+    if (c.chat?.blacklisted == true) {
+      return _blockedField(c);
+    }
+
     return Obx(() {
       if (c.edit.value != null) {
         return MessageFieldView(
@@ -903,6 +905,112 @@ class _ChatViewState extends State<ChatView>
         child: Text(
           'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
           style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [WidgetButton] removing this [Chat] from the blacklist.
+  Widget _blockedField(ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        shadowColor: const Color(0x55000000),
+        iconTheme: const IconThemeData(color: Colors.blue),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          filled: false,
+          isDense: true,
+          contentPadding: EdgeInsets.fromLTRB(
+            15,
+            PlatformUtils.isDesktop ? 30 : 23,
+            15,
+            0,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: Container(
+          key: const Key('BlockedField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: const [
+              CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 56),
+              decoration: BoxDecoration(color: style.cardColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                        bottom: 13,
+                      ),
+                      child: Transform.translate(
+                        offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                        child: WidgetButton(
+                          onPressed: c.unblacklist,
+                          child: IgnorePointer(
+                            child: ReactiveTextField(
+                              enabled: false,
+                              state: TextFieldState(text: 'btn_unblock'.l10n),
+                              filled: false,
+                              dense: true,
+                              textAlign: TextAlign.center,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.boldBody.copyWith(
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
