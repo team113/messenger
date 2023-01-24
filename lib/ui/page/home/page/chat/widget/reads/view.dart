@@ -121,14 +121,15 @@ class ChatItemReads extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                '${'label_id'.l10n}: $id',
+                                '${'label_id'.l10n}${'colon_space'.l10n}$id',
                                 style: thin?.copyWith(fontSize: 13),
                                 maxLines: null,
-                                // overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(width: 8),
-                              SvgLoader.asset('assets/icons/copy.svg',
-                                  height: 12),
+                              SvgLoader.asset(
+                                'assets/icons/copy.svg',
+                                height: 12,
+                              ),
                             ],
                           ),
                         ),

@@ -215,7 +215,9 @@ class ChatsTabView extends StatelessWidget {
                             if (c.groupCreating.value) {
                               c.closeGroupCreating();
                             } else {
-                              c.startGroupCreating();
+                              if (c.searchTimer?.isActive != true) {
+                                c.startGroupCreating();
+                              }
                             }
                           }
                         },

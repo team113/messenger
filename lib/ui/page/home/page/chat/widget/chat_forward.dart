@@ -50,7 +50,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
-import 'chat_item_reads.dart';
+import 'reads/view.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -76,6 +76,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onFileTap,
     this.onAttachmentError,
+    this.itemId,
   }) : super(key: key);
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -83,6 +84,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [ChatForward]s to display.
   final RxList<Rx<ChatItem>> forwards;
+
+  final ChatItemId? itemId;
 
   /// [ChatMessage] attached to these [forwards] as a note.
   final Rx<Rx<ChatItem>?> note;
@@ -830,6 +833,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
                           actions: [
+                            ContextMenuButton(
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_info'.l10n
+                                  : 'btn_message_info'.l10n,
+                              trailing: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                height: 18,
+                              ),
+                              onPressed: () => ChatItemReads.show(
+                                context,
+                                id: widget.itemId,
+                                reads: widget.reads,
+                                getUser: widget.getUser,
+                              ),
+                            ),
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
@@ -953,6 +971,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   child: WidgetButton(
                                     onPressed: () => ChatItemReads.show(
                                       context,
+                                      id: widget.itemId,
                                       reads: widget.reads,
                                       getUser: widget.getUser,
                                     ),

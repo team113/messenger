@@ -563,6 +563,7 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             forwards: element.forwards,
             note: element.note,
+            itemId: element.itemId,
             authorId: element.authorId,
             me: c.me!,
             reads: c.chat!.members.length > 10

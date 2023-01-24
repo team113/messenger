@@ -1595,6 +1595,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   onPressed: () => ChatItemReads.show(
                                     context,
                                     reads: widget.reads,
+                                    id: widget.item.value.id,
                                     getUser: widget.getUser,
                                   ),
                                   child: Row(

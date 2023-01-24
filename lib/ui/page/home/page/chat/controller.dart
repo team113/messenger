@@ -565,7 +565,7 @@ class ChatController extends GetxController {
           elements[element.id] = element;
         } else if (item is ChatForward) {
           ChatForwardElement element =
-              ChatForwardElement(forwards: [e], e.value.at);
+              ChatForwardElement(forwards: [e], e.value.at, itemId: item.id);
 
           ListElementId? previousKey = elements.lastKeyBefore(element.id);
           ListElement? previous = elements[previousKey];
@@ -1327,6 +1327,7 @@ class ChatForwardElement extends ListElement {
     PreciseDateTime at, {
     List<Rx<ChatItem>> forwards = const [],
     Rx<ChatItem>? note,
+    this.itemId,
   })  : forwards = RxList(forwards),
         note = Rx(note),
         authorId = forwards.first.value.authorId,
@@ -1340,6 +1341,8 @@ class ChatForwardElement extends ListElement {
 
   /// [UserId] being an author of the [forwards].
   final UserId authorId;
+
+  final ChatItemId? itemId;
 }
 
 /// [ListElement] representing a [DateTime] label.

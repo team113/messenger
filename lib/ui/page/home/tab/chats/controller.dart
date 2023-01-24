@@ -98,6 +98,9 @@ class ChatsTabController extends GetxController {
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
+  /// Timeout before button navigates to group creating became active.
+  Timer? searchTimer;
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -392,6 +395,9 @@ class ChatsTabController extends GetxController {
   void closeSearch([bool disableSearch = false]) {
     searching.value = false;
     if (disableSearch) {
+      searchTimer = Timer(const Duration(milliseconds: 100), () {
+        searchTimer?.cancel();
+      });
       _toggleSearch(false);
     } else {
       search.value?.search.clear();
