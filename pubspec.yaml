@@ -55,8 +55,8 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.39f8181e33a20db445d16c1bfedd7d337a777fe3
-  medea_jason: 0.3.0-dev+rev.5a333a88111679ea49dad035de709e7c0e037c1f
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
+  medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
   mime: ^1.0.2
   mutex: ^3.0.0
   # TODO: Switch to pub.dev version when the following pull request is merged
@@ -113,6 +113,8 @@ dependency_overrides:
   analyzer: ^4.6.0
   # TODO: Remove when `flutter_web_plugins` updates.
   js: ^0.6.5
+  # TODO: Remove when `medea_jason` updates.
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
 
 flutter:
   uses-material-design: true

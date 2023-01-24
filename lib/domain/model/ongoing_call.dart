@@ -319,8 +319,28 @@ class OngoingCall {
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
+        final List<MediaDeviceInfo> previous =
+            List.from(devices, growable: false);
+
         await enumerateDevices();
-        _pickOutputDevice();
+
+        final List<MediaDeviceInfo> added = [];
+        final List<MediaDeviceInfo> removed = [];
+
+        for (MediaDeviceInfo d in devices) {
+          if (previous.none((p) => p.deviceId() == d.deviceId())) {
+            added.add(d);
+          }
+        }
+
+        for (MediaDeviceInfo d in previous) {
+          if (devices.none((p) => p.deviceId() == d.deviceId())) {
+            removed.add(d);
+          }
+        }
+
+        _pickAudioDevice(previous, added, removed);
+        _pickOutputDevice(previous, added, removed);
       });
 
       _initRoom();
@@ -1401,24 +1421,37 @@ class OngoingCall {
     }
   }
 
-  /// Updates the [outputDevice] on Android.
-  ///
-  /// The following priority is used:
-  /// 1. bluetooth headset;
-  /// 2. speakerphone.
-  void _pickOutputDevice() {
-    if (PlatformUtils.isAndroid) {
-      var output = devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'bluetooth-headset')
-              ?.deviceId() ??
-          devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'speakerphone')
-              ?.deviceId();
-      if (output != null && outputDevice.value != output) {
-        setOutputDevice(output);
-      }
+  /// Picks the [outputDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickOutputDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.output().isNotEmpty) {
+      setOutputDevice(added.output().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+        (outputDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+      setOutputDevice(devices.output().first.deviceId());
+    }
+  }
+
+  /// Picks the [audioDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickAudioDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.audio().isNotEmpty) {
+      setAudioDevice(added.audio().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+        (audioDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+      setAudioDevice(devices.audio().first.deviceId());
     }
   }
 }
@@ -1648,7 +1681,7 @@ class Track {
   }
 }
 
-extension DevicesList on InputDevices {
+extension DevicesList on List<MediaDeviceInfo> {
   /// Returns a new [Iterable] with [MediaDeviceInfo]s of
   /// [MediaDeviceKind.videoinput].
   Iterable<MediaDeviceInfo> video() {
