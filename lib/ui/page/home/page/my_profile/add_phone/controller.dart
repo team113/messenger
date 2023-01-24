@@ -101,6 +101,8 @@ class AddPhoneController extends GetxController {
             await _myUserService.addUserPhone(phone!);
             _setResendPhoneTimer(true);
             stage.value = AddPhoneFlowStage.code;
+          } on InvalidScalarException<UserPhone> {
+            s.error.value = 'err_incorrect_phone'.l10n;
           } on FormatException {
             s.error.value = 'err_incorrect_phone'.l10n;
           } on AddUserPhoneException catch (e) {
