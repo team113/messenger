@@ -517,6 +517,7 @@ label_hint_drag_n_drop_video =
 
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
+label_id = ID
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_incoming_call = Входящий звонок
@@ -693,3 +694,4 @@ label_message = Сообщение
 btn_message_info = Информация о сообщении
 label_not_found = Не найдено
 label_copied = Скопировано
+label_read_at = Прочитано:{" "}

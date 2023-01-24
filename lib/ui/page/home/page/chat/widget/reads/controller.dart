@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -33,28 +34,27 @@ class ChatItemReadsController extends GetxController {
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
-  final TextFieldState search = TextFieldState();
+  final FocusNode searchFocus = FocusNode();
+
+  late final TextFieldState search;
 
   final RxnString query = RxnString(null);
   final RxList<RxUser> users = RxList();
 
   @override
   void onInit() {
+    search = TextFieldState(focus: searchFocus);
     init();
+    search.focus.addListener(() {
+      print(search.focus.hasPrimaryFocus);
+      print(search.focus.hasFocus);
+    });
 
     super.onInit();
   }
 
   Future<void> init() async {
-    // for (var v in reads) {
-    //   RxUser? user = await getUser?.call(v.memberId);
-    //   print('user $user');
-    //   if (user != null) {
-    //     users.add(user);
-    //   }
-    // }
-
-    List<Future> futures = reads
+    final List<Future> futures = reads
         .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))
         .whereNotNull()
         .toList();
