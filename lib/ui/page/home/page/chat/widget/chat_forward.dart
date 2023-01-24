@@ -85,6 +85,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// [ChatForward]s to display.
   final RxList<Rx<ChatItem>> forwards;
 
+  /// [ChatItemId] of this [ChatForwardWidget].
   final ChatItemId? itemId;
 
   /// [ChatMessage] attached to these [forwards] as a note.

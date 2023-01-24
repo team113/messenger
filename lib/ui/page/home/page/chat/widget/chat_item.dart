@@ -1420,10 +1420,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             label: PlatformUtils.isMobile
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
-                            trailing: SvgLoader.asset(
-                              'assets/icons/copy_small.svg',
-                              height: 18,
-                            ),
+                            trailing: const Icon(Icons.info_outline),
                             onPressed: () => ChatItemReads.show(
                               context,
                               id: widget.item.value.id,

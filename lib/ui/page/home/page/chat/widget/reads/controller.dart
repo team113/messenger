@@ -18,10 +18,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/user.dart';
 
+import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/ui/widget/text_field.dart';
 
 class ChatItemReadsController extends GetxController {
@@ -34,31 +34,43 @@ class ChatItemReadsController extends GetxController {
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
-  final FocusNode searchFocus = FocusNode();
+  final ScrollController scrollController = ScrollController();
 
-  late final TextFieldState search;
+  final RxBool isFocus = RxBool(false);
+
+  final TextFieldState search = TextFieldState();
 
   final RxnString query = RxnString(null);
   final RxList<RxUser> users = RxList();
 
   @override
   void onInit() {
-    search = TextFieldState(focus: searchFocus);
+    search.focus.addListener(_focusListener);
     init();
-    search.focus.addListener(() {
-      print(search.focus.hasPrimaryFocus);
-      print(search.focus.hasFocus);
-    });
 
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    search.focus.removeListener(_focusListener);
+    super.onClose();
+  }
+
   Future<void> init() async {
     final List<Future> futures = reads
-        .map((e) => getUser?.call(e.memberId)?..then((v) => users.add(v!)))
+        .map((e) => getUser?.call(e.memberId)
+          ?..then((v) {
+            users.add(v!);
+            users.add(v!);
+            users.add(v!);
+            users.add(v!);
+          }))
         .whereNotNull()
         .toList();
 
     await Future.wait(futures);
   }
+
+  void _focusListener() => isFocus.value = search.focus.hasFocus;
 }
