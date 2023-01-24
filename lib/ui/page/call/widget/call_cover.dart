@@ -93,6 +93,7 @@ class CallCoverWidget extends StatelessWidget {
               child: Center(
                 child: Text(
                   title ?? '',
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headline4?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),

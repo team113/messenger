@@ -597,7 +597,7 @@ class ChatsTabController extends GetxController {
           return 1;
         }
 
-        return c.chat.value.updatedAt.compareTo(d.chat.value.updatedAt);
+        return d.chat.value.updatedAt.compareTo(c.chat.value.updatedAt);
       }
 
       return 0;

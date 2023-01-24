@@ -28,6 +28,7 @@ class CustomProgressIndicator extends StatelessWidget {
     this.valueColor,
     this.strokeWidth = 2.0,
     this.value,
+    this.padding = const EdgeInsets.all(12),
   });
 
   final double? value;
@@ -35,11 +36,10 @@ class CustomProgressIndicator extends StatelessWidget {
   final Color? color;
   final Animation<Color?>? valueColor;
   final double strokeWidth;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF0F0F0).withOpacity(1),
@@ -52,7 +52,7 @@ class CustomProgressIndicator extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12),
+      padding: padding,
       child: CircularProgressIndicator(
         value: value,
         color: color ?? Theme.of(context).colorScheme.secondary,

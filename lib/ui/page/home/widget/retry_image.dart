@@ -23,6 +23,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/util/platform_utils.dart';
 
@@ -43,6 +45,7 @@ class RetryImage extends StatefulWidget {
     this.borderRadius,
     this.onForbidden,
     this.filter,
+    this.cancelable = false,
   }) : super(key: key);
 
   /// URL of an image to display.
@@ -66,6 +69,8 @@ class RetryImage extends StatefulWidget {
 
   /// [BorderRadius] to apply to this [RetryImage].
   final BorderRadius? borderRadius;
+
+  final bool cancelable;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -94,6 +99,9 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Current period of exponential backoff image fetching.
   Duration _backoffPeriod = _minBackoffPeriod;
+
+  bool _canceled = false;
+  CancelToken? _token;
 
   @override
   void initState() {
@@ -144,17 +152,50 @@ class _RetryImageState extends State<RetryImage> {
         width: 200,
         alignment: Alignment.center,
         child: Container(
-          padding: const EdgeInsets.all(5),
           constraints: const BoxConstraints(
-            maxHeight: 40,
-            maxWidth: 40,
+            maxHeight: 60,
+            maxWidth: 60,
             minWidth: 10,
             minHeight: 10,
           ),
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: CustomProgressIndicator(
-              value: _progress == 0 ? null : _progress.clamp(0, 1),
+          child: WidgetButton(
+            onPressed: widget.cancelable
+                ? () {
+                    if (_canceled) {
+                      _canceled = false;
+                      _token = CancelToken();
+                      _loadImage();
+                    } else {
+                      _canceled = true;
+                      _token?.cancel();
+                    }
+
+                    setState(() {});
+                  }
+                : null,
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.center,
+              children: [
+                if (!_canceled)
+                  CustomProgressIndicator(
+                    padding: const EdgeInsets.all(4),
+                    strokeWidth: 2,
+                    value: _progress == 0 ? null : _progress.clamp(0, 1),
+                  ),
+                if (widget.cancelable)
+                  Center(
+                    child: _canceled
+                        ? SvgLoader.asset(
+                            'assets/icons/download.svg',
+                            height: 60,
+                          )
+                        : SvgLoader.asset(
+                            'assets/icons/close_primary.svg',
+                            height: 22,
+                          ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -174,6 +215,8 @@ class _RetryImageState extends State<RetryImage> {
   Future<void> _loadImage() async {
     _timer?.cancel();
 
+    _token = CancelToken();
+
     Uint8List? cached = _cache[widget.url];
     if (cached != null) {
       _image = cached;
@@ -185,22 +228,43 @@ class _RetryImageState extends State<RetryImage> {
       Response? data;
 
       try {
+        for (int i = 0; i < 100; ++i) {
+          await Future.delayed(const Duration(milliseconds: 25));
+          _progress = i / 100;
+          if (mounted) {
+            setState(() {});
+          }
+
+          if (_token?.isCancelled == true) {
+            return;
+          }
+        }
+
+        if (_token?.isCancelled == true) {
+          return;
+        }
+
         data = await PlatformUtils.dio.get(
           widget.url,
           onReceiveProgress: (received, total) {
-            if (total > 0) {
-              _progress = received / total;
-              if (mounted) {
-                setState(() {});
-              }
-            }
+            // if (total > 0) {
+            //   _progress = received / total;
+            //   if (mounted) {
+            //     setState(() {});
+            //   }
+            // }
           },
+          cancelToken: _token,
           options: Options(responseType: ResponseType.bytes),
         );
       } on DioError catch (e) {
         if (e.response?.statusCode == 403) {
           await widget.onForbidden?.call();
         }
+      }
+
+      if (_token?.isCancelled == true) {
+        return;
       }
 
       if (data?.data != null && data!.statusCode == 200) {

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:rive/rive.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -118,11 +119,18 @@ class MenuTabView extends StatelessWidget {
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
-                  child: SvgLoader.asset(
-                    'assets/icons/switch_account.svg',
-                    width: 28.81,
+                  child: SizedBox(
                     height: 25.35,
+                    width: 30,
+                    child: RiveAnimation.asset(
+                      'assets/icons/switch_account.riv',
+                    ),
                   ),
+                  // child: SvgLoader.asset(
+                  //   'assets/icons/switch_account.svg',
+                  //   width: 28.81,
+                  //   height: 25.35,
+                  // ),
                 ),
               ),
             ],

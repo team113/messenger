@@ -224,6 +224,7 @@ class ChatItemWidget extends StatefulWidget {
           width: filled ? double.infinity : null,
           height: 300,
           onForbidden: onError,
+          cancelable: true,
         ),
       );
     }
@@ -324,6 +325,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Returns a visual representation of the provided file-[Attachment].
   static Widget fileAttachment(
+    BuildContext context,
     Attachment e, {
     required bool fromMe,
     void Function(FileAttachment)? onFileTap,
@@ -337,20 +339,24 @@ class ChatItemWidget extends StatefulWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SvgLoader.asset(
-                  'assets/icons/download_cancel.svg',
-                  key: const Key('CancelDownloading'),
-                  width: 28,
-                  height: 28,
-                ),
                 SizedBox.square(
-                  dimension: 26.3,
+                  dimension: 48,
                   child: CustomProgressIndicator(
-                    strokeWidth: 2.3,
+                    padding: const EdgeInsets.all(4),
+                    strokeWidth: 2,
                     key: const Key('Downloading'),
                     value: e.progress.value == 0 ? null : e.progress.value,
-                    color: Colors.white.withOpacity(0.7),
                   ),
+                  // child: CircularProgressIndicator(
+                  //   strokeWidth: 2.3,
+                  //   key: const Key('Downloading'),
+                  //   value: e.progress.value == 0 ? null : e.progress.value,
+                  //   color: Colors.white.withOpacity(0.7),
+                  // ),
+                ),
+                SvgLoader.asset(
+                  'assets/icons/close_primary.svg',
+                  height: 16,
                 ),
               ],
             ),
@@ -358,11 +364,17 @@ class ChatItemWidget extends StatefulWidget {
           break;
 
         case DownloadStatus.isFinished:
-          leading = const Icon(
-            Icons.file_copy,
-            key: Key('Downloaded'),
-            color: Color(0xFF63B4FF),
-            size: 28,
+          leading = const SizedBox(
+            height: 48,
+            width: 48,
+            child: Center(
+              child: Icon(
+                Icons.file_copy,
+                key: Key('Downloaded'),
+                color: Color(0xFF63B4FF),
+                size: 45,
+              ),
+            ),
           );
           break;
 
@@ -370,8 +382,8 @@ class ChatItemWidget extends StatefulWidget {
           leading = SvgLoader.asset(
             'assets/icons/download.svg',
             key: const Key('Download'),
-            width: 28,
-            height: 28,
+            width: 48,
+            height: 48,
           );
           break;
       }
@@ -417,13 +429,16 @@ class ChatItemWidget extends StatefulWidget {
       child: leading,
     );
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return Padding(
       key: Key('File_${e.id}'),
+      // padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       child: WidgetButton(
         onPressed: e is FileAttachment ? () => onFileTap?.call(e) : null,
         child: Container(
-          height: 50,
+          // height: 80,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: fromMe
@@ -434,7 +449,10 @@ class ChatItemWidget extends StatefulWidget {
           child: Row(
             children: [
               const SizedBox(width: 8),
-              leading,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: leading,
+              ),
               const SizedBox(width: 11),
               Expanded(
                 child: Column(
@@ -446,14 +464,14 @@ class ChatItemWidget extends StatefulWidget {
                         Flexible(
                           child: Text(
                             p.basenameWithoutExtension(e.filename),
-                            style: const TextStyle(fontSize: 15),
+                            style: style.boldBody, //.copyWith(fontSize: 15),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Text(
                           p.extension(e.filename),
-                          style: const TextStyle(fontSize: 15),
+                          style: style.boldBody, //.copyWith(fontSize: 15),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -468,9 +486,9 @@ class ChatItemWidget extends StatefulWidget {
                       }),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF888888),
+                      style: style.boldBody.copyWith(
+                        // fontSize: 15,
+                        color: const Color(0xFF888888),
                       ),
                     ),
                   ],
@@ -850,6 +868,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         children: files
                             .map(
                               (e) => ChatItemWidget.fileAttachment(
+                                context,
                                 e,
                                 fromMe: _fromMe,
                                 onFileTap: widget.onFileTap,
@@ -1105,6 +1124,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         width: double.infinity,
                         height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
+                        cancelable: true,
                       ),
               );
             })
