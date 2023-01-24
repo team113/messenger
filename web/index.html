@@ -41,7 +41,7 @@
   <link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
   <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -49,7 +49,7 @@
   <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
 
-  <link rel="icon" type="image/pg" href="favicon/png"/>
+  <link rel="icon" type="image/pg" href="favicon/png" />
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
@@ -137,7 +137,7 @@
 </head>
 <body>
   <div id="loader" class="container">
-    <img class="splash" src="/assets/assets/images/logo/head0000.svg" />
+    <canvas class="splash" id="canvas" width="250" height="250"></canvas>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
@@ -219,12 +219,12 @@
   <script>
     var click = document.onclick;
     document.onclick = function() {
-        Notification.requestPermission();
-        if (click) {
-            click();
-        }
+      Notification.requestPermission();
+      if (click) {
+        click();
+      }
 
-        document.onclick = click;
+      document.onclick = click;
     }
   </script>
   <!-- TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=934640 is
@@ -234,40 +234,60 @@
        support enumerating existing databases. -->
   <script>
     if (window.indexedDB && typeof window.indexedDB.databases === 'undefined') {
-        const LOCALSTORAGE_CACHE_KEY = 'indexedDBDatabases';
+      const LOCALSTORAGE_CACHE_KEY = 'indexedDBDatabases';
 
-        const getFromStorage = () =>
-            JSON.parse(window.localStorage[LOCALSTORAGE_CACHE_KEY] || '{}');
+      const getFromStorage = () =>
+        JSON.parse(window.localStorage[LOCALSTORAGE_CACHE_KEY] || '{}');
 
-        const writeToStorage = value =>
-            (window.localStorage[LOCALSTORAGE_CACHE_KEY] = JSON.stringify(value));
+      const writeToStorage = value =>
+        (window.localStorage[LOCALSTORAGE_CACHE_KEY] = JSON.stringify(value));
 
-        IDBFactory.prototype.databases = () =>
-            Promise.resolve(
-                Object.entries(getFromStorage()).reduce((acc, [name, version]) => {
-                    acc.push({ name, version });
-                    return acc;
-                }, [])
-            );
+      IDBFactory.prototype.databases = () =>
+        Promise.resolve(
+          Object.entries(getFromStorage()).reduce((acc, [name, version]) => {
+            acc.push({ name, version });
+            return acc;
+          }, [])
+        );
 
-        const open = IDBFactory.prototype.open;
-        IDBFactory.prototype.open = function (...args) {
-            const dbName = args[0];
-            const version = args[1] || 1;
-            const existing = getFromStorage();
-            writeToStorage({ ...existing, [dbName]: version });
-            return open.apply(this, args);
-        };
+      const open = IDBFactory.prototype.open;
+      IDBFactory.prototype.open = function (...args) {
+        const dbName = args[0];
+        const version = args[1] || 1;
+        const existing = getFromStorage();
+        writeToStorage({ ...existing, [dbName]: version });
+        return open.apply(this, args);
+      };
 
-        const deleteDatabase = IDBFactory.prototype.deleteDatabase;
-        IDBFactory.prototype.deleteDatabase = function (...args) {
-            const dbName = args[0];
-            const existing = getFromStorage();
-            delete existing[dbName];
-            writeToStorage(existing);
-            return deleteDatabase.apply(this, args);
-        };
+      const deleteDatabase = IDBFactory.prototype.deleteDatabase;
+      IDBFactory.prototype.deleteDatabase = function (...args) {
+        const dbName = args[0];
+        const existing = getFromStorage();
+        delete existing[dbName];
+        writeToStorage(existing);
+        return deleteDatabase.apply(this, args);
+      };
     }
+  </script>
+  <!-- Animate the blinking loader -->
+  <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
+  <script>
+    const r = new rive.Rive({
+      src: "./assets/assets/images/logo/head.riv",
+      canvas: document.getElementById("canvas"),
+      stateMachines: ["Machine"],
+      autoplay: true,
+      onLoad: () => {
+        const inputs = r.stateMachineInputs("Machine");
+        const blink = inputs.find((input) => {
+          return input.name === "blink";
+        });
+
+        window.addEventListener("click", function (e) {
+          blink.fire();
+        });
+      }
+    });
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
