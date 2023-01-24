@@ -434,7 +434,7 @@ class SwitchButton extends CallButton {
         assetWidth: 28,
         hinted: hinted,
         withBlur: blur,
-        onPressed: c.toggleSpeaker,
+        onPressed: c.switchCamera,
       );
     });
   }
