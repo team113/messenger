@@ -692,3 +692,5 @@ label_message = Message
 label_message_id = Message ID
 label_not_found = Not found
 label_copied = Copied
+label_storage = Storage
+label_cache_and_downloads = Cache and downloads

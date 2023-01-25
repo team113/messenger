@@ -306,6 +306,14 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.storage:
+                    child = card(
+                      icon: Icons.storage,
+                      title: 'label_storage'.l10n,
+                      subtitle: 'label_cache_and_downloads'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.language:
                     child = card(
                       key: const Key('Language'),

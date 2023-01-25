@@ -569,6 +569,7 @@ class _ChatViewState extends State<ChatView>
               top: previousSame ? 1.5 : 6,
               bottom: nextSame ? 1.5 : 6,
             ),
+            loadImages: c.settings.value?.loadImages != false,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads.where((m) =>

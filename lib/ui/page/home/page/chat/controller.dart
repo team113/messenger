@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -276,6 +277,9 @@ class ChatController extends GetxController {
   /// takes part in the [Chat.ongoingCall], if any.
   bool get inCall =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   @override
   void onInit() {

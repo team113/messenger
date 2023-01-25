@@ -33,6 +33,7 @@ class ApplicationSettings extends HiveObject {
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
     this.callButtons = const [],
+    this.loadImages = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -70,4 +71,7 @@ class ApplicationSettings extends HiveObject {
   /// Indicator whether [ChatContact]s should be sorted by their names.
   @HiveField(7)
   bool sortContactsByName;
+
+  @HiveField(8)
+  bool loadImages;
 }

@@ -105,6 +105,7 @@ enum ProfileTab {
   calls,
   media,
   notifications,
+  storage,
   language,
   blacklist,
   download,

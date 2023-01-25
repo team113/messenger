@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:path/path.dart' as p;
 
@@ -71,6 +72,7 @@ class ChatItemWidget extends StatefulWidget {
     this.user,
     this.avatar = true,
     this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
+    this.loadImages = true,
     this.reads = const [],
     this.getUser,
     this.animation,
@@ -104,6 +106,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
   final EdgeInsets margin;
+
+  final bool loadImages;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -162,6 +166,8 @@ class ChatItemWidget extends StatefulWidget {
     List<Attachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
+    bool load = true,
+    double? width,
   }) {
     final bool isLocal = e is LocalAttachment;
 
@@ -218,16 +224,19 @@ class ChatItemWidget extends StatefulWidget {
         );
       }
     } else {
+      e as ImageAttachment;
       attachment = KeyedSubtree(
         key: const Key('SentImage'),
         child: RetryImage(
-          (e as ImageAttachment).big.url,
+          e.big.url,
           key: key,
+          fallback: e.small.url,
           fit: BoxFit.cover,
-          width: filled ? double.infinity : null,
+          width: filled ? double.infinity : width,
           height: 300,
           onForbidden: onError,
           cancelable: true,
+          load: load,
         ),
       );
     }
@@ -343,7 +352,7 @@ class ChatItemWidget extends StatefulWidget {
               alignment: Alignment.center,
               children: [
                 SizedBox.square(
-                  dimension: 48,
+                  dimension: 40,
                   child: CustomProgressIndicator(
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
@@ -359,7 +368,7 @@ class ChatItemWidget extends StatefulWidget {
                 ),
                 SvgLoader.asset(
                   'assets/icons/close_primary.svg',
-                  height: 16,
+                  height: 13,
                 ),
               ],
             ),
@@ -368,14 +377,14 @@ class ChatItemWidget extends StatefulWidget {
 
         case DownloadStatus.isFinished:
           leading = const SizedBox(
-            height: 48,
-            width: 48,
+            height: 40,
+            width: 40,
             child: Center(
               child: Icon(
                 Icons.file_copy,
                 key: Key('Downloaded'),
                 color: Color(0xFF63B4FF),
-                size: 45,
+                size: 38,
               ),
             ),
           );
@@ -385,8 +394,8 @@ class ChatItemWidget extends StatefulWidget {
           leading = SvgLoader.asset(
             'assets/icons/download.svg',
             key: const Key('Download'),
-            width: 48,
-            height: 48,
+            width: 40,
+            height: 40,
           );
           break;
       }
@@ -467,6 +476,7 @@ class ChatItemWidget extends StatefulWidget {
                         Flexible(
                           child: Text(
                             p.basenameWithoutExtension(e.filename),
+                            // style: const TextStyle(fontSize: 15),
                             style: style.boldBody, //.copyWith(fontSize: 15),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -474,6 +484,7 @@ class ChatItemWidget extends StatefulWidget {
                         ),
                         Text(
                           p.extension(e.filename),
+                          // style: const TextStyle(fontSize: 15),
                           style: style.boldBody, //.copyWith(fontSize: 15),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -490,7 +501,8 @@ class ChatItemWidget extends StatefulWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: style.boldBody.copyWith(
-                        // fontSize: 15,
+                        // style: TextStyle(
+                        fontSize: 13,
                         color: const Color(0xFF888888),
                       ),
                     ),
@@ -910,6 +922,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               key: _galleryKeys[0],
                               onError: widget.onAttachmentError,
                               onGallery: widget.onGallery,
+                              load: widget.loadImages,
                             )
                           : SizedBox(
                               width: media.length * 120,
@@ -925,6 +938,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         key: _galleryKeys[i],
                                         onError: widget.onAttachmentError,
                                         onGallery: widget.onGallery,
+                                        load: widget.loadImages,
                                       ),
                                     )
                                     .toList(),
@@ -1116,6 +1130,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         height: double.infinity,
                         borderRadius: BorderRadius.circular(10.0),
                         cancelable: true,
+                        load: widget.loadImages,
                       ),
               );
             })

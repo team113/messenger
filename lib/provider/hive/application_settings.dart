@@ -85,4 +85,9 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
       );
+
+  Future<void> setLoadImages(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
+      );
 }

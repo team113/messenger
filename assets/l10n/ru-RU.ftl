@@ -709,3 +709,5 @@ label_message = Сообщение
 label_message_id = ID сообщения
 label_not_found = Не найдено
 label_copied = Скопировано
+label_storage = Хранилище
+label_cache_and_downloads = Кэш и загрузки

@@ -220,6 +220,12 @@ class MyProfileView extends StatelessWidget {
                             children: [_notifications(context, c)],
                           );
 
+                        case ProfileTab.storage:
+                          return Block(
+                            title: 'label_storage'.l10n,
+                            children: [_storage(context, c)],
+                          );
+
                         case ProfileTab.language:
                           return Block(
                             title: 'label_language'.l10n,
@@ -1151,6 +1157,47 @@ Widget _media(BuildContext context, MyProfileController c) {
       ),
     ],
   );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  return Obx(() {
+    return _dense(
+      Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          IgnorePointer(
+            child: ReactiveTextField(
+              state: TextFieldState(
+                text: 'Загружать изображения'.l10n,
+                editable: false,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Transform.scale(
+                scale: 0.7,
+                transformHitTests: false,
+                child: Theme(
+                  data: ThemeData(platform: TargetPlatform.macOS),
+                  child: Switch.adaptive(
+                    activeColor: Theme.of(context).colorScheme.secondary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: c.settings.value?.loadImages == true,
+                    onChanged:
+                        c.settings.value == null ? null : c.setLoadImages,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  });
 }
 
 /// Returns the contents of a [ProfileTab.notifications] section.

@@ -38,7 +38,8 @@ import '/util/platform_utils.dart';
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
-    Key? key,
+    super.key,
+    this.fallback,
     this.fit,
     this.height,
     this.width,
@@ -46,10 +47,13 @@ class RetryImage extends StatefulWidget {
     this.onForbidden,
     this.filter,
     this.cancelable = false,
-  }) : super(key: key);
+    this.load = true,
+  });
 
   /// URL of an image to display.
   final String url;
+
+  final String? fallback;
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
@@ -58,11 +62,11 @@ class RetryImage extends StatefulWidget {
   /// [BoxFit] to apply to this [RetryImage].
   final BoxFit? fit;
 
-  /// Height of this [RetryImage].
-  final double? height;
-
   /// Width of this [RetryImage].
   final double? width;
+
+  /// Height of this [RetryImage].
+  final double? height;
 
   /// [ImageFilter] to apply to this [RetryImage].
   final ImageFilter? filter;
@@ -71,6 +75,7 @@ class RetryImage extends StatefulWidget {
   final BorderRadius? borderRadius;
 
   final bool cancelable;
+  final bool load;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -84,9 +89,11 @@ class _RetryImageState extends State<RetryImage> {
 
   /// [Timer] retrying the image fetching.
   Timer? _timer;
+  Timer? _fallbackTimer;
 
   /// Byte data of the fetched image.
   Uint8List? _image;
+  Uint8List? _fallback;
 
   /// Image fetching progress.
   double _progress = 0;
@@ -99,27 +106,41 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Current period of exponential backoff image fetching.
   Duration _backoffPeriod = _minBackoffPeriod;
+  Duration _fallbackPeriod = _minBackoffPeriod;
 
   bool _canceled = false;
   CancelToken? _token;
 
   @override
   void initState() {
-    _loadImage();
+    _loadFallback();
+
+    if (widget.load) {
+      _loadImage();
+    } else {
+      _canceled = true;
+    }
+
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
     if (oldWidget.url != widget.url) {
+      _loadFallback();
+    }
+
+    if (oldWidget.url != widget.url || (!oldWidget.load && widget.load)) {
       _loadImage();
     }
+
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _fallbackTimer?.cancel();
     super.dispose();
   }
 
@@ -146,33 +167,34 @@ class _RetryImageState extends State<RetryImage> {
 
       child = image;
     } else {
-      child = Container(
-        key: const Key('Loading'),
-        height: widget.height,
-        width: 200,
-        alignment: Alignment.center,
-        child: Container(
-          constraints: const BoxConstraints(
-            maxHeight: 60,
-            maxWidth: 60,
-            minWidth: 10,
-            minHeight: 10,
-          ),
-          child: WidgetButton(
-            onPressed: widget.cancelable
-                ? () {
-                    if (_canceled) {
-                      _canceled = false;
-                      _token = CancelToken();
-                      _loadImage();
-                    } else {
-                      _canceled = true;
-                      _token?.cancel();
-                    }
+      child = WidgetButton(
+        onPressed: widget.cancelable
+            ? () {
+                if (_canceled) {
+                  _canceled = false;
+                  _token = CancelToken();
+                  _loadImage();
+                } else {
+                  _canceled = true;
+                  _token?.cancel();
+                }
 
-                    setState(() {});
-                  }
-                : null,
+                setState(() {});
+              }
+            : null,
+        child: Container(
+          key: const Key('Loading'),
+          height: widget.height,
+          // width: 200,
+          constraints: BoxConstraints(minWidth: 200),
+          alignment: Alignment.center,
+          child: Container(
+            constraints: const BoxConstraints(
+              maxHeight: 40,
+              maxWidth: 40,
+              minWidth: 10,
+              minHeight: 10,
+            ),
             child: Stack(
               fit: StackFit.expand,
               alignment: Alignment.center,
@@ -186,13 +208,25 @@ class _RetryImageState extends State<RetryImage> {
                 if (widget.cancelable)
                   Center(
                     child: _canceled
-                        ? SvgLoader.asset(
-                            'assets/icons/download.svg',
-                            height: 60,
+                        ? Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer,
+                                ),
+                              ],
+                            ),
+                            child: SvgLoader.asset(
+                              'assets/icons/download.svg',
+                              height: 40,
+                            ),
                           )
                         : SvgLoader.asset(
                             'assets/icons/close_primary.svg',
-                            height: 22,
+                            height: 13,
                           ),
                   ),
               ],
@@ -202,11 +236,95 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    return AnimatedSwitcher(
-      key: Key('Image_${widget.url}'),
-      duration: const Duration(milliseconds: 150),
-      child: child,
+    return Stack(
+      children: [
+        if (widget.fallback != null && _image == null)
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            child: _fallback == null
+                ? SizedBox(
+                    width: 200,
+                    height: widget.height,
+                  )
+                : ClipRect(
+                    child: ImageFiltered(
+                      imageFilter: ImageFilter.blur(
+                        sigmaX: 15,
+                        sigmaY: 15,
+                        tileMode: TileMode.clamp,
+                      ),
+                      child: Transform.scale(
+                        scale: 1.2,
+                        child: Image.memory(
+                          _fallback!,
+                          key: const Key('Fallback'),
+                          height: widget.height,
+                          width: widget.width,
+                          fit: widget.fit,
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+        Positioned.fill(
+          child: Center(
+            child: AnimatedSwitcher(
+              key: Key('Image_${widget.url}'),
+              duration: const Duration(milliseconds: 150),
+              child: child,
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  Future<void> _loadFallback() async {
+    if (widget.fallback == null) return;
+
+    _fallbackTimer?.cancel();
+
+    Uint8List? cached = _cache[widget.fallback!];
+    if (cached != null) {
+      _fallback = cached;
+      _fallbackPeriod = _minBackoffPeriod;
+      if (mounted) {
+        setState(() {});
+      }
+    } else {
+      Response? data;
+
+      try {
+        data = await PlatformUtils.dio.get(
+          widget.fallback!,
+          options: Options(responseType: ResponseType.bytes),
+        );
+      } on DioError catch (e) {
+        if (e.response?.statusCode == 403) {
+          await widget.onForbidden?.call();
+        }
+      }
+
+      if (data?.data != null && data!.statusCode == 200) {
+        _cache[widget.fallback!] = data.data;
+        _fallback = data.data;
+        _fallbackPeriod = _minBackoffPeriod;
+        if (mounted) {
+          setState(() {});
+        }
+      } else {
+        _fallbackTimer = Timer(
+          _fallbackPeriod,
+          () {
+            if (_fallbackPeriod < _maxBackoffPeriod) {
+              _fallbackPeriod *= 2;
+            }
+
+            _loadImage();
+          },
+        );
+      }
+    }
   }
 
   /// Loads the [_image] from the provided URL.
