@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
@@ -160,7 +161,9 @@ All user visible changes to this project will be documented in this file. This p
 [#317]: /../../pull/317
 [#323]: /../../pull/323
 [#328]: /../../issues/328
+[#330]: /../../issues/330
 [#332]: /../../pull/332
+[#335]: /../../pull/335
 
 
 
