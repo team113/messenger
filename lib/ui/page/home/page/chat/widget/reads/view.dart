@@ -125,22 +125,18 @@ class ChatItemReads extends StatelessWidget {
             Obx(() {
               if (c.users.length > 2) {
                 return Container(
-                  padding: ModalPopup.padding(context).subtract(
-                    context.isMobile
-                        ? EdgeInsets.zero
-                        : const EdgeInsets.only(left: 8, right: 8),
-                  ),
+                  padding: ModalPopup.padding(context),
                   margin: const EdgeInsets.only(bottom: 12),
                   child: SizedBox(
                     height: 50,
                     child: CustomAppBar(
-                      padding: EdgeInsets.zero,
                       border: !c.search.isEmpty.value || c.isFocused.value
                           ? Border.all(
                               color: Theme.of(context).colorScheme.secondary,
                               width: 2,
                             )
                           : null,
+                      widgetPadding: const EdgeInsets.only(top: 4),
                       title: Theme(
                         data: Theme.of(context).copyWith(
                           shadowColor: const Color(0x55000000),
@@ -259,7 +255,7 @@ class ChatItemReads extends StatelessWidget {
                               subtitle: [
                                 const SizedBox(height: 3),
                                 Text(
-                                  '${'label_read_at'.l10n}'
+                                  '${'label_read_at'.l10n}${'colon_space'.l10n}'
                                   '${DateFormat('dd.MM.yyyy, kk:mm').format(
                                     reads.first.at.val,
                                   )}',

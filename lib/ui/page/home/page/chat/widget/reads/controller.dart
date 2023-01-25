@@ -38,7 +38,7 @@ class ChatItemReadsController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Indicator whether [search] field is focused or not.
+  /// Reactive indicator whether [search] field is focused or not.
   final RxBool isFocused = RxBool(false);
 
   /// Searching field state.

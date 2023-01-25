@@ -76,7 +76,6 @@ class ChatForwardWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onFileTap,
     this.onAttachmentError,
-    this.itemId,
   }) : super(key: key);
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -84,9 +83,6 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [ChatForward]s to display.
   final RxList<Rx<ChatItem>> forwards;
-
-  /// [ChatItemId] of this [ChatForwardWidget].
-  final ChatItemId? itemId;
 
   /// [ChatMessage] attached to these [forwards] as a note.
   final Rx<Rx<ChatItem>?> note;
@@ -838,14 +834,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_info'.l10n
                                   : 'btn_message_info'.l10n,
-                              trailing: SvgLoader.asset(
-                                'assets/icons/copy_small.svg',
-                                height: 18,
-                              ),
+                              trailing: const Icon(Icons.info_outline),
                               onPressed: () => ChatItemReads.show(
                                 context,
-                                id: widget.itemId,
-                                reads: widget.reads,
+                                id: widget.forwards.first.value.id,
+                                reads: widget.chat.value?.lastReads.where(
+                                      (e) =>
+                                          !e.at.val.isBefore(widget
+                                              .forwards.first.value.at.val) &&
+                                          e.memberId !=
+                                              widget.forwards.first.value
+                                                  .authorId,
+                                    ) ??
+                                    [],
                                 getUser: widget.getUser,
                               ),
                             ),
@@ -972,7 +973,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   child: WidgetButton(
                                     onPressed: () => ChatItemReads.show(
                                       context,
-                                      id: widget.itemId,
+                                      id: widget.forwards.first.value.id,
                                       reads: widget.reads,
                                       getUser: widget.getUser,
                                     ),
