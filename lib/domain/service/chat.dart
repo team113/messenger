@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -27,6 +26,7 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -250,8 +250,8 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId chatId, CancelToken cancelToken) =>
-      _chatRepository.keepTyping(chatId, cancelToken);
+  SubscriptionIterator keepTyping(ChatId chatId) =>
+      _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].

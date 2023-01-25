@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -31,6 +30,7 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
+import '/provider/gql/base.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
@@ -147,7 +147,7 @@ abstract class AbstractChatRepository {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId id, CancelToken cancelToken);
+  SubscriptionIterator keepTyping(ChatId chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].

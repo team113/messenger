@@ -36,6 +36,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
@@ -81,7 +82,7 @@ class _BackgroundService {
   Timer? _renewSessionTimer;
 
   /// [StreamSubscription] to the [GraphQlProvider.incomingCallsTopEvents].
-  StreamSubscription? _subscription;
+  SubscriptionIterator? _subscription;
 
   /// Indicator whether the main application is in foreground or not.
   bool _isInForeground = true;
@@ -391,8 +392,9 @@ class _BackgroundService {
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].
   Future<void> _subscribe() async {
-    _subscription = (await _provider.incomingCallsTopEvents(3)).listen(
-      (event) {
+    _subscription = _provider.incomingCallsTopEvents(
+      3,
+      (event) async {
         GraphQlProviderExceptions.fire(event);
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
@@ -466,13 +468,6 @@ class _BackgroundService {
             _callKeep.reportEndCallWithUUID(call.chatId.val, 0);
             break;
         }
-      },
-      onError: (e) {
-        _setForegroundNotificationInfo(
-          title: 'label_service_reconnecting'.l10n,
-          content: '${DateTime.now()}',
-        );
-        _subscribe();
       },
     );
   }

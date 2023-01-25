@@ -19,7 +19,6 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioError;
-import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -366,9 +365,9 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Future<Stream<QueryResult>> myUserEvents(
+  SubscriptionIterator myUserEvents(
     MyUserVersion? ver,
-    CancelToken cancelToken,
+    Future<void> Function(QueryResult) listener,
   ) {
     final variables = MyUserEventsArguments(ver: ver);
     return client.subscribe(
@@ -377,7 +376,7 @@ abstract class UserGraphQlMixin {
         document: MyUserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      cancelToken,
+      listener,
     );
   }
 
@@ -435,10 +434,10 @@ abstract class UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Future<Stream<QueryResult>> userEvents(
+  SubscriptionIterator userEvents(
     UserId id,
     UserVersion? ver,
-    CancelToken cancelToken,
+    Future<void> Function(QueryResult) listener,
   ) {
     final variables = UserEventsArguments(id: id, ver: ver);
     return client.subscribe(
@@ -447,7 +446,7 @@ abstract class UserGraphQlMixin {
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      cancelToken,
+      listener,
     );
   }
 
@@ -1031,13 +1030,15 @@ abstract class UserGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> keepOnline(CancelToken cancelToken) {
+  SubscriptionIterator keepOnline(
+    Future<void> Function(QueryResult) listener,
+  ) {
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'KeepOnline',
         document: KeepOnlineSubscription().document,
       ),
-      cancelToken,
+      listener,
     );
   }
 

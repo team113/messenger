@@ -17,19 +17,16 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/base.dart';
 import '/provider/hive/user.dart';
-import '/provider/gql/exceptions.dart'
-    show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
-import '/util/log.dart';
 import '/util/new_type.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
@@ -55,13 +52,7 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized if [_listeners] counter is equal to zero.
-  StreamIterator<UserEvents>? _remoteSubscription;
-
-  /// Indicator whether [_remoteSubscription] is initialized.
-  bool _remoteSubscriptionInitialized = false;
-
-  /// [CancelToken] canceling the remote subscribing, if any.
-  final CancelToken _remoteSubscriptionToken = CancelToken();
+  SubscriptionIterator? _remoteSubscription;
 
   /// Reference counter for [_remoteSubscription]'s actuality.
   ///
@@ -90,49 +81,21 @@ class HiveRxUser extends RxUser {
   void stopUpdates() {
     if (--_listeners == 0) {
       _remoteSubscription?.cancel();
-      _remoteSubscriptionInitialized = false;
       _remoteSubscription = null;
-      _remoteSubscriptionToken.cancel();
     }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
     var ver = noVersion ? null : _userLocal.get(id)?.ver;
-    _remoteSubscription = StreamIterator(
-      await _userRepository.userEvents(id, ver, _remoteSubscriptionToken),
-    );
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    }).onError((e, __) {
-      Log.print(
-        'Unexpected error in user($id) remote subscription: $e',
-        'HiveRxUser',
-      );
-      _initRemoteSubscription();
-      return false;
-    })) {
-      await _userEvent(_remoteSubscription!.current);
-    }
-
-    if (_remoteSubscriptionInitialized) {
-      _initRemoteSubscription();
-    }
-
-    _remoteSubscriptionInitialized = false;
+    _remoteSubscription = _userRepository.userEvents(id, ver, _userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEvents events) async {
     switch (events.kind) {
       case UserEventsKind.initialized:
-        _remoteSubscriptionInitialized = true;
+        // No-op.
         break;
 
       case UserEventsKind.user:

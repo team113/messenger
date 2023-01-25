@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -30,6 +29,7 @@ import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
@@ -37,7 +37,6 @@ import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/user_rx.dart';
-import '/util/backoff.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlacklistEvent, EventBlacklistRecordAdded, EventBlacklistRecordRemoved;
@@ -204,39 +203,39 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
-  Future<Stream<UserEvents>> userEvents(
+  SubscriptionIterator userEvents(
     UserId id,
     UserVersion? ver,
-    CancelToken cancelToken,
-  ) async {
-    await Future.delayed(Backoff.get('userEvents_$id'));
-
-    return (await _graphQlProvider.userEvents(id, ver, cancelToken))
-        .asyncExpand((event) async* {
+    Future<void> Function(UserEvents) listener,
+  ) {
+    return _graphQlProvider.userEvents(id, ver, (event) {
       GraphQlProviderExceptions.fire(event);
+      UserEvents? userEvents;
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
-        yield const UserEventsInitialized();
+        userEvents = const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
         var mixin = events as UserEvents$Subscription$UserEvents$User;
-        yield UserEventsUser(mixin.toHive());
+        userEvents = UserEventsUser(mixin.toHive());
       } else if (events.$$typename == 'UserEventsVersioned') {
         var mixin = events as UserEventsVersionedMixin;
-        yield UserEventsEvent(UserEventsVersioned(
+        userEvents = UserEventsEvent(UserEventsVersioned(
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
         ));
       } else if (events.$$typename == 'BlacklistEventsVersioned') {
         var mixin = events as BlacklistEventsVersionedMixin;
-        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+        userEvents = UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
           mixin.events.map((e) => _blacklistEvent(e)).toList(),
           mixin.myVer,
         ));
       } else if (events.$$typename == 'IsBlacklisted') {
         var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+        userEvents = UserEventsIsBlacklisted(node.blacklisted, node.myVer);
       }
+
+      return listener(userEvents!);
     });
   }
 

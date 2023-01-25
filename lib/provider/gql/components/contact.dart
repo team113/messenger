@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -195,9 +194,9 @@ abstract class ContactGraphQlMixin {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
-  Future<Stream<QueryResult>> contactsEvents(
+  SubscriptionIterator contactsEvents(
     ChatContactsListVersion? ver,
-    CancelToken cancelToken,
+    Future<void> Function(QueryResult) listener,
   ) {
     final variables = ContactsEventsArguments(ver: ver);
     return client.subscribe(
@@ -206,7 +205,7 @@ abstract class ContactGraphQlMixin {
         document: ContactsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      cancelToken,
+      listener,
     );
   }
 

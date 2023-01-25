@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -29,19 +28,14 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
-import '/provider/gql/exceptions.dart'
-    show
-        GraphQlProviderExceptions,
-        ResubscriptionRequiredException,
-        StaleVersionException;
+import '/provider/gql/base.dart';
+import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
-import '/util/backoff.dart';
-import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'event/contact.dart';
@@ -85,13 +79,7 @@ class ContactRepository implements AbstractContactRepository {
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
-
-  /// Indicator whether [_remoteSubscription] is initialized.
-  bool _remoteSubscriptionInitialized = false;
-
-  /// [CancelToken] canceling the remote subscribing, if any.
-  final CancelToken _remoteSubscriptionToken = CancelToken();
+  SubscriptionIterator? _remoteSubscription;
 
   @override
   Future<void> init() async {
@@ -120,8 +108,6 @@ class ContactRepository implements AbstractContactRepository {
     favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.cancel();
-    _remoteSubscriptionInitialized = false;
-    _remoteSubscriptionToken.cancel();
   }
 
   @override
@@ -296,32 +282,7 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
     var ver = noVersion ? null : _sessionLocal.getChatContactsListVersion();
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(await _chatContactsRemoteEvents(ver));
-
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    }).onError((e, __) {
-      Log.print(
-        'Unexpected error in contacts remote subscription: $e',
-        'ContactsRepository',
-      );
-      _initRemoteSubscription();
-      return false;
-    })) {
-      await _contactRemoteEvent(_remoteSubscription!.current);
-    }
-
-    if (_remoteSubscriptionInitialized) {
-      _initRemoteSubscription();
-    }
-
-    _remoteSubscriptionInitialized = false;
+    _remoteSubscription = _chatContactsRemoteEvents(ver, _contactRemoteEvent);
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
@@ -329,7 +290,7 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
-        _remoteSubscriptionInitialized = true;
+        // No-op.
         break;
 
       case ChatContactsEventsKind.chatContactsList:
@@ -499,22 +460,20 @@ class ContactRepository implements AbstractContactRepository {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the [ChatContactVersion].
-  Future<Stream<ChatContactsEvents>> _chatContactsRemoteEvents(
+  SubscriptionIterator _chatContactsRemoteEvents(
     ChatContactsListVersion? ver,
-  ) async {
-    await Future.delayed(Backoff.get('contactsEvents'));
-
-    return (await _graphQlProvider.contactsEvents(
-            ver, _remoteSubscriptionToken))
-        .asyncExpand((event) async* {
+    Future<void> Function(ChatContactsEvents) listener,
+  ) {
+    return _graphQlProvider.contactsEvents(ver, (event) {
       GraphQlProviderExceptions.fire(event);
+      ChatContactsEvents? chatContactsEvents;
       var events =
           ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         events
             as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
-        yield const ChatContactsEventsInitialized();
+        chatContactsEvents = const ChatContactsEventsInitialized();
       } else if (events.$$typename == 'ChatContactsList') {
         var list = events
             as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
@@ -523,7 +482,7 @@ class ContactRepository implements AbstractContactRepository {
             .expand((e) => e)) {
           _userRepo.put(u);
         }
-        yield ChatContactsEventsChatContactsList(
+        chatContactsEvents = ChatContactsEventsChatContactsList(
           list.chatContacts.nodes.map((e) => e.toHive()).toList(),
           list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
           list.chatContacts.ver,
@@ -531,7 +490,7 @@ class ContactRepository implements AbstractContactRepository {
       } else if (events.$$typename == 'ChatContactEventsVersioned') {
         var mixin = events
             as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
-        yield ChatContactsEventsEvent(
+        chatContactsEvents = ChatContactsEventsEvent(
           ChatContactEventsVersioned(
             mixin.events.map((e) => _contactEvent(e)).toList(),
             mixin.ver,
@@ -539,6 +498,8 @@ class ContactRepository implements AbstractContactRepository {
           ),
         );
       }
+
+      return listener(chatContactsEvents!);
     });
   }
 

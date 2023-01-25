@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -30,6 +29,7 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
@@ -233,12 +233,12 @@ class CallService extends DisposableService {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  Future<Stream<ChatCallEvents>> heartbeat(
+  SubscriptionIterator heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
-    CancelToken cancelToken,
+    Future<void> Function(ChatCallEvents) listener,
   ) =>
-      _callsRepo.heartbeat(id, deviceId, cancelToken);
+      _callsRepo.heartbeat(id, deviceId, listener);
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].

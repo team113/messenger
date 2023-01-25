@@ -40,12 +40,11 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
         GraphQlProviderExceptions,
-        ResubscriptionRequiredException,
-        StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
@@ -54,8 +53,6 @@ import '/provider/hive/draft.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
-import '/util/backoff.dart';
-import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'chat_rx.dart';
@@ -115,21 +112,12 @@ class ChatRepository implements AbstractChatRepository {
   /// [_recentChatsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
-
-  /// Indicator whether [_remoteSubscription] is initialized.
-  bool _remoteSubscriptionInitialized = false;
-
-  /// [CancelToken] canceling the remote subscribing, if any.
-  final dio.CancelToken _remoteSubscriptionToken = dio.CancelToken();
+  SubscriptionIterator? _remoteSubscription;
 
   /// [_favoriteChatsEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _favoriteChatsSubscription;
-
-  /// [CancelToken] canceling the favorite subscribing, if any.
-  final dio.CancelToken _favoriteSubscriptionToken = dio.CancelToken();
+  SubscriptionIterator? _favoriteChatsSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _locks = {};
@@ -186,8 +174,6 @@ class ChatRepository implements AbstractChatRepository {
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
-    _remoteSubscriptionToken.cancel();
-    _favoriteSubscriptionToken.cancel();
     _favoriteChatsSubscription?.cancel();
   }
 
@@ -738,48 +724,41 @@ class ChatRepository implements AbstractChatRepository {
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
-  Future<Stream<ChatEvents>> chatEvents(
+  SubscriptionIterator chatEvents(
     ChatId chatId,
     ChatVersion? ver,
-    dio.CancelToken cancelToken,
-  ) async {
-    await Future.delayed(Backoff.get('chatEvents_$chatId'));
-
-    return (await _graphQlProvider.chatEvents(chatId, ver, cancelToken))
-        .asyncExpand((event) async* {
+    Future<void> Function(ChatEvents) listener,
+  ) {
+    return _graphQlProvider.chatEvents(chatId, ver, (event) {
       GraphQlProviderExceptions.fire(event);
+      ChatEvents? chatEvents;
       var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
+        chatEvents = const ChatEventsInitialized();
       } else if (events.$$typename == 'Chat') {
         var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
         var data = _chat(chat);
-        yield ChatEventsChat(data.chat);
+        chatEvents = ChatEventsChat(data.chat);
       } else if (events.$$typename == 'ChatEventsVersioned') {
         var mixin =
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
+        chatEvents = ChatEventsEvent(
           ChatEventsVersioned(
             mixin.events.map((e) => chatEvent(e)).toList(),
             mixin.ver,
           ),
         );
       }
+
+      return listener(chatEvents!);
     });
   }
 
   @override
-  Future<Stream<dynamic>> keepTyping(
-    ChatId chatId,
-    dio.CancelToken cancelToken,
-  ) async {
-    await Future.delayed(Backoff.get('keepTyping_$chatId', 1.seconds));
-
-    return (await _graphQlProvider.keepTyping(chatId, cancelToken))
-        .asyncExpand((event) async* {
+  SubscriptionIterator keepTyping(ChatId chatId) {
+    return _graphQlProvider.keepTyping(chatId, (event) async {
       GraphQlProviderExceptions.fire(event);
-      yield event;
     });
   }
 
@@ -1042,28 +1021,7 @@ class ChatRepository implements AbstractChatRepository {
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(await _recentChatsRemoteEvents());
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError((e, __) {
-      Log.print(
-        'Unexpected error in recent chats remote subscription: $e',
-        'ChatRepository',
-      );
-      _initRemoteSubscription();
-      return false;
-    })) {
-      await _recentChatsRemoteEvent(_remoteSubscription!.current);
-    }
-
-    if (_remoteSubscriptionInitialized) {
-      _initRemoteSubscription();
-    }
-
-    _remoteSubscriptionInitialized = false;
+    _remoteSubscription = _recentChatsRemoteEvents(_recentChatsRemoteEvent);
   }
 
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
@@ -1071,7 +1029,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        _remoteSubscriptionInitialized = true;
+        // No-op.
         break;
 
       case RecentChatsEventKind.list:
@@ -1098,33 +1056,36 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  /// Subscribes to the remote updates of the [chats].
-  Future<Stream<RecentChatsEvent>> _recentChatsRemoteEvents() async {
-    await Future.delayed(Backoff.get('recentChatsTopEvents'));
+  // Obj< Future<StreamIterator> , Token> ?? .cancel()
 
-    return (await _graphQlProvider.recentChatsTopEvents(
-            3, _remoteSubscriptionToken))
-        .asyncExpand((event) async* {
+  /// Subscribes to the remote updates of the [chats].
+  SubscriptionIterator _recentChatsRemoteEvents(
+    Future<void> Function(RecentChatsEvent) listener,
+  ) {
+    return _graphQlProvider.recentChatsTopEvents(3, (event) {
       GraphQlProviderExceptions.fire(event);
+      RecentChatsEvent? recentChatsEvent;
       var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
           .recentChatsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
-        yield const RecentChatsTopInitialized();
+        recentChatsEvent = const RecentChatsTopInitialized();
       } else if (events.$$typename == 'RecentChatsTop') {
         var list = (events
                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
             .list;
-        yield RecentChatsTop(list.map((e) => _chat(e)).toList());
+        recentChatsEvent = RecentChatsTop(list.map((e) => _chat(e)).toList());
       } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
         var mixin = events
             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-        yield EventRecentChatsUpdated(_chat(mixin.chat));
+        recentChatsEvent = EventRecentChatsUpdated(_chat(mixin.chat));
       } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
         var mixin = events
             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
-        yield EventRecentChatsDeleted(mixin.chatId);
+        recentChatsEvent = EventRecentChatsDeleted(mixin.chatId);
       }
+
+      return listener(recentChatsEvent!);
     });
   }
 
@@ -1235,29 +1196,10 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Initializes [_favoriteChatsEvents] subscription.
-  Future<void> _initFavoriteChatsSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _sessionLocal.getFavoriteChatsListVersion();
+  Future<void> _initFavoriteChatsSubscription() async {
+    var ver = _sessionLocal.getFavoriteChatsListVersion();
     _favoriteChatsSubscription?.cancel();
-    _favoriteChatsSubscription =
-        StreamIterator(await _favoriteChatsEvents(ver));
-    while (await _favoriteChatsSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initFavoriteChatsSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initFavoriteChatsSubscription(noVersion: true);
-      return false;
-    }).onError((e, __) {
-      Log.print(
-        'Unexpected error in favorite chats subscription: $e',
-        'ChatRepository',
-      );
-      _initFavoriteChatsSubscription();
-      return false;
-    })) {
-      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
-    }
+    _favoriteChatsSubscription = _favoriteChatsEvents(ver, _favoriteChatsEvent);
   }
 
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
@@ -1306,36 +1248,37 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
-  Future<Stream<FavoriteChatsEvents>> _favoriteChatsEvents(
+  SubscriptionIterator _favoriteChatsEvents(
     FavoriteChatsListVersion? ver,
-  ) async {
-    await Future.delayed(Backoff.get('favoriteChatsEvents'));
-
-    return (await _graphQlProvider.favoriteChatsEvents(
-            ver, _favoriteSubscriptionToken))
-        .asyncExpand((event) async* {
+    Future<void> Function(FavoriteChatsEvents) listener,
+  ) {
+    return _graphQlProvider.favoriteChatsEvents(ver, (event) {
       GraphQlProviderExceptions.fire(event);
+      FavoriteChatsEvents? favoriteChatsEvents;
       var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
           .favoriteChatsEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
-        yield const FavoriteChatsEventsInitialized();
+        favoriteChatsEvents = const FavoriteChatsEventsInitialized();
       } else if (events.$$typename == 'FavoriteChatsList') {
         var chatsList = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
         var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
-        yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+        favoriteChatsEvents =
+            FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
         var mixin = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
-        yield FavoriteChatsEventsEvent(
+        favoriteChatsEvents = FavoriteChatsEventsEvent(
           FavoriteChatsEventsVersioned(
             mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
             mixin.ver,
           ),
         );
       }
+
+      return listener(favoriteChatsEvents!);
     });
   }
 

@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
@@ -27,7 +26,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
-import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
+import '/provider/gql/base.dart';
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -262,13 +261,7 @@ class OngoingCall {
 
   /// Heartbeat subscription indicating that [MyUser] is connected and this
   /// [OngoingCall] is alive on a client side.
-  StreamSubscription? _heartbeat;
-
-  /// Indicator whether [_heartbeat] is initialized.
-  bool _heartbeatInitialized = false;
-
-  /// [CancelToken] canceling the heartbeat subscribing, if any.
-  final CancelToken _heartbeatToken = CancelToken();
+  SubscriptionIterator? _heartbeat;
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
@@ -376,16 +369,13 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (await calls.heartbeat(
+    _heartbeat = (calls.heartbeat(
       callChatItemId!,
       deviceId!,
-      _heartbeatToken,
-    ))
-        .listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
-            _heartbeatInitialized = true;
+            // No-op.
             break;
 
           case ChatCallEventsKind.chatCall:
@@ -527,24 +517,8 @@ class OngoingCall {
             break;
         }
       },
-      onError: (e) {
-        if (e is! ResubscriptionRequiredException) {
-          Log.print(e.toString(), 'CALL');
-        }
+    ));
 
-        connected = false;
-        _heartbeatInitialized = false;
-        connect(calls);
-      },
-      onDone: () {
-        if (_heartbeatInitialized) {
-          connect(calls);
-          _heartbeatInitialized = false;
-        }
-
-        calls.remove(chatId.value);
-      },
-    );
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.
@@ -559,8 +533,6 @@ class OngoingCall {
         _jason = null;
       }
       _heartbeat?.cancel();
-      _heartbeatInitialized = false;
-      _heartbeatToken.cancel();
       connected = false;
     });
   }

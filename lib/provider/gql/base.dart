@@ -175,16 +175,72 @@ class GraphQlClient {
     }
   }
 
-  /// Subscribes to a GraphQL subscription according to the options specified
+  /// Subscribes to a GraphQL subscription according to the [options] specified.
+  SubscriptionIterator subscribe(
+    SubscriptionOptions options,
+    Future<void> Function(QueryResult) listener, {
+    SubscriptionIterator? subscriptionIterator,
+  }) {
+    if (subscriptionIterator == null) {
+      final cancelToken = CancelToken();
+      subscriptionIterator = SubscriptionIterator(
+        _subscribe(options, cancelToken).then((value) => StreamIterator(value)),
+        cancelToken,
+      );
+    } else {
+      subscriptionIterator.iterator =
+          _subscribe(options, subscriptionIterator.cancelToken).then(
+        (stream) => StreamIterator(stream),
+      );
+    }
+
+    subscriptionIterator.iterator.then((iterator) async {
+      while (await iterator
+          .moveNext()
+          .onError<ResubscriptionRequiredException>((_, __) {
+        subscribe(
+          options,
+          listener,
+          subscriptionIterator: subscriptionIterator,
+        );
+        return false;
+      }).onError<StaleVersionException>((_, __) {
+        options.variables['ver'] = null;
+        subscribe(
+          options,
+          listener,
+          subscriptionIterator: subscriptionIterator,
+        );
+        return false;
+      }).onError((e, __) {
+        Log.print(
+          'Unexpected error in subscription: $e',
+          options.operationName,
+        );
+        subscribe(
+          options,
+          listener,
+          subscriptionIterator: subscriptionIterator,
+        );
+        return false;
+      })) {
+        await listener(iterator.current);
+      }
+    });
+
+    return subscriptionIterator;
+  }
+
+  /// Subscribes to a GraphQL subscription according to the [options] specified
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> subscribe(
-    SubscriptionOptions options, [
-    CancelToken? cancelToken,
-  ]) async {
+  Future<Stream<QueryResult>> _subscribe(
+      SubscriptionOptions options, [
+        CancelToken? cancelToken,
+      ]) async {
     var stream = await Backoff.run(
-      () async => (await client).subscribe(options),
+          () async => (await client).subscribe(options),
       cancelToken,
     );
 
@@ -430,4 +486,20 @@ class SubscriptionConnection {
   /// Sends or enqueues an error event to the [stream].
   void addError(Object error, [StackTrace? stackTrace]) =>
       _addonController.addError(error, stackTrace);
+}
+
+/// Wrapper around a [StreamIterator] and [CancelToken], representing an ongoing
+/// GraphQL subscription.
+class SubscriptionIterator {
+  SubscriptionIterator(this.iterator, this.cancelToken);
+
+  /// [StreamController] used to add events and errors to the output [stream].
+  Future<StreamIterator<QueryResult>> iterator;
+
+  final CancelToken cancelToken;
+
+  void cancel() {
+    cancelToken.cancel();
+    iterator.then((value) => value.cancel());
+  }
 }

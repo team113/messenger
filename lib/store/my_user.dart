@@ -20,7 +20,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -41,14 +40,13 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
-import '/util/backoff.dart';
-import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -94,22 +92,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [_myUserRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator<MyUserEventsVersioned>? _remoteSubscription;
-
-  /// Indicator whether [_remoteSubscription] is initialized.
-  bool _remoteSubscriptionInitialized = false;
-
-  /// [CancelToken] canceling the remote subscribing, if any.
-  final CancelToken _remoteSubscriptionToken = CancelToken();
+  SubscriptionIterator? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
-  StreamSubscription? _keepOnlineSubscription;
-
-  /// Indicator whether [_keepOnlineSubscription] is initialized.
-  bool _keepOnlineSubscriptionInitialized = false;
-
-  /// [CancelToken] canceling the keep online subscribing, if any.
-  final dio.CancelToken _keepOnlineToken = dio.CancelToken();
+  SubscriptionIterator? _keepOnlineSubscription;
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -156,11 +142,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _localSubscription?.cancel();
     _blacklistSubscription?.cancel();
     _remoteSubscription?.cancel();
-    _remoteSubscriptionInitialized = false;
-    _remoteSubscriptionToken.cancel();
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscriptionInitialized = false;
-    _keepOnlineToken.cancel();
   }
 
   @override
@@ -569,59 +551,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
+  void _initRemoteSubscription() {
     _remoteSubscription?.cancel();
-    _remoteSubscription = StreamIterator(
-        await _myUserRemoteEvents(noVersion ? null : _myUserLocal.myUser?.ver));
-
-    while (await _remoteSubscription!
-        .moveNext()
-        .onError<ResubscriptionRequiredException>((_, __) {
-      _initRemoteSubscription();
-      return false;
-    }).onError<StaleVersionException>((_, __) {
-      _initRemoteSubscription(noVersion: true);
-      return false;
-    }).onError((e, __) {
-      Log.print(
-        'Unexpected error in my user remote subscription: $e',
-        'MyUserRepository',
-      );
-      _initRemoteSubscription();
-      return false;
-    })) {
-      _myUserRemoteEvent(_remoteSubscription!.current);
-    }
-
-    if (_remoteSubscriptionInitialized) {
-      _initRemoteSubscription();
-    }
-
-    _remoteSubscriptionInitialized = false;
+    _remoteSubscription =
+        _myUserRemoteEvents(_myUserLocal.myUser?.ver, _myUserRemoteEvent);
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
-  Future<void> _initKeepOnlineSubscription() async {
-    await Future.delayed(Backoff.get('keepOnline'));
-
+  void _initKeepOnlineSubscription() {
     _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription =
-        (await _graphQlProvider.keepOnline(_keepOnlineToken)).listen(
-      (event) {
+    _keepOnlineSubscription = _graphQlProvider.keepOnline(
+      (event) async {
         GraphQlProviderExceptions.fire(event);
-
-        _keepOnlineSubscriptionInitialized = true;
-      },
-      onError: (_) {
-        _initKeepOnlineSubscription();
       },
     );
-
-    if (_keepOnlineSubscriptionInitialized) {
-      _initKeepOnlineSubscription();
-    }
-
-    _keepOnlineSubscriptionInitialized = false;
   }
 
   /// Saves the provided [user] in [Hive].
@@ -859,30 +802,32 @@ class MyUserRepository implements AbstractMyUserRepository {
     _myUserLocal.set(userEntity);
   }
 
-  /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
-  Future<Stream<MyUserEventsVersioned>> _myUserRemoteEvents(
-    MyUserVersion? ver,
-  ) async {
-    await Future.delayed(Backoff.get('myUserEvents'));
+  // Obj<Future<Stream<MyUserEventsVersioned>>, CancelToken>
 
-    return (await _graphQlProvider.myUserEvents(ver, _remoteSubscriptionToken))
-        .asyncExpand((event) async* {
+  /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
+  SubscriptionIterator _myUserRemoteEvents(
+    MyUserVersion? ver,
+    Future<void> Function(MyUserEventsVersioned) listener,
+  ) {
+    return _graphQlProvider.myUserEvents(ver, (event) {
       GraphQlProviderExceptions.fire(event);
+      MyUserEventsVersioned? myUserEvents;
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         events
             as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
-        _remoteSubscriptionInitialized = true;
       } else if (events.$$typename == 'MyUser') {
         _setMyUser((events as MyUserMixin).toHive());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         var mixin = events as MyUserEventsVersionedMixin;
-        yield MyUserEventsVersioned(
+        myUserEvents = MyUserEventsVersioned(
           mixin.events.map((e) => _myUserEvent(e)).toList(),
           mixin.ver,
         );
       }
+
+      return listener(myUserEvents!);
     });
   }
 

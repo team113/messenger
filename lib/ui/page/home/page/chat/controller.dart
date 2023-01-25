@@ -45,6 +45,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -198,10 +199,7 @@ class ChatController extends GetxController {
 
   /// [StreamSubscription] to [ChatService.keepTyping] indicating an ongoing
   /// typing in this [chat].
-  StreamSubscription? _typingSubscription;
-
-  /// [CancelToken] canceling the typing subscribing, if any.
-  final CancelToken _typingToken = CancelToken();
+  SubscriptionIterator? _typingSubscription;
 
   /// Subscription for the [RxChat.messages] updating the [elements].
   StreamSubscription? _messagesSubscription;
@@ -352,7 +350,6 @@ class ChatController extends GetxController {
     _readWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
-    _typingToken.cancel();
     _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
@@ -1027,15 +1024,7 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _typingSubscription ??=
-        (await _chatService.keepTyping(id, _typingToken)).listen(
-      (_) {},
-      onError: (_) {
-        _typingSubscription?.cancel();
-        _typingSubscription = null;
-        keepTyping();
-      },
-    );
+    _typingSubscription ??= _chatService.keepTyping(id);
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
       _typingSubscription?.cancel();
