@@ -102,7 +102,9 @@ enum ProfileTab {
   background,
   calls,
   media,
+  notifications,
   language,
+  blacklist,
   download,
   danger,
   logout,
@@ -456,6 +458,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
+
+              userRepository.getChat = chatRepository.get;
+
               AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
@@ -564,6 +569,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 me: me,
               ),
             );
+
+            userRepository.getChat = chatRepository.get;
+
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
@@ -600,12 +608,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
               callService,
               chatService,
+              myUserService,
               Get.find(),
               settingsRepository,
             ));
 
             deps.put(ChatWorker(
               chatService,
+              myUserService,
               Get.find(),
             ));
 

@@ -30,6 +30,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading = const [],
     this.actions = const [],
     this.padding,
+    this.border,
   }) : super(key: key);
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -44,8 +45,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
 
+  /// [Border] to apply to this [CustomAppBar].
+  final Border? border;
+
+  /// Height of the [CustomAppBar].
+  static const double height = 60;
+
   @override
-  Size get preferredSize => const Size(double.infinity, 60);
+  Size get preferredSize => const Size(double.infinity, height);
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +66,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             height: top,
             width: double.infinity,
-            color: Colors.white,
+            color: Colors.transparent,
           ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
             child: Container(
-              height: 60,
+              height: height,
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
-                border: style.cardBorder,
                 boxShadow: const [
                   CustomBoxShadow(
                     blurRadius: 8,
@@ -84,9 +90,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   sigmaY: style.cardBlur,
                 ),
                 borderRadius: style.cardRadius,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
+                    border: border ?? style.cardBorder,
                     color: style.cardColor,
                   ),
                   padding: padding,

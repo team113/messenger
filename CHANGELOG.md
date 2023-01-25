@@ -17,41 +17,50 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
+        - Group read indicators. ([#255], [#253])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
-        - Searching. ([#206], [#205])
+        - Searching. ([#323], [#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
+        - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
     - Contacts tab:
-        - Favorite contacts. ([#237], [#223])
-        - Searching. ([#260], [#259])
+        - Favorite contacts. ([#285], [#237], [#223])
+        - Searching. ([#323], [#310], [#260], [#259])
     - User page:
-        - Blacklisting. ([#277], [#234], [#229])
+        - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 
 ### Changed
 
+- Android:
+    - Transparent status and navigation. ([#211], [#208])
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142])
+        - Redesigned chats tab. ([#211], [#142])
         - Redesigned introduction and logout modals. ([#249])
-        - Redesigned menu tab. ([#244], [#243])
+        - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned mobile interface. ([#316], [#287], [#246])
+        - Redesigned settings. ([#293], [#283])
+        - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. ([#332], [#328])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
+        - Redesigned forwarding modal. ([#189], [#181])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
     - Profile page:
         - Redesigned profile page. ([#244], [#257], [#243])
     - Redesigned desktop context menu. ([#245])
+    - Redesigned mobile context menu. ([#305], [#295])
     - Auth page:
         - Redesigned login modal. ([#249])
     - User page:
@@ -59,7 +68,8 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
-        - Redesigned chat info page. ([#265], [#256])    
+        - Redesigned chat info page. ([#265], [#256])
+    - Redesigned scrollbar. ([#276], [#262])  
     - Calls:
         - Persist positions and sizes ([#270], [#264])
 
@@ -80,7 +90,9 @@ All user visible changes to this project will be documented in this file. This p
 [#164]: /../../pull/164
 [#172]: /../../pull/172
 [#173]: /../../pull/173
+[#181]: /../../issues/181
 [#188]: /../../pull/188
+[#189]: /../../pull/189
 [#190]: /../../issues/190
 [#191]: /../../pull/191
 [#192]: /../../issues/192
@@ -92,7 +104,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#205]: /../../issues/205
 [#206]: /../../pull/206
+[#208]: /../../issues/208
 [#209]: /../../issues/209
+[#211]: /../../pull/211
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#215]: /../../issues/215
@@ -118,19 +132,39 @@ All user visible changes to this project will be documented in this file. This p
 [#249]: /../../pull/249
 [#251]: /../../pull/251
 [#252]: /../../issues/252
+[#253]: /../../issues/253
 [#254]: /../../pull/254
+[#255]: /../../pull/255
 [#256]: /../../issues/256
 [#257]: /../../issues/257
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#262]: /../../issues/262
 [#263]: /../../issues/263
 [#264]: /../../issues/264
 [#265]: /../../pull/265
 [#270]: /../../pull/270
 [#274]: /../../pull/274
 [#275]: /../../pull/275
+[#276]: /../../pull/276
 [#277]: /../../pull/277
+[#278]: /../../issues/278
+[#283]: /../../issues/283
+[#285]: /../../pull/285
 [#287]: /../../pull/287
+[#288]: /../../pull/288
+[#292]: /../../issues/292
+[#293]: /../../pull/293
+[#295]: /../../issues/295
+[#300]: /../../pull/300
+[#305]: /../../pull/305
+[#310]: /../../pull/310
+[#313]: /../../pull/313
+[#316]: /../../pull/316
+[#317]: /../../pull/317
+[#323]: /../../pull/323
+[#328]: /../../issues/328
+[#332]: /../../pull/332
 
 
 

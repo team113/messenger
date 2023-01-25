@@ -30,12 +30,14 @@ import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -52,6 +54,7 @@ class CallWorker extends DisposableService {
     this._background,
     this._callService,
     this._chatService,
+    this._myUserService,
     this._notificationService,
     this._settingsRepository,
   );
@@ -67,6 +70,9 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// [MyUserService] used to get [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// Settings repository, used to set [Chat]s [CallPreferences].
   final AbstractSettingsRepository _settingsRepository;
@@ -95,6 +101,9 @@ class CallWorker extends DisposableService {
 
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -175,19 +184,21 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification) {
+              if (showNotification && _myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
+                  if (chat?.chat.value.muted == null) {
+                    String? title = chat?.title.value ??
+                        c.caller?.name?.val ??
+                        c.caller?.num.val;
 
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: chat?.avatar.value?.original.url,
-                    playSound: false,
-                  );
+                    _notificationService.show(
+                      title ?? 'label_incoming_call'.l10n,
+                      body: title == null ? null : 'label_incoming_call'.l10n,
+                      payload: '${Routes.chat}/${c.chatId}',
+                      icon: chat?.avatar.value?.original.url,
+                      playSound: false,
+                    );
+                  }
                 });
               }
             }
@@ -290,18 +301,20 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset) async {
-    runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer?.play(
-        AssetSource('audio/$asset'),
-        position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
-      );
-    }, (e, _) {
-      if (!e.toString().contains('NotAllowedError')) {
-        throw e;
-      }
-    });
+    if (_myUser.value?.muted == null) {
+      runZonedGuarded(() async {
+        await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer?.play(
+          AssetSource('audio/$asset'),
+          position: Duration.zero,
+          mode: PlayerMode.mediaPlayer,
+        );
+      }, (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      });
+    }
   }
 
   /// Stops the audio that is currently playing.

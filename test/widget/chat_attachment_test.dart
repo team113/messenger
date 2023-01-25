@@ -136,6 +136,11 @@ void main() async {
           const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
       .thenAnswer((_) => Future.value(null));
 
+  when(graphQlProvider.readChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
+      .thenAnswer((_) => Future.value(null));
+
   when(graphQlProvider.chatItems(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           first: 120))
@@ -353,7 +358,7 @@ void main() async {
 
     ChatController chatController =
         Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -364,6 +369,7 @@ void main() async {
 
     AttachmentId id1 =
         Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .send
             .attachments
             .first
             .value
@@ -377,7 +383,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,

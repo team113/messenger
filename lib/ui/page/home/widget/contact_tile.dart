@@ -33,7 +33,7 @@ import '/ui/widget/context_menu/region.dart';
 /// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
   const ContactTile({
-    Key? key,
+    super.key,
     this.contact,
     this.user,
     this.myUser,
@@ -47,9 +47,11 @@ class ContactTile extends StatelessWidget {
     this.radius = 30,
     this.actions,
     this.folded = false,
+    this.dense = false,
     this.preventContextMenu = false,
     this.margin = const EdgeInsets.symmetric(vertical: 3),
-  }) : super(key: key);
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [MyUser] to display.
   final MyUser? myUser;
@@ -78,6 +80,9 @@ class ContactTile extends StatelessWidget {
   /// Indicator whether this [ContactTile] should have its corner folded.
   final bool folded;
 
+  /// Indicator whether this [ContactTile] should be dense.
+  final bool dense;
+
   /// Indicator whether a default context menu should be prevented or not.
   ///
   /// Only effective under the web, since only web has a default context menu.
@@ -98,6 +103,12 @@ class ContactTile extends StatelessWidget {
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
   final double radius;
 
+  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
+
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
@@ -108,6 +119,7 @@ class ContactTile extends StatelessWidget {
           : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
+      indicateOpenedMenu: true,
       child: Padding(
         padding: margin,
         child: InkWellWithHover(
@@ -126,19 +138,29 @@ class ContactTile extends StatelessWidget {
             key: contact?.contact.value.favoritePosition != null
                 ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                 : null,
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            padding: EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: dense ? 11 : 14,
+            ),
             child: Row(
               children: [
                 ...leading,
-                if (contact != null)
-                  AvatarWidget.fromRxContact(contact, radius: radius)
-                else if (user != null)
-                  AvatarWidget.fromRxUser(user, radius: radius)
-                else
-                  AvatarWidget.fromMyUser(
-                    myUser,
-                    radius: radius,
-                  ),
+                avatarBuilder(
+                  contact != null
+                      ? AvatarWidget.fromRxContact(
+                          contact,
+                          radius: dense ? 17 : radius,
+                        )
+                      : user != null
+                          ? AvatarWidget.fromRxUser(
+                              user,
+                              radius: dense ? 17 : radius,
+                            )
+                          : AvatarWidget.fromMyUser(
+                              myUser,
+                              radius: dense ? 17 : radius,
+                            ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -178,4 +200,7 @@ class ContactTile extends StatelessWidget {
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

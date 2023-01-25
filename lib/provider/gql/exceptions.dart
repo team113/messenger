@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/util/localized_exception.dart';
 
@@ -74,6 +75,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
+        } else if (result.exception!.graphqlErrors.any(
+            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          return const InvalidScalarException<UserPhone>();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -206,6 +210,14 @@ class ResubscriptionRequiredException implements Exception {
 
   @override
   String toString() => 'ResubscriptionRequiredException()';
+}
+
+/// Exception of an invalid GraphQL scalar being parsed when expecting the [T].
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
+
+  @override
+  String toString() => 'InvalidScalarException<$T>()';
 }
 
 /// Exception of `Mutation.createSession` described in the [code].
@@ -398,7 +410,7 @@ class DeclineChatCallException
   final DeclineChatCallErrorCode code;
 
   @override
-  String toString() => 'LeaveChatCallException($code)';
+  String toString() => 'DeclineChatCallException($code)';
 
   @override
   String toMessage() {
@@ -431,7 +443,7 @@ class UpdateUserLoginException
       case UpdateUserLoginErrorCode.occupied:
         return 'err_login_occupied'.l10n;
       case UpdateUserLoginErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
     }
   }
 }
@@ -1185,6 +1197,29 @@ class UpdateUserCallCoverException
       case UpdateUserCallCoverErrorCode.unknownGalleryItem:
         return 'err_unknown_gallery_item'.l10n;
       case UpdateUserCallCoverErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.toggleMyUserMute` described in the [code].
+class ToggleMyUserMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleMyUserMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleMyUserMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleMyUserMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleMyUserMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleMyUserMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

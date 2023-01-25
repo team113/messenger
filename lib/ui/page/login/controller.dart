@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
@@ -72,6 +73,9 @@ class LoginController extends GetxController {
 
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);

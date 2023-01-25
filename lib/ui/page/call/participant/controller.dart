@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -57,6 +58,9 @@ class ParticipantController extends GetxController {
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Callback, called when a [ParticipantView] this controller is bound to
   /// should be popped from the [Navigator].
@@ -182,7 +186,6 @@ class ParticipantController extends GetxController {
       }
 
       stage.value = ParticipantsFlowStage.participants;
-      MessagePopup.success('label_participants_added_successfully'.l10n);
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {
@@ -197,8 +200,6 @@ class ParticipantController extends GetxController {
 
   /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
   Future<void> redialChatCallMember(UserId memberId) async {
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
-
     try {
       await _callService.redialChatCallMember(chatId.value, memberId);
     } on RedialChatCallMemberException catch (e) {

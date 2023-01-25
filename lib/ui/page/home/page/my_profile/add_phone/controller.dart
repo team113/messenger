@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -42,6 +43,9 @@ class AddPhoneController extends GetxController {
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserPhone] field state.
   late final TextFieldState phone;
@@ -96,6 +100,8 @@ class AddPhoneController extends GetxController {
             await _myUserService.addUserPhone(phone!);
             _setResendPhoneTimer(true);
             stage.value = AddPhoneFlowStage.code;
+          } on InvalidScalarException<UserPhone> {
+            s.error.value = 'err_incorrect_phone'.l10n;
           } on FormatException {
             s.error.value = 'err_incorrect_phone'.l10n;
           } on AddUserPhoneException catch (e) {

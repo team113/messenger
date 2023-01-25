@@ -18,6 +18,9 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -36,13 +39,13 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -67,6 +70,14 @@ class ContactsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -116,6 +127,11 @@ class ContactsTabController extends GetxController {
 
     _initUsersUpdates();
 
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     super.onInit();
   }
 
@@ -129,6 +145,12 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
+
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -145,15 +167,16 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
-    }
+    await _contactService.deleteContact(contact.id);
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
+  Future<void> favoriteContact(
+    ChatContactId id, [
+    ChatContactPosition? position,
+  ]) async {
     try {
-      await _contactService.favoriteChatContact(id);
+      await _contactService.favoriteChatContact(id, position);
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -173,6 +196,30 @@ class ContactsTabController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reorders a [ChatContact] from the [from] position to the [to] position.
+  Future<void> reorderContact(int from, int to) async {
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.contact.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.contact.value.favoritePosition!.val * 2;
+    } else {
+      position = (favorites[to].contact.value.favoritePosition!.val +
+              favorites[to - 1].contact.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatContactId contactId = favorites[from].id;
+    favorites.insert(to, favorites.removeAt(from));
+
+    await favoriteContact(contactId, ChatContactPosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
@@ -373,5 +420,33 @@ class ContactsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
     }
+  }
+
+  /// Closes the [search]ing on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (search.value != null) {
+        toggleSearch(false);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Invokes [toggleSearch], if [search]ing.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (search.value != null) {
+      toggleSearch(false);
+      return true;
+    }
+
+    return false;
   }
 }

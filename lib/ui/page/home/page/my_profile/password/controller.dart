@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -37,6 +38,9 @@ class ChangePasswordController extends GetxController {
 
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;

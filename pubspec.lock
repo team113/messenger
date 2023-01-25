@@ -344,13 +344,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  dart_countries:
-    dependency: transitive
-    description:
-      name: dart_countries
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.2"
   dart_style:
     dependency: transitive
     description:
@@ -578,7 +571,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.48.1"
+    version: "1.54.0"
   flutter_staggered_animations:
     dependency: "direct main"
     description:
@@ -616,7 +609,7 @@ packages:
       name: freezed_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.2.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -868,7 +861,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.4"
+    version: "0.6.5"
   json_annotation:
     dependency: transitive
     description:
@@ -931,14 +924,14 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.1117c353c5d8ccc7287ffeaa39ac058f40fbaf37"
+    version: "0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3"
+    version: "0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2"
   meta:
     dependency: transitive
     description:
@@ -1158,20 +1151,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
-  phone_number_metadata:
-    dependency: transitive
-    description:
-      name: phone_number_metadata
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "5.0.4"
-  phone_numbers_parser:
-    dependency: "direct main"
-    description:
-      name: phone_numbers_parser
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "7.0.0"
   photo_view:
     dependency: "direct main"
     description:
@@ -1249,6 +1228,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  retry:
+    dependency: transitive
+    description:
+      name: retry
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.0"
   rive:
     dependency: "direct main"
     description:
@@ -1554,7 +1540,7 @@ packages:
       name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.6"
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:

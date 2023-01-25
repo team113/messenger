@@ -19,7 +19,9 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -55,6 +57,7 @@ import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -81,6 +84,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
@@ -121,6 +127,11 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
+  ///
+  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
+  final List<RxUser> _recipients = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -133,6 +144,12 @@ class ChatsTabController extends GetxController {
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
+
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     _sortChats();
 
     for (RxChat chat in chats) {
@@ -140,6 +157,25 @@ class ChatsTabController extends GetxController {
           _ChatSortingData(chat.chat, _sortChats);
     }
 
+    // Adds the recipient of the provided [chat] to the [_recipients] and starts
+    // listening to its updates.
+    Future<void> listenUpdates(RxChat chat) async {
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
+
+      if (userId != null) {
+        RxUser? rxUser =
+            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        rxUser ??= await getUser(userId);
+        if (rxUser != null) {
+          _recipients.add(rxUser..listenUpdates());
+        }
+      }
+    }
+
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
@@ -147,11 +183,31 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
+
+          if (event.value!.chat.value.isDialog) {
+            listenUpdates(event.value!);
+          }
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
+
+          if (event.value!.chat.value.isDialog) {
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
+
+            _recipients.removeWhere((e) {
+              if (e.id == userId) {
+                e.stopUpdates();
+                return true;
+              }
+
+              return false;
+            });
+          }
           break;
 
         case OperationKind.updated:
@@ -165,6 +221,11 @@ class ChatsTabController extends GetxController {
 
   @override
   void onClose() {
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     for (var data in _sortingData.values) {
       data.dispose();
     }
@@ -173,6 +234,10 @@ class ChatsTabController extends GetxController {
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
+
+    for (RxUser v in _recipients) {
+      v.stopUpdates();
+    }
 
     router.navigation.value = true;
 
@@ -194,7 +259,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.user.value.dialog;
+        Chat? dialog = user.dialog.value?.chat.value ?? user.user.value.dialog;
         dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
         router.chat(dialog.id);
       }
@@ -300,13 +365,17 @@ class ChatsTabController extends GetxController {
   /// takes part in an [OngoingCall] in a [Chat] identified by the provided
   /// [id].
   bool inCall(ChatId id) {
+    if (WebUtils.containsCall(id)) {
+      return true;
+    }
+
     final Rx<OngoingCall>? call = _callService.calls[id];
     if (call != null) {
       return call.value.state.value == OngoingCallState.active ||
           call.value.state.value == OngoingCallState.joining;
     }
 
-    return WebUtils.containsCall(id);
+    return false;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -453,14 +522,6 @@ class ChatsTabController extends GetxController {
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
       if (a.chat.value.favoritePosition != null &&
           b.chat.value.favoritePosition == null) {
         return -1;
@@ -473,6 +534,14 @@ class ChatsTabController extends GetxController {
             .compareTo(b.chat.value.favoritePosition!);
       }
 
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
+        return -1;
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
+        return 1;
+      }
+
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
   }
@@ -483,6 +552,41 @@ class ChatsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
     }
+  }
+
+  /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (searching.value) {
+        closeSearch(!groupCreating.value);
+        return true;
+      } else if (groupCreating.value) {
+        closeGroupCreating();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
+  /// [groupCreating].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (searching.isTrue) {
+      closeSearch(!groupCreating.value);
+      return true;
+    } else if (groupCreating.isTrue) {
+      closeGroupCreating();
+      return true;
+    }
+
+    return false;
   }
 }
 

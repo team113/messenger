@@ -424,7 +424,7 @@ void main() async {
     await tester.tap(deleteFromContacts);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('AlertYesButton')));
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 3));
 
     expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);

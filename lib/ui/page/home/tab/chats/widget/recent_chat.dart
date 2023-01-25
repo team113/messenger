@@ -41,6 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -49,6 +50,7 @@ class RecentChatTile extends StatelessWidget {
     this.rxChat, {
     Key? key,
     this.me,
+    this.blocked = false,
     this.getUser,
     this.inCall,
     this.onLeave,
@@ -66,6 +68,10 @@ class RecentChatTile extends StatelessWidget {
 
   /// [UserId] of the authenticated [MyUser].
   final UserId? me;
+
+  /// Indicator whether this [RecentChatTile] should display a blocked icon in
+  /// its trailing.
+  final bool blocked;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -129,6 +135,15 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
+                if (blocked) ...[
+                  const SizedBox(width: 5),
+                  const Icon(
+                    Icons.block,
+                    color: Color(0xFFC0C0C0),
+                    size: 20,
+                  ),
+                  if (chat.muted == null) const SizedBox(width: 5),
+                ],
                 if (chat.muted != null) ...[
                   const SizedBox(width: 5),
                   SvgLoader.asset(
@@ -150,37 +165,46 @@ class RecentChatTile extends StatelessWidget {
               key: const Key('UnfavoriteChatButton'),
               label: 'btn_delete_from_favorites'.l10n,
               onPressed: onUnfavorite,
+              trailing: const Icon(Icons.star_border),
             ),
           if (chat.favoritePosition == null && onFavorite != null)
             ContextMenuButton(
               key: const Key('FavoriteChatButton'),
               label: 'btn_add_to_favorites'.l10n,
               onPressed: onFavorite,
+              trailing: const Icon(Icons.star),
             ),
           if (onHide != null)
             ContextMenuButton(
               key: const Key('ButtonHideChat'),
-              label: 'btn_hide_chat'.l10n,
-              onPressed: onHide,
-            ),
-          if (chat.isGroup && onLeave != null)
-            ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: onLeave,
+              label: PlatformUtils.isMobile
+                  ? 'btn_hide'.l10n
+                  : 'btn_hide_chat'.l10n,
+              onPressed: () => _hideChat(context),
+              trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
               key: const Key('MuteChatButton'),
-              label: 'btn_mute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
               onPressed: onMute,
+              trailing: const Icon(Icons.notifications_off),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
               key: const Key('UnmuteChatButton'),
-              label: 'btn_unmute_chat'.l10n,
+              label: PlatformUtils.isMobile
+                  ? 'btn_unmute'.l10n
+                  : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
+              trailing: const Icon(Icons.notifications),
             ),
+          ContextMenuButton(
+            label: 'btn_select'.l10n,
+            trailing: const Icon(Icons.select_all),
+          ),
         ],
         selected: selected,
         onTap: () => router.chat(chat.id),
@@ -196,8 +220,8 @@ class RecentChatTile extends StatelessWidget {
     if (chat.ongoingCall != null) {
       final Widget trailing = WidgetButton(
         key: inCall?.call() == true
-            ? const Key('JoinCallButton')
-            : const Key('DropCallButton'),
+            ? const Key('DropCallButton')
+            : const Key('JoinCallButton'),
         onPressed: inCall?.call() == true ? onDrop : onJoin,
         child: Container(
           padding: const EdgeInsets.all(4),
@@ -697,6 +721,25 @@ class RecentChatTile extends StatelessWidget {
 
       return const SizedBox(key: Key('NoUnreadMessages'));
     });
+  }
+
+  /// Hides the [rxChat].
+  Future<void> _hideChat(BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(
+          text: rxChat.title.value,
+          style: const TextStyle(color: Colors.black),
+        ),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      onHide?.call();
+    }
   }
 }
 

@@ -53,10 +53,10 @@ dependencies:
     git:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
-  js: ^0.6.4
+  js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.1117c353c5d8ccc7287ffeaa39ac058f40fbaf37
-  medea_jason: 0.3.0-dev+rev.c551ea2b247389736ffaae9e714431e1bbfae9e3
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
+  medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
   mime: ^1.0.2
   mutex: ^3.0.0
   # TODO: Switch to pub.dev version when the following pull request is merged
@@ -70,7 +70,6 @@ dependencies:
   path_provider_android: ^2.0.20
   path_provider_ios: ^2.0.11
   permission_handler: ^9.2.0
-  phone_numbers_parser: ^7.0.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
   rive: ^0.9.1
@@ -112,6 +111,10 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.6.0
+  # TODO: Remove when `flutter_web_plugins` updates.
+  js: ^0.6.5
+  # TODO: Remove when `medea_jason` updates.
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
 
 flutter:
   uses-material-design: true
