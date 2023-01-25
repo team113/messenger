@@ -574,7 +574,6 @@ label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_participants_of = Participants: {$a} of {$b}
-label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_changed = Password has been changed.
 label_password_not_set = Password not set. Access to the account will be lost.

@@ -617,7 +617,6 @@ class CallController extends GetxController {
                 relocateSecondary();
               },
             );
-
             DateTime begunAt = DateTime.now();
             _durationTimer = Timer.periodic(
               const Duration(seconds: 1),
@@ -642,8 +641,8 @@ class CallController extends GetxController {
           }
           break;
 
-        case OngoingCallState.pending:
         case OngoingCallState.joining:
+        case OngoingCallState.pending:
         case OngoingCallState.local:
         case OngoingCallState.ended:
           // No-op.
@@ -907,7 +906,15 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }
@@ -1616,38 +1623,6 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
-  }
-
-  /// Scales the secondary view by the provided [scale].
-  void scaleSecondary(double scale) {
-    _scaleSWidth(scale);
-    _scaleSHeight(scale);
-  }
-
-  /// Scales the [secondaryWidth] according to the provided [scale].
-  void _scaleSWidth(double scale) {
-    double width = _applySWidth(secondaryUnscaledSize! * scale);
-    if (width != secondaryWidth.value) {
-      double widthDifference = width - secondaryWidth.value;
-      secondaryWidth.value = width;
-      secondaryLeft.value =
-          _applySLeft(secondaryLeft.value! - widthDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(widthDifference / 2, 0);
-    }
-  }
-
-  /// Scales the [secondaryHeight] according to the provided [scale].
-  void _scaleSHeight(double scale) {
-    double height = _applySHeight(secondaryUnscaledSize! * scale);
-    if (height != secondaryHeight.value) {
-      double heightDifference = height - secondaryHeight.value;
-      secondaryHeight.value = height;
-      secondaryTop.value =
-          _applySTop(secondaryTop.value! - heightDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(0, heightDifference / 2);
-    }
   }
 
   /// Returns corrected according to secondary constraints [width] value.

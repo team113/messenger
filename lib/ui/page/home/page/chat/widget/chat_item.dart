@@ -65,11 +65,13 @@ import 'video_thumbnail/video_thumbnail.dart';
 class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
     Key? key,
-    required this.chat,
     required this.item,
+    required this.chat,
     required this.me,
-    this.reads = const [],
     this.user,
+    this.avatar = true,
+    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
+    this.reads = const [],
     this.getUser,
     this.animation,
     this.onHide,
@@ -83,8 +85,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
-    this.displayAvatar = true,
-    this.padding = const EdgeInsets.fromLTRB(0, 6, 0, 6),
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -98,6 +98,12 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
+  final bool avatar;
+
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
+  final EdgeInsets margin;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -143,9 +149,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
-
-  final bool displayAvatar;
-  final EdgeInsets padding;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -708,9 +711,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!_fromMe &&
-            widget.chat.value?.isGroup == true &&
-            widget.displayAvatar) &&
+    if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
@@ -748,12 +749,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: EdgeInsets.fromLTRB(
-          5,
-          widget.padding.top,
-          2,
-          widget.padding.bottom,
-        ),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -807,7 +803,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   }),
                 if (!_fromMe &&
                     widget.chat.value?.isGroup == true &&
-                    widget.displayAvatar)
+                    widget.avatar)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
@@ -833,9 +829,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        (!_fromMe &&
+                        !_fromMe &&
                                 widget.chat.value?.isGroup == true &&
-                                widget.displayAvatar)
+                                widget.avatar
                             ? 0
                             : 10,
                         12,
@@ -885,7 +881,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               msg.repliesTo.isNotEmpty ||
                               (!_fromMe &&
                                   widget.chat.value?.isGroup == true &&
-                                  widget.displayAvatar)
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -894,7 +890,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               msg.repliesTo.isNotEmpty ||
                               (!_fromMe &&
                                   widget.chat.value?.isGroup == true &&
-                                  widget.displayAvatar)
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -1046,12 +1042,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Padding(
-        padding: EdgeInsets.fromLTRB(
-          5,
-          widget.padding.top + 1,
-          5,
-          widget.padding.bottom + 1,
-        ),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1455,7 +1446,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(item.authorId, push: true),
                     child: Opacity(
-                      opacity: widget.displayAvatar ? 1 : 0,
+                      opacity: widget.avatar ? 1 : 0,
                       child: AvatarWidget.fromRxUser(widget.user, radius: 17),
                     ),
                   ),
@@ -1656,8 +1647,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child,
                             if (avatars.isNotEmpty)
                               Transform.translate(
-                                offset:
-                                    Offset(-12, widget.displayAvatar ? -7 : -7),
+                                offset: Offset(-12, widget.avatar ? -7 : -7),
                                 child: WidgetButton(
                                   onPressed: () => ChatItemReads.show(
                                     context,

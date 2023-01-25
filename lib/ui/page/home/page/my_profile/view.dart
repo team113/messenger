@@ -57,6 +57,7 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'widget/copyable.dart';
+import 'widget/download_button.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -1199,91 +1200,41 @@ Widget _notifications(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
-  Widget button({
-    required String asset,
-    required double width,
-    required double height,
-    required String title,
-    String? link,
-  }) {
-    return FieldButton(
-      text: 'space'.l10n * 4 + title,
-      textAlign: TextAlign.center,
-      onPressed: link == null
-          ? null
-          : () {
-              WebUtils.download('${Config.origin}/artifacts/$link', link);
-            },
-      onTrailingPressed: () {
-        if (link != null) {
-          Clipboard.setData(
-            ClipboardData(text: '${Config.origin}/artifacts/$link'),
-          );
-          MessagePopup.success('label_copied'.l10n);
-        }
-      },
-      prefix: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Transform.scale(
-          scale: 2,
-          child: SvgLoader.asset(
-            'assets/icons/$asset.svg',
-            width: width / 2,
-            height: height / 2,
-          ),
-        ),
-      ),
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset(
-            'assets/icons/copy.svg',
-            height: 15,
-          ),
-        ),
-      ),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
-      ),
-    );
-  }
-
   return _dense(
     Column(
-      children: [
-        button(
+      children: const [
+        DownloadButton(
           asset: 'windows',
           width: 21.93,
           height: 22,
           title: 'Windows',
           link: 'messenger-windows.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'apple',
           width: 23,
           height: 29,
           title: 'macOS',
           link: 'messenger-macos.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'linux',
           width: 18.85,
           height: 22,
           title: 'Linux',
           link: 'messenger-linux.zip',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'apple',
           width: 23,
           height: 29,
           title: 'iOS',
         ),
-        const SizedBox(height: 8),
-        button(
+        SizedBox(height: 8),
+        DownloadButton(
           asset: 'google',
           width: 20.33,
           height: 22.02,

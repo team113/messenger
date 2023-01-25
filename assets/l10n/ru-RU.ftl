@@ -590,7 +590,6 @@ label_open_calls_in_window = Отображать звонки в отдельн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
 label_participants_of = Участников: {$a} из {$b}
-label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
 label_password_changed = Пароль изменён.
 label_password_not_set = Пароль не задан. Доступ к аккаунту будет утерян.

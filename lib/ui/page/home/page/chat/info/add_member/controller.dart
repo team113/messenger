@@ -22,25 +22,18 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart'
-    show
-        AddChatMemberException,
-        RedialChatCallMemberException,
-        RemoveChatMemberException;
+import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-
 export 'view.dart';
 
 /// Controller of an [AddChatMemberView].
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
     this.chatId,
-    this._chatService,
-    this._callService, {
+    this._chatService, {
     this.pop,
   });
 
@@ -61,14 +54,8 @@ class AddChatMemberController extends GetxController {
   /// - `status.isLoading`, meaning [addMembers] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Worker performing a [_fetchChat] on the [chatId] changes.
-  Worker? _chatWorker;
-
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
-
-  /// [CallService] transforming the [_call] into a group-call.
-  final CallService _callService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
@@ -108,23 +95,7 @@ class AddChatMemberController extends GetxController {
   @override
   void onClose() {
     _chatsSubscription?.cancel();
-    _chatWorker?.dispose();
     super.onClose();
-  }
-
-  /// Removes [User] identified by the provided [userId] from the [chat].
-  Future<void> removeChatMember(UserId userId) async {
-    try {
-      await _chatService.removeChatMember(chatId, userId);
-      if (userId == me) {
-        pop?.call();
-      }
-    } on RemoveChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
   }
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
@@ -145,20 +116,6 @@ class AddChatMemberController extends GetxController {
       rethrow;
     } finally {
       status.value = RxStatus.empty();
-    }
-  }
-
-  /// Redials by specified [UserId] who left or declined the ongoing [ChatCall].
-  Future<void> redialChatCallMember(UserId memberId) async {
-    // MessagePopup.success('label_participant_redial_successfully'.l10n);
-
-    try {
-      await _callService.redialChatCallMember(chatId, memberId);
-    } on RedialChatCallMemberException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 

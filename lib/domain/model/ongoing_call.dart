@@ -643,10 +643,7 @@ class OngoingCall {
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
-            if (deviceId != screenDevice.value) {
-              await _updateSettings(screenDevice: deviceId);
-            }
-
+            await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {

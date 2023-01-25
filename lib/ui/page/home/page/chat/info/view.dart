@@ -20,7 +20,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
-import 'package:messenger/util/message_popup.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -38,6 +37,7 @@ import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 

@@ -49,7 +49,6 @@ class AddChatMemberView extends StatelessWidget {
       init: AddChatMemberController(
         chatId,
         Get.find(),
-        Get.find(),
         pop: Navigator.of(context).pop,
       ),
       builder: (AddChatMemberController c) {

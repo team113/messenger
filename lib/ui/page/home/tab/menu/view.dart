@@ -116,14 +116,23 @@ class MenuTabView extends StatelessWidget {
                 : [const SizedBox(width: 30)],
             actions: [
               WidgetButton(
+                behavior: HitTestBehavior.translucent,
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: SizedBox(
-                    height: 25.35,
+                    height: 26,
                     width: 30,
                     child: RiveAnimation.asset(
                       'assets/icons/switch_account.riv',
+                      onInit: (a) {
+                        a.addController(
+                          StateMachineController.fromArtboard(
+                            a,
+                            a.stateMachines.first.name,
+                          )!,
+                        );
+                      },
                     ),
                   ),
                   // child: SvgLoader.asset(
