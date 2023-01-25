@@ -27,6 +27,7 @@ import '/ui/page/home/page/my_profile/widget/field_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 import 'controller.dart';
 
@@ -89,6 +90,10 @@ class StatusView extends StatelessWidget {
                               : () {
                                   Clipboard.setData(
                                     ClipboardData(text: c.status.text),
+                                  );
+                                  MessagePopup.success(
+                                    'label_copied'.l10n,
+                                    context,
                                   );
                                 },
                           trailing: c.status.text.isEmpty
