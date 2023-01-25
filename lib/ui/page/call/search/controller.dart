@@ -105,8 +105,8 @@ class SearchController extends GetxController {
   /// [Chat]s found under the [SearchCategory.chat] category.
   final RxMap<ChatId, RxChat> chats = RxMap();
 
-  /// [CustomFlutterListViewController] of a [FlutterListView] displaying the search
-  /// results.
+  /// [CustomFlutterListViewController] of a [FlutterListView] displaying the
+  /// search results.
   final CustomFlutterListViewController controller =
       CustomFlutterListViewController();
 
