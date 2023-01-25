@@ -515,6 +515,40 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
+      ListElement? previous;
+      if (i > 0) {
+        previous = c.elements.values.elementAt(i - 1);
+      }
+
+      ListElement? next;
+      if (i < c.elements.length - 1) {
+        next = c.elements.values.elementAt(i + 1);
+      }
+
+      bool previousSame = false;
+      if (previous != null) {
+        previousSame = (previous is ChatMessageElement &&
+                previous.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(previous.item.value.at.val) <=
+                    const Duration(minutes: 30)) ||
+            (previous is ChatCallElement &&
+                previous.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(previous.item.value.at.val) <=
+                    const Duration(minutes: 30));
+      }
+
+      bool nextSame = false;
+      if (next != null) {
+        nextSame = (next is ChatMessageElement &&
+                next.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(next.item.value.at.val) <=
+                    const Duration(minutes: 30)) ||
+            (next is ChatCallElement &&
+                next.item.value.authorId == e.value.authorId &&
+                e.value.at.val.difference(next.item.value.at.val) <=
+                    const Duration(minutes: 30));
+      }
+
       return Padding(
         padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
         child: FutureBuilder<RxUser?>(
@@ -523,6 +557,7 @@ class _ChatViewState extends State<ChatView>
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
+            avatar: !previousSame,
             reads: c.chat!.members.length > 10
                 ? []
                 : c.chat!.reads
