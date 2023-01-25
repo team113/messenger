@@ -69,6 +69,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.avatar = true,
+    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
     this.reads = const [],
     this.getUser,
     this.animation,
@@ -99,6 +100,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
+
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
+  final EdgeInsets margin;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -724,7 +728,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 2, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -1005,7 +1009,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
