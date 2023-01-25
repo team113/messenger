@@ -924,14 +924,14 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.39f8181e33a20db445d16c1bfedd7d337a777fe3"
+    version: "0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0-dev+rev.5a333a88111679ea49dad035de709e7c0e037c1f"
+    version: "0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2"
   meta:
     dependency: transitive
     description:
