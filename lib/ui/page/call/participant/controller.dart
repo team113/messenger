@@ -34,10 +34,10 @@ import '/provider/gql/exceptions.dart'
         RedialChatCallMemberException,
         RemoveChatMemberException,
         TransformDialogCallIntoGroupCallException;
-import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/scroll_controller.dart';
 import 'view.dart';
 
 export 'view.dart';

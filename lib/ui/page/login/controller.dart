@@ -32,7 +32,7 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {

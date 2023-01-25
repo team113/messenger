@@ -24,7 +24,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 /// View displaying the provided [reads] along with corresponding [User]s.
 ///
@@ -59,7 +59,7 @@ class ChatItemReads extends StatefulWidget {
   State<ChatItemReads> createState() => _ChatItemReadsState();
 }
 
-/// State of the [ChatItemReads] maintaining the [_scrollController].
+/// State of a [ChatItemReads] maintaining the [_scrollController].
 class _ChatItemReadsState extends State<ChatItemReads> {
   /// [CustomScrollController] to pass to a [ListView].
   final CustomScrollController _scrollController = CustomScrollController();

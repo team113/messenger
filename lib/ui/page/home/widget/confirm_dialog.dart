@@ -22,7 +22,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 /// Variant of a [ConfirmDialog].
 class ConfirmDialogVariant {

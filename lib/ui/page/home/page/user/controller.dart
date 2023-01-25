@@ -42,9 +42,9 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/scroll_controller.dart';
 
 export 'view.dart';
 

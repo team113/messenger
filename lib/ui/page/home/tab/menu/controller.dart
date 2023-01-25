@@ -24,7 +24,7 @@ import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';

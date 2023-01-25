@@ -55,10 +55,10 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/scroll_controller.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';

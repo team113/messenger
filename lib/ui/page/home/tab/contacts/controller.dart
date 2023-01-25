@@ -43,10 +43,10 @@ import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
-import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/scroll_controller.dart';
 
 export 'view.dart';
 

@@ -24,7 +24,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 import 'view.dart';
 
 export 'view.dart';

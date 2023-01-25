@@ -26,8 +26,8 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
-import '/util/custom_scroll_controller.dart';
 import '/util/message_popup.dart';
+import '/util/scroll_controller.dart';
 
 export 'view.dart';
 

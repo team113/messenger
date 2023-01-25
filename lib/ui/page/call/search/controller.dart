@@ -31,7 +31,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 export 'view.dart';
 

@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 export 'view.dart';
 

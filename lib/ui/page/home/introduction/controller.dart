@@ -24,7 +24,7 @@ import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
-import '/util/custom_scroll_controller.dart';
+import '/util/scroll_controller.dart';
 
 /// Possible [IntroductionViewStage] flow stage.
 enum IntroductionViewStage {
