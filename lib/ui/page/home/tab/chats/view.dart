@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
+import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:skeletons/skeletons.dart';
@@ -515,9 +516,10 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else {
-                      child = Center(
+                      child = AnimatedDelayedSwitcher(
                         key: const Key('NothingFound'),
-                        child: Text('label_nothing_found'.l10n),
+                        delay: const Duration(milliseconds: 300),
+                        child: Center(child: Text('label_nothing_found'.l10n)),
                       );
                     }
                   } else {
@@ -630,32 +632,12 @@ class ChatsTabView extends StatelessWidget {
                   return ContextMenuInterceptor(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
+                      // switchInCurve: Curves.easeInExpo,
+                      // switchOutCurve: Curves.easeOutExpo,
                       child: child,
                     ),
                   );
                 }),
-                // floatingActionButtonLocation:
-                //     FloatingActionButtonLocation.centerFloat,
-                // floatingActionButton: Padding(
-                //   padding:
-                //       const EdgeInsets.only(bottom: CustomNavigationBar.height),
-                //   child: Obx(() {
-                //     final bool isLoading = !c.chatsReady.value ||
-                //         c.loader.value != null ||
-                //         c.status.value.isLoading ||
-                //         c.status.value.isLoadingMore;
-
-                //     if (isLoading) {
-                //       return ConstrainedBox(
-                //         constraints:
-                //             BoxConstraints.tight(const Size.square(40)),
-                //         child: const Center(child: CustomProgressIndicator()),
-                //       );
-                //     }
-
-                //     return const SizedBox();
-                //   }),
-                // ),
                 bottomNavigationBar:
                     c.groupCreating.value ? _createGroup(context, c) : null,
               );
