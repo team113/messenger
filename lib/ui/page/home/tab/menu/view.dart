@@ -122,8 +122,8 @@ class MenuTabView extends StatelessWidget {
                 child: const Padding(
                   padding: EdgeInsets.only(right: 16),
                   child: SizedBox(
-                    height: 26,
-                    width: 30,
+                    height: 32,
+                    width: 32,
                     child: RiveAsset('assets/icons/switch_account.riv'),
                   ),
                   // child: SvgLoader.asset(
