@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/domain/model/user.dart';
@@ -131,10 +132,13 @@ class SearchView extends StatelessWidget {
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
-                      return Center(
-                        child: Text(
-                          'label_nothing_found'.l10n,
-                          textAlign: TextAlign.center,
+                      return AnimatedDelayedSwitcher(
+                        delay: const Duration(milliseconds: 300),
+                        child: Center(
+                          child: Text(
+                            'label_nothing_found'.l10n,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       );
                     } else if (c.searchStatus.value.isEmpty) {
