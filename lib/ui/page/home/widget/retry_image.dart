@@ -48,6 +48,7 @@ class RetryImage extends StatefulWidget {
     this.filter,
     this.cancelable = false,
     this.load = true,
+    this.displayProgress = true,
   });
 
   /// URL of an image to display.
@@ -76,6 +77,7 @@ class RetryImage extends StatefulWidget {
 
   final bool cancelable;
   final bool load;
+  final bool displayProgress;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -198,7 +200,7 @@ class _RetryImageState extends State<RetryImage> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                if (!_canceled)
+                if (!_canceled && widget.displayProgress)
                   CustomProgressIndicator(
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,

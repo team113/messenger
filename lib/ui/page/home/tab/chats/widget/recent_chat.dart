@@ -599,12 +599,18 @@ class RecentChatTile extends StatelessWidget {
     }
 
     if (e is ImageAttachment) {
-      content = RetryImage(
-        e.medium.url,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        onForbidden: onError,
+      content = Container(
+        // color: const Color(0xFFDFDFDF),
+        // color: Color(0xFFCAE6FF),
+        color: const Color(0xFFF7FBFF),
+        child: RetryImage(
+          e.medium.url,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          onForbidden: onError,
+          displayProgress: false,
+        ),
       );
     }
 
@@ -622,7 +628,7 @@ class RecentChatTile extends StatelessWidget {
           );
         } else {
           content = Container(
-            color: Colors.grey,
+            color: const Color(0xFFDFDFDF),
             child: const Icon(
               Icons.video_file,
               size: 18,
@@ -632,7 +638,7 @@ class RecentChatTile extends StatelessWidget {
         }
       } else {
         content = Container(
-          color: Colors.grey,
+          color: const Color(0xFFDFDFDF),
           child: SvgLoader.asset(
             'assets/icons/file.svg',
             width: 30,

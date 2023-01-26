@@ -451,28 +451,33 @@ class AvatarWidget extends StatelessWidget {
             ),
             shape: BoxShape.circle,
           ),
-          child: avatar == null
-              ? Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+          child: Stack(
+            children: [
+              Center(
+                child: Text(
+                  (title ?? '??').initials(),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: 15 * (maxWidth / 40.0),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
 
-                    // Disable the accessibility size settings for this [Text].
-                    textScaleFactor: 1,
-                  ),
-                )
-              : ClipOval(
+                  // Disable the accessibility size settings for this [Text].
+                  textScaleFactor: 1,
+                ),
+              ),
+              if (avatar != null)
+                ClipOval(
                   child: RetryImage(
                     link ?? avatar!.original.url,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
+                    displayProgress: false,
                   ),
                 ),
+            ],
+          ),
         ),
       );
     });
