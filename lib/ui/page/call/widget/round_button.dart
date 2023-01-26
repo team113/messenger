@@ -141,8 +141,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     );
 
     if (widget.border != null) {
-      button = DecoratedBox(
-        position: DecorationPosition.foreground,
+      button = Container(
         decoration: BoxDecoration(
           border: widget.border,
           shape: BoxShape.circle,

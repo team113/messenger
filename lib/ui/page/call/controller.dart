@@ -637,9 +637,9 @@ class CallController extends GetxController {
           break;
 
         case OngoingCallState.joining:
-
-          // SchedulerBinding.instance
-          //     .addPostFrameCallback((_) => relocateSecondary());
+          SchedulerBinding.instance
+              .addPostFrameCallback((_) => relocateSecondary());
+          break;
         case OngoingCallState.pending:
         case OngoingCallState.local:
         case OngoingCallState.ended:
