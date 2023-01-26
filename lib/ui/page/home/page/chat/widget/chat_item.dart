@@ -1587,7 +1587,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child,
                             if (avatars.isNotEmpty)
                               Transform.translate(
-                                offset: Offset(-12, widget.avatar ? -7 : -7),
+                                offset: Offset(-12, -widget.margin.bottom),
                                 child: WidgetButton(
                                   onPressed: () => ChatItemReads.show(
                                     context,
