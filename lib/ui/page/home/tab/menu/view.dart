@@ -124,7 +124,7 @@ class MenuTabView extends StatelessWidget {
                   child: SizedBox(
                     height: 26,
                     width: 30,
-                    child: RiveAsset('assets/icons/switch_account2.riv'),
+                    child: RiveAsset('assets/icons/switch_account.riv'),
                   ),
                   // child: SvgLoader.asset(
                   //   'assets/icons/switch_account.svg',

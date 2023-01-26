@@ -33,7 +33,6 @@ import 'package:flutter/material.dart';
 Widget svgFromAsset(
   String asset, {
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.contain,
   double? height,
@@ -54,7 +53,6 @@ Widget svgFromAsset(
 Widget svgFromBytes(
   Uint8List bytes, {
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? height,
@@ -76,7 +74,6 @@ Widget svgFromFile(
   File file, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
