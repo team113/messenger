@@ -42,10 +42,10 @@ class MicrophoneSwitchController extends GetxController {
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
   /// Client for communicating with the [_mediaManager].
-  late final Jason? _jason;
+  Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? _mediaManager;
 
   @override
   void onInit() async {
@@ -68,7 +68,9 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onClose() {
     _mediaManager?.free();
+    _mediaManager = null;
     _jason?.free();
+    _jason = null;
     super.onClose();
   }
 

@@ -29,8 +29,10 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
-    this.sortContactsByName = true,
     this.callButtons = const [],
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
+    this.sortContactsByName = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the

@@ -95,10 +95,10 @@ class MyProfileController extends GetxController {
   final AbstractSettingsRepository _settingsRepo;
 
   /// Client for communicating with the [_mediaManager].
-  late final Jason? _jason;
+  Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? _mediaManager;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -399,7 +399,9 @@ class MyProfileController extends GetxController {
   @override
   void onClose() {
     _mediaManager?.free();
+    _mediaManager = null;
     _jason?.free();
+    _jason = null;
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     listController.dispose();
