@@ -321,7 +321,6 @@ class _BrowserSvgState extends State<_BrowserSvg> {
       : rendererCanvasKit
           ? SvgPicture.memory(
               _imageBytes!,
-              color: widget.color,
               height: widget.height,
               fit: widget.fit,
               width: widget.width,

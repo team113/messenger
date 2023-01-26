@@ -41,12 +41,12 @@ class FontStyleTabView extends StatelessWidget {
           controller: ScrollController(),
           padding: const EdgeInsets.all(8),
           children: [
-            _font(
-                'Заголовок 3', 'Messenger', context.theme.textTheme.headline3!),
+            _font('Заголовок 3', 'Messenger',
+                context.theme.textTheme.displaySmall!),
             _font('Заголовок 4', 'Universal Messenger',
-                context.theme.textTheme.headline4!),
-            _font(
-                'Заголовок 5', 'by Gapopa', context.theme.textTheme.headline5!),
+                context.theme.textTheme.headlineMedium!),
+            _font('Заголовок 5', 'by Gapopa',
+                context.theme.textTheme.headlineSmall!),
             _font(
               'Кнопка',
               'Start chatting',
