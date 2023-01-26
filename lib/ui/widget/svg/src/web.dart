@@ -43,7 +43,6 @@ Widget svgFromAsset(
   String asset, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.contain,
   double? height,
@@ -57,7 +56,6 @@ Widget svgFromAsset(
     key: key,
     loader: _AssetSvgLoader(path),
     alignment: alignment,
-    color: color,
     excludeFromSemantics: excludeFromSemantics,
     fit: fit,
     height: height,
@@ -77,7 +75,6 @@ Widget svgFromBytes(
   Uint8List bytes, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -89,7 +86,6 @@ Widget svgFromBytes(
       key: key,
       loader: _BytesSvgLoader(bytes),
       alignment: alignment,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,
@@ -108,7 +104,6 @@ Widget svgFromFile(
   File file, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -120,7 +115,6 @@ Widget svgFromFile(
       key: key,
       loader: _FileSvgLoader(file),
       alignment: alignment,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,

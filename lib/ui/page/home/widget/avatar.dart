@@ -404,7 +404,7 @@ class AvatarWidget extends StatelessWidget {
               ? Center(
                   child: Text(
                     (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontSize: 15 * (maxWidth / 40.0),
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

@@ -270,7 +270,6 @@ class ElementStyleTabView extends StatelessWidget {
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
                                       'assets/icons/add_user.svg',
-                                      color: const Color(0xFFBBBBBB),
                                       width: 19,
                                     ),
                                   ),
@@ -284,7 +283,6 @@ class ElementStyleTabView extends StatelessWidget {
                                   hint: 'btn_call_settings'.l10n,
                                   child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
-                                    color: const Color(0xFFBBBBBB),
                                     width: 16,
                                   ),
                                 ),

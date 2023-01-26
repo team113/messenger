@@ -93,7 +93,6 @@ Widget svgFromFile(
   File file, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
