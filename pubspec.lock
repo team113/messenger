@@ -65,14 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.10.0"
-  audio_session:
-    dependency: transitive
-    description:
-      name: audio_session
-      sha256: e4acc4e9eaa32436dfc5d7aed7f0a370f2d7bb27ee27de30d6c4f220c2a05c73
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.13"
   audioplayers:
     dependency: "direct main"
     description:
@@ -434,14 +426,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.5"
-  eventify:
-    dependency: transitive
-    description:
-      name: eventify
-      sha256: b829429f08586cc2001c628e7499e3e3c2493a1d895fd73b00ecb23351aa5a66
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -973,46 +957,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.6.0"
-  just_audio:
-    dependency: "direct main"
-    description:
-      name: just_audio
-      sha256: "7a5057a4d05c8f88ee968cec6fdfe1015577d5184e591d5ac15ab16d8f5ecb17"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.31"
-  just_audio_mpv:
-    dependency: "direct main"
-    description:
-      name: just_audio_mpv
-      sha256: "98ac36712f3fe4fb0cf545f29c250fbd55e52c8445a4b0a4ee0bc9322f192797"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.6"
-  just_audio_platform_interface:
-    dependency: transitive
-    description:
-      name: just_audio_platform_interface
-      sha256: eff112d5138bea3ba544b6338b1e0537a32b5e1425e4d0dc38f732771cda7c84
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.0"
-  just_audio_web:
-    dependency: transitive
-    description:
-      name: just_audio_web
-      sha256: "89d8db6f19f3821bb6bf908c4bfb846079afb2ab575b783d781a6bf119e3abaf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.7"
-  just_audio_windows:
-    dependency: "direct main"
-    description:
-      name: just_audio_windows
-      sha256: "72d49c9e1112100fce9b955c933029f3c6adf25113ef526eca6122920a1466f3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
   lints:
     dependency: transitive
     description:
@@ -1117,14 +1061,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.2"
-  mpv_dart:
-    dependency: transitive
-    description:
-      name: mpv_dart
-      sha256: a33bd9a68439b496b7a5f36fecd3aa3cf6cbf0176ae15b9b60b12ae96e58f5a4
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1"
   mutex:
     dependency: "direct main"
     description:

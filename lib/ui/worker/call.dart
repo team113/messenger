@@ -18,12 +18,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -61,8 +61,6 @@ class CallWorker extends DisposableService {
   /// [AudioPlayer] currently playing an audio.
   AudioPlayer? _audioPlayer;
 
-  StreamSubscription? _playerStateSubscription;
-
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
 
@@ -96,8 +94,6 @@ class CallWorker extends DisposableService {
 
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
-
-  Timer? _repeatTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
@@ -275,10 +271,10 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
-    _playerStateSubscription?.cancel();
-    _playerStateSubscription = null;
     _audioPlayer?.dispose();
-    _repeatTimer?.cancel();
+
+    AudioCache.instance.clear('audio/ringing.mp3');
+    AudioCache.instance.clear('audio/chinese.mp3');
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -298,27 +294,12 @@ class CallWorker extends DisposableService {
   Future<void> play(String asset) async {
     if (_myUser.value?.muted == null) {
       runZonedGuarded(() async {
-        await _audioPlayer?.setAsset('assets/audio/$asset');
-        _audioPlayer?.play();
-        _playerStateSubscription =
-            _audioPlayer?.playerStateStream.listen((e) async {
-          switch (e.processingState) {
-            case ProcessingState.idle:
-            case ProcessingState.loading:
-            case ProcessingState.buffering:
-            case ProcessingState.ready:
-              break;
-
-            case ProcessingState.completed:
-              if (_playerStateSubscription != null) {
-                await _audioPlayer?.seek(Duration.zero);
-                if (_playerStateSubscription != null) {
-                  _audioPlayer?.play();
-                }
-              }
-              break;
-          }
-        });
+        await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer?.play(
+          AssetSource('audio/$asset'),
+          position: Duration.zero,
+          mode: PlayerMode.mediaPlayer,
+        );
       }, (e, _) {
         if (!e.toString().contains('NotAllowedError')) {
           throw e;
@@ -334,17 +315,17 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
-    _playerStateSubscription?.cancel();
-    _playerStateSubscription = null;
-    _repeatTimer?.cancel();
+    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
     await _audioPlayer?.stop();
+    await _audioPlayer?.release();
   }
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
     try {
       _audioPlayer = AudioPlayer();
-      await _audioPlayer?.setLoopMode(LoopMode.one);
+      await AudioCache.instance
+          .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
     } on MissingPluginException {
       _audioPlayer = null;
     }

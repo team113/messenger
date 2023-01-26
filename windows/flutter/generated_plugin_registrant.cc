@@ -9,7 +9,6 @@
 #include <audioplayers_windows/audioplayers_windows_plugin.h>
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
 #include <desktop_drop/desktop_drop_plugin.h>
-#include <just_audio_windows/just_audio_windows_plugin.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 #include <medea_jason/medea_jason_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
@@ -28,8 +27,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   DesktopDropPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("DesktopDropPlugin"));
-  JustAudioWindowsPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("JustAudioWindowsPlugin"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
   MedeaJasonPluginRegisterWithRegistrar(
