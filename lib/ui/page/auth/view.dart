@@ -278,50 +278,69 @@ class AuthView extends StatelessWidget {
   Future<void> _download(BuildContext context) async {
     await ModalPopup.show(
       context: context,
-      child: ListView(
-        shrinkWrap: true,
-        children: const [
-          SizedBox(height: 20),
-          DownloadButton(
-            asset: 'windows',
-            width: 21.93,
-            height: 22,
-            title: 'Windows',
-            link: 'messenger-windows.zip',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'btn_download'.l10n,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.copyWith(color: Colors.black, fontSize: 18),
+              ),
+            ),
           ),
-          SizedBox(height: 8),
-          DownloadButton(
-            asset: 'apple',
-            width: 23,
-            height: 29,
-            title: 'macOS',
-            link: 'messenger-macos.zip',
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: 'windows',
+                  width: 21.93,
+                  height: 22,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'linux',
+                  width: 18.85,
+                  height: 22,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'iOS',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 8),
-          DownloadButton(
-            asset: 'linux',
-            width: 18.85,
-            height: 22,
-            title: 'Linux',
-            link: 'messenger-linux.zip',
-          ),
-          SizedBox(height: 8),
-          DownloadButton(
-            asset: 'apple',
-            width: 23,
-            height: 29,
-            title: 'iOS',
-            link: 'messenger-ios.zip',
-          ),
-          SizedBox(height: 8),
-          DownloadButton(
-            asset: 'google',
-            width: 20.33,
-            height: 22.02,
-            title: 'Android',
-            link: 'messenger-android.apk',
-          ),
-          SizedBox(height: 20),
+          const SizedBox(height: 18),
         ],
       ),
     );
