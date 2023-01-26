@@ -485,7 +485,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       builder: (_) => AnimatedTransition(
         beginRect: beginRect,
         endRect: endRect,
-        animationDuration: jumpDuration,
+        duration: jumpDuration,
         onEnd: () {
           onEnd();
           _removeOverlay();

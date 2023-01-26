@@ -384,7 +384,6 @@ label_all = Все
 label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
-label_are_you_sure_want_to_log_out = Вы действительно хотите выйти из аккаунта{" "}
 label_are_you_sure_yes = Да
 label_attachments = [{$count} { $count ->
     [1] прикрепление
@@ -603,7 +602,7 @@ label_phone_confirmation_code_was_send =
 label_phone_number = Номер телефона
 label_phone_visible = Ваш номер телефона видят:{" "}
 label_photo = Фото
-label_presence = Отображение статуса
+label_presence = Присутствие
 label_presence_away = Отошёл
 label_presence_hidden = Не показывать
 label_presence_present = Онлайн
