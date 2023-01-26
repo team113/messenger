@@ -490,7 +490,7 @@ class SubscriptionConnection {
 class SubscriptionIterator {
   SubscriptionIterator(this.iterator);
 
-  /// [StreamController] used to add events and errors to the output [stream].
+  /// [StreamIterator] of an subscription stream.
   Future<StreamIterator<QueryResult>> iterator;
 
   /// Unique ID of this [SubscriptionIterator].
