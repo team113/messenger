@@ -75,11 +75,7 @@ abstract class AbstractSettingsRepository {
   Future<void> setSortContactsByName(bool enabled);
 
   /// Sets call preferences.
-  Future<void> setCallPrefs(
-    ChatId chatId, {
-    CallPreference? inAppPrefs,
-    CallPreference? popupPrefs,
-  });
+  Future<void> setCallPrefs(ChatId chatId, CallPreferences prefs);
 
   /// Returns call preferences.
   CallPreferences? getCallPrefs(ChatId id);

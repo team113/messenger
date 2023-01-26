@@ -21,50 +21,37 @@ import '../model_type_id.dart';
 
 part 'call_preferences.g.dart';
 
-/// Preferences of a call containing its in app and popup [CallPreference]s.
+/// Preferences of a call containing its [width], [height] and position.
 @HiveType(typeId: ModelTypeId.callPreferences)
 class CallPreferences extends HiveObject {
-  CallPreferences({this.inAppPrefs, this.popupPrefs});
+  CallPreferences({this.width, this.height, this.left, this.top});
 
-  /// In app [CallPreference]s.
+  /// Width of the call these [CallPreferences] are about.
   @HiveField(0)
-  CallPreference? inAppPrefs;
+  final double? width;
 
-  /// Popup [CallPreference]s.
+  /// Height of the call these [CallPreferences] are about.
   @HiveField(1)
-  CallPreference? popupPrefs;
-}
+  final double? height;
 
-/// Preferences of a call containing its [width], [height] and position.
-@HiveType(typeId: ModelTypeId.callPreference)
-class CallPreference extends HiveObject {
-  CallPreference({this.width, this.height, this.left, this.top});
-
-  /// Width of the call these [CallPreference] are about.
-  @HiveField(0)
-  double? width;
-
-  /// Height of the call these [CallPreference] are about.
-  @HiveField(1)
-  double? height;
-
-  /// Left position of the call these [CallPreference] are about.
+  /// Left position of the call these [CallPreferences] are about.
   @HiveField(2)
-  double? left;
+  final double? left;
 
-  /// Top position of the call these [CallPreference] are about.
+  /// Top position of the call these [CallPreferences] are about.
   @HiveField(3)
-  double? top;
+  final double? top;
 
-  /// Constructs a [CallPreference] from the provided [data].
-  factory CallPreference.fromJson(Map<dynamic, dynamic> data) => CallPreference(
+  /// Constructs a [CallPreferences] from the provided [data].
+  factory CallPreferences.fromJson(Map<dynamic, dynamic> data) =>
+      CallPreferences(
         width: data['width'],
         height: data['height'],
         left: data['left'],
         top: data['top'],
       );
 
-  /// Returns a [Map] containing data of these [CallPreference].
+  /// Returns a [Map] containing data of these [CallPreferences].
   Map<String, dynamic> toJson() => {
         'width': width,
         'height': height,

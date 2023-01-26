@@ -610,7 +610,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatService,
               myUserService,
               Get.find(),
-              settingsRepository,
             ));
 
             deps.put(ChatWorker(

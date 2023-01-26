@@ -30,32 +30,12 @@ class CallsPreferencesHiveProvider extends HiveBaseProvider<CallPreferences> {
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(CallPreferenceAdapter());
     Hive.maybeRegisterAdapter(CallPreferencesAdapter());
   }
 
-  /// Puts the provided [CallPreference]s to [Hive].
-  Future<void> put(
-    ChatId chatId, {
-    CallPreference? inAppPrefs,
-    CallPreference? popupPrefs,
-  }) async {
-    CallPreferences? localPrefs = get(chatId);
-    if (localPrefs == null) {
-      localPrefs = CallPreferences(
-        inAppPrefs: inAppPrefs,
-        popupPrefs: popupPrefs,
-      );
-    } else {
-      if (inAppPrefs != null) {
-        localPrefs.inAppPrefs = inAppPrefs;
-      }
-      if (popupPrefs != null) {
-        localPrefs.popupPrefs = popupPrefs;
-      }
-    }
-    await putSafe(chatId.val, localPrefs);
-  }
+  /// Puts the provided [CallPreferences] to [Hive].
+  Future<void> put(ChatId chatId, CallPreferences prefs) =>
+      putSafe(chatId.val, prefs);
 
   /// Returns a [CallPreferences] from [Hive] by its [id].
   CallPreferences? get(ChatId id) => getSafe(id.val);

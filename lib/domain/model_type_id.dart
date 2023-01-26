@@ -107,5 +107,4 @@ class ModelTypeId {
   static const blacklistCursor = 84;
   static const windowPreferences = 85;
   static const callPreferences = 86;
-  static const callPreference = 87;
 }

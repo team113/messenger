@@ -140,16 +140,8 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSortContactsByName(enabled);
 
   @override
-  Future<void> setCallPrefs(
-    ChatId chatId, {
-    CallPreference? inAppPrefs,
-    CallPreference? popupPrefs,
-  }) =>
-      _callsSettingsProvider.put(
-        chatId,
-        inAppPrefs: inAppPrefs,
-        popupPrefs: popupPrefs,
-      );
+  Future<void> setCallPrefs(ChatId chatId, CallPreferences prefs) =>
+      _callsSettingsProvider.put(chatId, prefs);
 
   @override
   CallPreferences? getCallPrefs(ChatId id) => _callsSettingsProvider.get(id);

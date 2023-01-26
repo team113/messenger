@@ -120,7 +120,6 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-    CallPreference? popupPrefs,
   }) =>
       false;
 
@@ -171,8 +170,8 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns the [CallPreference] stored by the provided [chatId], if any.
-  static CallPreference? getCallPreference(ChatId chatId) => null;
+  /// Returns the [CallPreferences] stored by the provided [chatId], if any.
+  static CallPreferences? getCallPreference(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {

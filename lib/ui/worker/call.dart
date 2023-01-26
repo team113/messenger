@@ -28,12 +28,10 @@ import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '/domain/model/call_preferences.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
@@ -56,7 +54,6 @@ class CallWorker extends DisposableService {
     this._chatService,
     this._myUserService,
     this._notificationService,
-    this._settingsRepository,
   );
 
   /// [BackgroundWorker] used to get data from its service.
@@ -73,9 +70,6 @@ class CallWorker extends DisposableService {
 
   /// [MyUserService] used to get [MyUser.muted] status.
   final MyUserService _myUserService;
-
-  /// Settings repository, used to set [Chat]s [CallPreferences].
-  final AbstractSettingsRepository _settingsRepository;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -394,12 +388,6 @@ class CallWorker extends DisposableService {
             }
           }
         }
-      } else if (s.key?.startsWith('prefs_call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('prefs_call_', ''));
-        _settingsRepository.setCallPrefs(
-          chatId,
-          popupPrefs: CallPreference.fromJson(json.decode(s.newValue!)),
-        );
       }
     });
   }
