@@ -145,7 +145,7 @@ class CallController extends GetxController {
   final RxBool cameraSwitched = RxBool(false);
 
   /// Indicator whether the speaker was switched or not.
-  final RxBool speakerSwitched = RxBool(true);
+  late final RxBool speakerSwitched;
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
@@ -516,6 +516,8 @@ class CallController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
+    speakerSwitched = RxBool(!PlatformUtils.isIOS);
+
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
@@ -601,33 +603,45 @@ class CallController extends GetxController {
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance.addPostFrameCallback(
-          (_) {
-            dockRect.value = dockKey.globalPaintBounds;
-            relocateSecondary();
-          },
-        );
-        DateTime begunAt = DateTime.now();
-        _durationTimer = Timer.periodic(
-          const Duration(seconds: 1),
-          (_) {
-            duration.value = DateTime.now().difference(begunAt);
-            if (hoveredRendererTimeout > 0) {
-              --hoveredRendererTimeout;
-              if (hoveredRendererTimeout == 0) {
-                hoveredRenderer.value = null;
-                isCursorHidden.value = true;
-              }
-            }
+      switch (state) {
+        case OngoingCallState.active:
+          if (_durationTimer == null) {
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) {
+                dockRect.value = dockKey.globalPaintBounds;
+                relocateSecondary();
+              },
+            );
+            DateTime begunAt = DateTime.now();
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                duration.value = DateTime.now().difference(begunAt);
+                if (hoveredRendererTimeout > 0) {
+                  --hoveredRendererTimeout;
+                  if (hoveredRendererTimeout == 0) {
+                    hoveredRenderer.value = null;
+                    isCursorHidden.value = true;
+                  }
+                }
 
-            if (errorTimeout.value > 0) {
-              --errorTimeout.value;
-            }
-          },
-        );
+                if (errorTimeout.value > 0) {
+                  --errorTimeout.value;
+                }
+              },
+            );
 
-        keepUi();
+            keepUi();
+            _ensureSpeakerphone();
+          }
+          break;
+
+        case OngoingCallState.joining:
+        case OngoingCallState.pending:
+        case OngoingCallState.local:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       refresh();
@@ -877,7 +891,15 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }
@@ -894,6 +916,7 @@ class CallController extends GetxController {
   Future<void> toggleVideo() async {
     keepUi();
     await _currentCall.value.toggleVideo();
+    await _ensureSpeakerphone();
   }
 
   /// Changes the local video device to the next one from the
@@ -919,22 +942,45 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if ((PlatformUtils.isAndroid || PlatformUtils.isIOS) &&
-        !PlatformUtils.isWeb) {
-      List<MediaDeviceInfo> outputs =
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      final List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        int selected = _currentCall.value.outputDevice.value == null
-            ? 0
-            : outputs.indexWhere(
-                (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
-        selected += 1;
-        var deviceId = outputs[(selected) % outputs.length].deviceId();
-        speakerSwitched.value = deviceId == 'speakerphone';
-        await _currentCall.value.setOutputDevice(deviceId);
+        MediaDeviceInfo? device;
+
+        if (PlatformUtils.isIOS) {
+          device = _currentCall.value.devices.output().firstWhereOrNull(
+              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
+        } else {
+          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
+        }
+
+        if (device == null) {
+          if (speakerSwitched.value) {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+            speakerSwitched.value = !(device != null);
+          } else {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+            speakerSwitched.value = (device != null);
+          }
+
+          if (device == null) {
+            int selected = _currentCall.value.outputDevice.value == null
+                ? 0
+                : outputs.indexWhere((e) =>
+                    e.deviceId() == _currentCall.value.outputDevice.value!);
+            selected += 1;
+            device = outputs[(selected) % outputs.length];
+          }
+        }
+
+        await _currentCall.value.setOutputDevice(device.deviceId());
       }
     } else {
-      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
       //       switching.
       speakerSwitched.toggle();
     }
@@ -1891,6 +1937,32 @@ class CallController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
+  Future<void> _ensureSpeakerphone() async {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
+          _currentCall.value.videoState.value == LocalTrackState.enabling) {
+        final bool ear;
+
+        if (PlatformUtils.isIOS) {
+          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-piece');
+        } else {
+          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-speaker');
+        }
+
+        if (ear) {
+          await toggleSpeaker();
+        }
+      }
+    }
   }
 }
 
