@@ -64,11 +64,13 @@ import 'video_thumbnail/video_thumbnail.dart';
 class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
     Key? key,
-    required this.chat,
     required this.item,
+    required this.chat,
     required this.me,
-    this.reads = const [],
     this.user,
+    this.avatar = true,
+    this.margin = const EdgeInsets.fromLTRB(0, 6, 0, 6),
+    this.reads = const [],
     this.getUser,
     this.animation,
     this.onHide,
@@ -95,6 +97,12 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
+  final bool avatar;
+
+  /// [EdgeInsets] being margin to apply to this [ChatItemWidget].
+  final EdgeInsets margin;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -682,7 +690,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!_fromMe && widget.chat.value?.isGroup == true) &&
+    if ((!_fromMe && widget.chat.value?.isGroup == true && widget.avatar) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
@@ -720,7 +728,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        padding: const EdgeInsets.fromLTRB(5, 6, 2, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
@@ -772,7 +780,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     );
                   }),
-                if (!_fromMe && widget.chat.value?.isGroup == true)
+                if (!_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.avatar)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
@@ -798,7 +808,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        (!_fromMe && widget.chat.value?.isGroup == true)
+                        !_fromMe &&
+                                widget.chat.value?.isGroup == true &&
+                                widget.avatar
                             ? 0
                             : 10,
                         9,
@@ -834,14 +846,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.only(
                       topLeft: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
                       topRight: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!_fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe &&
+                                  widget.chat.value?.isGroup == true &&
+                                  widget.avatar)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -993,7 +1009,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Padding(
-        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -1392,7 +1408,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(item.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 15),
+                    child: Opacity(
+                      opacity: widget.avatar ? 1 : 0,
+                      child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+                    ),
                   ),
                 ),
               Flexible(
@@ -1568,18 +1587,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child,
                             if (avatars.isNotEmpty)
                               Transform.translate(
-                                offset: const Offset(-12, -4),
+                                offset: Offset(-12, -widget.margin.bottom),
                                 child: WidgetButton(
                                   onPressed: () => ChatItemReads.show(
                                     context,
                                     reads: widget.reads,
                                     getUser: widget.getUser,
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: avatars,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: avatars,
+                                    ),
                                   ),
                                 ),
                               ),

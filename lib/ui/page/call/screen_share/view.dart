@@ -39,8 +39,11 @@ class ScreenShareView extends StatelessWidget {
   static const double videoSize = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, Rx<OngoingCall> call) {
-    return ModalPopup.show<T>(
+  static Future<MediaDisplayInfo?> show<T>(
+    BuildContext context,
+    Rx<OngoingCall> call,
+  ) {
+    return ModalPopup.show<MediaDisplayInfo?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -63,40 +66,40 @@ class ScreenShareView extends StatelessWidget {
         return Obx(() {
           return ConfirmDialog(
             title: 'label_start_screen_sharing'.l10n,
-            variants: call.value.displays
-                .map(
-                  (e) => ConfirmDialogVariant(
-                    onProceed: () => call.value
-                        .setScreenShareEnabled(true, deviceId: e.deviceId()),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: videoSize,
-                            maxHeight: videoSize,
-                          ),
-                          child: AnimatedSize(
-                            duration: 200.milliseconds,
-                            child: c.renderers[e] != null
-                                ? RtcVideoView(
-                                    c.renderers[e]!,
-                                    source: MediaSourceKind.Display,
-                                    mirror: false,
-                                    fit: BoxFit.contain,
-                                    enableContextMenu: false,
-                                    respectAspectRatio: true,
-                                    framelessBuilder: () => framelessBuilder,
-                                  )
-                                : framelessBuilder,
-                          ),
-                        ),
-                      ],
+            variants: call.value.displays.map((e) {
+              return ConfirmDialogVariant(
+                onProceed: () {
+                  c.freeTracks();
+                  return e;
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(
+                        maxWidth: videoSize,
+                        maxHeight: videoSize,
+                      ),
+                      child: AnimatedSize(
+                        duration: 200.milliseconds,
+                        child: c.renderers[e] != null
+                            ? RtcVideoView(
+                                c.renderers[e]!,
+                                source: MediaSourceKind.Display,
+                                mirror: false,
+                                fit: BoxFit.contain,
+                                enableContextMenu: false,
+                                respectAspectRatio: true,
+                                framelessBuilder: () => framelessBuilder,
+                              )
+                            : framelessBuilder,
+                      ),
                     ),
-                  ),
-                )
-                .toList(),
+                  ],
+                ),
+              );
+            }).toList(),
           );
         });
       },

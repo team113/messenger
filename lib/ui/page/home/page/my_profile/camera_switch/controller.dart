@@ -45,10 +45,10 @@ class CameraSwitchController extends GetxController {
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
   /// Client for communicating with the [_mediaManager].
-  late final Jason? _jason;
+  Jason? _jason;
 
   /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? _mediaManager;
 
   /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
@@ -84,7 +84,9 @@ class CameraSwitchController extends GetxController {
   @override
   void onClose() {
     _mediaManager?.free();
+    _mediaManager = null;
     _jason?.free();
+    _jason = null;
     renderer.value?.dispose();
     _localTrack?.free();
     _cameraWorker?.dispose();
