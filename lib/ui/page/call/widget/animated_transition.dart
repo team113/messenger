@@ -27,7 +27,7 @@ class AnimatedTransition extends StatefulWidget {
     required this.child,
     this.onEnd,
     this.curve,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.duration = const Duration(milliseconds: 200),
   }) : super(key: key);
 
   /// Initial [Rect] this [child] takes.
@@ -46,7 +46,7 @@ class AnimatedTransition extends StatefulWidget {
   final Curve? curve;
 
   /// [Duration] of the animation.
-  final Duration animationDuration;
+  final Duration duration;
 
   @override
   State<AnimatedTransition> createState() => AnimatedTransitionState();
@@ -76,7 +76,7 @@ class AnimatedTransitionState extends State<AnimatedTransition>
       children: [
         AnimatedPositioned.fromRect(
           rect: rect,
-          duration: widget.animationDuration,
+          duration: widget.duration,
           curve: widget.curve ?? Curves.linear,
           onEnd: widget.onEnd,
           child: widget.child,
