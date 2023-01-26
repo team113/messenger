@@ -207,7 +207,6 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-    this.color,
   }) : super(key: key);
 
   /// Loader to load the SVG from.
@@ -242,9 +241,6 @@ class _BrowserSvg extends StatefulWidget {
   /// The value indicates the purpose of the picture, and will be
   /// read out by screen readers.
   final String? semanticsLabel;
-
-  /// If non-`null`, this color is blended with each image pixel.
-  final Color? color;
 
   @override
   _BrowserSvgState createState() => _BrowserSvgState();
@@ -325,7 +321,6 @@ class _BrowserSvgState extends State<_BrowserSvg> {
               alignment: Alignment.center,
               child: Image.network(
                 _image!,
-                color: widget.color,
                 height: widget.height,
                 fit: widget.fit,
                 width: widget.width,
