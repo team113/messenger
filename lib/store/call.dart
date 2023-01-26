@@ -409,40 +409,43 @@ class CallRepository extends DisposableInterface
     int count,
     Future<void> Function(IncomingChatCallsTopEvent) listener,
   ) {
-    return _graphQlProvider.incomingCallsTopEvents(count, (event) async {
-      IncomingChatCallsTopEvent? callsTopEvent;
-      var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
-          .incomingChatCallsTopEvents;
+    return _graphQlProvider.incomingCallsTopEvents(
+      count,
+      (event) async {
+        IncomingChatCallsTopEvent? callsTopEvent;
+        var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
+            .incomingChatCallsTopEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        callsTopEvent = const IncomingChatCallsTopInitialized();
-      } else if (events.$$typename == 'IncomingChatCallsTop') {
-        var list = (events
-                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
-            .list;
-        for (var u in list.map((e) => e.members).expand((e) => e)) {
-          _userRepo.put(u.user.toHive());
+        if (events.$$typename == 'SubscriptionInitialized') {
+          callsTopEvent = const IncomingChatCallsTopInitialized();
+        } else if (events.$$typename == 'IncomingChatCallsTop') {
+          var list = (events
+                  as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
+              .list;
+          for (var u in list.map((e) => e.members).expand((e) => e)) {
+            _userRepo.put(u.user.toHive());
+          }
+          callsTopEvent =
+              IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
+        } else if (events.$$typename ==
+            'EventIncomingChatCallsTopChatCallAdded') {
+          var data = events
+              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+          callsTopEvent =
+              EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
+        } else if (events.$$typename ==
+            'EventIncomingChatCallsTopChatCallRemoved') {
+          var data = events
+              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
+          callsTopEvent =
+              EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
         }
-        callsTopEvent =
-            IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
-      } else if (events.$$typename ==
-          'EventIncomingChatCallsTopChatCallAdded') {
-        var data = events
-            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
-        callsTopEvent =
-            EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
-      } else if (events.$$typename ==
-          'EventIncomingChatCallsTopChatCallRemoved') {
-        var data = events
-            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
-        callsTopEvent =
-            EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
-      }
 
-      if (callsTopEvent != null) {
-        await listener(callsTopEvent);
-      }
-    });
+        if (callsTopEvent != null) {
+          await listener(callsTopEvent);
+        }
+      },
+    );
   }
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
@@ -598,32 +601,36 @@ class CallRepository extends DisposableInterface
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
     _events?.cancel();
-    _events = _incomingEvents(count, (event) async {
-      switch (event.kind) {
-        case IncomingChatCallsTopEventKind.initialized:
-          // No-op.
-          break;
+    _events = _incomingEvents(
+      count,
+      (event) async {
+        switch (event.kind) {
+          case IncomingChatCallsTopEventKind.initialized:
+            // No-op.
+            break;
 
-        case IncomingChatCallsTopEventKind.list:
-          event as IncomingChatCallsTop;
-          event.list.forEach(add);
-          break;
+          case IncomingChatCallsTopEventKind.list:
+            event as IncomingChatCallsTop;
+            event.list.forEach(add);
+            break;
 
-        case IncomingChatCallsTopEventKind.added:
-          event as EventIncomingChatCallsTopChatCallAdded;
-          add(event.call);
-          break;
+          case IncomingChatCallsTopEventKind.added:
+            event as EventIncomingChatCallsTopChatCallAdded;
+            add(event.call);
+            break;
 
-        case IncomingChatCallsTopEventKind.removed:
-          event as EventIncomingChatCallsTopChatCallRemoved;
-          final Rx<OngoingCall>? call = calls[event.call.chatId];
-          // If call is not yet connected to remote updates, then it's still
-          // just a notification and it should be removed.
-          if (call?.value.connected == false && call?.value.isActive == false) {
-            remove(event.call.chatId);
-          }
-          break;
-      }
-    });
+          case IncomingChatCallsTopEventKind.removed:
+            event as EventIncomingChatCallsTopChatCallRemoved;
+            final Rx<OngoingCall>? call = calls[event.call.chatId];
+            // If call is not yet connected to remote updates, then it's still
+            // just a notification and it should be removed.
+            if (call?.value.connected == false &&
+                call?.value.isActive == false) {
+              remove(event.call.chatId);
+            }
+            break;
+        }
+      },
+    );
   }
 }

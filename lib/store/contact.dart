@@ -278,8 +278,8 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   /// Initializes [_chatContactsRemoteEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _sessionLocal.getChatContactsListVersion();
+  Future<void> _initRemoteSubscription() async {
+    var ver = _sessionLocal.getChatContactsListVersion();
     _remoteSubscription?.cancel();
     _remoteSubscription = _chatContactsRemoteEvents(ver, _contactRemoteEvent);
   }
@@ -463,44 +463,47 @@ class ContactRepository implements AbstractContactRepository {
     ChatContactsListVersion? ver,
     Future<void> Function(ChatContactsEvents) listener,
   ) {
-    return _graphQlProvider.contactsEvents(ver, (event) async {
-      ChatContactsEvents? chatContactsEvents;
-      var events =
-          ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
+    return _graphQlProvider.contactsEvents(
+      ver,
+      (event) async {
+        ChatContactsEvents? chatContactsEvents;
+        var events = ContactsEvents$Subscription.fromJson(event.data!)
+            .chatContactsEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events
-            as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
-        chatContactsEvents = const ChatContactsEventsInitialized();
-      } else if (events.$$typename == 'ChatContactsList') {
-        var list = events
-            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-        for (var u in list.chatContacts.nodes
-            .map((e) => e.getHiveUsers())
-            .expand((e) => e)) {
-          _userRepo.put(u);
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
+          chatContactsEvents = const ChatContactsEventsInitialized();
+        } else if (events.$$typename == 'ChatContactsList') {
+          var list = events
+              as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
+          for (var u in list.chatContacts.nodes
+              .map((e) => e.getHiveUsers())
+              .expand((e) => e)) {
+            _userRepo.put(u);
+          }
+          chatContactsEvents = ChatContactsEventsChatContactsList(
+            list.chatContacts.nodes.map((e) => e.toHive()).toList(),
+            list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
+            list.chatContacts.ver,
+          );
+        } else if (events.$$typename == 'ChatContactEventsVersioned') {
+          var mixin = events
+              as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
+          chatContactsEvents = ChatContactsEventsEvent(
+            ChatContactEventsVersioned(
+              mixin.events.map((e) => _contactEvent(e)).toList(),
+              mixin.ver,
+              mixin.listVer,
+            ),
+          );
         }
-        chatContactsEvents = ChatContactsEventsChatContactsList(
-          list.chatContacts.nodes.map((e) => e.toHive()).toList(),
-          list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
-          list.chatContacts.ver,
-        );
-      } else if (events.$$typename == 'ChatContactEventsVersioned') {
-        var mixin = events
-            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
-        chatContactsEvents = ChatContactsEventsEvent(
-          ChatContactEventsVersioned(
-            mixin.events.map((e) => _contactEvent(e)).toList(),
-            mixin.ver,
-            mixin.listVer,
-          ),
-        );
-      }
 
-      if (chatContactsEvents != null) {
-        await listener(chatContactsEvents);
-      }
-    });
+        if (chatContactsEvents != null) {
+          await listener(chatContactsEvents);
+        }
+      },
+    );
   }
 
   /// Constructs a [ChatContactEvent] from the

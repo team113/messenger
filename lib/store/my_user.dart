@@ -804,27 +804,31 @@ class MyUserRepository implements AbstractMyUserRepository {
     MyUserVersion? ver,
     Future<void> Function(MyUserEventsVersioned) listener,
   ) {
-    return _graphQlProvider.myUserEvents(ver, (event) async {
-      MyUserEventsVersioned? myUserEvents;
-      var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+    return _graphQlProvider.myUserEvents(
+      ver,
+      (event) async {
+        MyUserEventsVersioned? myUserEvents;
+        var events =
+            MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events
-            as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
-      } else if (events.$$typename == 'MyUser') {
-        _setMyUser((events as MyUserMixin).toHive());
-      } else if (events.$$typename == 'MyUserEventsVersioned') {
-        var mixin = events as MyUserEventsVersionedMixin;
-        myUserEvents = MyUserEventsVersioned(
-          mixin.events.map((e) => _myUserEvent(e)).toList(),
-          mixin.ver,
-        );
-      }
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
+        } else if (events.$$typename == 'MyUser') {
+          _setMyUser((events as MyUserMixin).toHive());
+        } else if (events.$$typename == 'MyUserEventsVersioned') {
+          var mixin = events as MyUserEventsVersionedMixin;
+          myUserEvents = MyUserEventsVersioned(
+            mixin.events.map((e) => _myUserEvent(e)).toList(),
+            mixin.ver,
+          );
+        }
 
-      if (myUserEvents != null) {
-        await listener(myUserEvents);
-      }
-    });
+        if (myUserEvents != null) {
+          await listener(myUserEvents);
+        }
+      },
+    );
   }
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].

@@ -54,19 +54,15 @@ class Backoff {
     Duration backoff = Duration.zero;
 
     while (true) {
+      await Future.delayed(backoff);
+
+      if (cancelToken?.isCancelled == true) {
+        throw OperationCanceledException();
+      }
+
       try {
-        await Future.delayed(backoff);
-
-        if (cancelToken?.isCancelled == true) {
-          throw OperationCanceledException();
-        }
-
         return await callback();
       } catch (e) {
-        if (e is OperationCanceledException) {
-          rethrow;
-        }
-
         backoff = increaseBackoff(backoff);
       }
     }

@@ -204,6 +204,7 @@ abstract class CallGraphQlMixin {
         variables: variables.toJson(),
       ),
       listener,
+      onError: onError,
     );
   }
 

@@ -207,36 +207,40 @@ class UserRepository implements AbstractUserRepository {
     UserVersion? ver,
     Future<void> Function(UserEvents) listener,
   ) {
-    return _graphQlProvider.userEvents(id, ver, (event) async {
-      UserEvents? userEvents;
-      var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
-        userEvents = const UserEventsInitialized();
-      } else if (events.$$typename == 'User') {
-        var mixin = events as UserEvents$Subscription$UserEvents$User;
-        userEvents = UserEventsUser(mixin.toHive());
-      } else if (events.$$typename == 'UserEventsVersioned') {
-        var mixin = events as UserEventsVersionedMixin;
-        userEvents = UserEventsEvent(UserEventsVersioned(
-          mixin.events.map((e) => _userEvent(e)).toList(),
-          mixin.ver,
-        ));
-      } else if (events.$$typename == 'BlacklistEventsVersioned') {
-        var mixin = events as BlacklistEventsVersionedMixin;
-        userEvents = UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
-          mixin.events.map((e) => _blacklistEvent(e)).toList(),
-          mixin.myVer,
-        ));
-      } else if (events.$$typename == 'IsBlacklisted') {
-        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        userEvents = UserEventsIsBlacklisted(node.blacklisted, node.myVer);
-      }
+    return _graphQlProvider.userEvents(
+      id,
+      ver,
+      (event) async {
+        UserEvents? userEvents;
+        var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
+          userEvents = const UserEventsInitialized();
+        } else if (events.$$typename == 'User') {
+          var mixin = events as UserEvents$Subscription$UserEvents$User;
+          userEvents = UserEventsUser(mixin.toHive());
+        } else if (events.$$typename == 'UserEventsVersioned') {
+          var mixin = events as UserEventsVersionedMixin;
+          userEvents = UserEventsEvent(UserEventsVersioned(
+            mixin.events.map((e) => _userEvent(e)).toList(),
+            mixin.ver,
+          ));
+        } else if (events.$$typename == 'BlacklistEventsVersioned') {
+          var mixin = events as BlacklistEventsVersionedMixin;
+          userEvents = UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+            mixin.events.map((e) => _blacklistEvent(e)).toList(),
+            mixin.myVer,
+          ));
+        } else if (events.$$typename == 'IsBlacklisted') {
+          var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
+          userEvents = UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+        }
 
-      if (userEvents != null) {
-        await listener(userEvents);
-      }
-    });
+        if (userEvents != null) {
+          await listener(userEvents);
+        }
+      },
+    );
   }
 
   /// Puts the provided [user] to [Hive].

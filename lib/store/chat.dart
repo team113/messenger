@@ -726,31 +726,35 @@ class ChatRepository implements AbstractChatRepository {
     ChatVersion? ver,
     Future<void> Function(ChatEvents) listener,
   ) {
-    return _graphQlProvider.chatEvents(chatId, ver, (event) async {
-      ChatEvents? chatEvents;
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        chatEvents = const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        var data = _chat(chat);
-        chatEvents = ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        chatEvents = ChatEventsEvent(
-          ChatEventsVersioned(
-            mixin.events.map((e) => chatEvent(e)).toList(),
-            mixin.ver,
-          ),
-        );
-      }
+    return _graphQlProvider.chatEvents(
+      chatId,
+      ver,
+      (event) async {
+        ChatEvents? chatEvents;
+        var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+          chatEvents = const ChatEventsInitialized();
+        } else if (events.$$typename == 'Chat') {
+          var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+          var data = _chat(chat);
+          chatEvents = ChatEventsChat(data.chat);
+        } else if (events.$$typename == 'ChatEventsVersioned') {
+          var mixin =
+              events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+          chatEvents = ChatEventsEvent(
+            ChatEventsVersioned(
+              mixin.events.map((e) => chatEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
 
-      if (chatEvents != null) {
-        await listener(chatEvents);
-      }
-    });
+        if (chatEvents != null) {
+          await listener(chatEvents);
+        }
+      },
+    );
   }
 
   @override
@@ -1052,38 +1056,39 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  // Obj< Future<StreamIterator> , Token> ?? .cancel()
-
   /// Subscribes to the remote updates of the [chats].
   SubscriptionIterator _recentChatsRemoteEvents(
     Future<void> Function(RecentChatsEvent) listener,
   ) {
-    return _graphQlProvider.recentChatsTopEvents(3, (event) async {
-      RecentChatsEvent? recentChatsEvent;
-      var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
-          .recentChatsTopEvents;
+    return _graphQlProvider.recentChatsTopEvents(
+      3,
+      (event) async {
+        RecentChatsEvent? recentChatsEvent;
+        var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
+            .recentChatsTopEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        recentChatsEvent = const RecentChatsTopInitialized();
-      } else if (events.$$typename == 'RecentChatsTop') {
-        var list = (events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
-            .list;
-        recentChatsEvent = RecentChatsTop(list.map((e) => _chat(e)).toList());
-      } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
-        var mixin = events
-            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-        recentChatsEvent = EventRecentChatsUpdated(_chat(mixin.chat));
-      } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
-        var mixin = events
-            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
-        recentChatsEvent = EventRecentChatsDeleted(mixin.chatId);
-      }
+        if (events.$$typename == 'SubscriptionInitialized') {
+          recentChatsEvent = const RecentChatsTopInitialized();
+        } else if (events.$$typename == 'RecentChatsTop') {
+          var list = (events
+                  as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
+              .list;
+          recentChatsEvent = RecentChatsTop(list.map((e) => _chat(e)).toList());
+        } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+          var mixin = events
+              as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+          recentChatsEvent = EventRecentChatsUpdated(_chat(mixin.chat));
+        } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
+          var mixin = events
+              as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
+          recentChatsEvent = EventRecentChatsDeleted(mixin.chatId);
+        }
 
-      if (recentChatsEvent != null) {
-        await listener(recentChatsEvent);
-      }
-    });
+        if (recentChatsEvent != null) {
+          await listener(recentChatsEvent);
+        }
+      },
+    );
   }
 
   // TODO: Chat list can be huge, so we should implement pagination and
@@ -1249,35 +1254,38 @@ class ChatRepository implements AbstractChatRepository {
     FavoriteChatsListVersion? ver,
     Future<void> Function(FavoriteChatsEvents) listener,
   ) {
-    return _graphQlProvider.favoriteChatsEvents(ver, (event) async {
-      FavoriteChatsEvents? favoriteChatsEvents;
-      var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
-          .favoriteChatsEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
-        favoriteChatsEvents = const FavoriteChatsEventsInitialized();
-      } else if (events.$$typename == 'FavoriteChatsList') {
-        var chatsList = events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-        var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
-        favoriteChatsEvents =
-            FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
-      } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
-        var mixin = events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
-        favoriteChatsEvents = FavoriteChatsEventsEvent(
-          FavoriteChatsEventsVersioned(
-            mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
-            mixin.ver,
-          ),
-        );
-      }
+    return _graphQlProvider.favoriteChatsEvents(
+      ver,
+      (event) async {
+        FavoriteChatsEvents? favoriteChatsEvents;
+        var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
+            .favoriteChatsEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
+          favoriteChatsEvents = const FavoriteChatsEventsInitialized();
+        } else if (events.$$typename == 'FavoriteChatsList') {
+          var chatsList = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
+          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          favoriteChatsEvents =
+              FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+        } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
+          var mixin = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
+          favoriteChatsEvents = FavoriteChatsEventsEvent(
+            FavoriteChatsEventsVersioned(
+              mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
 
-      if (favoriteChatsEvents != null) {
-        await listener(favoriteChatsEvents);
-      }
-    });
+        if (favoriteChatsEvents != null) {
+          await listener(favoriteChatsEvents);
+        }
+      },
+    );
   }
 
   /// Constructs a [ChatEvents] from the

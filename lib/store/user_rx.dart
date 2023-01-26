@@ -86,8 +86,8 @@ class HiveRxUser extends RxUser {
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
-  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _userLocal.get(id)?.ver;
+  Future<void> _initRemoteSubscription() async {
+    var ver = _userLocal.get(id)?.ver;
     _remoteSubscription = _userRepository.userEvents(id, ver, _userEvent);
   }
 
