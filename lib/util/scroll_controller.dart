@@ -48,7 +48,7 @@ class CustomScrollController extends ScrollController {
   /// Calculates a new [Offset] multiplied by the [multiplier] to [jumpTo].
   void _multiplyOffset() {
     if (super.position.userScrollDirection != ScrollDirection.idle) {
-      _offset ??= super.offset;
+      _offset ??= super.initialScrollOffset;
 
       final double diff = super.offset - _offset!;
       final double newOffset = min(
@@ -58,6 +58,8 @@ class CustomScrollController extends ScrollController {
 
       jumpTo(newOffset);
       _offset = newOffset;
+    } else {
+      _offset = super.offset;
     }
   }
 }
@@ -87,7 +89,7 @@ class CustomFlutterListViewController extends FlutterListViewController {
   /// Calculates a new [Offset] multiplied by the [multiplier] to [jumpTo].
   void _multiplyOffset() {
     if (super.position.userScrollDirection != ScrollDirection.idle) {
-      _offset ??= super.offset;
+      _offset ??= super.initialScrollOffset;
 
       final double diff = super.offset - _offset!;
       final double newOffset = min(
@@ -97,6 +99,8 @@ class CustomFlutterListViewController extends FlutterListViewController {
 
       jumpTo(newOffset);
       _offset = newOffset;
+    } else {
+      _offset = super.offset;
     }
   }
 }
