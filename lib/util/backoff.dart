@@ -32,16 +32,16 @@ class Backoff {
   static final Duration _maxBackoff = 64.seconds;
 
   /// Returns delay for an operation with the provided [key].
-  static Duration get(
-    String key, [
-    Duration reset = const Duration(seconds: 10),
-  ]) {
+  static Duration get(String key) {
     _resetTimers[key]?.cancel();
 
     Duration backoff = _backoffs[key] ?? Duration.zero;
 
     _backoffs[key] = increaseBackoff(backoff);
-    _resetTimers[key] = Timer(reset, () => _backoffs[key] = Duration.zero);
+    _resetTimers[key] = Timer(
+      const Duration(seconds: 10),
+      () => _backoffs[key] = Duration.zero,
+    );
 
     return backoff;
   }
@@ -62,7 +62,11 @@ class Backoff {
         }
 
         return await callback();
-      } catch (_) {
+      } catch (e) {
+        if (e is OperationCanceledException) {
+          rethrow;
+        }
+
         backoff = increaseBackoff(backoff);
       }
     }

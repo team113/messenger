@@ -64,6 +64,7 @@ Future<void> main() async {
     await _initHive();
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      // TODO: Set minimum window size on desktop.
       await windowManager.ensureInitialized();
 
       final WindowPreferencesHiveProvider preferences = Get.find();

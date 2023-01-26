@@ -518,7 +518,6 @@ class OngoingCall {
         }
       },
     ));
-
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.

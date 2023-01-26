@@ -16,12 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioError, Options, Response;
-import 'package:dio/dio.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
@@ -179,25 +180,25 @@ class GraphQlClient {
   SubscriptionIterator subscribe(
     SubscriptionOptions options,
     Future<void> Function(QueryResult) listener, {
+    VoidCallback? onError,
     SubscriptionIterator? subscriptionIterator,
   }) {
     if (subscriptionIterator == null) {
-      final cancelToken = CancelToken();
       subscriptionIterator = SubscriptionIterator(
-        _subscribe(options, cancelToken).then((value) => StreamIterator(value)),
-        cancelToken,
+        _subscribe(options).then((value) => StreamIterator(value)),
       );
     } else {
       subscriptionIterator.iterator =
-          _subscribe(options, subscriptionIterator.cancelToken).then(
-        (stream) => StreamIterator(stream),
-      );
+          Future.delayed(Backoff.get(subscriptionIterator.id))
+              .then((_) => _subscribe(options))
+              .then((stream) => StreamIterator(stream));
     }
 
     subscriptionIterator.iterator.then((iterator) async {
       while (await iterator
           .moveNext()
           .onError<ResubscriptionRequiredException>((_, __) {
+        onError?.call();
         subscribe(
           options,
           listener,
@@ -205,6 +206,7 @@ class GraphQlClient {
         );
         return false;
       }).onError<StaleVersionException>((_, __) {
+        onError?.call();
         options.variables['ver'] = null;
         subscribe(
           options,
@@ -217,6 +219,7 @@ class GraphQlClient {
           'Unexpected error in subscription: $e',
           options.operationName,
         );
+        onError?.call();
         subscribe(
           options,
           listener,
@@ -235,14 +238,8 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> _subscribe(
-      SubscriptionOptions options, [
-        CancelToken? cancelToken,
-      ]) async {
-    var stream = await Backoff.run(
-          () async => (await client).subscribe(options),
-      cancelToken,
-    );
+  Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
+    var stream = (await client).subscribe(options);
 
     final connection = SubscriptionConnection(stream.expand((event) {
       Exception? e = GraphQlProviderExceptions.parse(event);
@@ -488,18 +485,18 @@ class SubscriptionConnection {
       _addonController.addError(error, stackTrace);
 }
 
-/// Wrapper around a [StreamIterator] and [CancelToken], representing an ongoing
-/// GraphQL subscription.
+/// Wrapper around a [StreamIterator], representing an ongoing GraphQL
+/// subscription.
 class SubscriptionIterator {
-  SubscriptionIterator(this.iterator, this.cancelToken);
+  SubscriptionIterator(this.iterator);
 
   /// [StreamController] used to add events and errors to the output [stream].
   Future<StreamIterator<QueryResult>> iterator;
 
-  final CancelToken cancelToken;
+  /// Unique ID of this [SubscriptionIterator].
+  final String id = const Uuid().v4();
 
   void cancel() {
-    cancelToken.cancel();
     iterator.then((value) => value.cancel());
   }
 }

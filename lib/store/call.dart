@@ -33,7 +33,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/base.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
@@ -377,8 +376,7 @@ class CallRepository extends DisposableInterface
     ChatCallDeviceId deviceId,
     Future<void> Function(ChatCallEvents) listener,
   ) {
-    return _graphQlProvider.callEvents(id, deviceId, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.callEvents(id, deviceId, (event) async {
       ChatCallEvents? chatCallEvents;
       var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
@@ -397,7 +395,9 @@ class CallRepository extends DisposableInterface
         );
       }
 
-      return listener(chatCallEvents!);
+      if (chatCallEvents != null) {
+        await listener(chatCallEvents);
+      }
     });
   }
 
@@ -409,8 +409,7 @@ class CallRepository extends DisposableInterface
     int count,
     Future<void> Function(IncomingChatCallsTopEvent) listener,
   ) {
-    return _graphQlProvider.incomingCallsTopEvents(count, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.incomingCallsTopEvents(count, (event) async {
       IncomingChatCallsTopEvent? callsTopEvent;
       var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
           .incomingChatCallsTopEvents;
@@ -440,7 +439,9 @@ class CallRepository extends DisposableInterface
             EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
       }
 
-      return listener(callsTopEvent!);
+      if (callsTopEvent != null) {
+        await listener(callsTopEvent);
+      }
     });
   }
 

@@ -29,7 +29,6 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/provider/gql/base.dart';
-import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/gallery_item.dart';
@@ -464,8 +463,7 @@ class ContactRepository implements AbstractContactRepository {
     ChatContactsListVersion? ver,
     Future<void> Function(ChatContactsEvents) listener,
   ) {
-    return _graphQlProvider.contactsEvents(ver, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.contactsEvents(ver, (event) async {
       ChatContactsEvents? chatContactsEvents;
       var events =
           ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
@@ -499,7 +497,9 @@ class ContactRepository implements AbstractContactRepository {
         );
       }
 
-      return listener(chatContactsEvents!);
+      if (chatContactsEvents != null) {
+        await listener(chatContactsEvents);
+      }
     });
   }
 

@@ -764,7 +764,6 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    print('_initRemoteSubscription start');
     _remoteSubscriptionStarted = true;
     var ver = _chatLocal.get(id)?.ver;
 
@@ -774,38 +773,6 @@ class HiveRxChat extends RxChat {
       ver,
       _chatEvent,
     );
-    // _remoteSubscription = StreamIterator(
-    //   await _chatRepository.chatEvents(id, ver, _remoteSubscriptionToken),
-    // );
-    // while (await _remoteSubscription!
-    //     .moveNext()
-    //     .onError<ResubscriptionRequiredException>((_, __) {
-    //       print('ResubscriptionRequiredException');
-    //   Future.delayed(Duration.zero, () => _initRemoteSubscription());
-    //   return false;
-    // }).onError<StaleVersionException>((_, __) {
-    //   Future.delayed(Duration.zero, () => _initRemoteSubscription(noVersion: false));
-    //   return false;
-    // }).onError((e, __) {
-    //   Log.print(
-    //     'Unexpected error in chat($id) remote subscription: $e',
-    //     'HiveRxChat',
-    //   );
-    //   Future.delayed(Duration.zero, () => _initRemoteSubscription());
-    //   return false;
-    // })) {
-    //   print(_remoteSubscription!.current);
-    //   await _chatEvent(_remoteSubscription!.current);
-    // }
-
-    // if (_remoteSubscriptionInitialized) {
-    //   print('_remoteSubscriptionInitialized');
-    //   _initRemoteSubscription();
-    // }
-    //
-    // _remoteSubscriptionStarted = false;
-    // _remoteSubscriptionInitialized = false;
-    // print('_initRemoteSubscription end');
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.

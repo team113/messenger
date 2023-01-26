@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -190,8 +192,9 @@ abstract class CallGraphQlMixin {
   /// completes after initialization).
   SubscriptionIterator incomingCallsTopEvents(
     int count,
-    Future<void> Function(QueryResult) listener,
-  ) {
+    Future<void> Function(QueryResult) listener, {
+    VoidCallback? onError,
+  }) {
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(

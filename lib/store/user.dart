@@ -30,7 +30,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/base.dart';
-import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
@@ -208,8 +207,7 @@ class UserRepository implements AbstractUserRepository {
     UserVersion? ver,
     Future<void> Function(UserEvents) listener,
   ) {
-    return _graphQlProvider.userEvents(id, ver, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.userEvents(id, ver, (event) async {
       UserEvents? userEvents;
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -235,7 +233,9 @@ class UserRepository implements AbstractUserRepository {
         userEvents = UserEventsIsBlacklisted(node.blacklisted, node.myVer);
       }
 
-      return listener(userEvents!);
+      if (userEvents != null) {
+        await listener(userEvents);
+      }
     });
   }
 

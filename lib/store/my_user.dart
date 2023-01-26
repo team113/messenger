@@ -41,7 +41,6 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/base.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blacklist.dart';
 import '/provider/hive/gallery_item.dart';
@@ -561,9 +560,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   void _initKeepOnlineSubscription() {
     _keepOnlineSubscription?.cancel();
     _keepOnlineSubscription = _graphQlProvider.keepOnline(
-      (event) async {
-        GraphQlProviderExceptions.fire(event);
-      },
+      (event) async {},
     );
   }
 
@@ -802,15 +799,12 @@ class MyUserRepository implements AbstractMyUserRepository {
     _myUserLocal.set(userEntity);
   }
 
-  // Obj<Future<Stream<MyUserEventsVersioned>>, CancelToken>
-
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
   SubscriptionIterator _myUserRemoteEvents(
     MyUserVersion? ver,
     Future<void> Function(MyUserEventsVersioned) listener,
   ) {
-    return _graphQlProvider.myUserEvents(ver, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.myUserEvents(ver, (event) async {
       MyUserEventsVersioned? myUserEvents;
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
@@ -827,7 +821,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         );
       }
 
-      return listener(myUserEvents!);
+      if (myUserEvents != null) {
+        await listener(myUserEvents);
+      }
     });
   }
 

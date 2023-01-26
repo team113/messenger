@@ -395,7 +395,6 @@ class _BackgroundService {
     _subscription = _provider.incomingCallsTopEvents(
       3,
       (event) async {
-        GraphQlProviderExceptions.fire(event);
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
         switch (e.$$typename) {
@@ -468,6 +467,12 @@ class _BackgroundService {
             _callKeep.reportEndCallWithUUID(call.chatId.val, 0);
             break;
         }
+      },
+      onError: () {
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
       },
     );
   }

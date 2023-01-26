@@ -31,6 +31,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
+import 'backoff.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -266,49 +267,42 @@ class PlatformUtilsImpl {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) {
-    // Calls the provided [callback] using the exponential backoff algorithm.
-    Future<T?> withBackoff<T>(Future<T> Function() callback) async {
-      Duration backoff = Duration.zero;
-      T? result;
-
-      while (result == null) {
-        try {
-          await Future.delayed(backoff);
-
-          if (cancelToken?.isCancelled == true) {
-            return null;
-          }
-
-          result = await callback();
-          return result;
-        } catch (e) {
-          // Rethrow if any other than `404` error is thrown.
-          if (e is! DioError || e.response?.statusCode != 404) {
-            rethrow;
-          }
-
-          if (backoff.inMilliseconds == 0) {
-            backoff = 125.milliseconds;
-          } else if (backoff < 16.seconds) {
-            backoff *= 2;
-          }
-        }
+    onError(e) {
+      // Rethrow if any other than `404` error is thrown.
+      if (e is! DioError || e.response?.statusCode != 404) {
+        throw e;
       }
-
-      return result;
     }
 
     CancelableOperation<File?> operation = CancelableOperation.fromFuture(
       Future(() async {
         if (PlatformUtils.isWeb) {
-          await withBackoff(() => WebUtils.downloadFile(url, filename));
+          await Backoff.run(
+            () async {
+              try {
+                await WebUtils.downloadFile(url, filename);
+              } catch (e) {
+                onError(e);
+              }
+            },
+            cancelToken,
+          );
         } else {
           File? file;
 
           // Retry fetching the size unless any other that `404` error is
           // thrown.
-          file = await withBackoff<File?>(
-            () => fileExists(filename, size: size, url: url),
+          file = await Backoff.run(
+            () async {
+              try {
+                return await fileExists(filename, size: size, url: url);
+              } catch (e) {
+                onError(e);
+              }
+
+              return null;
+            },
+            cancelToken,
           );
 
           if (file == null) {
@@ -323,13 +317,20 @@ class PlatformUtilsImpl {
 
             // Retry the downloading unless any other that `404` error is
             // thrown.
-            await withBackoff(
-              () => dio.download(
-                url,
-                file!.path,
-                onReceiveProgress: onReceiveProgress,
-                cancelToken: cancelToken,
-              ),
+            await Backoff.run(
+              () async {
+                try {
+                  await dio.download(
+                    url,
+                    file!.path,
+                    onReceiveProgress: onReceiveProgress,
+                    cancelToken: cancelToken,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
+              },
+              cancelToken,
             );
 
             return file;

@@ -42,10 +42,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ConnectionException,
-        GraphQlProviderExceptions,
-        UploadAttachmentException;
+    show ConnectionException, UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -729,8 +726,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatVersion? ver,
     Future<void> Function(ChatEvents) listener,
   ) {
-    return _graphQlProvider.chatEvents(chatId, ver, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.chatEvents(chatId, ver, (event) async {
       ChatEvents? chatEvents;
       var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -751,15 +747,15 @@ class ChatRepository implements AbstractChatRepository {
         );
       }
 
-      return listener(chatEvents!);
+      if (chatEvents != null) {
+        await listener(chatEvents);
+      }
     });
   }
 
   @override
   SubscriptionIterator keepTyping(ChatId chatId) {
-    return _graphQlProvider.keepTyping(chatId, (event) async {
-      GraphQlProviderExceptions.fire(event);
-    });
+    return _graphQlProvider.keepTyping(chatId, (event) async {});
   }
 
   /// Returns an [User] by the provided [id].
@@ -1062,8 +1058,7 @@ class ChatRepository implements AbstractChatRepository {
   SubscriptionIterator _recentChatsRemoteEvents(
     Future<void> Function(RecentChatsEvent) listener,
   ) {
-    return _graphQlProvider.recentChatsTopEvents(3, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.recentChatsTopEvents(3, (event) async {
       RecentChatsEvent? recentChatsEvent;
       var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
           .recentChatsTopEvents;
@@ -1085,7 +1080,9 @@ class ChatRepository implements AbstractChatRepository {
         recentChatsEvent = EventRecentChatsDeleted(mixin.chatId);
       }
 
-      return listener(recentChatsEvent!);
+      if (recentChatsEvent != null) {
+        await listener(recentChatsEvent);
+      }
     });
   }
 
@@ -1252,8 +1249,7 @@ class ChatRepository implements AbstractChatRepository {
     FavoriteChatsListVersion? ver,
     Future<void> Function(FavoriteChatsEvents) listener,
   ) {
-    return _graphQlProvider.favoriteChatsEvents(ver, (event) {
-      GraphQlProviderExceptions.fire(event);
+    return _graphQlProvider.favoriteChatsEvents(ver, (event) async {
       FavoriteChatsEvents? favoriteChatsEvents;
       var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
           .favoriteChatsEvents;
@@ -1278,7 +1274,9 @@ class ChatRepository implements AbstractChatRepository {
         );
       }
 
-      return listener(favoriteChatsEvents!);
+      if (favoriteChatsEvents != null) {
+        await listener(favoriteChatsEvents);
+      }
     });
   }
 
