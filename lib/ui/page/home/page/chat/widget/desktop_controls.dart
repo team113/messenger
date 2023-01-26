@@ -379,7 +379,7 @@ class _DesktopControlsState extends State<DesktopControls>
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true)!.insert(_volumeEntry!);
+          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
           setState(() {});
         }
       },

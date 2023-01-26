@@ -709,13 +709,6 @@ class MyLongPressDraggable extends Draggable {
     super.axis,
     super.childWhenDragging,
     super.feedbackOffset,
-    @Deprecated(
-      'Use dragAnchorStrategy instead. '
-      'Replace "dragAnchor: DragAnchor.child" with "dragAnchorStrategy: childDragAnchorStrategy". '
-      'Replace "dragAnchor: DragAnchor.pointer" with "dragAnchorStrategy: pointerDragAnchorStrategy". '
-      'This feature was deprecated after v2.1.0-10.0.pre.',
-    )
-        super.dragAnchor,
     super.dragAnchorStrategy,
     super.maxSimultaneousDrags,
     super.onDragStarted,

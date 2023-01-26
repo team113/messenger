@@ -156,9 +156,7 @@ class MyUserController extends GetxController {
   @override
   void onClose() {
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/message_sent.mp3');
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].

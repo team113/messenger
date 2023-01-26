@@ -27,7 +27,6 @@ import 'package:messenger/domain/model/avatar.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -99,281 +98,167 @@ Widget desktopCall(CallController c, BuildContext context) {
         });
       }
 
-      if (true) {
-        content.addAll([
-          // Call's primary view.
-          Column(
-            children: [
-              Obx(() => SizedBox(
-                    width: double.infinity,
-                    height: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.topCenter
-                        ? c.secondaryHeight.value
-                        : 0,
-                  )),
-              Expanded(
-                child: Row(
-                  children: [
-                    Obx(() => SizedBox(
-                          height: double.infinity,
-                          width: c.secondary.isNotEmpty &&
-                                  c.secondaryAlignment.value ==
-                                      Alignment.centerLeft
-                              ? c.secondaryWidth.value
-                              : 0,
-                        )),
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Obx(() {
-                            bool isIncoming = c.state.value !=
-                                    OngoingCallState.active &&
-                                c.state.value != OngoingCallState.joining &&
-                                !(c.outgoing ||
-                                    c.state.value == OngoingCallState.local);
+      content.addAll([
+        // Call's primary view.
+        Column(
+          children: [
+            Obx(() => SizedBox(
+                  width: double.infinity,
+                  height: c.secondary.isNotEmpty &&
+                          c.secondaryAlignment.value == Alignment.topCenter
+                      ? c.secondaryHeight.value
+                      : 0,
+                )),
+            Expanded(
+              child: Row(
+                children: [
+                  Obx(() => SizedBox(
+                        height: double.infinity,
+                        width: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerLeft
+                            ? c.secondaryWidth.value
+                            : 0,
+                      )),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Obx(() {
+                          bool isIncoming =
+                              c.state.value != OngoingCallState.active &&
+                                  c.state.value != OngoingCallState.joining &&
+                                  !(c.outgoing ||
+                                      c.state.value == OngoingCallState.local);
 
-                            bool isDialog =
-                                c.chat.value?.chat.value.isDialog == true;
+                          bool isDialog =
+                              c.chat.value?.chat.value.isDialog == true;
 
-                            final Widget child;
+                          final Widget child;
 
-                            if (!isIncoming) {
-                              child = _primaryView(c);
+                          if (!isIncoming) {
+                            child = _primaryView(c);
+                          } else {
+                            if (isDialog) {
+                              final User? user = c.chat.value?.members.values
+                                      .firstWhereOrNull(
+                                        (e) => e.id != c.me.id.userId,
+                                      )
+                                      ?.user
+                                      .value ??
+                                  c.chat.value?.chat.value.members
+                                      .firstWhereOrNull(
+                                        (e) => e.user.id != c.me.id.userId,
+                                      )
+                                      ?.user;
+
+                              child = CallCoverWidget(
+                                c.chat.value?.callCover,
+                                user: user,
+                              );
                             } else {
-                              if (isDialog) {
-                                final User? user = c.chat.value?.members.values
-                                        .firstWhereOrNull(
-                                          (e) => e.id != c.me.id.userId,
-                                        )
-                                        ?.user
-                                        .value ??
-                                    c.chat.value?.chat.value.members
-                                        .firstWhereOrNull(
-                                          (e) => e.user.id != c.me.id.userId,
-                                        )
-                                        ?.user;
-
+                              if (c.chat.value?.avatar.value != null) {
+                                Avatar avatar = c.chat.value!.avatar.value!;
                                 child = CallCoverWidget(
-                                  c.chat.value?.callCover,
-                                  user: user,
+                                  UserCallCover(
+                                    full: avatar.full,
+                                    original: avatar.original,
+                                    square: avatar.full,
+                                    vertical: avatar.full,
+                                  ),
                                 );
                               } else {
-                                if (c.chat.value?.avatar.value != null) {
-                                  Avatar avatar = c.chat.value!.avatar.value!;
-                                  child = CallCoverWidget(
-                                    UserCallCover(
-                                      full: avatar.full,
-                                      original: avatar.original,
-                                      square: avatar.full,
-                                      vertical: avatar.full,
-                                    ),
-                                  );
-                                } else {
-                                  child = const SizedBox();
-                                }
+                                child = const SizedBox();
                               }
                             }
+                          }
 
-                            return AnimatedSwitcher(
-                              duration: 400.milliseconds,
-                              child: child,
-                            );
-                          }),
-                          Obx(
-                            () => MouseRegion(
-                              opaque: false,
-                              cursor: c.isCursorHidden.value
-                                  ? SystemMouseCursors.none
-                                  : SystemMouseCursors.basic,
-                            ),
+                          return AnimatedSwitcher(
+                            duration: 400.milliseconds,
+                            child: child,
+                          );
+                        }),
+                        Obx(
+                          () => MouseRegion(
+                            opaque: false,
+                            cursor: c.isCursorHidden.value
+                                ? SystemMouseCursors.none
+                                : SystemMouseCursors.basic,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    Obx(() => SizedBox(
-                          height: double.infinity,
-                          width: c.secondary.isNotEmpty &&
-                                  c.secondaryAlignment.value ==
-                                      Alignment.centerRight
-                              ? c.secondaryWidth.value
-                              : 0,
-                        )),
-                  ],
-                ),
+                  ),
+                  Obx(() => SizedBox(
+                        height: double.infinity,
+                        width: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerRight
+                            ? c.secondaryWidth.value
+                            : 0,
+                      )),
+                ],
               ),
-              Obx(() => SizedBox(
-                    width: double.infinity,
-                    height: c.secondary.isNotEmpty &&
-                            c.secondaryAlignment.value == Alignment.bottomCenter
-                        ? c.secondaryHeight.value
-                        : 0,
-                  )),
-            ],
-          ),
-
-          // Dim the primary view in a non-active call.
-          Obx(() {
-            final Widget child;
-
-            if (c.state.value == OngoingCallState.active) {
-              child = const SizedBox();
-            } else {
-              child = IgnorePointer(
-                child: Container(
+            ),
+            Obx(() => SizedBox(
                   width: double.infinity,
-                  height: double.infinity,
-                  color: const Color(0x70000000),
-                ),
-              );
-            }
+                  height: c.secondary.isNotEmpty &&
+                          c.secondaryAlignment.value == Alignment.bottomCenter
+                      ? c.secondaryHeight.value
+                      : 0,
+                )),
+          ],
+        ),
 
-            return AnimatedSwitcher(duration: 200.milliseconds, child: child);
-          }),
+        // Dim the primary view in a non-active call.
+        Obx(() {
+          final Widget child;
 
-          possibleContainer(),
+          if (c.state.value == OngoingCallState.active) {
+            child = const SizedBox();
+          } else {
+            child = IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color(0x70000000),
+              ),
+            );
+          }
 
-          // Makes UI appear on click.
-          Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) {
-              c.downPosition = d.localPosition;
-              c.downButtons = d.buttons;
-            },
-            onPointerUp: (d) {
-              if (c.downButtons & kPrimaryButton != 0 &&
-                  (d.localPosition.distanceSquared -
-                              c.downPosition.distanceSquared)
-                          .abs() <=
-                      1500) {
-                if (c.primaryDrags.value == 0 && c.secondaryDrags.value == 0) {
-                  if (c.state.value == OngoingCallState.active) {
-                    if (!c.showUi.value) {
-                      c.keepUi();
-                    } else {
-                      c.keepUi(false);
-                    }
+          return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        possibleContainer(),
+
+        // Makes UI appear on click.
+        Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (d) {
+            c.downPosition = d.localPosition;
+            c.downButtons = d.buttons;
+          },
+          onPointerUp: (d) {
+            if (c.downButtons & kPrimaryButton != 0 &&
+                (d.localPosition.distanceSquared -
+                            c.downPosition.distanceSquared)
+                        .abs() <=
+                    1500) {
+              if (c.primaryDrags.value == 0 && c.secondaryDrags.value == 0) {
+                if (c.state.value == OngoingCallState.active) {
+                  if (!c.showUi.value) {
+                    c.keepUi();
+                  } else {
+                    c.keepUi(false);
                   }
                 }
               }
-            },
-          ),
-
-          // Empty drop zone if [secondary] is empty.
-          _secondaryTarget(c),
-        ]);
-      } else {
-        // Call is not active.
-        content.add(Obx(() {
-          RtcVideoRenderer? local =
-              (c.locals.firstOrNull?.video.value?.renderer.value ??
-                      c.paneled.firstOrNull?.video.value?.renderer.value)
-                  as RtcVideoRenderer?;
-          var callCover = c.chat.value?.callCover;
-
-          return ContextMenuRegion(
-            preventContextMenu: true,
-            actions: [
-              ContextMenuButton(
-                label: c.videoState.value.isEnabled
-                    ? 'btn_call_video_off'.l10n
-                    : 'btn_call_video_on'.l10n,
-                onPressed: c.toggleVideo,
-              ),
-              ContextMenuButton(
-                label: c.audioState.value.isEnabled
-                    ? 'btn_call_audio_off'.l10n
-                    : 'btn_call_audio_on'.l10n,
-                onPressed: c.toggleAudio,
-              ),
-            ],
-            child:
-                c.videoState.value == LocalTrackState.disabled || local == null
-                    ? CallCoverWidget(callCover)
-                    : RtcVideoView(
-                        local,
-                        mirror: true,
-                        fit: BoxFit.cover,
-                        enableContextMenu: false,
-                      ),
-          );
-        }));
-
-        // Display a caller's name if the call is not outgoing and the chat is
-        // a group.
-        content.add(
-          Obx(() {
-            bool isOutgoing =
-                (c.outgoing || c.state.value == OngoingCallState.local) &&
-                    !c.started;
-            bool preferTitle = c.state.value != OngoingCallState.active;
-
-            if (!preferTitle &&
-                !isOutgoing &&
-                c.chat.value?.chat.value.isGroup == true) {
-              return Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: (c.minimized.value && !c.fullscreen.value ? 0 : 45) +
-                          8),
-                  child: Text(
-                    c.callerName ?? 'dot'.l10n * 3,
-                    style: context.textTheme.bodyText1?.copyWith(
-                      color: const Color(0xFFBBBBBB),
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-              );
             }
+          },
+        ),
 
-            return const SizedBox();
-          }),
-        );
-
-        content.add(
-          Obx(() {
-            bool isOutgoing =
-                (c.outgoing || c.state.value == OngoingCallState.local) &&
-                    !c.started;
-
-            Participant? video =
-                (c.locals.firstOrNull ?? c.paneled.firstOrNull);
-
-            if (isOutgoing && video?.video.value == null) {
-              return Padding(
-                padding: const EdgeInsets.all(21.0),
-                child: Center(
-                  child: SpinKitDoubleBounce(
-                    // child: SpinKitPulse(
-                    key: video?.redialingKey,
-                    // color: Colors.white,
-                    color: const Color(0xFFEEEEEE),
-                    size: 100 / 1.5,
-                    duration: const Duration(milliseconds: 4500),
-                  ),
-                  // child: LoadingIndicator(
-                  //   indicatorType: Indicator.ballScaleMultiple,
-                  //   colors: [Colors.white],
-                  // ),
-                ),
-              );
-            }
-
-            return const SizedBox();
-          }),
-        );
-
-        content.add(
-          // Makes UI disappear on click.
-          Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerUp: (d) {
-              c.displayMore.value = false;
-            },
-          ),
-        );
-      }
+        // Empty drop zone if [secondary] is empty.
+        _secondaryTarget(c),
+      ]);
 
       Widget padding(Widget child) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),

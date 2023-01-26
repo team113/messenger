@@ -17,7 +17,7 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -417,8 +417,13 @@ class AvatarWidget extends StatelessWidget {
           break;
       }
 
-      return Badge(
+      return badges.Badge(
         showBadge: isOnline,
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: Colors.white,
+          padding: EdgeInsets.all(badgeSize / 3),
+          elevation: 0,
+        ),
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -426,18 +431,11 @@ class AvatarWidget extends StatelessWidget {
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
-        padding: EdgeInsets.all(badgeSize / 8),
-        badgeColor: Colors.white,
-        toAnimate: false,
-        // position: BadgePosition.bottomEnd(
-        //   bottom: -badgeSize / 5 + 2,
-        //   end: -badgeSize / 5 + 2,
-        // ),
-        position: BadgePosition.bottomEnd(
-          bottom: maxWidth >= 40 ? badgeSize / 4 + 0 : -badgeSize / 5,
-          end: maxWidth >= 40 ? badgeSize / 4 + 0 : -badgeSize / 5,
+        badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
+        position: badges.BadgePosition.bottomEnd(
+          bottom: -badgeSize / 5,
+          end: -badgeSize / 5,
         ),
-        elevation: 0,
         child: Container(
           constraints: BoxConstraints(
             minHeight: minHeight,

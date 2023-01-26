@@ -227,6 +227,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     });
 
-    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }
 }

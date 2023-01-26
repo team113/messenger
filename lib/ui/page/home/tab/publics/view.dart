@@ -19,7 +19,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
@@ -1518,9 +1518,13 @@ class PublicsTabView extends StatelessWidget {
                               ...additional,
                               if (chat.unreadCount != 0) ...[
                                 const SizedBox(width: 10),
-                                Badge(
-                                  toAnimate: false,
-                                  elevation: 0,
+                                badges.Badge(
+                                  badgeStyle:
+                                      const badges.BadgeStyle(elevation: 0),
+                                  badgeAnimation:
+                                      const badges.BadgeAnimation.fade(
+                                    toAnimate: false,
+                                  ),
                                   badgeContent: Padding(
                                     padding: const EdgeInsets.all(2.0),
                                     child: Text(

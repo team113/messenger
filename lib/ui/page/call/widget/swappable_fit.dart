@@ -243,7 +243,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
           });
         }
 
-        Overlay.of(context)?.insert(i.entry!);
+        Overlay.of(context).insert(i.entry!);
       }
     } else {
       _swap(_centered as T, item);
@@ -285,7 +285,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
         );
       });
 
-      Overlay.of(context)?.insert(i.entry!);
+      Overlay.of(context).insert(i.entry!);
     }
 
     _centered = null;
@@ -331,7 +331,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
         );
       });
 
-      Overlay.of(context)?.insertAll([a.entry, b.entry].whereNotNull());
+      Overlay.of(context).insertAll([a.entry, b.entry].whereNotNull());
     }
 
     setState(() {});

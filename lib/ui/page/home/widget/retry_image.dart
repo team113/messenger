@@ -186,7 +186,7 @@ class _RetryImageState extends State<RetryImage> {
           key: const Key('Loading'),
           height: widget.height,
           // width: 200,
-          constraints: BoxConstraints(minWidth: 200),
+          constraints: const BoxConstraints(minWidth: 200),
           alignment: Alignment.center,
           child: Container(
             constraints: const BoxConstraints(
@@ -196,7 +196,6 @@ class _RetryImageState extends State<RetryImage> {
               minHeight: 10,
             ),
             child: Stack(
-              fit: StackFit.expand,
               alignment: Alignment.center,
               children: [
                 if (!_canceled)
@@ -236,46 +235,54 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    return Stack(
-      children: [
-        if (widget.fallback != null && _image == null)
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: _fallback == null
-                ? SizedBox(
-                    width: 200,
-                    height: widget.height,
-                  )
-                : ClipRect(
-                    child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(
-                        sigmaX: 15,
-                        sigmaY: 15,
-                        tileMode: TileMode.clamp,
-                      ),
-                      child: Transform.scale(
-                        scale: 1.2,
-                        child: Image.memory(
-                          _fallback!,
-                          key: const Key('Fallback'),
-                          height: widget.height,
-                          width: widget.width,
-                          fit: widget.fit,
+    if (widget.fallback != null && _image == null) {
+      return Stack(
+        children: [
+          if (widget.fallback != null && _image == null)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _fallback == null
+                  ? SizedBox(
+                      width: 200,
+                      height: widget.height,
+                    )
+                  : ClipRect(
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(
+                          sigmaX: 15,
+                          sigmaY: 15,
+                          tileMode: TileMode.clamp,
+                        ),
+                        child: Transform.scale(
+                          scale: 1.2,
+                          child: Image.memory(
+                            _fallback!,
+                            key: const Key('Fallback'),
+                            height: widget.height,
+                            width: widget.width,
+                            fit: widget.fit,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-          ),
-        Positioned.fill(
-          child: Center(
-            child: AnimatedSwitcher(
-              key: Key('Image_${widget.url}'),
-              duration: const Duration(milliseconds: 150),
-              child: child,
+            ),
+          Positioned.fill(
+            child: Center(
+              child: AnimatedSwitcher(
+                key: Key('Image_${widget.url}'),
+                duration: const Duration(milliseconds: 150),
+                child: child,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      );
+    }
+
+    return AnimatedSwitcher(
+      key: Key('Image_${widget.url}'),
+      duration: const Duration(milliseconds: 150),
+      child: child,
     );
   }
 

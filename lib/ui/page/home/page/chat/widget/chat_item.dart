@@ -167,7 +167,6 @@ class ChatItemWidget extends StatefulWidget {
     Future<void> Function()? onError,
     bool filled = true,
     bool load = true,
-    double? width,
   }) {
     final bool isLocal = e is LocalAttachment;
 
@@ -232,7 +231,7 @@ class ChatItemWidget extends StatefulWidget {
           key: key,
           fallback: e.small.url,
           fit: BoxFit.cover,
-          width: filled ? double.infinity : width,
+          width: filled ? double.infinity : null,
           height: 300,
           onForbidden: onError,
           cancelable: true,
