@@ -64,28 +64,41 @@ class MessageFieldController extends GetxController {
       },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
+          if ((e.logicalKey == LogicalKeyboardKey.enter ||
+                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
               e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
+            bool handled = e.isShiftPressed;
 
-              if (field.controller.selection.isCollapsed) {
-                cursor = field.controller.selection.base.offset;
-                field.text =
-                    '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
-              } else {
-                cursor = field.controller.selection.start;
-                field.text =
-                    '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
+            if (!PlatformUtils.isWeb) {
+              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
+                handled = handled || e.isAltPressed || e.isControlPressed;
               }
+            }
 
-              field.controller.selection = TextSelection.fromPosition(
-                TextPosition(offset: cursor + 1),
-              );
-              return KeyEventResult.handled;
-            } else if (!e.isShiftPressed) {
-              field.submit();
-              return KeyEventResult.handled;
+            if (!handled) {
+              if (e.isAltPressed ||
+                  e.isControlPressed ||
+                  e.isMetaPressed ||
+                  e.isShiftPressed) {
+                int cursor;
+
+                if (field.controller.selection.isCollapsed) {
+                  cursor = field.controller.selection.base.offset;
+                  field.text =
+                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
+                } else {
+                  cursor = field.controller.selection.start;
+                  field.text =
+                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
+                }
+
+                field.controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: cursor + 1),
+                );
+              } else {
+                field.submit();
+                return KeyEventResult.handled;
+              }
             }
           }
 
