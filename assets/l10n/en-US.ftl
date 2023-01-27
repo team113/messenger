@@ -156,6 +156,7 @@ btn_clear_chat = Clear chat
 btn_close = Close
 btn_confirm = Confirm
 btn_copy = Copy
+btn_copy_selected_text = Copy selected text
 btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete = Delete

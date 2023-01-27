@@ -156,6 +156,7 @@ btn_clear_chat = Очистить чат
 btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy = Скопировать
+btn_copy_selected_text = Скопировать выделенный текст
 btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
 btn_delete = Удалить

@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -493,6 +494,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 
+  final RxString selectedText = RxString('');
+
+  final RxString lastSelectedText = RxString('');
+
+  final FocusNode focus = FocusNode();
+
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -539,6 +546,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
+    focus.addListener(() {
+      print(focus);
+    });
     super.initState();
   }
 
@@ -816,9 +826,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         9,
                         files.isEmpty ? 10 : 0,
                       ),
-                      child: Text(
-                        text,
-                        style: style.boldBody,
+                      child: SelectionArea(
+                        contextMenuBuilder: (a, b) => SizedBox(),
+                        onSelectionChanged: (s) {
+                          if (s?.plainText == null) {
+                            if (selectedText.value.isNotEmpty) {
+                              lastSelectedText.value = selectedText.value;
+                            } else {
+                              lastSelectedText.value = '';
+                            }
+                          }
+                          selectedText.value = s?.plainText ?? '';
+                        },
+                        selectionControls:
+                            CupertinoDesktopTextSelectionControls(),
+                        focusNode: focus,
+                        child: Text(
+                          text,
+                          style: style.boldBody,
+                        ),
                       ),
                     ),
                   ),
@@ -1435,6 +1461,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
                         actions: [
+                          // if (lastSelectedText.isNotEmpty)
+                          //   ContextMenuButton(
+                          //     key: const Key('CopySelectedButton'),
+                          //     label: PlatformUtils.isMobile
+                          //         ? 'btn_copy_selected_text'.l10n
+                          //         : 'btn_copy_selected_text'.l10n,
+                          //     trailing: SvgLoader.asset(
+                          //       'assets/icons/copy_small.svg',
+                          //       height: 18,
+                          //     ),
+                          //     onPressed: () {
+                          //         widget.onCopy?.call(lastSelectedText.value);
+                          //         lastSelectedText.value = '';
+                          //     },
+                          //   ),
                           if (copyable != null)
                             ContextMenuButton(
                               key: const Key('CopyButton'),
@@ -1445,7 +1486,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
-                              onPressed: () => widget.onCopy?.call(copyable!),
+                              onPressed: () {
+                                if (lastSelectedText.isNotEmpty) {
+                                  widget.onCopy?.call(lastSelectedText.value);
+                                  lastSelectedText.value = '';
+                                } else {
+                                  widget.onCopy?.call(copyable!);
+                                }
+                              },
                             ),
                           if (item.status.value == SendingStatus.sent) ...[
                             ContextMenuButton(

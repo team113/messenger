@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
@@ -157,14 +156,6 @@ class ChatController extends GetxController {
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
-
-  /// Indicator whether tap on [CustomSelectionText].
-  final Rx<bool> isTapMessage = Rx(false);
-
-  /// Storage [SelectionData].
-  ///
-  /// Key is position of message in chat, and value is all selected text.
-  final SplayTreeMap<int, List<SelectionData>> selections = SplayTreeMap();
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
@@ -996,18 +987,9 @@ class ChatController extends GetxController {
   }
 
   /// Puts a [text] into the clipboard and shows a snackbar.
-  ///
-  /// First get [selections] selected text, if it is not there then take [text].
-  void copyText([String? text]) {
-    String? copyable = selections.formatted;
-    if (copyable == null || copyable.isEmpty) {
-      copyable = text;
-    }
-
-    if (copyable != null && copyable.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: copyable));
-      MessagePopup.success('label_copied_to_clipboard'.l10n);
-    }
+  void copyText(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -1526,110 +1508,4 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
-}
-
-/// Type of selected text in chat.
-///
-/// Identification of selected text to sort by [CopyableItem.index].
-enum CopyableItem {
-  /// Relative time (for example, 4 days ago, 14:28).
-  relativeTime,
-
-  /// Date (for example, 16.09.2022).
-  date,
-
-  /// Time (for example, 14:28).
-  time,
-
-  /// Name (for example, Artur).
-  username,
-
-  /// Message reply (for example, some text).
-  messageReply,
-
-  /// Message forwarded (for example, some text).
-  messageForward,
-
-  /// Main message (for example, some text).
-  message,
-
-  /// Message file (for example, name.txt 339 KB).
-  messageFile,
-}
-
-/// Storage part of the chat text when selected.
-class SelectionData {
-  SelectionData(this.type);
-
-  /// Text type.
-  final CopyableItem type;
-
-  /// Chat text.
-  final RxnString data = RxnString(null);
-
-  /// Indicates whether [data] is not empty.
-  bool get isNotEmpty => data.value?.isNotEmpty == true;
-}
-
-/// Extension that adds formatting to the selected text.
-extension SelectionExtension on Map<int, List<SelectionData>> {
-  /// Gets selected formatted text.
-  String? get formatted {
-    final List<List<SelectionData>>? notEmpty = _notEmpty;
-    if (notEmpty == null) return null;
-    final List<List<SelectionData>> sorted = _sorted(notEmpty);
-
-    final result = StringBuffer();
-    for (int i = 0; i < sorted.length; i++) {
-      final List<SelectionData> message = sorted[i];
-      if (message.isEmpty) continue;
-      for (int y = 0; y < message.length; y++) {
-        final String? value = message[y].data.value;
-        if (value == null || value.isEmpty) continue;
-        result.write(value);
-        if (y != message.length - 1) {
-          result.write('\n');
-        }
-      }
-      if (i != sorted.length - 1) {
-        result.write('\n\n');
-      }
-    }
-
-    return result.toString();
-  }
-
-  /// Returns non-empty selections.
-  List<List<SelectionData>>? get _notEmpty {
-    final List<List<SelectionData>> result = [];
-    final List<List<SelectionData>> current = values.toList();
-
-    for (int i = 0; i < current.length; i++) {
-      final List<SelectionData> message = current[i];
-      if (message.isNotEmpty) {
-        final List<SelectionData> filteredMessage =
-            message.where((SelectionData s) => s.isNotEmpty).toList();
-        if (filteredMessage.isNotEmpty) {
-          result.add(filteredMessage);
-        }
-      }
-    }
-
-    return result.isEmpty ? null : result;
-  }
-
-  /// Indicates whether there is a selection by [position].
-  bool isSelected(int position) =>
-      this[position]?.firstWhereOrNull((SelectionData s) => s.isNotEmpty) !=
-      null;
-
-  /// Sorts by [SelectionData.chatPosition] in order.
-  List<List<SelectionData>> _sorted(List<List<SelectionData>> selections) {
-    for (int i = 0; i < selections.length; i++) {
-      selections[i].sort((SelectionData a, SelectionData b) =>
-          a.type.index.compareTo(b.type.index));
-    }
-
-    return selections;
-  }
 }
