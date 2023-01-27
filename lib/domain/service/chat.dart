@@ -69,10 +69,6 @@ class ChatService extends DisposableService {
   Future<RxChat> createDialogChat(UserId responderId) =>
       _chatRepository.createDialogChat(responderId);
 
-  /// Replaces [local] [Chat]-dialog with a remote.
-  Future<RxChat> replaceLocalDialog(ChatId local) =>
-      _chatRepository.replaceLocalDialog(local);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) =>
@@ -333,7 +329,7 @@ class ChatService extends DisposableService {
 
 /// Extension adding [Chat] comparing to a route.
 extension ChatToRoute on Chat {
-  /// Returns indicator whether the provided [route] is represents to [Chat].
+  /// Returns indicator whether the provided [route] is represents this [Chat].
   bool isRoute(String route, UserId? me) {
     ChatMember? member;
     if (me != null) {

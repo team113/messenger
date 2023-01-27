@@ -31,6 +31,7 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
@@ -52,6 +53,10 @@ class CallRepository extends DisposableInterface
     this._settingsRepo, {
     required this.me,
   });
+
+  /// Callback, called whether need to replace local [Chat]-dialog when a call
+  /// started.
+  Future<RxChat> Function(ChatId id)? replaceLocalDialog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -193,6 +198,10 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    if(chatId.isLocal && replaceLocalDialog != null) {
+      chatId = (await replaceLocalDialog!.call(chatId)).id;
+    }
+
     if (calls[chatId] != null) {
       throw CallAlreadyExistsException();
     }

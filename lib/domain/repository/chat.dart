@@ -184,9 +184,6 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
-
-  /// Replaces [local] [Chat]-dialog with a remote.
-  Future<RxChat> replaceLocalDialog(ChatId local);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
