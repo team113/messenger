@@ -993,7 +993,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.subtitle2,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ),
                   ],

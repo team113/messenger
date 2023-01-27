@@ -243,7 +243,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           8),
                   child: Text(
                     c.callerName ?? 'dot'.l10n * 3,
-                    style: context.textTheme.bodyText1?.copyWith(
+                    style: context.textTheme.bodyLarge?.copyWith(
                       color: const Color(0xFFBBBBBB),
                       fontSize: 20,
                     ),
@@ -725,7 +725,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyText1?.copyWith(
+                        style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
                           color: const Color(0xFFFFFFFF),
                         ),
@@ -1174,7 +1174,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyText1?.copyWith(
+                          style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),
                           ),

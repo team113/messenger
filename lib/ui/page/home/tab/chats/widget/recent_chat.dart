@@ -121,7 +121,7 @@ class RecentChatTile extends StatelessWidget {
           _status(context),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context).textTheme.subtitle2,
+            style: Theme.of(context).textTheme.titleSmall,
           ),
         ],
         subtitle: [
@@ -251,7 +251,7 @@ class RecentChatTile extends StatelessWidget {
                           : 'btn_join_call'.l10n,
                       style: Theme.of(context)
                           .textTheme
-                          .subtitle2
+                          .titleSmall
                           ?.copyWith(color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -267,7 +267,7 @@ class RecentChatTile extends StatelessWidget {
                           .hhMmSs(),
                       style: Theme.of(context)
                           .textTheme
-                          .subtitle2
+                          .titleSmall
                           ?.copyWith(color: Colors.white),
                     );
                   },
@@ -280,7 +280,7 @@ class RecentChatTile extends StatelessWidget {
       );
 
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.subtitle2!,
+        style: Theme.of(context).textTheme.titleSmall!,
         overflow: TextOverflow.ellipsis,
         child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
       );
@@ -541,7 +541,7 @@ class RecentChatTile extends StatelessWidget {
     }
 
     return DefaultTextStyle(
-      style: Theme.of(context).textTheme.subtitle2!,
+      style: Theme.of(context).textTheme.titleSmall!,
       overflow: TextOverflow.ellipsis,
       child: Row(children: subtitle),
     );
