@@ -121,7 +121,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
     setState(() {});
 
-    Overlay.of(context, rootOverlay: true)?.insert(_entry!);
+    Overlay.of(context, rootOverlay: true).insert(_entry!);
   }
 }
 

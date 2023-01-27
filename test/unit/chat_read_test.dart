@@ -50,8 +50,9 @@ import 'package:mockito/mockito.dart';
 
 import 'chat_read_test.mocks.dart';
 
-@GenerateMocks([],
-    customMocks: [MockSpec<GraphQlProvider>(returnNullOnMissingStub: true)])
+@GenerateMocks([], customMocks: [
+  MockSpec<GraphQlProvider>(onMissingStub: OnMissingStub.returnDefault)
+])
 void main() async {
   setUp(Get.reset);
 
