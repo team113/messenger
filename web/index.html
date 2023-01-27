@@ -32,6 +32,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
@@ -54,7 +55,14 @@
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
   <style type="text/css">
-    .container {
+    .content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+    /* .container {
       position: fixed;
       top: 0;
       right: 0;
@@ -79,6 +87,52 @@
       text-align: left;
       font-size: 14px;
       white-space: normal;
+    } */
+
+    .dot-flashing {
+      position: relative;
+      width: 5px;
+      height: 5px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite linear alternate;
+      animation-delay: 0.3s;
+    }
+    .dot-flashing::before, .dot-flashing::after {
+      content: "";
+      display: inline-block;
+      position: absolute;
+      top: 0;
+    }
+    .dot-flashing::before {
+      left: -10px;
+      width: 5px;
+      height: 5px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite alternate;
+      animation-delay: 0s;
+    }
+    .dot-flashing::after {
+      left: 10px;
+      width: 5px;
+      height: 5px;
+      border-radius: 5px;
+      background-color: #888888;
+      color: #888888;
+      animation: dot-flashing 800ms infinite alternate;
+      animation-delay: 800ms;
+    }
+
+    @keyframes dot-flashing {
+      0% {
+        background-color: #888888;
+      }
+      50%, 100% {
+        background-color: rgba(136, 136, 136, 0.2);
+      }
     }
   </style>
   <script type="module">
@@ -136,8 +190,22 @@
   </script>
 </head>
 <body>
-  <div id="loader" class="container">
-    <canvas class="splash" id="canvas" width="250" height="250"></canvas>
+  <div id="loader" class="container content">
+    <div class="col align-middle" style="vertical-align: middle;">
+      <div class="row justify-content-center" >
+        <canvas class="col" id="canvas" width="250" height="300" style="max-width: 250px;"></canvas>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt">Downloading</div>
+        <div class="col-auto" style="margin-top:0.95rem!important; transform: translate(-9px, 0px);">
+          <div class="dot-flashing"></div>
+        </div>
+      </div>
+      <!-- <p style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+        <div class="splash">Downloading</div>
+        <div class="dot-pulse"></div>
+      </p> -->
+    </div>
   </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:

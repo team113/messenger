@@ -1,6 +1,4 @@
 PODS:
-  - audio_session (0.0.1):
-    - Flutter
   - audioplayers_darwin (0.0.1):
     - Flutter
   - callkeep (0.0.1):
@@ -56,8 +54,6 @@ PODS:
   - instrumentisto-libwebrtc-bin (108.0.5359.124)
   - integration_test (0.0.1):
     - Flutter
-  - just_audio (0.0.1):
-    - Flutter
   - libyuv-iOS (1.0.2)
   - medea_flutter_webrtc (0.8.0-dev):
     - Flutter
@@ -100,7 +96,6 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
@@ -112,7 +107,6 @@ DEPENDENCIES:
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
-  - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
   - medea_jason (from `.symlinks/plugins/medea_jason/ios`)
   - open_file (from `.symlinks/plugins/open_file/ios`)
@@ -140,8 +134,6 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
-  audio_session:
-    :path: ".symlinks/plugins/audio_session/ios"
   audioplayers_darwin:
     :path: ".symlinks/plugins/audioplayers_darwin/ios"
   callkeep:
@@ -164,8 +156,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
-  just_audio:
-    :path: ".symlinks/plugins/just_audio/ios"
   medea_flutter_webrtc:
     :path: ".symlinks/plugins/medea_flutter_webrtc/ios"
   medea_jason:
@@ -196,7 +186,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
-  audio_session: 4f3e461722055d21515cf3261b64c973c062f345
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
@@ -211,7 +200,6 @@ SPEC CHECKSUMS:
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
   instrumentisto-libwebrtc-bin: 2b00808e53f1ac6d2bf18dec0a5292e930cedbd5
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
-  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
   medea_flutter_webrtc: e8b47e20ea87682e24ba41e6a5bc0fda5b0387f6
   medea_jason: 1088dc4572d2b14026ce84d44af0e7757dccc891

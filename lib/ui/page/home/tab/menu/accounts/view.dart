@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
@@ -178,7 +179,10 @@ class AccountsView extends StatelessWidget {
                   child: Center(
                     child: OutlinedRoundedButton(
                       title: Text('Login'.l10n),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        router.accounts.value++;
+                      },
                       color: const Color(0xFFEEEEEE),
                       maxWidth: double.infinity,
                     ),
@@ -200,7 +204,10 @@ class AccountsView extends StatelessWidget {
                         'Create account'.l10n,
                         style: const TextStyle(color: Colors.white),
                       ),
-                      onPressed: Navigator.of(context).pop,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        router.accounts.value++;
+                      },
                       color: const Color(0xFF63B4FF),
                       maxWidth: double.infinity,
                     ),
@@ -243,26 +250,27 @@ class AccountsView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: ContactTile(
-                    myUser: c.myUser.value,
-                    darken: 0.05,
-                    // border: style.cardBorder,
-                    selected: false,
-                    onTap: () {},
-                    // trailing: const [
-                    //   Text('Active', style: TextStyle(color: Color(0xFF63B4FF))),
-                    // ],
-                    subtitle: const [
-                      SizedBox(height: 5),
-                      Text(
-                        'Last seen 10 days ago',
-                        style: TextStyle(color: Color(0xFF888888)),
-                      ),
-                    ],
+                for (int i = 0; i < router.accounts.value; ++i)
+                  Padding(
+                    padding: ModalPopup.padding(context),
+                    child: ContactTile(
+                      myUser: c.myUser.value,
+                      darken: 0.05,
+                      // border: style.cardBorder,
+                      selected: false,
+                      onTap: () {},
+                      // trailing: const [
+                      //   Text('Active', style: TextStyle(color: Color(0xFF63B4FF))),
+                      // ],
+                      subtitle: const [
+                        SizedBox(height: 5),
+                        Text(
+                          'Last seen 10 days ago',
+                          style: TextStyle(color: Color(0xFF888888)),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: ModalPopup.padding(context),

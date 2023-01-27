@@ -119,18 +119,57 @@ class MenuTabView extends StatelessWidget {
               WidgetButton(
                 behavior: HitTestBehavior.translucent,
                 onPressed: () => AccountsView.show(context),
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 16),
-                  child: SizedBox(
-                    height: 32,
-                    width: 32,
-                    child: RiveAsset('assets/icons/switch_account.riv'),
-                  ),
-                  // child: SvgLoader.asset(
-                  //   'assets/icons/switch_account.svg',
-                  //   width: 28.81,
-                  //   height: 25.35,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  // child: SizedBox(
+                  //   height: 32,
+                  //   width: 32,
+                  //   child: RiveAsset('assets/icons/switch_account.riv'),
                   // ),
+                  child: Obx(() {
+                    if (router.accounts.value == 0) {
+                      return SvgLoader.asset(
+                        'assets/icons/add_account.svg',
+                        width: 22.37,
+                        height: 20,
+                      );
+                    } else if (router.accounts.value == 1) {
+                      return AvatarWidget(
+                        radius: 13,
+                        title: c.myUser.value!.name?.val ??
+                            c.myUser.value!.num.val,
+                        color: c.myUser.value!.num.val.sum() - 1,
+                      );
+                    } else {
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AvatarWidget(
+                            radius: 13,
+                            title: c.myUser.value!.name?.val ??
+                                c.myUser.value!.num.val,
+                            color: c.myUser.value!.num.val.sum() - 2,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(1),
+                              child: AvatarWidget(
+                                radius: 13,
+                                title: c.myUser.value!.name?.val ??
+                                    c.myUser.value!.num.val,
+                                color: c.myUser.value!.num.val.sum() - 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  }),
                 ),
               ),
             ],
