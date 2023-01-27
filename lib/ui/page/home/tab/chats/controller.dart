@@ -299,9 +299,6 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

@@ -1310,8 +1310,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      padding:
-          EdgeInsets.only(bottom: widget.reads.isNotEmpty == true ? 33 : 13),
+      padding: EdgeInsets.only(bottom: avatars.isNotEmpty == true ? 33 : 13),
       child: AnimatedOffset(
         duration: _offsetDuration,
         offset: _offset,

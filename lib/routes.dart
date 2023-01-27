@@ -223,6 +223,13 @@ class RouterState extends ChangeNotifier {
     }
   }
 
+  /// Removes the provided [route] from the [routes].
+  void remove(String route) {
+    if (routes.remove(route)) {
+      notifyListeners();
+    }
+  }
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.

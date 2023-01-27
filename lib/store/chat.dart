@@ -259,17 +259,7 @@ class ChatRepository implements AbstractChatRepository {
       ),
     );
 
-    if (chats[chat.chat.value.id] == null) {
-      chats.move(localId, chat.chat.value.id);
-    } else {
-      chats.remove(localId);
-      await Future.delayed(Duration.zero);
-    }
-
-    await local.updateChat(chat.chat.value);
-    remove(localId);
-
-    return local;
+    return _putEntry(chat);
   }
 
   @override
@@ -1194,21 +1184,34 @@ class ChatRepository implements AbstractChatRepository {
   Future<HiveRxChat> _putEntry(ChatData data) async {
     HiveRxChat? entry = chats[data.chat.value.id];
 
-    _putChat(data.chat);
-
     if (entry == null) {
       if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
         ChatMember member =
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
         ChatId localId = ChatId.local(member.user.id.val);
+        HiveRxChat? localChat = chats[localId];
+
+        if (localChat != null) {
+          chats.move(localId, data.chat.value.id);
+          await localChat.updateChat(data.chat.value);
+
+          entry = localChat;
+        }
 
         _draftLocal.move(localId, data.chat.value.id);
+        remove(localId);
       }
 
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
-      _chats[data.chat.value.id] = entry;
-      entry.init();
-      entry.subscribe();
+      _putChat(data.chat);
+
+      if (entry == null) {
+        entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
+        _chats[data.chat.value.id] = entry;
+        entry.init();
+        entry.subscribe();
+      }
+    } else {
+      _putChat(data.chat);
     }
 
     for (var item in [
