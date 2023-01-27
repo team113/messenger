@@ -143,7 +143,7 @@ class ChatService extends DisposableService {
     Chat? chat = chats[id]?.chat.value;
 
     if (chat != null) {
-      for (var e in router.routes) {
+      for (var e in router.routes.toList()) {
         if (chat.isRoute(e, me)) {
           router.remove(e);
         }
