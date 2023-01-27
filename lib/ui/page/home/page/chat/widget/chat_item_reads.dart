@@ -57,7 +57,7 @@ class ChatItemReads extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return ListView(
       shrinkWrap: true,
