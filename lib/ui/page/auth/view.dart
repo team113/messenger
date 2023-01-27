@@ -26,7 +26,9 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/my_profile/language/controller.dart';
+import '/ui/page/home/page/my_profile/widget/download_button.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -47,7 +49,7 @@ class AuthView extends StatelessWidget {
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
         final TextStyle? thin =
-            context.textTheme.caption?.copyWith(color: Colors.black);
+            context.textTheme.bodySmall?.copyWith(color: Colors.black);
         final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
@@ -186,7 +188,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
@@ -198,7 +200,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
@@ -219,7 +221,7 @@ class AuthView extends StatelessWidget {
                               width: 22 * 0.7,
                             )
                           : null,
-              onPressed: () {},
+              onPressed: () => _download(context),
             ),
           const SizedBox(height: 20),
           language,
@@ -268,6 +270,78 @@ class AuthView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'btn_download'.l10n,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: Colors.black, fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: 'windows',
+                  width: 21.93,
+                  height: 22,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'linux',
+                  width: 18.85,
+                  height: 22,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple',
+                  width: 23,
+                  height: 29,
+                  title: 'iOS',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
     );
   }
 }

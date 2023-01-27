@@ -24,11 +24,11 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Variant of a [ConfirmDialog].
-class ConfirmDialogVariant {
+class ConfirmDialogVariant<T> {
   const ConfirmDialogVariant({required this.child, this.onProceed});
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
-  final void Function()? onProceed;
+  final T? Function()? onProceed;
 
   /// [Widget] representing this [ConfirmDialogVariant].
   final Widget child;
@@ -120,7 +120,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -145,7 +145,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                     child: DefaultTextStyle.merge(
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText1
+                          .bodyLarge
                           ?.copyWith(color: Colors.black, fontSize: 18),
                       child: variant.child,
                     ),
@@ -221,8 +221,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               style: thin?.copyWith(color: Colors.white),
             ),
             onPressed: () {
-              _variant.onProceed?.call();
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_variant.onProceed?.call());
             },
             color: Theme.of(context).colorScheme.secondary,
           ),

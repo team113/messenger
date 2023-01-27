@@ -891,7 +891,15 @@ class CallController extends GetxController {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
       if (_currentCall.value.displays.length > 1) {
-        await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
       }

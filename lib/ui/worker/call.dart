@@ -20,7 +20,6 @@ import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -274,10 +273,8 @@ class CallWorker extends DisposableService {
   void onClose() {
     _audioPlayer?.dispose();
 
-    [
-      AudioCache.instance.loadedFiles['audio/ringing.mp3'],
-      AudioCache.instance.loadedFiles['audio/chinese.mp3'],
-    ].whereNotNull().forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/ringing.mp3');
+    AudioCache.instance.clear('audio/chinese.mp3');
 
     _subscription.cancel();
     _storageSubscription?.cancel();
