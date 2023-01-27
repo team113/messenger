@@ -204,6 +204,9 @@ class ChatRepository implements AbstractChatRepository {
             chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
             chat.init();
           }
+
+          chat ??=
+              await createDialogChat(UserId(id.val.replaceFirst('local_', '')));
         }
       }
 
@@ -216,28 +219,34 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<HiveRxChat> createDialogChat(UserId responderId) async {
-    var chat = _chat(await _graphQlProvider.createDialogChat(responderId));
-    return _putEntry(chat);
-  }
-
-  @override
-  Future<Chat> createLocalDialog(User responder) async {
-    ChatId chatId = ChatId.local(responder.id.val);
-    final hiveChat = HiveChat(
-      Chat(
-        chatId,
-        members: [ChatMember(responder, PreciseDateTime.now())],
-        kindIndex: ChatKind.values.indexOf(ChatKind.dialog),
+    ChatId chatId = ChatId.local(responderId.val);
+    final chatData = ChatData(
+      HiveChat(
+        Chat(
+          chatId,
+          members: [
+            ChatMember(
+              (await _userRepo.get(responderId))!.user.value,
+              PreciseDateTime.now(),
+            ),
+            ChatMember(
+              (await _userRepo.get(me!))!.user.value,
+              PreciseDateTime.now(),
+            ),
+          ],
+          kindIndex: ChatKind.values.indexOf(ChatKind.dialog),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
       ),
-      ChatVersion('0'),
       null,
       null,
     );
 
-    await _putChat(hiveChat);
-    await _userRepo.attachLocalDialog(responder.id, chatId);
+    await _userRepo.attachLocalDialog(responderId, chatId);
 
-    return hiveChat.value;
+    return _putEntry(chatData);
   }
 
   @override
@@ -1188,7 +1197,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      if (data.chat.value.isDialog) {
+      if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
         ChatMember member =
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
         ChatId localId = ChatId.local(member.user.id.val);

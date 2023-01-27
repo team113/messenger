@@ -230,15 +230,7 @@ class UserController extends GetxController {
   Future<void> openChat() async {
     ChatId? dialog = user?.user.value.dialog;
 
-    if (user!.id == me) {
-      dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value.id;
-    } else {
-      if (dialog?.isLocal ?? false) {
-        // Check if local dialog exists.
-        dialog = (await _chatService.get(dialog!))?.chat.value.id;
-      }
-      dialog ??= (await _chatService.createLocalDialog(user!.user.value)).id;
-    }
+    dialog ??= (await _chatService.createDialogChat(user!.id)).id;
 
     router.chat(dialog, push: true);
   }

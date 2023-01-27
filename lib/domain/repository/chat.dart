@@ -73,10 +73,6 @@ abstract class AbstractChatRepository {
   /// authenticated [MyUser].
   Future<RxChat> createDialogChat(UserId responderId);
 
-  /// Creates a local [Chat]-dialog between the given [responder] and the
-  /// authenticated [MyUser].
-  Future<Chat> createLocalDialog(User responder);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});
