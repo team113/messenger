@@ -198,7 +198,7 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    if(chatId.isLocal && replaceLocalDialog != null) {
+    if (chatId.isLocal && replaceLocalDialog != null) {
       chatId = (await replaceLocalDialog!.call(chatId)).id;
     }
 
