@@ -38,10 +38,13 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/animated_cliprrect.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -110,9 +113,12 @@ Widget mobileCall(CallController c, BuildContext context) {
             );
           }
 
+          final Participant? center =
+              c.secondary.isNotEmpty ? c.primary.firstOrNull : null;
+
           return SwappableFit<Participant>(
             items: [...c.primary, ...c.secondary],
-            center: c.secondary.isNotEmpty ? c.primary.firstOrNull : null,
+            center: center,
             fit: c.minimized.value,
             itemBuilder: (e) {
               return Obx(() {
@@ -120,25 +126,119 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                // TODO: Implement opened context menu detection for
-                //       `hovered` indicator.
-                return Stack(
-                  children: [
-                    const ParticipantDecoratorWidget(),
-                    IgnorePointer(
-                      child: ParticipantWidget(
-                        e,
-                        offstageUntilDetermined: true,
-                        useCallCover: true,
+                Widget child(bool animated) {
+                  final Widget stack = Stack(
+                    children: [
+                      const ParticipantDecoratorWidget(),
+                      IgnorePointer(
+                        child: ParticipantWidget(
+                          e,
+                          offstageUntilDetermined: true,
+                          useCallCover: true,
+                        ),
                       ),
+                      ParticipantOverlayWidget(
+                        e,
+                        muted: muted,
+                        hovered: animated,
+                        preferBackdrop: !c.minimized.value,
+                      ),
+                    ],
+                  );
+
+                  if (!animated) {
+                    return stack;
+                  }
+
+                  return AnimatedClipRRect(
+                    key: Key(e.member.id.toString()),
+                    duration: 250.milliseconds,
+                    borderRadius: animated
+                        ? BorderRadius.circular(10)
+                        : BorderRadius.zero,
+                    child: AnimatedContainer(
+                      duration: 200.milliseconds,
+                      decoration: BoxDecoration(
+                        color: animated
+                            ? const Color.fromARGB(255, 19, 33, 49)
+                            : const Color.fromARGB(0, 19, 33, 49),
+                      ),
+                      width: animated
+                          ? MediaQuery.of(context).size.width - 20
+                          : null,
+                      height: animated
+                          ? MediaQuery.of(context).size.height / 2
+                          : null,
+                      child: stack,
                     ),
-                    ParticipantOverlayWidget(
-                      e,
-                      muted: muted,
-                      hovered: false,
-                      preferBackdrop: !c.minimized.value,
-                    ),
+                  );
+                }
+
+                return ContextMenuRegion(
+                  actions: [
+                    if (center == e)
+                      ContextMenuButton(
+                        label: 'btn_call_uncenter'.l10n,
+                        onPressed: c.focusAll,
+                        trailing: const Icon(Icons.center_focus_weak),
+                      )
+                    else
+                      ContextMenuButton(
+                        label: 'btn_call_center'.l10n,
+                        onPressed: () => c.center(e),
+                        trailing: const Icon(Icons.center_focus_strong),
+                      ),
+                    if (e.member.id != c.me.id) ...[
+                      if (e.video.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label: e.video.value?.renderer.value != null
+                              ? 'btn_call_disable_video'.l10n
+                              : 'btn_call_enable_video'.l10n,
+                          onPressed: () => c.toggleVideoEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.videocam)
+                              : const Icon(Icons.videocam_off),
+                        ),
+                      if (e.audio.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label:
+                              (e.audio.value?.direction.value.isEnabled == true)
+                                  ? 'btn_call_disable_audio'.l10n
+                                  : 'btn_call_enable_audio'.l10n,
+                          onPressed: () => c.toggleAudioEnabled(e),
+                          trailing: e.video.value?.renderer.value != null
+                              ? const Icon(Icons.volume_up)
+                              : const Icon(Icons.volume_off),
+                        ),
+                      ContextMenuButton(
+                        label: 'btn_call_remove_participant'.l10n,
+                        onPressed: () {},
+                        trailing: const Icon(Icons.remove_circle),
+                      ),
+                    ] else ...[
+                      ContextMenuButton(
+                        label: c.videoState.value.isEnabled
+                            ? 'btn_call_video_off'.l10n
+                            : 'btn_call_video_on'.l10n,
+                        onPressed: c.toggleVideo,
+                        trailing: c.videoState.value.isEnabled
+                            ? const Icon(Icons.videocam)
+                            : const Icon(Icons.videocam_off),
+                      ),
+                      ContextMenuButton(
+                        label: c.audioState.value.isEnabled
+                            ? 'btn_call_audio_off'.l10n
+                            : 'btn_call_audio_on'.l10n,
+                        onPressed: c.toggleAudio,
+                        trailing: e.video.value?.renderer.value != null
+                            ? const Icon(Icons.mic)
+                            : const Icon(Icons.mic_off),
+                      ),
+                    ],
                   ],
+                  unconstrained: true,
+                  changingChild: child,
+                  child: const SizedBox.shrink(),
                 );
               });
             },

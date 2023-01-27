@@ -136,7 +136,6 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                       width: size,
                       height: size,
                       child: GestureDetector(
-                        onLongPress: () => _center(e.item),
                         child: e.entry == null
                             ? KeyedSubtree(
                                 key: e.itemKey,
@@ -158,13 +157,6 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                   return true;
                 }).map((e) {
                   return GestureDetector(
-                    onLongPress: () {
-                      if (_centered == e.item) {
-                        _uncenter();
-                      } else {
-                        _center(e.item);
-                      }
-                    },
                     child: e.entry == null
                         ? KeyedSubtree(
                             key: e.itemKey,

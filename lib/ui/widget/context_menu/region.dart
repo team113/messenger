@@ -33,7 +33,7 @@ import 'mobile.dart';
 /// - [FloatingContextMenu] on mobile.
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
-    Key? key,
+    super.key,
     required this.child,
     this.enabled = true,
     this.moveDownwards = true,
@@ -45,7 +45,9 @@ class ContextMenuRegion extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
-  }) : super(key: key);
+    this.unconstrained = false,
+    this.changingChild,
+  });
 
   /// Widget to wrap this region over.
   final Widget child;
@@ -90,6 +92,13 @@ class ContextMenuRegion extends StatefulWidget {
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
 
+  /// Indicator whether the [child] should be unconstrained.
+  final bool unconstrained;
+
+  /// Builder building a different children depending on whether the
+  /// [ContextMenu] is displayed.
+  final Widget Function(bool)? changingChild;
+
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
 }
@@ -99,6 +108,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether a [ColoredBox] should be displayed above the provided
   /// child.
   bool _darkened = false;
+
+  /// Indicator whether [ContextMenu] is displayed.
+  bool _displayed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +146,17 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   moveDownwards: widget.moveDownwards,
                   actions: widget.actions,
                   margin: widget.margin,
-                  child: child,
+                  unconstrained: widget.unconstrained,
+                  onOpened: () => _displayed = true,
+                  onClosed: () => _displayed = false,
+                  child: Builder(
+                    builder: (_) {
+                      if (widget.changingChild != null) {
+                        return widget.changingChild!.call(_displayed);
+                      }
+                      return child;
+                    },
+                  ),
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
