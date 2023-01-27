@@ -249,7 +249,6 @@ class ChatRepository implements AbstractChatRepository {
     return _putEntry(chatData);
   }
 
-  @override
   Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
     HiveRxChat local = _chats[localId]!;
 
