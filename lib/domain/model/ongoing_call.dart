@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/util/media_utils.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -247,12 +248,6 @@ class OngoingCall {
   /// client related resources.
   bool _background = true;
 
-  /// Client for communication with a media server.
-  Jason? _jason;
-
-  /// Handle to a media manager tracking all the connected devices.
-  MediaManagerHandle? _mediaManager;
-
   /// Room on a media server representing this [OngoingCall].
   RoomHandle? _room;
 
@@ -272,6 +267,8 @@ class OngoingCall {
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
+
+  StreamSubscription? _devicesSubscription;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -303,26 +300,16 @@ class OngoingCall {
   ///
   /// No-op if already initialized.
   Future<void> init() async {
-    if (_jason == null) {
+    if (_background) {
       _background = false;
-
-      try {
-        _jason = Jason();
-      } catch (_) {
-        // TODO: So the test would run. Jason currently only supports Web and
-        //       Android, and unit tests run on a host machine.
-        _jason = null;
-        return;
-      }
 
       members[_me] = CallMember.me(_me);
 
-      _mediaManager = _jason!.mediaManager();
-      _mediaManager?.onDeviceChange(() async {
+      _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         final List<MediaDeviceInfo> previous =
             List.from(devices, growable: false);
 
-        await enumerateDevices();
+        devices.value = e;
 
         final List<MediaDeviceInfo> added = [];
         final List<MediaDeviceInfo> removed = [];
@@ -400,7 +387,6 @@ class OngoingCall {
 
             call.value = node.call;
             call.refresh();
-
             break;
 
           case ChatCallEventsKind.event:
@@ -533,13 +519,10 @@ class OngoingCall {
   Future<void> dispose() {
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
-      if (_jason != null) {
-        _mediaManager!.free();
-        _mediaManager = null;
+      if (!_background) {
         _closeRoom();
-        _jason!.free();
-        _jason = null;
       }
+      _devicesSubscription?.cancel();
       _heartbeat?.cancel();
       connected = false;
     });
@@ -579,10 +562,7 @@ class OngoingCall {
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
-            if (deviceId != screenDevice.value) {
-              await _updateSettings(screenDevice: deviceId);
-            }
-
+            await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
@@ -744,12 +724,13 @@ class OngoingCall {
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
     try {
-      devices.value = (await _mediaManager!.enumerateDevices())
+      devices.value = (await MediaUtils.mediaManager?.enumerateDevices() ?? [])
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
 
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-        displays.value = await _mediaManager!.enumerateDisplays();
+        displays.value =
+            await MediaUtils.mediaManager?.enumerateDisplays() ?? [];
       }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
@@ -784,7 +765,7 @@ class OngoingCall {
   /// Does nothing if [deviceId] is already an ID of the [outputDevice].
   Future<void> setOutputDevice(String deviceId) async {
     if (deviceId != outputDevice.value) {
-      await _mediaManager?.setOutputAudioId(deviceId);
+      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
     }
   }
@@ -907,7 +888,7 @@ class OngoingCall {
 
   /// Initializes the [_room].
   void _initRoom() {
-    _room = _jason!.initRoom();
+    _room = MediaUtils.jason!.initRoom();
 
     _room!.onFailedLocalMedia((e) async {
       if (e is LocalMediaInitException) {
@@ -1118,7 +1099,7 @@ class OngoingCall {
         _ensureCorrectDevices();
 
         if (outputDevice.value != null) {
-          _mediaManager?.setOutputAudioId(outputDevice.value!);
+          MediaUtils.mediaManager?.setOutputAudioId(outputDevice.value!);
         }
       }
 
@@ -1128,15 +1109,17 @@ class OngoingCall {
       // Initializes the local tracks recursively.
       Future<void> initLocalTracks() async {
         try {
-          tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: screenShareState.value == LocalTrackState.enabling,
-            audioDevice: audioDevice.value,
-            videoDevice: videoDevice.value,
-            screenDevice: screenDevice.value,
-            facingMode: videoDevice.value == null ? FacingMode.User : null,
-          ));
+          tracks = await MediaUtils.mediaManager!.initLocalTracks(
+            _mediaStreamSettings(
+              audio: audioState.value == LocalTrackState.enabling,
+              video: videoState.value == LocalTrackState.enabling,
+              screen: screenShareState.value == LocalTrackState.enabling,
+              audioDevice: audioDevice.value,
+              videoDevice: videoDevice.value,
+              screenDevice: screenDevice.value,
+              facingMode: videoDevice.value == null ? FacingMode.User : null,
+            ),
+          );
         } on LocalMediaInitException catch (e) {
           switch (e.kind()) {
             case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
@@ -1264,7 +1247,7 @@ class OngoingCall {
   void _closeRoom() {
     if (_room != null) {
       try {
-        _jason?.closeRoom(_room!);
+        MediaUtils.jason?.closeRoom(_room!);
       } catch (_) {
         // No-op, as the room might be in a detached state.
       }
@@ -1289,7 +1272,9 @@ class OngoingCall {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
           audioDevice == null ? MediaKind.Video : MediaKind.Audio,
-          MediaSourceKind.Device,
+          screenDevice == null
+              ? MediaSourceKind.Device
+              : MediaSourceKind.Display,
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
@@ -1318,11 +1303,8 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
-    if (_mediaManager == null) {
-      return;
-    }
-
-    List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
+    List<LocalMediaTrack> tracks =
+        await MediaUtils.mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled,
         video: videoState.value.isEnabled,

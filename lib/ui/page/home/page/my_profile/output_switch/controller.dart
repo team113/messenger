@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/util/media_utils.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
@@ -41,37 +42,25 @@ class OutputSwitchController extends GetxController {
   /// ID of the initially selected audio output device.
   RxnString output;
 
-  /// Client for communicating with the [_mediaManager].
-  late final Jason? _jason;
-
-  /// Handle to a media manager tracking all the connected devices.
-  late final MediaManagerHandle? _mediaManager;
+  StreamSubscription? _devicesSubscription;
 
   @override
   void onInit() async {
-    try {
-      _jason = Jason();
-      _mediaManager = _jason?.mediaManager();
-      _mediaManager?.onDeviceChange(() => _enumerateDevices());
+    _devicesSubscription =
+        MediaUtils.onDeviceChange.listen((e) => devices.value = e);
 
-      // Output devices are permitted to be use when requesting a microphone
-      // permission.
-      await WebUtils.microphonePermission();
+    // Output devices are permitted to be use when requesting a microphone
+    // permission.
+    await WebUtils.microphonePermission();
 
-      _enumerateDevices();
-    } catch (_) {
-      // [Jason] may not be supported on the current platform.
-      _jason = null;
-      _mediaManager = null;
-    }
+    _enumerateDevices();
 
     super.onInit();
   }
 
   @override
   void onClose() {
-    _mediaManager?.free();
-    _jason?.free();
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
@@ -83,7 +72,7 @@ class OutputSwitchController extends GetxController {
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> _enumerateDevices() async {
-    devices.value = ((await _mediaManager?.enumerateDevices() ?? []))
+    devices.value = ((await MediaUtils.mediaManager?.enumerateDevices() ?? []))
         .where(
           (e) =>
               e.deviceId().isNotEmpty &&
