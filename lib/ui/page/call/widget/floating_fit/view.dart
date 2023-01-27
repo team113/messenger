@@ -357,7 +357,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
 
     Overlay.of(context)
-        ?.insertAll([paneled.entry, primary.entry].whereNotNull());
+        .insertAll([paneled.entry, primary.entry].whereNotNull());
 
     _paneled = primary;
     _primary = paneled;

@@ -269,7 +269,7 @@ class _AnimatedFabState extends State<AnimatedFab>
 
     setState(() {});
 
-    Overlay.of(context, rootOverlay: true)!.insert(_overlayEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
   }
 
   /// Toggles overlay state based on [_controller]'s status.

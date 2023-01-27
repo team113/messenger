@@ -183,7 +183,7 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5,
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                           ),
                         ],
