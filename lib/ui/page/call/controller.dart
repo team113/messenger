@@ -584,12 +584,13 @@ class CallController extends GetxController {
 
         if (v != null) {
           void updateTitle() {
-             if (PlatformUtils.isWeb) {
+            if (PlatformUtils.isWeb) {
               WebUtils.title(
-              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
+                '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
               );
             } else {
-              _windowController?.setTitle('label_call_title'.l10nfmt(titleArguments));
+              _windowController
+                  ?.setTitle('label_call_title'.l10nfmt(titleArguments));
             }
           }
 

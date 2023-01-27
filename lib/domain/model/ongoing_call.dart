@@ -1239,15 +1239,6 @@ class OngoingCall {
 
   /// Disposes the remote media tracks.
   void _disposeRemoteMedia() {
-    for (var t in remoteVideos) {
-      t.track.stop();
-    }
-    remoteVideos.clear();
-    for (var t in _remoteTracks) {
-      t.free();
-    }
-
-    _remoteTracks.clear();
   }
 
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].

@@ -687,7 +687,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         }),
 
         // Sliding from the top info header.
-        if (WebUtils.isPopup)
+        if (PlatformUtils.isPopup)
           Obx(() {
             return Align(
               alignment: Alignment.topCenter,

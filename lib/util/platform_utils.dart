@@ -43,12 +43,12 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
-  
+
   /// ID of the windows this application opened.
   ///
   /// If not null it mean that application opened in separate windows on
   /// desktop.
-  static int? windowId;
+  int? windowId;
 
   /// [Dio] client to use in queries.
   ///
@@ -82,13 +82,13 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
-static bool get isPopup {
+  bool get isPopup {
     if (isWeb) {
       return WebUtils.isPopup;
     } else {
       return windowId != null;
     }
-}
+  }
 
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
@@ -97,7 +97,7 @@ static bool get isPopup {
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      _WindowListener listener = _WindowListener(
+      DesktopWindowListener listener = DesktopWindowListener(
         onBlur: () => controller!.add(false),
         onFocus: () => controller!.add(true),
       );
@@ -125,7 +125,7 @@ static bool get isPopup {
   Stream<Size> get onResized {
     StreamController<Size>? controller;
 
-    final _WindowListener listener = _WindowListener(
+    final DesktopWindowListener listener = DesktopWindowListener(
       onResized: (size) => controller!.add(size),
     );
 
@@ -141,7 +141,7 @@ static bool get isPopup {
   Stream<Offset> get onMoved {
     StreamController<Offset>? controller;
 
-    final _WindowListener listener = _WindowListener(
+    final DesktopWindowListener listener = DesktopWindowListener(
       onMoved: (position) => controller!.add(position),
     );
 
@@ -396,8 +396,8 @@ extension MobileExtensionOnContext on BuildContext {
 }
 
 /// Listener interface for receiving window events.
-class _WindowListener extends WindowListener {
-  _WindowListener({
+class DesktopWindowListener extends WindowListener {
+  DesktopWindowListener({
     this.onLeaveFullscreen,
     this.onEnterFullscreen,
     this.onFocus,
@@ -448,7 +448,7 @@ class _WindowListener extends WindowListener {
   void onWindowMoved() async =>
       onMoved?.call(await windowManager.getPosition());
 
-      @override
+  @override
   void onWindowClose() {
     onClose?.call();
   }

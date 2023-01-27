@@ -84,19 +84,23 @@ Future<void> main(List<String> args) async {
 
       if (!isSeparateWindow) {
         WindowManager.instance.setPreventClose(true);
-        WindowManager.instance.addListener(DesktopWindowListener(onClose: () {
-          Future.sync(() async {
-            try {
-              var windows = await DesktopMultiWindow.getAllSubWindowIds();
-              await Future.wait(windows
-                  .map((e) => WindowController.fromWindowId(e).close()));
-              await Future.delayed(100.milliseconds);
-            } finally {
-              await WindowManager.instance.setPreventClose(false);
-              WindowManager.instance.close();
-            }
-          });
-        }));
+        WindowManager.instance.addListener(
+          DesktopWindowListener(
+            onClose: () {
+              Future.sync(() async {
+                try {
+                  var windows = await DesktopMultiWindow.getAllSubWindowIds();
+                  await Future.wait(windows
+                      .map((e) => WindowController.fromWindowId(e).close()));
+                  await Future.delayed(100.milliseconds);
+                } finally {
+                  await WindowManager.instance.setPreventClose(false);
+                  WindowManager.instance.close();
+                }
+              });
+            },
+          ),
+        );
       }
 
       final WindowPreferencesHiveProvider preferences = Get.find();

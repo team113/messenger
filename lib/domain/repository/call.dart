@@ -48,7 +48,7 @@ abstract class AbstractCallRepository {
   /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
   /// if not already.
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    StoredCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,

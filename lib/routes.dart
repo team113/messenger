@@ -341,7 +341,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state.route.startsWith(Routes.call)) {
       return;
     }
-    
+
     _state.routes.value = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;

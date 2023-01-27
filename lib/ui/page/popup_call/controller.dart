@@ -139,7 +139,7 @@ class PopupCallController extends GetxController {
       _windowController?.setOnWindowClose(() async {
         _storageSubscription?.cancel();
         _stateWorker.dispose();
-        if(call.value.deviceId != null) {
+        if (call.value.deviceId != null) {
           _calls.leave(call.value.chatId.value, call.value.deviceId!);
         }
         await DesktopMultiWindow.invokeMethod(

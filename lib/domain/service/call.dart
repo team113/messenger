@@ -199,7 +199,7 @@ class CallService extends DisposableService {
   void remove(ChatId chatId) {
     popupCalls.remove(chatId);
     _callsRepo.remove(chatId);
-  } 
+  }
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
@@ -257,11 +257,11 @@ class CallService extends DisposableService {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
-      
+
       if (popupCalls.remove(chatId)) {
         popupCalls.add(newChatId);
       }
-      
+
       _callsRepo.moveCredentials(callId, newCallId);
       if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());

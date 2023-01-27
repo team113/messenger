@@ -139,7 +139,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    StoredCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
