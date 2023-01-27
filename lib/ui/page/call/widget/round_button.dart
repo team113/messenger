@@ -163,7 +163,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    context.textTheme.caption?.copyWith(
+                    context.textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                       fontSize: 13,
                     ),
@@ -234,6 +234,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     });
 
-    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }
 }

@@ -178,7 +178,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         itemBuilder: (b) {
           final TextStyle? thin = Theme.of(context)
               .textTheme
-              .caption
+              .bodySmall
               ?.copyWith(color: Colors.black);
           return Row(
             children: [
