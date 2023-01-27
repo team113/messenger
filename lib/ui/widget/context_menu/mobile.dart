@@ -81,6 +81,9 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
   final GlobalKey _key = GlobalKey();
 
+  /// [GlobalKey] of the [FloatingContextMenu.actions] to get its height.
+  final GlobalKey _actionsKey = GlobalKey();
+
   /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
   Rect? _rect;
 
@@ -117,6 +120,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
         globalKey: _key,
+        actionsKey: _actionsKey,
         alignment: widget.alignment,
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
@@ -146,6 +150,7 @@ class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
     required this.globalKey,
+    required this.actionsKey,
     required this.actions,
     required this.alignment,
     required this.showAbove,
@@ -160,6 +165,9 @@ class _AnimatedMenu extends StatefulWidget {
 
   /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
+
+  /// [GlobalKey] of the [actions].
+  final GlobalKey actionsKey;
 
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
@@ -193,6 +201,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [Rect] of the [_AnimatedMenu.child].
   late Rect _bounds;
 
+  /// [Rect] of the [_AnimatedMenu.actions].
+  Rect? _actionsBounds;
+
   @override
   void initState() {
     _fading = AnimationController(
@@ -217,6 +228,11 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       ..forward();
 
     _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _actionsBounds = widget.actionsKey.globalPaintBounds;
+    });
+
     super.initState();
   }
 
@@ -242,14 +258,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           child: AnimatedBuilder(
             animation: _fading,
             builder: (context, child) {
-              final a = (1 - _fading.value) *
-                      (constraints.maxHeight - _bounds.top - _bounds.height) +
-                  (10 +
-                          router.context!.mediaQueryPadding.bottom +
-                          widget.actions.length * 50) *
-                      _fading.value;
-              print(a);
-              // print(_bounds.width);
               return Stack(
                 fit: StackFit.expand,
                 children: [
@@ -315,8 +323,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                             : _bounds.left,
                         width: widget.unconstrained
                             ? (_bounds.width +
-                                    (MediaQuery.of(context).size.width -
-                                            _bounds.width) *
+                                    (constraints.maxWidth - _bounds.width) *
                                         _fading.value) -
                                 (20 * _fading.value)
                             : _bounds.width,
@@ -331,11 +338,12 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                     _bounds.height) +
                             (10 +
                                     router.context!.mediaQueryPadding.bottom +
-                                    widget.actions.length * 50) *
+                                    (_actionsBounds?.height ??
+                                        widget.actions.length * 50)) *
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
-                    _contextMenu(fade, slide),
+                    _contextMenu(fade, slide, widget.actionsKey),
                   ]
                 ],
               );
@@ -347,7 +355,11 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   }
 
   /// Returns a visual representation of the context menu itself.
-  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+  Widget _contextMenu(
+    Animation<double> fade,
+    Animation<Offset> slide, [
+    Key? key,
+  ]) {
     final double width = MediaQuery.of(context).size.width;
     EdgeInsets padding;
 
@@ -396,6 +408,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           child: FadeTransition(
             opacity: fade,
             child: Padding(
+              key: key,
               padding: EdgeInsets.only(
                 bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
