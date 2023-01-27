@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,8 +21,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/image_gallery_item.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 import 'gallery_popup.dart';
 
@@ -93,8 +94,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   children: (widget.items ?? [])
                       .map(
                         (e) => GalleryItem.image(
-                          '${Config.files}${e.original.relativeRef}',
+                          e.original.url,
                           'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.id}',
+                          size: e.original.size,
                         ),
                       )
                       .toList(),
@@ -108,20 +110,16 @@ class _CarouselGalleryState extends State<CarouselGallery> {
         alignment: Alignment.center,
         children: [
           widget.items?.isNotEmpty == true
-              ? ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 400),
-                    child: Container(
-                      key: ValueKey(widget.index),
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(
-                            '${Config.files}${widget.items![widget.index].original.relativeRef}',
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+              ? AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  child: Container(
+                    key: ValueKey(widget.index),
+                    child: RetryImage(
+                      widget.items![widget.index].original.url,
+                      fit: BoxFit.cover,
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
                   ),
                 )
@@ -147,8 +145,9 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ]
                   : widget.items!
                       .map(
-                        (e) => Image.network(
-                          '${Config.files}${e.original.relativeRef}',
+                        (e) => RetryImage(
+                          e.original.url,
+                          height: double.infinity,
                           fit: BoxFit.fitHeight,
                         ),
                       )

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,13 +17,12 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -32,6 +32,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/widget/retry_image.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -123,9 +124,10 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    bool badge = true,
   }) =>
       AvatarWidget(
-        isOnline: myUser?.online == true,
+        isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.val,
@@ -199,12 +201,14 @@ class AvatarWidget extends StatelessWidget {
     String? title,
     Avatar? avatar,
     UserId? me, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
   }) =>
       AvatarWidget(
+        key: key,
         avatar: avatar,
         title: title,
         color: chat?.colorDiscriminant(me).sum(),
@@ -217,6 +221,7 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [RxChat].
   static Widget fromRxChat(
     RxChat? chat, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
@@ -224,6 +229,7 @@ class AvatarWidget extends StatelessWidget {
   }) {
     if (chat == null) {
       return AvatarWidget(
+        key: key,
         radius: radius,
         maxRadius: maxRadius,
         minRadius: minRadius,
@@ -235,6 +241,7 @@ class AvatarWidget extends StatelessWidget {
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
+        key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway: user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
@@ -359,8 +366,13 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
-      return Badge(
+      return badges.Badge(
         showBadge: isOnline,
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: Colors.white,
+          padding: EdgeInsets.all(badgeSize / 3),
+          elevation: 0,
+        ),
         badgeContent: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -368,14 +380,11 @@ class AvatarWidget extends StatelessWidget {
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
-        padding: EdgeInsets.all(badgeSize / 3),
-        badgeColor: Colors.white,
-        animationType: BadgeAnimationType.scale,
-        position: BadgePosition.bottomEnd(
+        badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
+        position: badges.BadgePosition.bottomEnd(
           bottom: -badgeSize / 5,
           end: -badgeSize / 5,
         ),
-        elevation: 0,
         child: Container(
           constraints: BoxConstraints(
             minHeight: minHeight,
@@ -389,29 +398,30 @@ class AvatarWidget extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [gradient.lighten(), gradient],
             ),
-            image: avatar == null
-                ? null
-                : DecorationImage(
-                    image: NetworkImage(
-                      '${Config.files}${avatar?.original.relativeRef}',
-                    ),
-                    fit: BoxFit.cover,
-                    isAntiAlias: true,
-                  ),
             shape: BoxShape.circle,
           ),
           child: avatar == null
               ? Center(
                   child: Text(
                     (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontSize: 15 * (maxWidth / 40.0),
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaleFactor: 1,
                   ),
                 )
-              : null,
+              : ClipOval(
+                  child: RetryImage(
+                    avatar!.original.url,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    width: double.infinity,
+                  ),
+                ),
         ),
       );
     });
@@ -444,15 +454,34 @@ extension SumStringExtension on String {
   int sum() => codeUnits.fold(0, (a, b) => a + b);
 }
 
-/// Extension adding an ability to lighten a color.
-extension _LightenColorExtension on Color {
+/// Extension adding an ability to lighten or darken a color.
+extension BrightnessColorExtension on Color {
   /// Returns a lighten variant of this color.
   Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
 
+    if (amount == 0) {
+      return this;
+    }
+
     final hsl = HSLColor.fromColor(this);
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+
+  /// Returns a darken variant of this color.
+  Color darken([double amount = .2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
   }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,8 +18,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -28,16 +29,12 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/user.dart';
-import '/domain/model/native_file.dart';
-import '/domain/model/sending_status.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
-import '/ui/widget/text_field.dart';
+import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -47,27 +44,37 @@ class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
     this._userService, {
+    this.text,
+    this.pop,
+    this.attachments = const [],
     required this.from,
     required this.quotes,
   });
 
-  /// Reactive list of the sorted [Chat]s.
-  late final RxList<RxChat> chats;
-
-  /// [Chat]s to forward the [quotes] to.
-  final RxList<ChatId> selectedChats = RxList<ChatId>([]);
+  /// Selected items in [SearchView] popup.
+  final Rx<SearchViewResults?> searchResults = Rx(null);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
+  /// Initial [String] to put in the [MessageFieldController.field].
+  final String? text;
+
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
-  /// State of a send message field.
-  late final TextFieldState send;
+  /// Callback, called when a [ChatForwardView] this controller is bound to
+  /// should be popped from the [Navigator].
+  final void Function()? pop;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [Attachment]s to attach to the [quotes].
-  final RxList<Attachment> attachments = RxList();
+  final List<Attachment> attachments;
+
+  /// Indicator whether there is an ongoing drag-n-drop at the moment.
+  final RxBool isDraggingFiles = RxBool(false);
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
@@ -75,22 +82,31 @@ class ChatForwardController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [MessageFieldController] controller sending the [ChatMessage].
+  late final MessageFieldController send;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
-    _sortChats();
+    send = MessageFieldController(
+      _chatService,
+      _userService,
+      text: text,
+      quotes: quotes,
+      attachments: attachments,
+      onSubmit: () async {
+        if (searchResults.value?.isEmpty != false) {
+          send.field.unsubmit();
+          return;
+        }
 
-    send = TextFieldState(
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        s.status.value = RxStatus.loading();
-        s.editable.value = false;
+        send.field.status.value = RxStatus.loading();
+        send.field.editable.value = false;
 
         try {
-          List<Future> uploads = attachments
+          final List<Future> uploads = send.attachments
               .whereType<LocalAttachment>()
               .map((e) => e.upload.value?.future)
               .whereNotNull()
@@ -99,134 +115,93 @@ class ChatForwardController extends GetxController {
             await Future.wait(uploads);
           }
 
-          if (attachments.whereType<LocalAttachment>().isNotEmpty) {
-            throw const ConnectionException(ForwardChatItemsException(
-              ForwardChatItemsErrorCode.unknownAttachment,
-            ));
+          if (send.attachments.whereType<LocalAttachment>().isNotEmpty) {
+            throw const ConnectionException(
+              ForwardChatItemsException(
+                ForwardChatItemsErrorCode.unknownAttachment,
+              ),
+            );
           }
 
-          List<Future<void>> futures = selectedChats.map((e) {
-            return _chatService.forwardChatItems(
-              from,
-              e,
-              quotes,
-              text: s.text == '' ? null : ChatMessageText(s.text),
-              attachments: attachments.isEmpty
-                  ? null
-                  : attachments.map((a) => a.id).toList(),
-            );
-          }).toList();
+          final List<AttachmentId>? attachments = send.attachments.isEmpty
+              ? null
+              : send.attachments.map((a) => a.value.id).toList();
+
+          final ChatMessageText? text =
+              send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
+
+          final List<Future<void>> futures = [
+            ...searchResults.value!.chats.map((e) {
+              return _chatService.forwardChatItems(
+                from,
+                e.chat.value.id,
+                send.quotes,
+                text: text,
+                attachments: attachments,
+              );
+            }),
+            ...searchResults.value!.users.map((e) async {
+              Chat? dialog = e.user.value.dialog;
+              dialog ??= (await _chatService.createDialogChat(e.id)).chat.value;
+
+              return _chatService.forwardChatItems(
+                from,
+                dialog.id,
+                send.quotes,
+                text: text,
+                attachments: attachments,
+              );
+            }),
+            ...searchResults.value!.contacts.map((e) async {
+              Chat? dialog = e.user.value?.user.value.dialog;
+              dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
+                  .chat
+                  .value;
+
+              return _chatService.forwardChatItems(
+                from,
+                dialog.id,
+                send.quotes,
+                text: text,
+                attachments: attachments,
+              );
+            })
+          ];
 
           await Future.wait(futures);
+          pop?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
           MessagePopup.error(e);
           rethrow;
         } finally {
-          s.unsubmit();
+          send.field.unsubmit();
         }
       },
-      focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
-              e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
-
-              if (send.controller.selection.isCollapsed) {
-                cursor = send.controller.selection.base.offset;
-                send.text =
-                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-              } else {
-                cursor = send.controller.selection.start;
-                send.text =
-                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
-              }
-
-              send.controller.selection =
-                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
-            } else if (!e.isShiftPressed) {
-              send.submit();
-              return KeyEventResult.handled;
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
     );
 
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    send.onClose();
+    super.onClose();
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Opens a file choose popup and adds the selected files to the
-  /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  @visibleForTesting
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
-  }
-
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-  }
-
-  /// Opens a file choose popup of the specified [type] and adds the selected
-  /// files to the [attachments].
-  Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowMultiple: true,
-      withReadStream: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
-      }
-    }
-  }
-
-  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
-  /// the [attachments] list.
-  Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < ChatController.maxAttachmentSize) {
-      try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(attachment);
-
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
-
-        int index = attachments.indexOf(attachment);
-        if (index != -1) {
-          attachments[index] = uploaded;
-        }
-      } on UploadAttachmentException catch (e) {
-        MessagePopup.error(e);
-      } on ConnectionException {
-        // No-op.
-      }
-    } else {
-      MessagePopup.error('err_size_too_big'.l10n);
+  /// Adds the specified [details] files to the [attachments].
+  void dropFiles(DropDoneDetails details) async {
+    for (var file in details.files) {
+      send.addPlatformAttachment(PlatformFile(
+        path: file.path,
+        name: file.name,
+        size: await file.length(),
+        readStream: file.openRead(),
+      ));
     }
   }
 }

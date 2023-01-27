@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,6 +26,17 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
   "I go to {user}'s page",
   (TestUser user, context) async {
     router.user(context.world.sessions[user.name]!.userId);
+    await context.world.appDriver.waitForAppToSettle();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Routes the [RouterState] to the previous page.
+final StepDefinitionGeneric returnToPreviousPage = then<CustomWorld>(
+  'I return to previous page',
+  (context) async {
+    router.pop();
     await context.world.appDriver.waitForAppToSettle();
   },
   configuration: StepDefinitionConfiguration()

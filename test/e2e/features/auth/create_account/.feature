@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,21 +22,21 @@ Feature: Account creation
     And I wait until `IntroductionView` is present
     And I tap `CloseButton` button
 
-    Then I tap `MenuButton` button
-    And I tap `MyProfileButton` button
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
     And I wait until `MyProfileView` is present
+    And I wait until `NameField` is present
+    And I fill `NameField` field with "Alice"
+    And I tap `Approve` button
 
-    Then I fill `NameField` field with "Alice"
-
-    When I tap `PasswordExpandable` widget
-    Then I fill `NewPasswordField` field with "123"
+    When I tap `SetPassword` button
+    And I fill `NewPasswordField` field with "123"
     And I fill `RepeatPasswordField` field with "123"
+    And I tap `Proceed` button
+    And I tap `CloseButton` button
+    Then I wait until `ChangePassword` is present
 
-    Then I tap `ChangePasswordButton` button
-    And I wait until `CurrentPasswordField` is present
-
-    When I tap `DeleteAccountButton` button
-    And I wait until `AlertDialog` is present
-    And I tap `AlertYesButton` button
-
+    When I tap `DangerZone` button
+    And I tap `DeleteAccount` button
+    And I tap `Proceed` button
     Then I wait until `AuthView` is present

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -64,6 +65,7 @@ extension ChatConversion on ChatMixin {
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
+        favoritePosition: favoritePosition,
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
@@ -264,25 +266,6 @@ extension EventChatLastItemUpdatedConversion
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
-/// Constructs a new [HiveChatItem]s based on the [node] and [cursor].
-List<HiveChatItem> _chatItem(dynamic node, ChatItemsCursor cursor) {
-  if (node is ChatMemberInfoMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatCallMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatMessageMixin) {
-    return node.toHive(cursor);
-  } else if (node is NestedChatMessageMixin) {
-    return [node.toHive(cursor)];
-  } else if (node is ChatForwardMixin) {
-    return node.toHive(cursor);
-  } else if (node is NestedChatForwardMixin) {
-    return node.toHive(cursor);
-  }
-
-  throw UnimplementedError('$node is not implemented');
-}
-
 /// Extension adding models construction from [ChatAvatarMixin].
 extension ChatAvatarConversion on ChatAvatarMixin {
   /// Constructs a new [ChatAvatar] from this [ChatAvatarMixin].
@@ -414,12 +397,60 @@ extension GetAttachmentsChatMessageRepliesToAttachmentConversion
   Attachment toModel() => _attachment(this);
 }
 
+/// Extension adding models construction from [Muting].
+extension MutingToMuteDurationConversion on Muting {
+  /// Constructs a new [MuteDuration] from this [Muting].
+  MuteDuration toModel() {
+    if (duration == null) {
+      return MuteDuration.forever();
+    }
+
+    return MuteDuration.until(duration!);
+  }
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
+extension EventChatMuted$DurationConversion
+    on ChatEventsVersionedMixin$Events$EventChatMuted$Duration {
+  /// Constructs a new [MuteDuration] from this
+  /// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
+  MuteDuration toModel() {
+    if ($$typename == 'MuteForeverDuration') {
+      return MuteDuration.forever();
+    }
+
+    return MuteDuration.until((this
+            as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
+        .until);
+  }
+}
+
 /// Constructs a new [Attachment] based on the [node].
 Attachment _attachment(dynamic node) {
   if (node is ImageAttachmentMixin) {
     return node.toModel();
   } else if (node is FileAttachmentMixin) {
     return node.toModel();
+  }
+
+  throw UnimplementedError('$node is not implemented');
+}
+
+/// Constructs a new [HiveChatItem]s based on the [node] and [cursor].
+List<HiveChatItem> _chatItem(dynamic node, ChatItemsCursor cursor) {
+  if (node is ChatMemberInfoMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatCallMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatMessageMixin) {
+    return node.toHive(cursor);
+  } else if (node is NestedChatMessageMixin) {
+    return [node.toHive(cursor)];
+  } else if (node is ChatForwardMixin) {
+    return node.toHive(cursor);
+  } else if (node is NestedChatForwardMixin) {
+    return node.toHive(cursor);
   }
 
   throw UnimplementedError('$node is not implemented');

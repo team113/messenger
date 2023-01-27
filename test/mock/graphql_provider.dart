@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +30,9 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   MockedGraphQlProvider();
 
   final StreamController<QueryResult> ongoingCallStream =
+      StreamController<QueryResult>();
+
+  final StreamController<QueryResult> chatEventsStream =
       StreamController<QueryResult>();
 
   @override
@@ -80,5 +84,10 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
 
   @override
   Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) =>
+      Future.value(const Stream.empty());
+
+  @override
+  Future<Stream<QueryResult>> favoriteChatsEvents(
+          FavoriteChatsListVersion? ver) =>
       Future.value(const Stream.empty());
 }

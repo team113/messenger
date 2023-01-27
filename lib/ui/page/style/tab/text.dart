@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,12 +41,12 @@ class FontStyleTabView extends StatelessWidget {
           controller: ScrollController(),
           padding: const EdgeInsets.all(8),
           children: [
-            _font(
-                'Заголовок 3', 'Messenger', context.theme.textTheme.headline3!),
+            _font('Заголовок 3', 'Messenger',
+                context.theme.textTheme.displaySmall!),
             _font('Заголовок 4', 'Universal Messenger',
-                context.theme.textTheme.headline4!),
-            _font(
-                'Заголовок 5', 'by Gapopa', context.theme.textTheme.headline5!),
+                context.theme.textTheme.headlineMedium!),
+            _font('Заголовок 5', 'by Gapopa',
+                context.theme.textTheme.headlineSmall!),
             _font(
               'Кнопка',
               'Start chatting',

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,10 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:badges/badges.dart';
+import 'dart:ui';
+
+import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
@@ -25,10 +30,7 @@ class CustomNavigationBar extends StatelessWidget {
     Key? key,
     this.currentIndex = 0,
     this.items = const [],
-    this.size,
     this.onTap,
-    this.selectedColor = const Color(0xFF4193DC),
-    this.unselectedColor = const Color(0xA6818181),
   }) : super(key: key);
 
   /// Currently selected index of an item in the [items] list.
@@ -41,80 +43,92 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
-  /// Default size of [items] icons.
-  final double? size;
-
-  /// Selected item color.
-  final Color selectedColor;
-
-  /// Unselected item color.
-  final Color unselectedColor;
+  /// Height of the [CustomNavigationBar].
+  static const double height = 56;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: double.infinity,
-          color: const Color(0xFFE0E0E0),
-          height: 0.5,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: items
-                .mapIndexed(
-                  (i, e) => Expanded(
-                    key: e.key,
-                    child: InkResponse(
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () => onTap?.call(i),
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          color: currentIndex == i
-                              ? selectedColor
-                              : unselectedColor,
-                          fontSize: 11,
-                        ),
-                        child: Column(
-                          children: [
-                            if (e.icon != null)
-                              Badge(
-                                badgeContent: e.badge == null
-                                    ? null
-                                    : Text(
-                                        e.badge!,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                showBadge: e.badge != null,
-                                child: FaIcon(
-                                  e.icon,
-                                  color: e.color ??
-                                      (currentIndex == i
-                                          ? selectedColor
-                                          : unselectedColor),
-                                  size: e.size ?? size,
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      decoration: BoxDecoration(
+        boxShadow: const [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: Color(0x22000000),
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+        borderRadius: style.cardRadius,
+        border: style.cardBorder,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            borderRadius: style.cardRadius,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: style.cardColor,
+                borderRadius: style.cardRadius,
+              ),
+              height: height,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: items.mapIndexed((i, b) {
+                    return Expanded(
+                      key: b.key,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (b.child != null)
+                            InkResponse(
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              onTap: () => onTap?.call(i),
+                              child: Container(
+                                width: 80,
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: badges.Badge(
+                                    badgeStyle: badges.BadgeStyle(
+                                      badgeColor: b.badgeColor,
+                                    ),
+                                    badgeContent: b.badge == null
+                                        ? null
+                                        : Text(
+                                            b.badge!,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                    showBadge: b.badge != null,
+                                    child: b.child!,
+                                  ),
                                 ),
                               ),
-                            Text(e.label ?? ''),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
-                    ),
-                  ),
-                )
-                .toList(),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -123,30 +137,20 @@ class CustomNavigationBar extends StatelessWidget {
 class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
-    this.label,
-    this.icon,
-    this.size,
-    this.color,
     this.badge,
+    this.badgeColor = Colors.red,
+    this.child,
   });
 
   /// Unique [Key] of this [CustomNavigationBarItem].
   final Key? key;
 
-  /// Label of this item.
-  final String? label;
-
-  /// Icon of this item.
-  final IconData? icon;
-
-  /// Size of an [icon].
-  ///
-  /// Overrides the [CustomNavigationBar.size] for this item.
-  final double? size;
-
-  /// Color of an [icon].
-  final Color? color;
-
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  /// [Color] of the provided [badge], if any.
+  final Color badgeColor;
+
+  /// [Widget] to display.
+  final Widget? child;
 }

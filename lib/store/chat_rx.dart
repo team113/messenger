@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,10 +23,15 @@ import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
-    show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
+    show
+        ChatCallFinishReason,
+        ChatKind,
+        ChatMemberInfoAction,
+        PostChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -42,6 +48,7 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -50,13 +57,15 @@ import 'chat.dart';
 import 'event/chat.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
-class HiveRxChat implements RxChat {
+class HiveRxChat extends RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
+    this._draftLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
-        _local = ChatItemHiveProvider(hiveChat.value.id);
+        _local = ChatItemHiveProvider(hiveChat.value.id),
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
 
   @override
   final Rx<Chat> chat;
@@ -79,11 +88,20 @@ class HiveRxChat implements RxChat {
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
+  @override
+  final Rx<ChatMessage?> draft;
+
+  @override
+  final RxList<LastChatRead> reads = RxList();
+
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [RxChat.draft]s local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -96,6 +114,9 @@ class HiveRxChat implements RxChat {
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
+
+  /// [Timer] unmutting the muted [chat] when its [MuteDuration.until] expires.
+  Timer? _muteTimer;
 
   /// [ChatItemHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -115,8 +136,8 @@ class HiveRxChat implements RxChat {
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
 
-  /// Returns [ChatId] of the [chat].
-  ChatId get id => chat.value.id;
+  /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
+  StreamSubscription? _messagesSubscription;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -155,9 +176,32 @@ class HiveRxChat implements RxChat {
 
     status.value = RxStatus.loading();
 
+    reads.addAll(
+      chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
+    );
+
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isGroup ? null : _updateAvatar());
     _worker = ever(chat, (_) => _updateFields());
+
+    _messagesSubscription = messages.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.removed:
+          for (LastChatRead i in reads) {
+            // Recalculate the [LastChatRead]s pointing at the removed
+            // [ChatItem], if any.
+            if (e.element.value.at == i.at) {
+              i.at = _lastReadAt(i.at) ?? i.at;
+            }
+          }
+          break;
+
+        case OperationKind.added:
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
 
     return _guard.protect(() async {
       await _local.init(userId: me);
@@ -165,6 +209,8 @@ class HiveRxChat implements RxChat {
         for (HiveChatItem i in _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
         }
+
+        updateReads();
       }
 
       _initLocalSubscription();
@@ -199,8 +245,11 @@ class HiveRxChat implements RxChat {
     return _guard.protect(() async {
       status.value = RxStatus.loading();
       messages.clear();
+      reads.clear();
+      _muteTimer?.cancel();
       _localSubscription?.cancel();
       _remoteSubscription?.cancel();
+      _messagesSubscription?.cancel();
       _remoteSubscriptionInitialized = false;
       await _local.close();
       status.value = RxStatus.empty();
@@ -216,6 +265,44 @@ class HiveRxChat implements RxChat {
   void subscribe() {
     if (!_remoteSubscriptionInitialized) {
       _initRemoteSubscription(id);
+    }
+  }
+
+  @override
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {
+    ChatMessage? draft = _draftLocal.get(id);
+
+    if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
+      if (draft != null) {
+        _draftLocal.remove(id);
+      }
+    } else {
+      final bool repliesEqual = const IterableEquality().equals(
+        (draft?.repliesTo ?? []).map((e) => e.id),
+        repliesTo.map((e) => e.id),
+      );
+
+      final bool attachmentsEqual = const IterableEquality().equals(
+        (draft?.attachments ?? []).map((e) => [e.id, e.runtimeType]),
+        attachments.map((e) => [e.id, e.runtimeType]),
+      );
+
+      if (draft?.text != text || !repliesEqual || !attachmentsEqual) {
+        draft = ChatMessage(
+          ChatItemId.local(),
+          id,
+          me ?? const UserId('dummy'),
+          PreciseDateTime.now(),
+          text: text,
+          repliesTo: repliesTo,
+          attachments: attachments,
+        );
+        _draftLocal.put(id, draft);
+      }
     }
   }
 
@@ -245,12 +332,17 @@ class HiveRxChat implements RxChat {
         }
       }
 
+      Future.delayed(Duration.zero, updateReads);
       status.value = RxStatus.success();
     });
   }
 
   @override
   Future<void> updateAttachments(ChatItem item) async {
+    if (item.id.isLocal) {
+      return;
+    }
+
     HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
@@ -420,6 +512,8 @@ class HiveRxChat implements RxChat {
           _local.put(item);
         } else {
           if (saved.value.id.val != item.value.id.val) {
+            // TODO: Sort items by their [DateTime] and their [ID]s (if the
+            //       posting [DateTime] is the same).
             // If there's collision, then decrease timestamp with 1 millisecond
             // offset and save this item again.
             item.value.at =
@@ -508,6 +602,24 @@ class HiveRxChat implements RxChat {
     );
   }
 
+  /// Recalculates the [reads] to represent the actual [messages].
+  void updateReads() {
+    for (LastChatRead e in chat.value.lastReads) {
+      final PreciseDateTime? at = _lastReadAt(e.at);
+
+      if (at != null) {
+        final LastChatRead? read =
+            reads.firstWhereOrNull((m) => m.memberId == e.memberId);
+
+        if (read != null) {
+          read.at = at;
+        } else {
+          reads.add(LastChatRead(e.memberId, at));
+        }
+      }
+    }
+  }
+
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
@@ -516,6 +628,20 @@ class HiveRxChat implements RxChat {
 
     if (chat.value.isGroup) {
       avatar.value = chat.value.avatar;
+    }
+
+    _muteTimer?.cancel();
+    if (chat.value.muted?.until != null) {
+      _muteTimer = Timer(
+        chat.value.muted!.until!.val.difference(DateTime.now()),
+        () {
+          final HiveChat? chat = _chatLocal.get(id);
+          if (chat != null) {
+            chat.value.muted = null;
+            _chatLocal.put(chat);
+          }
+        },
+      );
     }
 
     // TODO: Users list can be huge, so we should implement pagination and
@@ -589,6 +715,14 @@ class HiveRxChat implements RxChat {
       avatar.value = member.user.value.avatar;
       _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
     }
+  }
+
+  /// Returns the [ChatItem.at] being the predecessor of the provided [at].
+  PreciseDateTime? _lastReadAt(PreciseDateTime at) {
+    return messages
+        .lastWhereOrNull((e) => e.value is! ChatMemberInfo && e.value.at <= at)
+        ?.value
+        .at;
   }
 
   /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
@@ -772,6 +906,13 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
               chatEntity.value.ongoingCall = event.call;
+
+              if (chat.value.isGroup) {
+                chatEntity.value.ongoingCall!.conversationStartedAt =
+                    PreciseDateTime.now();
+              }
+
+              _chatRepository.addCall(event.call);
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -791,6 +932,11 @@ class HiveRxChat implements RxChat {
                 chatEntity.value.lastItem = event.call;
               }
 
+              if (event.reason != ChatCallFinishReason.moved) {
+                _chatRepository.removeCredentials(event.call.id);
+                _chatRepository.endCall(event.call.chatId);
+              }
+
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);
 
@@ -802,11 +948,37 @@ class HiveRxChat implements RxChat {
               break;
 
             case ChatEventKind.callMemberLeft:
-              // TODO: Implement EventChatCallMemberLeft.
+              event as EventChatCallMemberLeft;
+              int? i = chatEntity.value.ongoingCall?.members
+                      .indexWhere((e) => e.user.id == event.user.id) ??
+                  -1;
+
+              if (i != -1) {
+                chatEntity.value.ongoingCall?.members.removeAt(i);
+              }
               break;
 
             case ChatEventKind.callMemberJoined:
-              // TODO: Implement EventChatCallMemberJoined.
+              event as EventChatCallMemberJoined;
+              chatEntity.value.ongoingCall?.members.add(
+                ChatCallMember(
+                  user: event.user,
+                  handRaised: false,
+                  joinedAt: event.at,
+                ),
+              );
+
+              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
+                  chat.value.isDialog) {
+                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                    .map((e) => e.user.id)
+                    .toSet();
+
+                if (ids != null && ids.length >= 2) {
+                  chatEntity.value.ongoingCall?.conversationStartedAt =
+                      PreciseDateTime.now();
+                }
+              }
               break;
 
             case ChatEventKind.lastItemUpdated:
@@ -829,6 +1001,19 @@ class HiveRxChat implements RxChat {
 
             case ChatEventKind.read:
               event as EventChatRead;
+
+              final PreciseDateTime? at = _lastReadAt(event.at);
+              if (at != null) {
+                final LastChatRead? read = reads
+                    .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+
+                if (read == null) {
+                  reads.add(LastChatRead(event.byUser.id, at));
+                } else {
+                  read.at = at;
+                }
+              }
+
               LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {
@@ -918,6 +1103,29 @@ class HiveRxChat implements RxChat {
 
             case ChatEventKind.callMoved:
               // TODO: Implement EventChatCallMoved.
+              break;
+
+            case ChatEventKind.favorited:
+              event as EventChatFavorited;
+              chatEntity.value.favoritePosition = event.position;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(
+                  chatEntity.value.id,
+                  chatEntity.value.id,
+                  _chatRepository.chats[chatEntity.value.id],
+                ),
+              );
+              break;
+
+            case ChatEventKind.unfavorited:
+              chatEntity.value.favoritePosition = null;
+              _chatRepository.chats.emit(
+                MapChangeNotification.updated(
+                  chatEntity.value.id,
+                  chatEntity.value.id,
+                  _chatRepository.chats[chatEntity.value.id],
+                ),
+              );
               break;
           }
         }

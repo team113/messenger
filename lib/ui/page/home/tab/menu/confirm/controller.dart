@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
@@ -35,6 +38,9 @@ class ConfirmLogoutController extends GetxController {
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Field for password input.
   late final TextFieldState password;
 
@@ -47,11 +53,19 @@ class ConfirmLogoutController extends GetxController {
   /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
+  /// Indicator whether the currently authenticated [MyUser] has a password.
+  late final RxBool hasPassword;
+
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
 
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUser.myUser;
+
   @override
   void onInit() {
+    hasPassword = RxBool(myUser.value?.hasPassword ?? false);
+
     password = TextFieldState(
       onChanged: (s) {
         password.error.value = null;

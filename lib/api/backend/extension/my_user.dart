@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,13 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '../schema.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/my_user.dart';
-import 'file.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
@@ -42,16 +41,7 @@ extension MyUserConversion on MyUserMixin {
                 usageCount: chatDirectLink!.usageCount,
               )
             : null,
-        avatar: avatar == null
-            ? null
-            : UserAvatar(
-                galleryItemId: avatar!.galleryItemId,
-                full: avatar!.full.toModel(),
-                big: avatar!.big.toModel(),
-                medium: avatar!.medium.toModel(),
-                small: avatar!.small.toModel(),
-                original: avatar!.original.toModel(),
-              ),
+        avatar: avatar?.toModel(),
         gallery: gallery.nodes.map((e) => e.toModel()).toList(),
         status: status,
         presenceIndex: presence.index,

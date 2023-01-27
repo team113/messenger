@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,7 +20,6 @@ import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -27,14 +27,14 @@ import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '/config.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -51,6 +51,7 @@ class CallWorker extends DisposableService {
     this._background,
     this._callService,
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
@@ -65,6 +66,9 @@ class CallWorker extends DisposableService {
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// [MyUserService] used to get [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -90,6 +94,9 @@ class CallWorker extends DisposableService {
 
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -170,25 +177,21 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification) {
+              if (showNotification && _myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
+                  if (chat?.chat.value.muted == null) {
+                    String? title = chat?.title.value ??
+                        c.caller?.name?.val ??
+                        c.caller?.num.val;
 
-                  String? avatarUrl;
-                  Avatar? avatar = chat?.avatar.value;
-                  if (avatar != null) {
-                    avatarUrl = '${Config.files}${avatar.original.relativeRef}';
+                    _notificationService.show(
+                      title ?? 'label_incoming_call'.l10n,
+                      body: title == null ? null : 'label_incoming_call'.l10n,
+                      payload: '${Routes.chat}/${c.chatId}',
+                      icon: chat?.avatar.value?.original.url,
+                      playSound: false,
+                    );
                   }
-
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: avatarUrl,
-                    playSound: false,
-                  );
                 });
               }
             }
@@ -270,10 +273,8 @@ class CallWorker extends DisposableService {
   void onClose() {
     _audioPlayer?.dispose();
 
-    [
-      AudioCache.instance.loadedFiles['audio/ringing.mp3'],
-      AudioCache.instance.loadedFiles['audio/chinese.mp3'],
-    ].whereNotNull().forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/ringing.mp3');
+    AudioCache.instance.clear('audio/chinese.mp3');
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -291,18 +292,20 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset) async {
-    runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer?.play(
-        AssetSource('audio/$asset'),
-        position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
-      );
-    }, (e, _) {
-      if (!e.toString().contains('NotAllowedError')) {
-        throw e;
-      }
-    });
+    if (_myUser.value?.muted == null) {
+      runZonedGuarded(() async {
+        await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer?.play(
+          AssetSource('audio/$asset'),
+          position: Duration.zero,
+          mode: PlayerMode.mediaPlayer,
+        );
+      }, (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      });
+    }
   }
 
   /// Stops the audio that is currently playing.

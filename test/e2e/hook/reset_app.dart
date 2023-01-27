@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,9 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
+import 'package:messenger/util/platform_utils.dart';
+
+import '../steps/internet.dart';
 
 /// [Hook] resetting the [Hive] and [Get] states after a test.
 class ResetAppHook extends Hook {
@@ -37,6 +41,8 @@ class ResetAppHook extends Hook {
 
     await Get.deleteAll(force: true);
     Get.reset();
+
+    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
     await Hive.close();

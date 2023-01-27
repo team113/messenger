@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,11 +22,9 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/config.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import 'file.dart';
@@ -126,18 +125,13 @@ class FileAttachment extends Attachment {
       }
     }
 
-    String downloads = await PlatformUtils.downloadsDirectory;
-    String name = p.basenameWithoutExtension(filename);
-    String ext = p.extension(filename);
-    File file = File('$downloads/$filename');
+    File? file = await PlatformUtils.fileExists(
+      filename,
+      size: original.size,
+      url: original.url,
+    );
 
-    for (int i = 1;
-        await file.exists() && await file.length() != original.size;
-        ++i) {
-      file = File('$downloads/$name ($i)$ext');
-    }
-
-    if (await file.exists()) {
+    if (file != null) {
       downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
@@ -155,8 +149,9 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        '${Config.files}${original.relativeRef}',
+        original.url,
         filename,
+        original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );

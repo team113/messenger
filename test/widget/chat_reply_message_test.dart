@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,8 +41,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -64,6 +68,22 @@ import 'chat_reply_message_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
+
+  var userData = {
+    'id': 'me',
+    'num': '1234567890123456',
+    'login': 'login',
+    'name': 'name',
+    'bio': 'bio',
+    'emails': {'confirmed': [], 'unconfirmed': null},
+    'phones': {'confirmed': [], 'unconfirmed': null},
+    'gallery': {'nodes': []},
+    'hasPassword': true,
+    'unreadChatsCount': 0,
+    'ver': '0',
+    'online': {'__typename': 'UserOnline'},
+    'presence': 'AWAY',
+  };
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -97,6 +117,9 @@ void main() async {
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+
+  when(graphQlProvider.getUser(const UserId('me')))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
@@ -228,6 +251,10 @@ void main() async {
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -267,10 +294,15 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -309,25 +341,37 @@ void main() async {
         backgroundProvider,
       ),
     );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        callRepository,
+        draftProvider,
         userRepository,
+        sessionProvider,
         me: const UserId('me'),
       ),
     );
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
 
     Get.put(UserService(userRepository));
-    Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
 
     var message = find.text('text message', skipOffstage: false);
     expect(message, findsOneWidget);
@@ -338,7 +382,10 @@ void main() async {
     await tester.tap(find.byKey(const Key('ReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('CancelReplyButton_0')));
+    await gesture.moveTo(tester.getCenter(find.byKey(const Key('Reply_0'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byKey(const Key('CancelReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.longPress(message);

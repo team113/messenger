@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -406,6 +407,52 @@ abstract class CallGraphQlMixin {
     );
     return (ToggleCallHand$Mutation.fromJson(result.data!).toggleChatCallHand
         as ChatCallEventsVersionedMixin?);
+  }
+
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  ///
+  /// For using this mutation the authenticated [MyUser] must be a member of the
+  /// ongoing [ChatCall].
+  ///
+  /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
+  /// and the ongoing [ChatCall] appearing in his [incomingCallsTopEvents]
+  /// again.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [ChatCallEvent]s may be produced on success:
+  /// - [EventChatCallMemberRedialed].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the redialed [User]
+  /// didn't decline or leave the [ChatCall] yet, or has been redialed already.
+  Future<ChatCallEventsVersionedMixin?> redialChatCallMember(
+    ChatId chatId,
+    UserId memberId,
+  ) async {
+    final variables = RedialChatCallMemberArguments(
+      chatId: chatId,
+      memberId: memberId,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'RedialChatCallMember',
+        document: RedialChatCallMemberMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => RedialChatCallMemberException(
+          (RedialChatCallMember$Mutation.fromJson(data).redialChatCallMember
+                  as RedialChatCallMember$Mutation$RedialChatCallMember$RedialChatCallMemberError)
+              .code),
+    );
+    return (RedialChatCallMember$Mutation.fromJson(result.data!)
+        .redialChatCallMember as ChatCallEventsVersionedMixin?);
   }
 
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created

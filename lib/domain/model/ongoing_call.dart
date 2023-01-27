@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,8 +32,8 @@ import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'chat.dart';
-import 'chat_item.dart';
 import 'chat_call.dart';
+import 'chat_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -148,6 +149,7 @@ class OngoingCall {
         _me = CallMemberId(me, null),
         audioDevice = RxnString(mediaSettings?.audioDevice),
         videoDevice = RxnString(mediaSettings?.videoDevice),
+        screenDevice = RxnString(mediaSettings?.screenDevice),
         outputDevice = RxnString(mediaSettings?.outputDevice) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
@@ -206,6 +208,9 @@ class OngoingCall {
   /// ID of the currently used microphone device.
   late final RxnString audioDevice;
 
+  /// ID of the currently used screen share device.
+  final RxnString screenDevice;
+
   /// ID of the currently used audio output device.
   late final RxnString outputDevice;
 
@@ -232,6 +237,12 @@ class OngoingCall {
   /// and not just as a notification of an ongoing call in background.
   bool connected = false;
 
+  /// List of [MediaDeviceInfo] of all the available devices.
+  final InputDevices devices = RxList<MediaDeviceInfo>([]);
+
+  /// List of [MediaDisplayInfo] of all the available displays.
+  final RxList<MediaDisplayInfo> displays = RxList<MediaDisplayInfo>([]);
+
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
   bool _background = true;
@@ -251,9 +262,6 @@ class OngoingCall {
   /// Heartbeat subscription indicating that [MyUser] is connected and this
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
-
-  /// List of [MediaDeviceInfo] of all the available devices.
-  final InputDevices _devices = RxList<MediaDeviceInfo>([]);
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
@@ -287,9 +295,6 @@ class OngoingCall {
   PreciseDateTime? get conversationStartedAt =>
       call.value?.conversationStartedAt;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => RxList.unmodifiable(_devices);
-
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive => (state.value == OngoingCallState.active ||
       state.value == OngoingCallState.joining);
@@ -314,8 +319,28 @@ class OngoingCall {
 
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
+        final List<MediaDeviceInfo> previous =
+            List.from(devices, growable: false);
+
         await enumerateDevices();
-        _pickOutputDevice();
+
+        final List<MediaDeviceInfo> added = [];
+        final List<MediaDeviceInfo> removed = [];
+
+        for (MediaDeviceInfo d in devices) {
+          if (previous.none((p) => p.deviceId() == d.deviceId())) {
+            added.add(d);
+          }
+        }
+
+        for (MediaDeviceInfo d in previous) {
+          if (devices.none((p) => p.deviceId() == d.deviceId())) {
+            removed.add(d);
+          }
+        }
+
+        _pickAudioDevice(previous, added, removed);
+        _pickOutputDevice(previous, added, removed);
       });
 
       _initRoom();
@@ -357,6 +382,7 @@ class OngoingCall {
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);
+              calls.removeCredentials(node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -374,7 +400,6 @@ class OngoingCall {
 
             call.value = node.call;
             call.refresh();
-
             break;
 
           case ChatCallEventsKind.event:
@@ -397,6 +422,7 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
+                    calls.removeCredentials(node.call.id);
                     calls.remove(chatId.value);
                   }
                   break;
@@ -472,7 +498,12 @@ class OngoingCall {
                   connected = false;
                   connect(calls);
 
-                  calls.moveCall(node.chatId, node.newChatId);
+                  calls.moveCall(
+                    chatId: node.chatId,
+                    newChatId: node.newChatId,
+                    callId: node.callId,
+                    newCallId: node.newCallId,
+                  );
                   break;
 
                 case ChatCallEventKind.redialed:
@@ -516,7 +547,7 @@ class OngoingCall {
   /// Leaves this [OngoingCall].
   ///
   /// Throws a [LeaveChatCallException].
-  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId!);
+  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId);
 
   /// Declines this [OngoingCall].
   ///
@@ -540,23 +571,30 @@ class OngoingCall {
       );
 
   /// Enables/disables local screen-sharing stream based on [enabled].
-  Future<void> setScreenShareEnabled(bool enabled) async {
+  Future<void> setScreenShareEnabled(bool enabled, {String? deviceId}) async {
     switch (screenShareState.value) {
       case LocalTrackState.disabled:
       case LocalTrackState.disabling:
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
+            await _updateSettings(screenDevice: deviceId);
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            screenShareState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('enableScreenShare() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            _errors.add('enableVideo() call failed with $e');
+            _errors.add('enableScreenShare() call failed with $e');
             rethrow;
           }
         }
@@ -573,7 +611,7 @@ class OngoingCall {
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } catch (e) {
-            _errors.add('disableVideo() call failed with $e');
+            _errors.add('disableScreenShare() call failed with $e');
             screenShareState.value = LocalTrackState.enabled;
             rethrow;
           }
@@ -601,8 +639,17 @@ class OngoingCall {
             }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
+            if (!isActive || members.length <= 1) {
+              await _updateTracks();
+            }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            audioState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('unmuteAudio() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
             _errors.add('unmuteAudio() call failed with $e');
@@ -641,10 +688,16 @@ class OngoingCall {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
             if (!isActive || members.length <= 1) {
-              _updateTracks();
+              await _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
             // No-op.
+          } on LocalMediaInitException catch (e) {
+            videoState.value = LocalTrackState.disabled;
+            if (!e.message().contains('Permission denied')) {
+              _errors.add('enableVideo() call failed with $e');
+              rethrow;
+            }
           } catch (e) {
             _errors.add('enableVideo() call failed with $e');
             videoState.value = LocalTrackState.disabled;
@@ -673,11 +726,6 @@ class OngoingCall {
     }
   }
 
-  /// Toggles local screen-sharing stream on and off.
-  Future<void> toggleScreenShare() =>
-      setScreenShareEnabled(screenShareState.value != LocalTrackState.enabled &&
-          screenShareState.value != LocalTrackState.enabling);
-
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() =>
       setAudioEnabled(audioState.value != LocalTrackState.enabled &&
@@ -692,9 +740,13 @@ class OngoingCall {
   /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices() async {
     try {
-      _devices.value = (await _mediaManager!.enumerateDevices())
+      devices.value = (await _mediaManager!.enumerateDevices())
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
+
+      if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+        displays.value = await _mediaManager!.enumerateDisplays();
+      }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
       rethrow;
@@ -707,7 +759,7 @@ class OngoingCall {
   Future<void> setAudioDevice(String deviceId) async {
     if ((audioDevice.value != null && deviceId != audioDevice.value) ||
         (audioDevice.value == null &&
-            _devices.audio().firstOrNull?.deviceId() != deviceId)) {
+            devices.audio().firstOrNull?.deviceId() != deviceId)) {
       await _updateSettings(audioDevice: deviceId);
     }
   }
@@ -718,7 +770,7 @@ class OngoingCall {
   Future<void> setVideoDevice(String deviceId) async {
     if ((videoDevice.value != null && deviceId != videoDevice.value) ||
         (videoDevice.value == null &&
-            _devices.video().firstOrNull?.deviceId() != deviceId)) {
+            devices.video().firstOrNull?.deviceId() != deviceId)) {
       await _updateSettings(videoDevice: deviceId);
     }
   }
@@ -810,14 +862,16 @@ class OngoingCall {
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   ///
-  /// Optionally, [audioDevice] and [videoDevice] set the devices and
-  /// [facingMode] sets the ideal [FacingMode] of the local video stream.
+  /// Optionally, [audioDevice], [videoDevice] and [screenDevice] set the
+  /// devices and [facingMode] sets the ideal [FacingMode] of the local video
+  /// stream.
   MediaStreamSettings _mediaStreamSettings({
     bool audio = true,
     bool video = true,
     bool screen = true,
     String? audioDevice,
     String? videoDevice,
+    String? screenDevice,
     FacingMode? facingMode,
   }) {
     MediaStreamSettings settings = MediaStreamSettings();
@@ -836,7 +890,12 @@ class OngoingCall {
     }
 
     if (screen) {
-      settings.displayVideo(DisplayVideoTrackConstraints());
+      DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
+      if (screenDevice != null) {
+        constraints.deviceId(screenDevice);
+      }
+      constraints.idealFrameRate(30);
+      settings.displayVideo(constraints);
     }
 
     return settings;
@@ -863,11 +922,19 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to initiate screen capture: $e');
               await setScreenShareEnabled(false);
               break;
 
             default:
+              if (e.message().contains('Permission denied')) {
+                break;
+              }
+
               _errors.add('Failed to get media: $e');
 
               await _room?.disableAudio();
@@ -881,6 +948,7 @@ class OngoingCall {
 
               await setScreenShareEnabled(false);
               screenShareState.value = LocalTrackState.disabled;
+              screenDevice.value = null;
               return;
           }
         } catch (e) {
@@ -911,6 +979,7 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
+        member._connection = conn;
         member.isConnected.value = true;
       } else {
         members[id] = CallMember(
@@ -1031,6 +1100,7 @@ class OngoingCall {
     await _mediaSettingsGuard.protect(() async {
       // Populate [devices] with a list of available media input devices.
       if (videoDevice.value == null &&
+          screenDevice.value == null &&
           (audioDevice.value == null || audioDevice.value == 'default') &&
           (outputDevice.value == null || outputDevice.value == 'default')) {
         enumerateDevices();
@@ -1060,6 +1130,7 @@ class OngoingCall {
             screen: screenShareState.value == LocalTrackState.enabling,
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
+            screenDevice: screenDevice.value,
             facingMode: videoDevice.value == null ? FacingMode.User : null,
           ));
         } on LocalMediaInitException catch (e) {
@@ -1077,6 +1148,7 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              screenDevice.value = null;
               screenShareState.value = LocalTrackState.disabled;
               await initLocalTracks();
               break;
@@ -1085,6 +1157,19 @@ class OngoingCall {
               rethrow;
           }
         }
+      }
+
+      if (audioState.value != LocalTrackState.enabled &&
+          audioState.value != LocalTrackState.enabling) {
+        await _room?.muteAudio();
+      }
+      if (videoState.value != LocalTrackState.enabled &&
+          videoState.value != LocalTrackState.enabling) {
+        await _room?.disableVideo(MediaSourceKind.Device);
+      }
+      if (screenShareState.value != LocalTrackState.enabled &&
+          screenShareState.value != LocalTrackState.enabling) {
+        await _room?.disableVideo(MediaSourceKind.Display);
       }
 
       try {
@@ -1116,22 +1201,13 @@ class OngoingCall {
               : screenShareState.value;
 
       try {
-        if (audioState.value != LocalTrackState.enabled) {
-          await _room?.muteAudio();
-        }
-        if (videoState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Device);
-        }
-        if (screenShareState.value != LocalTrackState.enabled) {
-          await _room?.disableVideo(MediaSourceKind.Display);
-        }
-
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(
           _mediaStreamSettings(
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
+            screenDevice: screenDevice.value,
           ),
           false,
           true,
@@ -1197,27 +1273,33 @@ class OngoingCall {
     members.removeWhere((id, _) => id != _me);
   }
 
-  /// Updates the local media settings with [audioDevice] or [videoDevice].
+  /// Updates the local media settings with [audioDevice], [videoDevice] or
+  /// [screenDevice].
   Future<void> _updateSettings({
     String? audioDevice,
     String? videoDevice,
+    String? screenDevice,
   }) async {
-    if (audioDevice != null || videoDevice != null) {
+    if (audioDevice != null || videoDevice != null || screenDevice != null) {
       try {
         await _mediaSettingsGuard.acquire();
         _removeLocalTracks(
           audioDevice == null ? MediaKind.Video : MediaKind.Audio,
-          MediaSourceKind.Device,
+          screenDevice == null
+              ? MediaSourceKind.Device
+              : MediaSourceKind.Display,
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
           audioDevice: audioDevice ?? this.audioDevice.value,
           videoDevice: videoDevice ?? this.videoDevice.value,
+          screenDevice: screenDevice ?? this.screenDevice.value,
         );
         try {
           await _room?.setLocalMediaSettings(settings, true, true);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
+          this.screenDevice.value = screenDevice ?? this.screenDevice.value;
 
           if (!isActive || members.length <= 1) {
             await _updateTracks();
@@ -1234,6 +1316,10 @@ class OngoingCall {
   /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
+    if (_mediaManager == null) {
+      return;
+    }
+
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled,
@@ -1241,6 +1327,7 @@ class OngoingCall {
         screen: screenShareState.value.isEnabled,
         audioDevice: audioDevice.value,
         videoDevice: videoDevice.value,
+        screenDevice: screenDevice.value,
       ),
     );
 
@@ -1276,6 +1363,9 @@ class OngoingCall {
 
         if (track.mediaSourceKind() == MediaSourceKind.Device) {
           videoDevice.value = videoDevice.value ?? track.getTrack().deviceId();
+        } else if (track.mediaSourceKind() == MediaSourceKind.Display) {
+          screenDevice.value =
+              screenDevice.value ?? track.getTrack().deviceId();
         }
 
         await t.createRenderer();
@@ -1303,45 +1393,63 @@ class OngoingCall {
     });
   }
 
-  /// Ensures the [audioDevice], [videoDevice] and [outputDevice] are present in
-  /// the [devices] list.
+  /// Ensures the [audioDevice], [videoDevice], [screenDevice], and
+  /// [outputDevice] are present in the [devices] list.
   ///
   /// If the device is not found, then sets it to `null`.
   void _ensureCorrectDevices() {
     if (audioDevice.value != null &&
-        _devices.audio().none((d) => d.deviceId() == audioDevice.value)) {
+        devices.audio().none((d) => d.deviceId() == audioDevice.value)) {
       audioDevice.value = null;
     }
 
     if (videoDevice.value != null &&
-        _devices.video().none((d) => d.deviceId() == videoDevice.value)) {
+        devices.video().none((d) => d.deviceId() == videoDevice.value)) {
       videoDevice.value = null;
     }
 
+    if (screenDevice.value != null &&
+        displays.none((d) => d.deviceId() == screenDevice.value)) {
+      screenDevice.value = null;
+    }
+
     if (outputDevice.value != null &&
-        _devices.output().none((d) => d.deviceId() == outputDevice.value)) {
+        devices.output().none((d) => d.deviceId() == outputDevice.value)) {
       outputDevice.value = null;
     }
   }
 
-  /// Updates the [outputDevice] on Android.
-  ///
-  /// The following priority is used:
-  /// 1. bluetooth headset;
-  /// 2. speakerphone.
-  void _pickOutputDevice() {
-    if (PlatformUtils.isAndroid) {
-      var output = devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'bluetooth-headset')
-              ?.deviceId() ??
-          devices
-              .output()
-              .firstWhereOrNull((e) => e.deviceId() == 'speakerphone')
-              ?.deviceId();
-      if (output != null && outputDevice.value != output) {
-        setOutputDevice(output);
-      }
+  /// Picks the [outputDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickOutputDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.output().isNotEmpty) {
+      setOutputDevice(added.output().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+        (outputDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+      setOutputDevice(devices.output().first.deviceId());
+    }
+  }
+
+  /// Picks the [audioDevice] based on the provided [previous], [added] and
+  /// [removed].
+  void _pickAudioDevice([
+    List<MediaDeviceInfo> previous = const [],
+    List<MediaDeviceInfo> added = const [],
+    List<MediaDeviceInfo> removed = const [],
+  ]) {
+    if (added.audio().isNotEmpty) {
+      setAudioDevice(added.audio().first.deviceId());
+    } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+        (audioDevice.value == null &&
+            removed.any((e) =>
+                e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+      setAudioDevice(devices.audio().first.deviceId());
     }
   }
 }
@@ -1571,7 +1679,7 @@ class Track {
   }
 }
 
-extension DevicesList on InputDevices {
+extension DevicesList on List<MediaDeviceInfo> {
   /// Returns a new [Iterable] with [MediaDeviceInfo]s of
   /// [MediaDeviceKind.videoinput].
   Iterable<MediaDeviceInfo> video() {

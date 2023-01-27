@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,11 +28,14 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -56,6 +60,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -66,6 +80,10 @@ void main() async {
   await myUserProvider.clear();
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
+  var userProvider = UserHiveProvider();
+  await userProvider.init();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -152,15 +170,33 @@ void main() async {
       }).deleteUserEmail),
     );
 
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    );
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    await Future.delayed(Duration.zero);
+
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.addUserEmail(UserEmail('test@mail.ru'));
@@ -207,9 +243,16 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     expect(

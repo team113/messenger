@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -89,9 +90,13 @@ class ChatContactId extends NewType<String> {
 /// Position of a [ChatContact] in a favorites list of the authenticated
 /// [MyUser].
 @HiveType(typeId: ModelTypeId.chatContactPosition)
-class ChatContactPosition extends NewType<double> {
+class ChatContactPosition extends NewType<double>
+    implements Comparable<ChatContactPosition> {
   const ChatContactPosition(double val) : super(val);
 
   factory ChatContactPosition.parse(String val) =>
       ChatContactPosition(double.parse(val));
+
+  @override
+  int compareTo(ChatContactPosition other) => val.compareTo(other.val);
 }

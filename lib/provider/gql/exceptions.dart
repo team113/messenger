@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/util/localized_exception.dart';
 
@@ -40,13 +42,13 @@ class GraphQlProviderExceptions {
   /// [parse]s exceptions of the given [result] and throws if any.
   static void fire(QueryResult result,
       [Exception Function(Map<String, dynamic>)? handleException]) {
-    Exception? exception = parse(result, handleException);
+    Object? exception = parse(result, handleException);
     if (exception != null) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
   /// has the specified error code or `null` if no exception was found.
-  static Exception? parse(QueryResult result,
+  static Object? parse(QueryResult result,
       [Exception Function(Map<String, dynamic>)? handleException]) {
     if (result.hasException) {
       if (result.exception == null) {
@@ -73,6 +75,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
+        } else if (result.exception!.graphqlErrors.any(
+            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          return const InvalidScalarException<UserPhone>();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -205,6 +210,14 @@ class ResubscriptionRequiredException implements Exception {
 
   @override
   String toString() => 'ResubscriptionRequiredException()';
+}
+
+/// Exception of an invalid GraphQL scalar being parsed when expecting the [T].
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
+
+  @override
+  String toString() => 'InvalidScalarException<$T>()';
 }
 
 /// Exception of `Mutation.createSession` described in the [code].
@@ -397,7 +410,7 @@ class DeclineChatCallException
   final DeclineChatCallErrorCode code;
 
   @override
-  String toString() => 'LeaveChatCallException($code)';
+  String toString() => 'DeclineChatCallException($code)';
 
   @override
   String toMessage() {
@@ -430,7 +443,7 @@ class UpdateUserLoginException
       case UpdateUserLoginErrorCode.occupied:
         return 'err_login_occupied'.l10n;
       case UpdateUserLoginErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
     }
   }
 }
@@ -560,7 +573,7 @@ class ValidateUserPasswordRecoveryCodeException
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -810,9 +823,9 @@ class ConfirmUserEmailException
   String toMessage() {
     switch (code) {
       case ConfirmUserEmailErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
       case ConfirmUserEmailErrorCode.occupied:
-        return 'err_email_occupied'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ConfirmUserEmailErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -837,7 +850,7 @@ class ConfirmUserPhoneException
       case ConfirmUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case ConfirmUserPhoneErrorCode.occupied:
-        return 'err_phone_occupied'.l10n;
+        return 'err_wrong_recovery_code'.l10n;
       case ConfirmUserPhoneErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -993,6 +1006,37 @@ class ToggleChatCallHandException
       case ToggleChatCallHandErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
       case ToggleChatCallHandErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.redialChatCallMember` described in the [code].
+class RedialChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RedialChatCallMemberException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RedialChatCallMemberErrorCode code;
+
+  @override
+  String toString() => 'RedialChatCallMemberException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RedialChatCallMemberErrorCode.notCallMember:
+        return 'err_not_call_member'.l10n;
+      case RedialChatCallMemberErrorCode.noCall:
+        return 'err_call_not_found'.l10n;
+      case RedialChatCallMemberErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case RedialChatCallMemberErrorCode.notChatMember:
+        return 'err_not_member'.l10n;
+      case RedialChatCallMemberErrorCode.notGroup:
+        return 'err_contact_not_group'.l10n;
+      case RedialChatCallMemberErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
@@ -1158,6 +1202,29 @@ class UpdateUserCallCoverException
   }
 }
 
+/// Exception of `Mutation.toggleMyUserMute` described in the [code].
+class ToggleMyUserMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleMyUserMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleMyUserMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleMyUserMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleMyUserMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleMyUserMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.uploadUserGalleryItem` described in the [code].
 class UploadUserGalleryItemException
     with LocalizedExceptionMixin
@@ -1253,6 +1320,200 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unknownAttachment:
         return 'err_unknown_attachment'.l10n;
       case ForwardChatItemsErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.updateChatAvatar` described in the [code].
+class UpdateChatAvatarException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateChatAvatarException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateChatAvatarErrorCode code;
+
+  @override
+  String toString() => 'UpdateChatAvatarException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateChatAvatarErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+        return 'err_invalid_crop_coordinates'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropPoints:
+        return 'err_invalid_crop_points'.l10n;
+      case UpdateChatAvatarErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateChatAvatarErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.toggleChatMute` described in the [code].
+class ToggleChatMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleChatMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleChatMuteErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ToggleChatMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.favoriteChat` described in the [code].
+class FavoriteChatException with LocalizedExceptionMixin implements Exception {
+  const FavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChat` described in the [code].
+class UnfavoriteChatException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatErrorCode code;
+
+  @override
+  String toString() => 'UnfavoriteChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.favoriteChatContact` described in the [code].
+class FavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const FavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final FavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'FavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case FavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case FavoriteChatContactErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unfavoriteChatContact` described in the [code].
+class UnfavoriteChatContactException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnfavoriteChatContactException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnfavoriteChatContactErrorCode code;
+
+  @override
+  String toString() => 'UnfavoriteChatContactException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnfavoriteChatContactErrorCode.unknownChatContact:
+        return 'err_unknown_chat'.l10n;
+      case UnfavoriteChatContactErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.blacklistUser` described in the [code].
+class BlacklistUserException with LocalizedExceptionMixin implements Exception {
+  const BlacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final BlacklistUserErrorCode code;
+
+  @override
+  String toString() => 'BlacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case BlacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case BlacklistUserErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.unblacklistUser` described in the [code].
+class UnblacklistUserException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UnblacklistUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UnblacklistUserErrorCode code;
+
+  @override
+  String toString() => 'UnblacklistUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UnblacklistUserErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
+      case UnblacklistUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

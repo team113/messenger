@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -53,6 +54,7 @@ class Chat extends HiveObject {
     this.unreadCount = 0,
     this.totalCount = 0,
     this.ongoingCall,
+    this.favoritePosition,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
@@ -148,6 +150,11 @@ class Chat extends HiveObject {
   @HiveField(16)
   ChatCall? ongoingCall;
 
+  /// Position of this [Chat] in the favorites list of the authenticated
+  /// [MyUser].
+  @HiveField(17)
+  ChatFavoritePosition? favoritePosition;
+
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
 
@@ -189,7 +196,7 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId me) {
+  bool isRead(ChatItem item, UserId? me) {
     return lastReads.firstWhereOrNull(
             (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
         null;
@@ -257,4 +264,17 @@ class ChatName extends NewType<String> {
 
   /// Regular expression for a [ChatName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+}
+
+/// Position of this [Chat] in the favorites list of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.chatFavoritePosition)
+class ChatFavoritePosition extends NewType<double>
+    implements Comparable<ChatFavoritePosition> {
+  const ChatFavoritePosition(double val) : super(val);
+
+  factory ChatFavoritePosition.parse(String val) =>
+      ChatFavoritePosition(double.parse(val));
+
+  @override
+  int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
 }

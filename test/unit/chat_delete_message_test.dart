@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,17 +27,25 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -56,6 +65,8 @@ void main() async {
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
   sessionProvider.setCredentials(
     Credentials(
       Session(
@@ -71,6 +82,16 @@ void main() async {
   );
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -102,6 +123,8 @@ void main() async {
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.keepOnline())
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
@@ -121,6 +144,18 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
+  AbstractSettingsRepository settingsRepository = Get.put(
+    SettingsRepository(
+      mediaSettingsProvider,
+      applicationSettingsProvider,
+      backgroundProvider,
+    ),
+  );
+
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
@@ -129,13 +164,27 @@ void main() async {
   );
   await authService.init();
 
-  var chatHiveProvider = ChatHiveProvider();
-  await chatHiveProvider.init();
-
   UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  CallRepository callRepository = Get.put(
+    CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    ),
+  );
   AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
+    ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      callRepository,
+      draftProvider,
+      userRepository,
+      sessionProvider,
+    ),
+  );
   ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
   test('ChatService successfully deletes chat message', () async {
@@ -143,7 +192,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.deleteChatItem(
       ChatMessage(
@@ -166,7 +215,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(const DeleteChatMessageException(
         DeleteChatMessageErrorCode.unknownChatItem));
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.deleteChatItem(ChatMessage(
@@ -189,7 +238,7 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -211,7 +260,7 @@ void main() async {
     )).thenThrow(
         const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.hideChatItem(ChatMessage(

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -91,6 +92,14 @@ class UserService extends DisposableService {
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) => _userRepository.get(id);
+
+  /// Blacklists the specified [User] for the authenticated [MyUser].
+  Future<void> blacklistUser(UserId id) => _userRepository.blacklistUser(id);
+
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
+  Future<void> unblacklistUser(UserId id) =>
+      _userRepository.unblacklistUser(id);
 
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();

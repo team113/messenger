@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,7 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show Dio, DioError, Options, Response;
+import 'package:dio/dio.dart' as dio show DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -25,6 +26,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '/config.dart';
 import '/domain/model/session.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 import 'exceptions.dart';
 
 /// Base GraphQl provider.
@@ -179,7 +181,7 @@ class GraphQlClient {
     var stream = (await client).subscribe(options);
 
     final connection = SubscriptionConnection(stream.expand((event) {
-      Exception? e = GraphQlProviderExceptions.parse(event);
+      Object? e = GraphQlProviderExceptions.parse(event);
 
       if (e != null) {
         if (e is AuthorizationException) {
@@ -205,13 +207,12 @@ class GraphQlClient {
     void Function(int, int)? onSendProgress,
   }) =>
       _middleware(() async {
-        var client = dio.Dio();
-        var authorized = options ?? dio.Options();
+        final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
         authorized.headers!['Authorization'] = 'Bearer $token';
 
         try {
-          return await client.post<T>(
+          return await PlatformUtils.dio.post<T>(
             '${Config.url}:${Config.port}${Config.graphql}',
             data: data,
             options: authorized,

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
@@ -38,16 +40,19 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'add_dialog_member/view.dart';
 import 'component/common.dart';
+import 'participant/view.dart';
+import 'screen_share/view.dart';
 import 'settings/view.dart';
+import 'widget/dock.dart';
 
 export 'view.dart';
 
@@ -140,22 +145,19 @@ class CallController extends GetxController {
   final RxBool cameraSwitched = RxBool(false);
 
   /// Indicator whether the speaker was switched or not.
-  final RxBool speakerSwitched = RxBool(true);
+  late final RxBool speakerSwitched;
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
-
-  /// Indicator whether the hint is dismissed or not.
-  final RxBool isHintDismissed = RxBool(false);
-
-  /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
 
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
+
+  /// [DateTime] of when the last [Listener.onPointerDown] callback happened.
+  DateTime? downAt;
 
   /// Position of a [Listener.onPointerDown] callback used in
   /// [Listener.onPointerUp] since the latter does not provide this info.
@@ -170,17 +172,6 @@ class CallController extends GetxController {
 
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
-
-  /// Temporary indicator whether the secondary view should always be on top.
-  final RxBool panelUp = RxBool(false);
-
-  /// Temporary indicator whether a left mouse button clicks on
-  /// [RtcVideoRenderer]s should call [focus], [unfocus] and [center] or not.
-  final RxBool handleLmb = RxBool(false);
-
-  /// Timeout of a [handleLmb] used to decline any clicks happened after it
-  /// reaches zero.
-  int lmbTimeout = 7;
 
   /// Error happened in a call.
   final RxString error = RxString('');
@@ -211,6 +202,11 @@ class CallController extends GetxController {
 
   /// [GlobalKey] of the [Dock].
   final GlobalKey dockKey = GlobalKey();
+
+  /// Reactive [Rect] of the [Dock].
+  ///
+  /// Used to calculate intersections.
+  final Rx<Rect?> dockRect = Rx(null);
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
@@ -284,10 +280,10 @@ class CallController extends GetxController {
   static const double _maxHeight = 0.99;
 
   /// Min width of the minimized view in pixels.
-  static const double _minWidth = 500;
+  static const double _minWidth = 300;
 
   /// Min height of the minimized view in pixels.
-  static const double _minHeight = 500;
+  static const double _minHeight = 300;
 
   /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.80;
@@ -374,7 +370,7 @@ class CallController extends GetxController {
   late final Worker _chatWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
-  ChatId get chatId => _currentCall.value.chatId.value;
+  Rx<ChatId> get chatId => _currentCall.value.chatId;
 
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
@@ -410,6 +406,28 @@ class CallController extends GetxController {
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
       _currentCall.value.caller?.num.val;
+
+  /// Indicates whether a drag and drop videos hint should be displayed.
+  bool get showDragAndDropVideosHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropVideosHint ??
+      true;
+
+  /// Sets the drag and drop videos hint indicator to the provided [value].
+  set showDragAndDropVideosHint(bool value) {
+    _settingsRepository.setShowDragAndDropVideosHint(value);
+  }
+
+  /// Indicates whether a drag and drop buttons hint should be displayed.
+  bool get showDragAndDropButtonsHint =>
+      _settingsRepository
+          .applicationSettings.value?.showDragAndDropButtonsHint ??
+      true;
+
+  /// Sets the drag and drop buttons hint indicator to the provided [value].
+  set showDragAndDropButtonsHint(bool value) {
+    _settingsRepository.setShowDragAndDropButtonsHint(value);
+  }
 
   /// Returns actual size of the call view.
   Size get size {
@@ -493,20 +511,15 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
-    if (router.context!.isMobile) {
-      secondaryWidth = RxDouble(150);
-      secondaryHeight = RxDouble(151);
-    } else {
-      secondaryWidth = RxDouble(200);
-      secondaryHeight = RxDouble(200);
+    HardwareKeyboard.instance.addHandler(_onKey);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    if (PlatformUtils.isAndroid) {
-      BackButtonInterceptor.add(_onBack);
-    }
+    speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
-    minimized = RxBool(!router.context!.isMobile);
+    minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
     if (isMobile) {
@@ -528,6 +541,14 @@ class CallController extends GetxController {
       );
       height = RxDouble(width.value);
     }
+
+    double secondarySize = (this.size.shortestSide *
+            (this.size.aspectRatio > 2 || this.size.aspectRatio < 0.5
+                ? 0.45
+                : 0.33))
+        .clamp(_minSHeight, 250);
+    secondaryWidth = RxDouble(secondarySize);
+    secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
         ? RxDouble(size.width - width.value - 50)
@@ -582,33 +603,45 @@ class CallController extends GetxController {
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance
-            .addPostFrameCallback((_) => relocateSecondary());
-        DateTime begunAt = DateTime.now();
-        _durationTimer = Timer.periodic(
-          const Duration(seconds: 1),
-          (_) {
-            duration.value = DateTime.now().difference(begunAt);
-            if (hoveredRendererTimeout > 0) {
-              --hoveredRendererTimeout;
-              if (hoveredRendererTimeout == 0) {
-                hoveredRenderer.value = null;
-                isCursorHidden.value = true;
-              }
-            }
+      switch (state) {
+        case OngoingCallState.active:
+          if (_durationTimer == null) {
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) {
+                dockRect.value = dockKey.globalPaintBounds;
+                relocateSecondary();
+              },
+            );
+            DateTime begunAt = DateTime.now();
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                duration.value = DateTime.now().difference(begunAt);
+                if (hoveredRendererTimeout > 0) {
+                  --hoveredRendererTimeout;
+                  if (hoveredRendererTimeout == 0) {
+                    hoveredRenderer.value = null;
+                    isCursorHidden.value = true;
+                  }
+                }
 
-            if (lmbTimeout > 0) {
-              --lmbTimeout;
-            }
+                if (errorTimeout.value > 0) {
+                  --errorTimeout.value;
+                }
+              },
+            );
 
-            if (errorTimeout.value > 0) {
-              --errorTimeout.value;
-            }
-          },
-        );
+            keepUi();
+            _ensureSpeakerphone();
+          }
+          break;
 
-        keepUi();
+        case OngoingCallState.joining:
+        case OngoingCallState.pending:
+        case OngoingCallState.local:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       refresh();
@@ -617,13 +650,18 @@ class CallController extends GetxController {
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
       applySecondaryConstraints();
+      refresh();
     });
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
         hoveredRenderer.value = null;
         if (_uiTimer?.isActive != true) {
-          keepUi(false);
+          if (displayMore.isTrue) {
+            keepUi();
+          } else {
+            keepUi(false);
+          }
         }
       }
     });
@@ -656,8 +694,8 @@ class CallController extends GetxController {
               case 'SettingsButton':
                 return SettingsButton(this);
 
-              case 'AddMemberCallButton':
-                return AddMemberCallButton(this);
+              case 'ParticipantsButton':
+                return ParticipantsButton(this);
 
               case 'HandButton':
                 return HandButton(this);
@@ -702,7 +740,7 @@ class CallController extends GetxController {
 
     panel = RxList([
       SettingsButton(this),
-      AddMemberCallButton(this),
+      ParticipantsButton(this),
       HandButton(this),
       ScreenButton(this),
       RemoteVideoButton(this),
@@ -784,7 +822,6 @@ class CallController extends GetxController {
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
           }
-
           break;
 
         case OperationKind.updated:
@@ -816,7 +853,8 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
-    if (PlatformUtils.isAndroid) {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -844,9 +882,28 @@ class CallController extends GetxController {
       );
 
   /// Toggles local screen-sharing stream on and off.
-  Future<void> toggleScreenShare() async {
+  Future<void> toggleScreenShare(BuildContext context) async {
     keepUi();
-    await _currentCall.value.toggleScreenShare();
+
+    final LocalTrackState state = _currentCall.value.screenShareState.value;
+
+    if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
+      await _currentCall.value.setScreenShareEnabled(false);
+    } else {
+      if (_currentCall.value.displays.length > 1) {
+        final MediaDisplayInfo? display =
+            await ScreenShareView.show(context, _currentCall);
+
+        if (display != null) {
+          await _currentCall.value.setScreenShareEnabled(
+            true,
+            deviceId: display.deviceId(),
+          );
+        }
+      } else {
+        await _currentCall.value.setScreenShareEnabled(true);
+      }
+    }
   }
 
   /// Toggles local audio stream on and off.
@@ -859,6 +916,7 @@ class CallController extends GetxController {
   Future<void> toggleVideo() async {
     keepUi();
     await _currentCall.value.toggleVideo();
+    await _ensureSpeakerphone();
   }
 
   /// Changes the local video device to the next one from the
@@ -884,21 +942,45 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      List<MediaDeviceInfo> outputs =
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      final List<MediaDeviceInfo> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        int selected = _currentCall.value.outputDevice.value == null
-            ? 0
-            : outputs.indexWhere(
-                (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
-        selected += 1;
-        var deviceId = outputs[(selected) % outputs.length].deviceId();
-        speakerSwitched.value = deviceId == 'speakerphone';
-        await _currentCall.value.setOutputDevice(deviceId);
+        MediaDeviceInfo? device;
+
+        if (PlatformUtils.isIOS) {
+          device = _currentCall.value.devices.output().firstWhereOrNull(
+              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
+        } else {
+          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
+        }
+
+        if (device == null) {
+          if (speakerSwitched.value) {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+            speakerSwitched.value = !(device != null);
+          } else {
+            device = outputs.firstWhereOrNull((e) =>
+                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+            speakerSwitched.value = (device != null);
+          }
+
+          if (device == null) {
+            int selected = _currentCall.value.outputDevice.value == null
+                ? 0
+                : outputs.indexWhere((e) =>
+                    e.deviceId() == _currentCall.value.outputDevice.value!);
+            selected += 1;
+            device = outputs[(selected) % outputs.length];
+          }
+        }
+
+        await _currentCall.value.setOutputDevice(device.deviceId());
       }
     } else {
-      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
       //       switching.
       speakerSwitched.toggle();
     }
@@ -940,6 +1022,17 @@ class CallController extends GetxController {
       await participant.member.setVideoEnabled(
         !participant.video.value!.direction.value.isEnabled,
         source: participant.video.value!.source,
+      );
+    }
+  }
+
+  /// Toggles the provided [participant]'s incoming audio on and off.
+  Future<void> toggleAudioEnabled(Participant participant) async {
+    if (participant.member.id == me.id) {
+      await toggleAudio();
+    } else if (participant.audio.value?.direction.value.isEmitting ?? false) {
+      await participant.member.setAudioEnabled(
+        !participant.audio.value!.direction.value.isEnabled,
       );
     }
   }
@@ -1084,38 +1177,35 @@ class CallController extends GetxController {
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
   Future<dynamic> openSettings(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (_) => CallSettingsView(
-        _currentCall,
-        lmbValue: handleLmb.value,
-        onLmbChanged: (b) {
-          lmbTimeout = 7;
-          handleLmb.value = b ?? false;
-        },
-        panelValue: panelUp.value,
-        onPanelChanged: (b) => panelUp.value = b ?? false,
-      ),
+    return CallSettingsView.show(context, call: _currentCall);
+  }
+
+  /// Returns a result of the [showDialog] building a [ParticipantView].
+  Future<void> openAddMember(BuildContext context) async {
+    if (isMobile) {
+      panelController.close().then((_) {
+        isPanelOpen.value = false;
+        keepUi(false);
+      });
+    }
+
+    await ParticipantView.show(
+      context,
+      call: _currentCall,
+      duration: duration,
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
-  /// [AddDialogMemberView].
-  Future<dynamic> openAddMember(BuildContext context) {
-    if (isGroup) {
-      return showDialog(
-        context: context,
-        builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
-      );
-    } else if (isDialog) {
-      return showDialog(
-        context: context,
-        builder: (_) =>
-            AddDialogMemberView(chat.value!.chat.value.id, _currentCall),
-      );
+  /// Removes [User] identified by the provided [userId] from the [chat].
+  Future<void> removeChatMember(UserId userId) async {
+    try {
+      await _chatService.removeChatMember(chatId.value, userId);
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
-
-    return Future.value();
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
@@ -1452,6 +1542,10 @@ class CallController extends GetxController {
             secondaryLeft.value = size.width - width;
             secondaryWidth.value = width;
           }
+
+          if (secondaryAlignment.value != null) {
+            secondaryHeight.value = _applySHeight(width * secondary.length);
+          }
         }
         break;
 
@@ -1461,6 +1555,10 @@ class CallController extends GetxController {
           double right = secondaryLeft.value! + width;
           if (right < size.width) {
             secondaryWidth.value = width;
+          }
+
+          if (secondaryAlignment.value != null) {
+            secondaryHeight.value = _applySHeight(width * secondary.length);
           }
         }
         break;
@@ -1484,6 +1582,10 @@ class CallController extends GetxController {
             secondaryTop.value = size.height - height;
             secondaryHeight.value = height;
           }
+
+          if (secondaryAlignment.value != null) {
+            secondaryWidth.value = _applySWidth(height * secondary.length);
+          }
         }
         break;
 
@@ -1494,6 +1596,10 @@ class CallController extends GetxController {
           if (bottom < size.height) {
             secondaryHeight.value = height;
           }
+
+          if (secondaryAlignment.value != null) {
+            secondaryWidth.value = _applySWidth(height * secondary.length);
+          }
         }
         break;
 
@@ -1502,38 +1608,6 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
-  }
-
-  /// Scales the secondary view by the provided [scale].
-  void scaleSecondary(double scale) {
-    _scaleSWidth(scale);
-    _scaleSHeight(scale);
-  }
-
-  /// Scales the [secondaryWidth] according to the provided [scale].
-  void _scaleSWidth(double scale) {
-    double width = _applySWidth(secondaryUnscaledSize! * scale);
-    if (width != secondaryWidth.value) {
-      double widthDifference = width - secondaryWidth.value;
-      secondaryWidth.value = width;
-      secondaryLeft.value =
-          _applySLeft(secondaryLeft.value! - widthDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(widthDifference / 2, 0);
-    }
-  }
-
-  /// Scales the [secondaryHeight] according to the provided [scale].
-  void _scaleSHeight(double scale) {
-    double height = _applySHeight(secondaryUnscaledSize! * scale);
-    if (height != secondaryHeight.value) {
-      double heightDifference = height - secondaryHeight.value;
-      secondaryHeight.value = height;
-      secondaryTop.value =
-          _applySTop(secondaryTop.value! - heightDifference / 2);
-      secondaryPanningOffset =
-          secondaryPanningOffset?.translate(0, heightDifference / 2);
-    }
   }
 
   /// Returns corrected according to secondary constraints [width] value.
@@ -1727,6 +1801,8 @@ class CallController extends GetxController {
     primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
     secondary.value =
         focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
+
+    applySecondaryConstraints();
   }
 
   /// Returns all [Participant]s identified by an [id] and [source].
@@ -1846,6 +1922,46 @@ class CallController extends GetxController {
       final Participant? participant =
           participants.firstWhereOrNull((p) => p.audio.value == track);
       participant?.audio.value = null;
+    }
+  }
+
+  /// Invokes [toggleFullscreen], if [fullscreen] is `true`.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] handler, thus returns `true`,
+  /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
+  /// returns `false`.
+  bool _onKey(KeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.escape && fullscreen.isTrue) {
+      toggleFullscreen();
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
+  Future<void> _ensureSpeakerphone() async {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
+          _currentCall.value.videoState.value == LocalTrackState.enabling) {
+        final bool ear;
+
+        if (PlatformUtils.isIOS) {
+          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-piece');
+        } else {
+          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
+              (_currentCall.value.outputDevice.value == null &&
+                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
+                      'ear-speaker');
+        }
+
+        if (ear) {
+          await toggleSpeaker();
+        }
+      }
     }
   }
 }

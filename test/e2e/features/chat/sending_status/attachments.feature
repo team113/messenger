@@ -5,9 +5,10 @@ Feature: Chat attachments have correct sending status
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I wait for app to settle
 
   Scenario: File attachment status changes from `sending` to `sent`
-    Given I have Internet with delay of 3 seconds
+    Given I have Internet with delay of 4 seconds
 
     When I attach "test.txt" file
     And I tap `Send` button
@@ -16,7 +17,7 @@ Feature: Chat attachments have correct sending status
     And I wait until status of "test.txt" attachment is sent
 
   Scenario: Image attachment status changes from `sending` to `sent`
-    Given I have Internet with delay of 3 seconds
+    Given I have Internet with delay of 4 seconds
 
     When I attach "test.jpg" image
     And I tap `Send` button
@@ -30,7 +31,7 @@ Feature: Chat attachments have correct sending status
     And I tap `Send` button
     Then I wait until status of "test.txt" attachment is error
 
-    Given I have Internet with delay of 3 seconds
+    Given I have Internet with delay of 4 seconds
     When I long press message with "test.txt"
     And I tap `Resend` button
     Then I wait until status of "test.txt" attachment is sending
@@ -42,7 +43,7 @@ Feature: Chat attachments have correct sending status
     And I tap `Send` button
     Then I wait until status of "test.jpg" attachment is error
 
-    Given I have Internet with delay of 3 seconds
+    Given I have Internet with delay of 4 seconds
     When I long press message with "test.jpg"
     And I tap `Resend` button
     Then I wait until status of "test.jpg" attachment is sending

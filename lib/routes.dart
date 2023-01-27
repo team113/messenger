@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,8 +39,11 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
+import 'provider/hive/blacklist.dart';
 import 'provider/hive/chat.dart';
+import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
+import 'provider/hive/draft.dart';
 import 'provider/hive/gallery_item.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/my_user.dart';
@@ -77,9 +81,6 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
-  static const personalization = '/personalization';
-  static const settings = '/settings';
-  static const settingsMedia = '/settings/media';
   static const user = '/user';
 
   // E2E tests related page, should not be used in non-test environment.
@@ -91,6 +92,22 @@ class Routes {
 
 /// List of [Routes.home] page tabs.
 enum HomeTab { contacts, chats, menu }
+
+/// List of [Routes.me] page sections.
+enum ProfileTab {
+  public,
+  signing,
+  link,
+  background,
+  calls,
+  media,
+  notifications,
+  language,
+  blacklist,
+  download,
+  danger,
+  logout,
+}
 
 /// Application's router state.
 ///
@@ -123,23 +140,26 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
+  /// Routes history stack.
+  final RxList<String> routes = RxList([]);
+
+  /// Indicator whether [HomeView] page navigation should be visible.
+  final RxBool navigation = RxBool(true);
+
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
+  /// Current [Routes.me] page section.
+  final Rx<ProfileTab?> profileSection = Rx(null);
+
   /// Auth service used to determine the auth status.
   final AuthService _auth;
-
-  /// Routes history stack.
-  List<String> _routes = [];
 
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
   /// Current route (last in the [routes] history).
-  String get route => _routes.lastOrNull == null ? Routes.home : _routes.last;
-
-  /// Route history stack.
-  List<String> get routes => List.unmodifiable(_routes);
+  String get route => routes.lastOrNull == null ? Routes.home : routes.last;
 
   /// Current [Routes.home] tab.
   HomeTab get tab => _tab;
@@ -157,20 +177,20 @@ class RouterState extends ChangeNotifier {
   /// Clears the whole [routes] stack.
   void go(String to) {
     arguments = null;
-    _routes = [_guarded(to)];
+    routes.value = [_guarded(to)];
     notifyListeners();
   }
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
     arguments = null;
-    int pageIndex = _routes.indexWhere((e) => e == to);
+    int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
-      while (_routes.length - 1 > pageIndex) {
+      while (routes.length - 1 > pageIndex) {
         pop();
       }
     } else {
-      _routes.add(_guarded(to));
+      routes.add(_guarded(to));
     }
 
     notifyListeners();
@@ -181,21 +201,21 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop() {
-    if (_routes.isNotEmpty) {
-      if (_routes.length == 1) {
-        String last = _routes.last.split('/').last;
-        _routes.last = _routes.last.replaceFirst('/$last', '');
-        if (_routes.last == '' ||
-            _routes.last == Routes.contact ||
-            _routes.last == Routes.chat ||
-            _routes.last == Routes.menu ||
-            _routes.last == Routes.user) {
-          _routes.last = Routes.home;
+    if (routes.isNotEmpty) {
+      if (routes.length == 1) {
+        String last = routes.last.split('/').last;
+        routes.last = routes.last.replaceFirst('/$last', '');
+        if (routes.last == '' ||
+            routes.last == Routes.contact ||
+            routes.last == Routes.chat ||
+            routes.last == Routes.menu ||
+            routes.last == Routes.user) {
+          routes.last = Routes.home;
         }
       } else {
-        _routes.removeLast();
-        if (_routes.isEmpty) {
-          _routes.add(Routes.home);
+        routes.removeLast();
+        if (routes.isEmpty) {
+          routes.add(Routes.home);
         }
       }
 
@@ -315,7 +335,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
-    _state._routes = [configuration.route];
+    _state.routes.value = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }
@@ -384,10 +404,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(GalleryItemHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(BlacklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
+                deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+                deps.put(DraftHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -406,15 +429,31 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               );
               deps.put<AbstractUserRepository>(userRepository);
+              AbstractCallRepository callRepository =
+                  deps.put<AbstractCallRepository>(
+                CallRepository(
+                  graphQlProvider,
+                  userRepository,
+                  Get.find(),
+                  settingsRepository,
+                  me: me,
+                ),
+              );
               AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
                   Get.find(),
+                  callRepository,
+                  Get.find(),
                   userRepository,
+                  Get.find(),
                   me: me,
                 ),
               );
+
+              userRepository.getChat = chatRepository.get;
+
               AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
@@ -424,26 +463,27 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
-              AbstractCallRepository callRepository =
-                  deps.put<AbstractCallRepository>(CallRepository(
-                graphQlProvider,
-                userRepository,
-              ));
               AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
                   Get.find(),
                   Get.find(),
+                  Get.find(),
+                  userRepository,
                 ),
               );
 
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
-              deps.put(
-                  CallService(Get.find(), settingsRepository, callRepository));
-              deps.put(ChatService(chatRepository, Get.find()));
+              ChatService chatService =
+                  deps.put(ChatService(chatRepository, Get.find()));
+              deps.put(CallService(
+                Get.find(),
+                chatService,
+                callRepository,
+              ));
 
               return deps;
             },
@@ -469,10 +509,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(GalleryItemHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(BlacklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
+              deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+              deps.put(DraftHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
@@ -491,15 +534,31 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             );
             deps.put<AbstractUserRepository>(userRepository);
+            AbstractCallRepository callRepository =
+                deps.put<AbstractCallRepository>(
+              CallRepository(
+                graphQlProvider,
+                userRepository,
+                Get.find(),
+                settingsRepository,
+                me: me,
+              ),
+            );
             AbstractChatRepository chatRepository =
                 deps.put<AbstractChatRepository>(
               ChatRepository(
                 graphQlProvider,
                 Get.find(),
+                callRepository,
+                Get.find(),
                 userRepository,
+                Get.find(),
                 me: me,
               ),
             );
+
+            userRepository.getChat = chatRepository.get;
+
             AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
@@ -509,17 +568,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-            AbstractCallRepository callRepository =
-                deps.put<AbstractCallRepository>(CallRepository(
-              graphQlProvider,
-              userRepository,
-            ));
             AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
                 Get.find(),
                 Get.find(),
+                Get.find(),
+                userRepository,
               ),
             );
 
@@ -527,23 +583,25 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
-            CallService callService = deps.put(CallService(
-              Get.find(),
-              settingsRepository,
-              callRepository,
-            ));
             ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
+            CallService callService = deps.put(CallService(
+              Get.find(),
+              chatService,
+              callRepository,
+            ));
 
             deps.put(CallWorker(
               Get.find(),
               callService,
               chatService,
+              myUserService,
               Get.find(),
             ));
 
             deps.put(ChatWorker(
               chatService,
+              myUserService,
               Get.find(),
             ));
 
@@ -565,9 +623,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
-        _state.route == Routes.settings ||
-        _state.route == Routes.settingsMedia ||
-        _state.route == Routes.personalization ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -628,15 +683,6 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
-
-  /// Changes router location to the [Routes.settings] page.
-  void settings() => go(Routes.settings);
-
-  /// Changes router location to the [Routes.settingsMedia] page.
-  void settingsMedia() => go(Routes.settingsMedia);
-
-  /// Changes router location to the [Routes.personalization] page.
-  void personalization() => go(Routes.personalization);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

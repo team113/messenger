@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,8 +40,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -117,6 +120,11 @@ void main() async {
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
+  when(graphQlProvider.readChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
+      .thenAnswer((_) => Future.value(null));
+
   when(graphQlProvider.chatItems(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     first: 120,
@@ -184,6 +192,10 @@ void main() async {
             .editChatMessageText as ChatEventsVersionedMixin?);
   });
 
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
@@ -213,13 +225,18 @@ void main() async {
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
-  var settingsProvider = Get.put(MediaSettingsHiveProvider());
-  await settingsProvider.init();
-  await settingsProvider.clear();
+  var mediaSettingsProvider = Get.put(MediaSettingsHiveProvider());
+  await mediaSettingsProvider.init();
+  await mediaSettingsProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -252,23 +269,36 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        settingsProvider,
+        mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
       ),
     );
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider);
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    );
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
 
     Get.put(UserService(userRepository));
-    Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
@@ -284,7 +314,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(
-      find.byKey(const Key('MessageEditField')),
+      find.byKey(const Key('MessageField')),
       'new text',
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));

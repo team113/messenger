@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -35,6 +37,7 @@ class FloatingContextMenu extends StatefulWidget {
     required this.actions,
     required this.child,
     this.moveDownwards = true,
+    this.margin = EdgeInsets.zero,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -49,6 +52,9 @@ class FloatingContextMenu extends StatefulWidget {
   /// Indicator whether this [FloatingContextMenu] should animate the [child]
   /// moving downwards.
   final bool moveDownwards;
+
+  /// Margin to apply to this [FloatingContextMenu].
+  final EdgeInsets margin;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -100,6 +106,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         alignment: widget.alignment,
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
+        margin: widget.margin,
         onClosed: () {
           _entry?.remove();
           _entry = null;
@@ -114,7 +121,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
     setState(() {});
 
-    Overlay.of(context, rootOverlay: true)?.insert(_entry!);
+    Overlay.of(context, rootOverlay: true).insert(_entry!);
   }
 }
 
@@ -126,6 +133,7 @@ class _AnimatedMenu extends StatefulWidget {
     required this.actions,
     required this.alignment,
     required this.showAbove,
+    required this.margin,
     this.onClosed,
     Key? key,
   }) : super(key: key);
@@ -148,6 +156,9 @@ class _AnimatedMenu extends StatefulWidget {
   /// Indicator whether this [_AnimatedMenu] should be displayed above the
   /// [child] or otherwise animate the [child] moving downwards.
   final bool showAbove;
+
+  /// Margin to apply to this [_AnimatedMenu].
+  final EdgeInsets margin;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
@@ -291,25 +302,56 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+    final double width = MediaQuery.of(context).size.width;
+    EdgeInsets padding;
+
+    if (widget.alignment == Alignment.bottomLeft ||
+        widget.alignment == Alignment.bottomRight) {
+      const double minWidth = 230;
+      final double menuWidth = _bounds.right - _bounds.left;
+
+      if (widget.alignment == Alignment.bottomLeft) {
+        padding = EdgeInsets.only(
+          left: _bounds.left - 5,
+          right: menuWidth < minWidth
+              ? width - _bounds.left - minWidth
+              : width - _bounds.right - 5,
+        );
+      } else {
+        padding = EdgeInsets.only(
+          left: menuWidth < minWidth
+              ? _bounds.right - minWidth
+              : _bounds.left - 5,
+          right: width - _bounds.right - 5,
+        );
+      }
+
+      if (padding.left < 3) {
+        padding = EdgeInsets.only(
+          left: 3,
+          right: width - minWidth - 8,
+        );
+      }
+    } else {
+      padding = EdgeInsets.only(
+        left: max(0, _bounds.left - 10),
+        right: max(0, width - _bounds.right - 10),
+      );
+    }
+
     return Align(
       alignment: widget.alignment,
       child: Padding(
-        padding: EdgeInsets.only(
-          left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
-          right: widget.alignment == Alignment.bottomRight ? 10 : 0,
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 220),
-          child: SlideTransition(
-            position: slide,
-            child: FadeTransition(
-              opacity: fade,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: 10 + router.context!.mediaQueryPadding.bottom,
-                ),
-                child: _actions(),
+        padding: widget.margin.add(padding),
+        child: SlideTransition(
+          position: slide,
+          child: FadeTransition(
+            opacity: fade,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
+              child: _actions(),
             ),
           ),
         ),
@@ -336,24 +378,24 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     }
 
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) => _dismiss(),
       child: ClipRRect(
         borderRadius: style.contextMenuRadius,
-        child: ConditionalBackdropFilter(
-          condition: widget.showAbove,
-          child: Container(
-            decoration: BoxDecoration(
-              color: style.contextMenuBackgroundColor.withAlpha(0xAA),
-              borderRadius: style.contextMenuRadius,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
+        child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minWidth: 240),
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: style.contextMenuBackgroundColor,
+            borderRadius: style.contextMenuRadius,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
           ),
         ),
       ),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -117,6 +118,18 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setCallButtons(List<String> buttons) =>
       _settingsLocal.setCallButtons(buttons);
+
+  @override
+  Future<void> setShowDragAndDropVideosHint(bool show) =>
+      _settingsLocal.setShowDragAndDropVideosHint(show);
+
+  @override
+  Future<void> setShowDragAndDropButtonsHint(bool show) =>
+      _settingsLocal.setShowDragAndDropButtonsHint(show);
+
+  @override
+  Future<void> setSortContactsByName(bool enabled) =>
+      _settingsLocal.setSortContactsByName(enabled);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {

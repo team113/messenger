@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +30,9 @@ class ApplicationSettings extends HiveObject {
     this.showIntroduction,
     this.sideBarWidth,
     this.callButtons = const [],
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
+    this.sortContactsByName = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -52,4 +56,18 @@ class ApplicationSettings extends HiveObject {
   /// [CallButton]s placed in a [Dock] of an [OngoingCall].
   @HiveField(4)
   List<String> callButtons;
+
+  /// Indicator whether a drag and drop videos hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(5)
+  bool? showDragAndDropVideosHint;
+
+  /// Indicator whether a drag and drop buttons hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(6)
+  bool? showDragAndDropButtonsHint;
+
+  /// Indicator whether [ChatContact]s should be sorted by their names.
+  @HiveField(7)
+  bool sortContactsByName;
 }

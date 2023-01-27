@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -130,13 +131,26 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           ? SizedBox(
               width: width,
               height: height,
-              child: IgnorePointer(
-                child: ContextMenuInterceptor(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRect(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _controller.value.size.width,
+                        height: _controller.value.size.height,
+                        child: IgnorePointer(child: VideoPlayer(_controller)),
+                      ),
+                    ),
                   ),
-                ),
+                  ContextMenuInterceptor(child: const SizedBox()),
+
+                  // [Container] for receiving pointer events over this
+                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                  // intercepts them.
+                  Container(color: Colors.transparent),
+                ],
               ),
             )
           : SizedBox(

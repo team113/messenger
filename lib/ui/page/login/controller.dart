@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
@@ -36,7 +38,6 @@ enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
-  recoverySuccess,
 }
 
 /// [GetxController] of a [LoginView].
@@ -69,6 +70,12 @@ class LoginController extends GetxController {
 
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
+
+  /// Indicator whether the password has been reset.
+  final RxBool recovered = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);
@@ -316,9 +323,9 @@ class LoginController extends GetxController {
       recoveryCode.status.value = RxStatus.success();
       stage.value = LoginViewStage.recoveryPassword;
     } on FormatException {
-      recoveryCode.error.value = 'err_incorrect_input'.l10n;
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ArgumentError {
-      recoveryCode.error.value = 'err_incorrect_input'.l10n;
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ValidateUserPasswordRecoveryCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
@@ -385,7 +392,8 @@ class LoginController extends GetxController {
         newPassword: UserPassword(newPassword.text),
       );
 
-      stage.value = LoginViewStage.recoverySuccess;
+      recovered.value = true;
+      stage.value = null;
     } on FormatException {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {

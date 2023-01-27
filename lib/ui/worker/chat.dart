@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,15 +20,15 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
-import '/config.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -37,11 +38,15 @@ import '/util/obs/obs.dart';
 class ChatWorker extends DisposableService {
   ChatWorker(
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
+
+  /// [MyUserService] used to getting [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// [NotificationService], used to show a new [Chat] message notification.
   final NotificationService _notificationService;
@@ -55,6 +60,9 @@ class ChatWorker extends DisposableService {
 
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   @override
   void onReady() {
@@ -87,12 +95,6 @@ class ChatWorker extends DisposableService {
   /// Reacts to the provided [Chat] being added and populates the [Worker] to
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
-    String? avatarUrl;
-    Avatar? avatar = c.avatar.value;
-    if (avatar != null) {
-      avatarUrl = '${Config.files}${avatar.original.relativeRef}';
-    }
-
     // Display a new group chat notification.
     if (viaSubscription && c.chat.value.isGroup) {
       bool newChat = false;
@@ -114,25 +116,31 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        _notificationService.show(
-          c.title.value,
-          body: 'label_you_were_added_to_group'.l10n,
-          payload: '${Routes.chat}/${c.chat.value.id}',
-          icon: avatarUrl,
-          tag: c.chat.value.id.val,
-        );
+        if (_myUser.value?.muted == null) {
+          _notificationService.show(
+            c.title.value,
+            body: 'label_you_were_added_to_group'.l10n,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: c.chat.value.id.val,
+          );
+        }
       }
     }
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body, tag) => _notificationService.show(
-        c.title.value,
-        body: body,
-        payload: '${Routes.chat}/${c.chat.value.id}',
-        icon: avatarUrl,
-        tag: tag,
-      ),
+      onNotification: (body, tag) async {
+        if (_myUser.value?.muted == null) {
+          await _notificationService.show(
+            c.title.value,
+            body: body,
+            payload: '${Routes.chat}/${c.chat.value.id}',
+            icon: c.avatar.value?.original.url,
+            tag: tag,
+          );
+        }
+      },
       me: () => _chatService.me,
     );
   }
@@ -155,31 +163,57 @@ class _ChatWatchData {
                       .difference(chat.lastItem!.at.val)
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
-              chat.lastItem!.authorId != me?.call()) {
-            String? body;
+              chat.lastItem!.authorId != me?.call() &&
+              chat.muted == null) {
+            final StringBuffer body = StringBuffer();
 
             if (chat.lastItem is ChatMessage) {
               var msg = chat.lastItem as ChatMessage;
               if (msg.text != null) {
-                body = msg.text?.val;
+                body.write(msg.text?.val);
                 if (msg.attachments.isNotEmpty) {
-                  body =
-                      '$body\n[${msg.attachments.length} ${'label_attachments'.l10n}]';
+                  body.write('\n');
                 }
-              } else if (msg.attachments.isNotEmpty) {
-                body =
-                    '[${msg.attachments.length} ${'label_attachments'.l10n}]';
+              }
+
+              if (msg.attachments.isNotEmpty) {
+                body.write(
+                  'label_attachments'
+                      .l10nfmt({'count': msg.attachments.length}),
+                );
               }
             } else if (chat.lastItem is ChatMemberInfo) {
-              // TODO: Display [ChatMemberInfo] properly.
-              var msg = chat.lastItem as ChatMemberInfo;
-              body = msg.action.toString();
+              final ChatMemberInfo msg = chat.lastItem as ChatMemberInfo;
+
+              switch (msg.action) {
+                case ChatMemberInfoAction.created:
+                  // No-op, as it shouldn't be in a notification.
+                  break;
+
+                case ChatMemberInfoAction.added:
+                  body.write(
+                    'label_was_added'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.removed:
+                  body.write(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${msg.user.name ?? msg.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.artemisUnknown:
+                  body.write(msg.action.toString());
+                  break;
+              }
             } else if (chat.lastItem is ChatForward) {
-              body = 'label_forwarded_message'.l10n;
+              body.write('label_forwarded_message'.l10n);
             }
 
-            if (body != null) {
-              onNotification?.call(body, chat.lastItem?.id.val);
+            if (body.isNotEmpty) {
+              onNotification?.call(body.toString(), chat.lastItem?.id.val);
             }
           }
 

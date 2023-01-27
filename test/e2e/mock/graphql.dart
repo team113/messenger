@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,7 +18,10 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/base.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -52,6 +56,30 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   void clearCache() => _client.clearCache();
+
+  @override
+  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
+    ConfirmationCode code,
+  ) async {
+    return null;
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
+    ConfirmationCode code,
+  ) async {
+    return null;
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail phone) async {
+    return null;
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
+    return null;
+  }
 }
 
 /// Mocked [GraphQlClient] with an ability to add [delay] to its requests.

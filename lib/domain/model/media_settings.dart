@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +30,7 @@ class MediaSettings extends HiveObject {
     this.videoDevice,
     this.audioDevice,
     this.outputDevice,
+    this.screenDevice,
   });
 
   /// ID of the video device to use by default.
@@ -42,4 +44,8 @@ class MediaSettings extends HiveObject {
   /// ID of the output device to use by default.
   @HiveField(2)
   String? outputDevice;
+
+  /// ID of the screen to use in screen sharing by default.
+  @HiveField(3)
+  String? screenDevice;
 }

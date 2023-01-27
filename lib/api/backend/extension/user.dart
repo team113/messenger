@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -77,13 +78,28 @@ extension UserMixinGalleryNodesConversion on UserMixin$Gallery$Nodes {
   ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
 }
 
+/// Extension adding models construction from [UserAvatarMixin$GalleryItem].
+extension UserAvatarMixinGalleryConversion on UserAvatarMixin$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserAvatarMixin$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
+/// Extension adding models construction from [UserCallCoverMixin$GalleryItem].
+extension UserCallCoverMixinGalleryConversion
+    on UserCallCoverMixin$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserCallCoverMixin$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
 /// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
   /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
   UserAvatar toModel() => UserAvatar(
         full: full.toModel(),
         original: original.toModel(),
-        galleryItemId: galleryItemId,
+        galleryItem: galleryItem?.toModel(),
         big: big.toModel(),
         medium: medium.toModel(),
         small: small.toModel(),
@@ -107,7 +123,7 @@ extension UserAvatarConversion on UserAvatarMixin {
 extension UserCallCoverConversion on UserCallCoverMixin {
   /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
   UserCallCover toModel() => UserCallCover(
-        galleryItemId: galleryItemId,
+        galleryItem: galleryItem?.toModel(),
         full: full.toModel(),
         original: original.toModel(),
         vertical: vertical.toModel(),

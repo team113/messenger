@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -34,6 +35,7 @@ class Video extends StatefulWidget {
     this.onController,
     this.isFullscreen,
     this.onError,
+    this.showInterfaceFor,
   }) : super(key: key);
 
   /// URL of the video to display.
@@ -53,6 +55,9 @@ class Video extends StatefulWidget {
 
   /// Callback, called on the [VideoPlayerController] initialization errors.
   final Future<void> Function()? onError;
+
+  /// [Duration] to initially show an user interface for.
+  final Duration? showInterfaceFor;
 
   @override
   State<Video> createState() => _VideoState();
@@ -160,6 +165,7 @@ class _VideoState extends State<Video> {
                 onClose: widget.onClose,
                 toggleFullscreen: widget.toggleFullscreen,
                 isFullscreen: widget.isFullscreen,
+                showInterfaceFor: widget.showInterfaceFor,
               ),
         routePageBuilder: (context, animation, _, provider) {
           return Theme(

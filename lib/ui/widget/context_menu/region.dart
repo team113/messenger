@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,6 +19,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/themes.dart';
+import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
 import 'mobile.dart';
@@ -26,9 +29,9 @@ import 'mobile.dart';
 /// or a long tap.
 ///
 /// Depending on the current platform it displays:
-/// - [ContextMenu] on desktop;
+/// - [ContextMenu] or [Selector] on desktop;
 /// - [FloatingContextMenu] on mobile.
-class ContextMenuRegion extends StatelessWidget {
+class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
@@ -38,6 +41,10 @@ class ContextMenuRegion extends StatelessWidget {
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
+    this.selector,
+    this.width = 260,
+    this.margin = EdgeInsets.zero,
+    this.indicateOpenedMenu = false,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -64,11 +71,56 @@ class ContextMenuRegion extends StatelessWidget {
   /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
 
+  /// [GlobalKey] of a [Selector.buttonKey].
+  ///
+  /// If specified, then this [ContextMenuRegion] will display a [Selector]
+  /// instead of a [ContextMenu].
+  final GlobalKey? selector;
+
+  /// Width of a [Selector].
+  ///
+  /// Only meaningful, if [selector] is specified.
+  final double width;
+
+  /// Margin to apply to a [Selector] on desktop or to [FloatingContextMenu] on
+  /// mobile.
+  final EdgeInsets margin;
+
+  /// Indicator whether this [ContextMenuRegion] should display a [ColoredBox]
+  /// above the [child] when a [ContextMenu] is opened.
+  final bool indicateOpenedMenu;
+
+  @override
+  State<ContextMenuRegion> createState() => _ContextMenuRegionState();
+}
+
+/// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
+class _ContextMenuRegionState extends State<ContextMenuRegion> {
+  /// Indicator whether a [ColoredBox] should be displayed above the provided
+  /// child.
+  bool _darkened = false;
+
   @override
   Widget build(BuildContext context) {
-    if (enabled) {
+    final Widget child;
+
+    if (_darkened && PlatformUtils.isDesktop) {
+      final Style style = Theme.of(context).extension<Style>()!;
+      child = Stack(
+        children: [
+          widget.child,
+          Positioned.fill(
+            child: ColoredBox(color: style.cardHoveredColor.withOpacity(0.4)),
+          ),
+        ],
+      );
+    } else {
+      child = widget.child;
+    }
+
+    if (widget.enabled && widget.actions.isNotEmpty) {
       return ContextMenuInterceptor(
-        enabled: preventContextMenu,
+        enabled: widget.preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
@@ -78,14 +130,15 @@ class ContextMenuRegion extends StatelessWidget {
           },
           child: PlatformUtils.isMobile
               ? FloatingContextMenu(
-                  alignment: alignment,
-                  moveDownwards: moveDownwards,
-                  actions: actions,
+                  alignment: widget.alignment,
+                  moveDownwards: widget.moveDownwards,
+                  actions: widget.actions,
+                  margin: widget.margin,
                   child: child,
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: enableLongTap
+                  onLongPressStart: widget.enableLongTap
                       ? (d) => _show(context, d.globalPosition)
                       : null,
                   child: child,
@@ -97,45 +150,88 @@ class ContextMenuRegion extends StatelessWidget {
     return child;
   }
 
-  /// Shows the [ContextMenu] wrapping the [actions].
-  void _show(BuildContext context, Offset position) {
-    if (actions.isEmpty) {
+  /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
+  Future<void> _show(BuildContext context, Offset position) async {
+    if (widget.actions.isEmpty) {
       return;
     }
 
-    showDialog(
-      barrierColor: Colors.transparent,
-      context: context,
-      builder: (context) {
-        return LayoutBuilder(builder: (context, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          Alignment alignment = Alignment(qx, qy);
+    if (widget.indicateOpenedMenu) {
+      setState(() => _darkened = true);
+    }
 
-          return Listener(
-            onPointerUp: (d) => Navigator.of(context).pop(),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned(
-                  left: position.dx,
-                  top: position.dy,
-                  child: FractionalTranslation(
-                    translation: Offset(
-                      alignment.x > 0 ? 0 : -1,
-                      alignment.y > 0 ? 0 : -1,
-                    ),
-                    child: ContextMenu(actions: actions),
-                  ),
-                )
-              ],
+    if (widget.selector != null) {
+      await Selector.show<ContextMenuButton>(
+        context: context,
+        items: widget.actions,
+        width: widget.width,
+        margin: widget.margin,
+        buttonBuilder: (i, b) {
+          return Padding(
+            padding: EdgeInsets.only(
+              top: i == 0 ? 6 : 0,
+              bottom: i == widget.actions.length - 1 ? 6 : 0,
             ),
+            child: b,
           );
-        });
-      },
-    );
+        },
+        itemBuilder: (b) {
+          final TextStyle? thin = Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: Colors.black);
+          return Row(
+            children: [
+              if (b.leading != null) ...[b.leading!, const SizedBox(width: 12)],
+              Text(b.label, style: thin?.copyWith(fontSize: 15)),
+              if (b.trailing != null) ...[
+                const SizedBox(width: 12),
+                b.trailing!,
+              ],
+            ],
+          );
+        },
+        onSelected: (b) => b.onPressed?.call(),
+        buttonKey: widget.selector,
+        alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
+      );
+    } else {
+      await showDialog(
+        barrierColor: Colors.transparent,
+        context: context,
+        builder: (context) {
+          return LayoutBuilder(builder: (context, constraints) {
+            double qx = 1, qy = 1;
+            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+            Alignment alignment = Alignment(qx, qy);
 
-    return;
+            return Listener(
+              onPointerUp: (d) => Navigator.of(context).pop(),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    left: position.dx,
+                    top: position.dy,
+                    child: FractionalTranslation(
+                      translation: Offset(
+                        alignment.x > 0 ? 0 : -1,
+                        alignment.y > 0 ? 0 : -1,
+                      ),
+                      child: ContextMenu(actions: widget.actions),
+                    ),
+                  )
+                ],
+              ),
+            );
+          });
+        },
+      );
+    }
+
+    if (widget.indicateOpenedMenu) {
+      setState(() => _darkened = false);
+    }
   }
 }

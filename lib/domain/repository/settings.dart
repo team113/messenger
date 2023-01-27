@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -61,4 +62,13 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.callButtons] value.
   Future<void> setCallButtons(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.showDragAndDropVideosHint] value.
+  Future<void> setShowDragAndDropVideosHint(bool show);
+
+  /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
+  Future<void> setShowDragAndDropButtonsHint(bool show);
+
+  /// Sets the [ApplicationSettings.sortContactsByName] value.
+  Future<void> setSortContactsByName(bool enabled);
 }

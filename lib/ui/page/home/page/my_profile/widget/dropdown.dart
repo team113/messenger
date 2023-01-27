@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -79,8 +80,8 @@ class ReactiveDropdown<T> extends StatelessWidget {
                     : null,
                 borderRadius: BorderRadius.circular(18),
                 isExpanded: true,
-                style:
-                    context.textTheme.subtitle1?.copyWith(color: Colors.black),
+                style: context.textTheme.titleMedium
+                    ?.copyWith(color: Colors.black),
                 icon: const SizedBox(),
                 underline: const SizedBox(),
               ),
@@ -128,6 +129,9 @@ class DropdownFieldState<T> extends ReactiveFieldState {
 
   @override
   final RxBool isEmpty = RxBool(true);
+
+  @override
+  final RxBool changed = RxBool(false);
 
   @override
   final FocusNode focus = FocusNode();

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,8 +18,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -187,7 +190,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
-                    return Draggable(
+                    return DelayedDraggable(
                       maxSimultaneousDrags: _entry == null ? 1 : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: Transform.translate(
@@ -347,7 +350,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           ),
         ),
       );
-      Overlay.of(context)?.insert(_entry!);
+      Overlay.of(context).insert(_entry!);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
@@ -482,7 +485,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       builder: (_) => AnimatedTransition(
         beginRect: beginRect,
         endRect: endRect,
-        animationDuration: jumpDuration,
+        duration: jumpDuration,
         onEnd: () {
           onEnd();
           _removeOverlay();
@@ -491,7 +494,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       ),
     );
 
-    Overlay.of(context)?.insert(_entry!);
+    Overlay.of(context).insert(_entry!);
   }
 
   /// Removes the [_entry].
@@ -525,4 +528,71 @@ class _DraggedItem<T> {
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
+}
+
+/// [Draggable] starting its dragging after some distance threshold is reached.
+class DelayedDraggable<T extends Object> extends Draggable<T> {
+  const DelayedDraggable({
+    super.key,
+    required super.child,
+    required super.feedback,
+    super.data,
+    super.dragAnchorStrategy,
+    super.maxSimultaneousDrags,
+    super.onDragStarted,
+    super.onDragEnd,
+    super.onDraggableCanceled,
+    super.onDragCompleted,
+  });
+
+  @override
+  MultiDragGestureRecognizer createRecognizer(
+    GestureMultiDragStartCallback onStart,
+  ) {
+    return _ImmediateDelayedMultiDragGestureRecognizer(debugOwner: '$hashCode')
+      ..onStart = (Offset position) {
+        final Drag? result = onStart(position);
+        if (result != null) {
+          HapticFeedback.selectionClick();
+        }
+        return result;
+      };
+  }
+}
+
+/// [MultiDragGestureRecognizer] recognizing a drag gesture after some distance
+/// threshold is reached.
+class _ImmediateDelayedMultiDragGestureRecognizer
+    extends MultiDragGestureRecognizer {
+  _ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
+      _ImmediateDelayedPointerState(
+        event.position,
+        event.kind,
+        gestureSettings,
+      );
+
+  @override
+  String get debugDescription => 'ImmediateDelayedMultiDragGestureRecognizer';
+}
+
+/// [MultiDragPointerState] of a [_ImmediateDelayedMultiDragGestureRecognizer].
+class _ImmediateDelayedPointerState extends MultiDragPointerState {
+  _ImmediateDelayedPointerState(
+    super.initialPosition,
+    super.kind,
+    super.deviceGestureSettings,
+  );
+
+  @override
+  void checkForResolutionAfterMove() {
+    if (pendingDelta!.distance > 6) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(starter) => starter(initialPosition);
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,10 +20,8 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -34,10 +33,15 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
+import 'tab/chats/more/view.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/menu/status/view.dart';
+import 'widget/animated_slider.dart';
+import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
+import 'widget/rmb_detector.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
@@ -98,7 +102,7 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        if (!context.isMobile) {
+        if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
@@ -115,14 +119,14 @@ class _HomeViewState extends State<HomeView> {
         ///    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
-          opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
+          opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
               Obx(() {
                 double width = c.sideBarWidth.value;
                 return ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: context.isMobile ? context.width : width,
+                    maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
                     backgroundColor:
@@ -134,21 +138,24 @@ class _HomeViewState extends State<HomeView> {
                               (s.scrollDelta.dy.abs() > 3 ||
                                   c.verticalScrollTimer.value != null)) {
                             c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value =
-                                Timer(150.milliseconds, () {
-                              c.verticalScrollTimer.value = null;
-                            });
+                            c.verticalScrollTimer.value = Timer(
+                              300.milliseconds,
+                              () => c.verticalScrollTimer.value = null,
+                            );
                           }
                         }
                       },
                       child: Obx(() {
                         return PageView(
-                          physics: c.verticalScrollTimer.value == null
+                          physics: c.verticalScrollTimer.value == null &&
+                                  router.navigation.value
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
-                          onPageChanged: (i) => router.tab = HomeTab.values[i],
-
+                          onPageChanged: (int i) {
+                            router.tab = HomeTab.values[i];
+                            c.page.value = router.tab;
+                          },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
                             KeepAlivePage(child: ContactsTabView()),
@@ -158,40 +165,102 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
+                    extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        return CustomNavigationBar(
-                          selectedColor: Colors.blue,
-                          unselectedColor: const Color(0xA6818181),
-                          size: 20,
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              icon: FontAwesomeIcons.solidCircleUser,
-                              label: 'label_tab_contacts'.l10n,
-                            ),
-                            CustomNavigationBarItem(
+                        // [AnimatedOpacity] boilerplate.
+                        Widget tab({required Widget child, HomeTab? tab}) {
+                          return Obx(() {
+                            return AnimatedScale(
+                              duration: 150.milliseconds,
+                              scale: c.page.value == tab ? 1.2 : 1,
+                              child: AnimatedOpacity(
+                                duration: 150.milliseconds,
+                                opacity: c.page.value == tab ? 1 : 0.7,
+                                child: child,
+                              ),
+                            );
+                          });
+                        }
+
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 5),
+                          translate: false,
+                          child: CustomNavigationBar(
+                            items: [
+                              CustomNavigationBarItem(
+                                key: const Key('ContactsButton'),
+                                child: tab(
+                                  tab: HomeTab.contacts,
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contacts.svg',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
                                 key: const Key('ChatsButton'),
-                                icon: FontAwesomeIcons.solidComment,
-                                label: 'label_tab_chats'.l10n,
                                 badge: c.unreadChatsCount.value == 0
                                     ? null
-                                    : '${c.unreadChatsCount.value}'),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              icon: FontAwesomeIcons.bars,
-                              label: 'label_tab_menu'.l10n,
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
+                                    : '${c.unreadChatsCount.value}',
+                                badgeColor: c.myUser.value?.muted != null
+                                    ? const Color(0xFFC0C0C0)
+                                    : Colors.red,
+                                child: RmbDetector(
+                                  onPressed: () => ChatsMoreView.show(context),
+                                  child: tab(
+                                    tab: HomeTab.chats,
+                                    child: Obx(() {
+                                      return AnimatedSwitcher(
+                                        duration: 200.milliseconds,
+                                        child: SvgLoader.asset(
+                                          c.myUser.value?.muted != null
+                                              ? 'assets/icons/chats_muted.svg'
+                                              : 'assets/icons/chats.svg',
+                                          key: Key(
+                                            c.myUser.value?.muted != null
+                                                ? 'Muted'
+                                                : 'Unmuted',
+                                          ),
+                                          width: 36.06,
+                                          height: 30,
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: RmbDetector(
+                                  onPressed: () => StatusView.show(context),
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: tab(
+                                      tab: HomeTab.menu,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: c.pages.jumpToPage,
+                          ),
                         );
                       }),
                     ),
                   ),
                 );
               }),
-              if (!context.isMobile)
+              if (!context.isNarrow)
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -211,7 +280,7 @@ class _HomeViewState extends State<HomeView> {
         /// Nested navigation widget that displays [navigator] in an [Expanded]
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
-          ignoring: router.route == Routes.home && context.isMobile,
+          ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
             return Row(
               children: [
@@ -219,7 +288,7 @@ class _HomeViewState extends State<HomeView> {
                   double width = c.sideBarWidth.value;
                   return ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: context.isMobile ? 0 : width),
+                        BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
                     child: Container(),
                   );
                 }),
@@ -247,9 +316,9 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isMobile ? null : navigation),
+                  Container(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isMobile ? navigation : null),
+                  Container(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
@@ -306,7 +375,7 @@ class _HomeViewState extends State<HomeView> {
               const Positioned.fill(
                 child: ColoredBox(color: Color(0x0D000000)),
               ),
-              if (!context.isMobile) ...[
+              if (!context.isNarrow) ...[
                 Row(
                   children: [
                     ConditionalBackdropFilter(
@@ -315,7 +384,7 @@ class _HomeViewState extends State<HomeView> {
                         double width = c.sideBarWidth.value;
                         return ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: context.isMobile ? 0 : width,
+                            maxWidth: context.isNarrow ? 0 : width,
                           ),
                           child: const SizedBox.expand(),
                         );

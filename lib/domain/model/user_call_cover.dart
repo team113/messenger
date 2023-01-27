@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,7 +20,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
-import 'gallery_item.dart';
+import 'image_gallery_item.dart';
 
 part 'user_call_cover.g.dart';
 
@@ -30,7 +31,7 @@ part 'user_call_cover.g.dart';
 @HiveType(typeId: ModelTypeId.userCallCover)
 class UserCallCover extends HiveObject {
   UserCallCover({
-    required this.galleryItemId,
+    this.galleryItem,
     required this.full,
     required this.vertical,
     required this.square,
@@ -38,9 +39,9 @@ class UserCallCover extends HiveObject {
     this.crop,
   });
 
-  /// ID of the [ImageGalleryItem] this [UserCallCover] is created from.
+  /// [ImageGalleryItem] this [UserCallCover] was created from.
   @HiveField(0)
-  final GalleryItemId galleryItemId;
+  final ImageGalleryItem? galleryItem;
 
   /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(1)
