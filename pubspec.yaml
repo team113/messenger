@@ -1,22 +1,22 @@
 name: messenger
-version: 0.1.0-alpha.5
+version: 0.1.0-alpha.7
 publish_to: none
 
 environment:
-  flutter: ">=3.3.0"
-  sdk: ">=2.17.0 <3.0.0"
+  flutter: ">=3.7.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
   animated_size_and_fade: ^3.0.0
-  async: ^2.8.2
-  audioplayers: ^1.0.1
-  back_button_interceptor: ^6.0.1
-  badges: ^2.0.3
-  callkeep: ^0.3.2
-  carousel_slider: ^4.1.1
-  chewie: ^1.3.4
-  collection: ^1.16.0
-  desktop_drop: ^0.3.3
+  async: ^2.10.0
+  audioplayers: ^3.0.0
+  back_button_interceptor: ^6.0.2
+  badges: ^3.0.2
+  callkeep: ^0.3.3
+  carousel_slider: ^4.2.1
+  chewie: ^1.4.0
+  collection: ^1.17.0
+  desktop_drop: ^0.4.0
   desktop_multi_window:
     git:
       url: https://github.com/krida2000/desktop_multi_window
@@ -26,68 +26,71 @@ dependencies:
       url: https://github.com/krida2000/dough
       path: packages/dough/
   email_validator: ^2.1.17
-  expandable: ^5.0.1
   file_picker: ^5.0.1
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
-  flutter_app_badger: ^1.4.0
-  flutter_background_service: ^2.1.3
-  flutter_background_service_android: ^2.0.3
-  flutter_background_service_ios: ^2.1.0
-  flutter_list_view: ^1.1.12
-  flutter_local_notifications: ^10.0.0-dev.21
-  flutter_svg: ^1.1.4
+  flutter_app_badger: ^1.5.0
+  flutter_background_service: ^2.4.6
+  flutter_background_service_android: ^3.0.3
+  flutter_background_service_ios: ^2.4.0
+  flutter_list_view:
+    git: https://github.com/krida2000/flutter_list_view.git
+  flutter_local_notifications: ^13.0.0
+  flutter_staggered_animations: ^1.1.1
+  flutter_svg: ^2.0.0-dev.2
   flutter_web_plugins:
     sdk: flutter
-  font_awesome_flutter: ^10.1.0
+  font_awesome_flutter: ^10.3.0
   get: ^4.6.5
   google_fonts: ^3.0.1
-  graphql_flutter: ^5.1.1-beta.4
+  graphql_flutter: ^5.1.2
   hive_flutter: ^1.1.0
   hive: ^2.2.3
   http: ^0.13.5
-  http_parser: ^4.0.0
+  http_parser: ^4.0.2
+  image_gallery_saver: ^1.7.1
   image_picker:
     git:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
-  js: ^0.6.4
+  js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.1c0c2769afb29a76f4e6b7c4707ab3526ceab937
-  medea_jason:
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
+  medea_jason: 0.3.0-dev+rev.4482bbca0f6ff09cdfcb1e9c791fde67ef1eedc2
+  mime: ^1.0.4
+  mutex: ^3.0.1
+  # TODO: Switch to pub.dev version when the following pull request is merged
+  #       into it:
+  #       https://github.com/crazecoder/open_file/pull/205
+  open_file:
     git:
-      url: https://github.com/instrumentisto/medea-jason.git
-      path: flutter/
-  mime: ^1.0.2
-  mutex: ^3.0.0
-  path_provider: ^2.0.11
-  path_provider_android: ^2.0.20
-  path_provider_ios: ^2.0.11
-  permission_handler: ^9.2.0
-  phone_numbers_parser: ^7.0.0
+      url: https://github.com/adaptolearning/open_file
+  path: ^1.8.2
+  path_provider: ^2.0.12
+  path_provider_android: ^2.0.22
+  permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.9.1
-  sentry_flutter: ^6.9.1
-  share_plus: ^4.0.10+1
+  rive: ^0.10.1
+  sentry_flutter: ^6.19.0
+  share_plus: ^6.3.0
   sliding_up_panel: ^2.0.0+1
   toml: ^0.13.1
   universal_io: ^2.0.4
-  uuid: ^3.0.6
+  uuid: ^3.0.7
   vibration: ^1.7.6
-  video_player: ^2.4.7
-  visibility_detector: ^0.3.3
+  video_player: ^2.5.1
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
-  window_manager: ^0.2.7
+  window_manager: ^0.3.0
 
 dev_dependencies:
-  artemis: ^7.9.0-beta
-  build: ^2.3.0
-  build_runner: ^2.2.0
-  dartdoc: ^6.0.1
+  artemis: ^7.11.0-beta.1
+  build: ^2.3.1
+  build_runner: ^2.3.3
+  dartdoc: ^6.1.5
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -100,16 +103,17 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
-  hive_generator: ^1.1.3
-  json_serializable: ^6.3.1
-  mockito: 5.2.0
-  network_image_mock: ^2.1.1
-  sentry_dart_plugin: ^1.0.0-beta.2
-  yaml: ^3.1.0
+  hive_generator: ^2.0.0
+  json_serializable: ^6.6.0
+  mockito: ^5.3.2
+  sentry_dart_plugin: ^1.0.0-beta.5
+  yaml: ^3.1.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^4.6.0
+  analyzer: ^5.4.0
+  # TODO: Remove when `medea_jason` updates.
+  medea_flutter_webrtc: 0.8.0-dev+rev.51ffcc611768c889df9e53353c1ac6beb694e05b
 
 flutter:
   uses-material-design: true

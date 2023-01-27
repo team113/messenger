@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,6 +32,7 @@ enum ChatCallEventKind {
   handRaised,
   memberJoined,
   memberLeft,
+  redialed,
   roomReady,
 }
 
@@ -161,6 +163,7 @@ class EventChatCallMemberLeft extends ChatCallEvent {
     PreciseDateTime at,
     this.call,
     this.user,
+    this.deviceId,
   ) : super(callId, chatId, at);
 
   /// Left [ChatCall].
@@ -168,6 +171,9 @@ class EventChatCallMemberLeft extends ChatCallEvent {
 
   /// [User] who left the [ChatCall].
   final User user;
+
+  /// [ChatCallDeviceId] of the [User] who left the [ChatCall].
+  final ChatCallDeviceId deviceId;
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.memberLeft;
@@ -181,6 +187,7 @@ class EventChatCallMemberJoined extends ChatCallEvent {
     PreciseDateTime at,
     this.call,
     this.user,
+    this.deviceId,
   ) : super(callId, chatId, at);
 
   /// Joined [ChatCall].
@@ -189,8 +196,36 @@ class EventChatCallMemberJoined extends ChatCallEvent {
   /// [User] who joined the [ChatCall].
   final User user;
 
+  /// [ChatCallDeviceId] of the joined [User].
+  final ChatCallDeviceId deviceId;
+
   @override
   ChatCallEventKind get kind => ChatCallEventKind.memberJoined;
+}
+
+/// Event of a [User] being redialed in a [ChatCall].
+class EventChatCallMemberRedialed extends ChatCallEvent {
+  const EventChatCallMemberRedialed(
+    ChatItemId callId,
+    ChatId chatId,
+    PreciseDateTime at,
+    this.call,
+    this.user,
+    this.byUser,
+  ) : super(callId, chatId, at);
+
+  /// [ChatCall] the [User] is redialed in.
+  final ChatCall call;
+
+  /// [User] representing the [ChatMember] who was redialed in the [ChatCall].
+  final User user;
+
+  /// [User] representing the [ChatMember] who redialed the [User] in the
+  /// [ChatCall].
+  final User byUser;
+
+  @override
+  ChatCallEventKind get kind => ChatCallEventKind.redialed;
 }
 
 /// Event of a [ChatMember]'s hand being lowered in a [ChatCall].

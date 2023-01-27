@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,26 +17,28 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
   const SwipeableStatus({
-    Key? key,
+    super.key,
     required this.child,
     required this.swipeable,
     this.animation,
-    this.asStack = false,
+    this.translate = false,
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
-    this.padding = const EdgeInsets.only(bottom: 18),
-  }) : super(key: key);
+    this.padding = const EdgeInsets.only(bottom: 13),
+  });
 
   /// Expanded width of the [swipeable].
-  static const double width = 55;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -46,9 +49,8 @@ class SwipeableStatus extends StatelessWidget {
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
 
-  /// Indicator whether [swipeable] should be put in a [Stack] instead of a
-  /// [Row].
-  final bool asStack;
+  /// Indicator whether [child] should translate along with the [swipeable].
+  final bool translate;
 
   /// Indicator whether status is sent.
   final bool isSent;
@@ -77,82 +79,84 @@ class SwipeableStatus extends StatelessWidget {
       return child;
     }
 
-    if (asStack) {
-      return Stack(
-        alignment: crossAxisAlignment == CrossAxisAlignment.end
-            ? Alignment.bottomRight
-            : Alignment.centerRight,
-        children: [
-          child,
-          _animatedBuilder(
-            Padding(
-              padding: padding,
-              child: SizedBox(width: width, child: _swipeableWithStatus()),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return _animatedBuilder(
-      Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          Expanded(child: child),
+    return Stack(
+      alignment: crossAxisAlignment == CrossAxisAlignment.end
+          ? Alignment.bottomRight
+          : Alignment.centerRight,
+      children: [
+        translate
+            ? _animatedBuilder(
+                Padding(
+                  padding: const EdgeInsets.only(left: width),
+                  child: child,
+                ),
+                translated: false,
+              )
+            : child,
+        _animatedBuilder(
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus()),
+            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   /// Returns a [Row] of [swipeable] and a status.
-  Widget _swipeableWithStatus() => DefaultTextStyle.merge(
-        textAlign: TextAlign.end,
-        maxLines: 1,
-        overflow: TextOverflow.visible,
-        style: const TextStyle(fontSize: 10, color: Color(0xFF888888)),
-        child: Padding(
-          padding: const EdgeInsets.only(right: 3.5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSent || isDelivered || isRead || isSending || isError) ...[
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? const Color(0xFF63B4FF)
-                      : isError
-                          ? Colors.red
-                          : const Color(0xFF888888),
-                  size: 12,
-                ),
-                const SizedBox(width: 3),
-              ],
-              swipeable,
-            ],
-          ),
+  Widget _swipeableWithStatus(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return DefaultTextStyle.merge(
+      textAlign: TextAlign.end,
+      maxLines: 1,
+      overflow: TextOverflow.visible,
+      style: style.systemMessageStyle.copyWith(fontSize: 11),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        margin: const EdgeInsets.only(right: 2, left: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
         ),
-      );
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSent || isDelivered || isRead || isSending || isError)
+              Icon(
+                (isRead || isDelivered)
+                    ? Icons.done_all
+                    : isSending
+                        ? Icons.access_alarm
+                        : isError
+                            ? Icons.error_outline
+                            : Icons.done,
+                color: isRead
+                    ? Theme.of(context).colorScheme.secondary
+                    : isError
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.primary,
+                size: 12,
+              ),
+            const SizedBox(width: 3),
+            swipeable,
+          ],
+        ),
+      ),
+    );
+  }
 
   /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child) => AnimatedBuilder(
+  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
+      AnimatedBuilder(
         animation: animation!,
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: const Offset(width, 0),
-              end: Offset.zero,
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

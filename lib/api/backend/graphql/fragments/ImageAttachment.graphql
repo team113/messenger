@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,10 +17,21 @@
 
 fragment ImageAttachment on ImageAttachment {
     id
-    original
+    original {
+        __typename
+        ...File
+    }
     filename
-    size
-    big
-    medium
-    small
+    big {
+        __typename
+        ...File
+    }
+    medium {
+        __typename
+        ...File
+    }
+    small {
+        __typename
+        ...File
+    }
 }

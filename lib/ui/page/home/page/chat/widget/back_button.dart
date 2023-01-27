@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
@@ -25,24 +26,19 @@ class StyledBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (ModalRoute.of(context)?.canPop == true) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 7, 0, 8),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: SvgLoader.asset(
-                'assets/icons/arrow_left.svg',
-                height: 16,
-              ),
-            ),
+      return WidgetButton(
+        onPressed: () => Navigator.maybePop(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Theme.of(context).colorScheme.secondary,
+            size: 22,
           ),
-          onTap: () => Navigator.maybePop(context),
         ),
       );
     } else {
-      return Container();
+      return const SizedBox(width: 30);
     }
   }
 }

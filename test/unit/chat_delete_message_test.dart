@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,32 +17,35 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/my_user.dart';
+import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/model/my_user.dart';
-import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -61,28 +65,33 @@ void main() async {
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
   var userProvider = UserHiveProvider();
   await userProvider.init();
-
-  var myUserData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-    'num': '1234567890123456',
-    'login': null,
-    'name': null,
-    'bio': null,
-    'emails': {'confirmed': []},
-    'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
-    'chatDirectLink': null,
-    'hasPassword': false,
-    'unreadChatsCount': 1,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
+  var chatProvider = ChatHiveProvider();
+  await chatProvider.init();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  await mediaSettingsProvider.init();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -102,7 +111,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -113,6 +122,8 @@ void main() async {
   };
 
   when(graphQlProvider.recentChatsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.keepOnline())
       .thenAnswer((_) => Future.value(const Stream.empty()));
@@ -133,21 +144,17 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...myUserData},
-        },
-      ),
-    ])),
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
   );
 
-  when(graphQlProvider.myUserEvents(
-    MyUserVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+  AbstractSettingsRepository settingsRepository = Get.put(
+    SettingsRepository(
+      mediaSettingsProvider,
+      applicationSettingsProvider,
+      backgroundProvider,
+    ),
+  );
 
   AuthService authService = Get.put(
     AuthService(
@@ -156,32 +163,42 @@ void main() async {
     ),
   );
   await authService.init();
-  AbstractMyUserRepository myUserRepository =
-      MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-  MyUserService myUserService =
-      Get.put(MyUserService(authService, myUserRepository));
-
-  var chatHiveProvider = ChatHiveProvider();
-  await chatHiveProvider.init();
 
   UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  CallRepository callRepository = Get.put(
+    CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    ),
+  );
   AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
-  ChatService chatService = Get.put(ChatService(chatRepository, myUserService));
+    ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      callRepository,
+      draftProvider,
+      userRepository,
+      sessionProvider,
+    ),
+  );
+  ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
   test('ChatService successfully deletes chat message', () async {
     when(graphQlProvider.deleteChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.deleteChatItem(
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('me'),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       ),
@@ -198,13 +215,13 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(const DeleteChatMessageException(
         DeleteChatMessageErrorCode.unknownChatItem));
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.deleteChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('me'),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),
@@ -221,12 +238,12 @@ void main() async {
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const UserId('me'),
       PreciseDateTime.now(),
       status: SendingStatus.sent,
     ));
@@ -243,13 +260,13 @@ void main() async {
     )).thenThrow(
         const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
 
-    Get.put(chatHiveProvider);
+    Get.put(chatProvider);
 
     expect(
       () async => await chatService.hideChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('me'),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),

@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,6 +26,7 @@ Feature: MyUser's online status is correctly updated
 
     When I tap `MenuButton` button
     And I tap `LogoutButton` button
+    And I tap `ConfirmLogoutButton` button
     Then I wait until `AuthView` is present
     And Bob sees Alice as offline
 

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:collection';
+import 'dart:async';
 
 import 'package:get/get.dart';
 
@@ -49,37 +50,73 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  Future<List<RxUser>> search({
+  SearchResult search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
-  }) async {
+  }) {
+    final SearchResult searchResult = SearchResult();
     if (num == null && name == null && login == null && link == null) {
-      return [];
+      return searchResult;
     }
 
-    HashMap<UserId, RxUser> result = HashMap();
+    final List<RxUser> users = _userRepository.users.values
+        .where((u) =>
+            (num != null && u.user.value.num == num) ||
+            (name != null && u.user.value.name?.val.contains(name.val) == true))
+        .toList();
+
+    searchResult.users.value = users;
+    searchResult.status.value =
+        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
+    FutureOr<List<RxUser>> add(List<RxUser> u) {
+      Set<RxUser> users = searchResult.users.toSet()..addAll(u);
+      searchResult.users.value = users.toList();
+      return searchResult.users;
+    }
 
     List<Future<List<RxUser>>> futures = [
-      if (num != null) _userRepository.searchByNum(num),
-      if (name != null) _userRepository.searchByName(name),
-      if (login != null) _userRepository.searchByLogin(login),
-      if (link != null) _userRepository.searchByLink(link),
+      if (num != null) _userRepository.searchByNum(num).then(add),
+      if (name != null) _userRepository.searchByName(name).then(add),
+      if (login != null) _userRepository.searchByLogin(login).then(add),
+      if (link != null) _userRepository.searchByLink(link).then(add),
     ];
 
-    // TODO: Don't wait for all request to finish, but display results as they
-    //       are ready.
-    (await Future.wait(futures)).expand((e) => e).forEach((user) {
-      result[user.id] = user;
-    });
+    Future.wait(futures)
+        .then((_) => searchResult.status.value = RxStatus.success());
 
-    return result.values.toList();
+    return searchResult;
   }
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) => _userRepository.get(id);
 
+  /// Blacklists the specified [User] for the authenticated [MyUser].
+  Future<void> blacklistUser(UserId id) => _userRepository.blacklistUser(id);
+
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
+  Future<void> unblacklistUser(UserId id) =>
+      _userRepository.unblacklistUser(id);
+
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();
+}
+
+/// Result of a [UserService.search] query.
+class SearchResult {
+  /// Found [RxUser]s themselves.
+  final RxList<RxUser> users = RxList<RxUser>();
+
+  /// Reactive [RxStatus] of [users] being fetched.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isLoading`, meaning the [users] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [users] were fetched from local
+  ///   storage.
+  /// - `status.isSuccess`, meaning the [users] were successfully fetched.
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
 }

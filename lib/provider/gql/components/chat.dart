@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +30,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/util/log.dart';
 
 /// [Chat] related functionality.
 abstract class ChatGraphQlMixin {
@@ -43,7 +45,7 @@ abstract class ChatGraphQlMixin {
   ///
   /// Mandatory.
   Future<GetChat$Query> getChat(ChatId id) async {
-    var variables = GetChatArguments(id: id);
+    final variables = GetChatArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetChat',
@@ -74,7 +76,7 @@ abstract class ChatGraphQlMixin {
     int? last,
     RecentChatsCursor? before,
   }) async {
-    var variables = RecentChatsArguments(
+    final variables = RecentChatsArguments(
       first: first,
       after: after,
       last: last,
@@ -104,7 +106,7 @@ abstract class ChatGraphQlMixin {
   /// Succeeds as no-op if a [Chat] with the given responder [User] exists
   /// already, and returns this [Chat].
   Future<ChatMixin> createDialogChat(UserId responderId) async {
-    var variables = CreateDialogArguments(responderId: responderId);
+    final variables = CreateDialogArguments(responderId: responderId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'CreateDialog',
@@ -128,7 +130,8 @@ abstract class ChatGraphQlMixin {
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
-    var variables = CreateGroupChatArguments(memberIds: memberIds, name: name);
+    final variables =
+        CreateGroupChatArguments(memberIds: memberIds, name: name);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'CreateGroupChat',
@@ -202,13 +205,15 @@ abstract class ChatGraphQlMixin {
     ChatItemsCursor? after,
     int? last,
     ChatItemsCursor? before,
+    bool onlyAttachments = false,
   }) async {
-    var variables = GetMessagesArguments(
+    final variables = GetMessagesArguments(
       id: id,
       first: first,
       after: after,
       last: last,
       before: before,
+      onlyAttachments: onlyAttachments,
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -249,9 +254,9 @@ abstract class ChatGraphQlMixin {
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<ChatItemId> repliesTo = const [],
   }) async {
-    var variables = PostChatMessageArguments(
+    final variables = PostChatMessageArguments(
       chatId: chatId,
       text: text,
       attachments: attachments,
@@ -291,7 +296,7 @@ abstract class ChatGraphQlMixin {
   /// a member of the specified [Chat] already.
   Future<ChatEventsVersionedMixin?> addChatMember(
       ChatId chatId, UserId userId) async {
-    var variables = AddChatMemberArguments(chatId: chatId, userId: userId);
+    final variables = AddChatMemberArguments(chatId: chatId, userId: userId);
     var result = await client.mutate(
       MutationOptions(
         operationName: 'AddChatMember',
@@ -408,7 +413,7 @@ abstract class ChatGraphQlMixin {
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
       ChatId chatId, ChatItemId untilId) async {
-    var variables = ReadChatArguments(id: chatId, untilId: untilId);
+    final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'ReadChat',
@@ -463,7 +468,7 @@ abstract class ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
-    var variables = RecentChatsTopEventsArguments(count: count);
+    final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'RecentChatsTopEvents',
@@ -524,12 +529,12 @@ abstract class ChatGraphQlMixin {
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
-  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    var variables = ChatEventsArguments(id: id, ver: ver);
+    final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
@@ -714,6 +719,8 @@ abstract class ChatGraphQlMixin {
         );
       }
 
+      Log.print('[UploadAttachment] Failed with response: ${e.response}');
+
       rethrow;
     }
   }
@@ -740,7 +747,8 @@ abstract class ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> createChatDirectLink(
       ChatDirectLinkSlug slug,
       {ChatId? groupId}) async {
-    var variables = CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
+    final variables =
+        CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateChatDirectLink',
@@ -773,7 +781,7 @@ abstract class ChatGraphQlMixin {
   /// has no active [ChatDirectLink]s already.
   Future<ChatEventsVersionedMixin?> deleteChatDirectLink(
       {ChatId? groupId}) async {
-    var variables = DeleteChatDirectLinkArguments(groupId: groupId);
+    final variables = DeleteChatDirectLinkArguments(groupId: groupId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteChatDirectLink',
@@ -810,7 +818,7 @@ abstract class ChatGraphQlMixin {
   /// the [Chat]-dialog by the specified [ChatDirectLink].
   Future<UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk>
       useChatDirectLink(ChatDirectLinkSlug slug) async {
-    var variables = UseChatDirectLinkArguments(slug: slug);
+    final variables = UseChatDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UseChatDirectLink',
@@ -859,7 +867,7 @@ abstract class ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
   Future<Stream<QueryResult>> keepTyping(ChatId id) {
-    var variables = KeepTypingArguments(chatId: id);
+    final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'KeepTyping',
@@ -910,5 +918,340 @@ abstract class ChatGraphQlMixin {
     );
     return (EditChatMessageText$Mutation.fromJson(result.data!)
         .editChatMessageText as ChatEventsVersionedMixin?);
+  }
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  ///
+  /// The maximum number of forwarded [ChatItem]s at once is 100.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatItemPosted] ([ChatForward] and optionally [ChatMessage]).
+  ///
+  /// ### Non-idempotent
+  ///
+  /// Each time posts a new [ChatForward].
+  Future<ChatEventsVersionedMixin?> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuoteInput> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) async {
+    final variables = ForwardChatItemsArguments(
+      from: from,
+      to: to,
+      items: items,
+      text: text,
+      attachments: attachments,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ForwardChatItems',
+        document: ForwardChatItemsMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ForwardChatItemsException((ForwardChatItems$Mutation
+                      .fromJson(data)
+                  .forwardChatItems
+              as ForwardChatItems$Mutation$ForwardChatItems$ForwardChatItemsError)
+          .code),
+    );
+    return ForwardChatItems$Mutation.fromJson(result.data!).forwardChatItems
+        as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
+  }
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  ///
+  /// Muted [Chat] implies that its events don't produce sounds and
+  /// notifications on a client side. This, however, has nothing to do with a
+  /// server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleChatMute` doesn't correlate with
+  /// `Mutation.toggleMyUserMute`. Muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds, and so, unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds too.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatMuted] (if `until` argument is not `null`);
+  /// - [EventChatUnmuted] (if `until` argument is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already muted `until` the specified [DateTime] (or unmuted) for the
+  /// authenticated [MyUser].
+  Future<ChatEventsVersionedMixin?> toggleChatMute(
+    ChatId id,
+    Muting? mute,
+  ) async {
+    final variables = ToggleChatMuteArguments(id: id, mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleChatMute',
+        document: ToggleChatMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleChatMuteException(
+          (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
+                  as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+              .code),
+    );
+    return ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Returns the [Attachment]s of a [ChatItem] identified by the provided [id].
+  ///
+  /// The authenticated [MyUser] should be a member of the [Chat] the provided
+  /// [ChatItem] belongs to, in order to view it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetAttachments$Query> attachments(ChatItemId id) async {
+    final variables = GetAttachmentsArguments(id: id);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetAttachments',
+        document: GetAttachmentsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetAttachments$Query.fromJson(result.data!);
+  }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
+  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat]
+  /// uses the specified [file] already as an [avatar] with the same `crop`
+  /// area.
+  Future<ChatEventsVersionedMixin?> updateChatAvatar(
+    ChatId id, {
+    dio.MultipartFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateChatAvatarArguments(chatId: id, file: null);
+    final query = MutationOptions(
+      operationName: 'UpdateChatAvatar',
+      document: UpdateChatAvatarMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    if (file == null) {
+      final QueryResult result = await client.mutate(
+        query,
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
+      );
+
+      return UpdateChatAvatar$Mutation.fromJson(result.data!).updateChatAvatar
+          as UpdateChatAvatar$Mutation$UpdateChatAvatar$ChatEventsVersioned;
+    }
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        dio.FormData.fromMap({
+          'operations': encodedBody,
+          'map': '{ "file": ["variables.upload"] }',
+          'file': file,
+        }),
+        options: dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
+      );
+
+      return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
+          .updateChatAvatar as ChatEventsVersionedMixin?;
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateChatAvatarException(
+          UpdateChatAvatarErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
+  }
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its [position] in the favorites list.
+  ///
+  /// To move the [Chat] to a concrete position in a favorites list, provide the
+  /// average value of two other [Chat]s positions surrounding it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatFavorited]
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already favorited at the same position.
+  Future<ChatEventsVersionedMixin?> favoriteChat(
+    ChatId id,
+    ChatFavoritePosition position,
+  ) async {
+    final variables = FavoriteChatArguments(id: id, pos: position);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'FavoriteChat',
+        document: FavoriteChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => FavoriteChatException(
+          (FavoriteChat$Mutation.fromJson(data).favoriteChat
+                  as FavoriteChat$Mutation$FavoriteChat$FavoriteChatError)
+              .code),
+    );
+    return FavoriteChat$Mutation.fromJson(result.data!).favoriteChat
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatUnfavorited]
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// not in the favorites list already.
+  Future<ChatEventsVersionedMixin?> unfavoriteChat(ChatId id) async {
+    final variables = UnfavoriteChatArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnfavoriteChat',
+        document: UnfavoriteChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UnfavoriteChatException(
+          (UnfavoriteChat$Mutation.fromJson(data).unfavoriteChat
+                  as UnfavoriteChat$Mutation$UnfavoriteChat$UnfavoriteChatError)
+              .code),
+    );
+    return UnfavoriteChat$Mutation.fromJson(result.data!).unfavoriteChat
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Subscribes to [FavoriteChatsEvent]s of all [Chat]s of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// favorite [Chat]s list will be emitted after `SubscriptionInitialized` and
+  /// before any other [FavoriteChatsEvents] (and won't be emitted ever again
+  /// until this subscription completes). This allows to skip doing
+  /// `Query.favoriteChats` before establishing this subscription.
+  ///
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via `Query.favoriteChats`;
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// favorite [Chat]s list).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - An error occurs on the server (error is emitted).
+  /// - The server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event
+  /// which have already been applied to the state of some [Chat], so a client
+  /// side is expected to handle all the events idempotently considering the
+  /// `Chat.ver`.
+  Future<Stream<QueryResult>> favoriteChatsEvents(
+      FavoriteChatsListVersion? ver) {
+    final variables = FavoriteChatsEventsArguments(ver: ver);
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'FavoriteChatsEvents',
+        document:
+            FavoriteChatsEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
   }
 }

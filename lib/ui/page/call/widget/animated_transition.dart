@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,7 +27,7 @@ class AnimatedTransition extends StatefulWidget {
     required this.child,
     this.onEnd,
     this.curve,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.duration = const Duration(milliseconds: 200),
   }) : super(key: key);
 
   /// Initial [Rect] this [child] takes.
@@ -45,7 +46,7 @@ class AnimatedTransition extends StatefulWidget {
   final Curve? curve;
 
   /// [Duration] of the animation.
-  final Duration animationDuration;
+  final Duration duration;
 
   @override
   State<AnimatedTransition> createState() => AnimatedTransitionState();
@@ -75,7 +76,7 @@ class AnimatedTransitionState extends State<AnimatedTransition>
       children: [
         AnimatedPositioned.fromRect(
           rect: rect,
-          duration: widget.animationDuration,
+          duration: widget.duration,
           curve: widget.curve ?? Curves.linear,
           onEnd: widget.onEnd,
           child: widget.child,

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,25 +18,20 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
-import '/domain/repository/settings.dart';
+import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ResubscriptionRequiredException,
-        TransformDialogCallIntoGroupCallException;
+    show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
-import '/store/event/incoming_chat_call.dart';
-import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -43,7 +39,11 @@ import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
 class CallService extends DisposableService {
-  CallService(this._authService, this._settingsRepo, this._callsRepo);
+  CallService(
+    this._authService,
+    this._chatService,
+    this._callsRepo,
+  );
 
   /// Unmodifiable map of the current [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
@@ -51,14 +51,11 @@ class CallService extends DisposableService {
   /// [AuthService] to get the authenticated [MyUser].
   final AuthService _authService;
 
+  /// [ChatService] to access a [Chat.ongoingCall].
+  final ChatService _chatService;
+
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
-
-  /// Settings repository, used to get the stored [MediaSettings].
-  final AbstractSettingsRepository _settingsRepo;
-
-  /// Subscription to [IncomingChatCallsTopEvent]s list.
-  StreamSubscription? _events;
 
   /// List of call [ChatId]s that opened in popup.
   List<ChatId> popupCalls = [];
@@ -66,62 +63,34 @@ class CallService extends DisposableService {
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
 
-  /// Returns the current [MediaSettings] value.
-  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
-
-  @override
-  void onReady() {
-    super.onReady();
-    _subscribe(3);
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-
-    for (var call in List.from(_callsRepo.calls.values, growable: false)) {
-      var removed = _callsRepo.remove(call.value.chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
-    }
-
-    _events?.cancel();
-  }
-
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(
     ChatId chatId, {
     bool withAudio = true,
-    bool withVideo = true,
+    bool withVideo = false,
     bool withScreen = false,
   }) async {
+    final Rx<OngoingCall>? stored = _callsRepo[chatId];
+
     if (WebUtils.containsCall(chatId) || popupCalls.contains(chatId)) {
       throw CallIsInPopupException();
-    } else if (_callsRepo.contains(chatId)) {
+    } else if (stored != null &&
+        stored.value.state.value != OngoingCallState.ended) {
       throw CallAlreadyExistsException();
     }
 
     try {
-      Rx<OngoingCall> call = Rx<OngoingCall>(
-        OngoingCall(
-          chatId,
-          me,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-          mediaSettings: media.value,
-          creds: ChatCallCredentials(const Uuid().v4()),
-          state: OngoingCallState.local,
-        ),
+      Rx<OngoingCall> call = await _callsRepo.start(
+        chatId,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
       );
-      await _callsRepo.start(call);
       call.value.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
+      _callsRepo.remove(chatId);
       rethrow;
     }
   }
@@ -130,7 +99,7 @@ class CallService extends DisposableService {
   Future<void> join(
     ChatId chatId, {
     bool withAudio = true,
-    bool withVideo = true,
+    bool withVideo = false,
     bool withScreen = false,
   }) async {
     if ((WebUtils.containsCall(chatId) || popupCalls.contains(chatId)) &&
@@ -138,60 +107,59 @@ class CallService extends DisposableService {
       throw CallIsInPopupException();
     }
 
-    Rx<OngoingCall>? stored = _callsRepo[chatId];
-
     try {
-      if (stored == null ||
-          stored.value.state.value == OngoingCallState.ended) {
-        // If we're joining an already disposed call, then replace it.
-        if (stored?.value.state.value == OngoingCallState.ended) {
-          var removed = _callsRepo.remove(chatId);
-          removed?.value.dispose();
-        }
+      final RxChat? chat = await _chatService.get(chatId);
+      final ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
 
-        Rx<OngoingCall> call = Rx<OngoingCall>(
-          OngoingCall(
-            chatId,
-            me,
-            withAudio: withAudio,
-            withVideo: withVideo,
-            withScreen: withScreen,
-            mediaSettings: media.value,
-            creds:
-                stored?.value.creds ?? ChatCallCredentials(const Uuid().v4()),
-            state: OngoingCallState.joining,
-          ),
+      Rx<OngoingCall>? call;
+
+      try {
+        call = await _callsRepo.join(
+          chatId,
+          callId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
         );
-
-        _callsRepo.add(call);
-        await _callsRepo.join(call);
-        call.value.connect(this);
-      } else if (stored.value.state.value != OngoingCallState.active) {
-        stored.value.state.value = OngoingCallState.joining;
-        stored.value.setAudioEnabled(withAudio);
-        stored.value.setVideoEnabled(withVideo);
-        stored.value.setScreenShareEnabled(withScreen);
-        await _callsRepo.join(stored);
-        stored.value.connect(this);
+      } on CallAlreadyJoinedException catch (e) {
+        await _callsRepo.leave(chatId, e.deviceId);
+        call = await _callsRepo.join(
+          chatId,
+          callId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+        );
       }
+
+      call?.value.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
+      _callsRepo.remove(chatId);
       rethrow;
     }
   }
 
   /// Leaves an [OngoingCall] identified by the given [chatId].
-  Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
+  Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
+      deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
-      await _callsRepo.leave(chatId, deviceId);
     }
+
+    deviceId ??= WebUtils.getCall(chatId)?.deviceId;
+
+    if (deviceId != null) {
+      await _callsRepo.leave(chatId, deviceId);
+    } else {
+      await _callsRepo.decline(chatId);
+    }
+
+    _callsRepo.remove(chatId);
+    WebUtils.removeCall(chatId);
   }
 
   /// Declines an [OngoingCall] identified by the given [chatId].
@@ -219,44 +187,19 @@ class CallService extends DisposableService {
     bool withVideo = true,
     bool withScreen = false,
   }) {
-    Rx<OngoingCall>? call = _callsRepo[stored.chatId];
-
-    if (call == null) {
-      call = Rx(
-        OngoingCall(
-          stored.chatId,
-          me,
-          call: stored.call,
-          creds: stored.creds,
-          deviceId: stored.deviceId,
-          state: stored.state,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-          mediaSettings: media.value,
-        ),
-      );
-
-      _callsRepo.add(call);
-    } else {
-      call.value.call.value = call.value.call.value ?? stored.call;
-      call.value.creds = call.value.creds ?? stored.creds;
-      call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-    }
-
-    return call;
+    return _callsRepo.addStored(
+      stored,
+      withAudio: withAudio,
+      withVideo: withVideo,
+      withScreen: withScreen,
+    );
   }
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {
     popupCalls.remove(chatId);
-    Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      var removed = _callsRepo.remove(chatId);
-      removed?.value.state.value = OngoingCallState.ended;
-      removed?.value.dispose();
-    }
-  }
+    _callsRepo.remove(chatId);
+  } 
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
@@ -267,13 +210,21 @@ class CallService extends DisposableService {
     }
   }
 
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    if (_callsRepo.contains(chatId)) {
+      await _callsRepo.redialChatCallMember(chatId, memberId);
+    }
+  }
+
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
-    List<UserId> additionalMemberIds,
+    List<UserId> additionalMemberIds, {
     ChatName? groupName,
-  ) async {
+  }) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(
@@ -297,103 +248,34 @@ class CallService extends DisposableService {
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
-  void moveCall(ChatId chatId, ChatId newChatId) {
+  void moveCall({
+    required ChatId chatId,
+    required ChatId newChatId,
+    required ChatItemId callId,
+    required ChatItemId newCallId,
+  }) {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
+      
       if (popupCalls.remove(chatId)) {
         popupCalls.add(newChatId);
       }
-
-      if (PlatformUtils.isPopup) {
+      
+      _callsRepo.moveCredentials(callId, newCallId);
+      if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }
     }
   }
 
-  /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
-  void _subscribe(int count) async {
-    _events?.cancel();
-    _events = (await _callsRepo.events(count)).listen(
-      (e) async {
-        switch (e.kind) {
-          case IncomingChatCallsTopEventKind.initialized:
-            // No-op.
-            break;
+  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
+  /// specified [OngoingCall].
+  void transferCredentials(ChatId chatId, ChatItemId callId) =>
+      _callsRepo.transferCredentials(chatId, callId);
 
-          case IncomingChatCallsTopEventKind.list:
-            e as IncomingChatCallsTop;
-            for (ChatCall c in e.list) {
-              if (!_callsRepo.calls.containsKey(c.chatId)) {
-                Rx<OngoingCall> call = Rx<OngoingCall>(
-                  OngoingCall(
-                    c.chatId,
-                    me,
-                    call: c,
-                    withAudio: false,
-                    withVideo: c.withVideo &&
-                        c.caller?.id == me &&
-                        c.conversationStartedAt == null,
-                    withScreen: false,
-                    creds: ChatCallCredentials(const Uuid().v4()),
-                  ),
-                );
-                _callsRepo.add(call);
-              }
-            }
-            break;
-
-          case IncomingChatCallsTopEventKind.added:
-            e as EventIncomingChatCallsTopChatCallAdded;
-
-            // If we're already in this call, then ignore it.
-            if (e.call.members.any((e) => e.user.id == me)) {
-              return;
-            }
-
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
-
-            if (call == null) {
-              Rx<OngoingCall> call = Rx<OngoingCall>(
-                OngoingCall(
-                  e.call.chatId,
-                  me,
-                  call: e.call,
-                  withAudio: false,
-                  withVideo: false,
-                  withScreen: false,
-                  mediaSettings: media.value,
-                  creds: ChatCallCredentials(const Uuid().v4()),
-                ),
-              );
-              _callsRepo.add(call);
-            } else {
-              call.value.call.value = e.call;
-            }
-            break;
-
-          case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
-            // If call is not yet connected to the remote updates, then it's
-            // still just a notification and it should be removed.
-            if (call?.value.connected == false &&
-                call?.value.isActive == false) {
-              var removed = _callsRepo.remove(e.call.chatId);
-              removed?.value.state.value = OngoingCallState.ended;
-              removed?.value.dispose();
-            }
-            break;
-        }
-      },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _subscribe(count);
-        } else {
-          Log.print(e.toString(), 'CallService');
-          throw e;
-        }
-      },
-    );
-  }
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callsRepo.removeCredentials(id);
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -77,15 +78,12 @@ class SharableTextField extends StatelessWidget {
         Expanded(
           child: ContextMenuRegion(
             enabled: (share ?? state.text).isNotEmpty,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
-            menu: ContextMenu(
-              actions: [
-                ContextMenuButton(
-                  label: 'label_copy'.l10n,
-                  onPressed: () => _copy(context),
-                ),
-              ],
-            ),
+            actions: [
+              ContextMenuButton(
+                label: 'label_copy'.l10n,
+                onPressed: () => _copy(context),
+              ),
+            ],
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
               onTap:

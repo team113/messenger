@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -35,6 +37,9 @@ class IntroductionController extends GetxController {
 
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState num;
@@ -135,13 +140,8 @@ class IntroductionController extends GetxController {
 
     password.editable.value = false;
     repeat.editable.value = false;
-    password.status.value = RxStatus.loading();
-    repeat.status.value = RxStatus.loading();
     try {
       await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
-      password.status.value = RxStatus.success();
-      repeat.status.value = RxStatus.success();
-      await Future.delayed(1.seconds);
       stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
@@ -149,8 +149,6 @@ class IntroductionController extends GetxController {
       repeat.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
-      password.status.value = RxStatus.empty();
-      repeat.status.value = RxStatus.empty();
       password.editable.value = true;
       repeat.editable.value = true;
     }

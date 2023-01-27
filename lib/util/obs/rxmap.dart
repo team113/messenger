@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,17 +29,18 @@ class RxObsMap<K, V> extends MapMixin<K, V>
     with NotifyManager<ObsMap<K, V>>, RxObjectMixin<ObsMap<K, V>>
     implements RxInterface<ObsMap<K, V>> {
   /// Creates a new [LinkedHashMap] with the provided [initial] keys and values.
-  RxObsMap([Map<K, V> initial = const {}]) : _value = ObsMap.from(initial);
+  RxObsMap([Map<K, V> initial = const {}])
+      : _value = ObsMap<K, V>.from(initial);
 
   /// Creates a new [LinkedHashMap] with the same keys and values as [other].
-  factory RxObsMap.from(Map<K, V> other) => RxObsMap(Map.from(other));
+  factory RxObsMap.from(Map<K, V> other) => RxObsMap(Map<K, V>.from(other));
 
   /// Creates a new [LinkedHashMap] with the same keys and values as [other].
-  factory RxObsMap.of(Map<K, V> other) => RxObsMap(Map.of(other));
+  factory RxObsMap.of(Map<K, V> other) => RxObsMap(Map<K, V>.of(other));
 
   /// Creates an unmodifiable hash based map containing the entries of [other].
   factory RxObsMap.unmodifiable(Map<dynamic, dynamic> other) =>
-      RxObsMap(Map.unmodifiable(other));
+      RxObsMap(Map<K, V>.unmodifiable(other));
 
   /// Creates a new [LinkedHashMap] instance in which the keys and values are
   /// computed from the provided [iterable].

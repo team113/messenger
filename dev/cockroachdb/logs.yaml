@@ -1,0 +1,9 @@
+# See defaults here:
+# https://www.cockroachlabs.com/docs/stable/configure-logs#default-logging-configuration
+file-defaults:
+  filter: NONE
+sinks:
+  stderr:
+    channels: ALL
+    filter: INFO
+    no-color: true

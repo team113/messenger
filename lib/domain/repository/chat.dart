@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,12 +17,16 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -83,7 +88,7 @@ abstract class AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   });
 
   /// Resends the specified [item].
@@ -142,6 +147,42 @@ abstract class AbstractChatRepository {
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId id);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  });
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  });
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute);
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its position in the favorites list.
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position);
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  Future<void> unfavoriteChat(ChatId id);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -149,8 +190,13 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
-  /// Reactive list of [ChatItem]s of a [chat].
-  RxList<Rx<ChatItem>> get messages;
+  /// Returns a [ChatId] of the [chat].
+  ChatId get id => chat.value.id;
+
+  // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
+  //       [PreciseDateTime] and [ChatItemId] as a key.
+  /// Observable list of [ChatItem]s of the [chat].
+  RxObsList<Rx<ChatItem>> get messages;
 
   /// Status of the [messages] fetching.
   ///
@@ -182,9 +228,40 @@ abstract class RxChat {
   /// Returns an actual [UserCallCover] of this [RxChat].
   UserCallCover? get callCover;
 
+  /// [ChatMessage] being a draft in this [chat].
+  Rx<ChatMessage?> get draft;
+
+  /// [LastChatRead]s of this [chat].
+  RxList<LastChatRead> get reads;
+
+  /// Indicates whether this [RxChat] is blacklisted or not.
+  bool get blacklisted =>
+      chat.value.isDialog &&
+      members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .isBlacklisted ==
+          true;
+
   /// Fetches the [messages] from the service.
-  Future<void> fetchMessages(ChatId chatId);
+  Future<void> fetchMessages();
+
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
-  Future<void> remove(ChatItemId id);
+  Future<void> remove(ChatItemId itemId);
+
+  /// Updates the [draft] with the provided [text], [attachments] and
+  /// [repliesTo].
+  ///
+  /// Resets it, if the specified fields are empty or `null`.
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  });
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,9 +17,10 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/domain/model_type_id.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/contact.dart';
 import 'base.dart';
 
@@ -34,6 +36,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatContactAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
     Hive.maybeRegisterAdapter(ChatContactPositionAdapter());

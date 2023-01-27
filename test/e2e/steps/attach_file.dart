@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/forward/controller.dart';
 
 import '../parameters/attachment.dart';
 import '../world/custom_world.dart';
@@ -38,27 +40,42 @@ final StepDefinitionGeneric attachFile =
   (name, attachmentType, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final ChatController chat =
-        Get.find<ChatController>(tag: router.route.split('/').last);
-
-    if (attachmentType == AttachmentType.file) {
-      chat.addPlatformAttachment(
-        PlatformFile(
+    switch (attachmentType) {
+      case AttachmentType.file:
+        final PlatformFile file = PlatformFile(
           name: name,
           size: 2,
           bytes: Uint8List.fromList([1, 1]),
-        ),
-      );
-    } else {
-      chat.addPlatformAttachment(
-        PlatformFile(
+        );
+
+        if (Get.isRegistered<ChatForwardController>()) {
+          final controller = Get.find<ChatForwardController>();
+          controller.send.addPlatformAttachment(file);
+        } else {
+          final controller =
+              Get.find<ChatController>(tag: router.route.split('/').last);
+          controller.send.addPlatformAttachment(file);
+        }
+        break;
+
+      case AttachmentType.image:
+        final PlatformFile image = PlatformFile(
           name: name,
           size: 2,
           bytes: base64Decode(
             'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
           ),
-        ),
-      );
+        );
+
+        if (Get.isRegistered<ChatForwardController>()) {
+          final controller = Get.find<ChatForwardController>();
+          controller.send.addPlatformAttachment(image);
+        } else {
+          final controller =
+              Get.find<ChatController>(tag: router.route.split('/').last);
+          controller.send.addPlatformAttachment(image);
+        }
+        break;
     }
   },
 );

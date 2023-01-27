@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,16 +17,17 @@
 
 import 'package:hive/hive.dart';
 
+import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
+import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/model_type_id.dart';
+import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import 'base.dart';
 
@@ -53,9 +55,8 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(MyUserEmailsAdapter());
     Hive.maybeRegisterAdapter(MyUserPhonesAdapter());
     Hive.maybeRegisterAdapter(MyUserVersionAdapter());
-    Hive.maybeRegisterAdapter(OriginalAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(SquareAdapter());
+    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());

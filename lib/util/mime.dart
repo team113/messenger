@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +29,7 @@ class MimeResolver {
       _resolver = MimeTypeResolver();
 
       // TODO: Fill the resolver with more MIME-types.
-      resolver.addMagicNumber(
+      _resolver?.addMagicNumber(
         [0x00, 0x00, 0x00, 0x00, 0x6D, 0x6F, 0x6F, 0x76],
         'video/quicktime',
         mask: [0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF],

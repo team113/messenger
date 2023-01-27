@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -24,28 +26,31 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -53,38 +58,24 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_attachment_widget');
-
-  var userData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
+  Config.files = 'test';
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -98,10 +89,7 @@ void main() async {
     'createdAt': '2021-12-15T15:11:18.316846+00:00',
     'updatedAt': '2021-12-15T15:11:18.316846+00:00',
     'lastReads': [
-      {
-        'memberId': '0d72d245-8425-467a-9ebd-082d4f47850a',
-        'at': '2022-01-01T07:27:30.151628+00:00'
-      },
+      {'memberId': 'me', 'at': '2022-01-01T07:27:30.151628+00:00'},
     ],
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
@@ -109,7 +97,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -133,41 +121,6 @@ void main() async {
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(chatEvents.stream));
 
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...userData},
-        },
-      ),
-    ])),
-  );
-
-  when(graphQlProvider.signIn(
-          UserPassword('testPass'), null, null, null, null, true))
-      .thenAnswer(
-    (_) => Future.value(SignIn$Mutation.fromJson({
-      'createSession': {
-        '__typename': 'CreateSessionOk',
-        'user': userData,
-        'session': {
-          'expireAt': '2022-08-02T13:17:55Z',
-          'token':
-              'eyJpZCI6IjU3ZTMwZjhhLWVlNmMtNDdkYy1hNTMwLWNiZDc5MmJmMjRhNiIsInNlY3JldCI6Imh4UERlekFQT0xuQ2hEOVpwOE9UUHdSOE02ODJjTFQrTW80S2ZpNGxUMnc9In0=',
-          'ver': '30611347541830950583282840677231825138'
-        },
-        'remembered': {
-          'expireAt': '2023-08-02T12:47:55Z',
-          'token':
-              'eyJpZCI6ImE0MzlmYjAwLTRiZjMtNGU5Yi1iMWE4LWJmNzYyMjdlYWQ2ZiIsInNlY3JldCI6IkdqaGVKY1BVV21hS1UyTWRNeFNwNmxTYjZUZkhhQXo0RFdiVnhYalRicWs9In0=',
-          'ver': '30611347541270427360343145140867880719'
-        }
-      }
-    }).createSession as SignIn$Mutation$CreateSession$CreateSessionOk),
-  );
-
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
@@ -180,6 +133,11 @@ void main() async {
   when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
+      .thenAnswer((_) => Future.value(null));
+
+  when(graphQlProvider.readChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
       .thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
@@ -198,7 +156,7 @@ void main() async {
       attachments: [
         const AttachmentId('0d72d245-8425-467a-9ebd-082d4f47850ca'),
       ],
-      repliesTo: null,
+      repliesTo: [],
     ),
   ).thenAnswer((_) {
     var event = {
@@ -212,17 +170,17 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': '0d72d245-8425-467a-9ebd-082d4f47850a',
+              'authorId': 'me',
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
-              'repliesTo': null,
+              'repliesTo': [],
               'text': null,
               'editedAt': null,
               'attachments': [
                 {
                   '__typename': 'FileAttachment',
                   'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-                  'original': 'orig.aaf',
+                  'original': {'relativeRef': 'orig.aaf'},
                   'filename': 'test.txt',
                   'size': 2
                 }
@@ -264,7 +222,7 @@ void main() async {
           'attachment': {
             '__typename': 'FileAttachment',
             'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-            'original': 'orig.aaf',
+            'original': {'relativeRef': 'orig.aaf'},
             'filename': 'test.txt',
             'size': 2
           }
@@ -276,24 +234,36 @@ void main() async {
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
-  AuthService authService =
-      AuthService(AuthRepository(graphQlProvider), SessionDataHiveProvider());
-  await authService.init();
+  await sessionProvider.init();
+  await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
 
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var userProvider = Get.put(UserHiveProvider());
   await userProvider.init();
   await userProvider.clear();
@@ -305,13 +275,16 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
-  await messagesProvider.init(
-      userId: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'));
+  await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -320,7 +293,7 @@ void main() async {
         home: Builder(
           builder: (BuildContext context) {
             router.context = context;
-            return Scaffold(body: ContextMenuOverlay(child: child));
+            return Scaffold(body: child);
           },
         ));
   }
@@ -334,40 +307,54 @@ void main() async {
       ),
     );
     await authService.init();
-    await authService.signIn(UserPassword('testPass'));
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+    router = RouterState(authService);
+    router.provider = MockPlatformRouteInformationProvider();
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        callRepository,
+        draftProvider,
         userRepository,
-        me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+        sessionProvider,
+        me: const UserId('me'),
       ),
     );
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
 
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     Get.put(UserService(userRepository));
-    Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    ChatController chatController =
+        Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -376,15 +363,23 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    AttachmentId id1 =
+        Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .send
+            .attachments
+            .first
+            .value
+            .id;
+
     expect(find.byKey(const Key('Send')), findsOneWidget);
+
+    await gesture.moveTo(tester.getCenter(find.byKey(Key('Attachment_$id1'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
-
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -396,7 +391,12 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('test.txt', skipOffstage: false), findsOneWidget);
+    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
+        .attachments
+        .first
+        .id;
+
+    expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });

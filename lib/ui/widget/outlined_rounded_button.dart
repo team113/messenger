@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,6 +32,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.color = Colors.white,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
+    this.shadows,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -69,21 +71,25 @@ class OutlinedRoundedButton extends StatelessWidget {
   final double elevation;
 
   /// Maximum width this button is allowed to occupy.
-  final double? maxWidth;
+  final double maxWidth;
 
   /// Height of this button.
   final double? height;
+
+  /// [BoxShadow]s to apply to this button.
+  final List<BoxShadow>? shadows;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxWidth: maxWidth ?? double.infinity,
+        maxWidth: maxWidth,
         minHeight: height ?? 0,
         maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
-        color: onPressed == null ? const Color(0xFFBBBBBB) : color,
+        boxShadow: shadows,
+        color: onPressed == null ? const Color(0xFFEEEEEE) : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
@@ -115,7 +121,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.caption?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.black,
                         fontSize: 24 * 0.7,
                       ),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -87,39 +88,7 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
-      bool hasVideo = participant.video.value?.isEnabled == true;
-
-      List<Widget> additionally = [];
-
-      if (isMuted) {
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
-            child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
-
-      if (isVideoDisabled ||
-          participant.video.value?.source == MediaSourceKind.Display) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
-        }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
+      bool hasVideo = participant.video.value?.renderer.value != null;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
@@ -148,9 +117,10 @@ class ParticipantWidget extends StatelessWidget {
                               ]
                             : null,
                       ),
-                      child: AvatarWidget.fromUser(
-                        participant.user.value?.user.value,
+                      child: AvatarWidget.fromRxUser(
+                        participant.user.value,
                         radius: expanded ? 90 : 60,
+                        showBadge: false,
                       ),
                     ),
                   ),
@@ -170,10 +140,13 @@ class ParticipantWidget extends StatelessWidget {
                 ? Container()
                 : Center(
                     child: RtcVideoView(
-                      participant.video.value!,
+                      participant.video.value!.renderer.value
+                          as RtcVideoRenderer,
+                      source: participant.source,
                       key: participant.videoKey,
-                      mirror: participant.owner == MediaOwnerKind.local &&
-                          participant.source == MediaSourceKind.Device,
+                      mirror:
+                          participant.member.owner == MediaOwnerKind.local &&
+                              participant.source == MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       outline: outline,
@@ -185,7 +158,9 @@ class ParticipantWidget extends StatelessWidget {
                     ),
                   ),
           ),
-          Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
+          Positioned.fill(
+            child: _handRaisedIcon(participant.member.isHandRaised.value),
+          ),
         ],
       );
     });
@@ -237,34 +212,86 @@ class ParticipantOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
+      bool isMuted;
+
+      if (participant.source == MediaSourceKind.Display) {
+        isMuted = false;
+      } else {
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      }
+
+      bool isVideoDisabled = participant.video.value?.renderer.value == null &&
+          (participant.video.value?.direction.value.isEmitting ?? false) &&
+          participant.member.owner == MediaOwnerKind.remote;
+
+      bool isAudioDisabled = participant.audio.value != null &&
+          participant.audio.value!.renderer.value == null &&
+          participant.source != MediaSourceKind.Display &&
+          participant.member.owner == MediaOwnerKind.remote;
 
       List<Widget> additionally = [];
 
-      if (isMuted) {
+      if (isAudioDisabled) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
+            padding: const EdgeInsets.only(left: 3, right: 3),
+            child: SvgLoader.asset(
+              'assets/icons/audio_off_small.svg',
+              width: 20.88,
+              height: 17,
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        );
+      } else if (isMuted) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
               'assets/icons/microphone_off_small.svg',
-              height: 12,
+              height: 16.5,
             ),
           ),
         );
       }
 
-      if (isVideoDisabled ||
-          participant.video.value?.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
+        }
+
+        if (isVideoDisabled) {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
+            ),
+          );
+        } else {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
+            ),
+          );
+        }
+      } else if (isVideoDisabled) {
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
+            padding: const EdgeInsets.only(left: 5, right: 5),
             child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
+              'assets/icons/video_off_small.svg',
+              width: 19.8,
+              height: 17,
             ),
           ),
         );
@@ -274,7 +301,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const SizedBox(width: double.infinity, height: double.infinity),
+            const IgnorePointer(
+              child: SizedBox(width: double.infinity, height: double.infinity),
+            ),
             Positioned.fill(
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -311,7 +340,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   top: 4,
                                   bottom: 4,
                                 ),
-                                height: 28,
+                                height: 32,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -367,6 +396,28 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            Positioned.fill(
+              child: Obx(() {
+                final Widget child;
+
+                if (participant.member.isConnected.value) {
+                  child = Container();
+                } else {
+                  child = Container(
+                    key: Key('ParticipantConnecting_${participant.member.id}'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.black.withOpacity(0.2),
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: child,
+                );
+              }),
             ),
           ],
         ),

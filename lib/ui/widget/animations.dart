@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 
 /// [AnimatedSwitcher] with an elastic [ScaleTransition] of its [child].
@@ -29,14 +31,12 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 900),
-      switchInCurve: Curves.elasticInOut,
-      switchOutCurve: Curves.elasticInOut,
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: animation,
-        child: child,
-      ),
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 1350),
+      sizeDuration: const Duration(milliseconds: 1350),
+      sizeCurve: Curves.elasticInOut,
+      fadeInCurve: Curves.elasticInOut,
+      fadeOutCurve: Curves.elasticInOut,
       child: child,
     );
   }

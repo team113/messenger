@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,37 +28,53 @@ import 'src/interface.dart'
 class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
     Key? key,
-    this.path,
+    this.url,
     this.bytes,
     this.height,
+    this.onError,
   })  : assert(
-            (path != null && bytes == null) || (path == null && bytes != null)),
+            (url != null && bytes == null) || (url == null && bytes != null)),
         super(key: key);
 
-  /// Constructs a [VideoThumbnail] from the provided [path].
-  factory VideoThumbnail.path({
-    required String path,
-    double? height,
+  /// Constructs a [VideoThumbnail] from the provided [url].
+  factory VideoThumbnail.url({
     Key? key,
+    required String url,
+    double? height,
+    Future<void> Function()? onError,
   }) =>
-      VideoThumbnail._(key: key, path: path, height: height);
+      VideoThumbnail._(
+        key: key,
+        url: url,
+        height: height,
+        onError: onError,
+      );
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   factory VideoThumbnail.bytes({
+    Key? key,
     required Uint8List bytes,
     double? height,
-    Key? key,
+    Future<void> Function()? onError,
   }) =>
-      VideoThumbnail._(key: key, bytes: bytes, height: height);
+      VideoThumbnail._(
+        key: key,
+        bytes: bytes,
+        height: height,
+        onError: onError,
+      );
 
   /// URL of the video to display.
-  final String? path;
+  final String? url;
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
+
+  /// Callback, called on the [VideoPlayerController] initialization errors.
+  final Future<void> Function()? onError;
 
   @override
   State<VideoThumbnail> createState() => _VideoThumbnailState();
@@ -85,6 +102,15 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   }
 
   @override
+  void didUpdateWidget(VideoThumbnail oldWidget) {
+    if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
+      _initVideo();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = 0;
     double height = 0;
@@ -105,13 +131,26 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           ? SizedBox(
               width: width,
               height: height,
-              child: IgnorePointer(
-                child: ContextMenuInterceptor(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRect(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _controller.value.size.width,
+                        height: _controller.value.size.height,
+                        child: IgnorePointer(child: VideoPlayer(_controller)),
+                      ),
+                    ),
                   ),
-                ),
+                  ContextMenuInterceptor(child: const SizedBox()),
+
+                  // [Container] for receiving pointer events over this
+                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                  // intercepts them.
+                  Container(color: Colors.transparent),
+                ],
               ),
             )
           : SizedBox(
@@ -130,13 +169,21 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       if (widget.bytes != null) {
         _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
       } else {
-        _controller = VideoPlayerController.network(widget.path!);
+        _controller = VideoPlayerController.network(widget.url!);
       }
 
       await _controller.initialize();
-    } on PlatformException catch (_) {
-      // Plugin is not supported on the current platform.
-      _hasError = true;
+    } on PlatformException catch (e) {
+      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
+        if (widget.onError != null) {
+          await widget.onError?.call();
+        } else {
+          _hasError = true;
+        }
+      } else {
+        // Plugin is not supported on the current platform.
+        _hasError = true;
+      }
     }
 
     if (mounted) {

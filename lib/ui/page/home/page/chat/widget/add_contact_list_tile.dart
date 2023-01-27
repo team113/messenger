@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -49,12 +50,7 @@ class AddContactListTile extends StatelessWidget {
                 backgroundColor: Colors.green,
                 child: Icon(Icons.check, color: Colors.white),
               )
-            : Obx(
-                () => AvatarWidget.fromContact(
-                  contact.contact.value,
-                  avatar: contact.user.value?.user.value.avatar,
-                ),
-              ),
+            : AvatarWidget.fromRxContact(contact),
       ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),

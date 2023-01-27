@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,25 +24,28 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
+import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -50,7 +54,6 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -65,22 +68,6 @@ import 'chat_direct_link_chat_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_direct_link_widget');
-
-  var userData = {
-    'id': 'id',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
 
   var chatData = {
     '__typename': 'Chat',
@@ -101,7 +88,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -117,8 +104,29 @@ void main() async {
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.incomingCallsTopEvents(3))
+      .thenAnswer((_) => Future.value(const Stream.empty()));
+
+  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    (_) => Future.value(const Stream.empty()),
+  );
+
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
   await authService.init();
@@ -126,9 +134,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -141,15 +146,22 @@ void main() async {
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
+  var draftProvider = Get.put(DraftHiveProvider());
+  await draftProvider.init();
+  await draftProvider.clear();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
   await mediaSettingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
   var chatItemHiveProvider = ChatItemHiveProvider(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init();
   await chatItemHiveProvider.clear();
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -159,7 +171,7 @@ void main() async {
     );
   }
 
-  testWidgets('ChatInfoView successfully updates and deletes ChatDirectLink',
+  testWidgets('ChatInfoView successfully updates ChatDirectLink',
       (WidgetTester tester) async {
     BigInt ver = BigInt.one;
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
@@ -171,18 +183,6 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatVersion('0'),
     )).thenAnswer((_) => Future.value(chatEvents.stream));
-
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
-          },
-        ),
-      ])),
-    );
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -269,16 +269,32 @@ void main() async {
       ])),
     );
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(mediaSettingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
+    AbstractCallRepository callRepository = CallRepository(
+      graphQlProvider,
+      userRepository,
+      credentialsProvider,
+      settingsRepository,
+      me: const UserId('me'),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
-    AbstractCallRepository callRepository =
-        CallRepository(graphQlProvider, userRepository);
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       contactProvider,
@@ -287,63 +303,44 @@ void main() async {
     );
 
     Get.put(ContactService(contactRepository));
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     Get.put(UserService(userRepository));
-    Get.put(ChatService(chatRepository, myUserService));
-    Get.put(CallService(authService, settingsRepository, callRepository));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    await tester.tap(find.byKey(const Key('ChatDirectLinkExpandable')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final link = find.byKey(const Key('LinkField'), skipOffstage: false);
+    await tester.dragUntilVisible(
+      link,
+      find.byKey(const Key('ChatInfoListView')),
+      const Offset(1, 0),
+    );
 
-    await tester.tap(find.byKey(const Key('GenerateChatDirectLink')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('RemoveChatDirectLink')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsNothing);
-
-    var field = find.byKey(const Key('DirectChatLinkTextField'));
-    expect(field, findsOneWidget);
-
-    await tester.tap(field);
     await tester.pumpAndSettle();
 
-    await tester.enterText(field, 'newlink');
+    await tester.tap(link);
     await tester.pumpAndSettle();
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.enterText(link, 'newlink');
+    await tester.pumpAndSettle();
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('RemoveChatDirectLink')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('RemoveChatDirectLink')), findsNothing);
+    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(graphQlProvider.createChatDirectLink(
       any,
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(2);
-
-    verify(graphQlProvider.deleteChatDirectLink(
-      groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(2);
+    ));
 
     await Get.deleteAll(force: true);
   });
 
-  await myUserProvider.clear();
   await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();

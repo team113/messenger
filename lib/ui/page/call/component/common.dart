@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -58,6 +59,7 @@ abstract class CallButton {
     bool withBlur = false,
     Color color = const Color(0x794E5A78),
     double assetWidth = 60,
+    BoxBorder? border,
   }) {
     return RoundFloatingButton(
       asset: asset,
@@ -66,6 +68,7 @@ abstract class CallButton {
       hint: !expanded && hinted ? hint : null,
       text: expanded ? hint : null,
       withBlur: withBlur,
+      border: border,
       onPressed: onPressed,
     );
   }
@@ -162,7 +165,7 @@ class ScreenButton extends CallButton {
       return _common(
         asset: 'screen_share_${isScreen ? 'off' : 'on'}',
         hinted: hinted,
-        onPressed: c.toggleScreenShare,
+        onPressed: () => c.toggleScreenShare(router.context!),
       );
     });
   }
@@ -173,7 +176,7 @@ class HandButton extends CallButton {
   const HandButton(CallController c) : super(c);
 
   @override
-  String get hint => c.isHandRaised.value
+  String get hint => c.me.isHandRaised.value
       ? 'btn_call_hand_down'.l10n
       : 'btn_call_hand_up'.l10n;
 
@@ -181,7 +184,7 @@ class HandButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
-        asset: 'hand_${c.isHandRaised.value ? 'down' : 'up'}',
+        asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
         onPressed: c.toggleHand,
       );
@@ -207,11 +210,11 @@ class SettingsButton extends CallButton {
 }
 
 /// [CallButton] invoking the [CallController.openAddMember].
-class AddMemberCallButton extends CallButton {
-  const AddMemberCallButton(CallController c) : super(c);
+class ParticipantsButton extends CallButton {
+  const ParticipantsButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_add_participant'.l10n;
+  String get hint => 'btn_participants'.l10n;
 
   @override
   Widget build({bool hinted = true}) {
@@ -267,7 +270,10 @@ class RemoteAudioButton extends CallButton {
 
 /// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
-  const AcceptAudioButton(CallController c) : super(c);
+  const AcceptAudioButton(super.c, {this.highlight = false});
+
+  /// Indicator whether this [AcceptAudioButton] should be highlighted.
+  final bool highlight;
 
   @override
   String get hint => 'btn_call_answer_with_audio'.l10n;
@@ -275,12 +281,15 @@ class AcceptAudioButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
     return _common(
-      asset: 'audio_call_start',
-      assetWidth: 29,
+      asset: expanded ? 'audio_call_start' : 'audio_call',
+      assetWidth: expanded ? 29 : 24,
       color: CallController.acceptColor,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      border: highlight
+          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          : null,
       onPressed: () => c.join(withVideo: false),
     );
   }
@@ -288,7 +297,10 @@ class AcceptAudioButton extends CallButton {
 
 /// [RoundFloatingButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
-  const AcceptVideoButton(CallController c) : super(c);
+  const AcceptVideoButton(super.c, {this.highlight = false});
+
+  /// Indicator whether this [AcceptVideoButton] should be highlighted.
+  final bool highlight;
 
   @override
   String get hint => 'btn_call_answer_with_video'.l10n;
@@ -301,6 +313,9 @@ class AcceptVideoButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      border: highlight
+          ? Border.all(color: const Color(0x80FFFFFF), width: 1.5)
+          : null,
       onPressed: () => c.join(withVideo: true),
     );
   }
@@ -419,7 +434,7 @@ class SwitchButton extends CallButton {
         assetWidth: 28,
         hinted: hinted,
         withBlur: blur,
-        onPressed: c.toggleSpeaker,
+        onPressed: c.switchCamera,
       );
     });
   }
@@ -464,7 +479,7 @@ Widget callTitle(CallController c) => Obx(
                         ? 'label_video_call'.l10n
                         : 'label_audio_call'.l10n;
         return CallTitle(
-          c.me,
+          c.me.id.userId,
           chat: c.chat.value?.chat.value,
           title: c.chat.value?.title.value,
           avatar: c.chat.value?.avatar.value,

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,6 +24,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -51,7 +53,7 @@ abstract class UserGraphQlMixin {
   ///
   /// Optional.
   Future<GetUser$Query> getUser(UserId id) async {
-    var variables = GetUserArguments(id: id);
+    final variables = GetUserArguments(id: id);
     QueryResult res = await client.query(QueryOptions(
       document: GetUserQuery(variables: variables).document,
       variables: variables.toJson(),
@@ -89,7 +91,7 @@ abstract class UserGraphQlMixin {
     int? last,
     UsersCursor? before,
   }) async {
-    var variables = SearchUsersArguments(
+    final variables = SearchUsersArguments(
       num: num,
       login: login,
       directLink: link,
@@ -123,7 +125,7 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [name] already.
   Future<MyUserEventsVersionedMixin?> updateUserName(UserName? name) async {
-    var variables = UpdateUserNameArguments(name: name);
+    final variables = UpdateUserNameArguments(name: name);
     QueryResult res = await client.mutate(
       MutationOptions(
         document: UpdateUserNameMutation(variables: variables).document,
@@ -150,7 +152,7 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [bio] already.
   Future<MyUserEventsVersionedMixin?> updateUserBio(UserBio? bio) async {
-    var variables = UpdateUserBioArguments(bio: bio);
+    final variables = UpdateUserBioArguments(bio: bio);
     QueryResult res = await client.mutate(
       MutationOptions(
         document: UpdateUserBioMutation(variables: variables).document,
@@ -158,6 +160,35 @@ abstract class UserGraphQlMixin {
       ),
     );
     return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserStatusUpdated] (if [text] argument is specified);
+  /// - [EventUserStatusDeleted] (if [text] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] has the provided [text] as his `status` value already.
+  Future<MyUserEventsVersionedMixin?> updateUserStatus(
+    UserTextStatus? text,
+  ) async {
+    final variables = UpdateUserStatusArguments(text: text);
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        document: UpdateUserStatusMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UpdateUserStatus$Mutation.fromJson(res.data!).updateUserStatus;
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -176,7 +207,7 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [login] already.
   Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin login) async {
-    var variables = UpdateUserLoginArguments(login: login);
+    final variables = UpdateUserLoginArguments(login: login);
     QueryResult res = await client.mutate(
       MutationOptions(
         document: UpdateUserLoginMutation(variables: variables).document,
@@ -209,7 +240,7 @@ abstract class UserGraphQlMixin {
   /// [MyUser] has the provided [presence] value already.
   Future<MyUserEventsVersionedMixin?> updateUserPresence(
       Presence presence) async {
-    var variables = UpdateUserPresenceArguments(presence: presence);
+    final variables = UpdateUserPresenceArguments(presence: presence);
     QueryResult res = await client.mutate(
       MutationOptions(
         document: UpdateUserPresenceMutation(variables: variables).document,
@@ -240,7 +271,7 @@ abstract class UserGraphQlMixin {
   /// one.
   Future<MyUserEventsVersionedMixin?> updateUserPassword(
       UserPassword? oldPassword, UserPassword newPassword) async {
-    var variables = UpdateUserPasswordArguments(
+    final variables = UpdateUserPasswordArguments(
       old: oldPassword,
       kw$new: newPassword,
     );
@@ -324,7 +355,7 @@ abstract class UserGraphQlMixin {
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
-  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
@@ -335,7 +366,7 @@ abstract class UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
   Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) {
-    var variables = MyUserEventsArguments(ver: ver);
+    final variables = MyUserEventsArguments(ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'MyUserEvents',
@@ -400,7 +431,7 @@ abstract class UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
   Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
-    var variables = UserEventsArguments(id: id, ver: ver);
+    final variables = UserEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',
@@ -427,7 +458,7 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
   Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail email) async {
-    var variables = DeleteUserEmailArguments(email: email);
+    final variables = DeleteUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserEmail',
       document: DeleteUserEmailMutation(variables: variables).document,
@@ -453,7 +484,7 @@ abstract class UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
   Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
-    var variables = DeleteUserPhoneArguments(phone: phone);
+    final variables = DeleteUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserPhone',
       document: DeleteUserPhoneMutation(variables: variables).document,
@@ -491,7 +522,7 @@ abstract class UserGraphQlMixin {
   /// is already present in a [MyUser.emails] field (either in confirmed or
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserEmail(UserEmail email) async {
-    var variables = AddUserEmailArguments(email: email);
+    final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'AddUserEmail',
@@ -536,7 +567,7 @@ abstract class UserGraphQlMixin {
   /// already is present in a [MyUser.phones] field (either in confirmed or
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserPhone(UserPhone phone) async {
-    var variables = AddUserPhoneArguments(phone: phone);
+    final variables = AddUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'AddUserPhone',
@@ -571,7 +602,7 @@ abstract class UserGraphQlMixin {
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
       ConfirmationCode code) async {
-    var variables = ConfirmUserEmailArguments(code: code);
+    final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ConfirmUserEmail',
@@ -607,7 +638,7 @@ abstract class UserGraphQlMixin {
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
       ConfirmationCode code) async {
-    var variables = ConfirmUserPhoneArguments(code: code);
+    final variables = ConfirmUserPhoneArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ConfirmUserPhone',
@@ -715,7 +746,7 @@ abstract class UserGraphQlMixin {
   /// already.
   Future<MyUserEventsVersionedMixin?> createUserDirectLink(
       ChatDirectLinkSlug slug) async {
-    var variables = CreateUserDirectLinkArguments(slug: slug);
+    final variables = CreateUserDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateUserDirectLink',
@@ -780,7 +811,7 @@ abstract class UserGraphQlMixin {
   /// his avatar already.
   Future<MyUserEventsVersionedMixin?> updateUserAvatar(
       GalleryItemId? id, CropAreaInput? crop) async {
-    var variables = UpdateUserAvatarArguments(id: id, crop: crop);
+    final variables = UpdateUserAvatarArguments(id: id, crop: crop);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserAvatar',
@@ -815,7 +846,7 @@ abstract class UserGraphQlMixin {
   /// callCover already.
   Future<MyUserEventsVersionedMixin?> updateUserCallCover(
       GalleryItemId? id, CropAreaInput? crop) async {
-    var variables = UpdateUserCallCoverArguments(id: id, crop: crop);
+    final variables = UpdateUserCallCoverArguments(id: id, crop: crop);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserCallCover',
@@ -828,6 +859,48 @@ abstract class UserGraphQlMixin {
     );
     return (UpdateUserCallCover$Mutation.fromJson(result.data!)
         .updateUserCallCover as MyUserEventsVersionedMixin?);
+  }
+
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
+  /// any already existing mute even if it's longer.
+  ///
+  /// Muted [MyUser] implies that all his [Chat]s events don't produce sounds
+  /// and notifications on a client side. This, however, has nothing to do with
+  /// a server and is the responsibility to be satisfied by a client side.
+  ///
+  /// Note, that `Mutation.toggleMyUserMute` doesn't correlate with
+  /// `Mutation.toggleChatMute`. Unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds, and so, muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds too.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserMuted] (if [mute] argument is not `null`);
+  /// - [EventUserUnmuted] (if [mute] argument is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] is muted already `until` the specified [DateTime] (or unmuted).
+  Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
+    final variables = ToggleMyUserMuteArguments(mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleMyUserMute',
+        document: ToggleMyUserMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleMyUserMuteException(
+          ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+              as ToggleMyUserMuteErrorCode),
+    );
+    return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
+        as MyUserEventsVersionedMixin?);
   }
 
   /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
@@ -852,7 +925,7 @@ abstract class UserGraphQlMixin {
     dio.MultipartFile? galleryItem, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    var variables = UploadUserGalleryItemArguments(upload: null);
+    final variables = UploadUserGalleryItemArguments(upload: null);
     final query = MutationOptions(
       operationName: 'UploadUserGalleryItem',
       document: UploadUserGalleryItemMutation(variables: variables).document,
@@ -909,7 +982,7 @@ abstract class UserGraphQlMixin {
   /// [GalleryItem] was deleted already (or if it never existed).
   Future<MyUserEventsVersionedMixin?> deleteUserGalleryItem(
       GalleryItemId id) async {
-    var variables = DeleteUserGalleryItemArguments(id: id);
+    final variables = DeleteUserGalleryItemArguments(id: id);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserGalleryItem',
       document: DeleteUserGalleryItemMutation(variables: variables).document,
@@ -953,5 +1026,118 @@ abstract class UserGraphQlMixin {
       operationName: 'KeepOnline',
       document: KeepOnlineSubscription().document,
     ));
+  }
+
+  /// Blacklists the specified [User] for the authenticated [MyUser].
+  ///
+  /// Blacklisted [User]s are not able to communicate with the authenticated
+  /// [MyUser] directly (in [Chat]-dialogs).
+  ///
+  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [BlacklistEvent] may be produced on success:
+  /// - [EventBlacklistRecordAdded].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
+  /// [User] is blacklisted by the authenticated [MyUser] already.
+  Future<BlacklistEventsVersionedMixin?> blacklistUser(UserId id) async {
+    final variables = BlacklistUserArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'BlacklistUser',
+        document: BlacklistUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => BlacklistUserException(
+          BlacklistUser$Mutation.fromJson(data).blacklistUser
+              as BlacklistUserErrorCode),
+    );
+    return BlacklistUser$Mutation.fromJson(result.data!).blacklistUser
+        as BlacklistEventsVersionedMixin?;
+  }
+
+  /// Removes the specified [User] from the blacklist of the authenticated
+  /// [MyUser].
+  ///
+  /// Reverses the action of [blacklistUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [BlacklistEvent] may be produced on success:
+  /// - [EventBlacklistRecordRemoved].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
+  /// [User] is not blacklisted by the authenticated [MyUser] already.
+  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
+    final variables = UnblacklistUserArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnblacklistUser',
+        document: UnblacklistUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UnblacklistUserException(
+          UnblacklistUser$Mutation.fromJson(data).unblacklistUser
+              as UnblacklistUserErrorCode),
+    );
+    return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
+        as BlacklistEventsVersionedMixin?;
+  }
+
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
+  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    int? first,
+    BlacklistCursor? after,
+    int? last,
+    BlacklistCursor? before,
+  }) async {
+    final variables = GetBlacklistArguments(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetBlacklist',
+        document: GetBlacklistQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetBlacklist$Query.fromJson(result.data!).blacklist;
   }
 }

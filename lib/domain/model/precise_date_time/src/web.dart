@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,18 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
-part 'web.g.dart';
-
 /// [DateTime] considering the microseconds on any platform, including Web.
-@HiveType(typeId: ModelTypeId.preciseDateTimeWeb)
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(DateTime val, {this.microsecond = 0}) : super(val);
 
-  @HiveField(1)
   final int microsecond;
 
   /// Returns the number of microseconds since the "Unix epoch"
@@ -135,8 +133,11 @@ class PreciseDateTime extends NewType<DateTime>
   /// later.
   ///
   /// Be careful when working with dates in local time.
-  PreciseDateTime subtract(Duration duration) =>
-      PreciseDateTime(val.subtract(duration), microsecond: microsecond);
+  PreciseDateTime subtract(Duration duration) => PreciseDateTime(
+        val.subtract(duration),
+        microsecond: microsecond -
+            (duration.inMicroseconds - duration.inMilliseconds * 1000),
+      );
 
   /// Constructs a [PreciseDateTime] instance with current date and time in the
   /// local time zone.
@@ -203,5 +204,21 @@ class PreciseDateTime extends NewType<DateTime>
     }
 
     return formattedString;
+  }
+}
+
+/// [Hive] adapter for a [PreciseDateTime].
+class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
+  @override
+  final typeId = ModelTypeId.preciseDateTime;
+
+  @override
+  PreciseDateTime read(BinaryReader reader) =>
+      PreciseDateTime(reader.read() as DateTime, microsecond: reader.readInt());
+
+  @override
+  void write(BinaryWriter writer, PreciseDateTime obj) {
+    writer.write(obj.val);
+    writer.writeInt(obj.microsecond);
   }
 }

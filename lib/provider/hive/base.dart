@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,8 +24,7 @@ import 'package:universal_io/io.dart';
 import '/domain/model/user.dart';
 
 /// Base class for data providers backed by [Hive].
-abstract class HiveBaseProvider<T extends HiveObject>
-    extends DisposableInterface {
+abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// [Box] that contains all of the data.
   late Box<T> _box;
 

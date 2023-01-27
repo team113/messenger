@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,11 +30,14 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -58,6 +62,16 @@ void main() async {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -69,6 +83,10 @@ void main() async {
   var galleryItemProvider = GalleryItemHiveProvider();
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
+  var userProvider = UserHiveProvider();
+  await userProvider.init();
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -108,8 +126,8 @@ void main() async {
               'galleryItem': {
                 '__typename': 'ImageGalleryItem',
                 'id': 'testId',
-                'square': 'ug.square.jpg',
-                'original': 'orig.png',
+                'square': {'relativeRef': 'ug.square.jpg'},
+                'original': {'relativeRef': 'orig.jpg'},
                 'addedAt': DateTime.now().toString()
               },
               'at': DateTime.now().toString()
@@ -153,12 +171,17 @@ void main() async {
               'userId': 'id',
               'avatar': {
                 '__typename': 'UserAvatar',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'cc.full.jpg'},
+                'vertical': {'relativeRef': 'cc.vertical.jpg'},
+                'square': {'relativeRef': 'cc.square.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -182,12 +205,17 @@ void main() async {
               'userId': 'id',
               'callCover': {
                 '__typename': 'UserCallCover',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'cc.full.jpg'},
+                'vertical': {'relativeRef': 'cc.vertical.jpg'},
+                'square': {'relativeRef': 'cc.square.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -235,15 +263,31 @@ void main() async {
       }).updateUserAvatar as MyUserEventsVersionedMixin?),
     );
 
+    when(graphQlProvider.getBlacklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    );
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
     await myUserService.uploadGalleryItem(
@@ -302,33 +346,55 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+    UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    AbstractMyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      galleryItemProvider,
+      userRepository,
+    );
+    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    expect(
-      () async => await myUserService.uploadGalleryItem(
+    Object? exception;
+
+    try {
+      await myUserService.uploadGalleryItem(
         NativeFile(
           bytes: Uint8List.fromList([1, 1]),
           size: 2,
           name: 'test',
         ),
-      ),
-      throwsA(isA<UploadUserGalleryItemException>()),
-    );
+      );
+    } catch (e) {
+      exception = e;
+    }
 
-    expect(
-      () async =>
-          await myUserService.updateAvatar(const GalleryItemId('testId')),
-      throwsA(isA<UpdateUserAvatarException>()),
-    );
+    if (exception is! UploadUserGalleryItemException) {
+      fail('UploadUserGalleryItemException not thrown');
+    }
 
-    expect(
-      () async =>
-          await myUserService.updateCallCover(const GalleryItemId('testId')),
-      throwsA(isA<UpdateUserCallCoverException>()),
-    );
+    try {
+      await myUserService.updateAvatar(const GalleryItemId('testId'));
+    } catch (e) {
+      exception = e;
+    }
+
+    if (exception is! UpdateUserAvatarException) {
+      fail('UpdateUserAvatarException not thrown');
+    }
+
+    try {
+      await myUserService.updateCallCover(const GalleryItemId('testId'));
+    } catch (e) {
+      exception = e;
+    }
+
+    if (exception is! UpdateUserCallCoverException) {
+      fail('UpdateUserCallCoverException not thrown');
+    }
 
     verifyInOrder([
       graphQlProvider.uploadUserGalleryItem(any),

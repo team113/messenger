@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -35,6 +36,8 @@ class RoundFloatingButton extends StatefulWidget {
     this.color = const Color(0x794E5A78),
     this.hint,
     this.withBlur = false,
+    this.style,
+    this.border,
     this.child,
   }) : super(key: key);
 
@@ -63,6 +66,12 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
+
+  /// Optional [TextStyle] of the [text].
+  final TextStyle? style;
+
+  /// Optional [BoxBorder] of this [RoundFloatingButton].
+  final BoxBorder? border;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -95,38 +104,41 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    Widget button = ConditionalBackdropFilter(
-      condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(60),
-      child: Material(
-        key: _key,
-        elevation: 0,
-        color: widget.color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(60),
-          onHover: widget.hint != null
-              ? (b) {
-                  if (b) {
-                    _populateOverlay();
-                  } else {
-                    _hintEntry?.remove();
-                    _hintEntry = null;
+    Widget button = Container(
+      decoration: BoxDecoration(border: widget.border, shape: BoxShape.circle),
+      child: ConditionalBackdropFilter(
+        condition: !WebUtils.isSafari && widget.withBlur,
+        borderRadius: BorderRadius.circular(60),
+        child: Material(
+          key: _key,
+          elevation: 0,
+          color: widget.color,
+          type: MaterialType.circle,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(60),
+            onHover: widget.hint != null
+                ? (b) {
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
+                    }
                   }
-                }
-              : null,
-          onTap: widget.onPressed,
-          child: widget.child ??
-              SizedBox(
-                width: max(widget.assetWidth, 60),
-                height: max(widget.assetWidth, 60),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth,
+                : null,
+            onTap: widget.onPressed,
+            child: widget.child ??
+                SizedBox(
+                  width: max(widget.assetWidth, 60),
+                  height: max(widget.assetWidth, 60),
+                  child: Center(
+                    child: SvgLoader.asset(
+                      'assets/icons/${widget.asset}.svg',
+                      width: widget.assetWidth,
+                    ),
                   ),
                 ),
-              ),
+          ),
         ),
       ),
     );
@@ -143,10 +155,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               Text(
                 widget.text!,
                 textAlign: TextAlign.center,
-                style: context.textTheme.caption?.copyWith(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
+                style: widget.style ??
+                    context.textTheme.bodySmall?.copyWith(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
                 maxLines: 2,
               ),
             ],
@@ -214,6 +227,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     });
 
-    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }
 }

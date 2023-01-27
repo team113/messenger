@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,8 +17,9 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ImageGalleryItem].
@@ -30,10 +32,9 @@ class GalleryItemHiveProvider extends HiveBaseProvider<ImageGalleryItem> {
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
-    Hive.maybeRegisterAdapter(OriginalAdapter());
-    Hive.maybeRegisterAdapter(SquareAdapter());
+    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(StorageFileAdapter());
   }
 
   /// Puts the provided [ImageGalleryItem] to [Hive].

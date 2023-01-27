@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,8 +22,11 @@ import 'user.dart';
 /// Extension adding models construction from a [ChatCallMemberMixin].
 extension ChatCallMemberConversion on ChatCallMemberMixin {
   /// Constructs a new [ChatCallMember] from this [ChatCallMemberMixin].
-  ChatCallMember toModel() =>
-      ChatCallMember(user: user.toModel(), handRaised: handRaised);
+  ChatCallMember toModel() => ChatCallMember(
+        user: user.toModel(),
+        handRaised: handRaised,
+        joinedAt: joinedAt,
+      );
 }
 
 /// Extension adding models construction from [ChatCallMixin].
@@ -40,5 +44,6 @@ extension ChatCallConversion on ChatCallMixin {
         finishReasonIndex: finishReason?.index,
         finishedAt: finishedAt,
         joinLink: joinLink,
+        answered: answered,
       );
 }

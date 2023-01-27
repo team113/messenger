@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,7 +27,6 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -37,7 +37,8 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
-import 'package:messenger/ui/page/auth/view.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/login/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -69,7 +70,14 @@ void main() async {
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
 
-  testWidgets('AuthView successfully recovers account access',
+  Widget createWidgetForTesting({required Widget child}) {
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
+  }
+
+  testWidgets('LoginView successfully recovers account access',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
     Get.put(galleryItemProvider);
@@ -86,33 +94,28 @@ void main() async {
       ),
     );
     await authService.init();
+
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
-    when(router.provider!.value)
-        .thenReturn(const RouteInformation(location: '/'));
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('login'), null, null, null))
-        .thenAnswer((_) => Future.value());
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('emptyuser'), null, null, null))
-        .thenAnswer((_) => throw const RecoverUserPasswordException(
-            RecoverUserPasswordErrorCode.unknownUser));
-    when(graphQlProvider.validateUserPasswordRecoveryCode(
-            UserLogin('login'), null, null, null, ConfirmationCode('1234')))
-        .thenAnswer((_) => Future.value());
-    when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-            ConfirmationCode('1234'), UserPassword('test123')))
-        .thenAnswer((_) => Future.value());
 
-    await tester.pumpWidget(const App());
-    await tester.pumpAndSettle();
-    final authView = find.byType(AuthView);
-    expect(authView, findsOneWidget);
+    when(
+      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
+    ).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.recoverUserPassword(
+          UserLogin('emptyuser'), null, null, null),
+    ).thenAnswer((_) => throw const RecoverUserPasswordException(
+        RecoverUserPasswordErrorCode.unknownUser));
+    when(
+      graphQlProvider.validateUserPasswordRecoveryCode(
+          UserLogin('login'), null, null, null, ConfirmationCode('1234')),
+    ).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
+          ConfirmationCode('1234'), UserPassword('test123')),
+    ).thenAnswer((_) => Future.value());
 
-    final goToLoginButton = find.text('btn_login'.l10n);
-    expect(goToLoginButton, findsOneWidget);
-
-    await tester.tap(goToLoginButton);
+    await tester.pumpWidget(createWidgetForTesting(child: const LoginView()));
     await tester.pumpAndSettle();
 
     final accessRecoveryTile = find.text('btn_forgot_password'.l10n);
@@ -127,10 +130,7 @@ void main() async {
     await tester.enterText(usernameField, 'emptyuser');
     await tester.pumpAndSettle();
 
-    final nextTile = find.text('btn_next'.l10n);
-    expect(nextTile, findsOneWidget);
-
-    await tester.tap(nextTile);
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -140,7 +140,7 @@ void main() async {
     await tester.enterText(usernameField, 'login');
     await tester.pumpAndSettle();
 
-    await tester.tap(nextTile);
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -150,7 +150,7 @@ void main() async {
     await tester.enterText(codeField, '1234');
     await tester.pumpAndSettle();
 
-    await tester.tap(nextTile);
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -163,16 +163,10 @@ void main() async {
     await tester.enterText(password2, 'test123');
     await tester.pumpAndSettle();
 
-    await tester.tap(nextTile);
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
-    await tester.pump(const Duration(seconds: 1));
-    expect(password1, findsNothing);
-
-    await tester.pumpAndSettle(const Duration(seconds: 5));
-    await tester.pump(const Duration(seconds: 5));
 
     verifyInOrder([
-      router.provider!.value,
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
       graphQlProvider.validateUserPasswordRecoveryCode(
           UserLogin('login'), null, null, null, ConfirmationCode('1234')),

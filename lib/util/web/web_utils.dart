@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -108,9 +109,11 @@ class StoredCall {
                           UserNum(e['user']['num']),
                         ),
                         handRaised: e['handRaised'],
+                        joinedAt: PreciseDateTime.parse(e['joinedAt']),
                       ))
                   .toList(),
               withVideo: data['call']['withVideo'],
+              answered: data['call']['answered'],
             ),
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
       deviceId:
@@ -148,9 +151,11 @@ class StoredCall {
                           'num': e.user.num.val,
                         },
                         'handRaised': e.handRaised,
+                        'joinedAt': e.joinedAt.toString(),
                       })
                   .toList(),
               'withVideo': call!.withVideo,
+              'answered': call!.answered,
             },
       'creds': creds?.val,
       'deviceId': deviceId?.val,

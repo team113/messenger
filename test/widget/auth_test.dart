@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,8 +32,12 @@ import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blacklist.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -40,6 +45,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
@@ -73,8 +79,16 @@ void main() async {
   await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init(userId: const UserId('me'));
+  var draftProvider = DraftHiveProvider();
+  await draftProvider.init(userId: const UserId('me'));
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init(userId: const UserId('me'));
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init(userId: const UserId('me'));
+  var credentialsProvider = ChatCallCredentialsHiveProvider();
+  await credentialsProvider.init(userId: const UserId('me'));
+  var blacklistedUsersProvider = BlacklistHiveProvider();
+  await blacklistedUsersProvider.init(userId: const UserId('me'));
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
@@ -85,7 +99,9 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(sessionProvider);
     Get.put(chatProvider);
+    Get.put(draftProvider);
     Get.put(settingsProvider);
+    Get.put(credentialsProvider);
     Get.put(NotificationService());
     Get.put(BackgroundWorker(sessionProvider));
 
@@ -176,6 +192,16 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   @override
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
       UserPassword password,
@@ -213,5 +239,15 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<Stream<QueryResult<Object?>>> keepOnline() {
     return Future.value(const Stream.empty());
+  }
+
+  @override
+  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+    BlacklistCursor? after,
+    BlacklistCursor? before,
+    int? first,
+    int? last,
+  }) {
+    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
   }
 }

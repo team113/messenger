@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,7 +16,12 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 fragment UserCallCover on UserCallCover {
-    galleryItemId
+    galleryItem {
+        __typename
+        ... on ImageGalleryItem {
+            ...ImageGalleryItem
+        }
+    }
     crop {
         topLeft {
             x
@@ -27,8 +33,20 @@ fragment UserCallCover on UserCallCover {
         }
         angle
     }
-    original
-    full
-    vertical
-    square
+    original {
+        __typename
+        ...File
+    }
+    full {
+        __typename
+        ...File
+    }
+    vertical {
+        __typename
+        ...File
+    }
+    square {
+        __typename
+        ...File
+    }
 }

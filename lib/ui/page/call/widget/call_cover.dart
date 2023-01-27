@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [UserCallCover].
@@ -30,7 +31,7 @@ import '/ui/widget/svg/svg.dart';
 class CallCoverWidget extends StatelessWidget {
   const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
 
-  /// Call cover data object.
+  /// [UserCallCover] to display.
   final UserCallCover? cover;
 
   /// [User] this [UserCallCover] belongs to.
@@ -49,8 +50,8 @@ class CallCoverWidget extends StatelessWidget {
               )
             : Stack(
                 children: [
-                  Image.network(
-                    '${Config.url}:${Config.port}/files${cover?.full}',
+                  RetryImage(
+                    cover!.full.url,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

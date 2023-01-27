@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,10 +25,10 @@ part 'mute_duration.g.dart';
 /// Mute duration of a [Chat] or [MyUser].
 @HiveType(typeId: ModelTypeId.muteDuration)
 class MuteDuration {
-  /// Mute duration until an exact datetime.
+  /// Mute duration until an exact [PreciseDateTime].
   ///
-  /// Once this datetime pasts (or is in the past already), it should be
-  /// considered as automatically unmuted.
+  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
+  /// be considered as automatically unmuted.
   @HiveField(0)
   PreciseDateTime? until;
 
@@ -41,7 +42,8 @@ class MuteDuration {
     this.forever,
   });
 
-  factory MuteDuration.forever() => MuteDuration();
+  factory MuteDuration.forever() => MuteDuration(forever: true);
+
   factory MuteDuration.until(PreciseDateTime until) =>
       MuteDuration(until: until);
 }

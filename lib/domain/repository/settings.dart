@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -26,6 +29,9 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the stored [ApplicationSettings].
   Rx<ApplicationSettings?> get applicationSettings;
+
+  /// Returns the stored [Uint8List] of the background.
+  Rx<Uint8List?> get background;
 
   /// Clears the stored settings.
   Future<void> clearCache();
@@ -47,4 +53,22 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.showIntroduction] value.
   Future<void> setShowIntroduction(bool show);
+
+  /// Sets the [ApplicationSettings.sideBarWidth] value.
+  Future<void> setSideBarWidth(double width);
+
+  /// Sets the [background] value.
+  Future<void> setBackground(Uint8List? bytes);
+
+  /// Sets the [ApplicationSettings.callButtons] value.
+  Future<void> setCallButtons(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.showDragAndDropVideosHint] value.
+  Future<void> setShowDragAndDropVideosHint(bool show);
+
+  /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
+  Future<void> setShowDragAndDropButtonsHint(bool show);
+
+  /// Sets the [ApplicationSettings.sortContactsByName] value.
+  Future<void> setSortContactsByName(bool enabled);
 }

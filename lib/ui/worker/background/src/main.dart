@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,7 +28,6 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
-import 'package:path_provider_ios/path_provider_ios.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
@@ -135,8 +135,6 @@ class _BackgroundService {
 
     if (Platform.isAndroid) {
       PathProviderAndroid.registerWith();
-    } else if (Platform.isIOS) {
-      PathProviderIOS.registerWith();
     }
 
     _provider.authExceptionHandler = (e) async {

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
+import '../configuration.dart';
 import '../parameters/keys.dart';
 import '../world/custom_world.dart';
 
@@ -32,6 +34,15 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
+);
+
+/// Enters the given text into the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - Then I fill `MessageField` field with 8192 "A" symbols
+StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
+  'I fill {key} field with {int} {string} symbol(s)?',
+  (key, quantity, text, context) => _fillField(key, text * quantity, context),
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
@@ -93,7 +104,7 @@ Future<void> _fillField(
   StepContext<FlutterWorld> context,
 ) async {
   await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findBy(key.name, FindType.key);
+  final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
   await context.world.appDriver.scrollIntoView(finder);
   await context.world.appDriver.waitForAppToSettle();
@@ -101,7 +112,7 @@ Future<void> _fillField(
       .tap(finder, timeout: context.configuration.timeout);
   await context.world.appDriver.waitForAppToSettle();
 
-  final finder2 = context.world.appDriver.findBy(key.name, FindType.key);
+  final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
   await context.world.appDriver.scrollIntoView(finder2);
   await context.world.appDriver.enterText(finder2, text);
 

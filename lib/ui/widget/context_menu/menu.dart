@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,62 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/themes.dart';
-import 'overlay.dart';
+import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({Key? key, required this.actions}) : super(key: key);
+  const ContextMenu({super.key, required this.actions});
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
+  /// List of [Widget]s to display in this [ContextMenu].
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
-    // Close this context menu if [actions] are empty.
-    if (actions.isEmpty) {
-      scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
-      return Container();
-    }
+    final Style style = Theme.of(context).extension<Style>()!;
+    final List<Widget> widgets = [];
 
-    // Border radius is based on the [ContextMenuOverlay]'s alignment.
-    Alignment quadrant = ContextMenuOverlay.of(context).alignment;
-    BorderRadius borderRadius = BorderRadius.only(
-      topLeft: quadrant.x > 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      topRight: quadrant.x < 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomLeft: quadrant.x > 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomRight: quadrant.x < 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-    );
-
-    List<Widget> widgets = [];
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: actions[i],
-        ),
-      );
+      widgets.add(actions[i]);
 
       // Adds a divider if required.
-      if (i < actions.length - 1) {
+      if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            color: const Color(0x99000000),
+            color: const Color(0x11000000),
             height: 1,
             width: double.infinity,
           ),
@@ -78,21 +49,30 @@ class ContextMenu extends StatelessWidget {
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [CustomBoxShadow(blurRadius: 6, color: Color(0x20000000))],
+      margin: const EdgeInsets.only(left: 1, top: 1),
+      decoration: BoxDecoration(
+        color: style.contextMenuBackgroundColor,
+        borderRadius: style.contextMenuRadius,
+        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
+        boxShadow: const [
+          BoxShadow(
+            blurRadius: 12,
+            color: Color(0x33000000),
+            blurStyle: BlurStyle.outer,
+          )
+        ],
       ),
       child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xE6FFFFFF),
-            borderRadius: borderRadius,
-          ),
+        borderRadius: style.contextMenuRadius,
+        child: IntrinsicWidth(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
+            children: [
+              if (!context.isMobile) const SizedBox(height: 6),
+              ...widgets,
+              if (!context.isMobile) const SizedBox(height: 6),
+            ],
           ),
         ),
       ),
@@ -106,6 +86,7 @@ class ContextMenuButton extends StatefulWidget {
     Key? key,
     required this.label,
     this.leading,
+    this.trailing,
     this.onPressed,
   }) : super(key: key);
 
@@ -114,6 +95,9 @@ class ContextMenuButton extends StatefulWidget {
 
   /// Optional leading widget, typically an [Icon].
   final Widget? leading;
+
+  /// Optional trailing widget.
+  final Widget? trailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -129,37 +113,66 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
-        ContextMenuOverlay.of(context).hide();
       },
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          padding: context.isMobile
+              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
+              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
+          margin:
+              context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: isMouseOver ? const Color(0x22000000) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(5),
+            color: isMouseOver
+                ? context.isMobile
+                    ? Theme.of(context)
+                        .extension<Style>()!
+                        .contextMenuHoveredColor
+                    : Theme.of(context).colorScheme.secondary
+                : Colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.leading != null) ...[
-                widget.leading!,
-                const SizedBox(width: 10),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+                const SizedBox(width: 14),
               ],
               Text(
                 widget.label,
-                style: context.theme.outlinedButtonTheme.style!.textStyle!
-                    .resolve({MaterialState.disabled})!.copyWith(
-                        color: Colors.black),
+                style: style.boldBody.copyWith(
+                  color: (isMouseOver && !context.isMobile)
+                      ? Colors.white
+                      : Colors.black,
+                  fontSize: context.isMobile ? 17 : 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const Spacer(),
+              if (PlatformUtils.isMobile && widget.trailing != null) ...[
+                const SizedBox(width: 36),
+                const Spacer(),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.trailing!,
+                ),
+              ],
             ],
           ),
         ),

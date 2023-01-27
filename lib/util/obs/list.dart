@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -128,12 +129,14 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   @override
   void removeWhere(bool Function(E p1) test) {
-    for (int i = 0; i < length; ++i) {
-      if (test(this[i])) {
-        _changes.add(ListChangeNotification<E>.removed(this[i], i));
+    List<E> stored = List.from(this, growable: false);
+    super.removeWhere(test);
+
+    for (int i = 0; i < stored.length; ++i) {
+      if (!contains(stored[i])) {
+        _changes.add(ListChangeNotification<E>.removed(stored[i], i));
       }
     }
-    super.removeWhere(test);
   }
 
   @override

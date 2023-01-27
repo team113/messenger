@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,6 +32,7 @@ class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
     Key? key,
+    this.source = MediaSourceKind.Device,
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
@@ -46,6 +48,9 @@ class RtcVideoView extends StatefulWidget {
 
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
+
+  /// [MediaSourceKind] of this [RtcVideoView].
+  final MediaSourceKind source;
 
   /// Indicator whether this video should be horizontally mirrored or not.
   final bool mirror;
@@ -87,10 +92,11 @@ class RtcVideoView extends StatefulWidget {
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
     RtcVideoRenderer renderer,
+    MediaSourceKind source,
     BoxConstraints constraints,
     BuildContext context,
   ) {
-    if (renderer.source == MediaSourceKind.Display ||
+    if (source == MediaSourceKind.Display ||
         (renderer.width == 0 && renderer.height == 0)) {
       return BoxFit.contain;
     } else {
@@ -199,10 +205,13 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
         if (widget.renderer.inner.videoHeight == 0) {
           _waitTilSizeDetermined();
+          if (widget.framelessBuilder != null) {
+            return widget.framelessBuilder!();
+          }
+
           return Stack(
             children: [
               Offstage(child: video),
-              if (widget.framelessBuilder != null) widget.framelessBuilder!(),
               const Center(child: CircularProgressIndicator())
             ],
           );
@@ -254,12 +263,17 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
-        if (renderer.source != MediaSourceKind.Display) {
+        if (widget.source != MediaSourceKind.Display) {
           fit = widget.fit;
         }
 
         // Calculate the default [BoxFit] if there's no explicit fit.
-        fit ??= RtcVideoView.determineBoxFit(renderer, constraints, context);
+        fit ??= RtcVideoView.determineBoxFit(
+          renderer,
+          widget.source,
+          constraints,
+          context,
+        );
 
         return Stack(
           alignment: Alignment.bottomCenter,

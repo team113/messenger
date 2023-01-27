@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -73,7 +74,7 @@ abstract class CallGraphQlMixin {
     int? last,
     IncomingChatCallsCursor? before,
   }) async {
-    var variables = IncomingCallsArguments(
+    final variables = IncomingCallsArguments(
       first: first,
       after: after,
       last: last,
@@ -136,7 +137,7 @@ abstract class CallGraphQlMixin {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
-    var variables = CallEventsArguments(id: id, deviceId: deviceId);
+    final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'CallEvents',
@@ -186,7 +187,7 @@ abstract class CallGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
-    var variables = IncomingCallsTopEventsArguments(count: count);
+    final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'IncomingCallsTopEvents',
@@ -224,7 +225,7 @@ abstract class CallGraphQlMixin {
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
-    var variables = StartCallArguments(
+    final variables = StartCallArguments(
       chatId: chatId,
       creds: creds,
       withVideo: withVideo,
@@ -271,7 +272,7 @@ abstract class CallGraphQlMixin {
   /// [MyUser] joined the current [ChatCall] already (is a member of it).
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
       ChatId chatId, ChatCallCredentials creds) async {
-    var variables = JoinCallArguments(chatId: chatId, creds: creds);
+    final variables = JoinCallArguments(chatId: chatId, creds: creds);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'JoinCall',
@@ -311,7 +312,7 @@ abstract class CallGraphQlMixin {
     ChatId chatId,
     ChatCallDeviceId deviceId,
   ) async {
-    var variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
+    final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'LeaveCall',
@@ -349,7 +350,7 @@ abstract class CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if there is no current
   /// [ChatCall], or it is declined by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> declineChatCall(ChatId chatId) async {
-    var variables = DeclineCallArguments(chatId: chatId);
+    final variables = DeclineCallArguments(chatId: chatId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'DeclineCall',
@@ -391,7 +392,7 @@ abstract class CallGraphQlMixin {
   /// [MyUser] has raised/lowered his hand already.
   Future<ChatCallEventsVersionedMixin?> toggleChatCallHand(
       ChatId chatId, bool raised) async {
-    var variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
+    final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleCallHand',
@@ -406,6 +407,52 @@ abstract class CallGraphQlMixin {
     );
     return (ToggleCallHand$Mutation.fromJson(result.data!).toggleChatCallHand
         as ChatCallEventsVersionedMixin?);
+  }
+
+  /// Redials a [User] who left or declined the ongoing [ChatCall] in the
+  /// specified [Chat]-group by the authenticated [MyUser].
+  ///
+  /// For using this mutation the authenticated [MyUser] must be a member of the
+  /// ongoing [ChatCall].
+  ///
+  /// Redialed [User] should see the [ChatCall.answered] indicator as `false`,
+  /// and the ongoing [ChatCall] appearing in his [incomingCallsTopEvents]
+  /// again.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [ChatCallEvent]s may be produced on success:
+  /// - [EventChatCallMemberRedialed].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the redialed [User]
+  /// didn't decline or leave the [ChatCall] yet, or has been redialed already.
+  Future<ChatCallEventsVersionedMixin?> redialChatCallMember(
+    ChatId chatId,
+    UserId memberId,
+  ) async {
+    final variables = RedialChatCallMemberArguments(
+      chatId: chatId,
+      memberId: memberId,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'RedialChatCallMember',
+        document: RedialChatCallMemberMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => RedialChatCallMemberException(
+          (RedialChatCallMember$Mutation.fromJson(data).redialChatCallMember
+                  as RedialChatCallMember$Mutation$RedialChatCallMember$RedialChatCallMemberError)
+              .code),
+    );
+    return (RedialChatCallMember$Mutation.fromJson(result.data!)
+        .redialChatCallMember as ChatCallEventsVersionedMixin?);
   }
 
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
@@ -442,7 +489,7 @@ abstract class CallGraphQlMixin {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
-    var variables = TransformDialogCallIntoGroupCallArguments(
+    final variables = TransformDialogCallIntoGroupCallArguments(
       chatId: chatId,
       additionalMemberIds: additionalMemberIds,
       groupName: groupName,

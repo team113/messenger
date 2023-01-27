@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,24 +20,27 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
+import '../model/mute_duration.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import 'auth.dart';
 import 'disposable_service.dart';
-import 'my_user.dart';
 
 /// Service responsible for [Chat]s related functionality.
 class ChatService extends DisposableService {
-  ChatService(this._chatRepository, this._myUser);
+  ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
   final AbstractChatRepository _chatRepository;
 
-  /// Service to get an authorized user.
-  final MyUserService _myUser;
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [chats] value is fetched.
@@ -46,7 +50,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUser.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   @override
   void onInit() {
@@ -93,14 +97,38 @@ class ChatService extends DisposableService {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
-  }) =>
-      _chatRepository.sendChatMessage(
-        chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
-      );
+    List<ChatItem> repliesTo = const [],
+  }) {
+    if (text?.val.isNotEmpty != true &&
+        attachments?.isNotEmpty != true &&
+        repliesTo.isNotEmpty) {
+      text ??= const ChatMessageText(' ');
+    } else if (text != null) {
+      text = ChatMessageText(text.val.trim());
+
+      if (text.val.length > ChatMessageText.maxLength) {
+        final List<ChatMessageText> chunks = text.split();
+        int i = 0;
+
+        return Future.forEach<ChatMessageText>(
+          chunks,
+          (text) => _chatRepository.sendChatMessage(
+            chatId,
+            text: text,
+            attachments: i++ != chunks.length - 1 ? null : attachments,
+            repliesTo: repliesTo,
+          ),
+        );
+      }
+    }
+
+    return _chatRepository.sendChatMessage(
+      chatId,
+      text: text?.val.isEmpty == true ? null : text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
@@ -224,6 +252,52 @@ class ChatService extends DisposableService {
   Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) {
+    if (text != null) {
+      text = ChatMessageText(text.val.trim());
+    }
+
+    return _chatRepository.forwardChatItems(
+      from,
+      to,
+      items,
+      text: text?.val.isEmpty == true ? null : text,
+      attachments: attachments,
+    );
+  }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) =>
+      _chatRepository.updateChatAvatar(
+        id,
+        file: file,
+        onSendProgress: onSendProgress,
+      );
+
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) =>
+      _chatRepository.toggleChatMute(id, mute);
+
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].
   ///
@@ -236,4 +310,13 @@ class ChatService extends DisposableService {
       await _chatRepository.remove(id);
     }
   }
+
+  /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
+  /// sets its [position] in the favorites list.
+  Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) =>
+      _chatRepository.favoriteChat(id, position);
+
+  /// Removes the specified [Chat] from the favorites list of the authenticated
+  /// [MyUser].
+  Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
 }

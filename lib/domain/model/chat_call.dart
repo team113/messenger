@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -41,6 +42,7 @@ class ChatCall extends ChatItem {
     this.finishReasonIndex,
     this.finishedAt,
     this.joinLink,
+    this.answered = false,
   }) : super(id, chatId, authorId, at);
 
   /// [User] who started this [ChatCall].
@@ -78,6 +80,11 @@ class ChatCall extends ChatItem {
   set finishReason(ChatCallFinishReason? reason) {
     finishReasonIndex = reason?.index;
   }
+
+  /// Indicator whether this [ChatCall] is answered by the authenticated
+  /// [MyUser].
+  @HiveField(12)
+  final bool answered;
 }
 
 /// Member of a [ChatCall].
@@ -86,21 +93,42 @@ class ChatCallMember {
   ChatCallMember({
     required this.user,
     required this.handRaised,
+    required this.joinedAt,
   });
 
   /// [User] representing this [ChatCallMember].
   @HiveField(0)
-  User user;
+  final User user;
 
   /// Indicator whether this [ChatCallMember] raised a hand.
   @HiveField(1)
   bool handRaised;
+
+  /// [PreciseDateTime] when this [ChatCallMember] joined the [ChatCall].
+  @HiveField(2)
+  final PreciseDateTime joinedAt;
 }
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
 /// server.
-class ChatCallCredentials extends NewType<String> {
-  const ChatCallCredentials(String val) : super(val);
+@HiveType(typeId: ModelTypeId.chatCallCredentials)
+class ChatCallCredentials extends HiveObject {
+  ChatCallCredentials(this.val);
+
+  /// Actual value of these [ChatCallCredentials].
+  @HiveField(0)
+  final String val;
+
+  @override
+  int get hashCode => val.hashCode;
+
+  @override
+  String toString() => val.toString();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatCallCredentials && val == other.val;
 }
 
 /// Link for joining a [ChatCall] room on a media server.

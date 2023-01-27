@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,6 +28,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
@@ -100,14 +102,14 @@ external dynamic webkitFullscreenElement;
 @JS('document.msFullscreenElement')
 external dynamic msFullscreenElement;
 
-@JS('indexedDB.databases')
-external databases();
-
-@JS('indexedDB.deleteDatabase')
-external deleteDatabase(String name);
+@JS('cleanIndexedDB')
+external cleanIndexedDB();
 
 @JS('window.isPopup')
 external bool _isPopup;
+
+@JS('document.hasFocus')
+external bool _hasFocus();
 
 /// Helper providing direct access to browser-only features.
 ///
@@ -129,6 +131,9 @@ class WebUtils {
         webkitFullscreenElement != null ||
         msFullscreenElement != null);
   }
+
+  /// Indicates whether device's browser is in focus.
+  static bool get isFocused => _hasFocus();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -182,6 +187,30 @@ class WebUtils {
       onListen: () => html.window.addEventListener('storage', storageListener),
       onCancel: () =>
           html.window.removeEventListener('storage', storageListener),
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the device's browser focus changes.
+  static Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on window focus events.
+    void focusListener(html.Event event) => controller!.add(true);
+
+    // Event listener reacting on window unfocus events.
+    void blurListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.window.addEventListener('focus', focusListener);
+        html.window.addEventListener('blur', blurListener);
+      },
+      onCancel: () {
+        html.window.removeEventListener('focus', focusListener);
+        html.window.removeEventListener('blur', blurListener);
+      },
     );
 
     return controller.stream;
@@ -314,9 +343,10 @@ class WebUtils {
 
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
-    var qs = await promiseToFuture(databases());
-    for (int i = 0; i < qs.length; i++) {
-      deleteDatabase(qs[i].name);
+    try {
+      await promiseToFuture(cleanIndexedDB());
+    } catch (e) {
+      consoleError(e);
     }
   }
 
@@ -455,7 +485,49 @@ class WebUtils {
     return null;
   }
 
+  /// Downloads a file from the provided [url].
+  static Future<void> downloadFile(String url, String name) async {
+    final Response response = await PlatformUtils.dio.head(url);
+    if (response.statusCode != 200) {
+      throw Exception('Cannot download file');
+    }
+
+    final html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    anchorElement.download = name;
+    anchorElement.click();
+  }
+
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);
+
+  /// Requests the permission to use a camera.
+  static Future<void> cameraPermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'camera'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(video: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'microphone'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(audio: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
 }

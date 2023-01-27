@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,7 +24,16 @@ part 'application_settings.g.dart';
 /// Overall application settings used by the whole app.
 @HiveType(typeId: ModelTypeId.applicationSettings)
 class ApplicationSettings extends HiveObject {
-  ApplicationSettings({this.enablePopups, this.locale});
+  ApplicationSettings({
+    this.enablePopups,
+    this.locale,
+    this.showIntroduction,
+    this.sideBarWidth,
+    this.callButtons = const [],
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
+    this.sortContactsByName = true,
+  });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
   /// separate popup windows, or otherwise inside the main application.
@@ -38,4 +48,26 @@ class ApplicationSettings extends HiveObject {
   /// the application.
   @HiveField(2)
   bool? showIntroduction;
+
+  /// Width of the [HomeView]'s side bar.
+  @HiveField(3)
+  double? sideBarWidth;
+
+  /// [CallButton]s placed in a [Dock] of an [OngoingCall].
+  @HiveField(4)
+  List<String> callButtons;
+
+  /// Indicator whether a drag and drop videos hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(5)
+  bool? showDragAndDropVideosHint;
+
+  /// Indicator whether a drag and drop buttons hint should be displayed in an
+  /// [OngoingCall].
+  @HiveField(6)
+  bool? showDragAndDropButtonsHint;
+
+  /// Indicator whether [ChatContact]s should be sorted by their names.
+  @HiveField(7)
+  bool sortContactsByName;
 }

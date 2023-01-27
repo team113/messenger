@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,17 +21,23 @@ import 'dart:collection';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -38,16 +45,20 @@ import '/provider/gql/exceptions.dart'
         ConnectionException,
         GraphQlProviderExceptions,
         ResubscriptionRequiredException,
+        StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft.dart';
+import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
+import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 
 /// Implementation of an [AbstractChatRepository].
@@ -55,7 +66,10 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._userRepo, {
+    this._callRepo,
+    this._draftLocal,
+    this._userRepo,
+    this._sessionLocal, {
     this.me,
   });
 
@@ -72,6 +86,12 @@ class ChatRepository implements AbstractChatRepository {
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
+  /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
+  final AbstractCallRepository _callRepo;
+
+  /// [RxChat.draft] local [Hive] storage.
+  final DraftHiveProvider _draftLocal;
+
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
@@ -81,13 +101,27 @@ class ChatRepository implements AbstractChatRepository {
   /// [chats] value.
   final RxObsMap<ChatId, HiveRxChat> _chats = RxObsMap<ChatId, HiveRxChat>();
 
+  /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
+  final SessionDataHiveProvider _sessionLocal;
+
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
+
+  /// [DraftHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _draftSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamIterator? _remoteSubscription;
+
+  /// [_favoriteChatsEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamIterator? _favoriteChatsSubscription;
+
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<ChatId, Mutex> _locks = {};
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
@@ -103,7 +137,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, c);
+        final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -111,6 +145,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initLocalSubscription();
+    _initDraftSubscription();
 
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
@@ -126,6 +161,7 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _initRemoteSubscription();
+    _initFavoriteChatsSubscription();
 
     _isReady.value = true;
   }
@@ -137,7 +173,9 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     _localSubscription?.cancel();
+    _draftSubscription?.cancel();
     _remoteSubscription?.cancel();
+    _favoriteChatsSubscription?.cancel();
   }
 
   @override
@@ -145,15 +183,23 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    HiveRxChat? chat = _chats[id];
-    if (chat == null) {
-      var query = (await _graphQlProvider.getChat(id)).chat;
-      if (query != null) {
-        return _putEntry(_chat(query));
-      }
+    Mutex? mutex = _locks[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _locks[id] = mutex;
     }
 
-    return chat;
+    return mutex.protect(() async {
+      HiveRxChat? chat = _chats[id];
+      if (chat == null) {
+        var query = (await _graphQlProvider.getChat(id)).chat;
+        if (query != null) {
+          return _putEntry(_chat(query));
+        }
+      }
+
+      return chat;
+    });
   }
 
   @override
@@ -178,7 +224,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) async {
     HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
     await rxChat?.postChatMessage(
@@ -204,7 +250,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<ChatItemId> repliesTo = const [],
   }) =>
       _graphQlProvider.postChatMessage(
         chatId,
@@ -217,6 +263,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> resendChatItem(ChatItem item) async {
     HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
 
+    // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
       for (var e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
@@ -276,12 +323,8 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     try {
-      var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
-      // Response is `null` if [MyUser] removed himself (left the chat).
-      if (response == null) {
-        _chatLocal.remove(chatId);
-      }
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));
@@ -316,9 +359,8 @@ class ChatRepository implements AbstractChatRepository {
           .toList()
           .indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
-        Iterable<Rx<ChatItem>> unread = chat.messages
-            .skip(chat.messages.length - lastReadIndex - 1)
-            .where((m) => m.value.authorId != me);
+        Iterable<Rx<ChatItem>> unread =
+            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
         chat.chat.update((c) => c?.unreadCount = unread.length - 1);
       }
     }
@@ -371,12 +413,17 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatMessage(message.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
             item,
             (e) => item.value.at.compareTo(e.value.at) == 1,
           );
+          chat?.updateReads();
         }
 
         rethrow;
@@ -399,12 +446,17 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatForward(forward.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
             item,
             (e) => item.value.at.compareTo(e.value.at) == 1,
           );
+          chat?.updateReads();
         }
 
         rethrow;
@@ -424,12 +476,17 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChatItem(id);
+
+      if (item != null) {
+        chat?.remove(item.value.id, item.value.timestamp);
+      }
     } catch (_) {
       if (item != null) {
         chat?.messages.insertAfter(
           item,
           (e) => item.value.at.compareTo(e.value.at) == 1,
         );
+        chat?.updateReads();
       }
 
       rethrow;
@@ -485,7 +542,6 @@ class ChatRepository implements AbstractChatRepository {
       var model = response.attachment.toModel();
       attachment.id = model.id;
       attachment.filename = model.filename;
-      attachment.size = model.size;
       attachment.original = model.original;
       attachment.upload.value?.complete(model);
       attachment.status.value = SendingStatus.sent;
@@ -535,18 +591,138 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
+  // TODO: Make [ChatForward]s to post like [ChatMessage]s.
+  @override
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) =>
+      _graphQlProvider.forwardChatItems(
+        from,
+        to,
+        items
+            .map(
+              (i) => ChatItemQuoteInput(
+                id: i.item.id,
+                attachments: i.attachments,
+                withText: i.withText,
+              ),
+            )
+            .toList(),
+        text: text,
+        attachments: attachments,
+      );
+
+  @override
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    late dio.MultipartFile upload;
+
+    if (file != null) {
+      await file.ensureCorrectMediaType();
+
+      if (file.stream != null) {
+        upload = dio.MultipartFile(
+          file.stream!,
+          file.size,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.bytes != null) {
+        upload = dio.MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          file.path!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+    }
+
+    HiveRxChat? chat = _chats[id];
+    ChatAvatar? avatar = chat?.chat.value.avatar;
+
+    if (file == null) {
+      chat?.chat.update((c) => c?.avatar = null);
+    }
+
+    try {
+      await _graphQlProvider.updateChatAvatar(
+        id,
+        file: file == null ? null : upload,
+        onSendProgress: onSendProgress,
+      );
+    } catch (e) {
+      if (file == null) {
+        chat?.chat.update((c) => c?.avatar = avatar);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
+    final HiveRxChat? chat = _chats[id];
+    final MuteDuration? muted = chat?.chat.value.muted;
+
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
+
+    chat?.chat.update((c) => c?.muted = muting?.toModel());
+
+    try {
+      await _graphQlProvider.toggleChatMute(id, muting);
+    } catch (e) {
+      chat?.chat.update((c) => c?.muted = muted);
+      rethrow;
+    }
+  }
+
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId chatItemId) async {
+  Future<List<HiveChatItem>> messages(ChatId id) async {
     const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(chatItemId, first: maxInt);
+    var query = await _graphQlProvider.chatItems(id, first: maxInt);
     return query.chat?.items.edges
             .map((e) => e.toHive())
             .expand((e) => e)
             .toList() ??
         [];
   }
+
+  /// Fetches the [Attachment]s of the provided [item].
+  Future<List<Attachment>> attachments(HiveChatItem item) async {
+    var response = await _graphQlProvider.attachments(item.value.id);
+    return response.chatItem?.toModel() ?? [];
+  }
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callRepo.removeCredentials(id);
+
+  /// Adds the provided [ChatCall] to the [AbstractCallRepository].
+  void addCall(ChatCall call) => _callRepo.add(call);
+
+  /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
+  /// [chatId], if any.
+  void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Future<Stream<ChatEvents>> chatEvents(
@@ -623,7 +799,7 @@ class ChatRepository implements AbstractChatRepository {
       var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
       return EventChatMuted(
         e.chatId,
-        node.duration as MuteDuration,
+        node.duration.toModel(),
       );
     } else if (e.$$typename == 'EventChatAvatarDeleted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarDeleted;
@@ -689,6 +865,7 @@ class ChatRepository implements AbstractChatRepository {
       return EventChatCallFinished(
         e.chatId,
         node.call.toModel(),
+        node.reason,
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
@@ -705,6 +882,18 @@ class ChatRepository implements AbstractChatRepository {
         e.chatId,
         node.user.toModel(),
         node.at,
+      );
+    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+      _userRepo.put(node.user.toHive());
+      return EventChatCallMemberRedialed(
+        e.chatId,
+        node.at,
+        node.callId,
+        node.call.toModel(),
+        node.user.toModel(),
+        node.byUser.toModel(),
       );
     } else if (e.$$typename == 'EventChatDelivered') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
@@ -760,6 +949,12 @@ class ChatRepository implements AbstractChatRepository {
         node.user.toModel(),
         node.at,
       );
+    } else if (e.$$typename == 'EventChatFavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
+      return EventChatFavorited(e.chatId, node.at, node.position);
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
+      return EventChatUnfavorited(e.chatId, node.at);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -784,13 +979,31 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
+          HiveRxChat entry =
+              HiveRxChat(this, _chatLocal, _draftLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
         } else {
           chat.chat.value = event.value.value;
           chat.chat.refresh();
+        }
+      }
+    }
+  }
+
+  /// Initializes [DraftHiveProvider.boxEvents] subscription.
+  Future<void> _initDraftSubscription() async {
+    _draftSubscription = StreamIterator(_draftLocal.boxEvents);
+    while (await _draftSubscription!.moveNext()) {
+      BoxEvent event = _draftSubscription!.current;
+      if (event.deleted) {
+        _chats[ChatId(event.key)]?.draft.value = null;
+      } else {
+        HiveRxChat? chat = _chats[ChatId(event.key)];
+        if (chat != null) {
+          chat.draft.value = event.value;
+          chat.draft.refresh();
         }
       }
     }
@@ -892,7 +1105,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, data.chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();
@@ -915,6 +1128,170 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     return q.toData();
+  }
+
+  @override
+  Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition newPosition;
+
+    if (position == null) {
+      final List<HiveRxChat> favorites = _chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList();
+
+      favorites.sort(
+        (a, b) => a.chat.value.favoritePosition!
+            .compareTo(b.chat.value.favoritePosition!),
+      );
+
+      final double? lowestFavorite = favorites.isEmpty
+          ? null
+          : favorites.first.chat.value.favoritePosition!.val;
+
+      newPosition = ChatFavoritePosition(
+        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+      );
+    } else {
+      newPosition = position;
+    }
+
+    chat?.chat.update((c) => c?.favoritePosition = newPosition);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.favoriteChat(id, newPosition);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> unfavoriteChat(ChatId id) async {
+    final HiveRxChat? chat = _chats[id];
+    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
+
+    chat?.chat.update((c) => c?.favoritePosition = null);
+    chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+
+    try {
+      await _graphQlProvider.unfavoriteChat(id);
+    } catch (e) {
+      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      chats.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      rethrow;
+    }
+  }
+
+  /// Initializes [_favoriteChatsEvents] subscription.
+  Future<void> _initFavoriteChatsSubscription({bool noVersion = false}) async {
+    var ver = noVersion ? null : _sessionLocal.getFavoriteChatsListVersion();
+    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription =
+        StreamIterator(await _favoriteChatsEvents(ver));
+    while (await _favoriteChatsSubscription!
+        .moveNext()
+        .onError<ResubscriptionRequiredException>((_, __) {
+      _initFavoriteChatsSubscription();
+      return false;
+    }).onError<StaleVersionException>((_, __) {
+      _initFavoriteChatsSubscription(noVersion: true);
+      return false;
+    })) {
+      await _favoriteChatsEvent(_favoriteChatsSubscription!.current);
+    }
+  }
+
+  /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
+  /// subscription.
+  Future<void> _favoriteChatsEvent(FavoriteChatsEvents event) async {
+    switch (event.kind) {
+      case FavoriteChatsEventsKind.initialized:
+        // No-op.
+        break;
+
+      case FavoriteChatsEventsKind.chatsList:
+        var node = event as FavoriteChatsEventsChatsList;
+        _sessionLocal.setFavoriteChatsListVersion(node.ver);
+        for (ChatData data in node.chatList) {
+          if (_chats[data.chat.value.id] == null) {
+            _putEntry(data);
+          }
+        }
+        break;
+
+      case FavoriteChatsEventsKind.event:
+        var versioned = (event as FavoriteChatsEventsEvent).event;
+        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
+          _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
+
+          for (var event in versioned.events) {
+            switch (event.kind) {
+              case ChatEventKind.favorited:
+                if (_chats[event.chatId] == null) {
+                  get(event.chatId);
+                }
+                break;
+
+              case ChatEventKind.unfavorited:
+                // No-op.
+                break;
+
+              default:
+                // No-op.
+                break;
+            }
+          }
+          break;
+        }
+    }
+  }
+
+  /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
+  Future<Stream<FavoriteChatsEvents>> _favoriteChatsEvents(
+          FavoriteChatsListVersion? ver) async =>
+      (await _graphQlProvider.favoriteChatsEvents(ver))
+          .asyncExpand((event) async* {
+        GraphQlProviderExceptions.fire(event);
+        var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
+            .favoriteChatsEvents;
+        if (events.$$typename == 'SubscriptionInitialized') {
+          events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
+          yield const FavoriteChatsEventsInitialized();
+        } else if (events.$$typename == 'FavoriteChatsList') {
+          var chatsList = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
+          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+        } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
+          var mixin = events
+              as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
+          yield FavoriteChatsEventsEvent(
+            FavoriteChatsEventsVersioned(
+              mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+              mixin.ver,
+            ),
+          );
+        }
+      });
+
+  /// Constructs a [ChatEvents] from the
+  /// [FavoriteChatsEventsVersionedMixin$Events].
+  ChatEvent _favoriteChatsVersionedEvent(
+      FavoriteChatsEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventChatFavorited') {
+      var node =
+          e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
+      return EventChatFavorited(e.chatId, e.at, node.position);
+    } else if (e.$$typename == 'EventChatUnfavorited') {
+      return EventChatUnfavorited(e.chatId, e.at);
+    } else {
+      throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
+    }
   }
 }
 

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,7 +26,7 @@ final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
   RegExp(r'I tap {string} text'),
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(text, FindType.text);
+    final finder = context.world.appDriver.findBy(text, FindType.text).last;
 
     await context.world.appDriver.scrollIntoView(finder);
     await context.world.appDriver.waitForAppToSettle();

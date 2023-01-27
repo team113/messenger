@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -138,7 +139,7 @@ class HiveChatMessage extends HiveChatItem {
     required ChatId chatId,
     required UserId me,
     ChatMessageText? text,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
     List<Attachment> attachments = const [],
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
@@ -156,12 +157,12 @@ class HiveChatMessage extends HiveChatItem {
         ),
         const ChatItemsCursor(''),
         ChatItemVersion('0'),
-        const ChatItemsCursor(''),
+        [],
       );
 
-  /// Cursor of a [ChatMessage.repliesTo].
+  /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
-  ChatItemsCursor? repliesToCursor;
+  List<ChatItemsCursor>? repliesToCursor;
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].

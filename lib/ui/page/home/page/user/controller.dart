@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,11 +18,13 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
@@ -31,7 +34,14 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
+    show
+        FavoriteChatContactException,
+        HideChatException,
+        ToggleChatMuteException,
+        UnfavoriteChatContactException;
 import '/routes.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -62,6 +72,12 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Temporary indicator whether the [user] is favorite.
+  late final RxBool inFavorites;
+
   /// Indicator whether this [user] is already in the contacts list of the
   /// authenticated [MyUser].
   late final RxBool inContacts;
@@ -69,6 +85,9 @@ class UserController extends GetxController {
   /// Index of the currently displayed [ImageGalleryItem] in the [User.gallery]
   /// list.
   final RxInt galleryIndex = RxInt(0);
+
+  /// [TextFieldState] for blacklisting reason.
+  final TextFieldState reason = TextFieldState();
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -86,6 +105,13 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
+  /// [StreamSubscription] to [ContactService.favorites] determining the
+  /// [inContacts] indicator.
+  StreamSubscription? _favoritesSubscription;
+
+  /// Indicates whether this [user] is blacklisted.
+  bool? get isBlacklisted => user?.user.value.isBlacklisted;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -93,8 +119,17 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    inContacts = RxBool(_contactService.contacts.values
-        .any((e) => e.contact.value.users.every((m) => m.id == id)));
+    inContacts = RxBool(
+      _contactService.contacts.values
+              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
+          _contactService.favorites.values
+              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+    );
+
+    inFavorites = RxBool(
+      _contactService.favorites.values
+          .any((e) => e.contact.value.users.every((m) => m.id == id)),
+    );
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
@@ -116,6 +151,27 @@ class UserController extends GetxController {
       }
     });
 
+    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+            inFavorites.value = true;
+            inContacts.value = true;
+          }
+          break;
+
+        case OperationKind.removed:
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+            inFavorites.value = false;
+          }
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
     super.onInit();
   }
 
@@ -123,6 +179,7 @@ class UserController extends GetxController {
   void onClose() {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
+    _favoritesSubscription?.cancel();
     super.onClose();
   }
 
@@ -145,22 +202,24 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-        status.value = RxStatus.loadingMore();
-        try {
-          RxChatContact? contact = _contactService.contacts.values
-              .firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id));
-          if (contact != null) {
-            await _contactService.deleteContact(contact.contact.value.id);
-          }
-          inContacts.value = false;
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        } finally {
-          status.value = RxStatus.success();
+      status.value = RxStatus.loadingMore();
+      try {
+        final RxChatContact? contact =
+            _contactService.contacts.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                ) ??
+                _contactService.favorites.values.firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
+                );
+        if (contact != null) {
+          await _contactService.deleteContact(contact.contact.value.id);
         }
+        inContacts.value = false;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.success();
       }
     }
   }
@@ -184,6 +243,101 @@ class UserController extends GetxController {
       await _callService.call(dialog.id, withVideo: withVideo);
     } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
+    }
+  }
+
+  /// Blacklists the [user] for the authenticated [MyUser].
+  Future<void> blacklist() async {
+    await _userService.blacklistUser(id);
+    reason.clear();
+  }
+
+  /// Removes the [user] from the blacklist of the authenticated [MyUser].
+  Future<void> unblacklist() => _userService.unblacklistUser(id);
+
+  /// Marks the [user] as favorited.
+  Future<void> favoriteContact() async {
+    try {
+      RxChatContact? contact = _contactService.contacts.values.firstWhereOrNull(
+        (e) => e.contact.value.users.every((m) => m.id == user?.id),
+      );
+      if (contact != null) {
+        await _contactService.favoriteChatContact(contact.id);
+      }
+    } on FavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [user] from the favorites.
+  Future<void> unfavoriteContact() async {
+    try {
+      RxChatContact? contact =
+          _contactService.favorites.values.firstWhereOrNull(
+        (e) => e.contact.value.users.every((m) => m.id == user?.id),
+      );
+      if (contact != null) {
+        await _contactService.unfavoriteChatContact(contact.id);
+      }
+    } on UnfavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes a [Chat]-dialog with the [user].
+  Future<void> muteChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.toggleChatMute(dialog, MuteDuration.forever());
+      } on ToggleChatMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Unmutes a [Chat]-dialog with the [user].
+  Future<void> unmuteChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.toggleChatMute(dialog, null);
+      } on ToggleChatMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Hides a [Chat]-dialog with the [user].
+  Future<void> hideChat() async {
+    final ChatId? dialog =
+        user?.dialog.value?.id ?? user?.user.value.dialog?.id;
+
+    if (dialog != null) {
+      try {
+        await _chatService.hideChat(dialog);
+      } on HideChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
     }
   }
 
