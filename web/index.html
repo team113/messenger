@@ -55,39 +55,21 @@
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
   <style type="text/css">
+    body {
+      background-image: url('assets/assets/images/background_light.svg');
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+    }
+
     .content {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-}
-    /* .container {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      text-align: center;
-      font-size: 0;
-      white-space: nowrap;
-      overflow: auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
     }
-
-    .container:after {
-      content: '';
-      display: inline-block;
-      height: 100%;
-      vertical-align: middle;
-    }
-
-    .splash {
-      display: inline-block;
-      vertical-align: middle;
-      text-align: left;
-      font-size: 14px;
-      white-space: normal;
-    } */
 
     .dot-flashing {
       position: relative;
@@ -192,10 +174,16 @@
 <body>
   <div id="loader" class="container content">
     <div class="col align-middle" style="vertical-align: middle;">
+      <div class="row justify-content-center">
+        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt">Messenger</div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
+      </div>
       <div class="row justify-content-center" >
         <canvas class="col" id="canvas" width="250" height="310" style="max-width: 250px;"></canvas>
       </div>
-      <div class="row justify-content-center">
+      <div class="row justify-content-center ">
         <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:18pt">Downloading</div>
         <div class="col-auto" style="margin-top:0.95rem!important; transform: translate(-9px, 0px);">
           <div class="dot-flashing"></div>
@@ -341,6 +329,7 @@
   <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
   <script>
     const r = new rive.Rive({
+      // src: "./assets/assets/images/logo/head.riv",
       src: "./assets/assets/images/logo/head.riv",
       canvas: document.getElementById("canvas"),
       stateMachines: ["Machine"],
