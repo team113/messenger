@@ -70,6 +70,20 @@
       -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
     }
+    .shimmer {
+      color: grey;
+      display:inline-block;
+      mask: linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
+      -webkit-mask:linear-gradient(-60deg,#000 30%,#0004,#000 70%) right/300% 100%;
+      background-repeat: no-repeat;
+      animation: shimmer 2.5s infinite;
+      font-size: 50px;
+      max-width:200px;
+    }
+
+    @keyframes shimmer {
+      100% {-webkit-mask-position:left}
+    }
 
     .dot-flashing {
       position: relative;
@@ -184,10 +198,10 @@
         <canvas class="col" id="canvas" width="250" height="310" style="max-width: 250px;"></canvas>
       </div>
       <div class="row justify-content-center mt-5">
-        <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:13pt">Downloading</div>
-        <div class="col-auto" style="margin-top:0.8rem!important; transform: translate(-14px, 0px);">
+        <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt">Downloading</div>
+        <!-- <div class="col-auto" style="margin-top:0.8rem!important; transform: translate(-14px, 0px);">
           <div class="dot-flashing"></div>
-        </div>
+        </div> -->
       </div>
       <!-- <p style="display: flex; flex-direction: row; justify-content: center; align-items: center">
         <div class="splash">Downloading</div>

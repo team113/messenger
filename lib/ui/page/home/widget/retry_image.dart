@@ -355,17 +355,17 @@ class _RetryImageState extends State<RetryImage> {
       Response? data;
 
       try {
-        for (int i = 0; i < 100; ++i) {
-          await Future.delayed(const Duration(milliseconds: 25));
-          _progress = i / 100;
-          if (mounted) {
-            setState(() {});
-          }
+        // for (int i = 0; i < 100; ++i) {
+        //   await Future.delayed(const Duration(milliseconds: 25));
+        //   _progress = i / 100;
+        //   if (mounted) {
+        //     setState(() {});
+        //   }
 
-          if (_token?.isCancelled == true) {
-            return;
-          }
-        }
+        //   if (_token?.isCancelled == true) {
+        //     return;
+        //   }
+        // }
 
         if (_token?.isCancelled == true) {
           return;
