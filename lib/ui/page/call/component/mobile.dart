@@ -41,8 +41,10 @@ import '../widget/minimizable_view.dart';
 import '../widget/participant.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -244,18 +246,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                         child: stack,
                       ),
                     );
-
-                    return UnconstrainedBox(
-                      child: SizedBox(
-                        width: menu
-                            ? MediaQuery.of(context).size.width - 10
-                            : null,
-                        height: menu
-                            ? MediaQuery.of(context).size.height - 10
-                            : null,
-                        child: stack,
-                      ),
-                    );
                   }),
                 );
               });
@@ -411,18 +401,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.all(21.0),
                 child: Center(
                   child: SpinKitDoubleBounce(
-                    // child: SpinKitPulse(
                     key: (c.locals.firstOrNull ?? c.paneled.firstOrNull)
                         ?.redialingKey,
-                    // color: Colors.white,
                     color: const Color(0xFFEEEEEE),
-                    size: 100 / 1.5,
+                    size: 66,
                     duration: const Duration(milliseconds: 4500),
                   ),
-                  // child: LoadingIndicator(
-                  //   indicatorType: Indicator.ballScaleMultiple,
-                  //   colors: [Colors.white],
-                  // ),
                 ),
               ),
           ],

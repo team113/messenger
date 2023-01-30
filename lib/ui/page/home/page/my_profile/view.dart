@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -106,9 +107,27 @@ class MyProfileView extends StatelessWidget {
                                 alignment: Alignment.center,
                                 children: [
                                   WidgetButton(
-                                    onPressed: c.uploadAvatar,
+                                    // onPressed: c.uploadAvatar,
+                                    onPressed: c.myUser.value?.avatar == null
+                                        ? null
+                                        : () async {
+                                            await GalleryPopup.show(
+                                              context: context,
+                                              gallery: GalleryPopup(
+                                                initialKey: c.avatarKey,
+                                                children: [
+                                                  GalleryItem.image(
+                                                    c.myUser.value!.avatar!
+                                                        .original.url,
+                                                    c.myUser.value!.num.val,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
+                                      key: c.avatarKey,
                                       radius: 100,
                                       badge: false,
                                       quality: AvatarQuality.original,
@@ -139,6 +158,41 @@ class MyProfileView extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Obx(() {
+                                return SizedBox(
+                                  height: 20,
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'btn_upload'.l10n,
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = c.uploadAvatar,
+                                        ),
+                                        if (c.myUser.value?.avatar != null) ...[
+                                          TextSpan(
+                                            text: 'label_space_or_space'.l10n,
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 11),
+                                          ),
+                                          TextSpan(
+                                            text:
+                                                'btn_delete'.l10n.toLowerCase(),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = c.deleteAvatar,
+                                          ),
+                                        ],
+                                      ],
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                );
+
                                 if (c.myUser.value?.avatar == null) {
                                   return const SizedBox();
                                 }

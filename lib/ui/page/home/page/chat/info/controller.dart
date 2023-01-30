@@ -89,6 +89,8 @@ class ChatInfoController extends GetxController {
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
+  final GlobalKey avatarKey = GlobalKey();
+
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
 

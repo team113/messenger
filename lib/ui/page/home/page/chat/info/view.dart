@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import '/config.dart';
@@ -258,9 +259,25 @@ class ChatInfoView extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             WidgetButton(
-              onPressed: c.pickAvatar,
+              onPressed: c.chat?.chat.value.avatar == null
+                  ? null
+                  : () async {
+                      await GalleryPopup.show(
+                        context: context,
+                        gallery: GalleryPopup(
+                          initialKey: c.avatarKey,
+                          children: [
+                            GalleryItem.image(
+                              c.chat!.chat.value.avatar!.original.url,
+                              c.chat!.chat.value.id.val,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
               child: AvatarWidget.fromRxChat(
                 c.chat,
+                key: c.avatarKey,
                 radius: 100,
                 quality: AvatarQuality.original,
               ),
@@ -286,22 +303,30 @@ class ChatInfoView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 5),
-        Center(
-          child: WidgetButton(
-            key: const Key('DeleteAvatar'),
-            onPressed:
-                c.chat?.chat.value.avatar == null ? null : c.deleteAvatar,
-            child: SizedBox(
-              height: 20,
-              child: c.chat?.chat.value.avatar == null
-                  ? null
-                  : Text(
-                      'btn_delete'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 11,
-                      ),
-                    ),
+        SizedBox(
+          height: 20,
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'btn_upload'.l10n,
+                  recognizer: TapGestureRecognizer()..onTap = c.pickAvatar,
+                ),
+                if (c.chat?.chat.value.avatar != null) ...[
+                  TextSpan(
+                    text: 'label_space_or_space'.l10n,
+                    style: const TextStyle(color: Colors.black, fontSize: 11),
+                  ),
+                  TextSpan(
+                    text: 'btn_delete'.l10n.toLowerCase(),
+                    recognizer: TapGestureRecognizer()..onTap = c.deleteAvatar,
+                  ),
+                ],
+              ],
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 11,
+              ),
             ),
           ),
         ),

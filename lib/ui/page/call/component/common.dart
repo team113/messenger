@@ -269,19 +269,6 @@ class RemoteAudioButton extends CallButton {
 }
 
 /// [CallButton] accepting a call without video.
-class PaddingButton extends CallButton {
-  const PaddingButton(super.c);
-
-  @override
-  String get hint => '';
-
-  @override
-  Widget build({bool hinted = true, bool expanded = false}) {
-    return const SizedBox(width: 8);
-  }
-}
-
-/// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
   const AcceptAudioButton(super.c, {this.highlight = false});
 

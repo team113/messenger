@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
 
@@ -184,11 +185,31 @@ class UserView extends StatelessWidget {
                       Block(
                         title: 'label_public_information'.l10n,
                         children: [
-                          AvatarWidget.fromRxUser(
-                            c.user,
-                            radius: 100,
-                            badge: false,
-                            quality: AvatarQuality.original,
+                          WidgetButton(
+                            onPressed: c.user?.user.value.avatar == null
+                                ? null
+                                : () async {
+                                    await GalleryPopup.show(
+                                      context: context,
+                                      gallery: GalleryPopup(
+                                        initialKey: c.avatarKey,
+                                        children: [
+                                          GalleryItem.image(
+                                            c.user!.user.value.avatar!.original
+                                                .url,
+                                            c.user!.id.val,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                            child: AvatarWidget.fromRxUser(
+                              c.user,
+                              key: c.avatarKey,
+                              radius: 100,
+                              badge: false,
+                              quality: AvatarQuality.original,
+                            ),
                           ),
                           const SizedBox(height: 15),
                           _name(c, context),

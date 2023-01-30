@@ -86,6 +86,8 @@ class MyProfileController extends GetxController {
   /// List of [MediaDeviceInfo] of all the available devices.
   InputDevices devices = RxList<MediaDeviceInfo>([]);
 
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 

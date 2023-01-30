@@ -89,6 +89,8 @@ class UserController extends GetxController {
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 
+  final GlobalKey avatarKey = GlobalKey();
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 

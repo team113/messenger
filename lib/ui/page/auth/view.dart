@@ -232,6 +232,13 @@ class AuthView extends StatelessWidget {
           key: const Key('AuthView'),
           children: [
             IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color.fromRGBO(246, 248, 249, 1),
+              ),
+            ),
+            IgnorePointer(
               child: SvgLoader.asset(
                 'assets/images/background_light.svg',
                 width: double.infinity,

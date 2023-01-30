@@ -135,6 +135,7 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [MyUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
@@ -143,6 +144,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarQuality quality = AvatarQuality.big,
   }) =>
       AvatarWidget(
+        key: key,
         isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,

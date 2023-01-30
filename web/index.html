@@ -194,8 +194,8 @@
       <div class="row justify-content-center mb-5">
         <div class="col-auto h4" style="color:#888888; font-weight: 300; font-size:13pt; transform: translate(0px, -8px);">by Gapopa</div>
       </div>
-      <div class="row justify-content-center" >
-        <canvas class="col" id="canvas" width="250" height="310" style="max-width: 250px;"></canvas>
+      <div class="row justify-content-center">
+        <canvas class="col" id="canvas" style="background-color:blue"></canvas>
       </div>
       <div class="row justify-content-center mt-5">
         <div class="col-auto h4 shimmer" style="color:#888888; font-weight: 300; font-size:13pt">Downloading</div>
@@ -339,26 +339,58 @@
       };
     }
   </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Animate the blinking loader -->
   <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
   <script>
-    const r = new rive.Rive({
-      // src: "./assets/assets/images/logo/head.riv",
-      src: "./assets/assets/images/logo/head.riv",
-      canvas: document.getElementById("canvas"),
-      stateMachines: ["Machine"],
-      autoplay: true,
-      onLoad: () => {
-        const inputs = r.stateMachineInputs("Machine");
-        const blink = inputs.find((input) => {
-          return input.name === "blink";
-        });
+  </script>
+  <script>
+    function embed(name) {
+      const r = new rive.Rive({
+        // src: "./assets/assets/images/logo/head.riv",
+        src: `./assets/assets/images/logo/${name}.riv`,
+        canvas: document.getElementById("canvas"),
+        stateMachines: ["Machine"],
+        autoplay: true,
+        onLoad: () => {
+          // r.resizeToCanvas();
+          r.resizeDrawingSurfaceToCanvas();
+          const inputs = r.stateMachineInputs("Machine");
+          const blink = inputs.find((input) => {
+            return input.name === "blink";
+          });
 
-        window.addEventListener("click", function (e) {
-          blink.fire();
-        });
+          setTimeout(() => blink.fire(), 500);
+
+          window.addEventListener("click", function (e) {
+            blink.fire();
+          });
+        }
+      });
+    }
+
+    var lastNarrow = undefined;
+    var narrow = undefined;
+
+    function recalculate() {
+      narrow = window.innerHeight < 500;
+      if (narrow != lastNarrow) {
+        lastNarrow = narrow;
+        if (narrow) {
+          document.getElementById('canvas').height = 90;
+          document.getElementById('canvas').setAttribute("style","height: 150px;");
+          embed('head');
+        } else {
+          document.getElementById('canvas').height = 200;
+          document.getElementById('canvas').setAttribute("style","height: 300px;");
+          embed('logo');
+        }
       }
-    });
+    }
+
+    window.addEventListener("resize", (_) => { recalculate(); });
+    recalculate();
+    // embed('logo');
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
