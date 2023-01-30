@@ -160,6 +160,6 @@ class MessagePopup {
       ),
     );
 
-    Overlay.of(context, rootOverlay: true)?.insert(entry!);
+    Overlay.of(context, rootOverlay: true).insert(entry!);
   }
 }
