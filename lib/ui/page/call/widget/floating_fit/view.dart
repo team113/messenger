@@ -189,8 +189,9 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
               child: Container(
                 width: width,
                 height: height,
-                decoration: const BoxDecoration(
-                  boxShadow: [
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
                     CustomBoxShadow(
                       color: Color(0x44000000),
                       blurRadius: 9,
@@ -330,6 +331,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
         curve: Curves.ease,
         onEnd: () {
           paneled.entry?.remove();
@@ -346,6 +348,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
+        duration: const Duration(milliseconds: 400),
         curve: Curves.ease,
         onEnd: () {
           primary.entry?.remove();
@@ -358,7 +361,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     });
 
     Overlay.of(context)
-        ?.insertAll([paneled.entry, primary.entry].whereNotNull());
+        .insertAll([paneled.entry, primary.entry].whereNotNull());
 
     _paneled = primary;
     _primary = paneled;

@@ -255,7 +255,7 @@ err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
-err_login_occupied = Login already occupied
+err_login_occupied = This login is already taken.
 err_message_was_read = Message was read
 err_network = Connection to the server refused
 err_no_filename = File should have a name
@@ -370,7 +370,6 @@ label_all = All
 label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
-label_are_you_sure_want_to_log_out = Are you sure you want to log out from account{" "}
 label_are_you_sure_yes = Yes
 label_attachments = [{$count} { $count ->
     [1] attachment

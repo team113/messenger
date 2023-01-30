@@ -41,7 +41,7 @@ class ConfirmLogoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),

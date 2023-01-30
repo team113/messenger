@@ -4,13 +4,15 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
-  connectivity_plus_windows
+  connectivity_plus
   desktop_drop
   medea_flutter_webrtc
   medea_jason
   permission_handler_windows
+  rive_common
   screen_retriever
   sentry_flutter
+  share_plus
   url_launcher_windows
   window_manager
 )
