@@ -27,6 +27,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
@@ -34,7 +35,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View displaying the provided [reads] along with corresponding [User]s.
@@ -74,12 +74,8 @@ class ChatItemReads extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
     final Style style = Theme.of(context).extension<Style>()!;
-    final OutlineInputBorder inputStyle = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide.none,
-    );
 
     return GetBuilder(
       init: ChatItemReadsController(reads: reads, getUser: getUser),
@@ -138,29 +134,7 @@ class ChatItemReads extends StatelessWidget {
                           : null,
                       widgetPadding: const EdgeInsets.only(top: 4),
                       title: Theme(
-                        data: Theme.of(context).copyWith(
-                          shadowColor: const Color(0x55000000),
-                          iconTheme: const IconThemeData(color: Colors.blue),
-                          inputDecorationTheme: InputDecorationTheme(
-                            border: inputStyle,
-                            errorBorder: inputStyle,
-                            enabledBorder: inputStyle,
-                            focusedBorder: inputStyle,
-                            disabledBorder: inputStyle,
-                            focusedErrorBorder: inputStyle,
-                            focusColor: Colors.white,
-                            fillColor: Colors.white,
-                            hoverColor: Colors.transparent,
-                            filled: true,
-                            isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(
-                              15,
-                              PlatformUtils.isDesktop ? 40 : 33,
-                              15,
-                              10,
-                            ),
-                          ),
-                        ),
+                        data: MessageFieldView.theme(context),
                         child: Transform.translate(
                           offset: const Offset(0, 1),
                           child: ReactiveTextField(
