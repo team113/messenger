@@ -56,10 +56,10 @@ class CallCoverWidget extends StatelessWidget {
               ),
         if (user != null && cover == null)
           LayoutBuilder(builder: (context, constraints) {
-            Color gradient;
-
             final String? title = user?.name?.val ?? user?.num.val;
             final int? color = user?.num.val.sum();
+
+            final Color gradient;
 
             if (color != null) {
               gradient =
@@ -83,7 +83,8 @@ class CallCoverWidget extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  (title ?? '??').initials(),
+                  title ?? '??',
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),

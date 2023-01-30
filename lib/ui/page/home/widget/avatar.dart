@@ -429,7 +429,7 @@ class AvatarWidget extends StatelessWidget {
 }
 
 /// Extension adding an ability to get initials from a [String].
-extension InitialsExtension on String {
+extension _InitialsExtension on String {
   /// Returns initials (two letters which begin each word) of this string.
   String initials() {
     List<String> words = split(' ').where((e) => e.isNotEmpty).toList();

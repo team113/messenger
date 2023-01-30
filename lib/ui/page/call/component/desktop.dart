@@ -870,6 +870,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       );
 
+      c.relocateSecondary();
       c.applySecondaryConstraints();
 
       if (c.minimized.value && !c.fullscreen.value) {
