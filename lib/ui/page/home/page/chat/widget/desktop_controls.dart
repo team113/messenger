@@ -248,7 +248,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.button!.color;
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,
@@ -378,7 +378,7 @@ class _DesktopControlsState extends State<DesktopControls>
           }
 
           _volumeEntry = OverlayEntry(builder: (_) => _volumeOverlay(offset));
-          Overlay.of(context, rootOverlay: true)!.insert(_volumeEntry!);
+          Overlay.of(context, rootOverlay: true).insert(_volumeEntry!);
           setState(() {});
         }
       },
@@ -496,7 +496,8 @@ class _DesktopControlsState extends State<DesktopControls>
             ChewieProgressColors(
               playedColor: Theme.of(context).colorScheme.secondary,
               handleColor: Theme.of(context).colorScheme.secondary,
-              bufferedColor: Theme.of(context).backgroundColor.withOpacity(0.5),
+              bufferedColor:
+                  Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
             ),
       ),

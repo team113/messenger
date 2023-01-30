@@ -228,7 +228,7 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a subtitle to display under the [Chat]'s title.
   Widget _chatSubtitle(ChatInfoController c, BuildContext context) {
-    final TextStyle? style = Theme.of(context).textTheme.caption;
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       final Rx<Chat> chat = c.chat!.chat;

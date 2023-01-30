@@ -73,7 +73,7 @@ class _ChatItemReadsState extends State<ChatItemReads> {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return ListView(
       shrinkWrap: true,

@@ -100,7 +100,7 @@ class PlatformUtilsImpl {
           router.lifecycle,
           (AppLifecycleState a) => controller?.add(a.inForeground),
         ),
-        onCancel: worker?.dispose,
+        onCancel: () => worker?.dispose(),
       );
     }
 
@@ -361,7 +361,7 @@ class PlatformUtilsImpl {
     final Directory temp = await getTemporaryDirectory();
     final String path = '${temp.path}/$name';
     await dio.download(url, path);
-    await Share.shareFiles([path]);
+    await Share.shareXFiles([XFile(path)]);
     File(path).delete();
   }
 }

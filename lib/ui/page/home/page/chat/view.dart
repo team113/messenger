@@ -700,7 +700,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
-    final TextStyle? style = Theme.of(context).textTheme.caption;
+    final TextStyle? style = Theme.of(context).textTheme.bodySmall;
 
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;

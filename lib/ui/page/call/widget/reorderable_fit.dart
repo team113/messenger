@@ -558,9 +558,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   @override
   void dispose() {
     _audioPlayer?.dispose();
-    [AudioCache.instance.loadedFiles['audio/pop.mp3']]
-        .whereNotNull()
-        .forEach(AudioCache.instance.clear);
+    AudioCache.instance.clear('audio/pop.mp3');
 
     super.dispose();
   }
