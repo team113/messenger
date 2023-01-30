@@ -31,7 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.padding,
     this.border,
-    this.widgetPadding = const EdgeInsets.fromLTRB(8, 4, 8, 0),
+    this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
   }) : super(key: key);
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -47,7 +47,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final EdgeInsets? padding;
 
   /// Padding to apply to this [CustomAppBar].
-  final EdgeInsets widgetPadding;
+  final EdgeInsets margin;
 
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
@@ -74,7 +74,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         Expanded(
           child: Padding(
-            padding: widgetPadding,
+            padding: margin,
             child: Container(
               height: height,
               decoration: BoxDecoration(

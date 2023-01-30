@@ -75,5 +75,5 @@ class ChatItemReadsController extends GetxController {
   }
 
   /// Listener of [search] focus indicator.
-  void _focusListener() => isFocused.value = search.focus.hasFocus;
+  void _focusListener() {}
 }

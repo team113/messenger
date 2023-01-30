@@ -106,7 +106,7 @@ class ChatItemReads extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '${'label_id'.l10n}${'colon_space'.l10n}$id',
+                        'ID${'colon_space'.l10n}$id',
                         style: thin?.copyWith(fontSize: 13),
                       ),
                       const SizedBox(width: 8),
@@ -126,13 +126,14 @@ class ChatItemReads extends StatelessWidget {
                   child: SizedBox(
                     height: 50,
                     child: CustomAppBar(
-                      border: !c.search.isEmpty.value || c.isFocused.value
+                      border: !c.search.isEmpty.value ||
+                              c.search.isFocused.value
                           ? Border.all(
                               color: Theme.of(context).colorScheme.secondary,
                               width: 2,
                             )
                           : null,
-                      widgetPadding: const EdgeInsets.only(top: 4),
+                      margin: const EdgeInsets.only(top: 4),
                       title: Theme(
                         data: MessageFieldView.theme(context),
                         child: Transform.translate(
@@ -151,7 +152,7 @@ class ChatItemReads extends StatelessWidget {
                         ),
                       ),
                       leading: [
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.only(left: 20, right: 12),
                           child: SvgLoader.asset(
                             'assets/icons/search.svg',
@@ -191,62 +192,64 @@ class ChatItemReads extends StatelessWidget {
               }
               return const SizedBox();
             }),
-            Flexible(
-              child: Padding(
-                padding: ModalPopup.padding(context),
-                child: Scrollbar(
-                  controller: c.scrollController,
-                  child: Obx(() {
-                    final users = c.users.where((u) {
-                      if (c.query.isNotEmpty) {
-                        return u.user.value.name?.val
-                                .toLowerCase()
-                                .contains(c.query.toLowerCase()) ==
-                            true;
-                      }
+            if (reads.isNotEmpty)
+              Flexible(
+                child: Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: Obx(() {
+                      final users = c.users.where((u) {
+                        if (c.query.isNotEmpty) {
+                          return u.user.value.name?.val
+                                  .toLowerCase()
+                                  .contains(c.query.toLowerCase()) ==
+                              true;
+                        }
 
-                      return true;
-                    });
-                    return ListView(
-                      controller: c.scrollController,
-                      shrinkWrap: true,
-                      children: [
-                        if (users.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Center(child: Text('label_not_found'.l10n)),
-                          )
-                        else
-                          ...users.map((e) {
-                            return ContactTile(
-                              user: e,
-                              dense: true,
-                              darken: 0.05,
-                              onTap: () {
-                                Navigator.of(context).pop();
-                                router.user(e.id, push: true);
-                              },
-                              subtitle: [
-                                const SizedBox(height: 3),
-                                Text(
-                                  '${'label_read_at'.l10n}${'colon_space'.l10n}'
-                                  '${DateFormat('dd.MM.yyyy, kk:mm').format(
-                                    reads.first.at.val,
-                                  )}',
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                        return true;
+                      });
+                      return ListView(
+                        controller: c.scrollController,
+                        shrinkWrap: true,
+                        children: [
+                          if (users.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child:
+                                  Center(child: Text('label_not_found'.l10n)),
+                            )
+                          else
+                            ...users.map((e) {
+                              return ContactTile(
+                                user: e,
+                                dense: true,
+                                darken: 0.05,
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                  router.user(e.id, push: true);
+                                },
+                                subtitle: [
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${'label_read_at'.l10n}${'colon_space'.l10n}'
+                                    '${DateFormat('dd.MM.yyyy, kk:mm').format(
+                                      reads.first.at.val,
+                                    )}',
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }),
-                      ],
-                    );
-                  }),
+                                ],
+                              );
+                            }),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 16),
           ],
         );

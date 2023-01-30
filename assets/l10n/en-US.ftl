@@ -501,7 +501,6 @@ label_hint_drag_n_drop_video =
 
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
-label_id = ID
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_incoming_call = Incoming call

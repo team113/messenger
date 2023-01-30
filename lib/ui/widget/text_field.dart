@@ -358,6 +358,9 @@ abstract class ReactiveFieldState {
   /// Indicator whether [controller]'s text should be approved.
   bool approvable = false;
 
+  /// Reactive value of [focus.hasFocus].
+  final RxBool isFocused = RxBool(false);
+
   /// Reactive error message.
   final RxnString error = RxnString();
 
@@ -397,8 +400,11 @@ class TextFieldState extends ReactiveFieldState {
       controller.addListener(() {
         changed.value = controller.text != _previousSubmit;
       });
-      this.focus.addListener(
-        () {
+    }
+    this.focus.addListener(
+      () {
+        isFocused.value = this.focus.hasFocus;
+        if (onChanged != null) {
           if (controller.text != _previousText &&
               (_previousText != null || controller.text.isNotEmpty)) {
             isEmpty.value = controller.text.isEmpty;
@@ -407,9 +413,9 @@ class TextFieldState extends ReactiveFieldState {
               _previousText = controller.text;
             }
           }
-        },
-      );
-    }
+        }
+      },
+    );
   }
 
   /// Callback, called when the [text] has finished changing.
