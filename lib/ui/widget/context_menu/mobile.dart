@@ -38,6 +38,7 @@ class FloatingContextMenu extends StatefulWidget {
     required this.child,
     this.moveDownwards = true,
     this.margin = EdgeInsets.zero,
+    this.enableChildTextSelection = false,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -55,6 +56,8 @@ class FloatingContextMenu extends StatefulWidget {
 
   /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
+
+  final bool enableChildTextSelection;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -107,6 +110,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
         margin: widget.margin,
+        enableChildTextSelection: widget.enableChildTextSelection,
         onClosed: () {
           _entry?.remove();
           _entry = null;
@@ -135,6 +139,7 @@ class _AnimatedMenu extends StatefulWidget {
     required this.showAbove,
     required this.margin,
     this.onClosed,
+    this.enableChildTextSelection = false,
     Key? key,
   }) : super(key: key);
 
@@ -159,6 +164,8 @@ class _AnimatedMenu extends StatefulWidget {
 
   /// Margin to apply to this [_AnimatedMenu].
   final EdgeInsets margin;
+
+  final bool enableChildTextSelection;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
@@ -253,6 +260,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         children: [
                           if (!widget.showAbove)
                             IgnorePointer(
+                              ignoring: !widget.enableChildTextSelection,
                               child: SafeArea(
                                 right: false,
                                 top: true,
@@ -263,7 +271,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                   child: SizedBox(
                                     width: _bounds.width,
                                     height: _bounds.height,
-                                    child: widget.child,
+                                    child: widget.enableChildTextSelection
+                                        ? SelectionArea(child: widget.child)
+                                        : widget.child,
                                   ),
                                 ),
                               ),
