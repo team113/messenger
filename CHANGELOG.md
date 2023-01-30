@@ -55,6 +55,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
         - Redesigned forwarding modal. ([#189], [#181])
+        - Nearby messages grouping. ([#337])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
@@ -164,6 +165,7 @@ All user visible changes to this project will be documented in this file. This p
 [#330]: /../../issues/330
 [#332]: /../../pull/332
 [#335]: /../../pull/335
+[#337]: /../../pull/337
 
 
 
