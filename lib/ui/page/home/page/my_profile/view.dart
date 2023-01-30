@@ -183,7 +183,7 @@ class MyProfileView extends StatelessWidget {
                           );
 
                         case ProfileTab.calls:
-                          if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
+                          if (PlatformUtils.isDesktop) {
                             return Block(
                               title: 'label_calls'.l10n,
                               children: [_call(context, c)],

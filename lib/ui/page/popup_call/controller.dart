@@ -75,7 +75,12 @@ class PopupCallController extends GetxController {
 
     if (stored == null ||
         (PlatformUtils.isWeb && WebUtils.credentials == null)) {
-      return WebUtils.closeWindow();
+      if (PlatformUtils.isWeb) {
+        WebUtils.closeWindow();
+      } else {
+        _windowController?.close();
+      }
+      return;
     }
 
     bool withAudio, withVideo, withScreen;
@@ -136,19 +141,19 @@ class PopupCallController extends GetxController {
         }
       });
     } else {
-      _windowController?.setOnWindowClose(() async {
+      _windowController!.setOnWindowClose(() async {
         _storageSubscription?.cancel();
         _stateWorker.dispose();
-        if (call.value.deviceId != null) {
-          _calls.leave(call.value.chatId.value, call.value.deviceId!);
-        }
         await DesktopMultiWindow.invokeMethod(
           DesktopMultiWindow.mainWindowId,
           'call_${call.value.chatId.value.val}',
         );
+        if (call.value.deviceId != null) {
+          _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        }
       });
 
-      DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
+      DesktopMultiWindow.addMethodHandler((methodCall, _) async {
         if (methodCall.arguments == null) {
           _windowController?.close();
         }

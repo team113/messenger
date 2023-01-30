@@ -243,7 +243,7 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.calls:
-                    if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
+                    if (PlatformUtils.isDesktop) {
                       child = card(
                         icon: Icons.call,
                         title: 'label_calls'.l10n,

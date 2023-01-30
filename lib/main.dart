@@ -82,26 +82,24 @@ Future<void> main(List<String> args) async {
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
       await windowManager.ensureInitialized();
 
-      if (!isSeparateWindow) {
-        WindowManager.instance.setPreventClose(true);
-        WindowManager.instance.addListener(
-          DesktopWindowListener(
-            onClose: () {
-              Future.sync(() async {
-                try {
-                  var windows = await DesktopMultiWindow.getAllSubWindowIds();
-                  await Future.wait(windows
-                      .map((e) => WindowController.fromWindowId(e).close()));
-                  await Future.delayed(100.milliseconds);
-                } finally {
-                  await WindowManager.instance.setPreventClose(false);
-                  WindowManager.instance.close();
-                }
-              });
-            },
-          ),
-        );
-      }
+      WindowManager.instance.setPreventClose(true);
+      WindowManager.instance.addListener(
+        DesktopWindowListener(
+          onClose: () {
+            Future.sync(() async {
+              try {
+                var windows = await DesktopMultiWindow.getAllSubWindowIds();
+                await Future.wait(windows
+                    .map((e) => WindowController.fromWindowId(e).close()));
+                await Future.delayed(100.milliseconds);
+              } finally {
+                await WindowManager.instance.setPreventClose(false);
+                WindowManager.instance.close();
+              }
+            });
+          },
+        ),
+      );
 
       final WindowPreferencesHiveProvider preferences = Get.find();
       final WindowPreferences? prefs = preferences.get();
@@ -124,16 +122,18 @@ Future<void> main(List<String> args) async {
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+    await authService.init();
     router = RouterState(authService);
     if (isSeparateWindow) {
       router.call = call;
       router.go('${Routes.call}/${call!.chatId}');
     }
 
-    Get.put(NotificationService())
-        .init(onNotificationResponse: onNotificationResponse);
+    if (!PlatformUtils.isPopup) {
+      Get.put(NotificationService())
+          .init(onNotificationResponse: onNotificationResponse);
+    }
 
-    await authService.init();
     await L10n.init();
 
     Get.put(BackgroundWorker(Get.find()));

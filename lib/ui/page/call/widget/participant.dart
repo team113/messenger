@@ -313,7 +313,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     duration: const Duration(milliseconds: 150),
                     child: hovered || additionally.isNotEmpty
                         ? Container(
-                            key: const Key('AnimatedSwitcherLabel'),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: const [

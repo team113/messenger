@@ -113,13 +113,14 @@ class CallOverlayController extends GetxController {
               _settings.value?.enablePopups != false) {
             try {
               window = true;
-              var desktopWindow =
-                  await DesktopMultiWindow.createWindow(jsonEncode({
-                'call': json.encode(ongoingCall.toStored().toJson()),
-                'credentials': json.encode(Get.find<SessionDataHiveProvider>()
-                    .getCredentials()!
-                    .toJson()),
-              }));
+              var desktopWindow = await DesktopMultiWindow.createWindow(
+                jsonEncode({
+                  'call': json.encode(ongoingCall.toStored().toJson()),
+                  'credentials': json.encode(Get.find<SessionDataHiveProvider>()
+                      .getCredentials()!
+                      .toJson()),
+                }),
+              );
               await desktopWindow
                   .setFrame(const Offset(0, 0) & const Size(700, 700));
               await desktopWindow.center();
@@ -137,7 +138,7 @@ class CallOverlayController extends GetxController {
               if (ongoingCall.callChatItemId == null ||
                   ongoingCall.deviceId == null) {
                 _workers[event.key!] = ever(
-                  event.value!.value.call,
+                  ongoingCall.call,
                   (ChatCall? call) {
                     DesktopMultiWindow.invokeMethod(
                         desktopWindow.windowId,
