@@ -149,6 +149,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
+  final RxBool enabledContext = RxBool(false);
+
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
   Offset _offset = Offset.zero;
@@ -365,10 +367,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Text(
-            item.text!.val,
-            style: style.boldBody,
-          );
+          content = Obx(() {
+            if (enabledContext.value || PlatformUtils.isDesktop) {
+              return SelectionArea(
+                child: Text(
+                  item.text!.val,
+                  style: style.boldBody,
+                ),
+              );
+            } else {
+              return Text(
+                item.text!.val,
+                style: style.boldBody,
+              );
+            }
+          });
         }
       } else if (item is ChatCall) {
         String title = 'label_chat_call_ended'.l10n;
@@ -583,7 +596,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: Text(text, style: style.boldBody),
+              child: Obx(() {
+                return enabledContext.value || PlatformUtils.isDesktop
+                    ? Text(text!, style: style.boldBody)
+                    : SelectionArea(
+                        child: Text(text!, style: style.boldBody),
+                      );
+              }),
             ),
           ),
         if (files.isNotEmpty)
@@ -825,8 +844,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Material(
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
-                          enableChildTextSelection: true,
                           preventContextMenu: false,
+                          showContext: (a) {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              enabledContext.value = a;
+                            });
+                            print(a);
+                          },
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,

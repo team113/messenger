@@ -46,6 +46,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
     this.enableChildTextSelection = false,
+    this.showContext,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -93,6 +94,8 @@ class ContextMenuRegion extends StatefulWidget {
 
   final bool enableChildTextSelection;
 
+  final void Function(bool val)? showContext;
+
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
 }
@@ -138,6 +141,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   actions: widget.actions,
                   margin: widget.margin,
                   enableChildTextSelection: widget.enableChildTextSelection,
+                  showContext: widget.showContext,
                   child: child,
                 )
               : GestureDetector(

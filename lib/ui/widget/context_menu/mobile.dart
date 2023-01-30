@@ -39,10 +39,13 @@ class FloatingContextMenu extends StatefulWidget {
     this.moveDownwards = true,
     this.margin = EdgeInsets.zero,
     this.enableChildTextSelection = false,
+    this.showContext,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
+
+  final void Function(bool val)? showContext;
 
   /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
   final List<ContextMenuButton> actions;
@@ -102,6 +105,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   Future<void> _populateEntry(BuildContext context) async {
     HapticFeedback.selectionClick();
 
+    widget.showContext?.call(true);
     _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
@@ -114,6 +118,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         onClosed: () {
           _entry?.remove();
           _entry = null;
+          widget.showContext?.call(false);
 
           if (mounted) {
             setState(() {});
