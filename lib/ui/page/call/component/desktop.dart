@@ -216,7 +216,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: const Color(0x55000000),
+                color: const Color(0x70000000),
               ),
             );
           }
