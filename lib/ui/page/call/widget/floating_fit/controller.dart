@@ -104,6 +104,8 @@ class FloatingFitController extends GetxController {
       _relocateWorker = ever(intersection!, (_) => relocate());
     }
 
+    SchedulerBinding.instance.addPostFrameCallback((_) => relocate());
+
     super.onInit();
   }
 
