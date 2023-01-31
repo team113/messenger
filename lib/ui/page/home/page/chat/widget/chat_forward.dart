@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -150,6 +151,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
   final RxBool enabledContext = RxBool(false);
+
+  final RxString selectedText = RxString('');
+
+  final RxString lastSelectedText = RxString('');
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
@@ -370,6 +375,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           content = Obx(() {
             if (enabledContext.value || PlatformUtils.isDesktop) {
               return SelectionArea(
+                onSelectionChanged: _selectionArea,
                 child: Text(
                   item.text!.val,
                   style: style.boldBody,
@@ -598,10 +604,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               ),
               child: Obx(() {
                 return enabledContext.value || PlatformUtils.isDesktop
-                    ? Text(text!, style: style.boldBody)
-                    : SelectionArea(
+                    ? SelectionArea(
+                        magnifierConfiguration:
+                            TextMagnifierConfiguration.disabled,
+                        onSelectionChanged: _selectionArea,
                         child: Text(text!, style: style.boldBody),
-                      );
+                      )
+                    : Text(text!, style: style.boldBody);
               }),
             ),
           ),
@@ -680,6 +689,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     return [];
+  }
+
+  void _selectionArea(SelectedContent? s) {
+    print(s?.plainText);
+    if (s?.plainText == null) {
+      if (selectedText.value.isNotEmpty) {
+        lastSelectedText.value = selectedText.value;
+      } else {
+        lastSelectedText.value = '';
+      }
+    }
+    selectedText.value = s?.plainText ?? '';
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -844,13 +865,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Material(
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
+                          // enabledContext: enabledContext,
                           preventContextMenu: false,
                           showContext: (a) {
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((timeStamp) {
-                              enabledContext.value = a;
-                            });
-                            print(a);
+                            enabledContext.value = a;
                           },
                           alignment: _fromMe
                               ? Alignment.bottomRight
@@ -866,7 +884,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                                onPressed: () {
+                                  if (lastSelectedText.isNotEmpty &&
+                                      PlatformUtils.isDesktop) {
+                                    print('1');
+                                    widget.onCopy?.call(lastSelectedText.value);
+                                  } else {
+                                    print('2');
+                                    widget.onCopy?.call(copyable!);
+                                  }
+                                },
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),

@@ -550,9 +550,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // lastSelectedText.listen((p0) {
     //   print(p0);
     // });
-    // focus.addListener(() {
-    //   print(focus);
-    // });
+    focus.addListener(() {
+      print(focus);
+    });
     super.initState();
   }
 
@@ -833,12 +833,75 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: PlatformUtils.isMobile
                           ? Text(
                               text,
+                              key: Key(text),
                               style: style.boldBody,
                             )
                           : SelectionArea(
-                              // contextMenuBuilder: (a, b) => SizedBox(),
+                              key: Key(text + "123"),
+                              contextMenuBuilder: (a, b) {
+                                Offset position =
+                                    b.contextMenuAnchors.primaryAnchor;
+                                return LayoutBuilder(
+                                    builder: (context, constraints) {
+                                  double qx = 1, qy = 1;
+                                  if (position.dx > (constraints.maxWidth) / 2)
+                                    qx = -1;
+                                  if (position.dy > (constraints.maxHeight) / 2)
+                                    qy = -1;
+                                  Alignment alignment = Alignment(qx, qy);
+
+                                  return Listener(
+                                    onPointerUp: (d) =>
+                                        Navigator.of(context).pop(),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        Positioned(
+                                          left: position.dx,
+                                          top: position.dy,
+                                          child: FractionalTranslation(
+                                            translation: Offset(
+                                              alignment.x > 0 ? 0 : -1,
+                                              alignment.y > 0 ? 0 : -1,
+                                            ),
+                                            child: ContextMenu(actions: [
+                                              ContextMenuButton(
+                                                key: const Key('CopyButton'),
+                                                label: PlatformUtils.isMobile
+                                                    ? 'btn_copy'.l10n
+                                                    : 'btn_copy_text'.l10n,
+                                                trailing: SvgLoader.asset(
+                                                  'assets/icons/copy_small.svg',
+                                                  height: 18,
+                                                ),
+                                                onPressed: () {
+                                                  // if (lastSelectedText
+                                                  //     .isNotEmpty) {
+                                                  //   widget.onCopy?.call(
+                                                  //       lastSelectedText.value);
+                                                  // } else {
+                                                  //   widget.onCopy
+                                                  //       ?.call(copyable!);
+                                                  // }
+                                                },
+                                              )
+                                            ]),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                });
+
+                                // return AdaptiveTextSelectionToolbar.buttonItems(
+                                //   buttonItems: [
+                                //     ContextMenuButtonItem(
+                                //         onPressed: () {}, label: 'asda asd')
+                                //   ],
+                                //   anchors: b.contextMenuAnchors,
+                                // );
+                              },
                               onSelectionChanged: (s) {
-                                print(s?.plainText);
                                 if (s?.plainText == null) {
                                   if (selectedText.value.isNotEmpty) {
                                     lastSelectedText.value = selectedText.value;
@@ -1467,27 +1530,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       type: MaterialType.transparency,
                       child: Obx(() {
                         return ContextMenuRegion(
+                          key: Key('ContextMenuRegion_${item.id}'),
+                          enabled: selectedText.isEmpty,
                           preventContextMenu: false,
                           enableChildTextSelection: true,
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
                           actions: [
-                            if (selectedText.isNotEmpty)
-                              ContextMenuButton(
-                                key: const Key('CopySelectedButton'),
-                                label: PlatformUtils.isMobile
-                                    ? 'btn_copy_selected_text'.l10n
-                                    : 'btn_copy_selected_text'.l10n,
-                                trailing: SvgLoader.asset(
-                                  'assets/icons/copy_small.svg',
-                                  height: 18,
-                                ),
-                                onPressed: () {
-                                  widget.onCopy?.call(lastSelectedText.value);
-                                  lastSelectedText.value = '';
-                                },
-                              ),
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
@@ -1498,7 +1548,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   'assets/icons/copy_small.svg',
                                   height: 18,
                                 ),
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                                onPressed: () {
+                                  if (lastSelectedText.isNotEmpty) {
+                                    widget.onCopy?.call(lastSelectedText.value);
+                                  } else {
+                                    widget.onCopy?.call(copyable!);
+                                  }
+                                },
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(

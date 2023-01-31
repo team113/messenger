@@ -40,6 +40,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     this.enableChildTextSelection = false,
     this.showContext,
+    this.enabledContext,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -61,6 +62,8 @@ class FloatingContextMenu extends StatefulWidget {
   final EdgeInsets margin;
 
   final bool enableChildTextSelection;
+
+  final RxBool? enabledContext;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -106,6 +109,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     HapticFeedback.selectionClick();
 
     widget.showContext?.call(true);
+    widget.enabledContext?.value = true;
     _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
@@ -119,6 +123,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
           _entry?.remove();
           _entry = null;
           widget.showContext?.call(false);
+          widget.enabledContext?.value = false;
 
           if (mounted) {
             setState(() {});
@@ -264,22 +269,19 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!widget.showAbove)
-                            IgnorePointer(
-                              ignoring: !widget.enableChildTextSelection,
-                              child: SafeArea(
-                                right: false,
-                                top: true,
-                                left: false,
-                                bottom: false,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: _bounds.left),
-                                  child: SizedBox(
-                                    width: _bounds.width,
-                                    height: _bounds.height,
-                                    child: widget.enableChildTextSelection
-                                        ? SelectionArea(child: widget.child)
-                                        : widget.child,
-                                  ),
+                            SafeArea(
+                              right: false,
+                              top: true,
+                              left: false,
+                              bottom: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: _bounds.left),
+                                child: SizedBox(
+                                  width: _bounds.width,
+                                  height: _bounds.height,
+                                  child: widget.enableChildTextSelection
+                                      ? SelectionArea(child: widget.child)
+                                      : widget.child,
                                 ),
                               ),
                             ),
