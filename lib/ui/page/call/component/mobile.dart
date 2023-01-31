@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -270,6 +271,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                     )
                   : Container(),
             ),
+
+            if (isOutgoing)
+              const Padding(
+                padding: EdgeInsets.all(21.0),
+                child: Center(
+                  child: SpinKitDoubleBounce(
+                    color: Color(0xFFEEEEEE),
+                    size: 66,
+                    duration: Duration(milliseconds: 4500),
+                  ),
+                ),
+              ),
           ],
         );
       }));
@@ -638,7 +651,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                                       highlight: c.withVideo,
                                     ).build(expanded: true)),
                                     padding(
-                                        DeclineButton(c).build(expanded: true)),
+                                      DeclineButton(c).build(expanded: true),
+                                    ),
                                   ],
                           ),
                         ),
@@ -757,33 +771,40 @@ Widget _chat(BuildContext context, CallController c) {
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
+                            Text(
+                              c.duration.value.hhMmSs(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(color: Colors.white),
+                            ),
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 3),
+                          padding: const EdgeInsets.only(top: 5),
                           child: Row(
                             children: [
                               Text(
-                                'label_a_of_b'.l10nfmt({
-                                  'a': '${actualMembers.length}',
-                                  'b': '${c.chat.value?.members.length}',
-                                }),
+                                c.chat.value?.members.values
+                                        .firstWhereOrNull(
+                                          (e) => e.id != c.me.id.userId,
+                                        )
+                                        ?.user
+                                        .value
+                                        .status
+                                        ?.val ??
+                                    'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
                                     ?.copyWith(color: Colors.white),
                               ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                width: 1,
-                                height: 12,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.color,
-                              ),
+                              const Spacer(),
                               Text(
-                                c.duration.value.hhMmSs(),
+                                'label_a_of_b'.l10nfmt({
+                                  'a': '${actualMembers.length}',
+                                  'b': '${c.chat.value?.members.length}',
+                                }),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
