@@ -603,14 +603,6 @@ class CallController extends GetxController {
       }
     }
 
-    _chatService
-        .get(_currentCall.value.chatId.value)
-        .then(onChat)
-        .whenComplete(() {
-      members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
-    });
-
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(onChat),
@@ -809,39 +801,48 @@ class CallController extends GetxController {
       }
     }
 
-    _membersTracksSubscriptions = _currentCall.value.members.map(
-      (k, v) =>
-          MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
-    );
+    _chatService
+        .get(_currentCall.value.chatId.value)
+        .then(onChat)
+        .whenComplete(() {
+      members.forEach((_, value) => _putMember(value));
+      _insureCorrectGrouping();
 
-    _membersSubscription = _currentCall.value.members.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putMember(e.value!);
-          _membersTracksSubscriptions[e.key!] = e.value!.tracks.changes.listen(
-            (c) => onTracksChanged(e.value!, c),
-          );
+      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _putMember(e.value!);
+            _membersTracksSubscriptions[e.key!] =
+                e.value!.tracks.changes.listen(
+              (c) => onTracksChanged(e.value!, c),
+            );
 
-          _insureCorrectGrouping();
-          break;
+            _insureCorrectGrouping();
+            break;
 
-        case OperationKind.removed:
-          bool wasNotEmpty = primary.isNotEmpty;
-          paneled.removeWhere((m) => m.member.id == e.key);
-          locals.removeWhere((m) => m.member.id == e.key);
-          focused.removeWhere((m) => m.member.id == e.key);
-          remotes.removeWhere((m) => m.member.id == e.key);
-          _membersTracksSubscriptions.remove(e.key)?.cancel();
-          _insureCorrectGrouping();
-          if (wasNotEmpty && primary.isEmpty) {
-            focusAll();
-          }
-          break;
+          case OperationKind.removed:
+            bool wasNotEmpty = primary.isNotEmpty;
+            paneled.removeWhere((m) => m.member.id == e.key);
+            locals.removeWhere((m) => m.member.id == e.key);
+            focused.removeWhere((m) => m.member.id == e.key);
+            remotes.removeWhere((m) => m.member.id == e.key);
+            _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _insureCorrectGrouping();
+            if (wasNotEmpty && primary.isEmpty) {
+              focusAll();
+            }
+            break;
 
-        case OperationKind.updated:
-          _insureCorrectGrouping();
-          break;
-      }
+          case OperationKind.updated:
+            _insureCorrectGrouping();
+            break;
+        }
+      });
+
+      _membersTracksSubscriptions = _currentCall.value.members.map(
+        (k, v) =>
+            MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
+      );
     });
   }
 

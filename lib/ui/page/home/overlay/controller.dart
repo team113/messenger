@@ -127,7 +127,8 @@ class CallOverlayController extends GetxController {
               await desktopWindow.setTitle('Call');
               await desktopWindow.show();
 
-              _callService.popupCalls.add(ongoingCall.chatId.value);
+              _callService.popupCalls[ongoingCall.chatId.value] =
+                  desktopWindow.windowId;
 
               DesktopMultiWindow.invokeMethod(
                 desktopWindow.windowId,
@@ -141,15 +142,16 @@ class CallOverlayController extends GetxController {
                   ongoingCall.call,
                   (ChatCall? call) {
                     DesktopMultiWindow.invokeMethod(
-                        desktopWindow.windowId,
-                        'call',
-                        json.encode(StoredCall(
-                          chatId: ongoingCall.chatId.value,
-                          call: call,
-                          creds: ongoingCall.creds,
-                          deviceId: ongoingCall.deviceId,
-                          state: ongoingCall.state.value,
-                        ).toJson()));
+                      desktopWindow.windowId,
+                      'call',
+                      json.encode(StoredCall(
+                        chatId: ongoingCall.chatId.value,
+                        call: call,
+                        creds: ongoingCall.creds,
+                        deviceId: ongoingCall.deviceId,
+                        state: ongoingCall.state.value,
+                      ).toJson()),
+                    );
 
                     if (call?.id != null) {
                       _workers[event.key!]?.dispose();
@@ -173,10 +175,16 @@ class CallOverlayController extends GetxController {
 
         case OperationKind.removed:
           calls.removeWhere((e) => e.call == event.value!);
-
-          OngoingCall call = event.value!.value;
-          if (call.callChatItemId == null || call.connected) {
-            WebUtils.removeCall(event.key!);
+          if (PlatformUtils.isWeb) {
+            OngoingCall call = event.value!.value;
+            if (call.callChatItemId == null || call.connected) {
+              WebUtils.removeCall(event.key!);
+            }
+          } else if (PlatformUtils.isDesktop) {
+            int? id = _callService.popupCalls.remove(event.key!);
+            if (id != null) {
+              DesktopMultiWindow.invokeMethod(id, 'call');
+            }
           }
           break;
 

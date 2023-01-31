@@ -71,6 +71,15 @@ Future<void> main(List<String> args) async {
     call = StoredCall.fromJson(json.decode(argument['call'] as String));
     credentials =
         Credentials.fromJson(json.decode(argument['credentials'] as String));
+
+    WindowController windowController =
+        WindowController.fromWindowId(PlatformUtils.windowId!);
+    windowController.setOnWindowClose(() async {
+      await DesktopMultiWindow.invokeMethod(
+        DesktopMultiWindow.mainWindowId,
+        'call_${call!.chatId.val}',
+      );
+    });
   }
 
   // Initializes and runs the [App].

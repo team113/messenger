@@ -532,7 +532,6 @@ class OngoingCall {
   Future<void> dispose() async {
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
-      _disposeRemoteMedia();
       if (_jason != null) {
         _mediaManager!.free();
         _mediaManager = null;
@@ -1237,10 +1236,6 @@ class OngoingCall {
     members[_me]?.tracks.clear();
   }
 
-  /// Disposes the remote media tracks.
-  void _disposeRemoteMedia() {
-  }
-
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
@@ -1275,7 +1270,6 @@ class OngoingCall {
     for (Track t in members.values.expand((e) => e.tracks)) {
       t.dispose();
     }
-    members.removeWhere((id, _) => id != _me);
   }
 
   /// Updates the local media settings with [audioDevice], [videoDevice] or
