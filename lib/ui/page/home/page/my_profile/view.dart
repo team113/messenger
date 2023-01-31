@@ -109,7 +109,7 @@ class MyProfileView extends StatelessWidget {
                                   WidgetButton(
                                     // onPressed: c.uploadAvatar,
                                     onPressed: c.myUser.value?.avatar == null
-                                        ? null
+                                        ? c.uploadAvatar
                                         : () async {
                                             await GalleryPopup.show(
                                               context: context,

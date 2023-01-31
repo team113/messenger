@@ -260,7 +260,7 @@ class ChatInfoView extends StatelessWidget {
           children: [
             WidgetButton(
               onPressed: c.chat?.chat.value.avatar == null
-                  ? null
+                  ? c.pickAvatar
                   : () async {
                       await GalleryPopup.show(
                         context: context,
