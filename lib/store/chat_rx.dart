@@ -120,7 +120,7 @@ class HiveRxChat extends RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  SubscriptionIterator? _remoteSubscription;
+  StreamSubscription<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
@@ -768,11 +768,8 @@ class HiveRxChat extends RxChat {
     var ver = _chatLocal.get(id)?.ver;
 
     _remoteSubscription?.cancel();
-    _remoteSubscription = _chatRepository.chatEvents(
-      id,
-      ver,
-      _chatEvent,
-    );
+    _remoteSubscription =
+        _chatRepository.chatEvents(id, ver).listen(_chatEvent);
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.

@@ -176,6 +176,11 @@ class GraphQlClient {
     }
   }
 
+  Stream<QueryResult> subscribe2(SubscriptionOptions options) {
+    final SubscriptionHandle handle = SubscriptionHandle(_subscribe, options);
+    return handle.stream;
+  }
+
   /// Subscribes to a GraphQL subscription according to the [options] specified.
   SubscriptionIterator subscribe(
     SubscriptionOptions options,
@@ -183,6 +188,11 @@ class GraphQlClient {
     VoidCallback? onError,
     SubscriptionIterator? subscriptionIterator,
   }) {
+    // return SubscriptionIterator(Future(() {
+    //   final StreamController<QueryResult> dummy = StreamController.broadcast();
+    //   return StreamIterator(dummy.stream);
+    // }));
+
     if (subscriptionIterator == null) {
       subscriptionIterator = SubscriptionIterator(
         _subscribe(options).then((value) => StreamIterator(value)),
@@ -498,5 +508,97 @@ class SubscriptionIterator {
 
   void cancel() {
     iterator.then((value) => value.cancel());
+  }
+}
+
+/// Wrapper around a [StreamIterator], representing an ongoing GraphQL
+/// subscription.
+class SubscriptionHandle {
+  SubscriptionHandle(this._subscribe, this._options) {
+    print('[SubscriptionHandle] CTOR');
+    _controller = StreamController.broadcast(
+      onListen: () {
+        print('[SubscriptionHandle] onListen');
+        subscribe();
+      },
+      onCancel: () {
+        print('[SubscriptionHandle] onCancel');
+        cancel();
+      },
+    );
+  }
+
+  final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _subscribe;
+  final SubscriptionOptions _options;
+
+  late final StreamController<QueryResult> _controller;
+  StreamSubscription? _subscription;
+
+  Timer? _backoff;
+  Duration _backoffDuration = Duration.zero;
+
+  Stream<QueryResult> get stream => _controller.stream;
+
+  Future<void> subscribe() async {
+    print('[SubscriptionHandle] subscribe');
+
+    _subscription?.cancel();
+
+    try {
+      _subscription = (await _subscribe(_options)).listen(
+        (e) {
+          print('[SubscriptionHandle] handle');
+
+          if (_backoff != null) {
+            _backoffDuration = Duration.zero;
+            _backoff?.cancel();
+            _backoff = null;
+          }
+
+          _controller.add(e);
+        },
+        onDone: () {
+          print('[SubscriptionHandle] onDone');
+          resubscribe();
+        },
+        onError: (e) {
+          if (e is ResubscriptionRequiredException) {
+            print(
+                '[SubscriptionHandle] onError ResubscriptionRequiredException');
+            resubscribe();
+          } else if (e is StaleVersionException) {
+            print('[SubscriptionHandle] onError StaleVersionException');
+            _options.variables['ver'] = null;
+            resubscribe();
+          } else {
+            print('[SubscriptionHandle] onError $e');
+            resubscribe();
+          }
+        },
+      );
+    } catch (e) {
+      print('[SubscriptionHandle] catch $e');
+      resubscribe();
+    }
+  }
+
+  void resubscribe() {
+    print('[SubscriptionHandle] resubscribe with $_backoffDuration');
+
+    if (_backoff?.isActive != true) {
+      _backoff?.cancel();
+      _backoff = Timer(_backoffDuration, subscribe);
+      if (_backoffDuration == Duration.zero) {
+        _backoffDuration = const Duration(milliseconds: 500);
+      } else if (_backoffDuration < const Duration(seconds: 16)) {
+        _backoffDuration *= 2;
+      }
+    }
+  }
+
+  void cancel() {
+    _backoff?.cancel();
+    _backoffDuration = Duration.zero;
+    _subscription?.cancel();
   }
 }

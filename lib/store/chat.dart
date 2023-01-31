@@ -721,40 +721,27 @@ class ChatRepository implements AbstractChatRepository {
   void endCall(ChatId chatId) => _callRepo.remove(chatId);
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
-  SubscriptionIterator chatEvents(
-    ChatId chatId,
-    ChatVersion? ver,
-    Future<void> Function(ChatEvents) listener,
-  ) {
-    return _graphQlProvider.chatEvents(
-      chatId,
-      ver,
-      (event) async {
-        ChatEvents? chatEvents;
-        var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-        if (events.$$typename == 'SubscriptionInitialized') {
-          events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-          chatEvents = const ChatEventsInitialized();
-        } else if (events.$$typename == 'Chat') {
-          var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-          var data = _chat(chat);
-          chatEvents = ChatEventsChat(data.chat);
-        } else if (events.$$typename == 'ChatEventsVersioned') {
-          var mixin =
-              events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-          chatEvents = ChatEventsEvent(
-            ChatEventsVersioned(
-              mixin.events.map((e) => chatEvent(e)).toList(),
-              mixin.ver,
-            ),
-          );
-        }
-
-        if (chatEvents != null) {
-          await listener(chatEvents);
-        }
-      },
-    );
+  Stream<ChatEvents> chatEvents(ChatId chatId, ChatVersion? ver) {
+    return _graphQlProvider.chatEvents(chatId, ver).asyncExpand((event) async* {
+      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+        yield const ChatEventsInitialized();
+      } else if (events.$$typename == 'Chat') {
+        var chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+        var data = _chat(chat);
+        yield ChatEventsChat(data.chat);
+      } else if (events.$$typename == 'ChatEventsVersioned') {
+        var mixin =
+            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+        yield ChatEventsEvent(
+          ChatEventsVersioned(
+            mixin.events.map((e) => chatEvent(e)).toList(),
+            mixin.ver,
+          ),
+        );
+      }
+    });
   }
 
   @override

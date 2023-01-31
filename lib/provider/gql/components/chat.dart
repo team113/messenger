@@ -537,19 +537,14 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionIterator chatEvents(
-    ChatId id,
-    ChatVersion? ver,
-    Future<void> Function(QueryResult) listener,
-  ) {
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? ver) {
     final variables = ChatEventsArguments(id: id, ver: ver);
-    return client.subscribe(
+    return client.subscribe2(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      listener,
     );
   }
 
