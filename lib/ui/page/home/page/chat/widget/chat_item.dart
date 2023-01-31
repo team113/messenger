@@ -998,46 +998,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Style style = Theme.of(context).extension<Style>()!;
 
-    final List<Widget> subtitle = [
-      Flexible(
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 400),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: style.boldBody,
-                    ),
-                  ),
-                  if (time != null) ...[
-                    const SizedBox(width: 9),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 1),
-                      child: Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.subtitle2,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    ];
-
     final Color color = _fromMe
         ? Theme.of(context).colorScheme.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
@@ -1132,7 +1092,44 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         opacity: _isRead || !_fromMe ? 1 : 0.55,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
-          child: Row(mainAxisSize: MainAxisSize.min, children: subtitle),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                child: message.withVideo
+                    ? SvgLoader.asset(
+                        'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 13 * 1.4,
+                      )
+                    : SvgLoader.asset(
+                        'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 15 * 1.4,
+                      ),
+              ),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.boldBody,
+                ),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 9),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1),
+                  child: Text(
+                    time,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.subtitle2,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       );
     }

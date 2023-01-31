@@ -710,104 +710,107 @@ class _GalleryPopupState extends State<GalleryPopup>
             ),
           ),
         ),
+      ]);
+    }
+
+    widgets.addAll([
+      FadeTransition(
+        opacity: fade,
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8, top: 8),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: (_displayClose || _showControls) ? 1 : 0,
+              child: SizedBox(
+                width: 60,
+                height: 60,
+                child: RoundFloatingButton(
+                  color: const Color(0x794E5A78),
+                  onPressed: _dismiss,
+                  withBlur: true,
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (widget.onTrashPressed == null)
         FadeTransition(
           opacity: fade,
           child: Align(
-            alignment: Alignment.topRight,
+            alignment: Alignment.topLeft,
             child: Padding(
-              padding: const EdgeInsets.only(right: 8, top: 8),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayClose || _showControls) ? 1 : 0,
+                opacity: (_displayFullscreen || _showControls) ? 1 : 0,
                 child: SizedBox(
                   width: 60,
                   height: 60,
                   child: RoundFloatingButton(
                     color: const Color(0x794E5A78),
-                    onPressed: _dismiss,
+                    onPressed: _toggleFullscreen,
                     withBlur: true,
-                    child: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                    assetWidth: 22,
+                    asset: _isFullscreen.value
+                        ? 'fullscreen_exit_white'
+                        : 'fullscreen_enter_white',
                   ),
                 ),
               ),
             ),
           ),
         ),
-        if (widget.onTrashPressed == null)
-          FadeTransition(
-            opacity: fade,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 8),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 250),
-                  opacity: (_displayFullscreen || _showControls) ? 1 : 0,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RoundFloatingButton(
-                      color: const Color(0x794E5A78),
-                      onPressed: _toggleFullscreen,
-                      withBlur: true,
-                      assetWidth: 22,
-                      asset: _isFullscreen.value
-                          ? 'fullscreen_exit_white'
-                          : 'fullscreen_enter_white',
-                    ),
-                  ),
-                ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          children: [
+            MouseRegion(
+              opaque: false,
+              onEnter: (d) => setState(() => _displayFullscreen = true),
+              onExit: (d) => setState(() => _displayFullscreen = false),
+              child: const SizedBox(width: 100, height: 100),
+            ),
+            Expanded(
+              child: MouseRegion(
+                opaque: false,
+                onEnter: (d) => setState(() => _displayLeft = true),
+                onExit: (d) => setState(() => _displayLeft = false),
+                child: const SizedBox(width: 100),
               ),
             ),
-          ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Column(
-            children: [
-              MouseRegion(
-                opaque: false,
-                onEnter: (d) => setState(() => _displayFullscreen = true),
-                onExit: (d) => setState(() => _displayFullscreen = false),
-                child: const SizedBox(width: 100, height: 100),
-              ),
-              Expanded(
-                child: MouseRegion(
-                  opaque: false,
-                  onEnter: (d) => setState(() => _displayLeft = true),
-                  onExit: (d) => setState(() => _displayLeft = false),
-                  child: const SizedBox(width: 100),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Column(
-            children: [
-              MouseRegion(
+      ),
+      Align(
+        alignment: Alignment.centerRight,
+        child: Column(
+          children: [
+            MouseRegion(
+              opaque: false,
+              onEnter: (d) => setState(() => _displayClose = true),
+              onExit: (d) => setState(() => _displayClose = false),
+              child: const SizedBox(width: 100, height: 100),
+            ),
+            Expanded(
+              child: MouseRegion(
                 opaque: false,
-                onEnter: (d) => setState(() => _displayClose = true),
-                onExit: (d) => setState(() => _displayClose = false),
-                child: const SizedBox(width: 100, height: 100),
+                onEnter: (d) => setState(() => _displayRight = true),
+                onExit: (d) => setState(() => _displayRight = false),
+                child: const SizedBox(width: 100),
               ),
-              Expanded(
-                child: MouseRegion(
-                  opaque: false,
-                  onEnter: (d) => setState(() => _displayRight = true),
-                  onExit: (d) => setState(() => _displayRight = false),
-                  child: const SizedBox(width: 100),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ]);
-    }
+      ),
+    ]);
 
     widgets.addAll([
       if (widget.onTrashPressed != null)
