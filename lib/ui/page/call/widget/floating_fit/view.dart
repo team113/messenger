@@ -327,8 +327,8 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
-        curve: Curves.ease,
         duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
         onEnd: () {
           paneled.entry?.remove();
           paneled.entry = null;
@@ -344,8 +344,8 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       return AnimatedTransition(
         beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
         endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
-        curve: Curves.ease,
         duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
         onEnd: () {
           primary.entry?.remove();
           primary.entry = null;

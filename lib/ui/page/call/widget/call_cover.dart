@@ -48,27 +48,18 @@ class CallCoverWidget extends StatelessWidget {
                 height: double.infinity,
                 fit: BoxFit.cover,
               )
-            : Stack(
-                children: [
-                  RetryImage(
-                    cover!.full.url,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  // Container(
-                  //   width: double.infinity,
-                  //   height: double.infinity,
-                  //   color: const Color(0x55000000),
-                  // )
-                ],
+            : RetryImage(
+                cover!.full.url,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
         if (user != null && cover == null)
           LayoutBuilder(builder: (context, constraints) {
-            Color gradient;
-
             final String? title = user?.name?.val ?? user?.num.val;
             final int? color = user?.num.val.sum();
+
+            final Color gradient;
 
             if (color != null) {
               gradient =
@@ -92,7 +83,7 @@ class CallCoverWidget extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  title ?? '',
+                  title ?? '??',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headline4?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
@@ -107,13 +98,6 @@ class CallCoverWidget extends StatelessWidget {
               ),
             );
           }),
-        // if (user != null && cover == null)
-        //   Center(
-        //     child: Padding(
-        //       padding: const EdgeInsets.all(8.0),
-        //       child: AvatarWidget.fromUser(user, radius: 60),
-        //     ),
-        //   ),
       ],
     );
   }

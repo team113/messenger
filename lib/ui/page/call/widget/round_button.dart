@@ -104,44 +104,50 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    Widget button = Container(
-      decoration: BoxDecoration(border: widget.border, shape: BoxShape.circle),
-      child: ConditionalBackdropFilter(
-        condition: !WebUtils.isSafari && widget.withBlur,
-        borderRadius: BorderRadius.circular(60),
-        child: Material(
-          key: _key,
-          elevation: 0,
-          color: widget.color,
-          type: MaterialType.circle,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(60),
-            onHover: widget.hint != null
-                ? (b) {
-                    if (b) {
-                      _populateOverlay();
-                    } else {
-                      _hintEntry?.remove();
-                      _hintEntry = null;
-                    }
+    Widget button = ConditionalBackdropFilter(
+      condition: !WebUtils.isSafari && widget.withBlur,
+      borderRadius: BorderRadius.circular(60),
+      child: Material(
+        key: _key,
+        elevation: 0,
+        color: widget.color,
+        type: MaterialType.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(60),
+          onHover: widget.hint != null
+              ? (b) {
+                  if (b) {
+                    _populateOverlay();
+                  } else {
+                    _hintEntry?.remove();
+                    _hintEntry = null;
                   }
-                : null,
-            onTap: widget.onPressed,
-            child: widget.child ??
-                SizedBox(
-                  width: max(widget.assetWidth, 60),
-                  height: max(widget.assetWidth, 60),
-                  child: Center(
-                    child: SvgLoader.asset(
-                      'assets/icons/${widget.asset}.svg',
-                      width: widget.assetWidth,
-                    ),
+                }
+              : null,
+          onTap: widget.onPressed,
+          child: widget.child ??
+              SizedBox(
+                width: max(widget.assetWidth, 60),
+                height: max(widget.assetWidth, 60),
+                child: Center(
+                  child: SvgLoader.asset(
+                    'assets/icons/${widget.asset}.svg',
+                    width: widget.assetWidth,
                   ),
                 ),
-          ),
+              ),
         ),
       ),
     );
+
+    if (widget.border != null) {
+      button = DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration:
+            BoxDecoration(border: widget.border, shape: BoxShape.circle),
+        child: button,
+      );
+    }
 
     return widget.text == null
         ? button

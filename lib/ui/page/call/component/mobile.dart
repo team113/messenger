@@ -127,7 +127,6 @@ Widget mobileCall(CallController c, BuildContext context) {
             items: [...c.primary, ...c.secondary],
             center: center,
             fit: c.minimized.value,
-            onTap: () => c.keepUi(false),
             itemBuilder: (e) {
               return Obx(() {
                 final bool muted = e.member.owner == MediaOwnerKind.local
@@ -313,28 +312,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: const Color(0x55000000),
+                    color: const Color(0x70000000),
                   ),
                 );
               }
 
               return AnimatedSwitcher(duration: 200.milliseconds, child: child);
             }),
-
-            // // Show an [AvatarWidget], if no [CallCover] is available.
-            // if (!c.isGroup &&
-            //     c.chat.value?.callCover == null &&
-            //     c.minimized.value)
-            //   Center(
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(8.0),
-            //       child: AvatarWidget.fromRxChat(c.chat.value, radius: 60),
-            //     ),
-            //   ),
-
-            // // Or a [CallCover] otherwise.
-            // if (c.chat.value?.callCover != null)
-            //   CallCoverWidget(c.chat.value?.callCover),
 
             // Display call's state info only if minimized.
             AnimatedSwitcher(
@@ -913,12 +897,13 @@ Widget _chat(BuildContext context, CallController c) {
                               Text(
                                 c.chat.value?.members.values
                                         .firstWhereOrNull(
-                                            (e) => e.id != c.me.id.userId)
+                                          (e) => e.id != c.me.id.userId,
+                                        )
                                         ?.user
                                         .value
                                         .status
                                         ?.val ??
-                                    'online',
+                                    'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
                                     .subtitle2

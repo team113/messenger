@@ -53,6 +53,7 @@ import 'component/common.dart';
 import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
+import 'widget/dock.dart';
 
 export 'view.dart';
 
@@ -642,6 +643,13 @@ class CallController extends GetxController {
           break;
 
         case OngoingCallState.joining:
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => SchedulerBinding.instance.addPostFrameCallback(
+              (_) => relocateSecondary(),
+            ),
+          );
+          break;
+
         case OngoingCallState.pending:
         case OngoingCallState.local:
         case OngoingCallState.ended:
@@ -1242,8 +1250,15 @@ class CallController extends GetxController {
         !_secondaryRelocated) {
       _secondaryRelocated = true;
 
-      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
-      final Rect? dockBounds = dockKey.globalPaintBounds;
+      Rect? secondaryBounds, dockBounds;
+
+      try {
+        secondaryBounds = secondaryKey.globalPaintBounds;
+        dockBounds = dockKey.globalPaintBounds;
+      } catch (_) {
+        // No-op.
+      }
+
       Rect intersect =
           secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
 
@@ -1884,6 +1899,11 @@ class CallController extends GetxController {
             }
           } else {
             paneled.add(participant);
+          }
+
+          if (state.value == OngoingCallState.local || outgoing) {
+            SchedulerBinding.instance
+                .addPostFrameCallback((_) => relocateSecondary());
           }
           break;
 
