@@ -50,7 +50,7 @@ class WebStorageEvent {
 
 /// Model of an [OngoingCall] stored in the browser's storage.
 class StoredCall {
-  StoredCall({
+  const StoredCall({
     required this.chatId,
     this.call,
     this.creds,
@@ -62,7 +62,7 @@ class StoredCall {
   });
 
   /// [ChatCall] of this [StoredCall].
-  ChatCall? call;
+  final ChatCall? call;
 
   /// [ChatId] of this [StoredCall].
   final ChatId chatId;

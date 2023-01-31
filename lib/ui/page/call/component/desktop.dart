@@ -50,6 +50,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
@@ -645,6 +646,61 @@ Widget desktopCall(CallController c, BuildContext context) {
                 : Container(key: UniqueKey()),
           );
         }),
+
+        // Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value &&
+                    c.fullscreen.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                  child: ConditionalBackdropFilter(
+                    borderRadius: BorderRadius.circular(30),
+                    filter: ImageFilter.blur(
+                      sigmaX: 15,
+                      sigmaY: 15,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0x301D6AAE),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
+                      ),
+                      child: Text(
+                        'label_call_title'.l10nfmt(c.titleArguments),
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          fontSize: 13,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
 
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {

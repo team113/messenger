@@ -45,7 +45,7 @@ abstract class AbstractCallRepository {
   /// Adds the provided [ChatCall] to the [calls], if not already.
   Rx<OngoingCall>? add(ChatCall call);
 
-  /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
+  /// Transforms the provided [StoredCall] into an [OngoingCall] and adds it,
   /// if not already.
   Rx<OngoingCall> addStored(
     StoredCall stored, {

@@ -140,9 +140,6 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
-  // TODO: temporary solution
-  StoredCall? call;
-
   /// Routes history stack.
   final RxList<String> routes = RxList([]);
 
@@ -725,6 +722,13 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+
+  /// Changes router location to the [Routes.call] page.
+  void call(ChatId id, {StoredCall? call}) {
+    go('${Routes.call}/$id');
+
+    arguments = {'call': call};
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

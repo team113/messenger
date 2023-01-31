@@ -46,8 +46,7 @@ class PlatformUtilsImpl {
 
   /// ID of the windows this application opened.
   ///
-  /// If not null it mean that application opened in separate windows on
-  /// desktop.
+  /// If not null it mean that application opened in separate window on desktop.
   int? windowId;
 
   /// [Dio] client to use in queries.

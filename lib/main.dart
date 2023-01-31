@@ -134,8 +134,7 @@ Future<void> main(List<String> args) async {
     await authService.init();
     router = RouterState(authService);
     if (isSeparateWindow) {
-      router.call = call;
-      router.go('${Routes.call}/${call!.chatId}');
+      router.call(call!.chatId, call: call);
     }
 
     if (!PlatformUtils.isPopup) {

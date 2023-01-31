@@ -196,10 +196,7 @@ class CallService extends DisposableService {
   }
 
   /// Removes an [OngoingCall] identified by the given [chatId].
-  void remove(ChatId chatId) {
-    popupCalls.remove(chatId);
-    _callsRepo.remove(chatId);
-  }
+  void remove(ChatId chatId) => _callsRepo.remove(chatId);
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].

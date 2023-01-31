@@ -45,7 +45,7 @@ class PopupCallController extends GetxController {
   /// [CallService] maintaining the [call].
   final CallService _calls;
 
-  /// Controller of the popup window on desktop.
+  /// Controller of a popup window on desktop.
   WindowController? _windowController;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] communicating with the
@@ -70,7 +70,7 @@ class PopupCallController extends GetxController {
     if (PlatformUtils.isWeb) {
       stored = WebUtils.getCall(chatId);
     } else if (PlatformUtils.isDesktop) {
-      stored = router.call;
+      stored = router.arguments!['call'];
     }
 
     if (stored == null ||

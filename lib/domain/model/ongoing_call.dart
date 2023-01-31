@@ -529,7 +529,7 @@ class OngoingCall {
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.
-  Future<void> dispose() async {
+  Future<void> dispose() {
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
       if (_jason != null) {

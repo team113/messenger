@@ -395,7 +395,7 @@ class CallWorker extends DisposableService {
           ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
 
           if (methodCall.arguments == null) {
-            _callService.remove(chatId);
+            _callService.leave(chatId);
             _workers.remove(chatId)?.dispose();
             if (_workers.isEmpty) {
               stop();

@@ -93,9 +93,7 @@ class CallOverlayController extends GetxController {
                 _workers[event.key!] = ever(
                   event.value!.value.call,
                   (ChatCall? call) {
-                    WebUtils.setCall(
-                      ongoingCall.toStored()..call = call,
-                    );
+                    WebUtils.setCall(ongoingCall.toStored());
 
                     if (call?.id != null) {
                       _workers[event.key!]?.dispose();
@@ -144,13 +142,7 @@ class CallOverlayController extends GetxController {
                     DesktopMultiWindow.invokeMethod(
                       desktopWindow.windowId,
                       'call',
-                      json.encode(StoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ).toJson()),
+                      json.encode(ongoingCall.toStored()),
                     );
 
                     if (call?.id != null) {
@@ -183,7 +175,7 @@ class CallOverlayController extends GetxController {
           } else if (PlatformUtils.isDesktop) {
             int? id = _callService.popupCalls.remove(event.key!);
             if (id != null) {
-              DesktopMultiWindow.invokeMethod(id, 'call');
+              WindowController.fromWindowId(id).close();
             }
           }
           break;
