@@ -31,6 +31,7 @@ class CustomProgressIndicator extends StatelessWidget {
     this.strokeWidth = 2.0,
     this.value,
     this.padding = const EdgeInsets.all(6),
+    this.size = 32,
   });
 
   final double? value;
@@ -40,12 +41,14 @@ class CustomProgressIndicator extends StatelessWidget {
   final double strokeWidth;
   final EdgeInsets padding;
 
+  final double size;
+
   @override
   Widget build(BuildContext context) {
     return ConditionalBackdropFilter(
       borderRadius: BorderRadius.circular(60),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 32, maxHeight: 32),
+        constraints: BoxConstraints(maxWidth: size, maxHeight: size),
         decoration: BoxDecoration(
           // color: const Color(0xFFF0F0F0).withOpacity(1),
           // color: const Color(0xFFFFFFFF).withOpacity(0.5),
