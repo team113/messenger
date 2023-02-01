@@ -40,30 +40,13 @@ class FloatingSnackBar extends StatefulWidget {
 
   /// Displays a [FloatingSnackBar] using an [OverlayEntry].
   static void show(String title) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
     OverlayEntry? entry;
 
     entry = OverlayEntry(
       builder: (_) => FloatingSnackBar(
-        content: Container(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: style.cardHoveredColor,
-            border: style.cardHoveredBorder,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 8,
-                blurStyle: BlurStyle.outer,
-              ),
-            ],
-          ),
-          child: Text(
-            title,
-            style: const TextStyle(color: Colors.black, fontSize: 15),
-          ),
+        content: Text(
+          title,
+          style: const TextStyle(color: Colors.black, fontSize: 15),
         ),
         onEnd: () {
           if (entry?.mounted == true) {
@@ -119,6 +102,8 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
 
   @override
   Widget build(BuildContext context) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     return Stack(
       children: [
         Positioned(
@@ -131,7 +116,22 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                 opacity: _opacity,
                 duration: const Duration(milliseconds: 120),
                 onEnd: _onEnd,
-                child: widget.content,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: style.cardHoveredColor,
+                    border: style.cardHoveredBorder,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      ),
+                    ],
+                  ),
+                  child: widget.content,
+                ),
               ),
             ),
           ),
