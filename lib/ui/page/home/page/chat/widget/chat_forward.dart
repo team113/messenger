@@ -150,11 +150,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
-  final RxBool enabledContext = RxBool(false);
-
   final RxString selectedText = RxString('');
-
-  final RxString lastSelectedText = RxString('');
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
@@ -372,22 +368,20 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = Obx(() {
-            if (enabledContext.value || PlatformUtils.isDesktop) {
-              return SelectionArea(
-                onSelectionChanged: _selectionArea,
-                child: Text(
+          content = PlatformUtils.isMobile
+              ? Text(
                   item.text!.val,
                   style: style.boldBody,
-                ),
-              );
-            } else {
-              return Text(
-                item.text!.val,
-                style: style.boldBody,
-              );
-            }
-          });
+                )
+              : SelectionArea(
+                  contextMenuBuilder: (_, __) => const SizedBox(),
+                  onSelectionChanged: (s) =>
+                      selectedText.value = s?.plainText ?? '',
+                  child: Text(
+                    item.text!.val,
+                    style: style.boldBody,
+                  ),
+                );
         }
       } else if (item is ChatCall) {
         String title = 'label_chat_call_ended'.l10n;
@@ -602,16 +596,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: Obx(() {
-                return enabledContext.value || PlatformUtils.isDesktop
-                    ? SelectionArea(
-                        magnifierConfiguration:
-                            TextMagnifierConfiguration.disabled,
-                        onSelectionChanged: _selectionArea,
-                        child: Text(text!, style: style.boldBody),
-                      )
-                    : Text(text!, style: style.boldBody);
-              }),
+              child: PlatformUtils.isMobile
+                  ? Text(text, style: style.boldBody)
+                  : SelectionArea(
+                      contextMenuBuilder: (_, __) => const SizedBox(),
+                      onSelectionChanged: (s) =>
+                          selectedText.value = s?.plainText ?? '',
+                      child: Text(text, style: style.boldBody),
+                    ),
             ),
           ),
         if (files.isNotEmpty)
@@ -689,18 +681,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     return [];
-  }
-
-  void _selectionArea(SelectedContent? s) {
-    print(s?.plainText);
-    if (s?.plainText == null) {
-      if (selectedText.value.isNotEmpty) {
-        lastSelectedText.value = selectedText.value;
-      } else {
-        lastSelectedText.value = '';
-      }
-    }
-    selectedText.value = s?.plainText ?? '';
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -867,9 +847,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         child: ContextMenuRegion(
                           // enabledContext: enabledContext,
                           preventContextMenu: false,
-                          showContext: (a) {
-                            enabledContext.value = a;
-                          },
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
@@ -885,12 +862,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   height: 18,
                                 ),
                                 onPressed: () {
-                                  if (lastSelectedText.isNotEmpty &&
+                                  if (selectedText.isNotEmpty &&
                                       PlatformUtils.isDesktop) {
-                                    print('1');
-                                    widget.onCopy?.call(lastSelectedText.value);
+                                    widget.onCopy?.call(selectedText.value);
                                   } else {
-                                    print('2');
                                     widget.onCopy?.call(copyable!);
                                   }
                                 },

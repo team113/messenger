@@ -209,19 +209,23 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
-      // return;
-      await showDialog(
-        barrierColor: Colors.transparent,
-        context: context,
-        builder: (context) {
-          return LayoutBuilder(builder: (context, constraints) {
-            double qx = 1, qy = 1;
-            if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-            if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-            Alignment alignment = Alignment(qx, qy);
-
-            return Listener(
-              onPointerUp: (d) => Navigator.of(context).pop(),
+      OverlayState overlay = Overlay.of(context, rootOverlay: true);
+      late final OverlayEntry entry;
+      entry = OverlayEntry(builder: (_) {
+        return LayoutBuilder(builder: (_, constraints) {
+          double qx = 1, qy = 1;
+          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+          Alignment alignment = Alignment(qx, qy);
+          return Listener(
+            onPointerUp: (d) {
+              entry.remove();
+              if (widget.indicateOpenedMenu) {
+                setState(() => _darkened = false);
+              }
+            },
+            child: Container(
+              color: Colors.transparent,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -238,14 +242,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   )
                 ],
               ),
-            );
-          });
-        },
-      );
-    }
-
-    if (widget.indicateOpenedMenu) {
-      setState(() => _darkened = false);
+            ),
+          );
+        });
+      });
+      overlay.insert(entry);
     }
   }
 }
