@@ -106,7 +106,7 @@ class CallOverlayController extends GetxController {
                 ongoingCall.addError('err_call_popup_was_blocked'.l10n);
               });
             }
-          } else if (PlatformUtils.isWindows &&
+          } else if (PlatformUtils.isDesktop &&
               !PlatformUtils.isWeb &&
               _settings.value?.enablePopups != false) {
             try {
