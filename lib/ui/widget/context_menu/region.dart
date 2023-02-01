@@ -45,7 +45,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
-    this.showContext,
+    this.floatingToggled,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -91,7 +91,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
 
-  final void Function(bool val)? showContext;
+  /// Callback called when [FloatingContextMenu] became displayed or hidden.
+  final void Function(bool val)? floatingToggled;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -102,6 +103,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether a [ColoredBox] should be displayed above the provided
   /// child.
   bool _darkened = false;
+
+  /// [OverlayEntry] widget of context menu.
+  OverlayEntry? entry;
+
+  @override
+  void dispose() {
+    entry?.remove();
+    if (widget.indicateOpenedMenu && mounted) {
+      setState(() => _darkened = false);
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +150,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   moveDownwards: widget.moveDownwards,
                   actions: widget.actions,
                   margin: widget.margin,
-                  showContext: widget.showContext,
+                  floatingToggled: widget.floatingToggled,
                   child: child,
                 )
               : GestureDetector(
@@ -200,8 +213,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
     } else {
-      OverlayState overlay = Overlay.of(context, rootOverlay: true);
-      late final OverlayEntry entry;
       entry = OverlayEntry(builder: (_) {
         return LayoutBuilder(builder: (_, constraints) {
           double qx = 1, qy = 1;
@@ -210,7 +221,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           Alignment alignment = Alignment(qx, qy);
           return Listener(
             onPointerUp: (d) {
-              entry.remove();
+              entry?.remove();
               if (widget.indicateOpenedMenu) {
                 setState(() => _darkened = false);
               }
@@ -237,7 +248,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         });
       });
-      overlay.insert(entry);
+      Overlay.of(context, rootOverlay: true).insert(entry!);
     }
   }
 }

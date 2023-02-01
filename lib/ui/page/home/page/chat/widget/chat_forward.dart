@@ -45,13 +45,13 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
 import 'chat_item_reads.dart';
+import 'custom_selection.dart';
 import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
@@ -150,9 +150,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
+  /// Selected text of this widget.
   final RxString selectedText = RxString('');
 
-  final RxBool displayedContext = RxBool(false);
+  /// Indicator whether text selection is enabled or not.
+  final RxBool selectionEnabled = RxBool(false);
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
@@ -370,10 +372,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = _copyableText(Text(
-            item.text!.val,
-            style: style.boldBody,
-          ));
+          content = copyableText(
+            Text(
+              item.text!.val,
+              style: style.boldBody,
+            ),
+          );
         }
       } else if (item is ChatCall) {
         String title = 'label_chat_call_ended'.l10n;
@@ -588,10 +592,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: _copyableText(Text(
-                item.text!.val,
-                style: style.boldBody,
-              )),
+              child: copyableText(
+                Text(
+                  item.text!.val,
+                  style: style.boldBody,
+                ),
+              ),
             ),
           ),
         if (files.isNotEmpty)
@@ -833,7 +839,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Material(
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
-                          showContext: (val) => displayedContext.value = val,
+                          floatingToggled: (v) => selectionEnabled.value = v,
                           preventContextMenu: false,
                           alignment: _fromMe
                               ? Alignment.bottomRight
@@ -850,7 +856,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   height: 18,
                                 ),
                                 onPressed: () {
-                                  if (selectedText.isNotEmpty) {
+                                  if (selectedText.isNotEmpty &&
+                                      PlatformUtils.isDesktop) {
                                     widget.onCopy?.call(selectedText.value);
                                   } else {
                                     widget.onCopy?.call(copyable!);
@@ -994,24 +1001,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  Widget _copyableText(Widget text) {
-    text = ContextMenuInterceptor(child: text);
-    final Widget selectionArea = SelectionArea(
-      contextMenuBuilder: (_, __) => const SizedBox(),
-      onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
-      child: text,
+  /// Wraps [text] widget with [CustomSelection] widget.
+  Widget copyableText(Widget text) {
+    return CustomSelection(
+      text: text,
+      onSelected: (s) => selectedText.value = s,
+      enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
     );
-    if (PlatformUtils.isDesktop) {
-      return selectionArea;
-    } else {
-      return Obx(() {
-        if (displayedContext.value) {
-          return selectionArea;
-        } else {
-          return text;
-        }
-      });
-    }
   }
 
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and

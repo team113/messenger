@@ -52,12 +52,12 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item_reads.dart';
+import 'custom_selection.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -494,9 +494,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 
+  /// Selected text of this widget.
   final RxString selectedText = RxString('');
 
-  final RxBool displayedContext = RxBool(false);
+  /// Indicator whether text selection is enabled or not.
+  final RxBool selectionEnabled = RxBool(false);
 
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
@@ -821,10 +823,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         9,
                         files.isEmpty ? 10 : 0,
                       ),
-                      child: _copyableText(Text(
-                        text,
-                        style: style.boldBody,
-                      )),
+                      child: CustomSelection(
+                        text: Text(
+                          text,
+                          style: style.boldBody,
+                        ),
+                        onSelected: (s) => selectedText.value = s,
+                        enabled:
+                            PlatformUtils.isDesktop ? null : selectionEnabled,
+                      ),
                     ),
                   ),
                 if (files.isNotEmpty)
@@ -1249,26 +1256,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  Widget _copyableText(Widget text) {
-    text = ContextMenuInterceptor(child: text);
-    final Widget selectionArea = SelectionArea(
-      contextMenuBuilder: (_, __) => const SizedBox(),
-      onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
-      child: text,
-    );
-    if (PlatformUtils.isDesktop) {
-      return selectionArea;
-    } else {
-      return Obx(() {
-        if (displayedContext.value) {
-          return selectionArea;
-        } else {
-          return text;
-        }
-      });
-    }
-  }
-
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
@@ -1456,7 +1443,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        showContext: (val) => displayedContext.value = val,
+                        floatingToggled: (v) => selectionEnabled.value = v,
                         alignment: _fromMe
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
@@ -1472,7 +1459,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 18,
                               ),
                               onPressed: () {
-                                if (selectedText.isNotEmpty) {
+                                if (selectedText.isNotEmpty &&
+                                    PlatformUtils.isDesktop) {
                                   widget.onCopy?.call(selectedText.value);
                                 } else {
                                   widget.onCopy?.call(copyable!);
