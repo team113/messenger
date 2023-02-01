@@ -430,6 +430,8 @@ class CallController extends GetxController {
     _settingsRepository.setShowDragAndDropButtonsHint(value);
   }
 
+  RxBool get connectionLost => _currentCall.value.connectionLost;
+
   /// Returns actual size of the call view.
   Size get size {
     if ((!fullscreen.value && minimized.value) || minimizing.value) {
@@ -726,6 +728,7 @@ class CallController extends GetxController {
       // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
         persisted = [
+          ReconnectButton(this),
           ScreenButton(this),
           VideoButton(this),
           EndCallButton(this),
@@ -760,6 +763,7 @@ class CallController extends GetxController {
       RemoteAudioButton(this),
       VideoButton(this),
       AudioButton(this),
+      ReconnectButton(this),
     ]);
 
     _buttonsWorker = ever(buttons, (List<CallButton> list) {

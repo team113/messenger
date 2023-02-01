@@ -75,6 +75,23 @@ abstract class CallButton {
 }
 
 /// [CallButton] toggling a more panel.
+class ReconnectButton extends CallButton {
+  const ReconnectButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'Reconnect'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'more',
+      hinted: hinted,
+      onPressed: c.connectionLost.toggle,
+    );
+  }
+}
+
+/// [CallButton] toggling a more panel.
 class MoreButton extends CallButton {
   const MoreButton(CallController c) : super(c);
 

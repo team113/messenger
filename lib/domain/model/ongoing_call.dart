@@ -812,7 +812,10 @@ class OngoingCall {
           .toList();
 
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-        displays.value = await _mediaManager!.enumerateDisplays();
+        displays.value = [
+          ...(await _mediaManager!.enumerateDisplays()),
+          // ...(await _mediaManager!.enumerateDisplays()),
+        ];
       }
     } on EnumerateDevicesException catch (e) {
       _errors.add('Failed to enumerate devices: $e');
@@ -969,6 +972,7 @@ class OngoingCall {
   }
 
   final Map<CallMemberId, Timer> _timers = {};
+  final RxBool connectionLost = RxBool(false);
 
   /// Initializes the [_room].
   void _initRoom() {
@@ -1027,18 +1031,17 @@ class OngoingCall {
       }
     });
 
-    bool connectionLost = false;
     _room!.onConnectionLoss((e) async {
       Log.print('onConnectionLoss', 'CALL');
 
-      if (!connectionLost) {
-        connectionLost = true;
+      if (!connectionLost.value) {
+        connectionLost.value = true;
 
-        _errors.add('Connection with media server lost $e');
+        // _errors.add('Connection with media server lost $e');
         await e.reconnectWithBackoff(500, 2, 5000);
-        _errors.add('Connection restored'); // for notification
+        // _errors.add('Connection restored'); // for notification
 
-        connectionLost = false;
+        connectionLost.value = false;
       }
     });
 

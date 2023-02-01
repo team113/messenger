@@ -32,6 +32,7 @@ class CustomProgressIndicator extends StatelessWidget {
     this.value,
     this.padding = const EdgeInsets.all(6),
     this.size = 32,
+    this.blur = true,
   });
 
   final double? value;
@@ -42,19 +43,22 @@ class CustomProgressIndicator extends StatelessWidget {
   final EdgeInsets padding;
 
   final double size;
+  final bool blur;
 
   @override
   Widget build(BuildContext context) {
     return ConditionalBackdropFilter(
+      condition: blur,
       borderRadius: BorderRadius.circular(60),
       child: Container(
         constraints: BoxConstraints(maxWidth: size, maxHeight: size),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           // color: const Color(0xFFF0F0F0).withOpacity(1),
           // color: const Color(0xFFFFFFFF).withOpacity(0.5),
           shape: BoxShape.circle,
         ),
-        padding: padding,
+        // margin: blur ? padding : EdgeInsets.zero,
+        padding: blur ? padding : EdgeInsets.zero,
         child: CustomCircularProgressIndicator(
           value: value,
           // color: color ?? Theme.of(context).colorScheme.secondary,
@@ -62,8 +66,9 @@ class CustomProgressIndicator extends StatelessWidget {
           // color: const Color(0xFFDFDFDF),
           // color: Color.fromARGB(255, 226, 232, 235),
           // backgroundColor: Colors.white,
-          color: Color.fromARGB(255, 190, 190, 190),
-          backgroundColor: Color.fromARGB(255, 213, 213, 213),
+          color: color ?? const Color.fromARGB(255, 190, 190, 190),
+          backgroundColor:
+              backgroundColor ?? const Color.fromARGB(255, 213, 213, 213),
           valueColor: valueColor,
           strokeWidth: strokeWidth,
         ),

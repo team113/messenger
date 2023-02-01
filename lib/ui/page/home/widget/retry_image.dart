@@ -192,8 +192,8 @@ class _RetryImageState extends State<RetryImage> {
           alignment: Alignment.center,
           child: Container(
             constraints: const BoxConstraints(
-              maxHeight: 40,
-              maxWidth: 40,
+              maxHeight: 46,
+              maxWidth: 46,
               minWidth: 10,
               minHeight: 10,
             ),
@@ -202,8 +202,11 @@ class _RetryImageState extends State<RetryImage> {
               children: [
                 if (!_canceled && widget.displayProgress)
                   CustomProgressIndicator(
+                    size: 40,
+                    blur: false,
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.secondary,
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)
@@ -356,7 +359,7 @@ class _RetryImageState extends State<RetryImage> {
 
       try {
         // for (int i = 0; i < 100; ++i) {
-        //   await Future.delayed(const Duration(milliseconds: 25));
+        //   await Future.delayed(const Duration(milliseconds: 50));
         //   _progress = i / 100;
         //   if (mounted) {
         //     setState(() {});

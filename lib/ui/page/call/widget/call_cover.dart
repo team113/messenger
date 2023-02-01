@@ -41,20 +41,14 @@ class CallCoverWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        cover == null
-            ? SvgLoader.asset(
-                'assets/images/background_dark.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
-            : RetryImage(
-                cover!.full.url,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-        if (user != null && cover == null)
+        if (cover == null)
+          SvgLoader.asset(
+            'assets/images/background_dark.svg',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        if (user != null)
           LayoutBuilder(builder: (context, constraints) {
             final String? title = user?.name?.val ?? user?.num.val;
             final int? color = user?.num.val.sum();
@@ -98,6 +92,14 @@ class CallCoverWidget extends StatelessWidget {
               ),
             );
           }),
+        if (cover != null)
+          RetryImage(
+            cover!.full.url,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+            displayProgress: false,
+          ),
       ],
     );
   }

@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -220,6 +221,46 @@ Widget desktopCall(CallController c, BuildContext context) {
                 width: double.infinity,
                 height: double.infinity,
                 color: const Color(0x70000000),
+              ),
+            );
+          }
+
+          return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        // Dim the primary view in a non-active call.
+        Obx(() {
+          final Widget child;
+
+          if (!c.connectionLost.value) {
+            child = const SizedBox();
+          } else {
+            child = IgnorePointer(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: const Color(0xA0000000),
+                padding: const EdgeInsets.all(21.0),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SpinKitDoubleBounce(
+                        color: Color(0xFFEEEEEE),
+                        size: 100 / 1.5,
+                        duration: Duration(milliseconds: 4500),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Reconnecting...',
+                        style: Theme.of(context).textTheme.caption?.copyWith(
+                              fontSize: 17,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           }

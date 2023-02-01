@@ -355,6 +355,8 @@ class ChatItemWidget extends StatefulWidget {
                   child: CustomProgressIndicator(
                     padding: const EdgeInsets.all(4),
                     strokeWidth: 2,
+                    blur: false,
+                    color: Theme.of(context).colorScheme.secondary,
                     key: const Key('Downloading'),
                     value: e.progress.value == 0 ? null : e.progress.value,
                   ),
@@ -1057,11 +1059,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.boldBody,
+                          Flexible(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: style.boldBody,
+                            ),
                           ),
                           if (time != null) ...[
                             const SizedBox(width: 8),
