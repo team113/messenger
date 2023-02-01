@@ -166,7 +166,7 @@ class ChatsMoreView extends StatelessWidget {
                       ),
                     );
 
-                    MessagePopup.success('label_copied'.l10n, context);
+                    MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null

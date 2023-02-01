@@ -17,23 +17,65 @@
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
+import '/themes.dart';
+
 /// Lightweight message which briefly displays at the bottom of the screen.
 class FloatingSnackBar extends StatefulWidget {
   const FloatingSnackBar({
     super.key,
     required this.content,
     this.duration = const Duration(seconds: 2),
-    this.onTap,
+    this.onEnd,
   });
 
-  /// The primary content of the snack bar.
+  /// The primary content of the [FloatingSnackBar].
   final Widget content;
 
-  /// The amount of time the snack bar should be displayed.
+  /// The amount of time the [FloatingSnackBar] should be displayed.
   final Duration duration;
 
-  /// Callback, called when this [FloatingSnackBar] is tapped.
-  final VoidCallback? onTap;
+  /// Callback, called when the [FloatingSnackBar] display stops.
+  final VoidCallback? onEnd;
+
+  /// Displays a [FloatingSnackBar] using an [OverlayEntry].
+  static void show(String title) {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
+    OverlayEntry? entry;
+
+    entry = OverlayEntry(
+      builder: (_) => FloatingSnackBar(
+        content: Container(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: style.cardHoveredColor,
+            border: style.cardHoveredBorder,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                blurStyle: BlurStyle.outer,
+              ),
+            ],
+          ),
+          child: Text(
+            title,
+            style: const TextStyle(color: Colors.black, fontSize: 15),
+          ),
+        ),
+        onEnd: () {
+          if (entry?.mounted == true) {
+            entry?.remove();
+          }
+          entry = null;
+        },
+      ),
+    );
+
+    router.overlay?.insert(entry!);
+  }
 
   @override
   State<FloatingSnackBar> createState() => _FloatingSnackBarState();
@@ -43,71 +85,58 @@ class FloatingSnackBar extends StatefulWidget {
 /// disappearance.
 class _FloatingSnackBarState extends State<FloatingSnackBar>
     with SingleTickerProviderStateMixin {
-  /// [Curve] animation of appearance and disappearance.
-  static const Curve _snackBarFadeCurve =
-      Interval(0.45, 1.0, curve: Curves.fastOutSlowIn);
+  /// Initial value of the opacity animation.
+  static const double _initialOpacity = 0.45;
 
-  /// Indicator whether the animation is forward or not.
-  bool _isForward = true;
+  /// Final value of the opacity animation.
+  static const double _finalOpacity = 1;
 
-  /// [AnimationController] of this [FloatingSnackBar].
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 250),
-    vsync: this,
-  )
-    ..forward()
-    ..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Future.delayed(
-          widget.duration,
-          () {
-            if (mounted && _isForward) {
-              _isForward = false;
-              _controller.reverse();
-            }
-          },
-        );
-      } else if (status == AnimationStatus.dismissed) {
-        widget.onTap?.call();
-      }
-    });
+  /// Value of the opacity animation.
+  double _opacity = _initialOpacity;
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => setState(() => _opacity = _finalOpacity));
+  }
+
+  /// Callback, called when completion of the opacity animation.
+  Future<void> _onEnd() async {
+    if (_opacity == _finalOpacity) {
+      await Future.delayed(
+        widget.duration,
+        () {
+          if (mounted) {
+            setState(() => _opacity = _initialOpacity);
+          }
+        },
+      );
+    } else if (_opacity == _initialOpacity) {
+      widget.onEnd?.call();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Stack(
-          children: [
-            Positioned(
-              bottom: 72,
-              width: constraints.maxWidth,
-              child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    if (_isForward) {
-                      _isForward = false;
-                      _controller.reverse();
-                    }
-                  },
-                  child: FadeTransition(
-                    opacity: CurvedAnimation(
-                      parent: _controller,
-                      curve: _snackBarFadeCurve,
-                    ),
-                    child: widget.content,
-                  ),
-                ),
+    return Stack(
+      children: [
+        Positioned(
+          bottom: 72,
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: GestureDetector(
+              onTap: () => setState(() => _opacity = _initialOpacity),
+              child: AnimatedOpacity(
+                opacity: _opacity,
+                duration: const Duration(milliseconds: 120),
+                onEnd: _onEnd,
+                child: widget.content,
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }

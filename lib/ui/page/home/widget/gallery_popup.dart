@@ -401,7 +401,7 @@ class _GalleryPopupState extends State<GalleryPopup>
         actions: [
           ContextMenuButton(
             label: 'btn_save_to_gallery'.l10n,
-            onPressed: () => _saveToGallery(widget.children[_page], context),
+            onPressed: () => _saveToGallery(widget.children[_page]),
           ),
           ContextMenuButton(
             label: 'btn_share'.l10n,
@@ -530,7 +530,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           actions: [
             ContextMenuButton(
               label: 'btn_download'.l10n,
-              onPressed: () => _download(widget.children[_page], context),
+              onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
               label: 'btn_info'.l10n,
@@ -1018,7 +1018,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem].
-  Future<void> _download(GalleryItem item, BuildContext context) async {
+  Future<void> _download(GalleryItem item) async {
     try {
       try {
         await PlatformUtils.download(item.link, item.name, item.size);
@@ -1032,12 +1032,9 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
 
       if (mounted) {
-        MessagePopup.success(
-          item.isVideo
-              ? 'label_video_downloaded'.l10n
-              : 'label_image_downloaded'.l10n,
-          context,
-        );
+        MessagePopup.success(item.isVideo
+            ? 'label_video_downloaded'.l10n
+            : 'label_image_downloaded'.l10n);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1045,7 +1042,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
-  Future<void> _saveToGallery(GalleryItem item, BuildContext context) async {
+  Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
         await PlatformUtils.saveToGallery(item.link, item.name);
@@ -1059,12 +1056,9 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
 
       if (mounted) {
-        MessagePopup.success(
-          item.isVideo
-              ? 'label_video_saved_to_gallery'.l10n
-              : 'label_image_saved_to_gallery'.l10n,
-          context,
-        );
+        MessagePopup.success(item.isVideo
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

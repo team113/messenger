@@ -580,7 +580,7 @@ class _ChatViewState extends State<ChatView>
                 c.send.replied.insert(0, e.value);
               }
             },
-            onCopy: (text) => c.copyText(text, context),
+            onCopy: c.copyText,
             onRepliedTap: c.animateTo,
             onGallery: c.calculateGallery,
             onResend: () => c.resendItem(e.value),
@@ -664,7 +664,7 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
-            onCopy: (text) => c.copyText(text, context),
+            onCopy: c.copyText,
             onGallery: c.calculateGallery,
             onEdit: () => c.editMessage(element.note.value!.value),
             onDrag: (d) => c.isItemDragged.value = d,

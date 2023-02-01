@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -125,41 +124,5 @@ class MessagePopup {
   }
 
   /// Shows a [FloatingSnackBar] with the [title] message.
-  static void success(String title, BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
-    OverlayEntry? entry;
-
-    entry = OverlayEntry(
-      builder: (_) => FloatingSnackBar(
-        content: Container(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: style.cardHoveredColor,
-            border: style.cardHoveredBorder,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 8,
-                blurStyle: BlurStyle.outer,
-              ),
-            ],
-          ),
-          child: Text(
-            title,
-            style: const TextStyle(color: Colors.black, fontSize: 15),
-          ),
-        ),
-        onTap: () {
-          if (entry?.mounted == true) {
-            entry?.remove();
-          }
-          entry = null;
-        },
-      ),
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(entry!);
-  }
+  static void success(String title) => FloatingSnackBar.show(title);
 }

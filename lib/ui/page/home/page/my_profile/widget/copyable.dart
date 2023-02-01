@@ -110,6 +110,6 @@ class CopyableTextField extends StatelessWidget {
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: copy ?? state.text));
-    MessagePopup.success('label_copied'.l10n, context);
+    MessagePopup.success('label_copied'.l10n);
   }
 }

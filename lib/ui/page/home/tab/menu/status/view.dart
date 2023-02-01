@@ -91,10 +91,7 @@ class StatusView extends StatelessWidget {
                                   Clipboard.setData(
                                     ClipboardData(text: c.status.text),
                                   );
-                                  MessagePopup.success(
-                                    'label_copied'.l10n,
-                                    context,
-                                  );
+                                  MessagePopup.success('label_copied'.l10n);
                                 },
                           trailing: c.status.text.isEmpty
                               ? null

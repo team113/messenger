@@ -65,7 +65,7 @@ class DownloadButton extends StatelessWidget {
           Clipboard.setData(
             ClipboardData(text: '${Config.origin}/artifacts/$link'),
           );
-          MessagePopup.success('label_copied'.l10n, context);
+          MessagePopup.success('label_copied'.l10n);
         }
       },
       prefix: asset == null

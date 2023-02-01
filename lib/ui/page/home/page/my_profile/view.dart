@@ -151,9 +151,9 @@ class MyProfileView extends StatelessWidget {
                                 );
                               }),
                               const SizedBox(height: 10),
-                              _name(c, context),
+                              _name(c),
                               _presence(c, context),
-                              _status(c, context),
+                              _status(c),
                             ],
                           );
 
@@ -262,7 +262,7 @@ Widget _dense(Widget child) =>
     Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
 
 /// Returns [MyUser.name] editable field.
-Widget _name(MyProfileController c, BuildContext context) {
+Widget _name(MyProfileController c) {
   return _padding(
     ReactiveTextField(
       key: const Key('NameField'),
@@ -274,7 +274,7 @@ Widget _name(MyProfileController c, BuildContext context) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied'.l10n, context);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.login.text.isEmpty
           ? null
@@ -290,7 +290,7 @@ Widget _name(MyProfileController c, BuildContext context) {
 }
 
 /// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c, BuildContext context) {
+Widget _status(MyProfileController c) {
   return _padding(
     ReactiveTextField(
       key: const Key('StatusField'),
@@ -302,7 +302,7 @@ Widget _status(MyProfileController c, BuildContext context) {
           ? null
           : () {
               Clipboard.setData(ClipboardData(text: c.status.text));
-              MessagePopup.success('label_copied'.l10n, context);
+              MessagePopup.success('label_copied'.l10n);
             },
       trailing: c.status.text.isEmpty
           ? null
@@ -374,7 +374,7 @@ Widget _link(BuildContext context, MyProfileController c) {
                     ),
                   );
 
-                  MessagePopup.success('label_copied'.l10n, context);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.link.isEmpty.value
               ? null
@@ -443,7 +443,7 @@ Widget _login(MyProfileController c, BuildContext context) {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.login.text));
-                  MessagePopup.success('label_copied'.l10n, context);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.login.text.isEmpty
               ? null
@@ -551,7 +551,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
               hint: 'label_email'.l10n,
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied'.l10n, context);
+                MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
@@ -725,7 +725,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
               ),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied'.l10n, context);
+                MessagePopup.success('label_copied'.l10n);
               },
               onTrailingPressed: () => _deletePhone(c, context, e),
             ),
