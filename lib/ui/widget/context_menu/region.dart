@@ -17,7 +17,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/themes.dart';
@@ -46,9 +45,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
-    this.enableChildTextSelection = false,
     this.showContext,
-    this.enabledContext,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -94,11 +91,7 @@ class ContextMenuRegion extends StatefulWidget {
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
 
-  final bool enableChildTextSelection;
-
   final void Function(bool val)? showContext;
-
-  final RxBool? enabledContext;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -140,12 +133,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           },
           child: PlatformUtils.isMobile
               ? FloatingContextMenu(
-                  enabledContext: widget.enabledContext,
                   alignment: widget.alignment,
                   moveDownwards: widget.moveDownwards,
                   actions: widget.actions,
                   margin: widget.margin,
-                  enableChildTextSelection: widget.enableChildTextSelection,
                   showContext: widget.showContext,
                   child: child,
                 )

@@ -52,6 +52,7 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -495,6 +496,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   final RxString selectedText = RxString('');
 
+  final RxBool displayedContext = RxBool(false);
+
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -818,20 +821,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         9,
                         files.isEmpty ? 10 : 0,
                       ),
-                      child: PlatformUtils.isMobile
-                          ? Text(
-                              text,
-                              style: style.boldBody,
-                            )
-                          : SelectionArea(
-                              contextMenuBuilder: (_, __) => const SizedBox(),
-                              onSelectionChanged: (s) =>
-                                  selectedText.value = s?.plainText ?? '',
-                              child: Text(
-                                text,
-                                style: style.boldBody,
-                              ),
-                            ),
+                      child: _copyableText(Text(
+                        text,
+                        style: style.boldBody,
+                      )),
                     ),
                   ),
                 if (files.isNotEmpty)
@@ -1256,6 +1249,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  Widget _copyableText(Widget text) {
+    text = ContextMenuInterceptor(child: text);
+    final Widget selectionArea = SelectionArea(
+      contextMenuBuilder: (_, __) => const SizedBox(),
+      onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
+      child: text,
+    );
+    if (PlatformUtils.isDesktop) {
+      return selectionArea;
+    } else {
+      return Obx(() {
+        if (displayedContext.value) {
+          return selectionArea;
+        } else {
+          return text;
+        }
+      });
+    }
+  }
+
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
@@ -1443,6 +1456,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
                         preventContextMenu: false,
+                        showContext: (val) => displayedContext.value = val,
                         alignment: _fromMe
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,

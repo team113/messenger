@@ -19,7 +19,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -46,6 +45,7 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -151,6 +151,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
   final RxString selectedText = RxString('');
+
+  final RxBool displayedContext = RxBool(false);
 
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
@@ -368,20 +370,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = PlatformUtils.isMobile
-              ? Text(
-                  item.text!.val,
-                  style: style.boldBody,
-                )
-              : SelectionArea(
-                  contextMenuBuilder: (_, __) => const SizedBox(),
-                  onSelectionChanged: (s) =>
-                      selectedText.value = s?.plainText ?? '',
-                  child: Text(
-                    item.text!.val,
-                    style: style.boldBody,
-                  ),
-                );
+          content = _copyableText(Text(
+            item.text!.val,
+            style: style.boldBody,
+          ));
         }
       } else if (item is ChatCall) {
         String title = 'label_chat_call_ended'.l10n;
@@ -596,14 +588,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: PlatformUtils.isMobile
-                  ? Text(text, style: style.boldBody)
-                  : SelectionArea(
-                      contextMenuBuilder: (_, __) => const SizedBox(),
-                      onSelectionChanged: (s) =>
-                          selectedText.value = s?.plainText ?? '',
-                      child: Text(text, style: style.boldBody),
-                    ),
+              child: _copyableText(Text(
+                item.text!.val,
+                style: style.boldBody,
+              )),
             ),
           ),
         if (files.isNotEmpty)
@@ -845,7 +833,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Material(
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
-                          // enabledContext: enabledContext,
+                          showContext: (val) => displayedContext.value = val,
                           preventContextMenu: false,
                           alignment: _fromMe
                               ? Alignment.bottomRight
@@ -862,8 +850,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   height: 18,
                                 ),
                                 onPressed: () {
-                                  if (selectedText.isNotEmpty &&
-                                      PlatformUtils.isDesktop) {
+                                  if (selectedText.isNotEmpty) {
                                     widget.onCopy?.call(selectedText.value);
                                   } else {
                                     widget.onCopy?.call(copyable!);
@@ -1005,6 +992,26 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         ),
       ),
     );
+  }
+
+  Widget _copyableText(Widget text) {
+    text = ContextMenuInterceptor(child: text);
+    final Widget selectionArea = SelectionArea(
+      contextMenuBuilder: (_, __) => const SizedBox(),
+      onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
+      child: text,
+    );
+    if (PlatformUtils.isDesktop) {
+      return selectionArea;
+    } else {
+      return Obx(() {
+        if (displayedContext.value) {
+          return selectionArea;
+        } else {
+          return text;
+        }
+      });
+    }
   }
 
   /// Populates the [_galleryKeys] from the [ChatForwardWidget.forwards] and
