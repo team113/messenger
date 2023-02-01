@@ -740,7 +740,7 @@ class ChatController extends GetxController {
 
       updateTimer(chat!.chat.value);
 
-      _chatWorker = ever(chat!.chat, (Chat e) async {
+      _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
           WebUtils.replaceInUrl(id.val, e.id.val);
           id = e.id;

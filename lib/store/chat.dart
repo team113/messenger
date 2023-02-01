@@ -219,8 +219,8 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<HiveRxChat> createDialogChat(UserId responderId) async {
-    ChatId chatId = ChatId.local(responderId.val);
-    final chatData = ChatData(
+    final ChatId chatId = ChatId.local(responderId);
+    final ChatData chatData = ChatData(
       HiveChat(
         Chat(
           chatId,
@@ -249,12 +249,13 @@ class ChatRepository implements AbstractChatRepository {
     return _putEntry(chatData);
   }
 
+  /// Forces the provided [Chat] to be remotely accessible.
   Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
-    HiveRxChat local = _chats[localId]!;
+    final HiveRxChat? local = _chats[localId];
 
-    ChatData chat = _chat(
+    final ChatData chat = _chat(
       await _graphQlProvider.createDialogChat(
-        local.members.values.firstWhere((e) => e.id != me).id,
+        local!.members.values.firstWhere((e) => e.id != me).id,
       ),
     );
 
@@ -822,12 +823,12 @@ class ChatRepository implements AbstractChatRepository {
       });
 
   @override
-  Future<Stream<dynamic>?> keepTyping(ChatId chatId) async {
-    if (!chatId.isLocal) {
-      return await _graphQlProvider.keepTyping(chatId);
+  Future<Stream<dynamic>> keepTyping(ChatId chatId) async {
+    if (chatId.isLocal) {
+      return const Stream.empty();
     }
 
-    return null;
+    return await _graphQlProvider.keepTyping(chatId);
   }
 
   /// Returns an [User] by the provided [id].
@@ -1185,15 +1186,15 @@ class ChatRepository implements AbstractChatRepository {
 
     if (entry == null) {
       if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
-        ChatMember member =
+        final ChatMember member =
             data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
-        ChatId localId = ChatId.local(member.user.id.val);
-        HiveRxChat? localChat = chats[localId];
+        final ChatId localId = ChatId.local(member.user.id);
+        final HiveRxChat? localChat = chats[localId];
 
         if (localChat != null) {
           chats.move(localId, data.chat.value.id);
-          await localChat.updateChat(data.chat.value);
-
+          localChat.chat.value.id = data.chat.value.id;
+          await Future.delayed(Duration.zero);
           entry = localChat;
         }
 

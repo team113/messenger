@@ -65,7 +65,8 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id));
+        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
+        _chatId = hiveChat.value.id;
 
   @override
   final Rx<Chat> chat;
@@ -138,6 +139,8 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  late ChatId _chatId;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -512,44 +515,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Updates the [chat] value with provided.
-  ///
-  /// Intended to be used to update a local dialog with a remote.
-  Future<void> updateChat(Chat chat) async {
-    this.chat.value = chat;
-
-    _initRemoteSubscription(chat.id);
-
-    _localSubscription?.cancel();
-
-    final saved = _local.messages.toList();
-    await _local.clear();
-    _local.close();
-
-    _local = ChatItemHiveProvider(chat.id);
-    await _local.init(userId: me);
-
-    if (!_local.isEmpty) {
-      for (HiveChatItem i in _local.messages) {
-        if (messages.none((e) => e.value.id == i.value.id)) {
-          messages.add(Rx<ChatItem>(i.value));
-        }
-      }
-    }
-
-    _initLocalSubscription();
-
-    for (var e in saved) {
-      _local.put(e);
-    }
-
-    if (!PlatformUtils.isWeb) {
-      _initAttachments();
-    }
-
-    fetchMessages();
-  }
-
   /// Puts the provided [item] to [Hive].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
     return _guard.protect(
@@ -695,6 +660,41 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
+    // Update the [chat] associated resources, if its ID is changed.
+    if (chat.value.id != _chatId) {
+      _chatId = chat.value.id;
+
+      _initRemoteSubscription(id);
+      _localSubscription?.cancel();
+
+      final List<HiveChatItem> saved = _local.messages.toList();
+      await _local.clear();
+      _local.close();
+
+      _local = ChatItemHiveProvider(id);
+      await _local.init(userId: me);
+
+      if (!_local.isEmpty) {
+        for (HiveChatItem i in _local.messages) {
+          if (messages.none((e) => e.value.id == i.value.id)) {
+            messages.add(Rx<ChatItem>(i.value));
+          }
+        }
+      }
+
+      _initLocalSubscription();
+
+      for (var e in saved) {
+        _local.put(e);
+      }
+
+      if (!PlatformUtils.isWeb) {
+        _initAttachments();
+      }
+
+      fetchMessages();
+    }
+
     if (chat.value.name != null) {
       _updateTitle();
     }

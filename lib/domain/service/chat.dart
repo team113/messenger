@@ -338,8 +338,7 @@ extension ChatToRoute on Chat {
 
     return route.startsWith('${Routes.chat}/$id') ||
         (isDialog &&
-            route.startsWith(
-              '${Routes.chat}/${ChatId.local(member?.user.id.val)}',
-            ));
+            route
+                .startsWith('${Routes.chat}/${ChatId.local(member?.user.id)}'));
   }
 }

@@ -229,9 +229,7 @@ class UserController extends GetxController {
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
     ChatId? dialog = user?.user.value.dialog;
-
     dialog ??= (await _chatService.createDialogChat(user!.id)).id;
-
     router.chat(dialog, push: true);
   }
 
