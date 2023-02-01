@@ -603,8 +603,9 @@ class RecentChatTile extends StatelessWidget {
         if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.file(
-              file: e.original,
+            child: VideoThumbnail.url(
+              url: e.original.url,
+              checksum: e.original.checksum,
               key: key,
               height: 300,
               onError: onError,

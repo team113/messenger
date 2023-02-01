@@ -283,32 +283,32 @@ class ChatItemWidget extends StatefulWidget {
                       constraints: filled
                           ? const BoxConstraints(minWidth: 300, minHeight: 300)
                           : null,
-                      child: SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: e.status.value == SendingStatus.sent
-                            ? const Icon(
-                                Icons.check_circle,
-                                key: Key('Sent'),
-                                size: 48,
-                                color: Colors.green,
-                              )
-                            : e.status.value == SendingStatus.sending
-                                ? Center(
+                      child: e.status.value == SendingStatus.sent
+                          ? const Icon(
+                              Icons.check_circle,
+                              key: Key('Sent'),
+                              size: 48,
+                              color: Colors.green,
+                            )
+                          : e.status.value == SendingStatus.sending
+                              ? SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: Center(
                                     child: CircularProgressIndicator(
                                       key: const Key('Sending'),
                                       value: e.progress.value,
-                                      //backgroundColor: Colors.white,
-                                      //strokeWidth: 5,
+                                      backgroundColor: Colors.white,
+                                      strokeWidth: 10,
                                     ),
-                                  )
-                                : const Icon(
-                                    Icons.error,
-                                    key: Key('Error'),
-                                    size: 48,
-                                    color: Colors.red,
                                   ),
-                      ),
+                                )
+                              : const Icon(
+                                  Icons.error,
+                                  key: Key('Error'),
+                                  size: 48,
+                                  color: Colors.red,
+                                ),
                     ),
             )
           ],

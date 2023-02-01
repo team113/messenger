@@ -23,12 +23,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/model/file.dart';
 import '/util/platform_utils.dart';
 
-/// [Image.memory] displaying an image fetched from the provided [image].
+/// [Image.memory] displaying an image fetched from the provided [url].
 ///
-/// Uses exponential backoff algorithm to re-fetch the [image] in case an error
+/// Uses exponential backoff algorithm to re-fetch the [url] in case an error
 /// occurs.
 ///
 /// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
@@ -52,7 +51,7 @@ class RetryImage extends StatefulWidget {
   /// SHA-256 checksum of the image to display.
   final String? checksum;
 
-  /// Callback, called when loading an image from the provided [image] fails with
+  /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
   final Future<void> Function()? onForbidden;
 

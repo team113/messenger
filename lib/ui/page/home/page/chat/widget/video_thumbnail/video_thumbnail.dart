@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
-import '/domain/model/file.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'src/interface.dart'
@@ -31,36 +30,24 @@ class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
     super.key,
     this.url,
-    this.file,
     this.bytes,
+    this.checksum,
     this.height,
     this.onError,
-  }) : assert(file != null || bytes != null || url != null);
+  }) : assert(bytes != null || url != null);
 
   /// Constructs a [VideoThumbnail] from the provided [url].
   factory VideoThumbnail.url({
     Key? key,
     required String url,
+    String? checksum,
     double? height,
     Future<void> Function()? onError,
   }) =>
       VideoThumbnail._(
         key: key,
         url: url,
-        height: height,
-        onError: onError,
-      );
-
-  /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.file({
-    Key? key,
-    required StorageFile file,
-    double? height,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        file: file,
+        checksum: checksum,
         height: height,
         onError: onError,
       );
@@ -82,8 +69,8 @@ class VideoThumbnail extends StatefulWidget {
   /// URL of the video to display.
   final String? url;
 
-  /// [StorageFile] representing the video to display.
-  final StorageFile? file;
+  /// SHA-256 checksum of the video to display.
+  final String? checksum;
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
@@ -102,7 +89,7 @@ class VideoThumbnail extends StatefulWidget {
 /// [VideoPlayerController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [VideoPlayerController] to display the first frame of the video.
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
 
   /// Indicator whether the [_initVideo] has failed.
   bool _hasError = false;
@@ -115,15 +102,13 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(VideoThumbnail oldWidget) {
-    if (oldWidget.bytes != widget.bytes ||
-        oldWidget.url != widget.url ||
-        oldWidget.file != widget.file) {
+    if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
       _initVideo();
     }
 
@@ -135,9 +120,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     double width = 0;
     double height = 0;
 
-    if (_controller.value.isInitialized) {
-      width = _controller.value.size.width;
-      height = _controller.value.size.height;
+    if (_controller?.value.isInitialized == true) {
+      width = _controller!.value.size.width;
+      height = _controller!.value.size.height;
 
       if (widget.height != null) {
         width = width * widget.height! / height;
@@ -147,7 +132,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
-      child: _controller.value.isInitialized
+      child: _controller?.value.isInitialized == true
           ? SizedBox(
               width: width,
               height: height,
@@ -158,9 +143,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                     child: FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
-                        width: _controller.value.size.width,
-                        height: _controller.value.size.height,
-                        child: IgnorePointer(child: VideoPlayer(_controller)),
+                        width: _controller!.value.size.width,
+                        height: _controller!.value.size.height,
+                        child: IgnorePointer(child: VideoPlayer(_controller!)),
                       ),
                     ),
                   ),
@@ -187,18 +172,17 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Future<void> _initVideo() async {
     try {
       Uint8List? bytes = widget.bytes;
-      if (widget.file?.checksum != null) {
-        bytes ??= FIFOCache.get(widget.file!.checksum!);
+      if (widget.checksum != null) {
+        bytes ??= FIFOCache.get(widget.checksum!);
       }
 
       if (bytes != null) {
         _controller = VideoPlayerControllerExt.bytes(bytes);
       } else {
-        _controller =
-            VideoPlayerController.network(widget.file?.url ?? widget.url!);
+        _controller = VideoPlayerController.network(widget.url!);
       }
 
-      await _controller.initialize();
+      await _controller!.initialize();
     } on PlatformException catch (e) {
       if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
         if (widget.onError != null) {
@@ -210,6 +194,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         // Plugin is not supported on the current platform.
         _hasError = true;
       }
+    } catch (_) {
+      _hasError = true;
+      rethrow;
     }
 
     if (mounted) {
