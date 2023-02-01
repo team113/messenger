@@ -57,7 +57,7 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
 
-  /// Map of call [ChatId]s that opened in popup.
+  /// Map of window IDs in that opened a call.
   Map<ChatId, int> popupCalls = {};
 
   /// Returns ID of the authenticated [MyUser].
@@ -102,8 +102,7 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    if ((WebUtils.containsCall(chatId) || popupCalls.containsKey(chatId)) &&
-        !PlatformUtils.isPopup) {
+    if (WebUtils.containsCall(chatId) || popupCalls.containsKey(chatId)) {
       throw CallIsInPopupException();
     }
 

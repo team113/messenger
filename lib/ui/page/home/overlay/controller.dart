@@ -91,7 +91,7 @@ class CallOverlayController extends GetxController {
               if (ongoingCall.callChatItemId == null ||
                   ongoingCall.deviceId == null) {
                 _workers[event.key!] = ever(
-                  event.value!.value.call,
+                  ongoingCall.call,
                   (ChatCall? call) {
                     WebUtils.setCall(ongoingCall.toStored());
 

@@ -145,7 +145,11 @@ class AuthService extends GetxService {
       } else {
         DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
           if (methodCall.method == 'credentials') {
-            if (methodCall.arguments != null) {
+            if (methodCall.arguments == null) {
+              _authRepository.token = null;
+              credentials.value = null;
+              _status.value = RxStatus.empty();
+            } else {
               Credentials creds =
                   Credentials.fromJson(json.decode(methodCall.arguments!));
               _authRepository.token = creds.session.token;
