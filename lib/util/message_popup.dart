@@ -56,7 +56,7 @@ class MessagePopup {
         builder: (context) {
           final TextStyle? thin = Theme.of(context)
               .textTheme
-              .bodyText1
+              .bodyLarge
               ?.copyWith(color: Colors.black);
 
           return Column(

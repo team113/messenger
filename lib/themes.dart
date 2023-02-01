@@ -118,34 +118,34 @@ class Themes {
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          headline3: const TextStyle(
+          displaySmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: const TextStyle(color: Colors.black, fontSize: 18),
-          headline5: const TextStyle(
+          headlineMedium: const TextStyle(color: Colors.black, fontSize: 18),
+          headlineSmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          caption: TextStyle(
+          bodySmall: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          button: const TextStyle(
+          labelLarge: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: TextStyle(
+          titleMedium: const TextStyle(color: Colors.black, fontSize: 15),
+          titleSmall: TextStyle(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyText1: const TextStyle(
+          bodyLarge: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
