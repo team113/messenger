@@ -16,8 +16,8 @@ class MainFlutterWindow: NSWindow {
     RegisterGeneratedPlugins(registry: flutterViewController)
 
     FlutterMultiWindowPlugin.setOnWindowCreatedCallback { controller in
-      MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
-      MedeaJasonPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonPlugin"))
+      MedeaFlutterWebrtcPlugin.register(with: controller.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
+      MedeaJasonPlugin.register(with: controller.registrar(forPlugin: "MedeaJasonPlugin"))
     }
 
     super.awakeFromNib()
