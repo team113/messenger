@@ -48,39 +48,44 @@ import '/util/web/web_utils.dart';
 /// otherwise.
 class GalleryItem {
   GalleryItem({
-    required this.file,
+    required this.link,
     required this.name,
     required this.size,
+    this.checksum,
     this.isVideo = false,
     this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
   factory GalleryItem.image(
-    StorageFile file,
+    String link,
     String name, {
     int? size,
+    String? checksum,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
-        file: file,
+        link: link,
         name: name,
         size: size,
+        checksum: checksum,
         isVideo: false,
         onError: onError,
       );
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
-    StorageFile file,
+    String link,
     String name, {
     int? size,
+    String? checksum,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
-        file: file,
+        link: link,
         name: name,
         size: size,
+        checksum: checksum,
         isVideo: true,
         onError: onError,
       );
@@ -88,8 +93,11 @@ class GalleryItem {
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
-  /// [StorageFile] representing this [GalleryItem].
-  StorageFile file;
+  /// Original URL to the file this [GalleryItem] represents.
+  String link;
+
+  /// SHA-256 checksum of the file this [GalleryItem] represents.
+  final String? checksum;
 
   /// Name of the file this [GalleryItem] represents.
   final String name;
@@ -425,7 +433,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
             if (!e.isVideo) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.file.url),
+                imageProvider: NetworkImage(e.link),
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
@@ -452,7 +460,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 padding: const EdgeInsets.symmetric(horizontal: 1),
                 child: e.isVideo
                     ? Video(
-                        e.file.url,
+                        e.link,
                         showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
@@ -475,7 +483,8 @@ class _GalleryPopupState extends State<GalleryPopup>
                         },
                       )
                     : RetryImage(
-                        e.file,
+                        e.link,
+                        checksum: e.checksum,
                         onForbidden: () async {
                           await e.onError?.call();
                           if (mounted) {
@@ -542,7 +551,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
                 ? Video(
-                    e.file.url,
+                    e.link,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
@@ -575,9 +584,10 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _toggleFullscreen();
                     },
                     child: PlatformUtils.isWeb
-                        ? IgnorePointer(child: WebImage(e.file.url))
+                        ? IgnorePointer(child: WebImage(e.link))
                         : RetryImage(
-                            e.file,
+                            e.link,
+                            checksum: e.checksum,
                             onForbidden: () async {
                               await e.onError?.call();
                               if (mounted) {
@@ -1024,11 +1034,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _download(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.download(item.file.url, item.name, item.size);
+        await PlatformUtils.download(item.link, item.name, item.size);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.file.url, item.name, item.size);
+          await PlatformUtils.download(item.link, item.name, item.size);
         } else {
           rethrow;
         }
@@ -1046,11 +1056,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.saveToGallery(item.file.url, item.name);
+        await PlatformUtils.saveToGallery(item.link, item.name);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.file.url, item.name);
+          await PlatformUtils.saveToGallery(item.link, item.name);
         } else {
           rethrow;
         }
@@ -1068,11 +1078,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.file.url, item.name);
+        await PlatformUtils.share(item.link, item.name);
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.file.url, item.name);
+          await PlatformUtils.share(item.link, item.name);
         } else {
           rethrow;
         }

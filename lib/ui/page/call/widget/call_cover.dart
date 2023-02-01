@@ -49,7 +49,8 @@ class CallCoverWidget extends StatelessWidget {
                 fit: BoxFit.cover,
               )
             : RetryImage(
-                cover!.full,
+                cover!.full.url,
+                checksum: cover!.full.checksum,
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,

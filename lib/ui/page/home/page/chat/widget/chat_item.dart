@@ -231,22 +231,24 @@ class ChatItemWidget extends StatefulWidget {
 
                   if (o is FileAttachment) {
                     item = GalleryItem.video(
-                      file,
+                      file.url,
                       o.filename,
                       size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
-                        item?.file = o.original;
+                        item?.link = o.original.url;
                       },
                     );
                   } else if (o is ImageAttachment) {
                     item = GalleryItem.image(
-                      file,
+                      file.url,
                       o.filename,
                       size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
-                        item?.file = o.original;
+                        item?.link = o.original.url;
                       },
                     );
                   }
@@ -278,28 +280,35 @@ class ChatItemWidget extends StatefulWidget {
               child: !isLocal
                   ? Container(key: const Key('Sent'))
                   : Container(
-                      constraints:
-                          const BoxConstraints(minWidth: 300, minHeight: 300),
-                      child: e.status.value == SendingStatus.sent
-                          ? const Icon(
-                              Icons.check_circle,
-                              key: Key('Sent'),
-                              size: 48,
-                              color: Colors.green,
-                            )
-                          : e.status.value == SendingStatus.sending
-                              ? CircularProgressIndicator(
-                                  key: const Key('Sending'),
-                                  value: e.progress.value,
-                                  backgroundColor: Colors.white,
-                                  strokeWidth: 10,
-                                )
-                              : const Icon(
-                                  Icons.error,
-                                  key: Key('Error'),
-                                  size: 48,
-                                  color: Colors.red,
-                                ),
+                      constraints: filled
+                          ? const BoxConstraints(minWidth: 300, minHeight: 300)
+                          : null,
+                      child: SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: e.status.value == SendingStatus.sent
+                            ? const Icon(
+                                Icons.check_circle,
+                                key: Key('Sent'),
+                                size: 48,
+                                color: Colors.green,
+                              )
+                            : e.status.value == SendingStatus.sending
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      key: const Key('Sending'),
+                                      value: e.progress.value,
+                                      //backgroundColor: Colors.white,
+                                      //strokeWidth: 5,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.error,
+                                    key: Key('Error'),
+                                    size: 48,
+                                    color: Colors.red,
+                                  ),
+                      ),
                     ),
             )
           ],
@@ -1060,7 +1069,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         size: 28,
                       )
                     : RetryImage(
-                        image.medium,
+                        image.medium.url,
+                        checksum: image.medium.checksum,
                         onForbidden: widget.onAttachmentError,
                         fit: BoxFit.cover,
                         width: double.infinity,

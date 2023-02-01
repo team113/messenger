@@ -35,8 +35,9 @@ import '/util/platform_utils.dart';
 /// errors.
 class RetryImage extends StatefulWidget {
   const RetryImage(
-    this.image, {
+    this.url, {
     Key? key,
+    this.checksum,
     this.fit,
     this.height,
     this.width,
@@ -45,8 +46,11 @@ class RetryImage extends StatefulWidget {
     this.filter,
   }) : super(key: key);
 
-  /// [StorageFile] of an image to display.
-  final StorageFile image;
+  /// URL of an image to display.
+  final String url;
+
+  /// SHA-256 checksum of the image to display.
+  final String? checksum;
 
   /// Callback, called when loading an image from the provided [image] fails with
   /// a forbidden network error.
@@ -100,7 +104,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.image.url != widget.image.url) {
+    if (oldWidget.url != widget.url) {
       _loadImage();
     }
     super.didUpdateWidget(oldWidget);
@@ -159,7 +163,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     return AnimatedSwitcher(
-      key: Key('Image_${widget.image.url}'),
+      key: Key('Image_${widget.url}'),
       duration: const Duration(milliseconds: 150),
       child: child,
     );
@@ -172,8 +176,8 @@ class _RetryImageState extends State<RetryImage> {
     _timer?.cancel();
 
     Uint8List? cached;
-    if (widget.image.checksum != null) {
-      cached = FIFOCache.get(widget.image.checksum!);
+    if (widget.checksum != null) {
+      cached = FIFOCache.get(widget.checksum!);
     }
 
     if (cached != null) {
@@ -187,7 +191,7 @@ class _RetryImageState extends State<RetryImage> {
 
       try {
         data = await PlatformUtils.dio.get(
-          widget.image.url,
+          widget.url,
           onReceiveProgress: (received, total) {
             if (total > 0) {
               _progress = received / total;
@@ -205,8 +209,8 @@ class _RetryImageState extends State<RetryImage> {
       }
 
       if (data?.data != null && data!.statusCode == 200) {
-        if (widget.image.checksum != null) {
-          FIFOCache.set(widget.image.checksum!, data.data);
+        if (widget.checksum != null) {
+          FIFOCache.set(widget.checksum!, data.data);
         }
         _image = data.data;
         _backoffPeriod = _minBackoffPeriod;

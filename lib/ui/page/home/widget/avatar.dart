@@ -416,7 +416,8 @@ class AvatarWidget extends StatelessWidget {
                 )
               : ClipOval(
                   child: RetryImage(
-                    avatar!.original,
+                    avatar!.original.url,
+                    checksum: avatar!.original.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
