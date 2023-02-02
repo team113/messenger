@@ -197,7 +197,7 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    // TODO: Call should be display right away.
+    // TODO: Call should be displayed right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
       chatId = (await ensureRemoteDialog!.call(chatId)).id;
     }
