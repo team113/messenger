@@ -133,14 +133,14 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a stream broadcasting the application's window size changes.
-  Stream<Size> get onResized {
-    StreamController<Size>? controller;
+  Stream<MapEntry<Size, Offset>> get onResized {
+    StreamController<MapEntry<Size, Offset>>? controller;
 
     final DesktopWindowListener listener = DesktopWindowListener(
-      onResized: (size) => controller!.add(size),
+      onResized: (pair) => controller!.add(pair),
     );
 
-    controller = StreamController<Size>(
+    controller = StreamController<MapEntry<Size, Offset>>(
       onListen: () => WindowManager.instance.addListener(listener),
       onCancel: () => WindowManager.instance.removeListener(listener),
     );
@@ -523,7 +523,7 @@ class DesktopWindowListener extends WindowListener {
   final VoidCallback? onBlur;
 
   /// Callback, called when the window resizes.
-  final void Function(Size size)? onResized;
+  final void Function(MapEntry<Size, Offset> pair)? onResized;
 
   /// Callback, called when the window moves.
   final void Function(Offset offset)? onMoved;
@@ -544,8 +544,12 @@ class DesktopWindowListener extends WindowListener {
   void onWindowBlur() => onBlur?.call();
 
   @override
-  void onWindowResized() async =>
-      onResized?.call(await windowManager.getSize());
+  void onWindowResized() async => onResized?.call(
+        MapEntry<Size, Offset>(
+          await windowManager.getSize(),
+          await windowManager.getPosition(),
+        ),
+      );
 
   @override
   void onWindowMoved() async =>
