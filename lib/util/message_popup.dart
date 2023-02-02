@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import 'localized_exception.dart';
@@ -122,16 +123,6 @@ class MessagePopup {
     );
   }
 
-  /// Shows a [SnackBar] with the [title] message.
-  static void success(String title) =>
-      ScaffoldMessenger.of(router.context!).showSnackBar(
-        SnackBar(
-          content: Text(title),
-          width: 250,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+  /// Shows a [FloatingSnackBar] with the [title] message.
+  static void success(String title) => FloatingSnackBar.show(title);
 }
