@@ -112,8 +112,7 @@ class RecentChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
-
-      bool selected = chat.isRoute(router.route, me);
+      final bool selected = chat.isRoute(router.route, me);
 
       return ChatTile(
         chat: rxChat,

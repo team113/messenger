@@ -249,8 +249,8 @@ class ChatRepository implements AbstractChatRepository {
     return _putEntry(chatData);
   }
 
-  /// Forces the provided [Chat] to be remotely accessible.
-  Future<HiveRxChat> replaceLocalDialog(ChatId localId) async {
+  /// Ensures the provided [Chat] is remotely accessible.
+  Future<HiveRxChat> ensureRemoteDialog(ChatId localId) async {
     final HiveRxChat? local = _chats[localId];
 
     final ChatData chat = _chat(
@@ -290,7 +290,7 @@ class ChatRepository implements AbstractChatRepository {
         repliesTo: repliesTo,
       );
 
-      rxChat = await replaceLocalDialog(chatId);
+      rxChat = await ensureRemoteDialog(chatId);
     }
 
     await rxChat?.postChatMessage(
@@ -669,7 +669,7 @@ class ChatRepository implements AbstractChatRepository {
     List<AttachmentId>? attachments,
   }) async {
     if (to.isLocal) {
-      to = (await replaceLocalDialog(to)).id;
+      to = (await ensureRemoteDialog(to)).id;
     }
 
     await _graphQlProvider.forwardChatItems(

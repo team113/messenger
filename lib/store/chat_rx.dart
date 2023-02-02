@@ -140,6 +140,9 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
+  /// [ChatId] of the [chat] stored previously.
+  ///
+  /// Used to update the [chat]-related resources on its ID changes.
   late ChatId _chatId;
 
   @override
@@ -660,7 +663,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
-    // Update the [chat] associated resources, if its ID is changed.
+    // Update the [chat]-related resources, if its ID is changed.
     if (chat.value.id != _chatId) {
       _chatId = chat.value.id;
 

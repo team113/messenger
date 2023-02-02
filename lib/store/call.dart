@@ -54,9 +54,8 @@ class CallRepository extends DisposableInterface
     required this.me,
   });
 
-  /// Callback, called whether need to replace local [Chat]-dialog when a call
-  /// started.
-  Future<RxChat> Function(ChatId id)? replaceLocalDialog;
+  /// Callback, called when the provided [Chat] should
+  Future<RxChat> Function(ChatId id)? ensureRemoteDialog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -198,8 +197,8 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    if (chatId.isLocal && replaceLocalDialog != null) {
-      chatId = (await replaceLocalDialog!.call(chatId)).id;
+    if (chatId.isLocal && ensureRemoteDialog != null) {
+      chatId = (await ensureRemoteDialog!.call(chatId)).id;
     }
 
     if (calls[chatId] != null) {

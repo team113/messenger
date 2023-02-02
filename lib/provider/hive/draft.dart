@@ -92,7 +92,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
-    ChatMessage? value = get(oldKey);
+    final ChatMessage? value = get(oldKey);
     if (value != null) {
       remove(oldKey);
       put(newKey, value);

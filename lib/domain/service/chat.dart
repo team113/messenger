@@ -136,14 +136,9 @@ class ChatService extends DisposableService {
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {
-    Chat? chat = chats[id]?.chat.value;
-
+    final Chat? chat = chats[id]?.chat.value;
     if (chat != null) {
-      for (var e in router.routes.toList()) {
-        if (chat.isRoute(e, me)) {
-          router.remove(e);
-        }
-      }
+      router.removeWhere((e) => chat.isRoute(e, me));
     }
 
     return _chatRepository.hideChat(id);
@@ -255,7 +250,7 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>?> keepTyping(ChatId chatId) =>
+  Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
@@ -327,18 +322,16 @@ class ChatService extends DisposableService {
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
 }
 
-/// Extension adding [Chat] comparing to a route.
-extension ChatToRoute on Chat {
-  /// Returns indicator whether the provided [route] is represents this [Chat].
+/// Extension adding a route from the [router] comparison with a [Chat].
+extension ChatIsRoute on Chat {
+  /// Indicates whether the provided [route] represents this [Chat].
   bool isRoute(String route, UserId? me) {
-    ChatMember? member;
-    if (me != null) {
-      member = members.firstWhereOrNull((e) => e.user.id != me);
-    }
+    final bool byId = route.startsWith('${Routes.chat}/$id');
+    final bool byUser = isDialog &&
+        route.startsWith(
+          '${Routes.chat}/${ChatId.local(members.firstWhereOrNull((e) => e.user.id != me)?.user.id)}',
+        );
 
-    return route.startsWith('${Routes.chat}/$id') ||
-        (isDialog &&
-            route
-                .startsWith('${Routes.chat}/${ChatId.local(member?.user.id)}'));
+    return byId || byUser;
   }
 }
