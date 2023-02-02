@@ -73,6 +73,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat info page:
         - Redesigned chat info page. ([#265], [#256])
     - Redesigned scrollbar. ([#276], [#262])
+    - Redesigned snackbar. ([#336])
 
 ### Fixed
 
@@ -167,6 +168,7 @@ All user visible changes to this project will be documented in this file. This p
 [#328]: /../../issues/328
 [#329]: /../../issues/329
 [#332]: /../../pull/332
+[#336]: /../../pull/336
 [#337]: /../../pull/337
 [#340]: /../../pull/340
 
