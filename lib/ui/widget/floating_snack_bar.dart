@@ -20,40 +20,42 @@ import 'package:flutter/material.dart';
 import '/routes.dart';
 import '/themes.dart';
 
-/// Lightweight message which briefly displays at the bottom of the screen.
+/// Animated message briefly displayed at the bottom of the screen.
+///
+/// Custom implementation of a default [SnackBar].
 class FloatingSnackBar extends StatefulWidget {
   const FloatingSnackBar({
     super.key,
-    required this.content,
+    required this.child,
     this.duration = const Duration(seconds: 2),
     this.onEnd,
   });
 
-  /// The primary content of the [FloatingSnackBar].
-  final Widget content;
+  /// Content to display in this [FloatingSnackBar].
+  final Widget child;
 
-  /// The amount of time the [FloatingSnackBar] should be displayed.
+  /// [Duration] to display this [FloatingSnackBar] for.
   final Duration duration;
 
-  /// Callback, called when the [FloatingSnackBar] display stops.
+  /// Callback, called when this [FloatingSnackBar] disappears.
   final VoidCallback? onEnd;
 
-  /// Displays a [FloatingSnackBar] using an [OverlayEntry].
+  /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title) {
     OverlayEntry? entry;
 
     entry = OverlayEntry(
       builder: (_) => FloatingSnackBar(
-        content: Text(
-          title,
-          style: const TextStyle(color: Colors.black, fontSize: 15),
-        ),
         onEnd: () {
           if (entry?.mounted == true) {
             entry?.remove();
           }
           entry = null;
         },
+        child: Text(
+          title,
+          style: const TextStyle(color: Colors.black, fontSize: 15),
+        ),
       ),
     );
 
@@ -64,40 +66,26 @@ class FloatingSnackBar extends StatefulWidget {
   State<FloatingSnackBar> createState() => _FloatingSnackBarState();
 }
 
-/// State of an [FloatingSnackBar] used to animate of appearance and
-/// disappearance.
+/// State of a [FloatingSnackBar] maintaining the [_opacity].
 class _FloatingSnackBarState extends State<FloatingSnackBar>
     with SingleTickerProviderStateMixin {
-  /// Initial value of the opacity animation.
-  static const double _initialOpacity = 0.45;
+  /// Initial opacity of the [FloatingSnackBar].
+  static const double _initialOpacity = 0;
 
-  /// Final value of the opacity animation.
+  /// Final opacity of the [FloatingSnackBar].
   static const double _finalOpacity = 1;
 
-  /// Value of the opacity animation.
+  /// Current opacity of the [FloatingSnackBar].
   double _opacity = _initialOpacity;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => setState(() => _opacity = _finalOpacity));
-  }
-
-  /// Callback, called when completion of the opacity animation.
-  Future<void> _onEnd() async {
-    if (_opacity == _finalOpacity) {
-      await Future.delayed(
-        widget.duration,
-        () {
-          if (mounted) {
-            setState(() => _opacity = _initialOpacity);
-          }
-        },
-      );
-    } else if (_opacity == _initialOpacity) {
-      widget.onEnd?.call();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _opacity = _finalOpacity);
+      }
+    });
   }
 
   @override
@@ -130,7 +118,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                       ),
                     ],
                   ),
-                  child: widget.content,
+                  child: widget.child,
                 ),
               ),
             ),
@@ -138,5 +126,19 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
         ),
       ],
     );
+  }
+
+  /// Changes the [_opacity] after some delay to the [_initialOpacity] and
+  /// invokes the [FloatingSnackBar.onEnd] afterwards.
+  Future<void> _onEnd() async {
+    if (_opacity == _finalOpacity) {
+      await Future.delayed(widget.duration, () {
+        if (mounted) {
+          setState(() => _opacity = _initialOpacity);
+        }
+      });
+    } else if (_opacity == _initialOpacity) {
+      widget.onEnd?.call();
+    }
   }
 }

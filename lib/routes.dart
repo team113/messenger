@@ -131,9 +131,12 @@ class RouterState extends ChangeNotifier {
   RouteInformationProvider? provider;
 
   /// This router's global [BuildContext] to use in contextless scenarios.
+  ///
+  /// Note that this [BuildContext] doesn't contain a [Overlay] widget. If you
+  /// need one, use the [overlay].
   BuildContext? context;
 
-  /// This router's global [OverlayState].
+  /// This router's global [OverlayState] to use in contextless scenarios.
   OverlayState? overlay;
 
   /// Reactive [AppLifecycleState].
