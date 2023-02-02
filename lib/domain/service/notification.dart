@@ -21,6 +21,7 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -43,6 +44,9 @@ class NotificationService extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
+  /// Indicator whether the icon on the taskbar is flashed.
+  bool _flashed = false;
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
@@ -59,7 +63,12 @@ class NotificationService extends DisposableService {
         onDidReceiveLocalNotification,
   }) async {
     PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((_) async {
+      _focused = await PlatformUtils.isFocused;
+      if (_focused) {
+        _flashed = false;
+      }
+    });
 
     _initAudio();
     if (PlatformUtils.isWeb) {
@@ -149,6 +158,14 @@ class NotificationService extends DisposableService {
         ),
         payload: payload,
       );
+    } else if (PlatformUtils.isWindows) {
+      if (!_focused && !_flashed) {
+        WindowsTaskbar.setFlashTaskbarAppIcon(
+          mode: TaskbarFlashMode.tray | TaskbarFlashMode.timer,
+          flashCount: 1,
+        );
+        _flashed = true;
+      }
     }
   }
 

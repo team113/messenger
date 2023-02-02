@@ -82,6 +82,7 @@ dependencies:
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.3.0
+  windows_taskbar: ^1.1.1
 
 dev_dependencies:
   artemis: ^7.11.0-beta.1
@@ -118,6 +119,7 @@ flutter:
     - assets/audio/
     - assets/conf.toml
     - assets/fonts/
+    - assets/ico/
     - assets/icons/
     - assets/images/
     - assets/images/logo/

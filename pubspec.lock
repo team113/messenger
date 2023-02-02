@@ -1763,6 +1763,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  windows_taskbar:
+    dependency: "direct main"
+    description:
+      name: windows_taskbar
+      sha256: "22757e6deba5cd8926a2d3e9926c219ce37dfc76836a1fe647de526880d50dc4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   xdg_directories:
     dependency: transitive
     description:
@@ -1788,5 +1796,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.0 <4.0.0"
+  dart: ">=2.19.0 <3.0.0"
   flutter: ">=3.7.0"
