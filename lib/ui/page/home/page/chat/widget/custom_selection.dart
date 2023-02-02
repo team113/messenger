@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -24,20 +25,20 @@ import '/util/platform_utils.dart';
 /// Custom text selection widget.
 class CustomSelection extends StatelessWidget {
   const CustomSelection({
-    Key? key,
-    required this.child,
-    this.onSelected,
+    super.key,
     this.enabled,
-  }) : super(key: key);
-
-  /// [Widget] with text for selecting it.
-  final Widget child;
+    this.onSelectionChanged,
+    required this.child,
+  });
 
   /// Indicator whether selection is enabled or not.
   final RxBool? enabled;
 
-  /// Callback called when some text was selected or unselected.
-  final void Function(String text)? onSelected;
+  /// Callback, called when the selected content changes.
+  final void Function(SelectedContent?)? onSelectionChanged;
+
+  /// [Widget] with text for selecting it.
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class CustomSelection extends StatelessWidget {
               selectableRegionState: state,
             )
           : const SizedBox(),
-      onSelectionChanged: (s) => onSelected?.call(s?.plainText ?? ''),
+      onSelectionChanged: onSelectionChanged,
       child: ContextMenuInterceptor(child: child),
     );
 

@@ -248,6 +248,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           );
         });
       });
+
       Overlay.of(context, rootOverlay: true).insert(entry!);
     }
   }

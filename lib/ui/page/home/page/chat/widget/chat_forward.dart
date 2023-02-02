@@ -372,8 +372,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
-          content = copyableText(
-            Text(
+          content = CustomSelection(
+            onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
+            enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
+            child: Text(
               item.text!.val,
               style: style.boldBody,
             ),
@@ -592,8 +594,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: copyableText(
-                Text(
+              child: CustomSelection(
+                onSelectionChanged: (s) =>
+                    selectedText.value = s?.plainText ?? '',
+                enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
+                child: Text(
                   item.text!.val,
                   style: style.boldBody,
                 ),
@@ -998,15 +1003,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ),
         ),
       ),
-    );
-  }
-
-  /// Wraps [text] widget with [CustomSelection] widget.
-  Widget copyableText(Widget text) {
-    return CustomSelection(
-      onSelected: (s) => selectedText.value = s,
-      enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
-      child: text,
     );
   }
 
