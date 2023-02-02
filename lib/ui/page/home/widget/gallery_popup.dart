@@ -1043,9 +1043,11 @@ class _GalleryPopupState extends State<GalleryPopup>
         }
       }
 
-      MessagePopup.success(item.isVideo
-          ? 'label_video_downloaded'.l10n
-          : 'label_image_downloaded'.l10n);
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_downloaded'.l10n
+            : 'label_image_downloaded'.l10n);
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
@@ -1065,9 +1067,11 @@ class _GalleryPopupState extends State<GalleryPopup>
         }
       }
 
-      MessagePopup.success(item.isVideo
-          ? 'label_video_saved_to_gallery'.l10n
-          : 'label_image_saved_to_gallery'.l10n);
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n);
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
