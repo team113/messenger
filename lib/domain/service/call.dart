@@ -69,7 +69,7 @@ class CallService extends DisposableService {
   }) async {
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
-    if (PlatformUtils.openedInPopup(chatId)) {
+    if (PlatformUtils.inPopup(chatId)) {
       throw CallIsInPopupException();
     } else if (stored != null &&
         stored.value.state.value != OngoingCallState.ended) {
@@ -99,7 +99,7 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    if (PlatformUtils.openedInPopup(chatId)) {
+    if (PlatformUtils.inPopup(chatId)) {
       throw CallIsInPopupException();
     }
 

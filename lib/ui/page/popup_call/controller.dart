@@ -142,15 +142,13 @@ class PopupCallController extends GetxController {
       });
     } else {
       _windowController!.setOnWindowClose(() async {
-        _storageSubscription?.cancel();
-        _stateWorker.dispose();
+        if (call.value.deviceId != null) {
+          _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        }
         await DesktopMultiWindow.invokeMethod(
           DesktopMultiWindow.mainWindowId,
           'call_${call.value.chatId.value.val}',
         );
-        if (call.value.deviceId != null) {
-          _calls.leave(call.value.chatId.value, call.value.deviceId!);
-        }
       });
 
       DesktopMultiWindow.addMethodHandler((methodCall, _) async {

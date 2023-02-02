@@ -48,7 +48,7 @@ class CallOverlayController extends GetxController {
   /// Call service used to expose the [calls].
   final CallService _callService;
 
-  /// Authentication service used to get [Credentials].
+  /// Authentication service used to get the stored [Credentials].
   final AuthService _authService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].

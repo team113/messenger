@@ -453,12 +453,12 @@ class PlatformUtilsImpl {
   }
 
   /// Indicates that a call with the provide [chatId] is opened in popup.
-  bool openedInPopup(ChatId chatId) =>
+  bool inPopup(ChatId chatId) =>
       WebUtils.containsCall(chatId) || _popupCalls.containsKey(chatId);
 
   /// Moves a popup call [from] the old [to] the new [ChatId].
   void moveCall(ChatId from, ChatId to, {StoredCall? newState}) {
-    if(isWeb) {
+    if (isWeb) {
       WebUtils.moveCall(from, to, newState: newState);
     } else {
       int? id = _popupCalls.remove(from);
