@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Messages selection. ([#118], [#17])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
         - Favorite chats. ([#218], [#209])
@@ -82,8 +83,10 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Context menu not opening over video previews. ([#198], [#196])
 
+[#17]: /../../issues/17
 [#63]: /../../issues/63
 [#102]: /../../issues/102
+[#118]: /../../pull/118
 [#126]: /../../issues/126
 [#134]: /../../issues/134
 [#142]: /../../pull/142
@@ -290,7 +293,6 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned auth page. ([#29])
     - Chat page:
         - Messages and attachments sending status. ([#5], [#3])
-        - Messages are selected and copyied. ([#118], [#17])
 
 ### Fixed
 
@@ -323,7 +325,6 @@ All user visible changes to this project will be documented in this file. This p
 [#12]: /../../pull/12
 [#14]: /../../pull/14
 [#15]: /../../pull/15
-[#17]: /../../issues/17
 [#23]: /../../pull/23
 [#26]: /../../pull/26
 [#29]: /../../pull/29
@@ -358,7 +359,6 @@ All user visible changes to this project will be documented in this file. This p
 [#112]: /../../pull/112
 [#115]: /../../pull/115
 [#117]: /../../pull/117
-[#118]: /../../pull/118
 [#123]: /../../issues/123
 [#129]: /../../pull/129
 [#130]: /../../issues/130
