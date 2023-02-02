@@ -4,7 +4,7 @@ publish_to: none
 
 environment:
   flutter: ">=3.7.0"
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=2.19.0 <4.0.0"
 
 dependencies:
   animated_size_and_fade: ^3.0.0
