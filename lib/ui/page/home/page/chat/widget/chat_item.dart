@@ -824,13 +824,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         files.isEmpty ? 10 : 0,
                       ),
                       child: CustomSelection(
-                        text: Text(
-                          text,
-                          style: style.boldBody,
-                        ),
                         onSelected: (s) => selectedText.value = s,
                         enabled:
                             PlatformUtils.isDesktop ? null : selectionEnabled,
+                        child: Text(
+                          text,
+                          style: style.boldBody,
+                        ),
                       ),
                     ),
                   ),

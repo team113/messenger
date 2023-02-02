@@ -25,13 +25,13 @@ import '/util/platform_utils.dart';
 class CustomSelection extends StatelessWidget {
   const CustomSelection({
     Key? key,
-    required this.text,
+    required this.child,
     this.onSelected,
     this.enabled,
   }) : super(key: key);
 
   /// [Widget] with text for selecting it.
-  final Widget text;
+  final Widget child;
 
   /// Indicator whether selection is enabled or not.
   final RxBool? enabled;
@@ -48,7 +48,7 @@ class CustomSelection extends StatelessWidget {
             )
           : const SizedBox(),
       onSelectionChanged: (s) => onSelected?.call(s?.plainText ?? ''),
-      child: ContextMenuInterceptor(child: text),
+      child: ContextMenuInterceptor(child: child),
     );
 
     if (enabled == null) {
@@ -58,7 +58,7 @@ class CustomSelection extends StatelessWidget {
         if (enabled!.value) {
           return selectionArea;
         } else {
-          return ContextMenuInterceptor(child: text);
+          return ContextMenuInterceptor(child: child);
         }
       });
     }

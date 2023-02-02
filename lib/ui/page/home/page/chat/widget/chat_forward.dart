@@ -1004,9 +1004,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Wraps [text] widget with [CustomSelection] widget.
   Widget copyableText(Widget text) {
     return CustomSelection(
-      text: text,
       onSelected: (s) => selectedText.value = s,
       enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
+      child: text,
     );
   }
 
