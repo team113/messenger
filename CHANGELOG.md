@@ -47,10 +47,11 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#316], [#287], [#246])
+        - Redesigned mobile interface. ([#319], [#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
         - Redesigned participants modal. ([#332], [#328])
+        - Redesigned desktop interface. ([#319], [#309])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
@@ -156,10 +157,12 @@ All user visible changes to this project will be documented in this file. This p
 [#295]: /../../issues/295
 [#300]: /../../pull/300
 [#305]: /../../pull/305
+[#309]: /../../issues/309
 [#310]: /../../pull/310
 [#313]: /../../pull/313
 [#316]: /../../pull/316
 [#317]: /../../pull/317
+[#319]: /../../pull/319
 [#323]: /../../pull/323
 [#328]: /../../issues/328
 [#329]: /../../issues/329
