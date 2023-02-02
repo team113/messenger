@@ -395,7 +395,7 @@ class ChatsTabController extends GetxController {
   void closeSearch([bool disableSearch = false]) {
     searching.value = false;
     if (disableSearch) {
-      searchTimer = Timer(const Duration(milliseconds: 100), () {
+      searchTimer = Timer(const Duration(milliseconds: 250), () {
         searchTimer?.cancel();
       });
       _toggleSearch(false);
@@ -473,6 +473,17 @@ class ChatsTabController extends GetxController {
           SearchCategory.user,
         ],
       )..onInit();
+
+      search.value?.search.focus.onKey = (a, b) {
+        print(a);
+        print(b);
+        return KeyEventResult.handled;
+      };
+      search.value?.search.focus.onKeyEvent = (a, b) {
+        print(a);
+        print(b);
+        return KeyEventResult.handled;
+      };
 
       _searchSubscription = StreamGroup.merge([
         search.value!.recent.stream,

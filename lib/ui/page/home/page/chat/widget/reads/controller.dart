@@ -38,9 +38,6 @@ class ChatItemReadsController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Reactive indicator whether [search] field is focused or not.
-  final RxBool isFocused = RxBool(false);
-
   /// Searching field state.
   final TextFieldState search = TextFieldState();
 
@@ -52,16 +49,9 @@ class ChatItemReadsController extends GetxController {
 
   @override
   void onInit() {
-    search.focus.addListener(_focusListener);
     _init();
 
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    search.focus.removeListener(_focusListener);
-    super.onClose();
   }
 
   /// Initialize this [ChatItemReadsController].
@@ -73,7 +63,4 @@ class ChatItemReadsController extends GetxController {
 
     await Future.wait(futures);
   }
-
-  /// Listener of [search] focus indicator.
-  void _focusListener() {}
 }

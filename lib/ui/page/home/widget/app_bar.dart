@@ -46,7 +46,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
 
-  /// Padding to apply to this [CustomAppBar].
+  /// Margin to apply to the contents.
   final EdgeInsets margin;
 
   /// [Border] to apply to this [CustomAppBar].

@@ -37,7 +37,8 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
-/// View displaying the provided [reads] along with corresponding [User]s.
+/// View displaying [ChatMessage] info and [reads] along with corresponding
+/// [User]s.
 ///
 /// Intended to be displayed with the [show] method.
 class ChatItemReads extends StatelessWidget {
@@ -48,7 +49,7 @@ class ChatItemReads extends StatelessWidget {
     this.getUser,
   });
 
-  /// [ChatItemId] of this [ChatItemReads].
+  /// [ChatItemId] of [ChatMessage] of this modal.
   final ChatItemId? id;
 
   /// [LastChatRead]s themselves.
@@ -232,10 +233,11 @@ class ChatItemReads extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    '${'label_read_at'.l10n}${'colon_space'.l10n}'
-                                    '${DateFormat('dd.MM.yyyy, kk:mm').format(
-                                      reads.first.at.val,
-                                    )}',
+                                    'label_read_at'.l10nfmt({
+                                      'date': DateFormat('dd.MM.yyyy, kk:mm')
+                                          .format(reads.first.at.val)
+                                          .toString()
+                                    }),
                                     style: TextStyle(
                                       color:
                                           Theme.of(context).colorScheme.primary,
