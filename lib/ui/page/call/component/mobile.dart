@@ -75,9 +75,9 @@ Widget mobileCall(CallController c, BuildContext context) {
         Obx(() {
           if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
             return FloatingFit<Participant>(
-              primary: c.primaryParticipant ?? c.primary.first,
-              panel: c.secondaryParticipant ?? c.secondary.first,
-              onSwap: c.updateDialogParticipant,
+              primary: c.primary.first,
+              panel: c.secondary.first,
+              onSwapped: c.updateDialogParticipant,
               fit: !c.minimized.isFalse,
               intersection: c.dockRect,
               onManipulated: (bool m) => c.secondaryManipulated.value = m,
@@ -238,7 +238,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ],
                   ],
                   unconstrained: true,
-                  changingChild: child,
+                  childBuilder: child,
                   child: const SizedBox.shrink(),
                 );
               });

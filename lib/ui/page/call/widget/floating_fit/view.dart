@@ -41,7 +41,7 @@ class FloatingFit<T> extends StatefulWidget {
     this.fit = false,
     this.intersection,
     this.onManipulated,
-    this.onSwap,
+    this.onSwapped,
   });
 
   /// Builder building the provided item.
@@ -69,7 +69,7 @@ class FloatingFit<T> extends StatefulWidget {
   final void Function(bool)? onManipulated;
 
   /// Callback, called when [primary] and [panel]ed items swap.
-  final void Function(T, T)? onSwap;
+  final void Function(T, T)? onSwapped;
 
   @override
   State<FloatingFit> createState() => _FloatingFitState<T>();
@@ -366,7 +366,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     _paneled = primary;
     _primary = paneled;
 
-    widget.onSwap?.call(_primary.item, _paneled.item);
+    widget.onSwapped?.call(_primary.item, _paneled.item);
 
     setState(() {});
   }

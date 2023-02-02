@@ -121,12 +121,6 @@ class CallController extends GetxController {
   /// [Participant]s to display in the secondary view.
   final RxList<Participant> secondary = RxList();
 
-  /// [Participant] of the call-dialog to display in the fit view.
-  Participant? primaryParticipant;
-
-  /// [Participant] of the call-dialog to display in the secondary view.
-  Participant? secondaryParticipant;
-
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
@@ -1618,8 +1612,10 @@ class CallController extends GetxController {
 
   /// Updates the [Participant]s of the call-dialog.
   void updateDialogParticipant(Participant primary, Participant secondary) {
-    primaryParticipant = primary;
-    secondaryParticipant = secondary;
+    remotes[0] = primary;
+    paneled[0] = secondary;
+    this.primary[0] = primary;
+    this.secondary[0] = secondary;
   }
 
   /// Returns corrected according to secondary constraints [width] value.

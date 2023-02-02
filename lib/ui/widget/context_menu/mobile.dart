@@ -343,7 +343,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
-                    _contextMenu(fade, slide, widget.actionsKey),
+                    _contextMenu(fade, slide),
                   ]
                 ],
               );
@@ -355,11 +355,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   }
 
   /// Returns a visual representation of the context menu itself.
-  Widget _contextMenu(
-    Animation<double> fade,
-    Animation<Offset> slide, [
-    Key? key,
-  ]) {
+  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
     final double width = MediaQuery.of(context).size.width;
     EdgeInsets padding;
 
@@ -408,7 +404,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           child: FadeTransition(
             opacity: fade,
             child: Padding(
-              key: key,
+              key: widget.actionsKey,
               padding: EdgeInsets.only(
                 bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),
