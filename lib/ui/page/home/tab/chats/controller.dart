@@ -95,6 +95,9 @@ class ChatsTabController extends GetxController {
   final Rx<LoaderElement?> loader = Rx(null);
   late final Rx<Timer?> timer;
 
+  final RxBool selecting = RxBool(false);
+  final RxList<ChatId> selectedChats = RxList();
+
   /// Status of the [createGroup] progression.
   ///
   /// May be:
@@ -489,6 +492,20 @@ class ChatsTabController extends GetxController {
       rethrow;
     } finally {
       creatingStatus.value = RxStatus.empty();
+    }
+  }
+
+  void toggleSelecting() {
+    selecting.toggle();
+    selectedChats.clear();
+    router.navigation.value = !selecting.value;
+  }
+
+  void selectChat(RxChat e) {
+    if (selectedChats.contains(e.id)) {
+      selectedChats.remove(e.id);
+    } else {
+      selectedChats.add(e.id);
     }
   }
 

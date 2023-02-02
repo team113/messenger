@@ -16,12 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 
 /// [ReactiveTextField]-styled button.
-class FieldButton extends StatelessWidget {
+class FieldButton extends StatefulWidget {
   const FieldButton({
     Key? key,
     this.text,
@@ -69,37 +71,56 @@ class FieldButton extends StatelessWidget {
   final Color fillColor;
 
   @override
+  State<FieldButton> createState() => _FieldButtonState();
+}
+
+class _FieldButtonState extends State<FieldButton> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final Widget widget = WidgetButton(
-      behavior: HitTestBehavior.deferToChild,
-      onPressed: onPressed,
-      child: IgnorePointer(
-        child: ReactiveTextField(
-          textAlign: textAlign,
-          state: TextFieldState(text: text, editable: false),
-          label: hint,
-          maxLines: maxLines,
-          trailing: trailing,
-          prefix: prefix,
-          style: style,
-          fillColor: fillColor,
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    final Widget child = MouseRegion(
+      onEnter: PlatformUtils.isMobile
+          ? null
+          : (_) => setState(() => _hovered = true),
+      onExit: PlatformUtils.isMobile
+          ? null
+          : (_) => setState(() => _hovered = false),
+      child: WidgetButton(
+        behavior: HitTestBehavior.deferToChild,
+        onPressed: widget.onPressed,
+        child: IgnorePointer(
+          child: ReactiveTextField(
+            textAlign: widget.textAlign,
+            state: TextFieldState(text: widget.text, editable: false),
+            label: widget.hint,
+            maxLines: widget.maxLines,
+            trailing: widget.trailing,
+            prefix: widget.prefix,
+            style: widget.style,
+            fillColor: _hovered && widget.onPressed != null
+                ? style.cardHoveredColor
+                : widget.fillColor,
+          ),
         ),
       ),
     );
 
-    if (trailing == null || onTrailingPressed == null) {
-      return widget;
+    if (widget.trailing == null || widget.onTrailingPressed == null) {
+      return child;
     }
 
     return Stack(
       alignment: Alignment.centerRight,
       children: [
-        widget,
+        child,
         Positioned.fill(
           child: Align(
             alignment: Alignment.centerRight,
             child: WidgetButton(
-              onPressed: onTrailingPressed,
+              onPressed: widget.onTrailingPressed,
               child: const SizedBox(width: 50, height: double.infinity),
             ),
           ),

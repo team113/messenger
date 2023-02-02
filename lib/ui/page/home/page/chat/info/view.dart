@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 
@@ -620,28 +621,20 @@ class ChatInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () {},
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_add_to_contacts'.l10n,
-                  editable: false,
+            text: 'btn_add_to_contacts'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         const SizedBox(height: 10),
@@ -649,30 +642,22 @@ class ChatInfoView extends StatelessWidget {
           Obx(() {
             final bool favorited = c.chat?.chat.value.favoritePosition != null;
 
-            return WidgetButton(
+            return FieldButton(
               onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: favorited
-                        ? 'btn_delete_from_favorites'.l10n
-                        : 'btn_add_to_favorites'.l10n,
-                    editable: false,
+              text: favorited
+                  ? 'btn_delete_from_favorites'.l10n
+                  : 'btn_add_to_favorites'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: SvgLoader.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
                   ),
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/delete.svg',
-                        height: 14,
-                      ),
-                    ),
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             );
           }),
         ),
@@ -681,166 +666,118 @@ class ChatInfoView extends StatelessWidget {
           Obx(() {
             final bool muted = c.chat?.chat.value.muted != null;
 
-            return WidgetButton(
+            return FieldButton(
               onPressed: muted ? c.unmuteChat : c.muteChat,
-              child: IgnorePointer(
-                child: ReactiveTextField(
-                  state: TextFieldState(
-                    text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-                    editable: false,
-                  ),
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: muted
-                          ? SvgLoader.asset(
-                              'assets/icons/btn_mute.svg',
-                              width: 18.68,
-                              height: 15,
-                            )
-                          : SvgLoader.asset(
-                              'assets/icons/btn_unmute.svg',
-                              width: 17.86,
-                              height: 15,
-                            ),
-                    ),
-                  ),
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: muted
+                      ? SvgLoader.asset(
+                          'assets/icons/btn_mute.svg',
+                          width: 18.68,
+                          height: 15,
+                        )
+                      : SvgLoader.asset(
+                          'assets/icons/btn_unmute.svg',
+                          width: 17.86,
+                          height: 15,
+                        ),
                 ),
               ),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             );
           }),
         ),
         const SizedBox(height: 10),
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () => _hideChat(c, context),
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_hide_chat'.l10n,
-                  editable: false,
+            text: 'btn_hide_chat'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         const SizedBox(height: 10),
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () => _clearChat(c, context),
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_clear_chat'.l10n,
-                  editable: false,
+            text: 'btn_clear_chat'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         const SizedBox(height: 10),
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () => c.removeChatMember(c.me!),
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_leave_group'.l10n,
-                  editable: false,
+            text: 'btn_leave_group'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         const SizedBox(height: 10),
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () => _blacklistChat(c, context),
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_block'.l10n,
-                  editable: false,
+            text: 'btn_block'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         const SizedBox(height: 10),
         _dense(
-          WidgetButton(
+          FieldButton(
             onPressed: () {},
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(
-                  text: 'btn_report'.l10n,
-                  editable: false,
+            text: 'btn_report'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: Transform.scale(
+                scale: 1.15,
+                child: SvgLoader.asset(
+                  'assets/icons/delete.svg',
+                  height: 14,
                 ),
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/delete.svg',
-                      height: 14,
-                    ),
-                  ),
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
       ],

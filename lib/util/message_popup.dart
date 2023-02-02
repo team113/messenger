@@ -124,7 +124,7 @@ class MessagePopup {
   }
 
   /// Shows a [SnackBar] with the [title] message.
-  static void success(String title) {
+  static void success(String title, {double bottom = 16}) {
     final Style style = Theme.of(router.context!).extension<Style>()!;
 
     // BotToast.showEnhancedWidget(toastBuilder: toastBuilder)
@@ -144,7 +144,7 @@ class MessagePopup {
     ScaffoldMessenger.of(router.context!).showSnackBar(
       SnackBar(
         elevation: 0,
-        margin: const EdgeInsets.only(top: 16, bottom: 76),
+        margin: EdgeInsets.only(top: 16, bottom: bottom),
         content: Center(
           heightFactor: 0,
           child: Container(

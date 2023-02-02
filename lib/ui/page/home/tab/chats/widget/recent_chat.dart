@@ -53,7 +53,7 @@ import '/util/platform_utils.dart';
 class RecentChatTile extends StatelessWidget {
   const RecentChatTile(
     this.rxChat, {
-    Key? key,
+    super.key,
     this.me,
     this.myUser,
     this.blocked = false,
@@ -67,7 +67,12 @@ class RecentChatTile extends StatelessWidget {
     this.onUnmute,
     this.onFavorite,
     this.onUnfavorite,
-  }) : super(key: key);
+    this.onSelect,
+    this.trailing = const [],
+    this.onTap,
+    this.selected = false,
+    Widget Function(Widget)? avatarBuilder,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
   final RxChat rxChat;
@@ -116,21 +121,33 @@ class RecentChatTile extends StatelessWidget {
   /// triggered.
   final void Function()? onUnfavorite;
 
+  final void Function()? onSelect;
+  final List<Widget> trailing;
+  final bool selected;
+  final void Function()? onTap;
+
+  /// Builder for building an [AvatarWidget] this [ContactTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
+      final bool selected = this.selected ||
+          router.routes
+                  .lastWhereOrNull((e) => e.startsWith(Routes.chat))
+                  ?.startsWith('${Routes.chat}/${chat.id}') ==
+              true;
 
       return ChatTile(
         chat: rxChat,
         avatarBuilder: chat.isMonolog
-            ? (_) => AvatarWidget.fromMyUser(myUser, radius: 30)
-            : null,
+            ? (_) => avatarBuilder(AvatarWidget.fromMyUser(myUser, radius: 30))
+            : avatarBuilder,
         status: [
           _status(context),
           Text(
@@ -146,26 +163,29 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
-                if (blocked) ...[
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.block,
-                    color: Color(0xFFC0C0C0),
-                    size: 20,
-                  ),
-                  if (chat.muted == null) const SizedBox(width: 5),
-                ],
-                if (chat.muted != null) ...[
-                  const SizedBox(width: 5),
-                  SvgLoader.asset(
-                    'assets/icons/muted.svg',
-                    key: Key('MuteIndicator_${chat.id}'),
-                    width: 19.99,
-                    height: 15,
-                  ),
-                  const SizedBox(width: 5),
-                ],
-                _counter(),
+                if (trailing.isEmpty) ...[
+                  if (blocked) ...[
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.block,
+                      color: Color(0xFFC0C0C0),
+                      size: 20,
+                    ),
+                    if (chat.muted == null) const SizedBox(width: 5),
+                  ],
+                  if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                    SvgLoader.asset(
+                      'assets/icons/muted.svg',
+                      key: Key('MuteIndicator_${chat.id}'),
+                      width: 19.99,
+                      height: 15,
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  _counter(),
+                ] else
+                  ...trailing,
               ],
             ),
           ),
@@ -184,15 +204,6 @@ class RecentChatTile extends StatelessWidget {
               label: 'btn_add_to_favorites'.l10n,
               onPressed: onFavorite,
               trailing: const Icon(Icons.star),
-            ),
-          if (onHide != null)
-            ContextMenuButton(
-              key: const Key('ButtonHideChat'),
-              label: PlatformUtils.isMobile
-                  ? 'btn_hide'.l10n
-                  : 'btn_hide_chat'.l10n,
-              onPressed: () => _hideChat(context),
-              trailing: const Icon(Icons.delete),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
@@ -214,11 +225,21 @@ class RecentChatTile extends StatelessWidget {
             ),
           ContextMenuButton(
             label: 'btn_select'.l10n,
+            onPressed: onSelect,
             trailing: const Icon(Icons.select_all),
           ),
+          if (onHide != null)
+            ContextMenuButton(
+              key: const Key('ButtonHideChat'),
+              label: PlatformUtils.isMobile
+                  ? 'btn_hide'.l10n
+                  : 'btn_hide_chat'.l10n,
+              onPressed: () => _hideChat(context),
+              trailing: const Icon(Icons.delete),
+            ),
         ],
         selected: selected,
-        onTap: () => router.chat(chat.id),
+        onTap: onTap ?? () => router.chat(chat.id),
       );
     });
   }
@@ -758,6 +779,9 @@ class RecentChatTile extends StatelessWidget {
       onHide?.call();
     }
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }
 
 /// Extension adding conversion from [DateTime] to its short text relative to

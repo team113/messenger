@@ -254,7 +254,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       Text(
                         'Reconnecting...',
                         style: Theme.of(context).textTheme.caption?.copyWith(
-                              fontSize: 17,
+                              fontSize: 15,
                               color: Colors.white,
                             ),
                       ),

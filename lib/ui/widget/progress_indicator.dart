@@ -66,7 +66,7 @@ class CustomProgressIndicator extends StatelessWidget {
           // color: const Color(0xFFDFDFDF),
           // color: Color.fromARGB(255, 226, 232, 235),
           // backgroundColor: Colors.white,
-          color: color ?? const Color.fromARGB(255, 190, 190, 190),
+          color: color ?? const Color.fromARGB(255, 175, 175, 175),
           backgroundColor:
               backgroundColor ?? const Color.fromARGB(255, 213, 213, 213),
           valueColor: valueColor,

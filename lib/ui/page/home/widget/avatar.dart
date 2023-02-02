@@ -423,7 +423,7 @@ class AvatarWidget extends StatelessWidget {
         showBadge: isOnline,
         badgeStyle: badges.BadgeStyle(
           badgeColor: Colors.white,
-          padding: EdgeInsets.all(badgeSize / 3),
+          padding: EdgeInsets.all(badgeSize / 6),
           elevation: 0,
         ),
         badgeContent: Container(
@@ -435,8 +435,8 @@ class AvatarWidget extends StatelessWidget {
         ),
         badgeAnimation: const badges.BadgeAnimation.fade(toAnimate: false),
         position: badges.BadgePosition.bottomEnd(
-          bottom: -badgeSize / 5,
-          end: -badgeSize / 5,
+          bottom: badgeSize / 3,
+          end: badgeSize / 3,
         ),
         child: Container(
           constraints: BoxConstraints(

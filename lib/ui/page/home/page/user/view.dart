@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -263,22 +264,17 @@ class UserView extends StatelessWidget {
       return Container(
         margin: const EdgeInsets.only(bottom: 8),
         child: _dense(
-          WidgetButton(
+          FieldButton(
             key: key,
             onPressed: onPressed,
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(text: text ?? '', editable: false),
-                trailing: trailing != null
-                    ? Transform.translate(
-                        offset: const Offset(0, -1),
-                        child: Transform.scale(scale: 1.15, child: trailing),
-                      )
-                    : null,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              ),
-            ),
+            text: text ?? '',
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            trailing: trailing != null
+                ? Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(scale: 1.15, child: trailing),
+                  )
+                : null,
           ),
         ),
       );

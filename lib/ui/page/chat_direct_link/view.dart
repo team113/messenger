@@ -36,6 +36,7 @@ class ChatDirectLinkView extends StatelessWidget {
     return GetBuilder(
       init: ChatDirectLinkController(_slug, Get.find()),
       builder: (ChatDirectLinkController c) => Scaffold(
+        backgroundColor: const Color(0xFFF6F8F9),
         body: Center(
           child: Obx(
             () => c.slug.value == null
