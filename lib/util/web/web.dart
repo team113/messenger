@@ -438,7 +438,7 @@ class WebUtils {
     newState ??= WebUtils.getCall(chatId);
     WebUtils.removeCall(chatId);
     WebUtils.setCall(newState!);
-    replaceInUrl(chatId.val, newChatId.val);
+    replaceState(chatId.val, newChatId.val);
   }
 
   /// Removes all calls from the browser's storage, if any.
@@ -527,8 +527,8 @@ class WebUtils {
     }
   }
 
-  /// Replaces the provided [String] in the current url.
-  static void replaceInUrl(String from, String to) {
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
     html.window.history.replaceState(
       null,
       html.document.title,

@@ -54,7 +54,7 @@ class CallRepository extends DisposableInterface
     required this.me,
   });
 
-  /// Callback, called when the provided [Chat] should
+  /// Callback, called when the provided [Chat] should be remotely accessible.
   Future<RxChat> Function(ChatId id)? ensureRemoteDialog;
 
   @override
@@ -197,6 +197,7 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    // TODO: Call should be display right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
       chatId = (await ensureRemoteDialog!.call(chatId)).id;
     }

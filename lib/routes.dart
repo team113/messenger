@@ -223,13 +223,6 @@ class RouterState extends ChangeNotifier {
     }
   }
 
-  /// Removes the provided [route] from the [routes].
-  void remove(String route) {
-    if (routes.remove(route)) {
-      notifyListeners();
-    }
-  }
-
   /// Removes the [routes] satisfying the provided [predicate].
   void removeWhere(bool Function(String element) predicate) {
     for (String e in routes.toList(growable: false)) {

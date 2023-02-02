@@ -199,7 +199,7 @@ class ChatRepository implements AbstractChatRepository {
             return _putEntry(_chat(query));
           }
         } else {
-          HiveChat? hiveChat = _chatLocal.get(id);
+          final HiveChat? hiveChat = _chatLocal.get(id);
           if (hiveChat != null) {
             chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
             chat.init();
@@ -207,6 +207,8 @@ class ChatRepository implements AbstractChatRepository {
 
           chat ??=
               await createDialogChat(UserId(id.val.replaceFirst('local_', '')));
+
+          _chats[id] = chat;
         }
       }
 
@@ -1051,8 +1053,9 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_chatLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      ChatId chatId = ChatId(event.key);
+      final BoxEvent event = _localSubscription!.current;
+      final ChatId chatId = ChatId(event.key);
+
       if (event.deleted) {
         await _chats.remove(chatId)?.dispose();
       } else {
@@ -1075,14 +1078,13 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> _initDraftSubscription() async {
     _draftSubscription = StreamIterator(_draftLocal.boxEvents);
     while (await _draftSubscription!.moveNext()) {
-      BoxEvent event = _draftSubscription!.current;
-      ChatId chatId = ChatId(event.key);
+      final BoxEvent event = _draftSubscription!.current;
+      final ChatId chatId = ChatId(event.key);
+
       if (event.deleted) {
         _chats[chatId]?.draft.value = null;
       } else {
-        HiveRxChat? chat;
-
-        chat ??= _chats[chatId];
+        final HiveRxChat? chat = _chats[chatId];
         if (chat != null) {
           chat.draft.value = event.value;
           chat.draft.refresh();
@@ -1185,21 +1187,27 @@ class ChatRepository implements AbstractChatRepository {
     HiveRxChat? entry = chats[data.chat.value.id];
 
     if (entry == null) {
+      // If [data] is a remote [Chat]-dialog, then try to replace the existing
+      // local [Chat], if any is associated with this [data].
       if (data.chat.value.isDialog && !data.chat.value.id.isLocal) {
-        final ChatMember member =
-            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me)!;
-        final ChatId localId = ChatId.local(member.user.id);
-        final HiveRxChat? localChat = chats[localId];
+        final ChatMember? member =
+            data.chat.value.members.firstWhereOrNull((m) => m.user.id != me);
+        final ChatId? localId =
+            member == null ? null : ChatId.local(member.user.id);
 
-        if (localChat != null) {
-          chats.move(localId, data.chat.value.id);
-          localChat.chat.value.id = data.chat.value.id;
-          await Future.delayed(Duration.zero);
-          entry = localChat;
+        if (localId != null) {
+          final HiveRxChat? localChat = chats[localId];
+
+          if (localChat != null) {
+            chats.move(localId, data.chat.value.id);
+            localChat.chat.value.id = data.chat.value.id;
+            await Future.delayed(Duration.zero);
+            entry = localChat;
+          }
+
+          _draftLocal.move(localId, data.chat.value.id);
+          remove(localId);
         }
-
-        _draftLocal.move(localId, data.chat.value.id);
-        remove(localId);
       }
 
       _putChat(data.chat);

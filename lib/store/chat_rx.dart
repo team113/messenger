@@ -639,7 +639,7 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Initializes [FileAttachment]s in the [messages].
+  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
   Future<void> _initAttachments() async {
     final List<Future> futures = [];
 
@@ -667,7 +667,7 @@ class HiveRxChat extends RxChat {
     if (chat.value.id != _chatId) {
       _chatId = chat.value.id;
 
-      _initRemoteSubscription(id);
+      subscribe();
       _localSubscription?.cancel();
 
       final List<HiveChatItem> saved = _local.messages.toList();
@@ -687,9 +687,7 @@ class HiveRxChat extends RxChat {
 
       _initLocalSubscription();
 
-      for (var e in saved) {
-        _local.put(e);
-      }
+      saved.forEach(_local.put);
 
       if (!PlatformUtils.isWeb) {
         _initAttachments();

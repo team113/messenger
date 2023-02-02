@@ -742,7 +742,7 @@ class ChatController extends GetxController {
 
       _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
-          WebUtils.replaceInUrl(id.val, e.id.val);
+          WebUtils.replaceState(id.val, e.id.val);
           id = e.id;
         }
 

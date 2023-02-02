@@ -201,8 +201,8 @@ class WebUtils {
     }
   }
 
-  /// Replaces the provided [String] in the current url.
-  static void replaceInUrl(String from, String to) {
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
     // No-op.
   }
 }
