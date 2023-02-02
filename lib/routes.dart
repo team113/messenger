@@ -131,7 +131,13 @@ class RouterState extends ChangeNotifier {
   RouteInformationProvider? provider;
 
   /// This router's global [BuildContext] to use in contextless scenarios.
+  ///
+  /// Note that this [BuildContext] doesn't contain a [Overlay] widget. If you
+  /// need one, use the [overlay].
   BuildContext? context;
+
+  /// This router's global [OverlayState] to use in contextless scenarios.
+  OverlayState? overlay;
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
@@ -339,8 +345,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) {
-    Future.delayed(
-        Duration.zero, () => _state.context = navigatorKey.currentContext);
+    Future.delayed(Duration.zero, () {
+      _state.context = navigatorKey.currentContext;
+      _state.overlay = navigatorKey.currentState?.overlay;
+    });
     return setNewRoutePath(configuration);
   }
 
