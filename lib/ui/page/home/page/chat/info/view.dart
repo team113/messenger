@@ -321,7 +321,7 @@ class ChatInfoView extends StatelessWidget {
               ? null
               : () {
                   Clipboard.setData(ClipboardData(text: c.name.text));
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
+                  MessagePopup.success('label_copied'.l10n);
                 },
           trailing: c.name.text.isEmpty
               ? null
@@ -357,7 +357,7 @@ class ChatInfoView extends StatelessWidget {
                       ),
                     );
 
-                    MessagePopup.success('label_copied_to_clipboard'.l10n);
+                    MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
                 ? null
