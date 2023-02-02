@@ -57,9 +57,6 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
 
-  /// Map of window IDs in that opened a call.
-  Map<ChatId, int> popupCalls = {};
-
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
 
@@ -72,7 +69,7 @@ class CallService extends DisposableService {
   }) async {
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
-    if (WebUtils.containsCall(chatId) || popupCalls.containsKey(chatId)) {
+    if (PlatformUtils.openedInPopup(chatId)) {
       throw CallIsInPopupException();
     } else if (stored != null &&
         stored.value.state.value != OngoingCallState.ended) {
@@ -102,7 +99,7 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
-    if (WebUtils.containsCall(chatId) || popupCalls.containsKey(chatId)) {
+    if (PlatformUtils.openedInPopup(chatId)) {
       throw CallIsInPopupException();
     }
 
@@ -253,16 +250,13 @@ class CallService extends DisposableService {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
-
-      int? id = popupCalls.remove(chatId);
-      if (id != null) {
-        popupCalls[newChatId] = id;
-      }
-
       _callsRepo.moveCredentials(callId, newCallId);
-      if (WebUtils.isPopup) {
-        WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
-      }
+
+      PlatformUtils.moveCall(
+        chatId,
+        newChatId,
+        newState: call.value.toStored(),
+      );
     }
   }
 

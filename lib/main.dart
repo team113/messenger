@@ -67,7 +67,7 @@ Future<void> main(List<String> args) async {
 
   if (isSeparateWindow) {
     PlatformUtils.windowId = int.parse(args[1]);
-    final argument = jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument = json.decode(args[2]) as Map<String, dynamic>;
     call = StoredCall.fromJson(json.decode(argument['call'] as String));
     credentials =
         Credentials.fromJson(json.decode(argument['credentials'] as String));
@@ -86,7 +86,9 @@ Future<void> main(List<String> args) async {
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
 
-    await _initHive(windowId: PlatformUtils.windowId, credentials: credentials);
+    String hiveDir =
+        'hive${isSeparateWindow ? '/${PlatformUtils.windowId}' : ''}';
+    await _initHive(hiveDir, credentials: credentials);
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
       await windowManager.ensureInitialized();
@@ -225,28 +227,23 @@ class App extends StatelessWidget {
 
 /// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
 /// the [Get]'s context.
-Future<void> _initHive({int? windowId, Credentials? credentials}) async {
-  if (windowId == null) {
-    await Hive.initFlutter('hive');
+Future<void> _initHive(String dir, {Credentials? credentials}) async {
+  await Hive.initFlutter(dir);
 
-    // Load and compare application version.
-    Box box = await Hive.openBox('version');
-    String version = Pubspec.version;
-    String? stored = box.get(0);
+  // Load and compare application version.
+  Box box = await Hive.openBox('version');
+  String version = Pubspec.version;
+  String? stored = box.get(0);
 
-    // If mismatch is detected, then clean the existing [Hive] cache.
-    if (stored != version) {
-      await Hive.close();
-      await Hive.clean('hive');
-      await Hive.initFlutter('hive');
-      Hive.openBox('version').then((box) async {
-        await box.put(0, version);
-        await box.close();
-      });
-    }
-  } else {
-    await Hive.clean('hive/$windowId');
-    await Hive.initFlutter('hive/$windowId');
+  // If mismatch is detected, then clean the existing [Hive] cache.
+  if (stored != version) {
+    await Hive.close();
+    await Hive.clean(dir);
+    await Hive.initFlutter(dir);
+    Hive.openBox('version').then((box) async {
+      await box.put(0, version);
+      await box.close();
+    });
   }
 
   var sessionProvider = Get.put(SessionDataHiveProvider());

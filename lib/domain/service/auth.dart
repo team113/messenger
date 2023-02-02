@@ -121,46 +121,34 @@ class AuthService extends GetxService {
 
     // Listen to the [Credentials] changes if this window is a popup.
     if (PlatformUtils.isPopup) {
+      onCredentials(String? newCredentials) {
+        if (newCredentials == null) {
+          _authRepository.token = null;
+          credentials.value = null;
+          _status.value = RxStatus.empty();
+        } else {
+          Credentials creds = Credentials.fromJson(json.decode(newCredentials));
+          _authRepository.token = creds.session.token;
+          _authRepository.applyToken();
+          credentials.value = creds;
+          _status.value = RxStatus.success();
+        }
+
+        if (_tokenGuard.isLocked) {
+          _tokenGuard.release();
+        }
+      }
+
       if (PlatformUtils.isWeb) {
         _storageSubscription = WebUtils.onStorageChange.listen((e) {
           if (e.key == 'credentials') {
-            if (e.newValue == null) {
-              _authRepository.token = null;
-              credentials.value = null;
-              _status.value = RxStatus.empty();
-            } else {
-              Credentials creds =
-                  Credentials.fromJson(json.decode(e.newValue!));
-              _authRepository.token = creds.session.token;
-              _authRepository.applyToken();
-              credentials.value = creds;
-              _status.value = RxStatus.success();
-            }
-
-            if (_tokenGuard.isLocked) {
-              _tokenGuard.release();
-            }
+            onCredentials(e.newValue);
           }
         });
       } else {
         DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
           if (methodCall.method == 'credentials') {
-            if (methodCall.arguments == null) {
-              _authRepository.token = null;
-              credentials.value = null;
-              _status.value = RxStatus.empty();
-            } else {
-              Credentials creds =
-                  Credentials.fromJson(json.decode(methodCall.arguments!));
-              _authRepository.token = creds.session.token;
-              _authRepository.applyToken();
-              credentials.value = creds;
-              _status.value = RxStatus.success();
-            }
-
-            if (_tokenGuard.isLocked) {
-              _tokenGuard.release();
-            }
+            onCredentials(methodCall.arguments);
           }
         });
       }

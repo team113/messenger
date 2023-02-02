@@ -20,7 +20,6 @@ import 'dart:math';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -319,9 +318,6 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// Controller of the popup window on desktop, used to update title.
-  WindowController? _windowController;
-
   /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
@@ -574,24 +570,14 @@ class CallController extends GetxController {
 
       // Update the window title if this call is in a popup.
       if (PlatformUtils.isPopup) {
-        if (PlatformUtils.windowId != null) {
-          _windowController =
-              WindowController.fromWindowId(PlatformUtils.windowId!);
-        }
-
         _titleSubscription?.cancel();
         _durationSubscription?.cancel();
 
         if (v != null) {
           void updateTitle() {
-            if (PlatformUtils.isWeb) {
-              WebUtils.title(
-                '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
-              );
-            } else {
-              _windowController
-                  ?.setTitle('label_call_title'.l10nfmt(titleArguments));
-            }
+            PlatformUtils.setTitle(
+              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
+            );
           }
 
           updateTitle();

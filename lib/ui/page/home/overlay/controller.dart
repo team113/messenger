@@ -27,9 +27,9 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/session.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -39,10 +39,17 @@ export 'view.dart';
 
 /// Controller of an [OngoingCall]s overlay.
 class CallOverlayController extends GetxController {
-  CallOverlayController(this._callService, this._settingsRepo);
+  CallOverlayController(
+    this._callService,
+    this._authService,
+    this._settingsRepo,
+  );
 
   /// Call service used to expose the [calls].
   final CallService _callService;
+
+  /// Authentication service used to get [Credentials].
+  final AuthService _authService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -68,90 +75,62 @@ class CallOverlayController extends GetxController {
           bool window = false;
 
           var ongoingCall = event.value!.value;
-          if (PlatformUtils.isWeb &&
-              !PlatformUtils.isMobile &&
+          if (PlatformUtils.isDesktop &&
               _settings.value?.enablePopups != false) {
-            window = WebUtils.openPopupCall(
-              event.key!,
-              withAudio:
-                  ongoingCall.audioState.value == LocalTrackState.enabling ||
-                      ongoingCall.audioState.value == LocalTrackState.enabled,
-              withVideo:
-                  ongoingCall.videoState.value == LocalTrackState.enabling ||
-                      ongoingCall.videoState.value == LocalTrackState.enabled,
-              withScreen: ongoingCall.screenShareState.value ==
-                      LocalTrackState.enabling ||
-                  ongoingCall.screenShareState.value == LocalTrackState.enabled,
-            );
-
-            // If [window] is `true`, then a new popup window is created, so
-            // treat this call as a popup windowed call.
-            if (window) {
-              WebUtils.setCall(ongoingCall.toStored());
-              if (ongoingCall.callChatItemId == null ||
-                  ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  ongoingCall.call,
-                  (ChatCall? call) {
-                    WebUtils.setCall(ongoingCall.toStored());
-
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
-                );
-              }
-            } else {
-              Future.delayed(Duration.zero, () {
-                ongoingCall.addError('err_call_popup_was_blocked'.l10n);
-              });
-            }
-          } else if (PlatformUtils.isDesktop &&
-              !PlatformUtils.isWeb &&
-              _settings.value?.enablePopups != false) {
+            window = true;
             try {
-              window = true;
-              var desktopWindow = await DesktopMultiWindow.createWindow(
-                jsonEncode({
-                  'call': json.encode(ongoingCall.toStored().toJson()),
-                  'credentials': json.encode(Get.find<SessionDataHiveProvider>()
-                      .getCredentials()!
-                      .toJson()),
-                }),
-              );
-              await desktopWindow
-                  .setFrame(const Offset(0, 0) & const Size(700, 700));
-              await desktopWindow.center();
-              await desktopWindow.setTitle('Call');
-              await desktopWindow.show();
-
-              _callService.popupCalls[ongoingCall.chatId.value] =
-                  desktopWindow.windowId;
-
-              DesktopMultiWindow.invokeMethod(
-                desktopWindow.windowId,
-                'call',
-                json.encode(ongoingCall.toStored().toJson()),
+              int? windowId = await PlatformUtils.openPopup(
+                ongoingCall,
+                _authService.credentials.value,
               );
 
-              if (ongoingCall.callChatItemId == null ||
-                  ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  ongoingCall.call,
-                  (ChatCall? call) {
-                    DesktopMultiWindow.invokeMethod(
-                      desktopWindow.windowId,
-                      'call',
-                      json.encode(ongoingCall.toStored()),
-                    );
+              if (PlatformUtils.isWeb) {
+                WebUtils.setCall(ongoingCall.toStored());
+                if (ongoingCall.callChatItemId == null ||
+                    ongoingCall.deviceId == null) {
+                  _workers[event.key!] = ever(
+                    ongoingCall.call,
+                    (ChatCall? call) {
+                      WebUtils.setCall(ongoingCall.toStored());
 
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
+                      if (call?.id != null) {
+                        _workers[event.key!]?.dispose();
+                      }
+                    },
+                  );
+                }
+              } else {
+                DesktopMultiWindow.invokeMethod(
+                  windowId!,
+                  'call',
+                  json.encode(ongoingCall.toStored().toJson()),
                 );
+
+                if (ongoingCall.callChatItemId == null ||
+                    ongoingCall.deviceId == null) {
+                  _workers[event.key!] = ever(
+                    ongoingCall.call,
+                    (ChatCall? call) {
+                      DesktopMultiWindow.invokeMethod(
+                        windowId,
+                        'call',
+                        json.encode(ongoingCall.toStored()),
+                      );
+
+                      if (call?.id != null) {
+                        _workers[event.key!]?.dispose();
+                      }
+                    },
+                  );
+                }
               }
             } catch (e) {
+              if (PlatformUtils.isWeb) {
+                Future.delayed(Duration.zero, () {
+                  ongoingCall.addError('err_call_popup_was_blocked'.l10n);
+                });
+              }
+
               Log.error(e);
               window = false;
             }
@@ -167,17 +146,7 @@ class CallOverlayController extends GetxController {
 
         case OperationKind.removed:
           calls.removeWhere((e) => e.call == event.value!);
-          if (PlatformUtils.isWeb) {
-            OngoingCall call = event.value!.value;
-            if (call.callChatItemId == null || call.connected) {
-              WebUtils.removeCall(event.key!);
-            }
-          } else if (PlatformUtils.isDesktop) {
-            int? id = _callService.popupCalls.remove(event.key!);
-            if (id != null) {
-              WindowController.fromWindowId(id).close();
-            }
-          }
+          PlatformUtils.removeCall(event.value!.value);
           break;
 
         case OperationKind.updated:
