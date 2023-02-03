@@ -21,6 +21,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -399,23 +400,23 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
-      String? link;
+      StorageFile? file;
 
       switch (quality) {
         case AvatarQuality.original:
-          link = avatar?.original.url;
+          file = avatar?.original;
           break;
 
         case AvatarQuality.big:
-          link = avatar?.big.url;
+          file = avatar?.big;
           break;
 
         case AvatarQuality.medium:
-          link = avatar?.medium.url;
+          file = avatar?.medium;
           break;
 
         case AvatarQuality.small:
-          link = avatar?.small.url;
+          file = avatar?.small;
           break;
       }
 
@@ -471,8 +472,8 @@ class AvatarWidget extends StatelessWidget {
               if (avatar != null)
                 ClipOval(
                   child: RetryImage(
-                    link ?? avatar!.original.url,
-                    checksum: avatar!.original.checksum,
+                    file?.url ?? avatar!.original.url,
+                    checksum: file?.checksum ?? avatar!.original.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
