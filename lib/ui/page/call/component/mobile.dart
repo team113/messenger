@@ -130,7 +130,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : e.audio.value?.isMuted.value ?? false;
 
-                Widget child(bool animated) {
+                // Builds the [Participant] with a [AnimatedClipRRect].
+                Widget builder(bool animated) {
                   final Widget stack = Stack(
                     children: [
                       const ParticipantDecoratorWidget(),
@@ -150,10 +151,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ],
                   );
 
-                  if (!animated) {
-                    return stack;
-                  }
-
                   return AnimatedClipRRect(
                     key: Key(e.member.id.toString()),
                     duration: 250.milliseconds,
@@ -164,8 +161,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       duration: 200.milliseconds,
                       decoration: BoxDecoration(
                         color: animated
-                            ? const Color.fromARGB(255, 19, 33, 49)
-                            : const Color.fromARGB(0, 19, 33, 49),
+                            ? const Color(0xFF132131)
+                            : const Color(0x00132131),
                       ),
                       width: animated
                           ? MediaQuery.of(context).size.width - 20
@@ -241,8 +238,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ],
                   ],
                   unconstrained: true,
-                  childBuilder: child,
-                  child: const SizedBox.shrink(),
+                  builder: builder,
                 );
               });
             },

@@ -59,10 +59,10 @@ class FloatingContextMenu extends StatefulWidget {
   /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
 
-  /// Callback, called when a [FloatingContextMenu] opens.
+  /// Callback, called when this [FloatingContextMenu] opens.
   final void Function()? onOpened;
 
-  /// Callback, called when a [FloatingContextMenu] closes.
+  /// Callback, called when this [FloatingContextMenu] closes.
   final void Function()? onClosed;
 
   /// Indicator whether the [child] should be unconstrained.
@@ -79,9 +79,9 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   OverlayEntry? _entry;
 
   /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
-  final GlobalKey _key = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
 
-  /// [GlobalKey] of the [FloatingContextMenu.actions] to get its height.
+  /// [GlobalKey] of the [FloatingContextMenu.actions] to get their height.
   final GlobalKey _actionsKey = GlobalKey();
 
   /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
@@ -99,7 +99,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
       behavior: HitTestBehavior.translucent,
       onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
-        key: _key,
+        key: _globalKey,
         child: _entry == null || !widget.moveDownwards
             ? widget.child
             : SizedBox(
@@ -116,10 +116,10 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
     widget.onOpened?.call();
 
-    _rect = _key.globalPaintBounds;
+    _rect = _globalKey.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
-        globalKey: _key,
+        globalKey: _globalKey,
         actionsKey: _actionsKey,
         alignment: widget.alignment,
         actions: widget.actions,
@@ -228,7 +228,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       ..forward();
 
     _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _actionsBounds = widget.actionsKey.globalPaintBounds;
     });

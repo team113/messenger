@@ -68,7 +68,7 @@ class FloatingFit<T> extends StatefulWidget {
   /// Callback, called when floating panel is being manipulated in some way.
   final void Function(bool)? onManipulated;
 
-  /// Callback, called when [primary] and [panel]ed items swap.
+  /// Callback, called when [primary] and [panel]ed items are swapped.
   final void Function(T, T)? onSwapped;
 
   @override
