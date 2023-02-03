@@ -94,7 +94,7 @@ dev_dependencies:
   flutter_gherkin:
     git:
       url: https://github.com/jonsamwell/flutter_gherkin.git
-      ref: integration_test__package_support
+      ref: ea59f6376f2d78e5b2140980e74879b862218ea1
   flutter_lints: ^2.0.1
   flutter_test:
     sdk: flutter
