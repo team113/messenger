@@ -110,9 +110,10 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
+        final ImageAttachment image = attachment as ImageAttachment;
         return RetryImage(
-          attachment.original.url,
-          checksum: attachment.original.checksum,
+          image.big.url,
+          checksum: image.big.checksum,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
