@@ -890,6 +890,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       _dense(
         FieldButton(
+          key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
