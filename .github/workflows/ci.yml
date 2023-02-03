@@ -186,7 +186,7 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.7.0
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
@@ -554,7 +554,7 @@ jobs:
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.7.0
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: artifacts/docs.zip
           path: .cache/dartdoc/
