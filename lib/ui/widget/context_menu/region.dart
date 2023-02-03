@@ -185,9 +185,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       return;
     }
 
+    _displayed = true;
     if (widget.indicateOpenedMenu) {
-      setState(() => _darkened = true);
+      _darkened = true;
     }
+
+    setState(() {});
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuButton>(
@@ -259,8 +262,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       );
     }
 
+    _displayed = false;
     if (widget.indicateOpenedMenu) {
-      setState(() => _darkened = false);
+      _darkened = false;
     }
+
+    setState(() {});
   }
 }
