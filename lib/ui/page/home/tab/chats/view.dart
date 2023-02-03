@@ -222,24 +222,6 @@ class ChatsTabView extends StatelessWidget {
                     Obx(() {
                       final Widget child;
 
-                      // if (c.searching.value) {
-                      //   child = SvgLoader.asset(
-                      //     'assets/icons/close_primary.svg',
-                      //     height: 15,
-                      //   );
-                      // } else {
-                      //   child = c.groupCreating.value
-                      //       ? SvgLoader.asset(
-                      //           'assets/icons/close_primary.svg',
-                      //           height: 15,
-                      //         )
-                      //       : SvgLoader.asset(
-                      //           'assets/icons/group.svg',
-                      //           width: 21.77,
-                      //           height: 18.44,
-                      //         );
-                      // }
-
                       child = WidgetButton(
                         onPressed: () {
                           if (c.searching.value) {
@@ -248,19 +230,15 @@ class ChatsTabView extends StatelessWidget {
                             if (c.groupCreating.value) {
                               c.closeGroupCreating();
                             } else {
-                              // if (c.searchTimer?.isActive != true) {
                               c.startGroupCreating();
-                              // }
                             }
                           }
                         },
-                        key: c.searching.value
-                            ? c.groupCreating.value
-                                ? const Key('group')
-                                : const Key('CloseSearch')
+                        key: c.searching.value && !c.groupCreating.value
+                            ? const Key('CloseSearch')
                             : c.groupCreating.value
                                 ? const Key('group')
-                                : const Key('group'),
+                                : const Key('group1'),
                         child: Container(
                           padding: const EdgeInsets.only(left: 12, right: 18),
                           height: double.infinity,
@@ -283,18 +261,9 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
 
-                      return AnimatedSwitcher(
-                        duration: 250.milliseconds,
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         child: child,
-                        transitionBuilder: (a, c) {
-                          print(c.value);
-                          print(a.key);
-                          print(c.status);
-                          return AbsorbPointer(
-                            absorbing: a.key == const Key('CloseSearch'),
-                            child: ScaleTransition(scale: c, child: a),
-                          );
-                        },
                       );
                     }),
                   ],
