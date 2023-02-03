@@ -72,6 +72,7 @@ import 'steps/see_favorite_contact.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_muted_chat.dart';
+import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_chat_in_search_view.dart';
@@ -116,6 +117,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
+        selectText,
         iAmInChatNamed,
         iAmInChatWith,
         iTapChatWith,

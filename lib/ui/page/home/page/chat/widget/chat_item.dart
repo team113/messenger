@@ -824,7 +824,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         onSelectionChanged: (s) =>
                             selectedText.value = s?.plainText ?? '',
                         enabled: PlatformUtils.isDesktop ? true : v,
-                        child: Text(text, style: style.boldBody),
+                        child: Text(text,
+                            key: Key('MyMessage_${widget.item.value.id}'),
+                            style: style.boldBody),
                       ),
                     ),
                   ),
