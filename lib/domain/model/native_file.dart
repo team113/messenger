@@ -75,19 +75,15 @@ class NativeFile {
       );
 
   /// Absolute path for a cached copy of this file.
-  @HiveField(0)
   final String? path;
 
   /// File name including its extension.
-  @HiveField(1)
   final String name;
 
   /// Byte data of this file.
-  @HiveField(2)
-  Rx<Uint8List?> bytes;
+  final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
-  @HiveField(3)
   final int size;
 
   /// [MediaType] of this file.
@@ -247,29 +243,6 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
   }
 }
 
-/// [Hive] adapter for a [Rx<Uint8List?>].
-class RxBytesAdapter extends TypeAdapter<Rx<Uint8List?>> {
-  @override
-  int get typeId => ModelTypeId.reactiveBytes;
-
-  @override
-  Rx<Uint8List?> read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return Rx(fields[0] as Uint8List?);
-  }
-
-  @override
-  void write(BinaryWriter writer, Rx<Uint8List?> obj) {
-    writer
-      ..writeByte(1)
-      ..writeByte(0)
-      ..write(obj.value);
-  }
-}
-
 /// [Hive] adapter for a [NativeFile].
 class NativeFileAdapter extends TypeAdapter<NativeFile> {
   @override
@@ -277,42 +250,22 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
 
   @override
   NativeFile read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
     return NativeFile(
-      name: fields[1] as String,
-      size: fields[3] as int,
-      path: fields[0] as String?,
-      bytes: (fields[2] as Rx<Uint8List?>).value,
-      mime: fields[4] as MediaType?,
+      path: reader.read() as String?,
+      name: reader.read() as String,
+      bytes: reader.read() as Uint8List?,
+      size: reader.read() as int,
+      mime: reader.read() as MediaType?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NativeFile obj) {
     writer
-      ..writeByte(5)
-      ..writeByte(0)
       ..write(obj.path)
-      ..writeByte(1)
       ..write(obj.name)
-      ..writeByte(2)
-      ..write(obj.bytes)
-      ..writeByte(3)
+      ..write(obj.bytes.value)
       ..write(obj.size)
-      ..writeByte(4)
       ..write(obj.mime);
   }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is NativeFileAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
 }
