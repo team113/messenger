@@ -50,7 +50,7 @@ class PlatformUtilsImpl {
   String? _downloadDirectory;
 
   /// Map of window IDs in that opened a call.
-  Map<ChatId, int> _popupCalls = {};
+  final Map<ChatId, int> _popupCalls = {};
 
   /// ID of the windows this application opened.
   ///
