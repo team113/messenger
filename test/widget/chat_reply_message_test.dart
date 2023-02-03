@@ -311,7 +311,7 @@ void main() async {
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
+    // FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(
@@ -376,7 +376,13 @@ void main() async {
     var message = find.text('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
-    await tester.longPress(message);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // await tester.longPress(message);
+    await tester.longPressAt(tester.getTopLeft(message));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('ReplyButton')));
@@ -388,7 +394,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('CancelReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.longPress(message);
+    await tester.longPressAt(tester.getTopLeft(message));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(
