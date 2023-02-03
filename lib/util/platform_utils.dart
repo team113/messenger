@@ -430,7 +430,7 @@ class PlatformUtilsImpl {
       );
 
       if (!window) {
-        throw OperationFailedException();
+        throw Exception('Popup window not opened');
       }
     } else if (isDesktop) {
       var desktopWindow = await DesktopMultiWindow.createWindow(
@@ -560,6 +560,3 @@ class DesktopWindowListener extends WindowListener {
     onClose?.call();
   }
 }
-
-/// [Exception] throwing when an operation failed.
-class OperationFailedException implements Exception {}
