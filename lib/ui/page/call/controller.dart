@@ -1624,14 +1624,6 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Updates the [Participant]s of the call-dialog.
-  void updateDialogParticipant(Participant primary, Participant secondary) {
-    remotes[0] = primary;
-    paneled[0] = secondary;
-    this.primary[0] = primary;
-    this.secondary[0] = secondary;
-  }
-
   /// Returns corrected according to secondary constraints [width] value.
   double _applySWidth(double width) {
     if (_minSWidth > size.width * _maxSWidth) {

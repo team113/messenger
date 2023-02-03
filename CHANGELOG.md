@@ -28,7 +28,6 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Participants redialing. ([#241], [#233])
         - Screen share display choosing on desktop. ([#228], [#222])
-        - Context menu to mobile group calls. ([#340], [#329])
     - Contacts tab:
         - Favorite contacts. ([#285], [#237], [#223])
         - Searching. ([#323], [#310], [#260], [#259])
@@ -47,7 +46,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#319], [#316], [#287], [#246])
+        - Redesigned mobile interface. ([#340], [#319], [#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
         - Redesigned participants modal. ([#332], [#328])
@@ -166,7 +165,6 @@ All user visible changes to this project will be documented in this file. This p
 [#319]: /../../pull/319
 [#323]: /../../pull/323
 [#328]: /../../issues/328
-[#329]: /../../issues/329
 [#332]: /../../pull/332
 [#336]: /../../pull/336
 [#337]: /../../pull/337

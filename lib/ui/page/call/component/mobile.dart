@@ -80,7 +80,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             return FloatingFit<Participant>(
               primary: c.primary.first,
               panel: c.secondary.first,
-              onSwapped: c.updateDialogParticipant,
+              onSwapped: (p, _) => c.center(p),
               fit: !c.minimized.isFalse,
               intersection: c.dockRect,
               onManipulated: (bool m) => c.secondaryManipulated.value = m,
@@ -153,7 +153,6 @@ Widget mobileCall(CallController c, BuildContext context) {
 
                   return AnimatedClipRRect(
                     key: Key(e.member.id.toString()),
-                    duration: 250.milliseconds,
                     borderRadius: animated
                         ? BorderRadius.circular(10)
                         : BorderRadius.zero,

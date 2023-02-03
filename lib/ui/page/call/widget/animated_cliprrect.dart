@@ -22,7 +22,7 @@ class AnimatedClipRRect extends ImplicitlyAnimatedWidget {
   const AnimatedClipRRect({
     super.key,
     super.curve,
-    required super.duration,
+    super.duration = const Duration(milliseconds: 250),
     super.onEnd,
     required this.child,
     this.borderRadius = BorderRadius.zero,
