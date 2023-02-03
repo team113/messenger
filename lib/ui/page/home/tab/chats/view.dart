@@ -148,6 +148,8 @@ class ChatsTabView extends StatelessWidget {
                   actions: [
                     Obx(() {
                       return WidgetButton(
+                        key:
+                            c.searching.value ? const Key('CloseSearch') : null,
                         onPressed: () {
                           if (c.searching.value) {
                             c.closeSearch(!c.groupCreating.value);
@@ -159,8 +161,6 @@ class ChatsTabView extends StatelessWidget {
                             }
                           }
                         },
-                        key:
-                            c.searching.value ? const Key('CloseSearch') : null,
                         child: Container(
                           padding: const EdgeInsets.only(left: 12, right: 18),
                           height: double.infinity,

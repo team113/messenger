@@ -120,7 +120,7 @@ class ChatItemReads extends StatelessWidget {
                 ),
               ),
             Obx(() {
-              if (c.users.length > 2) {
+              if (c.users.length > 9) {
                 return Container(
                   padding: ModalPopup.padding(context),
                   margin: const EdgeInsets.only(bottom: 12),
