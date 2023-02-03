@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/file.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -110,10 +111,18 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        final ImageAttachment image = attachment as ImageAttachment;
+        final StorageFile image;
+
+        final StorageFile original = (attachment as ImageAttachment).original;
+        if (original.checksum != null && FIFOCache.exist(original.checksum!)) {
+          image = original;
+        } else {
+          image = attachment.big;
+        }
+
         return RetryImage(
-          image.big.url,
-          checksum: image.big.checksum,
+          image.url,
+          checksum: image.checksum,
           fit: widget.fit,
           width: widget.width,
           height: widget.height,
