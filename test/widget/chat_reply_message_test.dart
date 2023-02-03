@@ -311,7 +311,7 @@ void main() async {
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
-    // FlutterError.onError = ignoreOverflowErrors;
+    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(
@@ -376,13 +376,10 @@ void main() async {
     var message = find.text('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    // await tester.longPress(message);
-    await tester.longPressAt(tester.getTopLeft(message));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final TestGesture gesture2 = await tester
+        .startGesture(tester.getCenter(message), kind: PointerDeviceKind.mouse);
+    await tester.pump(const Duration(seconds: 1));
+    await gesture2.up();
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('ReplyButton')));
@@ -394,7 +391,10 @@ void main() async {
     await tester.tap(find.byKey(const Key('CancelReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.longPressAt(tester.getTopLeft(message));
+    final TestGesture gesture3 = await tester
+        .startGesture(tester.getCenter(message), kind: PointerDeviceKind.mouse);
+    await tester.pump(const Duration(seconds: 1));
+    await gesture3.up();
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(

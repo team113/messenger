@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -307,7 +308,11 @@ void main() async {
 
     var message = find.text('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
-    await tester.longPress(message);
+
+    final TestGesture gesture2 = await tester
+        .startGesture(tester.getCenter(message), kind: PointerDeviceKind.mouse);
+    await tester.pump(const Duration(seconds: 1));
+    await gesture2.up();
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
     await tester.tap(find.byKey(const Key('EditButton')));
