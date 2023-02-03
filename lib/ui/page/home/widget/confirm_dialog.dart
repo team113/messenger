@@ -68,7 +68,7 @@ class ConfirmDialog extends StatefulWidget {
   final int initial;
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
-  static Future<ConfirmDialog?> show(
+  static Future<T?> show<T>(
     BuildContext context, {
     String? description,
     required String title,
@@ -77,7 +77,7 @@ class ConfirmDialog extends StatefulWidget {
     List<Widget> additional = const [],
     int initial = 0,
   }) {
-    return ModalPopup.show<ConfirmDialog?>(
+    return ModalPopup.show<T?>(
       context: context,
       child: ConfirmDialog(
         description: description,
@@ -120,7 +120,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
@@ -145,7 +145,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                     child: DefaultTextStyle.merge(
                       style: Theme.of(context)
                           .textTheme
-                          .bodyText1
+                          .bodyLarge
                           ?.copyWith(color: Colors.black, fontSize: 18),
                       child: variant.child,
                     ),

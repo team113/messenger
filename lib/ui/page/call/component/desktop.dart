@@ -253,7 +253,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       const SizedBox(height: 16),
                       Text(
                         'Reconnecting...',
-                        style: Theme.of(context).textTheme.caption?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontSize: 15,
                               color: Colors.white,
                             ),
@@ -729,7 +729,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: context.textTheme.bodyText1?.copyWith(
+                        style: context.textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
                           color: const Color(0xFFFFFFFF),
                         ),
@@ -1186,7 +1186,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       Flexible(
                         child: Text(
                           'label_call_title'.l10nfmt(c.titleArguments),
-                          style: context.textTheme.bodyText1?.copyWith(
+                          style: context.textTheme.bodyLarge?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),
                           ),

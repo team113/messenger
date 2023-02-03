@@ -50,7 +50,7 @@ class AuthView extends StatelessWidget {
         bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
         final TextStyle? thin =
-            context.textTheme.caption?.copyWith(color: Colors.black);
+            context.textTheme.bodySmall?.copyWith(color: Colors.black);
         final Color primary = Theme.of(context).colorScheme.primary;
 
         // Header part of the page.
@@ -294,7 +294,7 @@ class AuthView extends StatelessWidget {
                 'btn_download'.l10n,
                 style: Theme.of(context)
                     .textTheme
-                    .bodyText1
+                    .bodyLarge
                     ?.copyWith(color: Colors.black, fontSize: 18),
               ),
             ),

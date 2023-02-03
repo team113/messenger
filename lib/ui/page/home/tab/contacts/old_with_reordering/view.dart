@@ -269,7 +269,7 @@ class ContactsTabView extends StatelessWidget {
 
             ThemeData theme = Theme.of(context);
             final TextStyle? thin =
-                theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+                theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
 
             return Column(
               children: [

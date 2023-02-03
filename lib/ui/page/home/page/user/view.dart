@@ -121,7 +121,7 @@ class UserView extends StatelessWidget {
                                   subtitle,
                                   style: Theme.of(context)
                                       .textTheme
-                                      .caption
+                                      .bodySmall
                                       ?.copyWith(
                                         color: Theme.of(context)
                                             .colorScheme

@@ -96,7 +96,7 @@ class MenuTabView extends StatelessWidget {
                                     'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .caption
+                                    .bodySmall
                                     ?.copyWith(
                                       color:
                                           Theme.of(context).colorScheme.primary,
@@ -246,7 +246,7 @@ class MenuTabView extends StatelessWidget {
                                             maxLines: 1,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .headline5!,
+                                                .headlineSmall!,
                                             child: Text(title),
                                           ),
                                           const SizedBox(height: 6),

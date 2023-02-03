@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:path/path.dart' as p;
 
@@ -36,6 +35,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -58,6 +58,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
+import 'media_attachment.dart';
 import 'reads/view.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
@@ -177,26 +178,13 @@ class ChatItemWidget extends StatefulWidget {
       isVideo = e is FileAttachment;
     }
 
-    final Widget attachment;
+    Widget attachment;
     if (isVideo) {
       attachment = Stack(
         alignment: Alignment.center,
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
-          isLocal
-              ? e.file.bytes == null
-                  ? const CustomProgressIndicator()
-                  : VideoThumbnail.bytes(
-                      bytes: e.file.bytes!,
-                      key: key,
-                      height: 300,
-                    )
-              : VideoThumbnail.url(
-                  url: e.original.url,
-                  key: key,
-                  height: 300,
-                  onError: onError,
-                ),
+          MediaAttachment(key: key, attachment: e, height: 300, load: load),
           Center(
             child: Container(
               width: 60,
@@ -211,33 +199,22 @@ class ChatItemWidget extends StatefulWidget {
           ),
         ],
       );
-    } else if (isLocal) {
-      if (e.file.bytes == null) {
-        attachment = const CustomProgressIndicator();
-      } else {
-        attachment = Image.memory(
-          e.file.bytes!,
-          key: key,
-          fit: BoxFit.cover,
-          height: 300,
+    } else {
+      attachment = MediaAttachment(
+        key: key,
+        attachment: e,
+        height: 300,
+        width: filled ? double.infinity : null,
+        fit: BoxFit.cover,
+        load: load,
+      );
+
+      if (!isLocal) {
+        attachment = KeyedSubtree(
+          key: const Key('SentImage'),
+          child: attachment,
         );
       }
-    } else {
-      e as ImageAttachment;
-      attachment = KeyedSubtree(
-        key: const Key('SentImage'),
-        child: RetryImage(
-          e.big.url,
-          key: key,
-          fallback: e.small.url,
-          fit: BoxFit.cover,
-          width: filled ? double.infinity : null,
-          height: 300,
-          onForbidden: onError,
-          cancelable: true,
-          load: load,
-        ),
-      );
     }
 
     return Padding(
@@ -256,14 +233,15 @@ class ChatItemWidget extends StatefulWidget {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  String link = o.original.url;
+                  StorageFile file = o.original;
                   GalleryItem? item;
 
                   if (o is FileAttachment) {
                     item = GalleryItem.video(
-                      link,
+                      file.url,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
                         item?.link = o.original.url;
@@ -271,9 +249,10 @@ class ChatItemWidget extends StatefulWidget {
                     );
                   } else if (o is ImageAttachment) {
                     item = GalleryItem.image(
-                      link,
+                      file.url,
                       o.filename,
-                      size: o.original.size,
+                      size: file.size,
+                      checksum: file.checksum,
                       onError: () async {
                         await onError?.call();
                         item?.link = o.original.url;
@@ -307,26 +286,37 @@ class ChatItemWidget extends StatefulWidget {
               key: Key('AttachmentStatus_${e.id}'),
               child: !isLocal
                   ? Container(key: const Key('Sent'))
-                  : e.status.value == SendingStatus.sent
-                      ? const Icon(
-                          Icons.check_circle,
-                          key: Key('Sent'),
-                          size: 48,
-                          color: Colors.green,
-                        )
-                      : e.status.value == SendingStatus.sending
-                          ? CustomProgressIndicator(
-                              key: const Key('Sending'),
-                              value: e.progress.value,
-                              backgroundColor: Colors.white,
-                              strokeWidth: 10,
-                            )
-                          : const Icon(
-                              Icons.error,
-                              key: Key('Error'),
+                  : Container(
+                      constraints: filled
+                          ? const BoxConstraints(minWidth: 300, minHeight: 300)
+                          : null,
+                      child: e.status.value == SendingStatus.sent
+                          ? const Icon(
+                              Icons.check_circle,
+                              key: Key('Sent'),
                               size: 48,
-                              color: Colors.red,
-                            ),
+                              color: Colors.green,
+                            )
+                          : e.status.value == SendingStatus.sending
+                              ? SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      key: const Key('Sending'),
+                                      value: e.progress.value,
+                                      backgroundColor: Colors.white,
+                                      strokeWidth: 10,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.error,
+                                  key: Key('Error'),
+                                  size: 48,
+                                  color: Colors.red,
+                                ),
+                    ),
             )
           ],
         ),
@@ -350,26 +340,20 @@ class ChatItemWidget extends StatefulWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
+                SvgLoader.asset(
+                  'assets/icons/download_cancel.svg',
+                  key: const Key('CancelDownloading'),
+                  width: 28,
+                  height: 28,
+                ),
                 SizedBox.square(
-                  dimension: 40,
-                  child: CustomProgressIndicator(
-                    padding: const EdgeInsets.all(4),
-                    strokeWidth: 2,
-                    blur: false,
-                    color: Theme.of(context).colorScheme.secondary,
+                  dimension: 26.3,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.3,
                     key: const Key('Downloading'),
                     value: e.progress.value == 0 ? null : e.progress.value,
+                    color: Colors.white.withOpacity(0.7),
                   ),
-                  // child: CircularProgressIndicator(
-                  //   strokeWidth: 2.3,
-                  //   key: const Key('Downloading'),
-                  //   value: e.progress.value == 0 ? null : e.progress.value,
-                  //   color: Colors.white.withOpacity(0.7),
-                  // ),
-                ),
-                SvgLoader.asset(
-                  'assets/icons/close_primary.svg',
-                  height: 13,
                 ),
               ],
             ),
@@ -1075,7 +1059,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 time,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.subtitle2,
+                                style: Theme.of(context).textTheme.titleSmall,
                               ),
                             ),
                           ],
@@ -1128,7 +1112,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.subtitle2,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
               ],
@@ -1202,6 +1186,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       )
                     : RetryImage(
                         image.medium.url,
+                        checksum: image.medium.checksum,
                         onForbidden: widget.onAttachmentError,
                         fit: BoxFit.cover,
                         width: double.infinity,

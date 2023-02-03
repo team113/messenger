@@ -229,8 +229,9 @@ class PublicsTabView extends StatelessWidget {
                                     chat.title.value,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall,
                                   ),
                                 ),
                                 SizedBox(
@@ -636,7 +637,7 @@ class PublicsTabView extends StatelessWidget {
 
                   ThemeData theme = Theme.of(context);
                   final TextStyle? thin =
-                      theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+                      theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
                   Style style = Theme.of(context).extension<Style>()!;
 
                   Widget chip(Widget child) {
@@ -1480,7 +1481,8 @@ class PublicsTabView extends StatelessWidget {
                                   rxChat.title.value,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
+                                  style:
+                                      Theme.of(context).textTheme.headlineSmall,
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -1490,7 +1492,7 @@ class PublicsTabView extends StatelessWidget {
                                   // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .subtitle2
+                                      .titleSmall
                                       ?.copyWith(
                                         color: chat.ongoingCall == null
                                             ? null
@@ -1505,7 +1507,8 @@ class PublicsTabView extends StatelessWidget {
                               const SizedBox(height: 3),
                               Expanded(
                                 child: DefaultTextStyle(
-                                  style: Theme.of(context).textTheme.subtitle2!,
+                                  style:
+                                      Theme.of(context).textTheme.titleSmall!,
                                   overflow: TextOverflow.ellipsis,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 3),

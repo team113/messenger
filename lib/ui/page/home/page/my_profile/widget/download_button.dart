@@ -30,21 +30,21 @@ import 'field_button.dart';
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
     super.key,
-    required this.asset,
-    required this.width,
-    required this.height,
+    this.asset,
+    this.width,
+    this.height,
     required this.title,
     this.link,
   });
 
   /// Asset to display as a prefix to this [DownloadButton].
-  final String asset;
+  final String? asset;
 
   /// Width of the [asset].
-  final double width;
+  final double? width;
 
   /// Height of the [asset].
-  final double height;
+  final double? height;
 
   /// Title of this [DownloadButton].
   final String title;
@@ -68,17 +68,19 @@ class DownloadButton extends StatelessWidget {
           MessagePopup.success('label_copied'.l10n);
         }
       },
-      prefix: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Transform.scale(
-          scale: 2,
-          child: SvgLoader.asset(
-            'assets/icons/$asset.svg',
-            width: width / 2,
-            height: height / 2,
-          ),
-        ),
-      ),
+      prefix: asset == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Transform.scale(
+                scale: 2,
+                child: SvgLoader.asset(
+                  'assets/icons/$asset.svg',
+                  width: width == null ? null : width! / 2,
+                  height: height == null ? null : height! / 2,
+                ),
+              ),
+            ),
       trailing: Transform.translate(
         offset: const Offset(0, -1),
         child: Transform.scale(

@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import 'localized_exception.dart';
@@ -57,7 +57,7 @@ class MessagePopup {
         builder: (context) {
           final TextStyle? thin = Theme.of(context)
               .textTheme
-              .bodyText1
+              .bodyLarge
               ?.copyWith(color: Colors.black);
 
           return Column(
@@ -123,75 +123,11 @@ class MessagePopup {
     );
   }
 
-  /// Shows a [SnackBar] with the [title] message.
-  static void success(String title, {double bottom = 16}) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
-
-    // BotToast.showEnhancedWidget(toastBuilder: toastBuilder)
-    // BotToast.showAnimationWidget(
-    //   toastBuilder: (b) {
-    //     return Container(
-    // decoration: BoxDecoration(
-    //   color: style.cardHoveredColor,
-    //   border: style.cardHoveredBorder,
-    // ),
-    //       child: Text(title),
-    //     );
-    //   },
-    //   animationDuration: const Duration(seconds: 3),
-    // );
-
-    ScaffoldMessenger.of(router.context!).showSnackBar(
-      SnackBar(
-        elevation: 0,
-        margin: EdgeInsets.only(top: 16, bottom: bottom),
-        content: Center(
-          heightFactor: 0,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: style.cardHoveredColor,
-              border: style.cardHoveredBorder,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  blurStyle: BlurStyle.outer,
-                ),
-              ],
-            ),
-            child: Text(
-              title,
-              style: const TextStyle(color: Colors.black, fontSize: 15),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        behavior: SnackBarBehavior.floating,
-        // shape: RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.circular(10),
-        //   // side: BorderSide(color: const Color(0xFFB0B0B0)),
-        // ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  static Future<void> info(dynamic e) async {
-    var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
-    await showDialog(
-      context: router.context!,
-      builder: (context) => AlertDialog(
-        title: Text('label_error'.l10n),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.l10n),
-          )
-        ],
-      ),
-    );
+  /// Shows a [FloatingSnackBar] with the [title] message.
+  static void success(
+    String title, {
+    double bottom = 16,
+  }) {
+    FloatingSnackBar.show(title, bottom: bottom);
   }
 }

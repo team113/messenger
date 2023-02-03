@@ -51,6 +51,7 @@ class GalleryItem {
     required this.link,
     required this.name,
     required this.size,
+    this.checksum,
     this.isVideo = false,
     this.onError,
   });
@@ -60,12 +61,14 @@ class GalleryItem {
     String link,
     String name, {
     int? size,
+    String? checksum,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         size: size,
+        checksum: checksum,
         isVideo: false,
         onError: onError,
       );
@@ -75,12 +78,14 @@ class GalleryItem {
     String link,
     String name, {
     int? size,
+    String? checksum,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         size: size,
+        checksum: checksum,
         isVideo: true,
         onError: onError,
       );
@@ -90,6 +95,9 @@ class GalleryItem {
 
   /// Original URL to the file this [GalleryItem] represents.
   String link;
+
+  /// SHA-256 checksum of the file this [GalleryItem] represents.
+  final String? checksum;
 
   /// Name of the file this [GalleryItem] represents.
   final String name;
@@ -476,6 +484,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                       )
                     : RetryImage(
                         e.link,
+                        checksum: e.checksum,
                         onForbidden: () async {
                           await e.onError?.call();
                           if (mounted) {
@@ -578,6 +587,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         ? IgnorePointer(child: WebImage(e.link))
                         : RetryImage(
                             e.link,
+                            checksum: e.checksum,
                             onForbidden: () async {
                               await e.onError?.call();
                               if (mounted) {
@@ -1035,9 +1045,11 @@ class _GalleryPopupState extends State<GalleryPopup>
         }
       }
 
-      MessagePopup.success(item.isVideo
-          ? 'label_video_downloaded'.l10n
-          : 'label_image_downloaded'.l10n);
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_downloaded'.l10n
+            : 'label_image_downloaded'.l10n);
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
@@ -1057,9 +1069,11 @@ class _GalleryPopupState extends State<GalleryPopup>
         }
       }
 
-      MessagePopup.success(item.isVideo
-          ? 'label_video_saved_to_gallery'.l10n
-          : 'label_image_saved_to_gallery'.l10n);
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n);
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }

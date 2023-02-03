@@ -79,7 +79,7 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontSize: (15 * constraints.biggest.shortestSide / 100)
                             .clamp(15, 108),
                         color: Colors.white,
@@ -95,6 +95,7 @@ class CallCoverWidget extends StatelessWidget {
         if (cover != null)
           RetryImage(
             cover!.full.url,
+            checksum: cover!.full.checksum,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

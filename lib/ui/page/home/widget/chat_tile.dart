@@ -137,7 +137,7 @@ class ChatTile extends StatelessWidget {
                                         maxLines: 1,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headline5,
+                                            .headlineSmall,
                                       );
                                     }),
                                   ),

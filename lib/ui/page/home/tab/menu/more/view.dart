@@ -73,7 +73,7 @@ class MoreView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: Theme.of(context).textTheme.headline5!,
+                          style: Theme.of(context).textTheme.headlineSmall!,
                           child: title,
                         ),
                       ),

@@ -249,7 +249,7 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Returns the bottom controls bar.
   Widget _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.button!.color;
+    final iconColor = Theme.of(context).textTheme.labelLarge!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
       isOpen: _showBottomBar || _showInterface,

@@ -89,7 +89,7 @@ class ContactView extends StatelessWidget {
                                 subtitle,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .caption
+                                    .bodySmall
                                     ?.copyWith(color: const Color(0xFF888888)),
                               );
                             }

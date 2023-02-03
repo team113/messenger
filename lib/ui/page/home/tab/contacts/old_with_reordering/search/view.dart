@@ -37,7 +37,7 @@ class SearchContactView extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: SearchContactController(Get.find(), Get.find(), Get.find()),

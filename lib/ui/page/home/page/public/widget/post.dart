@@ -36,6 +36,7 @@ import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/call/widget/fit_wrap.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
@@ -1544,65 +1545,7 @@ class _PostWidgetState extends State<PostWidget> {
       isVideo = e is FileAttachment;
     }
 
-    var attachment = isVideo
-        ? Stack(
-            alignment: Alignment.center,
-            children: [
-              isLocal
-                  ? e.file.bytes == null
-                      ? const CustomProgressIndicator()
-                      : VideoThumbnail.bytes(
-                          bytes: e.file.bytes!,
-                          key: _galleryKeys[i],
-                          height: 300,
-                        )
-                  : VideoThumbnail.url(
-                      url: '${Config.files}${e.original.relativeRef}',
-                      key: _galleryKeys[i],
-                      height: 300,
-                      onError: widget.onAttachmentError,
-                    ),
-              Container(
-                width: 60,
-                height: 60,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0x80000000),
-                ),
-                child: const Icon(
-                  Icons.play_arrow,
-                  color: Colors.white,
-                  size: 48,
-                ),
-              ),
-            ],
-          )
-        : isLocal
-            ? e.file.bytes == null
-                ? const CustomProgressIndicator()
-                : Image.memory(
-                    e.file.bytes!,
-                    key: _galleryKeys[i],
-                    fit: BoxFit.cover,
-                    height: 300,
-                  )
-            : Image.network(
-                '${Config.files}${(e as ImageAttachment).big.relativeRef}',
-                key: _galleryKeys[i],
-                fit: BoxFit.cover,
-                height: 300,
-                errorBuilder: (_, __, ___) {
-                  return InitCallback(
-                    callback: () => widget.onAttachmentError?.call(),
-                    child: const SizedBox(
-                      height: 300,
-                      child: Center(
-                        child: CustomProgressIndicator(),
-                      ),
-                    ),
-                  );
-                },
-              );
+    var attachment = MediaAttachment(attachment: e);
 
     return Padding(
       padding: EdgeInsets.zero,

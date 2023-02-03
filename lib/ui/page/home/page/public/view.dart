@@ -39,6 +39,7 @@ import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
@@ -153,7 +154,7 @@ class _PublicViewState extends State<PublicView>
                               c.chat?.chat.value.isDialog == true
                                   ? '1 follower'
                                   : '${c.chat!.members.length} follower(s)',
-                              style: Theme.of(context).textTheme.caption,
+                              style: Theme.of(context).textTheme.bodySmall,
                             )
                           ],
                         ),
@@ -650,78 +651,7 @@ class _PublicViewState extends State<PublicView>
 
     Widget _content() {
       if (isImage || isVideo) {
-        Widget child;
-
-        if (isImage) {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              if (e.file.path == null) {
-                child = const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CustomProgressIndicator(),
-                  ),
-                );
-              } else {
-                if (e.file.isSvg) {
-                  child = SvgLoader.file(
-                    File(e.file.path!),
-                    width: size,
-                    height: size,
-                  );
-                } else {
-                  child = Image.file(
-                    File(e.file.path!),
-                    fit: BoxFit.cover,
-                    width: size,
-                    height: size,
-                  );
-                }
-              }
-            } else {
-              if (e.file.isSvg) {
-                child = SvgLoader.bytes(
-                  e.file.bytes!,
-                  width: size,
-                  height: size,
-                );
-              } else {
-                child = Image.memory(
-                  e.file.bytes!,
-                  fit: BoxFit.cover,
-                  width: size,
-                  height: size,
-                );
-              }
-            }
-          } else {
-            child = Image.network(
-              '${Config.files}${e.original.relativeRef}',
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-            );
-          }
-        } else {
-          if (e is LocalAttachment) {
-            if (e.file.bytes == null) {
-              child = const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CustomProgressIndicator(),
-                ),
-              );
-            } else {
-              child = VideoThumbnail.bytes(bytes: e.file.bytes!);
-            }
-          } else {
-            child = VideoThumbnail.url(
-              url: '${Config.files}${e.original.relativeRef}',
-            );
-          }
-        }
+        Widget child = MediaAttachment(attachment: e);
 
         return WidgetButton(
           // key: c.attachmentKeys[i],

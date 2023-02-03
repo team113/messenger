@@ -366,7 +366,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 children: [
                                   Text(
                                     state,
-                                    style: context.textTheme.caption
+                                    style: context.textTheme.bodySmall
                                         ?.copyWith(color: Colors.white),
                                   ),
                                   if (withDots) const AnimatedDots(),
@@ -877,7 +877,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 maxLines: 1,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .headline5
+                                    .headlineSmall
                                     ?.copyWith(color: Colors.white),
                               ),
                             ),
@@ -885,7 +885,7 @@ Widget _chat(BuildContext context, CallController c) {
                               c.duration.value.hhMmSs(),
                               style: Theme.of(context)
                                   .textTheme
-                                  .subtitle2
+                                  .titleSmall
                                   ?.copyWith(color: Colors.white),
                             ),
                           ],
@@ -906,7 +906,7 @@ Widget _chat(BuildContext context, CallController c) {
                                     'label_online'.l10n,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .subtitle2
+                                    .titleSmall
                                     ?.copyWith(color: Colors.white),
                               ),
                               const Spacer(),
@@ -917,7 +917,7 @@ Widget _chat(BuildContext context, CallController c) {
                                 }),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .subtitle2
+                                    .titleSmall
                                     ?.copyWith(color: Colors.white),
                               ),
                             ],

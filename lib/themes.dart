@@ -121,67 +121,67 @@ class Themes {
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          headline1: TextStyle(
+          displayLarge: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 24,
           ),
-          headline2: TextStyle(
+          displayMedium: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 15.4,
           ),
-          headline3: const TextStyle(
+          displaySmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: const TextStyle(
+          headlineMedium: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline5: const TextStyle(
+          headlineSmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          headline6: const TextStyle(
+          titleLarge: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-          caption: TextStyle(
+          bodySmall: TextStyle(
             color: colors.primary,
             fontWeight: FontWeight.w300,
             fontSize: 13,
           ),
-          button: const TextStyle(
+          labelLarge: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 24 * 0.7,
           ),
-          overline: const TextStyle(
+          labelSmall: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 17,
           ),
-          subtitle1: const TextStyle(
+          titleMedium: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          subtitle2: TextStyle(
+          titleSmall: TextStyle(
             color: colors.primary,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyText1: const TextStyle(
+          bodyLarge: const TextStyle(
             color: Colors.black,
             fontSize: 15,
             fontWeight: FontWeight.w300,
           ),
-          bodyText2: const TextStyle(
+          bodyMedium: const TextStyle(
             color: Colors.black,
             fontSize: 13,
             fontWeight: FontWeight.w300,

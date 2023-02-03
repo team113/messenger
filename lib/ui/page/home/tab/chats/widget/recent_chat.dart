@@ -152,7 +152,7 @@ class RecentChatTile extends StatelessWidget {
           _status(context),
           Text(
             chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context).textTheme.subtitle2,
+            style: Theme.of(context).textTheme.titleSmall,
           ),
         ],
         subtitle: [
@@ -282,7 +282,7 @@ class RecentChatTile extends StatelessWidget {
                           : 'btn_join_call'.l10n,
                       style: Theme.of(context)
                           .textTheme
-                          .subtitle2
+                          .titleSmall
                           ?.copyWith(color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -298,7 +298,7 @@ class RecentChatTile extends StatelessWidget {
                           .hhMmSs(),
                       style: Theme.of(context)
                           .textTheme
-                          .subtitle2
+                          .titleSmall
                           ?.copyWith(color: Colors.white),
                     );
                   },
@@ -311,7 +311,7 @@ class RecentChatTile extends StatelessWidget {
       );
 
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.subtitle2!,
+        style: Theme.of(context).textTheme.titleSmall!,
         overflow: TextOverflow.ellipsis,
         child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
       );
@@ -572,7 +572,7 @@ class RecentChatTile extends StatelessWidget {
     }
 
     return DefaultTextStyle(
-      style: Theme.of(context).textTheme.subtitle2!,
+      style: Theme.of(context).textTheme.titleSmall!,
       overflow: TextOverflow.ellipsis,
       child: Row(children: subtitle),
     );
@@ -583,16 +583,16 @@ class RecentChatTile extends StatelessWidget {
     Widget? content;
 
     if (e is LocalAttachment) {
-      if (e.file.isImage && e.file.bytes != null) {
-        content = Image.memory(e.file.bytes!, fit: BoxFit.cover);
+      if (e.file.isImage && e.file.bytes.value != null) {
+        content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
         // TODO: `video_player` being used doesn't support desktop platforms.
         if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes != null) {
+            e.file.bytes.value != null) {
           content = FittedBox(
             fit: BoxFit.cover,
             child: VideoThumbnail.bytes(
-              bytes: e.file.bytes!,
+              bytes: e.file.bytes.value!,
               key: key,
               height: 300,
             ),
@@ -626,6 +626,7 @@ class RecentChatTile extends StatelessWidget {
         color: const Color(0xFFF7FBFF),
         child: RetryImage(
           e.medium.url,
+          checksum: e.medium.checksum,
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,

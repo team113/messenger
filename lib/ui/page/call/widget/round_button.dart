@@ -162,7 +162,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 widget.text!,
                 textAlign: TextAlign.center,
                 style: widget.style ??
-                    context.textTheme.caption?.copyWith(
+                    context.textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                       fontSize: 13,
                     ),

@@ -22,7 +22,6 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/page/home/page/user/my_user/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
@@ -107,7 +106,7 @@ class UserView extends StatelessWidget {
                                 buffer.toString(),
                                 style: Theme.of(context)
                                     .textTheme
-                                    .caption
+                                    .bodySmall
                                     ?.copyWith(color: const Color(0xFF888888)),
                               );
                             }
@@ -664,7 +663,8 @@ class UserView extends StatelessWidget {
                                     '...',
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
                               ),
                               const SizedBox(height: 3),
                               Obx(() {
