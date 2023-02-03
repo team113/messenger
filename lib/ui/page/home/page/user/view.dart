@@ -285,36 +285,38 @@ class UserView extends StatelessWidget {
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
           );
         }),
-        Obx(() {
-          final chat = c.user?.dialog.value?.chat.value;
-          final bool isMuted = chat?.muted != null;
+        if (c.user?.dialog.value?.id.isLocal == false) ...[
+          Obx(() {
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
 
-          return action(
-            text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: isMuted
-                ? SvgLoader.asset(
-                    'assets/icons/btn_mute.svg',
-                    width: 18.68,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  ),
-            onPressed: isMuted ? c.unmuteChat : c.muteChat,
-          );
-        }),
-        action(
-          text: 'btn_hide_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _hideChat(c, context),
-        ),
-        action(
-          text: 'btn_clear_chat'.l10n,
-          trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-          onPressed: () => _clearChat(c, context),
-        ),
+            return action(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? SvgLoader.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          action(
+            text: 'btn_hide_chat'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
+          ),
+          action(
+            text: 'btn_clear_chat'.l10n,
+            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
+          ),
+        ],
         Obx(() {
           return action(
             key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),

@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;

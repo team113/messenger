@@ -205,8 +205,9 @@ class ChatRepository implements AbstractChatRepository {
             chat.init();
           }
 
-          chat ??= await _createDialogChat(
-              UserId(id.val.replaceFirst('local_', '')));
+          chat ??= await _createLocalDialogChat(
+            UserId(id.val.replaceFirst('local_', '')),
+          );
 
           _chats[id] = chat;
         }
@@ -221,7 +222,7 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Creates a local dialog [Chat] between the given [responderId] and the
   /// authenticated [MyUser].
-  Future<HiveRxChat> _createDialogChat(UserId responderId) async {
+  Future<HiveRxChat> _createLocalDialogChat(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
     final ChatData chatData = ChatData(
       HiveChat(

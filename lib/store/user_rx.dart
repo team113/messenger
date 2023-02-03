@@ -62,9 +62,9 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    final ChatId? id = user.value.dialog;
+    final ChatId id = user.value.dialog;
 
-    if (_dialog.value == null && id != null) {
+    if (_dialog.value == null) {
       _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
     }
 
