@@ -201,16 +201,6 @@ class UserRepository implements AbstractUserRepository {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
 
-  /// Attaches the provided local [dialog] to the specified [User].
-  Future<void> attachLocalDialog(UserId id, ChatId dialog) async {
-    RxUser? user = await get(id);
-
-    if (user != null) {
-      user.user.value.dialog = dialog;
-      update(user.user.value);
-    }
-  }
-
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Future<Stream<UserEvents>> userEvents(
     UserId id,
@@ -253,11 +243,6 @@ class UserRepository implements AbstractUserRepository {
         saved.ver < user.ver ||
         saved.blacklistedVer < user.blacklistedVer ||
         ignoreVersion) {
-      if (saved?.value.dialog != null &&
-          saved!.value.dialog!.isLocal &&
-          user.value.dialog == null) {
-        user.value.dialog = saved.value.dialog;
-      }
       await _userLocal.put(user);
     }
   }

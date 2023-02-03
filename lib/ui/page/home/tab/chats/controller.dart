@@ -259,8 +259,7 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        ChatId? id = user.dialog.value?.chat.value.id ?? user.user.value.dialog;
-        id ??= (await _chatService.createDialogChat(user.id)).chat.value.id;
+        ChatId id = user.dialog.value?.chat.value.id ?? user.user.value.dialog;
         router.chat(id);
       }
     }

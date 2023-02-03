@@ -69,10 +69,6 @@ abstract class AbstractChatRepository {
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name);
 
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name});

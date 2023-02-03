@@ -1089,7 +1089,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .toList();
 
         if (item.attachments.length > 3) {
-          final int count = max(item.attachments.length - 3, 99);
+          final int count = (item.attachments.length - 3).clamp(1, 99);
 
           additional.add(
             Container(
@@ -1378,28 +1378,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
-                  child: AnimatedDelayedSwitcher(
-                    delay: item.status.value == SendingStatus.sending
-                        ? const Duration(seconds: 2)
-                        : Duration.zero,
-                    child: item.status.value == SendingStatus.sending
-                        ? const Padding(
-                            key: Key('Sending'),
-                            padding: EdgeInsets.only(bottom: 8),
-                            child: Icon(Icons.access_alarm, size: 15),
-                          )
-                        : item.status.value == SendingStatus.error
-                            ? const Padding(
-                                key: Key('Error'),
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Icon(
-                                  Icons.error_outline,
-                                  size: 15,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : Container(key: const Key('Sent')),
-                  ),
+                  child: Obx(() {
+                    return AnimatedDelayedSwitcher(
+                      delay: item.status.value == SendingStatus.sending
+                          ? const Duration(seconds: 2)
+                          : Duration.zero,
+                      child: item.status.value == SendingStatus.sending
+                          ? const Padding(
+                              key: Key('Sending'),
+                              padding: EdgeInsets.only(bottom: 8),
+                              child: Icon(Icons.access_alarm, size: 15),
+                            )
+                          : item.status.value == SendingStatus.error
+                              ? const Padding(
+                                  key: Key('Error'),
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Icon(
+                                    Icons.error_outline,
+                                    size: 15,
+                                    color: Colors.red,
+                                  ),
+                                )
+                              : Container(key: const Key('Sent')),
+                    );
+                  }),
                 ),
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(

@@ -205,8 +205,8 @@ class ChatRepository implements AbstractChatRepository {
             chat.init();
           }
 
-          chat ??=
-              await createDialogChat(UserId(id.val.replaceFirst('local_', '')));
+          chat ??= await _createDialogChat(
+              UserId(id.val.replaceFirst('local_', '')));
 
           _chats[id] = chat;
         }
@@ -219,8 +219,9 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> remove(ChatId id) => _chatLocal.remove(id);
 
-  @override
-  Future<HiveRxChat> createDialogChat(UserId responderId) async {
+  /// Creates a local dialog [Chat] between the given [responderId] and the
+  /// authenticated [MyUser].
+  Future<HiveRxChat> _createDialogChat(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
     final ChatData chatData = ChatData(
       HiveChat(
@@ -246,19 +247,15 @@ class ChatRepository implements AbstractChatRepository {
       null,
     );
 
-    await _userRepo.attachLocalDialog(responderId, chatId);
-
     return _putEntry(chatData);
   }
 
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat> ensureRemoteDialog(ChatId localId) async {
-    final HiveRxChat? local = _chats[localId];
+    assert(localId.isLocal);
 
     final ChatData chat = _chat(
-      await _graphQlProvider.createDialogChat(
-        local!.members.values.firstWhere((e) => e.id != me).id,
-      ),
+      await _graphQlProvider.createDialogChat(localId.userId),
     );
 
     return _putEntry(chat);
@@ -285,7 +282,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatItem? local;
 
     if (chatId.isLocal) {
-      local = rxChat?.putLocalMessage(
+      local = await rxChat?.postChatMessage(
         existingDateTime: PreciseDateTime.now().add(1.seconds),
         text: text,
         attachments: attachments,
@@ -344,7 +341,7 @@ class ChatRepository implements AbstractChatRepository {
         }
       }
 
-      return rxChat?.postChatMessage(
+      await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
         text: item.text,

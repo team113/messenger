@@ -64,11 +64,6 @@ class ChatService extends DisposableService {
     super.onClose();
   }
 
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId) =>
-      _chatRepository.createDialogChat(responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) =>
@@ -327,10 +322,10 @@ extension ChatIsRoute on Chat {
   /// Indicates whether the provided [route] represents this [Chat].
   bool isRoute(String route, UserId? me) {
     final bool byId = route.startsWith('${Routes.chat}/$id');
+    UserId? member = members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
     final bool byUser = isDialog &&
-        route.startsWith(
-          '${Routes.chat}/${ChatId.local(members.firstWhereOrNull((e) => e.user.id != me)?.user.id)}',
-        );
+        member != null &&
+        route.startsWith('${Routes.chat}/${ChatId.local(member)}');
 
     return byId || byUser;
   }

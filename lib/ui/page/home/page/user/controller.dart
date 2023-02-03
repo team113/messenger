@@ -228,15 +228,13 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    ChatId? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).id;
+    ChatId dialog = user!.user.value.dialog;
     router.chat(dialog, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    ChatId? dialog = user?.user.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value.id;
+    ChatId dialog = user!.user.value.dialog;
 
     try {
       await _callService.call(dialog, withVideo: withVideo);

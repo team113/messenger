@@ -247,11 +247,15 @@ class ChatId extends NewType<String> {
   const ChatId(String val) : super(val);
 
   /// Constructs a dummy [ChatId].
-  factory ChatId.local([UserId? id]) =>
-      ChatId('local_${id?.val ?? const Uuid().v4()}');
+  factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
   /// Indicates whether this [ChatId] is a dummy ID.
   bool get isLocal => val.startsWith('local_');
+
+  /// Returns [UserId] part of this [ChatId] if [isLocal].
+  UserId get userId => isLocal
+      ? UserId(val.replaceFirst('local_', ''))
+      : throw Exception('ChatId is not local');
 }
 
 /// Name of a [Chat].

@@ -141,9 +141,7 @@ class ChatForwardController extends GetxController {
               );
             }),
             ...searchResults.value!.users.map((e) async {
-              ChatId? dialog = e.user.value.dialog;
-              dialog ??=
-                  (await _chatService.createDialogChat(e.id)).chat.value.id;
+              ChatId dialog = e.user.value.dialog;
 
               return _chatService.forwardChatItems(
                 from,
@@ -154,11 +152,7 @@ class ChatForwardController extends GetxController {
               );
             }),
             ...searchResults.value!.contacts.map((e) async {
-              ChatId? dialog = e.user.value?.user.value.dialog;
-              dialog ??= (await _chatService.createDialogChat(e.user.value!.id))
-                  .chat
-                  .value
-                  .id;
+              ChatId dialog = e.user.value!.user.value.dialog;
 
               return _chatService.forwardChatItems(
                 from,

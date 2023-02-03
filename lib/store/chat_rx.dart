@@ -381,33 +381,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Posts a new local [ChatMessage] to the specified [Chat] by the
-  /// authenticated [MyUser].
-  ChatItem putLocalMessage({
-    PreciseDateTime? existingDateTime,
-    ChatMessageText? text,
-    List<Attachment>? attachments,
-    List<ChatItem> repliesTo = const [],
-  }) {
-    HiveChatMessage message = HiveChatMessage.sending(
-      chatId: chat.value.id,
-      me: me!,
-      text: text,
-      repliesTo: repliesTo,
-      attachments: attachments ?? [],
-      existingDateTime: existingDateTime,
-    );
-
-    messages.insertAfter(
-      Rx(message.value),
-      (e) => message.value.at.compareTo(e.value.at) == 1,
-    );
-
-    put(message, ignoreVersion: true);
-
-    return message.value;
-  }
-
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -416,22 +389,19 @@ class HiveRxChat extends RxChat {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> postChatMessage({
+  Future<ChatItem> postChatMessage({
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
     ChatMessageText? text,
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    // Copy the [attachments] list since we're going to manipulate it here.
-    List<Attachment> uploaded = List.from(attachments ?? []);
-
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
       text: text,
       repliesTo: repliesTo,
-      attachments: uploaded,
+      attachments: attachments ?? [],
       existingId: existingId,
       existingDateTime: existingDateTime,
     );
@@ -445,6 +415,10 @@ class HiveRxChat extends RxChat {
       put(message, ignoreVersion: true);
     }
 
+    if (id.isLocal) {
+      return message.value;
+    }
+
     _pending.add(message.value);
 
     try {
@@ -454,7 +428,7 @@ class HiveRxChat extends RxChat {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
-                    uploaded[i] = a;
+                    attachments[i] = a;
 
                     // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
@@ -485,7 +459,7 @@ class HiveRxChat extends RxChat {
         await Future.wait(uploads);
       }
 
-      if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
+      if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
         throw const ConnectionException(PostChatMessageException(
           PostChatMessageErrorCode.unknownAttachment,
         ));
@@ -494,8 +468,7 @@ class HiveRxChat extends RxChat {
       var response = await _chatRepository.postChatMessage(
         id,
         text: text,
-        attachments:
-            uploaded.isNotEmpty ? uploaded.map((e) => e.id).toList() : null,
+        attachments: attachments?.map((e) => e.id).toList(),
         repliesTo: repliesTo.map((e) => e.id).toList(),
       );
 
@@ -516,6 +489,8 @@ class HiveRxChat extends RxChat {
     } finally {
       put(message, ignoreVersion: true);
     }
+
+    return message.value;
   }
 
   /// Puts the provided [item] to [Hive].

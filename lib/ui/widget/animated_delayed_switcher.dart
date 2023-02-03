@@ -66,9 +66,13 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedSwitcher(
+  Widget build(BuildContext context) => AnimatedOpacity(
+        opacity: _show ? 1 : 0,
         duration: widget.duration,
-        child: _show ? widget.child : Container(),
+        child: AnimatedSwitcher(
+          duration: const Duration(microseconds: 300),
+          child: widget.child,
+        ),
       );
 
   /// Starts the [_timer] switching the [AnimatedSwitcher] visibility.
