@@ -153,9 +153,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Selected text of this widget.
   final RxString selectedText = RxString('');
 
-  /// Indicator whether text selection is enabled or not.
-  final RxBool selectionEnabled = RxBool(false);
-
   /// [Offset] to translate this [ChatForwardWidget] with when swipe to reply
   /// gesture is happening.
   Offset _offset = Offset.zero;
@@ -218,7 +215,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       child: Obx(() {
         return _rounded(
           context,
-          Padding(
+          (v) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
             child: ClipRRect(
               clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
@@ -247,7 +244,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (widget.note.value != null) ..._note(),
+                        if (widget.note.value != null) ..._note(v),
                         if (widget.note.value == null &&
                             !_fromMe &&
                             widget.chat.value?.isGroup == true)
@@ -273,7 +270,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? const Radius.circular(15)
                                   : Radius.zero,
                             ),
-                            child: _forwardedMessage(e),
+                            child: _forwardedMessage(e, v),
                           ),
                         ),
                       ],
@@ -289,7 +286,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns a visual representation of the provided [forward].
-  Widget _forwardedMessage(Rx<ChatItem> forward) {
+  Widget _forwardedMessage(Rx<ChatItem> forward, bool v) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
       ChatItem item = msg.item;
@@ -374,7 +371,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (item.text != null && item.text!.val.isNotEmpty) {
           content = CustomSelection(
             onSelectionChanged: (s) => selectedText.value = s?.plainText ?? '',
-            enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
+            enabled: PlatformUtils.isDesktop ? true : v,
             child: Text(
               item.text!.val,
               style: style.boldBody,
@@ -534,7 +531,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Builds a visual representation of the [ChatForwardWidget.note].
-  List<Widget> _note() {
+  List<Widget> _note(bool v) {
     ChatItem item = widget.note.value!.value;
 
     if (item is ChatMessage) {
@@ -597,7 +594,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               child: CustomSelection(
                 onSelectionChanged: (s) =>
                     selectedText.value = s?.plainText ?? '',
-                enabled: PlatformUtils.isDesktop ? null : selectionEnabled,
+                enabled: PlatformUtils.isDesktop ? true : v,
                 child: Text(
                   item.text!.val,
                   style: style.boldBody,
@@ -683,7 +680,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
-  Widget _rounded(BuildContext context, Widget child) {
+  Widget _rounded(
+    BuildContext context,
+    Widget Function(bool) child,
+  ) {
     ChatItem? item = widget.note.value?.value;
 
     bool isSent =
@@ -844,11 +844,36 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Material(
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
-                          floatingToggled: (v) => selectionEnabled.value = v,
                           preventContextMenu: false,
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
+                          childBuilder: (v) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                child(v),
+                                if (avatars.isNotEmpty)
+                                  Transform.translate(
+                                    offset: const Offset(-12, -4),
+                                    child: WidgetButton(
+                                      onPressed: () => ChatItemReads.show(
+                                        context,
+                                        reads: widget.reads,
+                                        getUser: widget.getUser,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: avatars,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                           actions: [
                             if (copyable != null)
                               ContextMenuButton(
@@ -969,30 +994,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              child,
-                              if (avatars.isNotEmpty)
-                                Transform.translate(
-                                  offset: const Offset(-12, -4),
-                                  child: WidgetButton(
-                                    onPressed: () => ChatItemReads.show(
-                                      context,
-                                      reads: widget.reads,
-                                      getUser: widget.getUser,
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                          child: const SizedBox(),
                         ),
                       ),
                     ),

@@ -38,14 +38,12 @@ class FloatingContextMenu extends StatefulWidget {
     required this.child,
     this.moveDownwards = true,
     this.margin = EdgeInsets.zero,
-    this.floatingToggled,
+    this.onOpened,
+    this.onClosed,
   }) : super(key: key);
 
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
-
-  /// Callback called when this widget became displayed or hidden.
-  final void Function(bool val)? floatingToggled;
 
   /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
   final List<ContextMenuButton> actions;
@@ -59,6 +57,12 @@ class FloatingContextMenu extends StatefulWidget {
 
   /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
+
+  /// Callback, called when a [FloatingContextMenu] opens.
+  final void Function()? onOpened;
+
+  /// Callback, called when a [FloatingContextMenu] closes.
+  final void Function()? onClosed;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -103,7 +107,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   Future<void> _populateEntry(BuildContext context) async {
     HapticFeedback.selectionClick();
 
-    widget.floatingToggled?.call(true);
+    widget.onOpened?.call();
     _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
@@ -113,9 +117,9 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         showAbove: !widget.moveDownwards,
         margin: widget.margin,
         onClosed: () {
+          widget.onClosed?.call();
           _entry?.remove();
           _entry = null;
-          widget.floatingToggled?.call(false);
 
           if (mounted) {
             setState(() {});

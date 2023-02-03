@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/util/platform_utils.dart';
@@ -26,13 +25,13 @@ import '/util/platform_utils.dart';
 class CustomSelection extends StatelessWidget {
   const CustomSelection({
     super.key,
-    this.enabled,
+    this.enabled = true,
     this.onSelectionChanged,
     required this.child,
   });
 
   /// Indicator whether selection is enabled or not.
-  final RxBool? enabled;
+  final bool enabled;
 
   /// Callback, called when the selected content changes.
   final void Function(SelectedContent?)? onSelectionChanged;
@@ -42,26 +41,18 @@ class CustomSelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget selectionArea = SelectionArea(
-      contextMenuBuilder: (_, state) => PlatformUtils.isMobile
-          ? AdaptiveTextSelectionToolbar.selectableRegion(
-              selectableRegionState: state,
-            )
-          : const SizedBox(),
-      onSelectionChanged: onSelectionChanged,
-      child: ContextMenuInterceptor(child: child),
-    );
-
-    if (enabled == null) {
-      return selectionArea;
+    if (enabled) {
+      return SelectionArea(
+        contextMenuBuilder: (_, state) => PlatformUtils.isMobile
+            ? AdaptiveTextSelectionToolbar.selectableRegion(
+                selectableRegionState: state,
+              )
+            : const SizedBox(),
+        onSelectionChanged: onSelectionChanged,
+        child: ContextMenuInterceptor(child: child),
+      );
     } else {
-      return Obx(() {
-        if (enabled!.value) {
-          return selectionArea;
-        } else {
-          return ContextMenuInterceptor(child: child);
-        }
-      });
+      return ContextMenuInterceptor(child: child);
     }
   }
 }

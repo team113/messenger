@@ -33,7 +33,7 @@ import 'mobile.dart';
 /// - [FloatingContextMenu] on mobile.
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
-    Key? key,
+    super.key,
     required this.child,
     this.enabled = true,
     this.moveDownwards = true,
@@ -45,8 +45,8 @@ class ContextMenuRegion extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
-    this.floatingToggled,
-  }) : super(key: key);
+    this.childBuilder,
+  });
 
   /// Widget to wrap this region over.
   final Widget child;
@@ -91,8 +91,9 @@ class ContextMenuRegion extends StatefulWidget {
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
 
-  /// Callback called when [FloatingContextMenu] became displayed or hidden.
-  final void Function(bool val)? floatingToggled;
+  /// Builder building a different children depending on whether the
+  /// [ContextMenu] is displayed.
+  final Widget Function(bool)? childBuilder;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -104,14 +105,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// child.
   bool _darkened = false;
 
+  /// Indicator whether [ContextMenu] is displayed.
+  bool _displayed = false;
+
   /// [OverlayEntry] widget of context menu.
   OverlayEntry? entry;
 
   @override
   void dispose() {
-    entry?.remove();
-    if (widget.indicateOpenedMenu && mounted) {
-      setState(() => _darkened = false);
+    if (entry != null && entry!.mounted) {
+      entry?.remove();
     }
     super.dispose();
   }
@@ -150,15 +153,24 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   moveDownwards: widget.moveDownwards,
                   actions: widget.actions,
                   margin: widget.margin,
-                  floatingToggled: widget.floatingToggled,
-                  child: child,
+                  onOpened: () => _displayed = true,
+                  onClosed: () => _displayed = false,
+                  child: widget.childBuilder == null
+                      ? child
+                      : Builder(
+                          builder: (_) => widget.childBuilder!(_displayed),
+                        ),
                 )
               : GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onLongPressStart: widget.enableLongTap
                       ? (d) => _show(context, d.globalPosition)
                       : null,
-                  child: child,
+                  child: widget.childBuilder == null
+                      ? child
+                      : Builder(
+                          builder: (_) => widget.childBuilder!(_displayed),
+                        ),
                 ),
         ),
       );

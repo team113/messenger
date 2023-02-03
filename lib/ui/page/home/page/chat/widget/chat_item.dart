@@ -497,9 +497,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Selected text of this widget.
   final RxString selectedText = RxString('');
 
-  /// Indicator whether text selection is enabled or not.
-  final RxBool selectionEnabled = RxBool(false);
-
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -734,7 +731,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      Container(
+      (v) => Container(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 0, 2, 0)),
         child: IntrinsicWidth(
           child: AnimatedContainer(
@@ -826,8 +823,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: CustomSelection(
                         onSelectionChanged: (s) =>
                             selectedText.value = s?.plainText ?? '',
-                        enabled:
-                            PlatformUtils.isDesktop ? null : selectionEnabled,
+                        enabled: PlatformUtils.isDesktop ? true : v,
                         child: Text(text, style: style.boldBody),
                       ),
                     ),
@@ -934,7 +930,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _ongoingCallTimer?.cancel();
     }
 
-    List<Widget>? subtitle;
     bool isMissed = false;
 
     String title = 'label_chat_call_ended'.l10n;
@@ -963,7 +958,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Style style = Theme.of(context).extension<Style>()!;
 
-    subtitle = [
+    final List<Widget> subtitle = [
       Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
         child: message.withVideo
@@ -1018,7 +1013,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      Padding(
+      (_) => Padding(
         padding: widget.margin.add(const EdgeInsets.fromLTRB(5, 1, 5, 1)),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
@@ -1257,7 +1252,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget child, {
+    Widget Function(bool) child, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
@@ -1440,8 +1435,36 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
+                        childBuilder: (v) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              child(v),
+                              if (avatars.isNotEmpty)
+                                Transform.translate(
+                                  offset: Offset(-12, -widget.margin.bottom),
+                                  child: WidgetButton(
+                                    onPressed: () => ChatItemReads.show(
+                                      context,
+                                      reads: widget.reads,
+                                      getUser: widget.getUser,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: avatars,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                         preventContextMenu: false,
-                        floatingToggled: (v) => selectionEnabled.value = v,
                         alignment: _fromMe
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
@@ -1598,33 +1621,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            child,
-                            if (avatars.isNotEmpty)
-                              Transform.translate(
-                                offset: Offset(-12, -widget.margin.bottom),
-                                child: WidgetButton(
-                                  onPressed: () => ChatItemReads.show(
-                                    context,
-                                    reads: widget.reads,
-                                    getUser: widget.getUser,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: avatars,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        child: const SizedBox(),
                       ),
                     ),
                   );
