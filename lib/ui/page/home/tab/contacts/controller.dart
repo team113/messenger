@@ -22,6 +22,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -80,6 +81,9 @@ class ContactsTabController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   late final Rx<Timer?> timer;
+
+  final RxBool selecting = RxBool(false);
+  final RxList<ChatContactId> selectedContacts = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -231,6 +235,20 @@ class ContactsTabController extends GetxController {
   void toggleSorting() {
     _settingsRepository.setSortContactsByName(!sortByName);
     _sortContacts();
+  }
+
+  void toggleSelecting() {
+    selecting.toggle();
+    selectedContacts.clear();
+    router.navigation.value = !selecting.value;
+  }
+
+  void selectContact(RxChatContact e) {
+    if (selectedContacts.contains(e.id)) {
+      selectedContacts.remove(e.id);
+    } else {
+      selectedContacts.add(e.id);
+    }
   }
 
   /// Enables and initializes or disables and disposes the [search].

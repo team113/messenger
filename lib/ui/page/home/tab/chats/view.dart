@@ -18,6 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
@@ -850,13 +852,95 @@ class ChatsTabView extends StatelessWidget {
   }
 
   Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+    bool clear = false;
+
+    Widget dot(bool selected) {
+      return SizedBox(
+        width: 30,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: selected
+              ? CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  radius: 11,
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFD7D7D7),
+                      width: 1,
+                    ),
+                  ),
+                  width: 22,
+                  height: 22,
+                ),
+        ),
+      );
+    }
+
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chats'.l10n,
       description: [
         TextSpan(
-          text:
-              '${c.selectedChats.length} чатов будет скрыто. Продолжить?'.l10n,
+          text: 'Чаты (${c.selectedChats.length}) будут удалены. Продолжить?'
+              .l10n,
         ),
+      ],
+      additional: [
+        const SizedBox(height: 21),
+        StatefulBuilder(builder: (context, setState) {
+          return FieldButton(
+            text: 'Очистить чаты',
+            onPressed: () => setState(() => clear = !clear),
+            trailing: dot(clear),
+          );
+
+          return Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: clear
+                ? style.cardSelectedColor.withOpacity(0.8)
+                : style.cardColor.darken(0.05),
+            child: InkWell(
+              onTap: () => setState(() => clear = !clear),
+              borderRadius: style.cardRadius,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: Colors.black),
+                        child: const Text(
+                          'Очистить чаты',
+                          // style: thin,
+                        ),
+                      ),
+                    ),
+                    IgnorePointer(
+                      child: dot(clear),
+                      // child: Radio<ConfirmDialogVariant>(
+                      //   value: variant,
+                      //   groupValue: _variant,
+                      //   onChanged: null,
+                      // ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        })
       ],
     );
 

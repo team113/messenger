@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/field_button.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/skeleton_container.dart';
 import 'package:messenger/util/message_popup.dart';
 // import 'package:shimmer/shimmer.dart';
@@ -232,8 +233,8 @@ class RecentChatTile extends StatelessWidget {
             ContextMenuButton(
               key: const Key('ButtonHideChat'),
               label: PlatformUtils.isMobile
-                  ? 'btn_hide'.l10n
-                  : 'btn_hide_chat'.l10n,
+                  ? 'btn_delete'.l10n
+                  : 'btn_delete_chat'.l10n,
               onPressed: () => _hideChat(context),
               trailing: const Icon(Icons.delete),
             ),
@@ -764,15 +765,97 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
+    final Style style = Theme.of(context).extension<Style>()!;
+    bool clear = false;
+
+    Widget dot(bool selected) {
+      return SizedBox(
+        width: 30,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: selected
+              ? CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  radius: 11,
+                  child: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFD7D7D7),
+                      width: 1,
+                    ),
+                  ),
+                  width: 22,
+                  height: 22,
+                ),
+        ),
+      );
+    }
+
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
           text: rxChat.title.value,
           style: const TextStyle(color: Colors.black),
         ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 21),
+        StatefulBuilder(builder: (context, setState) {
+          return FieldButton(
+            text: 'Очистить чат',
+            onPressed: () => setState(() => clear = !clear),
+            trailing: dot(clear),
+          );
+
+          return Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: clear
+                ? style.cardSelectedColor.withOpacity(0.8)
+                : style.cardColor.darken(0.05),
+            child: InkWell(
+              onTap: () => setState(() => clear = !clear),
+              borderRadius: style.cardRadius,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: Colors.black),
+                        child: const Text(
+                          'Очистить чат',
+                          // style: thin,
+                        ),
+                      ),
+                    ),
+                    IgnorePointer(
+                      child: dot(clear),
+                      // child: Radio<ConfirmDialogVariant>(
+                      //   value: variant,
+                      //   groupValue: _variant,
+                      //   onChanged: null,
+                      // ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        })
       ],
     );
 
