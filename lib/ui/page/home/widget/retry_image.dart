@@ -186,7 +186,7 @@ class _RetryImageState extends State<RetryImage> {
                 }
               },
               options: Options(responseType: ResponseType.bytes),
-                cancelToken: _cancelToken,
+              cancelToken: _cancelToken,
             );
           } on DioError catch (e) {
             if (e.response?.statusCode == 403) {
