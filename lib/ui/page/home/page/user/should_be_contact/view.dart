@@ -893,7 +893,7 @@ class UserView extends StatelessWidget {
             child: IgnorePointer(
               child: ReactiveTextField(
                 state: TextFieldState(
-                  text: 'Очистить чат',
+                  text: 'label_clear_history'.l10n,
                   editable: false,
                 ),
                 trailing: Transform.translate(

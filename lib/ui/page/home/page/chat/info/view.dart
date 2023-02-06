@@ -712,7 +712,7 @@ class ChatInfoView extends StatelessWidget {
         _dense(
           FieldButton(
             onPressed: () => _clearChat(c, context),
-            text: 'btn_clear_chat'.l10n,
+            text: 'btn_clear_history'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
               child: Transform.scale(
@@ -833,7 +833,7 @@ class ChatInfoView extends StatelessWidget {
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_clear_chat'.l10n,
+      'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(

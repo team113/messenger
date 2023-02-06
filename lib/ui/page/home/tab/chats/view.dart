@@ -897,7 +897,7 @@ class ChatsTabView extends StatelessWidget {
         const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
           return FieldButton(
-            text: 'Очистить чаты',
+            text: 'btn_clear_history'.l10n,
             onPressed: () => setState(() => clear = !clear),
             trailing: dot(clear),
           );

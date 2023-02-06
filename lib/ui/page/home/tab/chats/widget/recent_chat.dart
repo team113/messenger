@@ -812,7 +812,7 @@ class RecentChatTile extends StatelessWidget {
         const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
           return FieldButton(
-            text: 'Очистить чат',
+            text: 'btn_clear_history'.l10n,
             onPressed: () => setState(() => clear = !clear),
             trailing: dot(clear),
           );

@@ -334,7 +334,7 @@ class UserView extends StatelessWidget {
           onPressed: () => _hideChat(c, context),
         ),
         action(
-          text: 'btn_clear_chat'.l10n,
+          text: 'btn_clear_history'.l10n,
           trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
           onPressed: () => _clearChat(c, context),
         ),
@@ -609,7 +609,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
   Future<void> _clearChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_clear_chat'.l10n,
+      'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
