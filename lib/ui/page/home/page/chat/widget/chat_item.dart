@@ -824,9 +824,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         onSelectionChanged: (s) =>
                             selectedText.value = s?.plainText ?? '',
                         enabled: PlatformUtils.isDesktop ? true : v,
-                        child: Text(text,
-                            key: Key('MyMessage_${widget.item.value.id}'),
-                            style: style.boldBody),
+                        child: Text(
+                          text,
+                          key: Key('MyMessage_${widget.item.value.id}'),
+                          style: style.boldBody,
+                        ),
                       ),
                     ),
                   ),
@@ -1254,7 +1256,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool) child, {
+    Widget Function(bool v) child, {
     double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
@@ -1437,7 +1439,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       key: Key('Message_${item.id}'),
                       type: MaterialType.transparency,
                       child: ContextMenuRegion(
-                        childBuilder: (v) {
+                        builder: (v) {
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -1623,7 +1625,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                         ],
-                        child: const SizedBox(),
                       ),
                     ),
                   );

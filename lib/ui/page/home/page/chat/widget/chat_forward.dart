@@ -595,10 +595,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 onSelectionChanged: (s) =>
                     selectedText.value = s?.plainText ?? '',
                 enabled: PlatformUtils.isDesktop ? true : v,
-                child: Text(
-                  item.text!.val,
-                  style: style.boldBody,
-                ),
+                child: Text(item.text!.val, style: style.boldBody),
               ),
             ),
           ),
@@ -682,7 +679,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
-    Widget Function(bool) child,
+    Widget Function(bool v) child,
   ) {
     ChatItem? item = widget.note.value?.value;
 
@@ -848,7 +845,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           alignment: _fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
-                          childBuilder: (v) {
+                          builder: (v) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -994,7 +991,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                           ],
-                          child: const SizedBox(),
                         ),
                       ),
                     ),

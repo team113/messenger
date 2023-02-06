@@ -32,7 +32,7 @@ import '/ui/widget/context_menu/menu.dart';
 /// Animated context menu optimized and decorated for mobile screens.
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
-    Key? key,
+    super.key,
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
@@ -40,7 +40,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     this.onOpened,
     this.onClosed,
-  }) : super(key: key);
+  });
 
   /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
@@ -58,10 +58,10 @@ class FloatingContextMenu extends StatefulWidget {
   /// Margin to apply to this [FloatingContextMenu].
   final EdgeInsets margin;
 
-  /// Callback, called when a [FloatingContextMenu] opens.
+  /// Callback, called when this [FloatingContextMenu] opens.
   final void Function()? onOpened;
 
-  /// Callback, called when a [FloatingContextMenu] closes.
+  /// Callback, called when this [FloatingContextMenu] closes.
   final void Function()? onClosed;
 
   @override
