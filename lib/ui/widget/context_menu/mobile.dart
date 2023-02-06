@@ -40,6 +40,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     this.onOpened,
     this.onClosed,
+    this.unconstrained = false,
   });
 
   /// [Widget] this [FloatingContextMenu] is about.
@@ -64,6 +65,9 @@ class FloatingContextMenu extends StatefulWidget {
   /// Callback, called when this [FloatingContextMenu] closes.
   final void Function()? onClosed;
 
+  /// Indicator whether the [child] should be unconstrained.
+  final bool unconstrained;
+
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
 }
@@ -75,7 +79,10 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   OverlayEntry? _entry;
 
   /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
-  final GlobalKey _key = GlobalKey();
+  final GlobalKey _globalKey = GlobalKey();
+
+  /// [GlobalKey] of the [FloatingContextMenu.actions] to get their height.
+  final GlobalKey _actionsKey = GlobalKey();
 
   /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
   Rect? _rect;
@@ -92,7 +99,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
       behavior: HitTestBehavior.translucent,
       onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
-        key: _key,
+        key: _globalKey,
         child: _entry == null || !widget.moveDownwards
             ? widget.child
             : SizedBox(
@@ -108,14 +115,16 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     HapticFeedback.selectionClick();
 
     widget.onOpened?.call();
-    _rect = _key.globalPaintBounds;
+    _rect = _globalKey.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
-        globalKey: _key,
+        globalKey: _globalKey,
+        actionsKey: _actionsKey,
         alignment: widget.alignment,
         actions: widget.actions,
         showAbove: !widget.moveDownwards,
         margin: widget.margin,
+        unconstrained: widget.unconstrained,
         onClosed: () {
           widget.onClosed?.call();
           _entry?.remove();
@@ -140,11 +149,13 @@ class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
     required this.globalKey,
+    required this.actionsKey,
     required this.actions,
     required this.alignment,
     required this.showAbove,
     required this.margin,
     this.onClosed,
+    this.unconstrained = false,
     Key? key,
   }) : super(key: key);
 
@@ -153,6 +164,9 @@ class _AnimatedMenu extends StatefulWidget {
 
   /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
+
+  /// [GlobalKey] of the [actions].
+  final GlobalKey actionsKey;
 
   /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
@@ -170,6 +184,9 @@ class _AnimatedMenu extends StatefulWidget {
   /// Margin to apply to this [_AnimatedMenu].
   final EdgeInsets margin;
 
+  /// Indicator whether the [child] should be unconstrained.
+  final bool unconstrained;
+
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
@@ -182,6 +199,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// [Rect] of the [_AnimatedMenu.child].
   late Rect _bounds;
+
+  /// [Rect] of the [_AnimatedMenu.actions].
+  Rect? _actionsBounds;
 
   @override
   void initState() {
@@ -207,6 +227,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       ..forward();
 
     _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _actionsBounds = widget.actionsKey.globalPaintBounds;
+    });
+
     super.initState();
   }
 
@@ -268,10 +292,14 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               left: false,
                               bottom: false,
                               child: Padding(
-                                padding: EdgeInsets.only(left: _bounds.left),
-                                child: SizedBox(
-                                  width: _bounds.width,
-                                  height: _bounds.height,
+                                padding: EdgeInsets.only(left:widget.unconstrained ? 10 : _bounds.left,
+                                ),child: SizedBox(
+                                  width: widget.unconstrained
+                                      ? null
+                                      :_bounds.width,
+                                  height: widget.unconstrained
+                                      ? null
+                                      :_bounds.height,
                                   child: widget.child,
                                 ),
                               ),
@@ -284,16 +312,29 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   else ...[
                     if (!widget.showAbove)
                       Positioned(
-                        left: _bounds.left,
-                        width: _bounds.width,
-                        height: _bounds.height,
+                        left: widget.unconstrained
+                            ? (10 * _fading.value +
+                                _bounds.left * (1 - _fading.value))
+                            : _bounds.left,
+                        width: widget.unconstrained
+                            ? (_bounds.width +
+                                    (constraints.maxWidth - _bounds.width) *
+                                        _fading.value) -
+                                (20 * _fading.value)
+                            : _bounds.width,
+                        height: widget.unconstrained
+                            ? (_bounds.height +
+                                (constraints.maxHeight / 2 - _bounds.height) *
+                                    _fading.value)
+                            : _bounds.height,
                         bottom: (1 - _fading.value) *
                                 (constraints.maxHeight -
                                     _bounds.top -
                                     _bounds.height) +
                             (10 +
                                     router.context!.mediaQueryPadding.bottom +
-                                    widget.actions.length * 50) *
+                                    (_actionsBounds?.height ??
+                                        widget.actions.length * 50)) *
                                 _fading.value,
                         child: IgnorePointer(child: widget.child),
                       ),
@@ -340,6 +381,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           right: width - minWidth - 8,
         );
       }
+    } else if (widget.unconstrained) {
+      padding = const EdgeInsets.only(left: 0, right: 0);
     } else {
       padding = EdgeInsets.only(
         left: max(0, _bounds.left - 10),
@@ -356,6 +399,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           child: FadeTransition(
             opacity: fade,
             child: Padding(
+              key: widget.actionsKey,
               padding: EdgeInsets.only(
                 bottom: 10 + router.context!.mediaQueryPadding.bottom,
               ),

@@ -46,6 +46,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
+    this.unconstrained = false,
   });
 
   /// Widget to wrap this region over.
@@ -98,6 +99,9 @@ class ContextMenuRegion extends StatefulWidget {
   /// Indicator whether this [ContextMenuRegion] should display a [ColoredBox]
   /// above the [child] when a [ContextMenu] is opened.
   final bool indicateOpenedMenu;
+
+  /// Indicator whether the [child] should be unconstrained.
+  final bool unconstrained;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -165,6 +169,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   moveDownwards: widget.moveDownwards,
                   actions: widget.actions,
                   margin: widget.margin,
+                  unconstrained: widget.unconstrained,
                   onOpened: () => _displayed = true,
                   onClosed: () => _displayed = false,
                   child: widget.builder == null

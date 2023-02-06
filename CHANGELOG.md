@@ -47,7 +47,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#319], [#316], [#287], [#246])
+        - Redesigned mobile interface. ([#340], [#319], [#316], [#287], [#246])
         - Redesigned settings. ([#293], [#283])
         - Rounded secondary panel. ([#300], [#292])
         - Redesigned participants modal. ([#332], [#328])
@@ -171,6 +171,7 @@ All user visible changes to this project will be documented in this file. This p
 [#332]: /../../pull/332
 [#336]: /../../pull/336
 [#337]: /../../pull/337
+[#340]: /../../pull/340
 
 
 
