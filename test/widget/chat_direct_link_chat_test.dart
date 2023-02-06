@@ -53,7 +53,6 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -123,7 +122,7 @@ void main() async {
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null))
+  when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
   AuthService authService =
@@ -179,7 +178,7 @@ void main() async {
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatVersion('0'),
+      any,
     )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
@@ -251,7 +250,7 @@ void main() async {
       },
     );
 
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,

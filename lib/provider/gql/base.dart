@@ -441,7 +441,7 @@ class SubscriptionConnection {
       _addonController.addError(error, stackTrace);
 }
 
-/// Wrapper around a [StreamIterator], representing an ongoing GraphQL
+/// Wrapper around a subscription stream, representing an ongoing GraphQL
 /// subscription.
 class SubscriptionHandle {
   SubscriptionHandle(
@@ -463,7 +463,7 @@ class SubscriptionHandle {
   /// Callback called to initialize the subscription.
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _subscribe;
 
-  /// Callback called when need to acquire a relevant version.
+  /// Callback called when a relevant version is requested.
   final Version? Function()? getVersion;
 
   /// Callback called when an error is captured.

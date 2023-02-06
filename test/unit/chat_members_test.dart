@@ -40,7 +40,6 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -186,7 +185,7 @@ void main() async {
 
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null))
+  when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
@@ -249,12 +248,12 @@ void main() async {
 
   when(graphQlProvider.chatEvents(
     const ChatId('fc95f181-ae23-41b7-b246-5d6bdbe577a1'),
-    ChatVersion('0'),
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('c36343e2-e8af-4d55-9982-38ba68d2b785'),
-    ChatVersion('0'),
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   ChatService chatService = await init(graphQlProvider);

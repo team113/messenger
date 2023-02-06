@@ -100,7 +100,7 @@ void main() async {
   test(
       'MyUserService successfully adds and removes gallery items, avatar and call cover',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
@@ -315,7 +315,7 @@ void main() async {
   test(
       'MyUserService throws UploadUserGalleryItemException, UpdateUserAvatarException, UpdateUserCallCoverException',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,

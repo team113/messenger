@@ -93,7 +93,7 @@ void main() async {
   Get.put(sessionProvider);
 
   test('MyUserService successfully mutes and unmutes MyUser', () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
@@ -106,7 +106,7 @@ void main() async {
     );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+    when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
       (_) => const Stream.empty(),
     );
 
@@ -160,7 +160,7 @@ void main() async {
 
   test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,

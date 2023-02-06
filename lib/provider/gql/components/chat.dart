@@ -499,19 +499,19 @@ abstract class ChatGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// If `ver` argument is not specified (or is `null`) an initial state of the
   /// [Chat] will be emitted after `SubscriptionInitialized` and before any
   /// other [ChatEvent]s (and won't be emitted ever again until this
   /// subscription completes). This allows to skip doing [getChat] (or
   /// [recentChats]) before establishing this subscription.
   ///
-  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// If the specified `ver` is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
   /// initialization. In such case:
   /// - either a fresh version should be obtained via [getChat] (or
   /// [recentChats]);
-  /// - or a re-subscription should be done without specifying a [ver] argument
-  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// - or a re-subscription should be done without specifying a `ver` argument
+  /// (so the fresh `ver` may be obtained in the emitted initial state of the
   /// [Chat]).
   ///
   /// ### Completion
@@ -1216,18 +1216,18 @@ abstract class ChatGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// If `ver` argument is not specified (or is `null`) an initial state of the
   /// favorite [Chat]s list will be emitted after `SubscriptionInitialized` and
   /// before any other [FavoriteChatsEvents] (and won't be emitted ever again
   /// until this subscription completes). This allows to skip doing
   /// `Query.favoriteChats` before establishing this subscription.
   ///
-  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// If the specified `ver` is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
   /// initialization. In such case:
   /// - either a fresh version should be obtained via `Query.favoriteChats`;
-  /// - or a re-subscription should be done without specifying a [ver] argument
-  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// - or a re-subscription should be done without specifying a `ver` argument
+  /// (so the fresh `ver` may be obtained in the emitted initial state of the
   /// favorite [Chat]s list).
   ///
   /// ### Completion

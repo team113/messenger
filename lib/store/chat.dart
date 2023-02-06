@@ -142,6 +142,7 @@ class ChatRepository implements AbstractChatRepository {
     _initLocalSubscription();
     _initDraftSubscription();
 
+    // TODO: Should be called with backoff algorithm.
     HashMap<ChatId, ChatData> chats = await _recentChats();
 
     for (HiveChat c in _chatLocal.chats) {
@@ -1077,7 +1078,6 @@ class ChatRepository implements AbstractChatRepository {
   /// Fetches __all__ [HiveChat]s from the remote.
   Future<HashMap<ChatId, ChatData>> _recentChats() async {
     const maxInt = 120;
-    // TODO: Should be called with backoff algorithm.
     RecentChats$Query$RecentChats query =
         (await _graphQlProvider.recentChats(first: maxInt)).recentChats;
 
@@ -1236,7 +1236,8 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Subscribes to the [FavoriteChatsEvent]s of all [chats].
   Stream<FavoriteChatsEvents> _favoriteChatsEvents(
-          FavoriteChatsListVersion? Function() getVersion) =>
+    FavoriteChatsListVersion? Function() getVersion,
+  ) =>
       _graphQlProvider
           .favoriteChatsEvents(getVersion)
           .asyncExpand((event) async* {

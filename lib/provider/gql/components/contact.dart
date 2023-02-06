@@ -162,20 +162,20 @@ abstract class ContactGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// If `ver` argument is not specified (or is `null`) an initial state of the
   /// [ChatContact]s list will be emitted after `SubscriptionInitialized` and
   /// before any other [ChatContactEvent]s (and won't be emitted ever again
   /// until this subscription completes). This allows to skip doing
   /// [chatContacts] (or `Query.favoriteChatContacts`) before establishing this
   /// subscription.
   ///
-  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// If the specified `ver` is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
   /// initialization. In such case:
   /// - either a fresh version should be obtained via [chatContacts] (or
   /// `Query.favoriteChatContacts`);
-  /// - or a re-subscription should be done without specifying a [ver] argument
-  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// - or a re-subscription should be done without specifying a `ver` argument
+  /// (so the fresh `ver` may be obtained in the emitted initial state of the
   /// [ChatContact]s list).
   ///
   /// ### Completion

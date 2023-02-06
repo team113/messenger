@@ -97,7 +97,7 @@ void main() async {
   test(
       'MyUserService successfully adds, removes, confirms email and resends confirmation code',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
@@ -214,7 +214,7 @@ void main() async {
   test(
       'MyUserService throws AddUserEmailException, ResendUserEmailConfirmationException, ConfirmUserEmailException',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,

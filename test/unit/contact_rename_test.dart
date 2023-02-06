@@ -56,7 +56,7 @@ void main() async {
   await chatHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.favoriteChatsEvents(null))
+  when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
   setUp(() async {
@@ -116,7 +116,7 @@ void main() async {
   }
 
   test('ContactService successfully renames contact', () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
@@ -170,7 +170,7 @@ void main() async {
 
   test('ContactService throws UpdateChatContactNameException on contact rename',
       () async {
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,

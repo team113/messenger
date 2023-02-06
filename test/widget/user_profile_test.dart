@@ -51,9 +51,6 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/model/contact.dart';
-import 'package:messenger/store/model/my_user.dart';
-import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -128,7 +125,7 @@ void main() async {
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
+  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
     (_) => const Stream.empty(),
   );
   AuthService authService =
@@ -194,7 +191,7 @@ void main() async {
       (WidgetTester tester) async {
     final StreamController<QueryResult> contactEvents = StreamController();
     when(
-      graphQlProvider.contactsEvents(ChatContactsListVersion('0')),
+      graphQlProvider.contactsEvents(any),
     ).thenAnswer((_) => contactEvents.stream);
 
     when(graphQlProvider.recentChatsTopEvents(3))
@@ -210,7 +207,7 @@ void main() async {
     )).thenAnswer((_) =>
         Future.value((Contacts$Query.fromJson(chatContactsData).chatContacts)));
 
-    when(graphQlProvider.myUserEvents(MyUserVersion('0'))).thenAnswer(
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => const Stream.empty(),
     );
 
@@ -232,15 +229,15 @@ void main() async {
       (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
     );
 
-    when(graphQlProvider.contactsEvents(null))
+    when(graphQlProvider.contactsEvents(any))
         .thenAnswer((realInvocation) => const Stream.empty());
 
-    when(graphQlProvider.myUserEvents(null))
+    when(graphQlProvider.myUserEvents(any))
         .thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.userEvents(
       const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
-      UserVersion('1'),
+      any,
     )).thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
@@ -254,7 +251,7 @@ void main() async {
 
     final StreamController<QueryResult> myUserEvents = StreamController();
     when(
-      graphQlProvider.myUserEvents(MyUserVersion('0')),
+      graphQlProvider.myUserEvents(any),
     ).thenAnswer((_) => myUserEvents.stream);
 
     when(graphQlProvider.createChatContact(
