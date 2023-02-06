@@ -16,7 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -31,7 +33,6 @@ import '../world/custom_world.dart';
 
 Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
   const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
-  // RenderMouseRegion kek = RenderMouseRegion();
   final Offset localOffset =
       paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
   return paragraph.localToGlobal(localOffset);
@@ -55,15 +56,31 @@ final StepDefinitionGeneric selectText = when1<String, CustomWorld>(
 
     Finder finder = context.world.appDriver
         .findByKeySkipOffstage('MyMessage_${message.id}');
-    final RenderParagraph paragraph = context.world.appDriver.nativeDriver
-        .renderObject<RenderParagraph>(finder);
+    final RenderParagraph paragraph =
+        context.world.appDriver.nativeDriver.renderObject<RenderParagraph>(
+      find.descendant(
+        of: finder,
+        matching: find.byType(RichText, skipOffstage: false),
+        skipOffstage: false,
+      ),
+      // context.world.appDriver.findByDescendant(
+      //   finder,
+      //   context.world.appDriver.findBy(RichText, FindType.type),
+      //   matchRoot: true,
+      // ),
+    );
+    print(paragraph);
 
     final TestGesture gesture = await context.world.appDriver.nativeDriver
         .startGesture(textOffsetToPosition(paragraph, 2),
             kind: PointerDeviceKind.mouse);
-    addTearDown(gesture.removePointer);
     await context.world.appDriver.nativeDriver.pump();
 
-    await gesture.moveTo(textOffsetToPosition(paragraph, 4));
+    await gesture.moveTo(textOffsetToPosition(paragraph, 10));
+
+    await gesture.up();
+
+    await context.world.appDriver.nativeDriver.pump();
+    await gesture.removePointer();
   },
 );

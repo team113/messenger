@@ -1388,10 +1388,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   key: Key('MessageStatus_${item.id}'),
                   padding: const EdgeInsets.only(top: 16),
-                  child: AnimatedDelayedSwitcher(
-                    delay: item.status.value == SendingStatus.sending
-                        ? const Duration(seconds: 2)
-                        : Duration.zero,
+                  child: Container(
+                    // delay: item.status.value == SendingStatus.sending
+                    //     ? const Duration(seconds: 2)
+                    //     : Duration.zero,
                     child: item.status.value == SendingStatus.sending
                         ? const Padding(
                             key: Key('Sending'),

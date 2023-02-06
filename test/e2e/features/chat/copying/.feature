@@ -29,9 +29,9 @@ Feature: Chat items are deleted correctly
     Then I wait until status of "For deletion" message is sent
 
     When I select "For deletion" text
-    Then I pause for 5 seconds
+#    Then I pause for 5 seconds
     When I long press "For deletion" message
-    Then I pause for 5 seconds
+#    Then I pause for 5 seconds
     And I tap `Delete` button
     And I tap `DeleteForAll` button
     And I tap `Proceed` button

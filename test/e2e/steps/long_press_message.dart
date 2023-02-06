@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -47,7 +48,16 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
     Finder finder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
-    await context.world.appDriver.nativeDriver.longPress(finder);
+    // await context.world.appDriver.nativeDriver.longPress(finder);
+    final TestGesture gesture = await context.world.appDriver.nativeDriver
+        .startGesture(
+            context.world.appDriver.nativeDriver
+                .getTopRight(finder)
+                .translate(-10, 10),
+            kind: PointerDeviceKind.mouse);
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 1));
+    // await gesture.up();
+    await gesture.removePointer();
     await context.world.appDriver.waitForAppToSettle();
   },
 );

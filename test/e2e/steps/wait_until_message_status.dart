@@ -55,20 +55,20 @@ final StepDefinitionGeneric waitUntilMessageStatus =
 
         if (await context.world.appDriver.isPresent(finder)) {
           return status == SendingStatus.sending
-              ? context.world.appDriver.isPresent(
+              ? await context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,
                     context.world.appDriver.findByKeySkipOffstage('Sending'),
                   ),
                 )
               : status == SendingStatus.error
-                  ? context.world.appDriver.isPresent(
+                  ? await context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,
                         context.world.appDriver.findByKeySkipOffstage('Error'),
                       ),
                     )
-                  : context.world.appDriver.isPresent(
+                  : await context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,
                         context.world.appDriver.findByKeySkipOffstage('Sent'),
